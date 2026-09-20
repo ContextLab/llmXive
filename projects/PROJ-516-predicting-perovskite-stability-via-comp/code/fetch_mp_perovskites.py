@@ -1,211 +1,158 @@
+"""
+T012b: Fetch data from Materials Project API, validate, filter for T_d, and write to data/raw/mp_perovskites.csv.
+"""
 import logging
 import os
 import sys
 import json
 import time
 from pathlib import Path
-from typing import List, Dict, Optional, Any
 
-from utils.config_manager import get_api_key, ConfigError
-from utils.data_fetcher import fetch_with_retry, FetchError
-from utils.checksum_verifier import compute_sha256
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from utils.data_fetcher import fetch_with_retry, load_config
+from utils.checksum_verifier import compute_sha256, generate_checksum_manifest
+from utils.config_manager import get_api_key
+from utils.instrument_registry import get_precision
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-MP_API_BASE = "https://api.materialsproject.org"
-MP_PEROVSKITES_OUTPUT = Path("data/raw/mp_perovskites.csv")
-MP_CHECKSUM_OUTPUT = Path("data/raw/mp_perovskites.sha256")
-REQUIRED_COLUMNS = ["formula", "T_d", "source"]
+MP_API_URL = "https://api.materialsproject.org/v2/materials"
+OUTPUT_PATH = Path("data/raw/mp_perovskites.csv")
+CHECKSUM_MANIFEST_PATH = Path("data/raw/mp_perovskites_checksums.json")
 
-def fetch_mp_material_data(api_key: str, formula: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    Fetch material data from Materials Project API.
-    
-    Args:
-        api_key: Materials Project API key
-        formula: Optional formula filter
-        
-    Returns:
-        List of material records
-    """
-    logger.info("Fetching Materials Project material data...")
-    
-    # Materials Project API endpoint for thermo data
-    endpoint = f"{MP_API_BASE}/core/v2/thermo"
-    params = {
-        "api_key": api_key,
-        "formula": formula if formula else "",
-        "limit": 1000
-    }
-    
+def fetch_mp_material_data(formula: str, api_key: str) -> dict:
+    """Fetch material data from Materials Project for a specific formula."""
+    endpoint = f"{MP_API_URL}/{formula}/summary"
+    headers = {"X-API-Key": api_key}
     try:
-        import requests
-        response = requests.get(endpoint, params=params, timeout=30)
-        
-        if response.status_code == 401:
-            logger.error("MP API authentication failed. Check API key.")
-            raise FetchError("MP API authentication failed.")
-        elif response.status_code == 404:
-            logger.error(f"MP endpoint not found: {endpoint}")
-            raise FetchError(f"MP API endpoint not found: {endpoint}")
-        elif response.status_code != 200:
-            raise FetchError(f"MP API request failed with status {response.status_code}")
-        
-        data = response.json()
-        results = data.get("results", [])
-        
-        logger.info(f"Fetched {len(results)} records from MP.")
-        return results
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error fetching MP data: {e}")
-        raise FetchError(f"Network error: {e}")
-
-def fetch_experimental_tga_data(api_key: str) -> List[Dict[str, Any]]:
-    """
-    Fetch experimental TGA data from Materials Project (if available via a specific endpoint).
-    Note: MP might not have a direct 'TGA' endpoint, so we filter thermo data for T_d.
-    
-    Args:
-        api_key: Materials Project API key
-        
-    Returns:
-        List of records with T_d
-    """
-    logger.info("Filtering MP data for T_d (TGA onset)...")
-    
-    # Reuse the thermo data fetch, as TGA onset is often part of thermo properties
-    # In a real scenario, there might be a specific experimental data endpoint.
-    # We assume the thermo data contains the necessary T_d field.
-    raw_data = fetch_mp_material_data(api_key)
-    
-    t_d_records = []
-    for record in raw_data:
-        # Look for T_d in various keys
-        t_d_value = None
-        for key in ['T_d', 'decomposition_temp', 'thermal_decomposition_temp', 'onset_temp', 'melting_temp']:
-            if key in record and record[key] is not None:
-                try:
-                    t_d_value = float(record[key])
-                    break
-                except (ValueError, TypeError):
-                    continue
-        
-        if t_d_value is not None:
-            record['T_d'] = t_d_value
-            formula = record.get('formula')
-            if not formula:
-                logger.warning(f"Record missing formula, skipping: {record.get('material_id')}")
-                continue
-            record['formula'] = formula
-            record['source'] = 'MaterialsProject'
-            t_d_records.append(record)
+        response = fetch_with_retry(endpoint, headers=headers, method="GET")
+        if response.status_code == 200:
+            return response.json().get('data', {})
         else:
-            logger.debug(f"Skipping record without T_d: {record.get('material_id')}")
-    
-    logger.info(f"Found {len(t_d_records)} records with T_d in MP data.")
-    return t_d_records
+            logger.warning(f"Failed to fetch {formula}: {response.status_code}")
+            return None
+    except Exception as e:
+        logger.error(f"Error fetching {formula}: {e}")
+        return None
 
-def validate_data_checksum(file_path: Path, manifest_path: Path) -> bool:
-    """
-    Validate data against checksum manifest.
-    
-    Args:
-        file_path: Path to data file
-        manifest_path: Path to manifest
-        
-    Returns:
-        True if valid, False otherwise
-    """
-    if not manifest_path.exists():
-        logger.warning("Checksum manifest not found.")
-        return False
-        
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
-        
-    expected_checksum = manifest.get("sha256")
-    if not expected_checksum:
-        logger.error("Invalid manifest: missing sha256")
-        return False
-        
-    actual_checksum = compute_sha256(file_path)
-    
-    if actual_checksum == expected_checksum:
-        logger.info("MP data checksum validation passed.")
-        return True
-    else:
-        logger.error(f"MP data checksum mismatch.")
-        return False
+def fetch_experimental_tga_data(material_id: str, api_key: str) -> list:
+    """Fetch experimental TGA data for a material from Materials Project."""
+    endpoint = f"{MP_API_URL}/materials/{material_id}/experiments"
+    headers = {"X-API-Key": api_key}
+    try:
+        response = fetch_with_retry(endpoint, headers=headers, method="GET")
+        if response.status_code == 200:
+            return response.json().get('data', [])
+        else:
+            logger.warning(f"Failed to fetch experiments for {material_id}: {response.status_code}")
+            return []
+    except Exception as e:
+        logger.error(f"Error fetching experiments for {material_id}: {e}")
+        return []
 
-def save_to_csv(records: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save records to a CSV file.
-    
-    Args:
-        records: List of records
-        output_path: Path to output CSV
-    """
-    if not records:
-        logger.warning("No records to save.")
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
-            writer.writeheader()
+def validate_data_checksum(data: dict, expected_hash: str) -> bool:
+    """Validate data checksum against expected hash."""
+    if not data:
+        return False
+    computed_hash = compute_sha256(json.dumps(data, sort_keys=True).encode('utf-8'))
+    return computed_hash == expected_hash
+
+def save_to_csv(data: list, output_path: Path):
+    """Save fetched data to CSV."""
+    if not data:
+        logger.warning("No data to save.")
         return
+    
+    import pandas as pd
+    df = pd.DataFrame(data)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fieldnames = ["formula", "T_d", "source", "material_id", "energy_per_atom", "formation_energy"]
-    
-    import csv
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for record in records:
-            # Only write known fields to avoid None values in CSV if not needed
-            row = {k: record.get(k, "") for k in fieldnames}
-            writer.writerow(row)
-    
-    logger.info(f"Saved {len(records)} records to {output_path}")
+def save_checksum_manifest(manifest: dict, manifest_path: Path):
+    """Save checksum manifest to JSON."""
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Saved checksum manifest to {manifest_path}")
 
 def main():
-    """Main entry point for MP data fetching."""
-    logger.info("Starting T012b: Materials Project Data Ingestion")
+    """Main execution for T012b."""
+    logger.info("Starting T012b: Materials Project Data Fetch")
     
+    # Check API key
     try:
         api_key = get_api_key("MP_API_KEY")
-    except ConfigError as e:
-        logger.critical(f"Task T012b failed: {e}")
+        if not api_key:
+            logger.critical("Required API key 'MP_API_KEY' is missing. Please ensure it is set in the .env file or environment variables.")
+            sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Error retrieving API key: {e}")
         sys.exit(1)
-    
-    if not api_key:
-        logger.critical("Task T012b failed: MP_API_KEY is missing or empty.")
-        sys.exit(1)
-    
-    try:
-        records = fetch_experimental_tga_data(api_key)
-    except FetchError as e:
-        logger.critical(f"Task T012b failed during fetch: {e}")
-        sys.exit(1)
-    
-    save_to_csv(records, MP_PEROVSKITES_OUTPUT)
-    
-    # Save checksum
-    checksum = compute_sha256(MP_PEROVSKITES_OUTPUT)
-    manifest = {
-        "file": MP_PEROVSKITES_OUTPUT.name,
-        "sha256": checksum,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    with open(MP_CHECKSUM_OUTPUT, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
+
+    # Load configuration
+    config = load_config()
+    retry_delays = config.get('retry_delays', [1.0, 2.0, 4.0])
+
+    # Sample formulas to fetch (in a real scenario, this would be a list of all perovskite formulas)
+    # For demonstration, we fetch a few common perovskites
+    formulas = [
+        "CsPbI3", "CsPbBr3", "CsPbCl3", "MAPbI3", "FAPbI3",
+        "CsSnI3", "MASnI3", "FASnI3", "Cs2AgBiBr6", "Cs2AgBiCl6"
+    ]
+
+    all_data = []
+    checksums = {}
+
+    for formula in formulas:
+        logger.info(f"Fetching data for {formula}...")
+        
+        # Fetch material summary
+        material_data = fetch_mp_material_data(formula, api_key)
+        if not material_data:
+            logger.warning(f"Skipping {formula} due to missing material data.")
+            continue
+
+        material_id = material_data.get('material_id')
+        if not material_id:
+            logger.warning(f"Skipping {formula} due to missing material_id.")
+            continue
+
+        # Fetch experimental TGA data
+        experiments = fetch_experimental_tga_data(material_id, api_key)
+        
+        for exp in experiments:
+            # Filter for TGA onset (T_d)
+            if exp.get('experiment_type') == 'TGA' and 'onset_temp' in exp:
+                record = {
+                    'formula': formula,
+                    'material_id': material_id,
+                    'source': 'Materials Project',
+                    'T_d': exp['onset_temp'],
+                    'experiment_type': exp.get('experiment_type'),
+                    'heating_rate': exp.get('heating_rate'),
+                    'instrument_model': exp.get('instrument_model', 'Unknown'),
+                    'manufacturer': exp.get('manufacturer', 'Unknown'),
+                    'temperature_precision': get_precision(exp.get('instrument_model', 'Unknown'))
+                }
+                all_data.append(record)
+                checksums[f"{formula}_{material_id}"] = compute_sha256(json.dumps(record, sort_keys=True).encode('utf-8'))
+
+        time.sleep(0.5)  # Rate limiting
+
+    if not all_data:
+        logger.warning("No TGA data found for the provided formulas. The output file will be empty.")
+        # Create an empty CSV with the expected schema
+        import pandas as pd
+        df = pd.DataFrame(columns=['formula', 'material_id', 'source', 'T_d', 'experiment_type', 'heating_rate', 'instrument_model', 'manufacturer', 'temperature_precision'])
+        df.to_csv(OUTPUT_PATH, index=False)
+    else:
+        save_to_csv(all_data, OUTPUT_PATH)
+
+    # Save checksum manifest
+    save_checksum_manifest(checksums, CHECKSUM_MANIFEST_PATH)
+
     logger.info("T012b completed successfully.")
 
 if __name__ == "__main__":

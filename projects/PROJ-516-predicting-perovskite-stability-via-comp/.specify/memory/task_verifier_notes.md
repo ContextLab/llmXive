@@ -4,3 +4,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T004** — No `state_manager.py` file was presented, and there is no evidence that SHA‑256 hashes are being computed for derived artifacts or that any `state/...yaml` files have been updated. The required artifact is missing, so the task is not satisfied.
 - **T012a** — declared artifact(s) missing/empty/invalid: data/raw/nrel_perovskites.csv
+- **T012b** — declared artifact(s) missing/empty/invalid: data/raw/mp_perovskites.csv
+- **T012c** — declared artifact(s) missing/empty/invalid: data/raw/nrel_perovskites.csv, data/raw/mp_perovskites.csv
+- **T012e** — declared artifact(s) missing/empty/invalid: data/raw/perovskites_merged.csv

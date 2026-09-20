@@ -1,11 +1,11 @@
 T012:
   c: false
-  h: 42434ab9cab53f850a8f02edd516822d0f13b755dd5ed86c5565cbc61dbb58d5
-  r: The `code/utils/constants.py` file contains no definitions for semantic state
-    proxies nor any logic to read `contracts/coverage.schema.yaml`. Additionally,
-    the required `contracts/coverage.schema.yaml` (or `schema.yaml`) file is missing
-    entirely, so the list of proxies cannot be sourced. Both the constant definitions
-    and the source schema are absent.
+  h: 9a6b83f8e42bfb81e218705458e3bc5b97d8a679f7050dced1b50ac5c993ccec
+  r: The `code/utils/constants.py` file contains a stub `_load_schema_constants()`
+    that attempts to read `contracts/coverage.schema.yaml`, but the required `contracts/coverage.schema.yaml`
+    file is missing, so the semantic proxies cannot be loaded. Additionally, the file
+    does not expose the loaded list as a concrete constant (e.g., a public variable
+    or getter) in the visible portion of the code. The task therefore remains unfinished.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,3 +44,29 @@ T044:
     \ explaining the scheduler trace as required by task T044. The implementer\u2019\
     s claim lacks the actual updated documentation artifact, so the requirement is\
     \ not satisfied."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or documentation for the claimed cleanup and refactoring
+    of `code/scheduler/` and `code/analysis/` are present. The required artifacts
+    (updated source code, refactoring notes, or test results) are missing, so the
+    task is not satisfied.
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test files or code snippets for additional unit tests in `tests/unit/` were
+    provided; without concrete artifacts showing tests for empty batches or malformed
+    data, the requirement cannot be confirmed as satisfied.
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, screenshots, or any other artifact demonstrating that the quickstart.md\
+    \ validation was actually executed on a CPU\u2011only runner and succeeded are\
+    \ present. The required evidence of a successful end\u2011to\u2011end run is missing."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, state\u2011coverage vectors, or analysis reports are present, and there\
+    \ are no checksum files or reproducibility documentation provided. Consequently,\
+    \ the requirement to verify that all artifacts are checksummed and reproducible\
+    \ is not satisfied."

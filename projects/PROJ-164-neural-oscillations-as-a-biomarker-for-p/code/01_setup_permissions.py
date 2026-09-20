@@ -3,81 +3,80 @@ import stat
 import sys
 from pathlib import Path
 
-def set_restricted_permissions(target_path: str) -> bool:
+from utils.config import DATA_RAW
+
+logger = logging.getLogger(__name__)
+
+
+def set_restricted_permissions(path: Path) -> bool:
     """
-    Sets restricted read-execute only permissions (555) on the target directory.
-    
-    This implements T001b: Set restricted write permissions on `data/raw`.
+    Set restricted write permissions (read-execute only: 555) on a directory.
     
     Args:
-        target_path: Relative or absolute path to the directory (e.g., 'data/raw')
+        path: Path to the directory to restrict.
         
     Returns:
         True if permissions were successfully set, False otherwise.
         
     Raises:
-        FileNotFoundError: If the target path does not exist.
-        PermissionError: If the current user cannot modify permissions.
+        FileNotFoundError: If the path does not exist.
+        PermissionError: If the current user lacks permission to change mode.
     """
-    path = Path(target_path)
-    
     if not path.exists():
-        raise FileNotFoundError(f"Target path does not exist: {path}")
-    
+        raise FileNotFoundError(f"Path does not exist: {path}")
+        
     if not path.is_dir():
-        raise NotADirectoryError(f"Target path is not a directory: {path}")
-    
-    # Calculate new mode: Read (4) + Execute (1) for Owner, Group, Others = 555
-    # This removes write (2) permissions for all.
-    new_mode = stat.S_IRUSR | stat.S_IXUSR | \
-               stat.S_IRGRP | stat.S_IXGRP | \
-               stat.S_IROTH | stat.S_IXOTH
-    
+        raise NotADirectoryError(f"Path is not a directory: {path}")
+        
     try:
-        # Apply the mode
-        os.chmod(path, new_mode)
+        # Calculate new mode: remove write bits for user, group, others
+        # Current mode | (S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH)
+        # We want to ensure it is 0o555 (r-xr-xr-x)
+        current_mode = path.stat().st_mode
+        new_mode = current_mode & ~(stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)
+        
+        path.chmod(new_mode)
         
         # Verify the change
-        current_mode = path.stat().st_mode
-        # Mask out file type bits to compare just permission bits
-        perm_bits = current_mode & 0o777
+        final_mode = path.stat().st_mode & 0o777
+        expected_mode = 0o555
         
-        if perm_bits != new_mode:
-            raise PermissionError(
-                f"Failed to set permissions. Expected 555, got {oct(perm_bits)}"
+        if final_mode != expected_mode:
+            logger.warning(
+                f"Permission change resulted in {oct(final_mode)}, "
+                f"expected {oct(expected_mode)}. "
+                f"This may be due to umask or existing sticky bits."
             )
-        
+            # Force exact mode if verification fails
+            path.chmod(0o555)
+            
+        logger.info(f"Successfully set read-execute-only (555) permissions on {path}")
         return True
         
+    except PermissionError as e:
+        logger.error(f"Permission denied when setting permissions on {path}: {e}")
+        raise
     except OSError as e:
-        raise PermissionError(f"Failed to change permissions on {path}: {e}") from e
+        logger.error(f"OS error when setting permissions on {path}: {e}")
+        raise
+
 
 def main():
-    """Entry point for the permission setting script."""
+    """Main entry point for setting restricted permissions on data/raw."""
     import logging
+    from utils.logging_setup import get_logger
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    
-    target = "data/raw"
+    logger = get_logger(__name__)
     
     try:
-        success = set_restricted_permissions(target)
-        if success:
-            logging.info(f"Successfully set read-execute only permissions (555) on {target}")
-            # Verify and log the actual result
-            import stat
-            actual_mode = os.stat(target).st_mode & 0o777
-            logging.info(f"Verified permissions on {target}: {oct(actual_mode)}")
-            sys.exit(0)
-        else:
-            logging.error(f"Failed to set permissions on {target}")
-            sys.exit(1)
+        logger.info(f"Attempting to set restricted permissions on {DATA_RAW}")
+        set_restricted_permissions(DATA_RAW)
+        logger.info("Task T001b completed successfully.")
+        return 0
     except Exception as e:
-        logging.error(f"Error setting permissions: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to set restricted permissions: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

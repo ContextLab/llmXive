@@ -5,255 +5,287 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from existing API surface
-from utils.io_helpers import compute_sha256, load_csv
+from utils.io_helpers import load_json, write_json
 from utils.logging_setup import get_logger
 
 # Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DOCS_DIR = PROJECT_ROOT / "docs"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-MANIFEST_PATH = PROJECT_ROOT / "data" / "verified_source_manifest.json"
-RESULTS_JSON_PATH = PROJECT_ROOT / "data" / "processed" / "results.json"
-RESEARCH_RESULTS_PATH = DOCS_DIR / "research_results.md"
-REPRESENTATIVENESS_REPORT_PATH = DATA_PROCESSED_DIR / "dataset_representativeness.json"
-
-# Thresholds
-MIN_SUBJECTS_THRESHOLD = 50
+SMALL_DATASET_THRESHOLD = 50
+PROJECT_ID = "PROJ-164-neural-oscillations-as-a-biomarker-for-p"
+MANIFEST_PATH = Path("verified_source_manifest.json")
+RAW_DATA_DIR = Path("data/raw")
+RESULTS_PATH = Path("docs/research_results.md")
+RESULTS_JSON_PATH = Path("data/processed/results.json")
 
 logger = get_logger(__name__)
 
-
-def load_manifest(manifest_path: Path) -> Dict[str, Any]:
+def load_manifest(manifest_path: Path = MANIFEST_PATH) -> Dict[str, Any]:
     """Load the verified source manifest."""
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest not found at {manifest_path}")
-    with open(manifest_path, 'r') as f:
-        return json.load(f)
+    return load_json(manifest_path)
 
-
-def extract_subjects_from_raw_files(raw_dir: Path) -> List[str]:
+def extract_subjects_from_raw_files(raw_dir: Path = RAW_DATA_DIR) -> List[str]:
     """
     Extract unique subject IDs from raw data files.
-    Assumes files follow pattern sub-{subject_id}_*.edf or similar.
+    Expected pattern: sub-{subject_id}_run-{run_id}.edf
     """
     subjects = set()
     if not raw_dir.exists():
         logger.warning(f"Raw data directory {raw_dir} does not exist.")
         return list(subjects)
 
-    for file_path in raw_dir.iterdir():
-        if file_path.is_file():
-            name = file_path.stem
-            # Try to extract subject ID from filename
-            # Common patterns: sub-001_run-1.edf, sub-001.edf, 001_run-1.edf
-            if name.startswith("sub-"):
-                parts = name.split("_")
-                if len(parts) >= 1:
-                    sub_id = parts[0].replace("sub-", "")
-                    subjects.add(sub_id)
-            else:
-                # Fallback: use the whole name or first part as subject ID
-                subjects.add(name.split("_")[0])
+    for file_path in raw_dir.glob("sub-*_run-*.edf"):
+        # Extract subject ID from filename
+        # Format: sub-{subject_id}_run-{run_id}.edf
+        parts = file_path.stem.split("_")
+        if len(parts) >= 2 and parts[0].startswith("sub-"):
+            subject_id = parts[0][4:]  # Remove 'sub-' prefix
+            subjects.add(subject_id)
 
-    return list(subjects)
+    logger.info(f"Found {len(subjects)} unique subjects in {raw_dir}")
+    return sorted(list(subjects))
 
-
-def analyze_population_demographics(manifest: Dict[str, Any], subjects: List[str]) -> Dict[str, Any]:
+def analyze_population_demographics(manifest: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Analyze dataset metadata to determine population characteristics.
-    Returns a dict with demographics flags.
+    Analyze dataset metadata to determine population demographics.
+    Returns a dictionary with population characteristics.
     """
-    demographics = {
+    population_info = {
         "is_single_population": False,
         "population_description": "Unknown",
-        "flags": []
+        "demographics_flags": []
     }
 
-    # Check manifest for population info
-    source_info = manifest.get("source_info", {})
-    dataset_info = source_info.get("dataset", {})
-    description = dataset_info.get("description", "")
-    keywords = dataset_info.get("keywords", [])
+    # Check manifest for population metadata
+    if "metadata" in manifest:
+        meta = manifest["metadata"]
+        
+        # Check for population descriptors
+        population_terms = ["healthy", "young", "adults", "elderly", "patients", 
+                          "control", "clinical", "healthy young adults"]
+        
+        description = meta.get("description", "").lower()
+        source = meta.get("source", "").lower()
+        
+        # Analyze description
+        single_pop_terms = []
+        for term in population_terms:
+            if term in description:
+                single_pop_terms.append(term)
+        
+        if len(single_pop_terms) >= 2:
+            # Likely a single population
+            population_info["is_single_population"] = True
+            population_info["population_description"] = " ".join(single_pop_terms)
+            population_info["demographics_flags"].append("Single population detected")
+        
+        # Check for specific demographics
+        if "healthy young adults" in description:
+            population_info["population_description"] = "Healthy young adults"
+            population_info["demographics_flags"].append("Restricted to healthy young adults")
+        elif "patients" in description or "clinical" in description:
+            population_info["population_description"] = "Clinical population"
+            population_info["demographics_flags"].append("Clinical/patient population")
+        elif "elderly" in description:
+            population_info["population_description"] = "Elderly population"
+            population_info["demographics_flags"].append("Elderly population")
+        
+        # Check source for population hints
+        if "openneuro" in source or "physionet" in source:
+            # Check if there's specific population info
+            if "population" in meta:
+                population_info["population_description"] = meta["population"]
 
-    # Heuristics for single population
-    population_keywords = ["healthy", "young", "adults", "students", "control"]
-    found_pop_keywords = [kw for kw in population_keywords if kw.lower() in description.lower() or kw.lower() in str(keywords).lower()]
-
-    if len(found_pop_keywords) >= 2:
-        demographics["is_single_population"] = True
-        demographics["population_description"] = ", ".join(found_pop_keywords)
-        demographics["flags"].append("Single population detected (likely healthy young adults)")
-    elif "healthy" in description.lower():
-        demographics["is_single_population"] = True
-        demographics["population_description"] = "Healthy subjects"
-        demographics["flags"].append("Single population detected (healthy subjects)")
-    elif not found_pop_keywords and len(subjects) < 10:
-        # Very small dataset often implies single population
-        demographics["is_single_population"] = True
-        demographics["population_description"] = "Small sample (likely single population)"
-        demographics["flags"].append("Very small dataset, likely single population")
-
-    return demographics
-
+    return population_info
 
 def check_dataset_size(subjects: List[str]) -> Dict[str, Any]:
     """
-    Check if the dataset size meets the minimum threshold.
+    Check if dataset size meets minimum requirements.
+    Returns size analysis results.
     """
     n_subjects = len(subjects)
-    is_small = n_subjects < MIN_SUBJECTS_THRESHOLD
-
-    return {
+    
+    size_info = {
         "n_subjects": n_subjects,
-        "threshold": MIN_SUBJECTS_THRESHOLD,
-        "is_small": is_small,
-        "flags": ["Dataset is small (<50 subjects)"] if is_small else []
+        "is_small_dataset": n_subjects < SMALL_DATASET_THRESHOLD,
+        "threshold": SMALL_DATASET_THRESHOLD,
+        "flags": []
     }
-
+    
+    if n_subjects < SMALL_DATASET_THRESHOLD:
+        size_info["flags"].append(f"Small dataset: {n_subjects} subjects (threshold: {SMALL_DATASET_THRESHOLD})")
+        logger.warning(f"Dataset is small: {n_subjects} subjects")
+    else:
+        logger.info(f"Dataset size is adequate: {n_subjects} subjects")
+    
+    return size_info
 
 def generate_representativeness_report(
-    manifest: Dict[str, Any],
-    subjects: List[str],
-    size_check: Dict[str, Any],
-    demographics: Dict[str, Any]
+    size_analysis: Dict[str, Any],
+    population_analysis: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Generate the final representativeness report.
+    Generate a comprehensive representativeness report.
     """
     report = {
-        "n_subjects": size_check["n_subjects"],
-        "is_small_dataset": size_check["is_small"],
-        "is_single_population": demographics["is_single_population"],
-        "population_description": demographics["population_description"],
-        "flags": size_check["flags"] + demographics["flags"],
+        "dataset_size": size_analysis,
+        "population_demographics": population_analysis,
+        "representativeness_flags": [],
         "summary": ""
     }
-
+    
+    # Combine flags
+    report["representativeness_flags"].extend(size_analysis["flags"])
+    report["representativeness_flags"].extend(population_analysis["demographics_flags"])
+    
     # Generate summary
     issues = []
-    if size_check["is_small"]:
-        issues.append(f"small ({size_check['n_subjects']} subjects)")
-    if demographics["is_single_population"]:
-        issues.append(f"single population ({demographics['population_description']})")
-
+    if size_analysis["is_small_dataset"]:
+        issues.append(f"Small sample size ({size_analysis['n_subjects']} < {SMALL_DATASET_THRESHOLD})")
+    
+    if population_analysis["is_single_population"]:
+        issues.append(f"Single population: {population_analysis['population_description']}")
+    
     if issues:
-        report["summary"] = f"Dataset is {', '.join(issues)}. Generalizability may be limited."
-        report["recommendation"] = "Interpret results with caution due to limited representativeness."
+        report["summary"] = "Dataset has limited representativeness: " + "; ".join(issues)
+        report["is_representative"] = False
     else:
-        report["summary"] = "Dataset appears representative of the target population."
-        report["recommendation"] = "Results may have better generalizability."
-
+        report["summary"] = "Dataset appears reasonably representative"
+        report["is_representative"] = True
+    
     return report
 
-
-def update_research_results(report: Dict[str, Any], results_json_path: Path, research_results_path: Path) -> None:
+def update_research_results(
+    report: Dict[str, Any],
+    results_json_path: Path = RESULTS_JSON_PATH,
+    results_md_path: Path = RESULTS_PATH
+):
     """
-    Update results.json and research_results.md with representativeness flags.
+    Update research results with representativeness check findings.
+    Creates or updates results.json and docs/research_results.md
     """
-    # Ensure directories exist
+    # Ensure data/processed directory exists
     results_json_path.parent.mkdir(parents=True, exist_ok=True)
-    research_results_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load or create results.json
-    results_data = {}
+    
+    # Load existing results if present
     if results_json_path.exists():
-        with open(results_json_path, 'r') as f:
-            results_data = json.load(f)
-
+        existing_results = load_json(results_json_path)
+    else:
+        existing_results = {}
+    
     # Update with representativeness data
-    results_data["dataset_representativeness"] = report
-    results_data["flags"] = results_data.get("flags", []) + report["flags"]
+    existing_results["dataset_representativeness"] = report
+    existing_results["representativeness_flags"] = report["representativeness_flags"]
+    existing_results["is_representative"] = report["is_representative"]
+    
+    # Write updated results
+    write_json(results_json_path, existing_results)
+    logger.info(f"Updated representativeness data in {results_json_path}")
+    
+    # Update markdown report
+    update_markdown_report(report, results_md_path)
 
-    with open(results_json_path, 'w') as f:
-        json.dump(results_data, f, indent=2)
+def update_markdown_report(report: Dict[str, Any], md_path: Path):
+    """
+    Update the research results markdown file with representativeness findings.
+    """
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create or load existing content
+    if md_path.exists():
+        content = md_path.read_text()
+    else:
+        content = "# Research Results\n\n"
+    
+    # Find or create the representativeness section
+    section_marker = "## Dataset Representativeness"
+    
+    # Generate section content
+    section_content = f"""{section_marker}
 
-    logger.info(f"Updated {results_json_path} with representativeness flags.")
+**Representativeness Assessment**: {'Limited' if not report['is_representative'] else 'Adequate'}
 
-    # Update research_results.md
-    md_content = f"""# Research Results
+### Dataset Size
+- **Number of Subjects**: {report['dataset_size']['n_subjects']}
+- **Threshold**: {report['dataset_size']['threshold']}
+- **Is Small Dataset**: {report['dataset_size']['is_small_dataset']}
 
-## Dataset Representativeness
-
-- **Number of Subjects**: {report['n_subjects']}
-- **Is Small Dataset (<50)**: {report['is_small_dataset']}
-- **Is Single Population**: {report['is_single_population']}
-- **Population Description**: {report['population_description']}
+### Population Demographics
+- **Population Description**: {report['population_demographics']['population_description']}
+- **Single Population**: {report['population_demographics']['is_single_population']}
 
 ### Flags
-{chr(10).join(f"- {flag}" for flag in report['flags']) if report['flags'] else "- None"}
-
-### Summary
-{report['summary']}
-
-### Recommendation
-{report['recommendation']}
-
----
-*Generated by Dataset Representativeness Check (T016)*
 """
-
-    # Append or create
-    if research_results_path.exists():
-        with open(research_results_path, 'r') as f:
-            existing_content = f.read()
-        if "## Dataset Representativeness" not in existing_content:
-            with open(research_results_path, 'a') as f:
-                f.write("\n\n" + md_content)
+    
+    for flag in report["representativeness_flags"]:
+        section_content += f"- {flag}\n"
+    
+    section_content += f"\n### Summary\n{report['summary']}\n"
+    
+    # Insert or update the section
+    if section_marker in content:
+        # Find the start of the section
+        start_idx = content.find(section_marker)
+        # Find the start of the next section (if any)
+        next_section_idx = content.find("## ", start_idx + len(section_marker))
+        
+        if next_section_idx == -1:
+            # No next section, append to end
+            content = content[:start_idx] + section_content
         else:
             # Replace existing section
-            import re
-            pattern = r"(## Dataset Representativeness.*?)(?=\n## |\Z)"
-            new_content = re.sub(pattern, md_content, existing_content, flags=re.DOTALL)
-            with open(research_results_path, 'w') as f:
-                f.write(new_content)
+            content = content[:start_idx] + section_content + content[next_section_idx:]
     else:
-        with open(research_results_path, 'w') as f:
-            f.write(md_content)
-
-    logger.info(f"Updated {research_results_path} with representativeness section.")
-
+        # Append new section
+        content += "\n" + section_content
+    
+    # Write updated content
+    md_path.write_text(content)
+    logger.info(f"Updated research results in {md_path}")
 
 def main():
     """
-    Main entry point for the dataset representativeness check.
+    Main function to perform dataset representativeness check.
     """
-    logger.info("Starting Dataset Representativeness Check (T016).")
-
+    logger.info("Starting dataset representativeness check (T016)")
+    
     try:
         # Load manifest
-        manifest = load_manifest(MANIFEST_PATH)
-        logger.info(f"Loaded manifest from {MANIFEST_PATH}")
-
+        manifest = load_manifest()
+        logger.info("Loaded verified source manifest")
+        
         # Extract subjects from raw files
-        subjects = extract_subjects_from_raw_files(DATA_RAW_DIR)
-        logger.info(f"Found {len(subjects)} subjects in raw data.")
-
-        # Perform checks
-        size_check = check_dataset_size(subjects)
-        demographics = analyze_population_demographics(manifest, subjects)
-
-        # Generate report
-        report = generate_representativeness_report(manifest, subjects, size_check, demographics)
-
-        # Save report
-        REPRESENTATIVENESS_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(REPRESENTATIVENESS_REPORT_PATH, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Saved representativeness report to {REPRESENTATIVENESS_REPORT_PATH}")
-
-        # Update final outputs
-        update_research_results(report, RESULTS_JSON_PATH, RESEARCH_RESULTS_PATH)
-
-        logger.info("Dataset Representativeness Check completed successfully.")
+        subjects = extract_subjects_from_raw_files()
+        logger.info(f"Extracted {len(subjects)} subjects from raw data")
+        
+        if not subjects:
+            logger.warning("No subjects found in raw data directory")
+            report = {
+                "dataset_size": {"n_subjects": 0, "is_small_dataset": True, "threshold": SMALL_DATASET_THRESHOLD, "flags": ["No subjects found"]},
+                "population_demographics": {"is_single_population": False, "population_description": "Unknown", "demographics_flags": []},
+                "representativeness_flags": ["No subjects found"],
+                "is_representative": False,
+                "summary": "Cannot assess representativeness: no subjects found"
+            }
+        else:
+            # Analyze dataset size
+            size_analysis = check_dataset_size(subjects)
+            
+            # Analyze population demographics
+            population_analysis = analyze_population_demographics(manifest)
+            
+            # Generate report
+            report = generate_representativeness_report(size_analysis, population_analysis)
+        
+        # Update research results
+        update_research_results(report)
+        
+        logger.info("Dataset representativeness check completed successfully")
         return 0
-
+        
     except Exception as e:
-        logger.error(f"Dataset Representativeness Check failed: {e}", exc_info=True)
+        logger.error(f"Dataset representativeness check failed: {e}", exc_info=True)
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

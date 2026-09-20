@@ -1,3 +1,6 @@
+"""
+Data loading utilities for ImageNet.
+"""
 import logging
 from typing import Iterator, List, Dict, Any, Optional
 from datasets import load_dataset
@@ -7,64 +10,49 @@ import io
 
 logger = logging.getLogger(__name__)
 
-def load_imagenet_subset(
-    split: str = "validation",
-    streaming: bool = True,
-    num_images: Optional[int] = None
-) -> Iterator[Dict[str, Any]]:
+def load_imagenet_subset(split: str = "validation", streaming: bool = True):
     """
-    Load ImageNet dataset using HuggingFace datasets.
+    Fetch ImageNet subsets using datasets.load_dataset.
     
     Args:
-        split: Dataset split to load (default: "validation").
-        streaming: Whether to use streaming mode (default: True).
-        num_images: Maximum number of images to yield (default: None, all).
-        
-    Yields:
-        Dictionary containing 'image' (PIL.Image) and 'label' (int).
-    """
-    logger.info(f"Loading ImageNet {split} split (streaming={streaming})...")
-    
-    try:
-        # Load dataset with streaming
-        dataset = load_dataset("imagenet-1k", split=split, streaming=streaming)
-        
-        count = 0
-        for item in dataset:
-            if num_images is not None and count >= num_images:
-                break
-            
-            # Ensure image is loaded
-            if 'image' in item and item['image'] is not None:
-                yield item
-                count += 1
-            else:
-                logger.warning(f"Skipping item {count} due to missing image")
-                
-    except Exception as e:
-        logger.error(f"Failed to load ImageNet dataset: {e}")
-        # Per requirements, we must fail loudly, not fall back to synthetic
-        raise RuntimeError(f"ImageNet dataset loading failed: {e}")
-
-def preprocess_image(image: Image.Image) -> torch.Tensor:
-    """
-    Preprocess a PIL image for model input.
-    
-    Args:
-        image: PIL Image to preprocess.
+        split: The split to load (e.g., "validation").
+        streaming: Whether to stream the dataset.
         
     Returns:
-        Tensor of shape (3, H, W) with values in [0, 1].
+        An iterable dataset object.
+        
+    Raises:
+        Exception: If the real source is unreachable.
     """
-    # Convert to RGB if necessary
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    logger.info(f"Loading ImageNet subset: split={split}, streaming={streaming}")
+    try:
+        # Using the real dataset source as specified
+        dataset = load_dataset("imagenetk", split=split, streaming=streaming)
+        logger.info("Dataset loaded successfully.")
+        return dataset
+    except Exception as e:
+        logger.error(f"Failed to load dataset from real source: {e}")
+        # CRITICAL: Do NOT fall back to synthetic data. Raise the error.
+        raise
+
+def preprocess_image(image: Image.Image, size: int = 256) -> torch.Tensor:
+    """
+    Preprocess an image for model input.
     
-    # Resize to 256x256 (common for diffusion models)
-    image = image.resize((256, 256), Image.Resampling.LANCZOS)
-    
-    # Convert to tensor
-    import torch
+    Args:
+        image: The PIL image.
+        size: The target size.
+        
+    Returns:
+        A tensor of shape [3, size, size].
+    """
+    # Resize and convert to tensor
+    image = image.resize((size, size))
+    # Convert to tensor (0-255 -> 0-1)
     tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
-    
+    # Normalize if needed (depending on model requirements)
+    # For now, return as is
     return tensor
+
+# Import numpy here to avoid circular imports if any
+import numpy as np

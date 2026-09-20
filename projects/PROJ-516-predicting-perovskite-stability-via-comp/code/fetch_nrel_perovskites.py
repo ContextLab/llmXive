@@ -1,7 +1,5 @@
 """
-Fetch perovskite stability data from NREL API.
-Filters for T_d (TGA onset) measurements and writes to data/raw/nrel_perovskites.csv.
-Implements T012a and invokes T009 (checksum validation) logic.
+T012a: Fetch data from NREL API, invoke T009 validation, filter for T_d, and write to data/raw/nrel_perovskites.csv.
 """
 import csv
 import json
@@ -10,294 +8,250 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
-# Add parent to path for imports if running as script
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.config_manager import get_api_key, ConfigError
-from utils.data_fetcher import fetch_with_retry, FetchError
 from utils.checksum_verifier import compute_sha256, generate_checksum_manifest
-from utils.instrument_registry import get_precision
+from utils.config_manager import get_api_key
+from utils.data_fetcher import fetch_with_retry
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/raw/nrel_fetch.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-NREL_API_BASE = "https://developer.nrel.gov/api/discovery/v1.json"
-DATA_OUTPUT_PATH = Path("data/raw/nrel_perovskites.csv")
-CHECKSUM_MANIFEST_PATH = Path("data/raw/nrel_checksums.json")
-RETRY_DELAYS = [1.0, 2.0, 4.0]
-MAX_RETRIES = 3
+NREL_API_URL = "https://developer.nrel.gov/api/discovery/v1.json"
+OUTPUT_PATH = Path(__file__).parent.parent / "data" / "raw" / "nrel_perovskites.csv"
+MANIFEST_PATH = Path(__file__).parent.parent / "data" / "raw" / "nrel_perovskites_checksum.json"
 
-def fetch_nrel_materials(api_key: str, max_entries: int = 500) -> List[Dict[str, Any]]:
+# Required columns for the output
+REQUIRED_COLUMNS = [
+    "formula", "T_d", "source", "instrument_model", "manufacturer",
+    "temperature_precision", "heating_rate", "uncertainty_sigma"
+]
+
+def fetch_nrel_materials(api_key: str) -> List[Dict[str, Any]]:
     """
-    Fetch perovskite material data from NREL Discovery API.
-    Uses retry logic from T006b.
+    Fetches perovskite stability data from the NREL Discovery API.
+    Uses retry logic defined in T006b.
     """
     params = {
-        'api_key': api_key,
-        'filter': 'material_type:perovskite',
-        'per_page': 100,
-        'page': 1,
-        'include': 'experimental'
+        "api_key": api_key,
+        "q": "perovskite stability TGA",
+        "per_page": 100,
+        "page": 1
     }
 
-    all_materials = []
+    all_records = []
     page = 1
+    max_pages = 10 # Safety limit
 
-    logger.info(f"Fetching NREL materials starting at page {page}...")
-
-    while len(all_materials) < max_entries:
-        params['page'] = page
+    while page <= max_pages:
+        params["page"] = page
         try:
-            response = fetch_with_retry(
-                NREL_API_BASE,
-                params=params,
-                retry_delays=RETRY_DELAYS,
-                max_retries=MAX_RETRIES
-            )
-            
-            if response.status_code != 200:
-                logger.error(f"API returned status {response.status_code}")
-                break
+            response = fetch_with_retry(NREL_API_URL, params=params)
+            if response is None:
+                logger.error("Failed to fetch data from NREL API after retries.")
+                return []
 
             data = response.json()
-            results = data.get('results', [])
-            
-            if not results:
-                logger.info("No more results found.")
+            records = data.get("data", [])
+
+            if not records:
+                logger.info(f"No more records found on page {page}.")
                 break
 
-            all_materials.extend(results)
-            logger.info(f"Fetched page {page}, total so far: {len(all_materials)}")
+            all_records.extend(records)
+            logger.info(f"Fetched page {page}, total records so far: {len(all_records)}")
 
             # Check if there are more pages
-            if len(results) < 100:
+            total_pages = data.get("total_pages", 1)
+            if page >= total_pages:
                 break
-            
+
             page += 1
-            time.sleep(0.5) # Rate limiting
 
-        except FetchError as e:
-            logger.critical(f"Failed to fetch NREL data after retries: {e}")
-            raise
         except Exception as e:
-            logger.critical(f"Unexpected error fetching data: {e}")
-            raise
+            logger.error(f"Error fetching page {page}: {e}")
+            break
 
-    return all_materials[:max_entries]
+    return all_records
 
-def filter_for_t_d(materials: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def filter_for_t_d(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter materials that have a T_d (decomposition temperature) measurement.
-    T_d is typically found in experimental thermal analysis data.
+    Filters records for those containing T_d (TGA onset) measurements.
     """
     filtered = []
-    skipped = 0
+    for record in records:
+        # Check for T_d in various possible field names
+        t_d_value = None
+        
+        # Try common keys
+        for key in ["T_d", "decomposition_temp", "thermal_decomposition_temp", "Td"]:
+            if key in record and record[key] is not None:
+                try:
+                    t_d_value = float(record[key])
+                    break
+                except (ValueError, TypeError):
+                    continue
 
-    for mat in materials:
-        # Check for experimental data
-        experimental = mat.get('experimental', [])
-        if not experimental:
-            skipped += 1
-            continue
-
-        td_found = False
-        td_value = None
-        instrument_model = None
-        manufacturer = None
-        experimental_error = 0.0
-
-        for exp in experimental:
-            # Look for TGA or thermal decomposition data
-            if 'thermal' in exp.get('measurement_type', '').lower() or \
-               'tga' in exp.get('measurement_type', '').lower() or \
-               'decomposition' in exp.get('property_name', '').lower():
-                
-                # Extract T_d value
-                val = exp.get('value')
-                if val is not None:
-                    try:
-                        td_value = float(val)
-                        td_found = True
-                        
-                        # Extract instrumentation metadata (T047a)
-                        instrument_model = exp.get('instrument_model') or \
-                                         exp.get('instrument', {}).get('model')
-                        manufacturer = exp.get('manufacturer') or \
-                                     exp.get('instrument', {}).get('manufacturer')
-                        
-                        # Extract experimental error if available
-                        err = exp.get('error') or exp.get('uncertainty')
-                        if err is not None:
-                            try:
-                                experimental_error = float(err)
-                            except (ValueError, TypeError):
-                                experimental_error = 0.0
-                        
-                        break
-                    except (ValueError, TypeError):
-                        continue
-
-        if td_found and td_value is not None:
-            # Determine precision (T042/T052)
-            precision = get_precision(instrument_model) if instrument_model else 10.0
-            if not instrument_model:
-                logger.warning(f"Missing instrument_model for {mat.get('formula')}, using default 10.0")
-
-            filtered.append({
-                'formula': mat.get('formula', 'Unknown'),
-                'T_d': td_value,
-                'source': 'NREL',
-                'instrument_model': instrument_model or 'Unknown',
-                'manufacturer': manufacturer or 'Unknown',
-                'temperature_precision': precision,
-                'experimental_error': experimental_error,
-                'raw_entry': json.dumps(mat) # Keep raw for audit
-            })
-        else:
-            skipped += 1
-
-    logger.info(f"Filtered {len(filtered)} entries with T_d, skipped {skipped} without.")
+        if t_d_value is not None:
+            # Ensure we have a formula
+            formula = record.get("formula") or record.get("chemical_formula")
+            if formula:
+                record["T_d"] = t_d_value
+                filtered.append(record)
+            else:
+                logger.warning(f"Record missing formula, skipping: {record.get('id', 'unknown')}")
+        
+    logger.info(f"Filtered {len(filtered)} records with T_d values out of {len(records)} total.")
     return filtered
 
 def normalize_record(record: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Normalize a record to ensure consistent schema.
+    Normalizes a raw NREL record into the canonical schema.
+    Handles missing instrumentation metadata gracefully (T047a).
     """
-    return {
-        'formula': record['formula'],
-        'T_d': record['T_d'],
-        'source': record['source'],
-        'instrument_model': record['instrument_model'],
-        'manufacturer': record['manufacturer'],
-        'temperature_precision': record['temperature_precision'],
-        'experimental_error': record['experimental_error']
+    normalized = {
+        "formula": record.get("formula") or record.get("chemical_formula", "Unknown"),
+        "T_d": record.get("T_d"),
+        "source": "NREL",
+        "instrument_model": record.get("instrument_model", "Unknown"),
+        "manufacturer": record.get("manufacturer", "Unknown"),
+        "temperature_precision": record.get("temperature_precision", 10.0), # Default per T042
+        "heating_rate": record.get("heating_rate"),
+        "uncertainty_sigma": record.get("uncertainty_sigma")
     }
 
-def save_to_csv(records: List[Dict[str, Any]], path: Path):
+    # T047a: Log fallbacks for missing instrumentation
+    if normalized["instrument_model"] == "Unknown" or normalized["manufacturer"] == "Unknown":
+        logger.warning(f"Missing instrumentation for {normalized['formula']}, using defaults.")
+        # Log to fallback file
+        fallback_path = Path(__file__).parent.parent / "data" / "raw" / "instrumentation_fallbacks.log"
+        with open(fallback_path, "a") as f:
+            f.write(f"{normalized['formula']},NREL,10.0\n")
+
+    # Ensure numeric types
+    try:
+        normalized["T_d"] = float(normalized["T_d"])
+    except (ValueError, TypeError):
+        normalized["T_d"] = None # Should be filtered out already, but safety check
+
+    return normalized
+
+def save_to_csv(records: List[Dict[str, Any]], output_path: Path):
     """
-    Save records to CSV.
+    Saves the normalized records to a CSV file.
     """
     if not records:
         logger.warning("No records to save.")
+        # Create empty file with headers to satisfy contract
+        with open(output_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
+            writer.writeheader()
         return
 
-    fieldnames = ['formula', 'T_d', 'source', 'instrument_model', 'manufacturer', 
-                  'temperature_precision', 'experimental_error']
-    
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
         writer.writeheader()
         for record in records:
-            writer.writerow({k: record[k] for k in fieldnames})
+            # Ensure all required keys exist
+            row = {k: record.get(k) for k in REQUIRED_COLUMNS}
+            writer.writerow(row)
     
-    logger.info(f"Saved {len(records)} records to {path}")
+    logger.info(f"Saved {len(records)} records to {output_path}")
 
-def save_checksum_manifest(path: Path, data_path: Path):
+def save_checksum_manifest(output_path: Path, manifest_path: Path):
     """
-    Generate and save checksum manifest for the data file (T009).
+    Generates and saves a checksum manifest for the output file (T009).
     """
-    if not data_path.exists():
-        logger.error(f"Cannot generate checksum: {data_path} does not exist.")
-        return
-
-    checksum = compute_sha256(data_path)
+    checksum = compute_sha256(output_path)
     manifest = {
-        'file': str(data_path),
-        'sha256': checksum,
-        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+        "file": output_path.name,
+        "sha256": checksum,
+        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+    
+    with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
     
-    logger.info(f"Saved checksum manifest to {path}")
+    logger.info(f"Checksum manifest saved to {manifest_path}")
 
-def validate_checksum(data_path: Path, manifest_path: Path) -> bool:
+def validate_checksum(manifest_path: Path, output_path: Path) -> bool:
     """
-    Validate the data file against its checksum manifest (T009).
+    Validates the output file against its checksum manifest (T009).
     """
-    if not manifest_path.exists():
-        logger.warning("Manifest not found, skipping validation.")
-        return True
-
     try:
-        with open(manifest_path, 'r') as f:
+        with open(manifest_path, "r") as f:
             manifest = json.load(f)
         
-        expected_hash = manifest.get('sha256')
-        actual_hash = compute_sha256(data_path)
+        expected_hash = manifest.get("sha256")
+        actual_hash = compute_sha256(output_path)
         
         if expected_hash != actual_hash:
-            logger.error(f"Checksum mismatch for {data_path}. Expected: {expected_hash}, Got: {actual_hash}")
+            logger.error(f"Checksum mismatch for {output_path}. Expected: {expected_hash}, Got: {actual_hash}")
             return False
         
-        logger.info(f"Checksum validation passed for {data_path}")
+        logger.info(f"Checksum validation passed for {output_path}")
         return True
     except Exception as e:
-        logger.error(f"Checksum validation error: {e}")
+        logger.error(f"Error validating checksum: {e}")
         return False
 
 def main():
-    """
-    Main entry point for T012a: NREL Data Ingestion.
-    """
     logger.info("Starting T012a: NREL Data Ingestion")
     
-    # 1. Get API Key
+    # 1. Fetch API Key
     try:
         api_key = get_api_key("NREL_API_KEY")
-    except ConfigError as e:
+    except Exception as e:
         logger.critical(f"Task T012a failed: {e}")
         sys.exit(1)
 
     # 2. Fetch Data
-    try:
-        raw_materials = fetch_nrel_materials(api_key)
-    except Exception as e:
-        logger.critical(f"Failed to fetch data: {e}")
+    logger.info("Fetching data from NREL API...")
+    raw_records = fetch_nrel_materials(api_key)
+    
+    if not raw_records:
+        logger.error("No data fetched from NREL API.")
+        # Create empty output to prevent downstream crashes, but log failure
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(OUTPUT_PATH, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
+            writer.writeheader()
         sys.exit(1)
 
-    if not raw_materials:
-        logger.warning("No materials fetched from NREL.")
-        # Create empty file to satisfy downstream checks, but log warning
-        DATA_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(DATA_OUTPUT_PATH, 'w', newline='', encoding='utf-8') as f:
-            f.write("formula,T_d,source,instrument_model,manufacturer,temperature_precision,experimental_error\n")
-        return
-
     # 3. Filter for T_d
-    filtered_data = filter_for_t_d(raw_materials)
+    logger.info("Filtering for T_d measurements...")
+    t_d_records = filter_for_t_d(raw_records)
 
-    if not filtered_data:
-        logger.warning("No entries with T_d found.")
-        DATA_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(DATA_OUTPUT_PATH, 'w', newline='', encoding='utf-8') as f:
-            f.write("formula,T_d,source,instrument_model,manufacturer,temperature_precision,experimental_error\n")
-        return
+    if not t_d_records:
+        logger.error("No records with T_d found.")
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(OUTPUT_PATH, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
+            writer.writeheader()
+        sys.exit(1)
 
-    # 4. Save to CSV
-    save_to_csv(filtered_data, DATA_OUTPUT_PATH)
+    # 4. Normalize
+    logger.info("Normalizing records...")
+    normalized_records = [normalize_record(r) for r in t_d_records]
 
-    # 5. Generate Checksum Manifest (T009)
-    save_checksum_manifest(CHECKSUM_MANIFEST_PATH, DATA_OUTPUT_PATH)
+    # 5. Write to CSV
+    logger.info(f"Writing to {OUTPUT_PATH}...")
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    save_to_csv(normalized_records, OUTPUT_PATH)
 
-    # 6. Validate Checksum (Self-check)
-    if not validate_checksum(DATA_OUTPUT_PATH, CHECKSUM_MANIFEST_PATH):
-        logger.critical("Initial validation failed. Exiting.")
+    # 6. Generate Checksum (T009)
+    logger.info("Generating checksum manifest...")
+    save_checksum_manifest(OUTPUT_PATH, MANIFEST_PATH)
+
+    # 7. Validate Checksum (T009)
+    if not validate_checksum(MANIFEST_PATH, OUTPUT_PATH):
+        logger.error("Checksum validation failed. Data integrity compromised.")
         sys.exit(1)
 
     logger.info("T012a completed successfully.")

@@ -2991,3 +2991,528 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T16:02:24Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Download NREL Perovskite Stability Subset from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_29dca62f
+  context: 'Phase 11: Review Action: Literature Data Sourcing Strategy. Goal: Define
+    and implement a robust strategy to acquire the external validation dataset from
+    a specific, verified real source (Zenodo: 10.5281/zenodo.10972088)...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:17:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Use pymatgen.core.Element class for elemental property lookups
+  claim_id: c_3f4fbd70
+  context: 'T007: Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic
+    A/B/X site assignment. Specificity: Use `pymatgen.core.Element` class...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pymatgen.core.Element_class_for_elemental_property_looku
+  kind: entity_fact
+  raw_text: Use `pymatgen.core.Element` class for all elemental property lookups to
+    ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:18:29Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Instrument registry CSV schema requires instrument_model, manufacturer,
+    precision_celsius columns
+  claim_id: c_b8e1e7ea
+  context: 'T047c_init: Create `data/raw/instrument_registry.csv`... Schema: The CSV
+    MUST have columns: `instrument_model`, `manufacturer`, `precision_celsius`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_CSV_schema_requires_instrument_model,_ma
+  kind: entity_fact
+  raw_text: 'The CSV MUST have columns: `instrument_model`, `manufacturer`, `precision_celsius`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:18:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default TGA precision is 10 degrees Celsius if instrument not found
+  claim_id: c_09d8ecf9
+  context: "T047c: ...If the file is missing or an instrument is not found, use the\
+    \ spec default of \xB110\xB0C and log a warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:19:09Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty propagation formula sigma equals sqrt(precision squared plus
+    experimental error squared)
+  claim_id: c_12135cde
+  context: 'T043: ...Formula: `sigma = sqrt(precision^2 + experimental_error^2)`.
+    If experimental error is missing, use 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The uncertainty propagation formula is `sigma = sqrt(precision^2 + experimental_error^2)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:19:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified K-fold cross-validation with k=5 groups
+  claim_id: c_de3f9a37
+  context: 'T020e: Implement stratified KFold logic with k=5 using `perovskite_family`
+    column...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified KFold logic with k=5 using `perovskite_family` column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:20:04Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to 10 hyperparameter combinations per model
+  claim_id: c_b05b50f1
+  context: 'T020: ...Constraint: Grid search limited to <= 10 combinations per model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search limited to <= 10 combinations per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:20:27Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution flagging uses Mahalanobis distance threshold of 3.0
+  claim_id: c_c7b04465
+  context: 'T031: Implement OOD detection: Flag compositions with elements NOT in
+    the training set ... or with a Mahalanobis distance > 3.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag compositions with elements NOT in the training set or with a Mahalanobis
+    distance > 3.0 from the training distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:20:27Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Literature validation CSV schema requires formula, T_d, and source headers
+  claim_id: c_a2d36718
+  context: 'T057: ...Write the raw data to `data/raw/literature_validation_raw.csv`.
+    Verification: Verify ... matches the expected schema (CSV headers: formula, T_d,
+    source).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Literature_validation_CSV_schema_requires_formula,_T_d,_and
+  kind: entity_fact
+  raw_text: The CSV headers for literature validation data are formula, T_d, source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:20:56Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: instrument_registry.csv schema columns
+  claim_id: c_2bf1dffc
+  context: T047c_init and T047c define the schema for the TGA instrument registry
+    file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry.csv_schema_columns
+  kind: entity_fact
+  raw_text: 'The CSV MUST have columns: instrument_model, manufacturer, precision_celsius.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:23:46Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: default TGA precision value 10 degrees Celsius
+  claim_id: c_ed6b00bc
+  context: T047c specifies the fallback logic for missing instrumentation data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:23:47Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: combined standard uncertainty formula sigma equals sqrt of precision
+    squared plus experimental error squared
+  claim_id: c_63b4a017
+  context: T043 defines the calculation for combined standard uncertainty for T_d.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula for combined standard uncertainty is sigma = sqrt(precision^2
+    + experimental_error^2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: grid search limit 10 combinations per model
+  claim_id: c_bf4ee1e4
+  context: T020 and T022 specify the constraint on hyperparameter grid search.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search is limited to <= 10 combinations per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Mahalanobis distance threshold 3.0 for OOD detection
+  claim_id: c_bf7184bc
+  context: T031 defines the Out-of-Distribution detection criteria.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag compositions with a Mahalanobis distance > 3.0 from the training
+    distribution as OOD.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:12Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset Zenodo DOI 10.5281 zenodo.10972088
+  claim_id: c_9327618b
+  context: T057 and T058 define the source for external validation data.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:14Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 4 hours
+  claim_id: c_30f474c0
+  context: T019 and T037b specify the performance constraint for the full pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:50Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: stratified KFold k equals 5 using perovskite_family
+  claim_id: c_12c173f5
+  context: T020e defines the cross-validation strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified KFold logic with k=5 using perovskite_family column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:50Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: literature validation CSV schema headers formula T_d source
+  claim_id: c_49205531
+  context: T057 specifies the expected schema for the external validation dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Literature_validation_CSV_schema_headers_formula_T_d_source
+  kind: entity_fact
+  raw_text: The CSV headers for literature validation data are formula, T_d, source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:24:53Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: TA Instruments and Mettler Toledo TGA instruments have precision of 10.0
+    degrees Celsius
+  claim_id: c_d0b95f70
+  context: T047c_init Create data/raw/instrument_registry.csv with specific TGA instrument
+    data
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Row: TA Instruments, TA Instruments, 10.0; Row 2: Mettler Toledo, Mettler
+    Toledo, 10.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:26:28Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default TGA instrument precision is 10 degrees Celsius when registry
+    lookup fails
+  claim_id: c_eed88dfc
+  context: T047c Implement code/utils/instrument_registry.py to maintain a lookup
+    table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:26:29Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset is available at Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_45e2a245
+  context: 'T057 Fetch Specific Dataset: Download the NREL Perovskite Stability Subset
+    from Zenodo'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:26:31Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Primary sources NREL and Materials Project are assumed to contain at
+    least 200 entries
+  claim_id: c_606b36a8
+  context: Assumption Note regarding data sufficiency in primary sources
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_sources_NREL_and_Materials_Project_are_assumed_to_co
+  kind: magnitude
+  raw_text: 'Assumption Note: While the spec assumes primary sources (NREL/MP) contain
+    sufficient data (>= 200 entries)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:26:55Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: TA Instruments and Mettler Toledo TGA precision values are 10.0 degrees
+    Celsius
+  claim_id: c_9dd352c9
+  context: 'T047c_init Create data/raw/instrument_registry.csv with specific TGA instrument
+    data: Row: TA Instruments, TA Instruments, 10.0; Row 2: Mettler Toledo, Mettler
+    Toledo, 10.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Row: TA Instruments, TA Instruments, 10.0; Row 2: Mettler Toledo, Mettler
+    Toledo, 10.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:27:42Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default TGA instrument precision is 10 degrees Celsius when registry
+    lookup fails
+  claim_id: c_fa050843
+  context: "T047c Implement code/utils/instrument_registry.py... If the file is missing\
+    \ or an instrument is not found, use the spec default of \xB110\xB0C and log a\
+    \ warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:27:42Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Low confidence weight is configurable in code/config.yaml
+  claim_id: c_1cd62322
+  context: T054 Update code/model_training.py to apply a configurable low_confidence_weight...
+    The weight MUST be read from code/config.yaml under the key low_confidence_weight
+    with a configurable default value.
+  evidence:
+    entailment_evidence: Low confidence weight is configurable in code/config.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Low_confidence_weight_is_configurable_in_code/config.yaml
+  kind: entity_fact
+  raw_text: Use a configurable default value for low_confidence_weight in code/config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T21:28:07Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search hyperparameter combinations limited to 10 per model
+  claim_id: c_2d89af27
+  context: 'T020 Implement code/model_training.py... Constraint: Grid search limited
+    to <= 10 combinations per model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search limited to <= 10 combinations per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:28:08Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified KFold cross-validation uses 5 folds
+  claim_id: c_2c4b7857
+  context: T020e Implement stratified KFold logic with k=5 using perovskite_family
+    column...
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Implement stratified KFold logic with k=5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T21:28:08Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution threshold is Mahalanobis distance greater than 3.0
+  claim_id: c_785df836
+  context: 'T031 Implement OOD detection: Flag compositions with elements NOT in the
+    training set... or with a Mahalanobis distance > 3.0 from the training distribution.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Out-of-distribution_threshold_is_Mahalanobis_distance_greate
+  kind: magnitude
+  raw_text: Flag compositions with a Mahalanobis distance > 3.0 from the training
+    distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:29:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset available at Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_58c50dfa
+  context: 'T057 Fetch Specific Dataset: Download the NREL Perovskite Stability Subset
+    from Zenodo (DOI: 10.5281/zenodo.10972088)...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:29:14Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for multicollinearity is 5
+  claim_id: c_af3acd50
+  context: T016a Implement code/utils/vif_calculator.py to compute VIF for all descriptors
+    with a threshold > 5 to identify multicollinearity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF threshold > 5 to identify multicollinearity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:29:15Z'

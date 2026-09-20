@@ -3,270 +3,281 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+
 import numpy as np
-from utils.logging import get_logger, log_with_context
+
+# Import logging utilities from the project's utils module
+try:
+    from utils.logging import get_logger, log_with_context
+except ImportError:
+    # Fallback for direct execution if path isn't set up, though project structure assumes utils is importable
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+    def log_with_context(logger, level, msg, **kwargs):
+        logger.log(level, msg, extra=kwargs)
 
 logger = get_logger(__name__)
 
 def load_config(config_path: str) -> Dict[str, Any]:
-    """Load configuration from JSON file."""
-    with open(config_path, 'r') as f:
+    """Load configuration from a JSON file."""
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    with open(path, 'r') as f:
         return json.load(f)
 
 def load_coverage_vectors(file_path: str) -> List[Dict[str, Any]]:
-    """Load coverage vectors from JSON file."""
-    with open(file_path, 'r') as f:
+    """Load aggregated coverage vectors from a JSON file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Coverage vectors file not found: {file_path}")
+    with open(path, 'r') as f:
         data = json.load(f)
-    return data.get('vectors', [])
+        if isinstance(data, list):
+            return data
+        elif isinstance(data, dict) and 'vectors' in data:
+            return data['vectors']
+        else:
+            raise ValueError("Unexpected format in coverage vectors file")
 
 def load_validation_results(file_path: str) -> List[Dict[str, Any]]:
-    """Load validation results (success rates) from JSON file."""
-    with open(file_path, 'r') as f:
+    """Load validation results (success rates) from a JSON file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Validation results file not found: {file_path}")
+    with open(path, 'r') as f:
         data = json.load(f)
-    return data.get('results', [])
+        if isinstance(data, list):
+            return data
+        elif isinstance(data, dict) and 'results' in data:
+            return data['results']
+        else:
+            raise ValueError("Unexpected format in validation results file")
 
-def calculate_vector_scalar(coverage_vector: Dict[str, Any]) -> int:
+def calculate_vector_scalar(coverage_vector: List[int]) -> float:
     """
     Calculate the scalar count (sum of 1s) from the binary State Coverage Vector.
     
     Args:
-        coverage_vector: Dictionary containing a 'vector' key with a list of 0s and 1s.
-    
+        coverage_vector: A list of 0s and 1s representing the state coverage.
+        
     Returns:
-        Integer sum of the vector elements.
+        The sum of the vector elements (number of covered states).
     """
-    vector = coverage_vector.get('vector', [])
-    return sum(vector)
+    if not isinstance(coverage_vector, list):
+        raise TypeError("Coverage vector must be a list")
+    if not all(isinstance(x, int) for x in coverage_vector):
+        raise TypeError("Coverage vector must contain only integers")
+    return float(sum(coverage_vector))
 
-def align_data(
-    coverage_vectors: List[Dict[str, Any]],
-    validation_results: List[Dict[str, Any]]
-) -> Tuple[List[int], List[float]]:
+def align_data(coverage_vectors: List[Dict[str, Any]], validation_results: List[Dict[str, Any]]) -> Tuple[List[float], List[float]]:
     """
-    Align coverage vectors with validation results by task_id.
+    Align coverage vectors with validation results based on a common identifier (e.g., 'task_id' or 'run_id').
     
     Args:
-        coverage_vectors: List of coverage vector records.
-        validation_results: List of validation result records.
-    
+        coverage_vectors: List of dicts containing 'id' and 'vector' keys.
+        validation_results: List of dicts containing 'id' and 'success_rate' keys.
+        
     Returns:
-        Tuple of (list of vector scalars, list of success rates).
+        Tuple of (scalars, success_rates) aligned by ID.
     """
-    # Create lookup maps
-    vec_map = {v.get('task_id'): v for v in coverage_vectors}
-    val_map = {r.get('task_id'): r for r in validation_results}
-    
-    # Find common task IDs
-    common_ids = sorted(set(vec_map.keys()) & set(val_map.keys()))
+    # Create a lookup map for validation results
+    val_map = {item['id']: item['success_rate'] for item in validation_results if 'id' in item and 'success_rate' in item}
     
     scalars = []
-    rates = []
+    success_rates = []
     
-    for task_id in common_ids:
-        vec = vec_map[task_id]
-        val = val_map[task_id]
+    for cv in coverage_vectors:
+        if 'id' not in cv:
+            logger.warning("Coverage vector entry missing 'id', skipping.")
+            continue
+        vec_id = cv['id']
+        if vec_id not in val_map:
+            logger.warning(f"No validation result found for coverage vector ID: {vec_id}, skipping.")
+            continue
         
-        scalar = calculate_vector_scalar(vec)
-        success_rate = val.get('success_rate', 0.0)
+        vector = cv.get('vector', cv.get('coverage_vector', []))
+        if not vector:
+            logger.warning(f"Empty vector for ID {vec_id}, skipping.")
+            continue
+            
+        scalar_val = calculate_vector_scalar(vector)
+        scalars.append(scalar_val)
+        success_rates.append(val_map[vec_id])
         
-        scalars.append(scalar)
-        rates.append(success_rate)
-    
-    return scalars, rates
+    if len(scalars) != len(success_rates):
+        raise ValueError("Alignment failed: mismatched lengths after filtering.")
+        
+    return scalars, success_rates
 
-def compute_pearson_correlation(x: List[float], y: List[float]) -> Optional[float]:
+def compute_pearson_correlation(x: List[float], y: List[float]) -> float:
     """
-    Compute Pearson correlation coefficient between two lists.
+    Compute Pearson correlation coefficient (r) between two lists.
     
     Args:
-        x: First list of values.
-        y: Second list of values.
-    
+        x: List of scalar values (sum of coverage vectors).
+        y: List of success rates.
+        
     Returns:
-        Pearson correlation coefficient, or None if computation fails.
+        Pearson correlation coefficient r.
     """
-    if len(x) < 2 or len(y) < 2:
-        logger.warning("Insufficient data points for correlation calculation.")
-        return None
-    
     if len(x) != len(y):
-        logger.error("Input lists have different lengths.")
-        return None
+        raise ValueError("Input lists must be of equal length")
+    if len(x) < 2:
+        raise ValueError("Need at least 2 data points to compute correlation")
+        
+    x_arr = np.array(x)
+    y_arr = np.array(y)
     
-    try:
-        x_arr = np.array(x)
-        y_arr = np.array(y)
+    # Handle constant arrays
+    if np.std(x_arr) == 0 or np.std(y_arr) == 0:
+        return 0.0
         
-        # Check for zero variance
-        if np.std(x_arr) == 0 or np.std(y_arr) == 0:
-            logger.warning("One of the variables has zero variance.")
-            return None
-        
-        correlation = np.corrcoef(x_arr, y_arr)[0, 1]
-        return float(correlation)
-    except Exception as e:
-        logger.error(f"Error computing Pearson correlation: {e}")
-        return None
+    r = np.corrcoef(x_arr, y_arr)[0, 1]
+    return float(r)
 
-def analyze_sensitivity(
-    config: Dict[str, Any],
-    coverage_vectors: List[Dict[str, Any]],
-    validation_results: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+def analyze_sensitivity(config: Dict[str, Any], coverage_vectors: List[Dict[str, Any]], validation_results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Perform sensitivity analysis: compute Pearson correlation between
-    scalar count of coverage vector and success rate.
+    Perform sensitivity analysis: compute Pearson correlation between 
+    the scalar count of the State Coverage Vector and success rate.
     
     Args:
         config: Configuration dictionary.
         coverage_vectors: List of coverage vector records.
         validation_results: List of validation result records.
-    
+        
     Returns:
-        Dictionary containing analysis results.
+        Dictionary containing analysis results including correlation coefficient.
     """
-    scalars, rates = align_data(coverage_vectors, validation_results)
+    scalars, success_rates = align_data(coverage_vectors, validation_results)
     
-    if not scalars or not rates:
-        return {
-            'status': 'failed',
-            'reason': 'No aligned data points found',
-            'correlation': None
-        }
-    
-    correlation = compute_pearson_correlation(scalars, rates)
+    if not scalars:
+        raise ValueError("No aligned data points found for analysis.")
+        
+    r = compute_pearson_correlation(scalars, success_rates)
     
     result = {
-        'status': 'success',
-        'correlation': correlation,
-        'n_samples': len(scalars),
-        'threshold_warning': 0.3,
-        'threshold_validated': 0.5
+        "correlation_coefficient": r,
+        "n_samples": len(scalars),
+        "mean_scalar": float(np.mean(scalars)),
+        "mean_success_rate": float(np.mean(success_rates)),
+        "status": "pending"
     }
     
-    # Log validation status
-    if correlation is not None:
-        if correlation < 0.3:
-            result['validation_status'] = 'Invalid Proxy'
-            result['message'] = (
-                f"Correlation r={correlation:.3f} < 0.3. "
-                "Recommend expanding variable set."
-            )
-            logger.warning(result['message'])
-        elif correlation >= 0.5:
-            result['validation_status'] = 'Proxy Validated'
-            result['message'] = (
-                f"Correlation r={correlation:.3f} >= 0.5. "
-                "State Coverage Vector variables are a statistically significant proxy for task difficulty."
-            )
-            log_with_context(
-                logger, 
-                "PROXY_VALIDATED", 
-                result['message'],
-                extra={
-                    'correlation': correlation,
-                    'task_id': 'T041',
-                    'us': 'US4'
-                }
-            )
-        else:
-            result['validation_status'] = 'Inconclusive'
-            result['message'] = (
-                f"Correlation r={correlation:.3f} is between 0.3 and 0.5. "
-                "Further investigation recommended."
-            )
-            logger.info(result['message'])
+    # Determine status based on thresholds
+    if r >= 0.5:
+        result["status"] = "validated"
+    elif r < 0.3:
+        result["status"] = "invalid"
     else:
-        result['validation_status'] = 'Error'
-        result['message'] = "Correlation could not be computed."
-    
+        result["status"] = "inconclusive"
+        
     return result
 
 def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """Save analysis results to JSON file."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+    """Save analysis results to a JSON file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
 
 def generate_markdown_report(results: Dict[str, Any], output_path: str) -> None:
-    """Generate a markdown report of the sensitivity analysis."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    """Generate a markdown report for the sensitivity analysis."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    r = results.get("correlation_coefficient", 0.0)
+    status = results.get("status", "unknown")
+    n_samples = results.get("n_samples", 0)
     
     report_lines = [
         "# Sensitivity Analysis Report",
         "",
-        f"**Status:** {results.get('status', 'Unknown')}",
-        f"**Validation Status:** {results.get('validation_status', 'N/A')}",
-        f"**Sample Size (n):** {results.get('n_samples', 0)}",
-        f"**Pearson Correlation (r):** {results.get('correlation', 'N/A')}",
+        "## Overview",
+        f"- **Samples Analyzed**: {n_samples}",
+        f"- **Pearson Correlation (r)**: {r:.4f}",
+        f"- **Status**: {status.upper()}",
         "",
-        "## Message",
-        f"{results.get('message', 'No message available.')}",
+        "## Interpretation",
         ""
     ]
     
-    if results.get('correlation') is not None:
-        corr = results['correlation']
-        if abs(corr) < 0.3:
-            report_lines.append("## Interpretation")
-            report_lines.append("- **Weak Correlation**: The State Coverage Vector is likely NOT a good proxy for task difficulty.")
-            report_lines.append("- **Recommendation**: Expand the set of state variables to capture more relevant dimensions.")
-        elif abs(corr) >= 0.5:
-            report_lines.append("## Interpretation")
-            report_lines.append("- **Strong Correlation**: The State Coverage Vector IS a statistically significant proxy for task difficulty.")
-            report_lines.append("- **Conclusion**: Proxy Validated. The curriculum scheduler can reliably use these state variables.")
-        else:
-            report_lines.append("## Interpretation")
-            report_lines.append("- **Moderate Correlation**: The relationship is present but not strong enough for definitive validation.")
-            report_lines.append("- **Recommendation**: Collect more data or refine the state variables.")
-    
-    with open(output_path, 'w') as f:
+    if r >= 0.5:
+        report_lines.append("The State Coverage Vector is a **statistically significant proxy** for task difficulty (r ≥ 0.5).")
+        report_lines.append("Logging 'Proxy Validated' as per protocol.")
+    elif r < 0.3:
+        report_lines.append("The State Coverage Vector is **NOT** a significant proxy (r < 0.3).")
+        report_lines.append("Recommendation: Expand the variable set or re-evaluate state definitions.")
+    else:
+        report_lines.append("The correlation is inconclusive (0.3 ≤ r < 0.5).")
+        report_lines.append("Further data collection or variable refinement may be needed.")
+        
+    with open(path, 'w') as f:
         f.write('\n'.join(report_lines))
-    
-    logger.info(f"Markdown report saved to {output_path}")
 
-def main() -> None:
-    """Main entry point for sensitivity analysis."""
-    config_path = os.environ.get('CONFIG_PATH', 'data/config/sensitivity_config.json')
-    coverage_path = os.environ.get('COVERAGE_PATH', 'data/processed/coverage_vectors.json')
-    validation_path = os.environ.get('VALIDATION_PATH', 'data/processed/validation_results.json')
-    output_json = os.environ.get('OUTPUT_JSON', 'data/processed/sensitivity_results.json')
-    output_md = os.environ.get('OUTPUT_MD', 'data/processed/sensitivity_report.md')
+def main():
+    """Main entry point for the sensitivity analysis script."""
+    # Default paths (can be overridden by args or config)
+    config_path = "data/processed/config.json"
+    coverage_vectors_path = "data/processed/coverage_vectors.json"
+    validation_results_path = "data/processed/validation_results.json"
+    output_json_path = "data/processed/sensitivity_analysis.json"
+    output_md_path = "data/processed/sensitivity_report.md"
     
-    logger.info("Starting sensitivity analysis...")
+    # Try to load config if it exists, otherwise use defaults
+    if Path(config_path).exists():
+        config = load_config(config_path)
+        coverage_vectors_path = config.get("coverage_vectors_path", coverage_vectors_path)
+        validation_results_path = config.get("validation_results_path", validation_results_path)
+        output_json_path = config.get("output_json_path", output_json_path)
+        output_md_path = config.get("output_md_path", output_md_path)
+    else:
+        config = {}
+        
+    logger.info("Starting Sensitivity Analysis...")
     
     try:
-        config = load_config(config_path)
-        coverage_vectors = load_coverage_vectors(coverage_path)
-        validation_results = load_validation_results(validation_path)
+        # Load data
+        logger.info(f"Loading coverage vectors from {coverage_vectors_path}")
+        coverage_vectors = load_coverage_vectors(coverage_vectors_path)
         
+        logger.info(f"Loading validation results from {validation_results_path}")
+        validation_results = load_validation_results(validation_results_path)
+        
+        # Perform analysis
+        logger.info("Computing Pearson correlation...")
         results = analyze_sensitivity(config, coverage_vectors, validation_results)
         
-        save_results(results, output_json)
-        generate_markdown_report(results, output_md)
+        # Save JSON results
+        logger.info(f"Saving JSON results to {output_json_path}")
+        save_results(results, output_json_path)
         
-        logger.info("Sensitivity analysis completed successfully.")
+        # Generate and save Markdown report
+        logger.info(f"Generating Markdown report to {output_md_path}")
+        generate_markdown_report(results, output_md_path)
         
-        # Exit with error code if proxy validation failed (r < 0.3)
-        if results.get('validation_status') == 'Invalid Proxy':
-            logger.error("Proxy validation failed. Exiting with error code 1.")
-            sys.exit(1)
-            
-    except FileNotFoundError as e:
-        logger.error(f"Required file not found: {e}")
-        sys.exit(1)
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error: {e}")
-        sys.exit(1)
+        # LOGGING FOR T041: "Proxy Validated" if r >= 0.5
+        if results["correlation_coefficient"] >= 0.5:
+            log_with_context(logger, logging.INFO, "Proxy Validated", 
+                             correlation=results["correlation_coefficient"],
+                             status="validated",
+                             message="State Coverage Vector is a statistically significant proxy for task difficulty.")
+        elif results["correlation_coefficient"] < 0.3:
+            log_with_context(logger, logging.WARNING, "Invalid Proxy", 
+                             correlation=results["correlation_coefficient"],
+                             status="invalid",
+                             message="State Coverage Vector is NOT a significant proxy. Recommend expanding variable set.")
+        else:
+            log_with_context(logger, logging.INFO, "Inconclusive Correlation", 
+                             correlation=results["correlation_coefficient"],
+                             status="inconclusive")
+                             
+        logger.info("Sensitivity Analysis completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Unexpected error during sensitivity analysis: {e}")
-        sys.exit(1)
+        logger.error(f"Sensitivity Analysis failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

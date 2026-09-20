@@ -61,8 +61,8 @@
 - [X] T007 Create `code/utils/data_loader.py` to fetch and checksum MobileGym tasks (raw data preservation)
 - [X] T008 Implement `code/scheduler/state_coverage.py` skeleton for binary vector initialization
 - [X] T009 Implement `code/scheduler/curriculum_scheduler.py` skeleton with two-phase logic stubs
-- [ ] T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure
-- [ ] T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).
+- [X] T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure
+- [X] T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).
 - [ ] T012 [P] Define "semantic state proxies" (e.g., `dark_mode`, `unread_count`) in `code/utils/constants.py` by reading the full list from `contracts/coverage.schema.yaml` key `semantic_proxies` to ensure US1 has necessary constants.
 - [X] T013 [US1] Implement hard wall-clock time limit enforcement (watchdog) in `code/training/runner.py` to satisfy FR-004.
 
@@ -82,7 +82,7 @@
 - [X] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
 - [X] T016 [US1] Implement fallback to maximum entropy if no tasks meet criteria (including after a range of expansion) in `code/scheduler/curriculum_scheduler.py`.
 - [X] T017 [US1] Implement 'Static Random' baseline scheduler logic (random sampling) in `code/scheduler/curriculum_scheduler.py` to satisfy FR-003 experimental control.
-- [ ] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
+- [X] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
 - [X] T019 [US1] Implement deadlock prevention (random selection if all states covered) in `code/scheduler/curriculum_scheduler.py`
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -171,8 +171,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T044 [P] Documentation updates in `docs/` (include scheduler trace explanation)
-- [~] T045 Code cleanup and refactoring of `code/scheduler/` and `code/analysis/`
-- [~] T046 [P] Additional unit tests for edge cases (empty batches, malformed data) in `tests/unit/`
+- [ ] T045 Code cleanup and refactoring of `code/scheduler/` and `code/analysis/`
+- [ ] T046 [P] Additional unit tests for edge cases (empty batches, malformed data) in `tests/unit/`
 - [ ] T047 Run quickstart.md validation to ensure end-to-end pipeline works on CPU-only runner
 - [ ] T048 Verify all artifacts (logs, vectors, reports) are checksummed and reproducible
 

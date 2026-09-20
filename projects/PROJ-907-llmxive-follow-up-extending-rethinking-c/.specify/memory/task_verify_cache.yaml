@@ -1,13 +1,12 @@
 T011:
   c: false
-  h: 3d39a82fc4a62a01d38dba44fdeea648da5ab84bbd38e7a919714b3fb5fd9392
-  r: "The provided `tracing.py` stops after defining helper functions and does not\
-    \ contain the main logic to load SiT\u2011XL/2, iterate over the validation set\
-    \ with the specified fixed timestep schedule, enforce `memory_guard(7.0)`, save\
-    \ per\u2011image `.npy` files with the required 4\u2011D shape, or write the required\
-    \ JSON\u2011lines logs. Additionally, the expected log files `data/results/tracing_log.jsonl`\
-    \ and `data/results/memory_profile_raw.jsonl` are absent. The script therefore\
-    \ does not meet the task specifications."
+  h: 99d129a494629c011cc830b4ac9e1db3ad2ece954e84fd15d4ad0d02cb997c9f
+  r: The provided `tracing.py` is truncated and does not show the full implementation
+    of the required functionality (e.g., fixed timestep schedule, memory_guard calls,
+    saving `.npy` files, and logging). Moreover, the required log files `data/results/tracing_log.jsonl`
+    and `data/results/memory_profile_raw.jsonl` are missing, indicating the script
+    has not been executed to produce the mandated outputs. The task therefore remains
+    unfinished.
 T012:
   c: false
   h: 9e7ebd7ac1b05f85a0b0dba4c44a44c6ade2108caf220452f7d0175eb46a7936

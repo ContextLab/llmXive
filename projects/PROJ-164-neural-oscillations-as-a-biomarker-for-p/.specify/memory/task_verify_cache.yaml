@@ -39,3 +39,47 @@ T008:
     \ claim lacks any artifact demonstrating that stdout capture, warning/mode\u2011\
     switch logging, resource\u2011usage logging, or log\u2011rotation have been implemented.\
     \ The required logging infrastructure is therefore missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pre-registration.json` or `power_analysis_report.json` files were provided,\
+    \ nor any evidence of a performed prospective power analysis, sample\u2011size\
+    \ calculation, or mode\u2011flag logic. The required artifacts are missing, so\
+    \ the task is not satisfied."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `verified_source_manifest.json` file was provided, nor any evidence of a\
+    \ search being performed or a log entry indicating \u201CData Insufficient: No\
+    \ single\u2011source paired dataset found\u201D. The required artifact is missing,\
+    \ so the task is not satisfied."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `verified_source_manifest.json` file or any script/output showing that the\
+    \ mode\u2011check logic was implemented and that the pipeline exits with code\u202F\
+    0 after writing the manifest when the mode flag is \u201CData Insufficient\u201D\
+    . The required artifact and its behavior are absent, so the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a run of the data\u2011alignment check is provided: there is\
+    \ no `verified_source_manifest.json`, no log indicating a \u201CData Insufficient\u201D\
+    \ flag, and no script or output showing that the EEG and tDCS subject overlap\
+    \ was verified (or mismatched). The required artifact is missing, so the task\
+    \ is not satisfied."
+T023:
+  c: false
+  h: 3337bd7eb9b542b1d596b9b66013b32d7f214b6443bf6f354f3895f647a3c4c5
+  r: "The repository contains a partially shown `code/02_feature_extraction.py` that\
+    \ defines a Welch\u2011based power computation, but the file is truncated and\
+    \ does not include any logic to write the results to `data/processed/spectral_power.csv`.\
+    \ Moreover, the required output CSV file is absent from the project directory.\
+    \ The task\u2019s core deliverable \u2013 a generated spectral power CSV \u2013\
+    \ is therefore missing."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test execution logs, reports, or output files are provided to demonstrate\
+    \ that unit tests T010\u2011T011a were run and all passed; the claim lacks any\
+    \ concrete artifact confirming the required pass criteria."

@@ -1,64 +1,47 @@
 import os
 import stat
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 # Import the function to test
-# We need to add the parent directory to the path to import from code
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+from code.setup_permissions import set_restricted_permissions
 
-from setup_permissions import set_restricted_permissions
 
-def test_set_restricted_permissions_on_mock_dir():
-    """
-    Test that the permission setting logic works correctly on a temporary directory.
-    We create a temp dir, set it up like data/raw, and verify the permission change.
-    """
-    # Create a temporary directory structure
-    temp_root = tempfile.mkdtemp()
-    try:
-        data_raw = Path(temp_root) / "data" / "raw"
-        data_raw.mkdir(parents=True)
+def test_set_restricted_permissions_success():
+    """Test that set_restricted_permissions correctly sets 555 on an existing directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_dir = Path(tmpdir) / "test_dir"
+        test_dir.mkdir()
         
-        # Mock the function to work with our temp dir instead of the real project structure
-        # We'll test the core logic by directly manipulating permissions
-        original_mode = data_raw.stat().st_mode & 0o777
+        # Initially it should be writable (usually 755 or 700 depending on umask)
+        initial_mode = test_dir.stat().st_mode & 0o777
         
-        # Set to 555
-        os.chmod(data_raw, stat.S_IRUSR | stat.S_IXUSR | 
-                        stat.S_IRGRP | stat.S_IXGRP | 
-                        stat.S_IROTH | stat.S_IXOTH)
+        # Set permissions
+        result = set_restricted_permissions(test_dir)
         
-        new_mode = data_raw.stat().st_mode & 0o777
+        assert result is True
         
-        assert new_mode == 0o555, f"Expected 0o555, got {oct(new_mode)}"
-        
-        # Verify write permissions are removed
-        assert not (new_mode & stat.S_IWUSR), "Owner write permission should be removed"
-        assert not (new_mode & stat.S_IWGRP), "Group write permission should be removed"
-        assert not (new_mode & stat.S_IWOTH), "Other write permission should be removed"
-        
-        # Verify read and execute permissions are present
-        assert (new_mode & stat.S_IRUSR), "Owner read permission should be present"
-        assert (new_mode & stat.S_IXUSR), "Owner execute permission should be present"
-        
-    finally:
-        # Clean up
-        shutil.rmtree(temp_root)
+        # Verify final mode is 555
+        final_mode = test_dir.stat().st_mode & 0o777
+        assert final_mode == 0o555, f"Expected 0o555, got {oct(final_mode)}"
 
-def test_directory_not_found():
-    """Test behavior when the target directory does not exist"""
-    # This test would require mocking the Path existence check
-    # For now, we verify the logic exists
-    assert True
 
-def test_permission_bits_calculation():
-    """Verify that the permission bits calculation in the function is correct"""
-    # The function uses: stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-    expected = 0o555
-    calculated = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-    assert calculated == expected, f"Permission calculation error: expected {oct(expected)}, got {oct(calculated)}"
+def test_set_restricted_permissions_nonexistent_path():
+    """Test that FileNotFoundError is raised for non-existent paths."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        non_existent = Path(tmpdir) / "does_not_exist"
+        
+        with pytest.raises(FileNotFoundError):
+            set_restricted_permissions(non_existent)
+
+
+def test_set_restricted_permissions_file_instead_of_dir():
+    """Test that NotADirectoryError is raised if path is a file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_file = Path(tmpdir) / "test_file.txt"
+        test_file.write_text("content")
+        
+        with pytest.raises(NotADirectoryError):
+            set_restricted_permissions(test_file)

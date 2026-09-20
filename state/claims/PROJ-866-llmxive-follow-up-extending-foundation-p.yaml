@@ -486,22 +486,6 @@
   updated_at: '2026-09-18T01:46:07Z'
 - artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
   attempts: 1
-  canonical: Build fails if total wall clock time exceeds 21600 seconds
-  claim_id: c_dacdee3c
-  context: 'Acceptance: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS
-    immediately. This task is a blocking gate for FR-007 and SC-005.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-18T01:46:07Z'
-- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
-  attempts: 1
   canonical: Perform bootstrapping with 1000 resamples for threshold confidence interval
   claim_id: c_881f6d8d
   context: 'Method: Identify the specific context reduction percentage where the policy-violation
@@ -996,25 +980,6 @@
   status: not_enough_info
   updated_at: '2026-09-18T01:56:02Z'
 - artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
-  attempts: 3
-  canonical: 20 unique depth levels with at least 25 workflows per level
-  claim_id: c_8ffff2c0
-  context: 'Unit test for graph variance in tests/unit/test_generator.py. Assertion:
-    Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
-  kind: magnitude
-  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
-    25 workflows.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-18T01:58:59Z'
-- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
   attempts: 1
   canonical: bootstrapping with 1000 resamples for threshold confidence interval
   claim_id: c_2d01cf18
@@ -1404,3 +1369,228 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T02:06:56Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 4
+  canonical: 20 unique depth levels with at least 25 workflows per level
+  claim_id: c_8ffff2c0
+  context: 'Unit test for graph variance in tests/unit/test_generator.py. Assertion:
+    Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:30:32Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Bootstrapping with 1000 resamples for threshold confidence interval
+  claim_id: c_e38abf14
+  context: 'Method: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds a nominal threshold. Bootstrapping: Perform bootstrapping
+    with exactly 1000 resamples using scipy.stats.bootstrap to calculate the Confidence
+    interval for the threshold value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:30:50Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_d7229f23
+  context: 'Rounding: Round the final threshold value to 2 decimal places. Output:
+    Write threshold value and CI bounds to data/results/threshold_ci.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:31:13Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Command python code/main.py --generate 500 --analyze documented
+  claim_id: c_dbc7139c
+  context: 'Deliverable: Include exact command string python code/main.py --generate
+    500 --analyze and expected output paths. Dependency: T033 (CLI Implementation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:31:30Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Batch execution over 500 workflows with compression levels 1 to 5
+  claim_id: c_4ddafa56
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 5. Loop Logic: For each
+    workflow, load the graph, run compressed_context.py for each depth, and collect
+    the resulting logs in memory.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over data/raw/ (500 workflows) and apply compression levels 1
+    through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:31:57Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 2
+  canonical: Build fails if total wall clock time exceeds 21600 seconds
+  claim_id: c_dacdee3c
+  context: 'Acceptance: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS
+    immediately. This task is a blocking gate for FR-007 and SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:31:58Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Synthetic workflows generated with depths up to 20 and complexities up
+    to 10
+  claim_id: c_ac65a8a6
+  context: Implement code/generators/synthetic_workflow.py with deterministic seeding
+    (FR-001). Generates a collection of DAGs, depths -20, complexities -10. Records
+    budget caps and metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a collection of DAGs, depths -20, complexities -10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:32:33Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Workflow schema defines node types agent, action, policy and constraints
+    budget, sovereignty, latency
+  claim_id: c_902005b8
+  context: 'Define a JSON Schema (YAML format) for Workflow. Must include type: object,
+    required: [id, nodes, edges, metadata], and properties defining nodes as array
+    of objects with id, type (allowed values: ''agent'', ''action'', ''policy''),
+    constraints (allowed values: ''budget'', ''sovereignty'', ''latency'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Workflow_schema_defines_node_types_agent,_action,_policy_and
+  kind: entity_fact
+  raw_text: 'The schema must define nodes as array of objects with id, type (allowed
+    values: ''agent'', ''action'', ''policy''), constraints (allowed values: ''budget'',
+    ''sovereignty'', ''latency'').'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:32:52Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: ExecutionLog schema requires workflow_id, compression_depth, token_count,
+    policy_violations
+  claim_id: c_162028c6
+  context: 'Define a JSON Schema (YAML format) for ExecutionLog. Must include type:
+    object, required: [workflow_id, compression_depth, token_count, policy_violations],
+    and properties defining: context_reduction_pct: type: [number, string] (to allow
+    numeric values or the literal string ''[deferred]'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ExecutionLog_schema_requires_workflow_id,_compression_depth,
+  kind: entity_fact
+  raw_text: The schema must define ExecutionLog required fields as workflow_id, compression_depth,
+    token_count, policy_violations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:33:19Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: AnalysisResult schema requires threshold_pct, ci_lower, ci_upper, regression_coefficients
+  claim_id: c_0456bf54
+  context: 'Define a JSON Schema (YAML format) for AnalysisResult. Must include type:
+    object, required: [threshold_pct, ci_lower, ci_upper, regression_coefficients],
+    and properties defining threshold_pct as number, ci_lower/upper as number.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AnalysisResult_schema_requires_threshold_pct,_ci_lower,_ci_u
+  kind: entity_fact
+  raw_text: The schema must define AnalysisResult required fields as threshold_pct,
+    ci_lower, ci_upper, regression_coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:33:33Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Pipeline generates 500 synthetic workflows
+  claim_id: c_8e29008e
+  context: 'Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 5. Deliverable: Write JSON files named
+    log_{workflow_id}_{depth}.json conforming to T005 schema.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must generate 500 synthetic workflows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:33:49Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Regression curve confidence intervals are 95%
+  claim_id: c_3d02095c
+  context: 'Columns: reduction_pct, error_rate, depth, ci_lower, ci_upper. Note: ci_lower
+    and ci_upper represent the 95% confidence interval bands for the regression curve
+    (derived from the model in T029/T031 via bootstrapping), distinct from the single
+    threshold CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI_lower and ci_upper represent the 95% confidence interval bands for
+    the regression curve.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:33:49Z'

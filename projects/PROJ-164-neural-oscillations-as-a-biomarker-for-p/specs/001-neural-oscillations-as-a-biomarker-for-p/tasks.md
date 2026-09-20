@@ -30,7 +30,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Setup configuration management in `code/utils/config.py` for paths, seeds, and thresholds (p=0.05, R2_expected=0.1). Include constants for `BANDS = ['delta', 'theta', 'alpha', 'beta', 'gamma']` and `LOWER_FREQ_HZ = 1.0`. **[FR-004][US-4]**
-- [ ] T005 [P] Implement I/O helpers in `code/utils/io_helpers.py` for CSV/Parquet loading, checksumming (SHA-256), and artifact hashing. Ensure `verify_checksum` function returns boolean and logs mismatches. **Mandatory**: Include a function `write_checksum_to_state` that writes successful checksums to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml` as required by FR-005 and Constitution Principle III. **[FR-005]**
+- [X] T005 [P] Implement I/O helpers in `code/utils/io_helpers.py` for CSV/Parquet loading, checksumming (SHA-256), and artifact hashing. Ensure `verify_checksum` function returns boolean and logs mismatches. **Mandatory**: Include a function `write_checksum_to_state` that writes successful checksums to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml` as required by FR-005 and Constitution Principle III. **[FR-005]**
 - [ ] T006 [P] Create base data schema definitions in `specs/contracts/dataset.schema.yaml`. Define fields strictly matching spec data model: `subject_id`, `channel`, `time`, `voltage`, `condition`. Remove any fields not explicitly defined in spec.md (e.g., `mode_flag`). **[FR-006]**
 - [ ] T007 [P] Create output schema definitions in `specs/contracts/output.schema.yaml`. Define fields for `feature_matrix`, `model_metrics` strictly matching plan.md output artifacts. Remove any fields not explicitly defined (e.g., `sensitivity_table`). **[FR-007]**
 - [ ] T008 [P] Setup logging infrastructure to capture warnings, mode switches, and resource usage (stdout + `logs/pipeline.log`). Configure log rotation to prevent disk overflow. **[FR-008]**
@@ -45,12 +45,12 @@
 
 ### Source Verification (must run before any download or power analysis)
 
-- [~] T011 [P] **Source Verification Task**: Search OpenNeuro, PhysioNet, Kaggle with query "EEG AND tDCS AND motor". Produce `verified_source_manifest.json` listing any single‑source paired dataset found (FR‑001, FR‑012, FR‑013). **Mandatory**: Explicitly populate the manifest with the search scope (OpenNeuro, PhysioNet, Kaggle) and the query string ("EEG AND tDCS AND motor") as required by FR-018. If none found, log "Data Insufficient: No single‑source paired dataset found" and set mode flag to **Data Insufficient**. **[FR-001][FR-012][FR-013][FR-018]**
-- [~] T012 [D] **Mode Check Task**: Read `verified_source_manifest.json`. If mode flag is **Data Insufficient**, terminate pipeline gracefully (exit code 0) after writing the manifest. No further tasks are executed. **[FR-001]** *(depends on T011)*
+- [ ] T011 [P] **Source Verification Task**: Search OpenNeuro, PhysioNet, Kaggle with query "EEG AND tDCS AND motor". Produce `verified_source_manifest.json` listing any single‑source paired dataset found (FR‑001, FR‑012, FR‑013). **Mandatory**: Explicitly populate the manifest with the search scope (OpenNeuro, PhysioNet, Kaggle) and the query string ("EEG AND tDCS AND motor") as required by FR-018. If none found, log "Data Insufficient: No single‑source paired dataset found" and set mode flag to **Data Insufficient**. **[FR-001][FR-012][FR-013][FR-018]**
+- [ ] T012 [D] **Mode Check Task**: Read `verified_source_manifest.json`. If mode flag is **Data Insufficient**, terminate pipeline gracefully (exit code 0) after writing the manifest. No further tasks are executed. **[FR-001]** *(depends on T011)*
 
 ### Power Analysis & Pre-Registration (Conditional on Data Existence)
 
-- [~] T009 [D] Perform prospective power analysis *after* T011 confirms data existence. Compute minimum sample size required to detect an expected R² = 0.1 with 80 % power at α = 0.05 (FR‑007, FR‑008, US‑4). **Mandatory**: Generate `pre-registration.json` artifact containing the analysis plan hash, timestamp, and parameters (R² target, power, α, predictor count) **BEFORE** any data ingestion. If `N_actual < N_min`, set mode flag to **Underpowered** and skip downstream statistical inference. Output `power_analysis_report.json`. **[FR-007][FR-008][US-4][FR-016]** *(depends on T011)*
+- [ ] T009 [D] Perform prospective power analysis *after* T011 confirms data existence. Compute minimum sample size required to detect an expected R² = 0.1 with 80 % power at α = 0.05 (FR‑007, FR‑008, US‑4). **Mandatory**: Generate `pre-registration.json` artifact containing the analysis plan hash, timestamp, and parameters (R² target, power, α, predictor count) **BEFORE** any data ingestion. If `N_actual < N_min`, set mode flag to **Underpowered** and skip downstream statistical inference. Output `power_analysis_report.json`. **[FR-007][FR-008][US-4][FR-016]** *(depends on T011)*
 
 ### Implementation (executed only if Primary Mode)
 
@@ -58,8 +58,8 @@
  - **URL**: derived from manifest entry.
  - **Output**: Save to `data/raw/` with pattern `sub-{subject_id}_run-{run_id}.edf`.
  - **Constraint**: Monitor RAM/CPU; log metrics to `logs/pipeline.log`. **[FR-012][FR-013]**
-- [~] T015 [US1] **Data Alignment Check**: Verify subject overlap between EEG and tDCS within the single source (FR‑011). **Mandatory**: Run immediately after download (T013). If mismatch, set mode flag to **Data Insufficient** and terminate. **[FR-011]** *(depends on T013)*
-- [ ] T014 [US1] Implement SHA‑256 checksum verification for all files in `data/raw/` and log results to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`. **Mandatory**: Use `write_checksum_to_state` helper to write successful checksums to the state file. Set files read‑only on success. **[FR-005]** *(depends on T013)*
+- [ ] T015 [US1] **Data Alignment Check**: Verify subject overlap between EEG and tDCS within the single source (FR‑011). **Mandatory**: Run immediately after download (T013). If mismatch, set mode flag to **Data Insufficient** and terminate. **[FR-011]** *(depends on T013)*
+- [X] T014 [US1] Implement SHA‑256 checksum verification for all files in `data/raw/` and log results to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`. **Mandatory**: Use `write_checksum_to_state` helper to write successful checksums to the state file. Set files read‑only on success. **[FR-005]** *(depends on T013)*
 - [ ] T016 [US1] **Dataset Representativeness Check**: Analyze dataset metadata to flag if the dataset is small (<50 subjects) or from a single population (e.g., healthy young adults). **Mandatory**: Implement the flagging logic and record this flag explicitly in the final output (e.g., `results.json` and `docs/research_results.md`) as required by FR-021. **[FR-021]** *(depends on T013)*
 - [X] T017 [US1] Implement band‑pass filtering (1–45 Hz) and common‑average referencing in `code/01_ingest_preprocess.py`. Write filtered epochs to `data/processed/`. **[FR-002][FR-006]**
 - [ ] T018 [US1] Implement epoching (fixed‑duration windows) and automated bad‑channel detection (z‑score > 5). Output `data/processed/epochs.fif`. **[FR‑002][FR‑006]**
@@ -71,7 +71,7 @@
 - [X] T010 [P] [US1] Write unit test code for checksum verification in `tests/test_preprocess.py`. Test case: Verify SHA‑256 match/mismatch handling.
 - [X] T011a [P] [US1] Write unit test code for mode detection logic (Primary vs. Data Insufficient) in `tests/test_preprocess.py`. Test case: Verify termination when no paired dataset is found.
 
-- [~] T045 [US1] **Run** all unit tests (T010‑T011a). **Pass Criteria**: All tests pass. If fail, halt pipeline.
+- [ ] T045 [US1] **Run** all unit tests (T010‑T011a). **Pass Criteria**: All tests pass. If fail, halt pipeline.
 
 ---
 
@@ -79,12 +79,12 @@
 
 **Goal**: Compute spectral power and connectivity metrics, then fit a ridge regression model (or Rank‑Ridge if non‑normal). Executes only in Primary Mode.
 
-- [~] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]**
+- [ ] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]**
 - [X] T024 [P] Implement connectivity metric extraction (PLV, wPLI) for ROI pairs (C3‑C4, C3‑Cz, C4‑Cz) in `code/02_feature_extraction.py`. Append results to `spectral_power.csv`. **[FR-004]**
-- [ ] T025 [P] Assemble final feature matrix with subject IDs in `code/02_feature_extraction.py`. Output `data/processed/feature_matrix.csv`. **[FR-005]**
-- [ ] T027 [P] **Mode‑Gate Before Modeling**: Read mode flag; if not **Primary**, skip modeling tasks and log "Modeling Skipped: Data Insufficient". **[FR-001][FR-004]**
-- [ ] T028 [D] **Normality Check**: Perform Shapiro‑Wilk on tDCS response (FR‑009). **Mandatory**: If non-normal (p < 0.05), switch to **Rank-Ridge regression** (non-parametric) and explicitly execute the Rank-Ridge model fitting as the replacement for standard Ridge. Log the change and the model type used. **[FR‑009]** *(depends on T025)*
-- [ ] T026 [D] Implement **nested cross‑validation** for Ridge/Rank-Ridge Regression:
+- [~] T025 [P] Assemble final feature matrix with subject IDs in `code/02_feature_extraction.py`. Output `data/processed/feature_matrix.csv`. **[FR-005]**
+- [~] T027 [P] **Mode‑Gate Before Modeling**: Read mode flag; if not **Primary**, skip modeling tasks and log "Modeling Skipped: Data Insufficient". **[FR-001][FR-004]**
+- [~] T028 [D] **Normality Check**: Perform Shapiro‑Wilk on tDCS response (FR‑009). **Mandatory**: If non-normal (p < 0.05), switch to **Rank-Ridge regression** (non-parametric) and explicitly execute the Rank-Ridge model fitting as the replacement for standard Ridge. Log the change and the model type used. **[FR‑009]** *(depends on T025)*
+- [~] T026 [D] Implement **nested cross‑validation** for Ridge/Rank-Ridge Regression:
  - **Inner loop**: 5‑fold CV to select α from a logarithmically spaced range spanning multiple orders of magnitude.
  - **Outer loop**: 5‑fold CV to evaluate model performance (R², coefficients).
  - **Logic**: If T028 determined data is non-normal, execute Rank-Ridge; otherwise, execute standard Ridge.

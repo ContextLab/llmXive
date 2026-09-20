@@ -2,10 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T010** — declared artifact(s) missing/empty/invalid: data/raw/.checksums.txt
-- **T011** — declared artifact(s) missing/empty/invalid: data/processed/scheduler_trace.json
-- **T012** — The `code/utils/constants.py` file contains no definitions for semantic state proxies nor any logic to read `contracts/coverage.schema.yaml`. Additionally, the required `contracts/coverage.schema.yaml` (or `schema.yaml`) file is missing entirely, so the list of proxies cannot be sourced. Both the constant definitions and the source schema are absent.
-- **T018** — declared artifact(s) missing/empty/invalid: data/processed/scheduler_trace.json
+- **T012** — The `code/utils/constants.py` file contains a stub `_load_schema_constants()` that attempts to read `contracts/coverage.schema.yaml`, but the required `contracts/coverage.schema.yaml` file is missing, so the semantic proxies cannot be loaded. Additionally, the file does not expose the loaded list as a concrete constant (e.g., a public variable or getter) in the visible portion of the code. The task therefore remains unfinished.
 - **T028** — declared artifact(s) missing/empty/invalid: data/processed/coverage_vectors.json
 - **T029** — The implementer did not provide any artifact (e.g., a dataset file, script output, or documentation) showing a held‑out test set that excludes state variables present in the training‑time State Coverage Vector. No evidence of generation, contents, or verification of such a set is present, so the task requirement is unmet.
 - **T036** — No plot files or any other artifacts were provided in `data/processed/` (or elsewhere) showing a “Success Rate vs. Steps” visualization. The required output—a saved plot image or data file—simply does not exist, so the task is not satisfied.
@@ -13,3 +10,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T041** — No code, configuration, tests, or documentation implementing “Proxy Validated” logging for the condition r ≥ 0.5 is present; the only provided material concerns an unrelated curriculum scheduler feature, so the required artifact is missing.
 - **T042** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_report.md
 - **T044** — No documentation files were provided in the `docs/` directory, nor any text explaining the scheduler trace as required by task T044. The implementer’s claim lacks the actual updated documentation artifact, so the requirement is not satisfied.
+- **T045** — No code files, diff, or documentation for the claimed cleanup and refactoring of `code/scheduler/` and `code/analysis/` are present. The required artifacts (updated source code, refactoring notes, or test results) are missing, so the task is not satisfied.
+- **T046** — No test files or code snippets for additional unit tests in `tests/unit/` were provided; without concrete artifacts showing tests for empty batches or malformed data, the requirement cannot be confirmed as satisfied.
+- **T047** — No logs, screenshots, or any other artifact demonstrating that the quickstart.md validation was actually executed on a CPU‑only runner and succeeded are present. The required evidence of a successful end‑to‑end run is missing.
+- **T048** — No logs, state‑coverage vectors, or analysis reports are present, and there are no checksum files or reproducibility documentation provided. Consequently, the requirement to verify that all artifacts are checksummed and reproducible is not satisfied.

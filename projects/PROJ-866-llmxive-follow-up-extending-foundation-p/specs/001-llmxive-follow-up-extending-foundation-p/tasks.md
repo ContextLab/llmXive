@@ -65,7 +65,7 @@
 > **NOTE: Write these tests AFTER defining the interface in T012/T013, ensuring they FAIL before implementation**
 
 - [X] T010 [US1] Unit test for graph variance in `tests/unit/test_generator.py`
- - **Assertion**: Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.
+ - **Assertion**: Verify exactly 20 unique depth levels exist and each level has at least 25 workflows. [UNRESOLVED-CLAIM: c_8ffff2c0 — status=not_enough_info]
 - [X] T011 [P] [US1] Contract test for workflow JSON output in `tests/contract/test_workflow_schema.py`
 
 ### Implementation for User Story 1
