@@ -4,37 +4,36 @@ from pathlib import Path
 
 def test_directory_structure_requirements():
     """
-    Verify that the source directory structure required by T001b exists.
-    Specifically checks for:
-    - src/generators
-    - src/inference
-    - src/analysis
+    Verify that the required directory structure for the project exists.
+    This test checks:
+    - src/generators exists
+    - src/inference exists
+    - src/analysis exists
     """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    src_root = project_root / "src"
-
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    src_dir = base_dir / "src"
+    
     required_dirs = [
         "generators",
         "inference",
         "analysis"
     ]
-
-    missing_dirs = []
-    for dir_name in required_dirs:
-        dir_path = src_root / dir_name
-        if not dir_path.exists():
-            missing_dirs.append(str(dir_path))
-        elif not dir_path.is_dir():
-            missing_dirs.append(f"{dir_path} (exists but is not a directory)")
-
-    assert len(missing_dirs) == 0, f"Required source directories missing: {missing_dirs}"
-
-    # Verify __init__.py files exist to make them valid Python packages
-    for dir_name in required_dirs:
-        init_path = src_root / dir_name / "__init__.py"
-        if not init_path.exists():
-            # Create empty __init__.py if missing to satisfy Python package requirements
-            init_path.touch()
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    
+    for subdir in required_dirs:
+        target_path = src_dir / subdir
+        assert target_path.exists(), f"Directory {target_path} does not exist"
+        assert target_path.is_dir(), f"Path {target_path} is not a directory"
+        
+        # Check for __init__.py to ensure it's a Python package
+        init_file = target_path / "__init__.py"
+        assert init_file.exists(), f"Missing __init__.py in {target_path}"
+    
+    # Also verify the tests directory structure
+    tests_dir = base_dir / "tests"
+    unit_dir = tests_dir / "unit"
+    integration_dir = tests_dir / "integration"
+    
+    assert unit_dir.exists(), f"Directory {unit_dir} does not exist"
+    assert integration_dir.exists(), f"Directory {integration_dir} does not exist"
+    
+    print("All required directory structures verified successfully.")

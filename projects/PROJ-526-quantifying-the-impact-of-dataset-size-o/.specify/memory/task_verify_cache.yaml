@@ -32,6 +32,14 @@ T022:
     \ added as required. The implementer must supply the modified source (e.g., a\
     \ function that checks sample count and raises or logs an appropriate error) and,\
     \ ideally, accompanying tests or logs demonstrating the behavior."
+T025:
+  c: false
+  h: 637dcd7a8bfeed3555ce90c278111005cca0b25fb46d9219261aab8938c74050
+  r: "The required `data/processed/metric_definitions.md` file is absent, and the\
+    \ provided `code/analyze_physics.py` is truncated (e.g., incomplete `compute_valence_electron_variance`\
+    \ function) with no implementation of \u201Csymmetry sensitivity\u201D or reading\
+    \ of metric definitions. The script therefore does not fulfill the specified computation\
+    \ requirements."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

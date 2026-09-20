@@ -1,38 +1,47 @@
+"""
+Setup script to create the model cache directory.
+
+This task (T005) creates the `models/` directory at the project root
+to serve as the cache for downloaded model weights (e.g., Kwai Keye-VL).
+"""
 import os
 from pathlib import Path
 
-def ensure_model_cache_directory(base_path: str = "models") -> Path:
+
+def ensure_model_cache_directory() -> Path:
     """
-    Creates the model cache directory if it does not exist.
+    Ensure the model cache directory exists.
     
-    Args:
-        base_path: The relative path to the model cache directory (default: 'models').
-        
     Returns:
-        Path: The absolute path to the created or existing directory.
-    """
-    cache_dir = Path(base_path)
-    
-    # Ensure the directory exists
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Verify permissions (optional but good practice for cache dirs)
-    if not os.access(cache_dir, os.W_OK):
-        raise PermissionError(f"Write permission denied for model cache directory: {cache_dir}")
+        Path: The absolute path to the models directory.
         
-    return cache_dir
+    Raises:
+        OSError: If the directory cannot be created.
+    """
+    # Define the path relative to the script's location (project root)
+    # The script is located at code/setup_model_cache.py, so project root is parent of code/
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    models_dir = project_root / "models"
+    
+    if not models_dir.exists():
+        models_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Created model cache directory: {models_dir}")
+    else:
+        print(f"Model cache directory already exists: {models_dir}")
+        
+    return models_dir
+
 
 def main():
-    """
-    Entry point for setting up the model cache directory.
-    Creates the 'models' directory at the project root.
-    """
+    """Main entry point for the setup script."""
     try:
-        model_dir = ensure_model_cache_directory()
-        print(f"Model cache directory ready: {model_dir}")
-    except Exception as e:
-        print(f"Error setting up model cache directory: {e}")
+        models_dir = ensure_model_cache_directory()
+        print(f"Success: Model cache ready at {models_dir}")
+    except OSError as e:
+        print(f"Error: Failed to create model cache directory: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()

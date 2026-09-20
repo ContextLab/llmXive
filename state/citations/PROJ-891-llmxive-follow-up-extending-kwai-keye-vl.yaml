@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://s3.amazonaws.com/amzn-activity-net/val_1.json
   verified_at: '2026-08-12T07:54:47.686446Z'
-- artifact_hash: 97e1ae05429b7739b8f1eb58a80d528ab0acc520be7f79bc6c3e0dc1840cb4f2
+- artifact_hash: 12c563235646b029f112677707463b8f984f030a39170c18ad8df42d0e15359d
   artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,10 +19,21 @@
   value: https://arxiv.org/abs/2606.10651
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2606.10651
-  verified_at: '2026-09-19T22:47:23.535961Z'
-- artifact_hash: 97e1ae05429b7739b8f1eb58a80d528ab0acc520be7f79bc6c3e0dc1840cb4f2
+  verified_at: '2026-09-20T09:52:18.658017Z'
+- artifact_hash: 12c563235646b029f112677707463b8f984f030a39170c18ad8df42d0e15359d
   artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-20T09:52:18.658017Z'
+- artifact_hash: 12c563235646b029f112677707463b8f984f030a39170c18ad8df42d0e15359d
+  artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -30,4 +41,4 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-19T22:47:23.535961Z'
+  verified_at: '2026-09-20T09:52:18.658017Z'

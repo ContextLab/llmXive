@@ -1,43 +1,37 @@
-"""
-Setup script to create the required directory structure for the llmXive project.
-Creates data directories: raw, distorted, outputs, metadata
-Creates output directory: control
-"""
 import os
 from pathlib import Path
 
-
 def main():
-    """Create the project's data and output directory structure."""
-    # Define the base project root (assuming this script is in code/)
-    # The directories should be created relative to the project root.
-    # We assume the script is run from the project root or code/ directory.
-    # To be safe, we determine the project root as the parent of 'code'.
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    # Define required directories relative to project root
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "distorted",
-        project_root / "data" / "outputs",
-        project_root / "data" / "metadata",
-        project_root / "output" / "control",
+    """
+    Creates the required directory structure for the llmXive project.
+    
+    Directories created:
+    - data/raw: For original unmodified source data
+    - data/distorted: For generated extreme-aspect ratio videos
+    - data/outputs: For analysis results and logs
+    - data/metadata: For CSV/JSON metadata linking clips
+    - output/control: For square-cropped control group videos
+    """
+    base_dirs = [
+        "data/raw",
+        "data/distorted",
+        "data/outputs",
+        "data/metadata",
+        "output/control"
     ]
 
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
+    for dir_path in base_dirs:
+        full_path = Path(dir_path)
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {directory}")
+            print(f"Directory already exists: {full_path}")
 
-    print(f"Setup complete. Created {created_count} new directories.")
+    print(f"Directory setup complete. {created_count} new directories created.")
     return 0
-
 
 if __name__ == "__main__":
     exit(main())

@@ -675,22 +675,6 @@
   updated_at: '2026-09-19T22:46:47Z'
 - artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   attempts: 1
-  canonical: Kwai Keye-VL-2.0 Technical Report arXiv ID 2606.10651
-  claim_id: c_44ca9ed4
-  context: 'Tasks: llmXive follow-up: extending ''Kwai Keye-VL-2.0 Technical Report
-    (2606.10651, https://arxiv.org/abs/2606.10651)'''
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Kwai Keye-VL-2.0 Technical Report is associated with arXiv ID 2606.10651.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-19T22:48:00Z'
-- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
-  attempts: 1
   canonical: ActivityNet Captions dataset used for benchmark generation
   claim_id: c_cedf6835
   context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
@@ -859,3 +843,666 @@
   source_type: external
   status: verified
   updated_at: '2026-09-19T22:53:10Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Extreme aspect ratio distortions 1:10 10:1 1:20 20:1 applied to ActivityNet
+    Captions
+  claim_id: c_3da630ab
+  context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
+    applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet
+    Captions dataset while preserving temporal ground-truth annotations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project applies extreme aspect ratio distortions (1:10, 10:1, 1:20,
+    20:1) to the ActivityNet Captions dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:34:37Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Citations Smith et al. 2023 and arXiv:2301.12345
+  claim_id: c_b4e49f45
+  context: 'References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/`
+    contains original unmodified clips for the Independent test.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The project references Smith et al. (2023) and arXiv:2301.12345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:35:00Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Kwai-Keye-VL-2.0-Int4 checkpoint usage
+  claim_id: c_5ca21ee4
+  context: Load the **Kwai-Kyle/Kwai-Keye-VL-2.0-Int4** checkpoint (or verified equivalent
+    from T004) in INT4 quantization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the Kwai-Kyle/Kwai-Keye-VL-2.0-Int4 checkpoint for inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:35:31Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: P-value definition sourced from Wikipedia
+  claim_id: c_9295faad
+  context: 'Verify report contains mIoU for both groups, p-value, test statistic,
+    and significance statement (p < 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P-value_definition_sourced_from_Wikipedia
+  kind: entity_fact
+  raw_text: The project calculates p-values and significance statements using the
+    definition from Wikipedia.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:17Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 0
+  canonical: ActivityNet Captions dataset used
+  claim_id: c_ff0974c0
+  context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
+    applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet
+    Captions dataset while preserving temporal ground-truth annotations.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: on ActivityNet Captions dataset and our framework shows
+      source_id: '1804.08274'
+      url: https://arxiv.org/abs/1804.08274
+      value: ActivityNet Captions
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset used is ActivityNet Captions.
+  resolved_value: ActivityNet Captions
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:36:50Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 3
+  canonical: Kwai Keye-VL-2.0 Technical Report arXiv ID 2606.10651
+  claim_id: c_44ca9ed4
+  context: 'Tasks: llmXive follow-up: extending ''Kwai Keye-VL-2.0 Technical Report
+    (2606.10651, https://arxiv.org/abs/2606.10651)'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Kwai Keye-VL-2.0 Technical Report is associated with arXiv ID 2606.10651.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:51Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Extreme aspect ratio distortions 1:10 10:1 1:20 20:1
+  claim_id: c_9a64eac1
+  context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
+    applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet
+    Captions dataset while preserving temporal ground-truth annotations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extreme aspect ratio distortions applied are 1:10, 10:1, 1:20, and 20:1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:37:19Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 cited for data consistency
+  claim_id: c_66cb32c1
+  context: 'References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/`
+    contains original unmodified clips for the Independent test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Smith et al. (2023) is cited as a reference for data consistency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:37:48Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: arXiv:2301.12345 cited for data consistency
+  claim_id: c_7d39fbe8
+  context: 'References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/`
+    contains original unmodified clips for the Independent test.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: arXiv:2301.12345 is cited as a reference for data consistency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:37:52Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Kwai-Kyle/Kwai-Keye-VL-2.0-Int4 checkpoint used
+  claim_id: c_08c0e1b8
+  context: Load the **Kwai-Kyle/Kwai-Keye-VL-2.0-Int4** checkpoint (or verified equivalent
+    from T004) in INT4 quantization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model checkpoint used is Kwai-Kyle/Kwai-Keye-VL-2.0-Int4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:38:18Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Model quantized to INT4 for CPU execution
+  claim_id: c_4627c640
+  context: 'Goal: Execute the Kwai Keye-VL model (quantized to INT4) on the generated
+    extreme-aspect and square-cropped datasets using a CPU-only environment to collect
+    temporal grounding predictions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_quantized_to_INT4_for_CPU_execution
+  kind: entity_fact
+  raw_text: The model is quantized to INT4 for CPU execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:38:50Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Peak VmRSS less than 7GB
+  claim_id: c_c5415adf
+  context: 'Independent Test: Run inference on a subset of videos. Verify no OOM errors,
+    model loads via `llama.cpp` or `Optimum-Intel` on CPU, and a JSON output file
+    contains valid timestamp predictions. Peak VmRSS must be < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_VmRSS_less_than_7GB
+  kind: magnitude
+  raw_text: The memory limit for inference is set to less than 7GB peak VmRSS.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:39:52Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Total batch time limit 6 hours
+  claim_id: c_923cc8f4
+  context: Implement total batch time limit wrapper (FR-006) to abort if **6-hour**
+    limit is exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total batch time limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:40:18Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Tests are optional and included only if explicitly requested in the feature
+    specification
+  claim_id: c_dc758d61
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_included_only_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:43:09Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Smith et al. (2023) and arXiv:2301.12345 are referenced regarding data
+    consistency
+  claim_id: c_a47fec2f
+  context: 'Method: Automated validation of directory contents against predefined
+    formatting constraints. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:43:11Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: output/control/ directory must contain square-cropped clips
+  claim_id: c_5e227f34
+  context: 'Independent Test: Run scripts/validate_distortion.py (T016) and assert
+    exit code 0. Verify data/raw/original/ contains original unmodified clips for
+    the Independent test. Verify data/distorted/ contains a sufficient volume of clips
+    (distributed across ratios) with valid codecs and correct aspect ratios. Verify
+    output/control/ contains square-cropped clips.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output/control/_directory_must_contain_square-cropped_clips
+  kind: entity_fact
+  raw_text: Verify `output/control/` contains square-cropped clips.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:43:49Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Peak VmRSS must be less than 7GB
+  claim_id: c_948c0ee4
+  context: 'Independent Test: Run inference on a subset of videos. Verify no OOM errors,
+    model loads via llama.cpp or Optimum-Intel on CPU, and a JSON output file contains
+    valid timestamp predictions. Peak VmRSS must be < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_VmRSS_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: Peak VmRSS must be < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:44:36Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: output/control/ directory must contain square-cropped clips
+  claim_id: c_bf7c3792
+  context: T016 [US1] Implement scripts/validate_distortion.py to run automated checks
+    on data/distorted/, data/raw/original/, and output/control/ (assert exit code
+    0 for valid run). Verify output/control/ contains square-cropped clips.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output/control/_directory_must_contain_square-cropped_clips
+  kind: entity_fact
+  raw_text: Verify `output/control/` contains square-cropped clips.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:44:38Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test is performed with alpha 0.05 to check normality
+  claim_id: c_6041440e
+  context: 'Primary: Perform Shapiro-Wilk test to check normality (alpha=0.05). Select
+    and execute PAIRED t-test or Wilcoxon signed-rank test on the Paired mIoU scores
+    from same source IDs (distorted vs. square-cropped).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform Shapiro-Wilk test to check normality (alpha=0.05).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:44:38Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Total batch time limit wrapper must abort if 6-hour limit is exceeded
+  claim_id: c_9f0f34eb
+  context: T023 [US2] Implement total batch time limit wrapper (FR-006) to abort if
+    6-hour limit is exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort if 6-hour limit is exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:45:01Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Kwai Keye-VL model is quantized to INT4
+  claim_id: c_8eb8f4be
+  context: 'Goal: Execute the Kwai Keye-VL model (quantized to INT4) on the generated
+    extreme-aspect and square-cropped datasets using a CPU-only environment to collect
+    temporal grounding predictions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kwai_Keye-VL_model_is_quantized_to_INT4
+  kind: entity_fact
+  raw_text: The Kwai Keye-VL model (quantized to INT4)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:45:36Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Geometric distortions applied at varying aspect ratios using ffmpeg or
+    opencv-python
+  claim_id: c_0e59cab4
+  context: 'T013 [US1] Implement src/generators/distort_video.py: Stream ActivityNet
+    Captions data using huggingface_hub.load_dataset(''ActivityNet/activitynet-captions'',
+    split=''train'', streaming=True). Apply geometric distortions at varying aspect
+    ratios spanning from highly compressed to highly elongated configurations using
+    ffmpeg or opencv-python.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Geometric_distortions_applied_at_varying_aspect_ratios_using
+  kind: entity_fact
+  raw_text: Apply geometric distortions at varying aspect ratios spanning from highly
+    compressed to highly elongated configurations using ffmpeg or opencv-python.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:46:08Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Extreme-aspect clips generated at ratios 1:10, 10:1, 1:20, and 20:1
+  claim_id: c_55a3beb4
+  context: Generate a representative set of extreme-aspect clips (1:10, 10:1, 1:20,
+    20:1) with dynamic reduction allowed if time limits are exceeded (configurable
+    via MAX_CLIPS parameter).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a representative set of extreme-aspect clips (1:10, 10:1, 1:20,
+    20:1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:46:38Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: ActivityNet Captions dataset fetched using huggingface_hub with split
+    train and streaming true
+  claim_id: c_e4f32071
+  context: 'T012b [US1] Implement src/generators/fetch_original.py: Retrieve Original
+    Unmodified ActivityNet Captions clips for the Secondary Independent Test (Plan
+    requirement). Use huggingface_hub.load_dataset(''ActivityNet/activitynet-captions'',
+    split=''train'', streaming=True) to fetch a representative subset of source clips.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ActivityNet_Captions_dataset_fetched_using_huggingface_hub_w
+  kind: entity_fact
+  raw_text: Use huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train',
+    streaming=True) to fetch a representative subset of source clips.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:46:59Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: ActivityNet Captions dataset streamed using huggingface_hub with split
+    train
+  claim_id: c_5cd8a0dd
+  context: 'T013 [US1] Implement src/generators/distort_video.py: Stream ActivityNet
+    Captions data using huggingface_hub.load_dataset(''ActivityNet/activitynet-captions'',
+    split=''train'', streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ActivityNet_Captions_dataset_streamed_using_huggingface_hub
+  kind: entity_fact
+  raw_text: Use huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train',
+    streaming=True).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:47:22Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_4f2496ea
+  context: T002 Initialize Python 3.11 project with dependencies in requirements.txt
+    (opencv-python, ffmpeg-python, transformers, optimum-intel, llama-cpp-python,
+    pandas, scipy, numpy, requests, huggingface_hub, pytest, psutil).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:47:46Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: opencv-python version pinned to range 4.8.0 to 5.0.0
+  claim_id: c_c3cab1f8
+  context: MUST pin exact versions (e.g., opencv-python>=4.8.0,<5.0.0) to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python>=4.8.0,<5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:48:04Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Memory limit verification via /proc/self/status and OOM kill assertion
+    at threshold
+  claim_id: c_ef33781f
+  context: 'T002b [P] Install and configure system-level cgroups and ulimit wrappers
+    in CI environment. Create scripts/setup_limits.sh to enforce memory limits via
+    cgexec or ulimit. Verification: Verify limit via /proc/self/status and assert
+    OOM kill occurs at the configured memory threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_verification_via_/proc/self/status_and_OOM_kill
+  kind: entity_fact
+  raw_text: Verify limit via /proc/self/status and assert OOM kill occurs at the configured
+    memory threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:48:42Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Memory limit enforced via cgexec or ulimit with SIGKILL on OOM
+  claim_id: c_38aa4b65
+  context: T021 [US2] Implement memory limit enforcement using cgroups or ulimit wrapper
+    (FR-006). Use cgexec -g memory:limit_group or ulimit -v with a memory limit set
+    to a predefined threshold and send SIGKILL on OOM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_enforced_via_cgexec_or_ulimit_with_SIGKILL_on_O
+  kind: entity_fact
+  raw_text: Use cgexec -g memory:limit_group or ulimit -v with a memory limit set
+    to a predefined threshold and send SIGKILL on OOM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:49:12Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Primary subject flagged as unresolvable if no contour found or area ratio
+    less than 5%
+  claim_id: c_54a14873
+  context: 'Logic: Identify the primary subject by calculating the ratio of the largest
+    detected contour area to the frame area after distortion. Explicit Definition:
+    In the absence of a grounding model, the primary subject is deterministically
+    approximated as the object corresponding to the largest contour. If no contour
+    is found, or if the ratio < 5% (implying >95% reduction of the largest object),
+    flag as unresolvable and exclude.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_subject_flagged_as_unresolvable_if_no_contour_found
+  kind: magnitude
+  raw_text: If no contour is found, or if the ratio < 5% (implying >95% reduction
+    of the largest object), flag as unresolvable and exclude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:49:54Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Clips skipped and logged to exclusions.json if area reduction exceeds
+    95% or no primary subject found
+  claim_id: c_b6fa1e5f
+  context: 'Implement FR-001 logic: Call src/generators/bounding_box_heuristic.py
+    (T012c) to check primary subject integrity. If area reduction >95% or no primary
+    subject found, skip clip and log to data/outputs/exclusions.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If area reduction >95% or no primary subject found, skip clip and log
+    to data/outputs/exclusions.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:49:55Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Metadata CSV must include source_id as join key for paired test
+  claim_id: c_ec22002b
+  context: Output metadata CSV linking distorted videos to original IDs and timestamps.
+    MUST include source_id as the join key for the Paired test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metadata_CSV_must_include_source_id_as_join_key_for_paired_t
+  kind: entity_fact
+  raw_text: Output metadata CSV linking distorted videos to original IDs and timestamps.
+    MUST include source_id as the join key for the Paired test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:50:21Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Results separated by extreme-aspect, square-cropped, and original conditions
+  claim_id: c_ea63c71e
+  context: Calculate mean Intersection-over-Union for predicted vs. ground-truth timestamps.
+    Separate results by condition (extreme-aspect vs. square-cropped vs. original).
+    Output to data/outputs/metrics.csv with columns video_id, condition, mIoU, source_id.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_separated_by_extreme-aspect,_square-cropped,_and_ori
+  kind: entity_fact
+  raw_text: Separate results by condition (extreme-aspect vs. square-cropped vs. original).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:51:03Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Welch's t-test or Mann-Whitney U performed on independent mIoU scores
+    from original vs distorted sets
+  claim_id: c_eefcfc58
+  context: 'Secondary: Perform Welch''s t-test or Mann-Whitney U on Independent mIoU
+    scores from Original Unmodified (T012b) vs. Distorted sets (Plan requirement for
+    robustness check).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Welch's_t-test_or_Mann-Whitney_U_performed_on_independent_mI
+  kind: entity_fact
+  raw_text: Perform Welch's t-test or Mann-Whitney U on Independent mIoU scores from
+    Original Unmodified (T012b) vs. Distorted sets (Plan requirement for robustness
+    check).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:51:45Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Quickstart script must exit with code 0 and produce data/outputs/report.md
+  claim_id: c_cb1d4e41
+  context: 'T034 Run quickstart.md validation: Execute bash scripts/quickstart.sh
+    and verify exit code 0 and existence of data/outputs/report.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify exit code 0 and existence of data/outputs/report.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:52:18Z'

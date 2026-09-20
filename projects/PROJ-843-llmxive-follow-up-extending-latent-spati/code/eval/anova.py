@@ -1,134 +1,185 @@
+"""
+Two-Way ANOVA for Metric Analysis (T018)
+
+Performs Two-Way ANOVA on metrics vs (Scene Dynamics, Texture Level).
+"""
 import os
 import sys
 import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import warnings
 
-try:
-    import statsmodels.api as sm
-    from statsmodels.formula.api import ols
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
-    warnings.warn("statsmodels not found. ANOVA will use scipy fallback.")
-
+# Local imports
 from config import get_results_dir, ensure_directories
+from utils.seeds import set_global_seed
+from utils.memory_monitor import MemoryMonitor
+from scipy import stats
 
-def load_metrics_for_anova(results_dir: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load metrics from the sensitivity analysis and strata to build a DataFrame for ANOVA.
-    We assume we have a sensitivity analysis JSON and a main metrics JSON.
-    For the purpose of this task, we construct a synthetic but realistic DataFrame
-    based on the sensitivity results if available, or simulate the structure.
-    """
-    results_dir = results_dir or get_results_dir()
-    sens_path = results_dir / "sensitivity_analysis.json"
-    
-    if not HAS_STATSMODELS:
-        # Fallback: create a dummy dataframe if statsmodels is missing
-        # In a real run, this would fail or warn, but we need to return a DF.
-        data = {
-            'Scene_Dynamics': ['Static', 'Static', 'Fast', 'Fast'],
-            'Texture_Level': ['High', 'Low', 'High', 'Low'],
-            'WorldScore': [0.85, 0.60, 0.70, 0.40],
-            'SparseConsistency': [0.90, 0.75, 0.80, 0.50]
-        }
-        return pd.DataFrame(data)
+RESULTS_FILE = "anova_results.json"
 
-    # If we have sensitivity results, we might want to include threshold as a factor?
-    # But T018 says "Two-Way ANOVA on metrics vs (Scene Dynamics, Texture Level)".
-    # We assume the main metrics.json or a per-stratum metrics file exists.
-    # Since T019 runs sensitivity, we might not have per-stratum metrics yet.
-    # We will construct the DF from the sensitivity results + strata assumptions
-    # or just return a placeholder if data is missing.
+def load_metrics_for_anova(metrics_path: Path) -> pd.DataFrame:
+    """
+    Load metrics from the metrics.json file and prepare for ANOVA.
     
-    # For this implementation, we assume we have a 'strata_metrics.json' or similar.
-    # If not, we return a minimal valid DF to avoid crash.
-    df_path = results_dir / "strata_metrics.json"
-    if df_path.exists():
-        with open(df_path, 'r') as f:
-            data = json.load(f)
-        return pd.DataFrame(data)
+    Expected format: List of records with 'scenario', 'world_score', 'sparse_consistency_score', etc.
+    """
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
     
-    # Fallback: Generate a realistic dummy dataset for ANOVA demonstration
-    # This is necessary if the pipeline hasn't run the full stratification metric aggregation.
-    n = 100
-    dynamics = np.random.choice(['Static', 'Slow', 'Fast'], n)
-    texture = np.random.choice(['High', 'Low'], n)
+    with open(metrics_path, 'r') as f:
+        data = json.load(f)
     
-    # Simulate scores with interaction
-    ws = np.where(dynamics=='Static', 0.9, 0.7)
-    ws += np.where(texture=='High', 0.1, -0.1)
-    ws += np.where((dynamics=='Fast') & (texture=='Low'), -0.3, 0) # Interaction
-    ws += np.random.normal(0, 0.05, n)
+    # Ensure data is a list
+    if isinstance(data, dict):
+        data = [data]
     
-    scs = np.where(dynamics=='Static', 0.95, 0.8)
-    scs += np.where(texture=='High', 0.05, -0.05)
-    scs += np.random.normal(0, 0.05, n)
+    df = pd.DataFrame(data)
     
-    return pd.DataFrame({
-        'Scene_Dynamics': dynamics,
-        'Texture_Level': texture,
-        'WorldScore': ws,
-        'SparseConsistency': scs
-    })
+    # Filter out rows with missing scores
+    valid_cols = ['world_score', 'sparse_consistency_score']
+    for col in valid_cols:
+        if col not in df.columns:
+            raise ValueError(f"Column '{col}' not found in metrics file")
+        df = df[df[col].notna()]
+    
+    return df
 
-def run_anova(df: pd.DataFrame) -> Dict[str, Any]:
+def run_anova(df: pd.DataFrame, metric_col: str = "world_score") -> Dict[str, Any]:
     """
-    Perform Two-Way ANOVA on the DataFrame.
-    Returns p-values for main effects and interaction.
+    Perform Two-Way ANOVA on the specified metric.
+    
+    Factors: Scene Dynamics (Static/Slow/Fast), Texture Level (High/Low)
+    Returns ANOVA table and p-values.
     """
-    if not HAS_STATSMODELS:
-        # Fallback to scipy if statsmodels is missing
-        from scipy import stats
-        # We can only do simple ANOVA easily, interaction is hard without statsmodels
-        # We'll return a dummy result with a warning
+    # Check for required columns
+    required_cols = ['scenario', metric_col]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Required column '{col}' not found")
+    
+    # Extract factors from scenario string (e.g., "Static-High")
+    # Assume format: "{Dynamics}-{Texture}"
+    df['dynamics'] = df['scenario'].str.extract(r'([^-]+)-')
+    df['texture'] = df['scenario'].str.extract(r'-([^-]+)')
+    
+    # Drop rows with missing factors
+    df = df.dropna(subset=['dynamics', 'texture'])
+    
+    if len(df) < 4:
+        raise ValueError("Insufficient data for ANOVA (need at least 4 groups)")
+    
+    # Perform Two-Way ANOVA
+    # Using statsmodels for proper interaction term
+    try:
+        from statsmodels.formula.api import ols
+        from statsmodels.stats.anova import anova_lm
+        
+        model = ols(f"{metric_col} ~ C(dynamics) * C(texture)", data=df).fit()
+        anova_table = anova_lm(model, typ=2)
+        
+        # Extract p-values
+        interaction_p = None
+        dynamics_p = None
+        texture_p = None
+        
+        # Find interaction term
+        for idx, row in anova_table.iterrows():
+            if 'dynamics' in str(idx) and 'texture' in str(idx):
+                interaction_p = row['PR(>F)']
+            elif 'dynamics' in str(idx):
+                dynamics_p = row['PR(>F)']
+            elif 'texture' in str(idx):
+                texture_p = row['PR(>F)']
+        
         return {
-            "world_score_interaction_p": 0.05,
-            "sparse_consistency_interaction_p": 0.05,
-            "method": "scipy_fallback",
-            "warning": "statsmodels not installed, using fallback"
+            "anova_table": anova_table.to_dict(),
+            "interaction_p_value": interaction_p,
+            "dynamics_p_value": dynamics_p,
+            "texture_p_value": texture_p,
+            "significant_interaction": interaction_p is not None and interaction_p < 0.05,
+            "df": len(df)
         }
-
-    results = {}
-    
-    # ANOVA for WorldScore
-    model_ws = ols('WorldScore ~ C(Scene_Dynamics) * C(Texture_Level)', data=df).fit()
-    anova_table_ws = sm.stats.anova_lm(model_ws, typ=2)
-    results['world_score'] = {
-        'interaction_p': float(anova_table_ws['PR(>F)']['C(Scene_Dynamics):C(Texture_Level)']),
-        'table': anova_table_ws.to_dict()
-    }
-    
-    # ANOVA for SparseConsistency
-    model_scs = ols('SparseConsistency ~ C(Scene_Dynamics) * C(Texture_Level)', data=df).fit()
-    anova_table_scs = sm.stats.anova_lm(model_scs, typ=2)
-    results['sparse_consistency'] = {
-        'interaction_p': float(anova_table_scs['PR(>F)']['C(Scene_Dynamics):C(Texture_Level)']),
-        'table': anova_table_scs.to_dict()
-    }
-    
-    results['method'] = "statsmodels"
-    return results
+        
+    except ImportError:
+        # Fallback to scipy if statsmodels not available
+        # This is a simplified version without interaction
+        print("Warning: statsmodels not available. Using simplified scipy ANOVA.")
+        grouped = df.groupby(['dynamics', 'texture'])[metric_col]
+        
+        # Extract groups
+        groups = [group for name, group in grouped]
+        
+        if len(groups) < 2:
+            raise ValueError("Need at least 2 groups for ANOVA")
+        
+        f_stat, p_val = stats.f_oneway(*groups)
+        
+        return {
+            "f_statistic": float(f_stat),
+            "p_value": float(p_val),
+            "method": "scipy_f_oneway",
+            "df": len(df)
+        }
 
 def main():
-    """Run ANOVA and save results."""
+    """Main entry point for ANOVA analysis."""
+    set_global_seed(42)
+    
     results_dir = get_results_dir()
     ensure_directories(results_dir)
     
-    df = load_metrics_for_anova(results_dir)
-    results = run_anova(df)
+    metrics_path = results_dir / "metrics.json"
+    output_path = results_dir / RESULTS_FILE
     
-    out_path = results_dir / "anova_results.json"
-    with open(out_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    print(f"ANOVA results saved to {out_path}")
-    print(f"WorldScore Interaction P-Value: {results['world_score']['interaction_p']}")
-    print(f"SparseConsistency Interaction P-Value: {results['sparse_consistency']['interaction_p']}")
+    try:
+        # Load data
+        df = load_metrics_for_anova(metrics_path)
+        print(f"Loaded {len(df)} valid records for ANOVA")
+        
+        # Run ANOVA for both primary metrics
+        results = {}
+        
+        for metric in ["world_score", "sparse_consistency_score"]:
+            if metric in df.columns:
+                print(f"\nRunning ANOVA for {metric}...")
+                try:
+                    anova_result = run_anova(df, metric_col=metric)
+                    results[metric] = anova_result
+                    print(f"  Interaction p-value: {anova_result.get('interaction_p_value')}")
+                except Exception as e:
+                    print(f"  Error running ANOVA for {metric}: {e}")
+                    results[metric] = {"error": str(e)}
+            else:
+                print(f"  Skipping {metric}: column not found")
+        
+        # Save results
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        print(f"\nANOVA results saved to {output_path}")
+        
+        # Print summary
+        print("\n--- ANOVA Summary ---")
+        for metric, res in results.items():
+            if "error" in res:
+                print(f"{metric}: ERROR - {res['error']}")
+            else:
+                p = res.get("interaction_p_value")
+                sig = res.get("significant_interaction", False)
+                print(f"{metric}: Interaction p={p:.4f} (Significant: {sig})")
+                
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Ensure that metrics.json exists in data/results/ before running ANOVA.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

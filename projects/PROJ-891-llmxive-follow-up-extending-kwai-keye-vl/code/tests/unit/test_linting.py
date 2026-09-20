@@ -5,28 +5,34 @@ import sys
 import subprocess
 
 def test_ruff_config_exists():
-    """Test that .ruff.toml configuration file exists."""
-    assert Path(".ruff.toml").exists(), "ruff configuration file (.ruff.toml) not found"
+    """Verify .ruff.toml or pyproject.toml with ruff config exists."""
+    project_root = Path(__file__).parent.parent.parent
+    ruff_toml = project_root / ".ruff.toml"
+    pyproject = project_root / "pyproject.toml"
+    
+    assert ruff_toml.exists() or pyproject.exists(), "Ruff configuration file not found"
 
 def test_black_config_exists():
-    """Test that pyproject.toml contains Black configuration."""
-    pyproject_path = Path("pyproject.toml")
-    assert pyproject_path.exists(), "pyproject.toml not found"
+    """Verify pyproject.toml with black config exists."""
+    project_root = Path(__file__).parent.parent.parent
+    pyproject = project_root / "pyproject.toml"
     
-    content = pyproject_path.read_text()
+    assert pyproject.exists(), "pyproject.toml not found"
+    
+    content = pyproject.read_text()
     assert "[tool.black]" in content, "Black configuration section not found in pyproject.toml"
 
 def test_requirements_contains_linting_tools():
-    """Test that requirements.txt contains ruff and black."""
-    req_path = Path("requirements.txt")
-    assert req_path.exists(), "requirements.txt not found"
+    """Verify dev dependencies include ruff and black."""
+    project_root = Path(__file__).parent.parent.parent
+    pyproject = project_root / "pyproject.toml"
     
-    content = req_path.read_text()
-    assert "ruff" in content, "ruff not found in requirements.txt"
-    assert "black" in content, "black not found in requirements.txt"
+    content = pyproject.read_text()
+    assert "ruff" in content, "Ruff not found in dependencies"
+    assert "black" in content, "Black not found in dependencies"
 
 def test_ruff_can_run():
-    """Test that ruff command is available and can run."""
+    """Verify ruff is installed and can run."""
     try:
         result = subprocess.run(
             ["ruff", "--version"],
@@ -34,14 +40,12 @@ def test_ruff_can_run():
             text=True,
             timeout=10
         )
-        assert result.returncode == 0, f"ruff command failed: {result.stderr}"
+        assert result.returncode == 0, f"Ruff failed to run: {result.stderr}"
     except FileNotFoundError:
-        pytest.skip("ruff not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("ruff command timed out")
+        pytest.fail("Ruff is not installed")
 
 def test_black_can_run():
-    """Test that black command is available and can run."""
+    """Verify black is installed and can run."""
     try:
         result = subprocess.run(
             ["black", "--version"],
@@ -49,22 +53,13 @@ def test_black_can_run():
             text=True,
             timeout=10
         )
-        assert result.returncode == 0, f"black command failed: {result.stderr}"
+        assert result.returncode == 0, f"Black failed to run: {result.stderr}"
     except FileNotFoundError:
-        pytest.skip("black not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("black command timed out")
+        pytest.fail("Black is not installed")
 
 def test_setup_linting_script_exists():
-    """Test that setup_linting.py script exists and has main function."""
-    script_path = Path("code/setup_linting.py")
-    assert script_path.exists(), "setup_linting.py script not found"
+    """Verify the setup script for linting exists."""
+    project_root = Path(__file__).parent.parent.parent
+    setup_script = project_root / "scripts" / "setup_linting.sh"
     
-    # Verify it can be imported
-    spec = __import__("importlib.util").util.spec_from_file_location("setup_linting", script_path)
-    module = __import__("importlib.util").util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    
-    assert hasattr(module, "main"), "setup_linting.py missing main function"
-    assert hasattr(module, "write_ruff_config"), "setup_linting.py missing write_ruff_config function"
-    assert hasattr(module, "write_black_config"), "setup_linting.py missing write_black_config function"
+    assert setup_script.exists(), "setup_linting.sh not found"

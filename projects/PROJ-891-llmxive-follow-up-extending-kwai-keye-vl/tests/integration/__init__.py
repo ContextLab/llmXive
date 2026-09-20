@@ -1,1 +1,3 @@
-"""Integration tests for llmXive pipeline components."""
+"""
+Integration tests for end-to-end workflows.
+"""

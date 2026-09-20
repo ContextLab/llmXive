@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-extreme-aspect-ratio-robustness/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_dc758d61 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create data directory structure: `data/raw`, `data/distorted`, `data/outputs`, `data/metadata`, `output/control`
 - [ ] T001b [P] Create source directory structure: `src/generators`, `src/inference`, `src/analysis`
 - [ ] T001c [P] Create test directory structure: `tests/unit`, `tests/integration`
-- [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (opencv-python, ffmpeg-python, transformers, optimum-intel, llama-cpp-python, pandas, scipy, numpy, requests, huggingface_hub, pytest, **psutil**). **MUST pin exact versions (e.g., `opencv-python>=4.8.0,<5.0.0`) to ensure reproducibility. `psutil` is required for memory limit verification (FR-006).**
+- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_4f2496ea — status=not_enough_info] with dependencies in `requirements.txt` (opencv-python, ffmpeg-python, transformers, optimum-intel, llama-cpp-python, pandas, scipy, numpy, requests, huggingface_hub, pytest, **psutil**). **MUST pin exact versions (e.g., `opencv-python>=4.8.0,<5.0.0 [UNRESOLVED-CLAIM: c_c3cab1f8 — status=not_enough_info]`) to ensure reproducibility. `psutil` is required for memory limit verification (FR-006).**
 - [X] T002b [P] Install and configure system-level `cgroups` and `ulimit` wrappers in CI environment. **Create `scripts/setup_limits.sh` to enforce memory limits via `cgexec` or `ulimit`**. **Verification**: Verify limit via `/proc/self/status` and assert OOM kill occurs at the configured memory threshold.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Implement `scripts/validate_citations.py` to verify ActivityNet and model citations against verified sources before execution (Constitution Principle II). **Must run pre-execution.**
@@ -79,11 +79,11 @@
 
 **Goal**: Programmatically generate a synthetic video benchmark dataset by applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet Captions dataset while preserving temporal ground-truth annotations.
 
-**Independent Test**: Run `scripts/validate_distortion.py` (T016) and assert exit code 0. Verify `data/raw/original/` contains original unmodified clips for the Independent test. Verify `data/distorted/` contains a sufficient volume of clips (distributed across ratios) with valid codecs and correct aspect ratios. Verify `output/control/` contains square-cropped clips.
+**Independent Test**: Run `scripts/validate_distortion.py` (T016) and assert exit code 0. Verify `data/raw/original/` contains original unmodified clips for the Independent test. Verify `data/distorted/` contains a sufficient volume of clips (distributed across ratios) with valid codecs and correct aspect ratios. Verify `output/control/` contains square-cropped clips. [UNRESOLVED-CLAIM: c_5e227f34 — status=not_enough_info]
 
 Research Question: How can we ensure data consistency across generated video clips?
 Method: Automated validation of directory contents against predefined formatting constraints.
-References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` contains original unmodified clips for the Independent test.
+References: Smith et al. (2023); arXiv:2301.12345. [UNRESOLVED-CLAIM: c_a47fec2f — status=not_enough_info] Verify `data/raw/original/` contains original unmodified clips for the Independent test.
 
 ### Tests for User Story 1 (TDD First) ⚠️
 
@@ -113,7 +113,7 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
  - **Dependency**: Requires T012c completion.
 - [ ] T014 [US1] Implement `src/generators/validate_generation.py` to verify output dimensions and metadata integrity
 - [ ] T015 [US1] Add error handling for low frame rate videos (skip/upsample with warning) and unresolvable 1-pixel lines (flag as "unresolvable", exclude, log)
-- [ ] T016 [US1] Implement `scripts/validate_distortion.py` to run automated checks on `data/distorted/`, `data/raw/original/`, and `output/control/` (assert exit code 0 for valid run). **Verify `output/control/` contains square-cropped clips.**
+- [ ] T016 [US1] Implement `scripts/validate_distortion.py` to run automated checks on `data/distorted/`, `data/raw/original/`, and `output/control/` (assert exit code 0 for valid run). **Verify `output/control/` contains square-cropped clips. [UNRESOLVED-CLAIM: c_5e227f34 — status=not_enough_info]**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,7 +123,7 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 
 **Goal**: Execute the Kwai Keye-VL model (quantized to INT4) on the generated extreme-aspect and square-cropped datasets using a CPU-only environment to collect temporal grounding predictions.
 
-**Independent Test**: Run inference on a subset of videos. Verify no OOM errors, model loads via `llama.cpp` or `Optimum-Intel` on CPU, and a JSON output file contains valid timestamp predictions. Peak VmRSS must be < 7GB.
+**Independent Test**: Run inference on a subset of videos. Verify no OOM errors, model loads via `llama.cpp` or `Optimum-Intel` on CPU, and a JSON output file contains valid timestamp predictions. Peak VmRSS must be < 7GB. [UNRESOLVED-CLAIM: c_948c0ee4 — status=not_enough_info]
 
 ### Tests for User Story 2 (TDD First) ⚠️
 
@@ -162,11 +162,11 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 
 - [ ] T026 [US3] Implement `src/analysis/mIoU.py`:
  - Calculate mean Intersection-over-Union for predicted vs. ground-truth timestamps.
- - Separate results by condition (extreme-aspect vs. square-cropped vs. original).
+ - Separate results by condition (extreme-aspect vs. square-cropped vs. original). [UNRESOLVED-CLAIM: c_ea63c71e — status=not_enough_info]
  - Output to `data/outputs/metrics.csv` with columns `video_id`, `condition`, `mIoU`, `source_id`.
  - **Ensure `source_id` is preserved to enable Paired test linking.**
 - [ ] T027 [US3] Implement `src/analysis/stats.py`:
- - **Primary**: Perform Shapiro-Wilk test to check normality (alpha=0.05). **Select and execute PAIRED t-test or Wilcoxon signed-rank test** on the **Paired mIoU scores from same source IDs (distorted vs. square-cropped)**. **Join Key**: Use `source_id` to link distorted and square-cropped sets.
+ - **Primary**: {{claim:c_6041440e}} **Select and execute PAIRED t-test or Wilcoxon signed-rank test** on the **Paired mIoU scores from same source IDs (distorted vs. square-cropped)**. **Join Key**: Use `source_id` to link distorted and square-cropped sets.
  - **Secondary**: Perform Welch's t-test or Mann-Whitney U on **Independent mIoU scores from Original Unmodified (T012b) vs. Distorted sets** (Plan requirement for robustness check).
  - Calculate p-value and effect size for both.
  - **Merge Strategy**: Combine results into a single report stating the **Primary conclusion (Paired test)** and the **Secondary robustness check (Independent test)**.

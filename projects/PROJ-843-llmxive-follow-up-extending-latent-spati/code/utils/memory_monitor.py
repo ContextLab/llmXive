@@ -4,7 +4,7 @@ import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 try:
     from memory_profiler import memory_usage
@@ -15,6 +15,7 @@ except ImportError:
 class MemoryMonitor:
     """
     Monitors memory usage and wall-clock time in a background thread.
+    Logs peak RAM and elapsed time to a JSON file.
     """
     def __init__(self, log_path: Optional[Path] = None):
         self.log_path = log_path or Path("data/memory_monitor_log.json")
@@ -23,7 +24,7 @@ class MemoryMonitor:
         self._peak_ram_mb: float = 0.0
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
-        self._measurements: list = []
+        self._measurements: List[Dict[str, Any]] = []
         self._lock = threading.Lock()
 
     def start(self) -> None:
@@ -33,6 +34,7 @@ class MemoryMonitor:
         self._start_time = time.time()
         self._stop_event.clear()
         self._measurements = []
+        self._peak_ram_mb = 0.0
         self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._thread.start()
 
@@ -42,7 +44,10 @@ class MemoryMonitor:
         if self._thread:
             self._thread.join(timeout=2.0)
         self._stop_time = time.time()
-        elapsed = self._stop_time - self._start_time if self._start_time else 0
+        
+        elapsed = 0.0
+        if self._start_time and self._stop_time:
+            elapsed = self._stop_time - self._start_time
         
         summary = {
             "start_time": datetime.fromtimestamp(self._start_time).isoformat() if self._start_time else None,
@@ -52,6 +57,7 @@ class MemoryMonitor:
             "measurements": self._measurements
         }
 
+        # Ensure directory exists before writing
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.log_path, 'w') as f:
             json.dump(summary, f, indent=2)
@@ -61,17 +67,17 @@ class MemoryMonitor:
         """Background loop to sample memory."""
         interval = 1.0
         while not self._stop_event.is_set():
+            current_peak = 0.0
             if HAS_MEMORY_PROFILER:
                 try:
-                    # memory_usage returns a tuple (pid, mem) or just mem depending on args
-                    # Using default behavior: returns memory usage of current process
+                    # memory_usage returns a list of memory usages over the interval
+                    # We sample the max of the last interval to get a point estimate
                     mem = memory_usage((os.getpid(),), interval=0.1, timeout=0.1, include_children=True)
-                    # memory_usage returns a list of values over the interval
-                    current_peak = max(mem) if mem else 0
+                    if mem:
+                        current_peak = max(float(m) for m in mem)
                 except Exception:
-                    current_peak = 0
+                    current_peak = self._get_proc_mem()
             else:
-                # Fallback if memory_profiler not installed (read /proc on Linux)
                 current_peak = self._get_proc_mem()
 
             with self._lock:
@@ -85,19 +91,21 @@ class MemoryMonitor:
             self._stop_event.wait(interval)
 
     def _get_proc_mem(self) -> float:
-        """Fallback memory reading for Linux."""
+        """Fallback memory reading for Linux (reads /proc/self/status)."""
         try:
             with open('/proc/self/status', 'r') as f:
                 for line in f:
                     if line.startswith('VmRSS:'):
                         parts = line.split()
-                        return float(parts[1]) / 1024.0 # Convert kB to MB
+                        # VmRSS is in kB, convert to MB
+                        return float(parts[1]) / 1024.0
         except Exception:
             return 0.0
         return 0.0
 
+    # No-op logging methods for compatibility with existing code
     def info(self, msg: str) -> None:
-        pass # No-op for compatibility
+        pass
 
     def debug(self, msg: str) -> None:
         pass
@@ -110,6 +118,15 @@ class MemoryMonitor:
 
     def log(self, msg: str) -> None:
         pass
+
+    def record(self, msg: str) -> None:
+        """Record a custom event in the log."""
+        with self._lock:
+            self._measurements.append({
+                "timestamp": time.time(),
+                "event": msg,
+                "ram_mb": self._peak_ram_mb
+            })
 
 def parse_memory_logs(log_path: Optional[Path] = None) -> Dict[str, Any]:
     """Read the latest memory log file."""

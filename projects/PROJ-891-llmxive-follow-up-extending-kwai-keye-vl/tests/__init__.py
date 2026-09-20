@@ -1,1 +1,3 @@
-"""Test suite for llmXive automated science pipeline."""
+"""
+Test suite for the llmXive automated science pipeline.
+"""
