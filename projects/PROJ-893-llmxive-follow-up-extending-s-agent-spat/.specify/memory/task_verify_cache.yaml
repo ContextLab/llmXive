@@ -13,21 +13,6 @@ T010:
     logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
     output file `data/derived/constraints.jsonl` is absent. Both the artifact and
     its expected result are missing or incomplete.
-T017:
-  c: false
-  h: f6e58fed66d8e98ff74fff6888c059dcb3ea7df525880344cc322401fb6de482
-  r: "The repository lacks the required `data/results/benchmark_results.csv` file,\
-    \ so no p\u2011value column can be populated. Moreover, the `metrics.py` file\
-    \ only shows a partially\u2011implemented `compute_mcnemar_test` stub (truncated)\
-    \ and contains no code that writes the computed p\u2011value to the CSV or a summary\
-    \ report. Both the output artifact and the full implementation are missing."
-T019b:
-  c: false
-  h: 397eada18e7cb9e035da09630adbc31af0310b75a942459d455f88722902aeb2
-  r: The required output file `data/results/benchmark_results.csv` does not exist,
-    and the referenced schema file `specs/001-symbolic-spatial-reasoning/contracts/benchmark_result.schema.yaml`
-    (or `schema.yaml`) is also missing, so the validator cannot be run and the required
-    columns/metrics cannot be verified.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,3 +29,10 @@ T027:
     \ as required by FR\u2011001 and FR\u2011002. The implementer must supply a concrete\
     \ validation artifact (e.g., a verification script and its output/report) showing\
     \ that all input files are free of VLM trace data."
+T030a:
+  c: false
+  h: 81c5a756b1d7599048ec1552a500f032ac4d2ee058371e16558eb11861929d81
+  r: The repository lacks the required input file `data/results/benchmark_results.csv`,
+    the script does not contain a runnable main section that generates `data/results/sensitivity_analysis.csv`,
+    and the expected output file is absent. Consequently the sensitivity analysis
+    cannot be executed nor produce the required columns.

@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "data/derived/predictions.json",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/s_agent_k_subset.json",
+    "required": []
+  }
+]

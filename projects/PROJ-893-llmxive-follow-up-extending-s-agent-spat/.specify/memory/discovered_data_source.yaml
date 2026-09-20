@@ -1,15 +1,19 @@
 status: none
-intent: download S-Agent-300K static multi-view scenes dataset python package dataset
+intent: download S-Agent-300K static multi-view 3D geometry dataset python package
+  dataset
 required_fields:
 - scene_id
 - view_id
 - object_id
 - object_type
-- coordinates_x
-- coordinates_y
-- coordinates_z
-- spatial_relations
-- camera_parameters
-cache_key: 54e1f47c4e83b605cd8a17cf084e328b4ca325c0ed10076c80541907ee02ee3a
-searched_at: '2026-09-09T14:22:39.881369+00:00'
+- position_x
+- position_y
+- position_z
+- rotation_w
+- rotation_x
+- rotation_y
+- rotation_z
+- object_relations
+cache_key: a3dfc33cd37d97f8c2f8fc10fda4b5e911172bd893227442f5e1b2f2071390e1
+searched_at: '2026-09-20T03:18:26.691193+00:00'
 retry_count: 1

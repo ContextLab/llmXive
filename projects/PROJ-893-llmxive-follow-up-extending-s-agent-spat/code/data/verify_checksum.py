@@ -4,11 +4,26 @@ import hashlib
 import json
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional
-from config import config
+from typing import Dict, List, Optional, Any
 
-# Use the correct path from Config
-MANIFEST_PATH = config.DATA_RAW / "manifest.json"
+# Import Config directly to access attributes dynamically
+from config import Config
+
+# Determine manifest path dynamically based on actual Config attributes
+# The Config class is accessed via attribute names that may vary
+config = Config()
+
+# Attempt to resolve DATA_RAW or fallback to standard paths
+data_raw_path = None
+if hasattr(config, 'DATA_RAW'):
+    data_raw_path = config.DATA_RAW
+elif hasattr(config, 'DATA_DIR') and hasattr(config, 'DATA_RAW_SUBDIR'):
+    data_raw_path = getattr(config, 'DATA_DIR') / getattr(config, 'DATA_RAW_SUBDIR')
+else:
+    # Fallback to standard project structure if attributes are missing
+    data_raw_path = Path("data/raw")
+
+MANIFEST_PATH = data_raw_path / "manifest.json"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -55,7 +70,7 @@ def main():
     """CLI entry point."""
     import argparse
     parser = argparse.ArgumentParser(description="Verify directory checksums")
-    parser.add_argument("--directory", type=str, default=str(config.DATA_RAW), help="Directory to verify")
+    parser.add_argument("--directory", type=str, default=str(data_raw_path), help="Directory to verify")
     args = parser.parse_args()
 
     directory = Path(args.directory)

@@ -1,3 +1,7 @@
+"""
+Extract geometric constraints from the S-AgentK dataset.
+Parses JSONL, validates, and outputs constraints.jsonl.
+"""
 import os
 import sys
 import json
@@ -5,29 +9,27 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-from config import config
+# Ensure code directory is in path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR / "code"))
+
+from config import Config
 
 def load_scene_data(input_dir: Path) -> List[Dict[str, Any]]:
-    """Load scene data from raw directory."""
-    scenes = []
-    # Assuming JSONL format in raw directory
+    """Load scene data from a JSONL file."""
     raw_file = input_dir / "s_agent_k_subset.jsonl"
     if not raw_file.exists():
         raise FileNotFoundError(f"Raw data file not found: {raw_file}")
     
-    with open(raw_file, 'r') as f:
+    scenes = []
+    with open(raw_file, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 scenes.append(json.loads(line))
     return scenes
 
 def validate_scene_constraints(scene: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-    """
-    Validate scene constraints.
-    Returns (is_valid, error_message).
-    """
-    if 'scene_id' not in scene:
-        return False, "Missing scene_id"
+    """Validate a scene's constraints."""
     if 'geometry' not in scene:
         return False, "Missing geometry"
     if 'label' not in scene:
@@ -35,62 +37,63 @@ def validate_scene_constraints(scene: Dict[str, Any]) -> Tuple[bool, Optional[st
     return True, None
 
 def extract_constraints(scenes: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """
-    Extract constraints from valid scenes.
-    Returns (valid_constraints, excluded_scenes).
-    """
+    """Extract valid constraints and log exclusions."""
     valid_constraints = []
-    excluded_scenes = []
-
+    exclusions = []
+    
     for scene in scenes:
-        is_valid, error_msg = validate_scene_constraints(scene)
+        is_valid, reason = validate_scene_constraints(scene)
         if is_valid:
             valid_constraints.append({
-                "scene_id": scene['scene_id'],
-                "constraints": scene['geometry'],
-                "label": scene['label']
+                "scene_id": scene.get("id", "unknown"),
+                "geometry": scene.get("geometry"),
+                "label": scene.get("label")
             })
         else:
-            excluded_scenes.append({
-                "scene_id": scene.get('scene_id', 'unknown'),
-                "reason": error_msg
+            exclusions.append({
+                "scene_id": scene.get("id", "unknown"),
+                "reason": reason
             })
-
-    return valid_constraints, excluded_scenes
+    
+    return valid_constraints, exclusions
 
 def main():
-    """Main entry point for geometry extraction."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Extract geometry constraints")
-    parser.add_argument("--input", type=str, required=True, help="Input raw directory")
-    parser.add_argument("--output", type=str, required=True, help="Output constraints JSONL")
-    args = parser.parse_args()
-
-    input_dir = Path(args.input)
-    output_path = Path(args.output)
-
-    # Load scenes
-    scenes = load_scene_data(input_dir)
+    config = Config()
+    logger = config.logger
     
-    # Extract constraints
-    valid_constraints, excluded_scenes = extract_constraints(scenes)
+    input_dir = config.DATA_RAW
+    output_file = config.DATA_DERIVED / "constraints.jsonl"
+    exclusion_log_file = config.DATA_RESULTS / "exclusion_log.json"
+    
+    os.makedirs(config.DATA_DERIVED, exist_ok=True)
+    os.makedirs(config.DATA_RESULTS, exist_ok=True)
+    
+    logger.info(f"Loading scene data from {input_dir}...")
+    try:
+        scenes = load_scene_data(input_dir)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    
+    logger.info(f"Extracting constraints from {len(scenes)} scenes...")
+    valid_constraints, exclusions = extract_constraints(scenes)
     
     # Write valid constraints
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         for constraint in valid_constraints:
             f.write(json.dumps(constraint) + '\n')
     
     # Write exclusion log
-    exclusion_log_path = config.DATA_RESULTS / "exclusion_log.json"
-    exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(exclusion_log_path, 'w') as f:
-        json.dump({
-            "excluded_count": len(excluded_scenes),
-            "excluded_scenes": excluded_scenes
-        }, f, indent=2)
+    exclusion_data = {
+        "total_scenes": len(scenes),
+        "excluded_count": len(exclusions),
+        "exclusions": exclusions
+    }
+    with open(exclusion_log_file, 'w', encoding='utf-8') as f:
+        json.dump(exclusion_data, f, indent=2)
     
-    print(f"Extracted {len(valid_constraints)} valid constraints. Excluded {len(excluded_scenes)} scenes.")
+    logger.info(f"Extracted {len(valid_constraints)} valid constraints.")
+    logger.info(f"Logged {len(exclusions)} exclusions to {exclusion_log_file}")
 
 if __name__ == "__main__":
     main()

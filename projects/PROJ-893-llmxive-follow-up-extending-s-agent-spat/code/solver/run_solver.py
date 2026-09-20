@@ -1,145 +1,162 @@
+"""
+Solver runner script for the CSP Engine.
+Handles batch processing, timeout logic, and output generation.
+"""
 import os
 import sys
 import json
 import time
 import signal
+import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import config with tolerant attribute access
-from config import config
-from solver.csp_engine import CSPEngine, SolveResult
+# Ensure code directory is in path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR / "code"))
 
-class ConstraintSatisfactionError(Exception):
-    """Custom exception for constraint satisfaction failures (T028a)."""
+from solver.csp_engine import CSPEngine, SolveResult, ConstraintSatisfactionError
+from config import Config
+
+class BatchTimeoutError(Exception):
+    """Raised when the global batch timeout is reached."""
     pass
 
-def load_constraints(input_path: Path) -> List[Dict[str, Any]]:
-    """Load constraints from JSONL file."""
+def load_constraints(input_path: str) -> List[Dict[str, Any]]:
+    """Load constraints from a JSONL file."""
     constraints = []
-    with open(input_path, 'r') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 constraints.append(json.loads(line))
     return constraints
 
-def save_predictions(results: List[SolveResult], output_path: Path):
-    """Save predictions to JSONL."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        for r in results:
-            f.write(json.dumps({
-                "scene_id": r.scene_id,
-                "prediction": r.solution,
-                "status": r.status,
-                "latency_ms": r.latency_ms
-            }) + '\n')
+def save_predictions(output_path: str, results: List[Dict[str, Any]]):
+    """Save predictions to a JSONL file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for result in results:
+            f.write(json.dumps(result) + '\n')
 
-def save_latency_log(results: List[SolveResult], output_path: Path):
-    """Save latency log to JSONL."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        for r in results:
-            f.write(json.dumps({
-                "scene_id": r.scene_id,
-                "latency_ms": r.latency_ms
-            }) + '\n')
+def save_latency_log(output_path: str, results: List[Dict[str, Any]]):
+    """Save latency logs to a JSONL file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for result in results:
+            f.write(json.dumps(result) + '\n')
 
-def save_exclusion_log(failures: List[Dict[str, Any]], output_path: Path):
-    """Save solver failures to JSON."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump({"failures": failures}, f, indent=2)
+def save_exclusion_log(output_path: str, failures: List[Dict[str, Any]]):
+    """Save solver failures to a JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(failures, f, indent=2)
 
-def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, per_scene_timeout: float) -> Tuple[List[SolveResult], List[Dict[str, Any]]]:
-    """
-    Run solver on a batch of constraints.
-    Returns (results, failures).
-    """
-    engine = CSPEngine(timeout_seconds=per_scene_timeout)
-    results = []
+def run_batch_solver(input_path: str, output_path: str, latency_path: str, exclusion_path: str):
+    """Run the CSP solver on a batch of constraints."""
+    config = Config()
+    logger = config.logger
+    
+    batch_timeout_hours = config.BATCH_TIMEOUT_HOURS
+    scene_soft_limit_seconds = config.SCENE_SOFT_LIMIT_SECONDS
+
+    start_time = time.time()
+    constraints = load_constraints(input_path)
+    predictions = []
+    latency_logs = []
     failures = []
-    start_batch = time.time()
+
+    logger.info(f"Processing {len(constraints)} scenes...")
 
     for scene in constraints:
         # Check batch timeout
-        if time.time() - start_batch > batch_timeout:
-            print(f"Batch timeout reached ({batch_timeout}s). Stopping.")
-            # Log remaining unprocessed scenes as BatchTimeout failures
-            # Note: We don't have the full list of remaining IDs here easily without tracking index,
-            # but we log the fact we stopped.
+        if time.time() - start_time > batch_timeout_hours * 3600:
+            logger.warning("Batch timeout reached. Stopping processing.")
+            failures.append({
+                "scene_id": scene.get("scene_id", "unknown"),
+                "error_type": "BatchTimeout",
+                "message": "Global batch timeout reached"
+            })
+            # Log remaining scenes as skipped
+            remaining_scenes = [c.get("scene_id") for c in constraints[constraints.index(scene):]]
+            if remaining_scenes:
+                logger.warning(f"Skipped {len(remaining_scenes)} scenes due to timeout.")
             break
 
-        scene_id = scene.get('scene_id', 'unknown')
-        scene_constraints = scene.get('constraints', [])
-
+        scene_id = scene.get("scene_id", "unknown")
+        scene_start = time.time()
+        
         try:
-            result = engine.solve(scene_id, scene_constraints)
-            results.append(result)
-            if result.status == "Error":
-                failures.append({
-                    "scene_id": scene_id, 
-                    "error_type": "SolverError", 
-                    "message": "Solver returned Error status"
-                })
-        except ConstraintSatisfactionError as e:
-            # T028b: Catch ConstraintSatisfactionError using the format from T028a
-            # Addressing Edge Case: "insufficient constraints"
-            # Format defined in T028a: {"scene_id": "...", "error_type": "ConstraintSatisfactionError", "message": "..."}
-            error_type = "ConstraintSatisfactionError"
-            log_entry = {
-                "scene_id": scene_id,
-                "error_type": error_type,
-                "message": str(e)
-            }
-            failures.append(log_entry)
-            # Record a failed result to maintain alignment with input count
-            results.append(SolveResult(scene_id, None, "Error", 0))
-        except Exception as e:
-            # Fallback for other unexpected errors
-            error_type = type(e).__name__
-            log_entry = {
-                "scene_id": scene_id,
-                "error_type": error_type,
-                "message": str(e)
-            }
-            failures.append(log_entry)
-            results.append(SolveResult(scene_id, None, "Error", 0))
+            engine = CSPEngine()
+            result = engine.solve(scene)
+            
+            latency_ms = (time.time() - scene_start) * 1000
+            
+            # Log soft limit warning
+            if latency_ms / 1000 > scene_soft_limit_seconds:
+                logger.warning(f"Scene {scene_id} exceeded soft limit ({latency_ms/1000:.2f}s)")
 
-    return results, failures
+            predictions.append({
+                "scene_id": scene_id,
+                "prediction": result.prediction,
+                "status": result.status
+            })
+            latency_logs.append({
+                "scene_id": scene_id,
+                "latency_ms": latency_ms,
+                "status": result.status
+            })
+
+        except ConstraintSatisfactionError as e:
+            logger.warning(f"Scene {scene_id} failed constraint satisfaction: {e}")
+            failures.append({
+                "scene_id": scene_id,
+                "error_type": "ConstraintError",
+                "message": str(e)
+            })
+            predictions.append({
+                "scene_id": scene_id,
+                "prediction": None,
+                "status": "No Solution"
+            })
+            latency_logs.append({
+                "scene_id": scene_id,
+                "latency_ms": (time.time() - scene_start) * 1000,
+                "status": "No Solution"
+            })
+        except Exception as e:
+            logger.error(f"Unexpected error for scene {scene_id}: {e}")
+            failures.append({
+                "scene_id": scene_id,
+                "error_type": "UnexpectedSolverError",
+                "message": str(e)
+            })
+            predictions.append({
+                "scene_id": scene_id,
+                "prediction": None,
+                "status": "Error"
+            })
+            latency_logs.append({
+                "scene_id": scene_id,
+                "latency_ms": (time.time() - scene_start) * 1000,
+                "status": "Error"
+            })
+
+    save_predictions(output_path, predictions)
+    save_latency_log(latency_path, latency_logs)
+    save_exclusion_log(exclusion_path, failures)
+    
+    logger.info(f"Solver completed. Processed {len(predictions)} scenes.")
+    logger.info(f"Failures logged: {len(failures)}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Run CSP solver batch")
-    parser.add_argument("--input", type=str, required=True, help="Input constraints JSONL")
-    parser.add_argument("--output", type=str, required=True, help="Output predictions JSONL")
+    parser = argparse.ArgumentParser(description="Run CSP solver on extracted constraints")
+    parser.add_argument("--input", type=str, required=True, help="Path to constraints.jsonl")
+    parser.add_argument("--output", type=str, required=True, help="Path to output predictions.jsonl")
+    parser.add_argument("--latency-log", type=str, required=True, help="Path to latency_log.jsonl")
+    parser.add_argument("--exclusion-log", type=str, required=True, help="Path to solver_failures.json")
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    # Use config with tolerant attribute access
-    # The config class now handles missing attributes gracefully via __getattr__
-    derived_path = config.DATA_DERIVED
-    
-    latency_log_path = derived_path / "latency_log.jsonl"
-    solver_failures_path = derived_path / "solver_failures.json"
-
-    if not input_path.exists():
-        print(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    constraints = load_constraints(input_path)
-    results, failures = run_batch_solver(
-        constraints,
-        batch_timeout=config.TIMEOUT_BATCH,
-        per_scene_timeout=config.TIMEOUT_PER_SCENE
-    )
-
-    save_predictions(results, output_path)
-    save_latency_log(results, latency_log_path)
-    save_exclusion_log(failures, solver_failures_path)
-
-    print(f"Solver completed. {len(results)} scenes processed.")
+    run_batch_solver(args.input, args.output, args.latency_log, args.exclusion_log)
 
 if __name__ == "__main__":
     main()

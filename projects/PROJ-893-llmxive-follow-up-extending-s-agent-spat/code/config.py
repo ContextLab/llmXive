@@ -1,14 +1,17 @@
+"""
+Configuration module for the llmXive S-Agent Spatial Reasoning Pipeline.
+"""
 import os
 from pathlib import Path
 from typing import Any, Optional
 
 class Config:
     """
-    Centralized configuration for the project.
-    Implements a tolerant attribute access pattern to handle evolving API contracts
-    without breaking existing callers.
+    Centralized configuration class.
+    Provides paths and constants for the pipeline.
     """
     def __init__(self):
+        # Base paths
         self.ROOT_DIR = Path(__file__).resolve().parent.parent
         self.CODE_DIR = self.ROOT_DIR / "code"
         self.DATA_DIR = self.ROOT_DIR / "data"
@@ -16,26 +19,31 @@ class Config:
         self.DATA_DERIVED = self.DATA_DIR / "derived"
         self.DATA_RESULTS = self.DATA_DIR / "results"
         
-        # Timeouts (seconds)
-        self.TIMEOUT_BATCH = 3600  # 1 hour
-        self.TIMEOUT_PER_SCENE = 30  # 30 seconds per scene
-        
-        # Random seed
-        self.SEED = 42
-        
-        # Sample size
+        # Constants
+        self.RANDOM_SEED = 42
         self.SAMPLE_SIZE = 1000
+        
+        # Timeout configurations (in seconds/hours)
+        self.BATCH_TIMEOUT_HOURS = 6
+        self.SCENE_SOFT_LIMIT_SECONDS = 30
 
+    @property
+    def logger(self):
+        """Return a simple logger instance."""
+        import logging
+        logging.basicConfig(level=logging.INFO)
+        return logging.getLogger(__name__)
+
+    # Tolerant attribute access for dynamic calls
     def __getattr__(self, name: str) -> Any:
-        """
-        Tolerant attribute access.
-        If an attribute is not found, return a no-op callable or None.
-        This prevents AttributeError for logger-style calls or future extensions.
-        """
-        # Return a no-op function for any missing attribute to handle logger calls
+        # Provide a no-op callable for any unknown attribute that might be called as a method
+        # e.g. config.some_unknown_method() -> returns a function that does nothing
+        if name.startswith('_'):
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        
         def _noop(*args, **kwargs):
             return None
         return _noop
 
-# Singleton instance
+# Instance for easy access if needed
 config = Config()

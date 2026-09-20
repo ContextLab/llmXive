@@ -1,41 +1,46 @@
+"""
+Analyze failure cases to distinguish between Geometric Ambiguity and Semantic Gap.
+"""
 import os
 import sys
 import json
 import csv
 import argparse
 from pathlib import Path
-from config import config
+from typing import List, Dict, Any, Optional
+
+# Ensure code directory is in path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR / "code"))
+
+from config import Config
 
 def classify_failure(scene_id: str, symbolic_pred: Any, vlm_pred: Any, ground_truth: Any) -> Dict[str, Any]:
-    """
-    Classify failure type.
-    Returns classification and reason.
-    """
+    """Classify a failure case."""
     if symbolic_pred == ground_truth:
-        return {"classification": "Success", "reason": "Correct prediction"}
-    
+        return {"classification": "Correct", "reason": "Symbolic solver matched ground truth"}
     if vlm_pred == ground_truth:
-        # Symbolic failed but VLM succeeded
-        # Check if it's a geometric ambiguity or semantic gap
-        # Simplified logic: if constraints are sparse, likely geometric ambiguity
-        return {"classification": "Semantic Gap", "reason": "VLM succeeded, symbolic failed"}
-    else:
-        # Both failed
-        return {"classification": "Geometric Ambiguity", "reason": "Both models failed"}
+        # VLM correct, Symbolic wrong
+        if symbolic_pred is None or symbolic_pred == "No Solution":
+            return {"classification": "Geometric Ambiguity", "reason": "Solver could not find a solution"}
+        else:
+            return {"classification": "Semantic Gap", "reason": "Solver found a solution but it was incorrect"}
+    return {"classification": "Both Wrong", "reason": "Both models failed"}
 
-def analyze_failures(results_path: Path) -> Path:
-    """
-    Analyze failures from benchmark results.
-    Returns path to failure classification JSON.
-    """
-    if not results_path.exists():
-        raise FileNotFoundError(f"Benchmark results not found: {results_path}")
+def analyze_failures(results_path: str, output_path: str):
+    """Analyze failures from benchmark results."""
+    config = Config()
+    logger = config.logger
+    
+    if not os.path.exists(results_path):
+        logger.error(f"Benchmark results not found: {results_path}")
+        sys.exit(1)
     
     failures = []
-    total_failures = 0
     semantic_gap_count = 0
+    symbolic_failures_count = 0
     
-    with open(results_path, 'r') as f:
+    with open(results_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             scene_id = row['scene_id']
@@ -43,44 +48,44 @@ def analyze_failures(results_path: Path) -> Path:
             vlm_pred = row['vlm_pred']
             ground_truth = row['ground_truth']
             
-            if row['exact_match'] == 'False':
-                total_failures += 1
-                classification = classify_failure(scene_id, symbolic_pred, vlm_pred, ground_truth)
-                classification['scene_id'] = scene_id
-                failures.append(classification)
-                
-                if classification['classification'] == "Semantic Gap":
+            classification = classify_failure(scene_id, symbolic_pred, vlm_pred, ground_truth)
+            
+            if classification['classification'] in ['Geometric Ambiguity', 'Semantic Gap']:
+                symbolic_failures_count += 1
+                if classification['classification'] == 'Semantic Gap':
                     semantic_gap_count += 1
+            
+            failures.append({
+                "scene_id": scene_id,
+                "classification": classification['classification'],
+                "reason": classification['reason']
+            })
     
-    # Calculate proportion
-    proportion = semantic_gap_count / total_failures if total_failures > 0 else 0.0
+    semantic_gap_proportion = semantic_gap_count / symbolic_failures_count if symbolic_failures_count > 0 else 0.0
     
-    output = {
-        "total_failures": total_failures,
-        "semantic_gap_count": semantic_gap_count,
-        "geometric_ambiguity_count": total_failures - semantic_gap_count,
-        "proportion_semantic_gap": proportion,
-        "failures": failures
+    output_data = {
+        "failures": failures,
+        "summary": {
+            "total_symbolic_failures": symbolic_failures_count,
+            "semantic_gap_count": semantic_gap_count,
+            "semantic_gap_proportion": semantic_gap_proportion
+        }
     }
     
-    output_path = config.DATA_DERIVED / "failure_classification.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, indent=2)
     
-    with open(output_path, 'w') as f:
-        json.dump(output, f, indent=2)
-    
-    print(f"Failure analysis complete. Output written to {output_path}")
-    return output_path
+    logger.info(f"Failure analysis complete. Output: {output_path}")
+    logger.info(f"Semantic Gap Proportion: {semantic_gap_proportion:.2f}")
 
 def main():
-    """Main entry point for failure analysis."""
-    parser = argparse.ArgumentParser(description="Analyze solver failures")
-    parser.add_argument("--results", type=str, required=True, help="Benchmark results CSV")
-    parser.add_argument("--output", type=str, help="Output JSON path (optional)")
+    parser = argparse.ArgumentParser(description="Analyze failure cases")
+    parser.add_argument("--results", type=str, required=True, help="Path to benchmark_results.csv")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
     args = parser.parse_args()
     
-    results_path = Path(args.results)
-    analyze_failures(results_path)
+    analyze_failures(args.results, args.output)
 
 if __name__ == "__main__":
     main()

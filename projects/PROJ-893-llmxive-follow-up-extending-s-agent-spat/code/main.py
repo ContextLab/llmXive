@@ -2,7 +2,7 @@
 Orchestrator for the llmXive S-Agent Spatial Reasoning Pipeline.
 
 Executes the full pipeline in strict order:
-1. Download (S-Agent-300K subset)
+1. Download (S-AgentK subset)
 2. Verify Checksum (Data Hygiene)
 3. Validate Distribution (HARD BLOCK - Abort if KS-test fails)
 4. Extract Geometry (Parse constraints)
@@ -28,7 +28,7 @@ from data.verify_checksum import main as verify_checksum_main
 from data.validate_distribution import main as validate_distribution_main
 from data.extract_geometry import main as extract_geometry_main
 from solver.run_solver import main as run_solver_main
-from benchmark.metrics import main as benchmark_main
+from benchmark.generate_benchmark_results import main as benchmark_main
 from benchmark.analyze_failures import main as analyze_failures_main
 from hygiene import main as hygiene_main
 
@@ -36,7 +36,7 @@ def run_pipeline(args):
     """Execute the full pipeline steps sequentially."""
     config = Config()
     logger = config.logger
-    
+
     logger.info("=" * 60)
     logger.info("Starting llmXive S-Agent Spatial Reasoning Pipeline")
     logger.info("=" * 60)
