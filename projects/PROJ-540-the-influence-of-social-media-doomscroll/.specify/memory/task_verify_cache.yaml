@@ -1,3 +1,23 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented in the evidence; the
+    claim lacks any tangible artifact showing `data/raw/`, `data/processed/`, `code/`,
+    `outputs/`, and `tests/` directories with the required placeholder files. The
+    implementer must create these folders and include a `.gitkeep` in each to satisfy
+    the task.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/`
+    or any `__init__.py` files was presented; the claim lacks any tangible artifact
+    to verify the source structure creation.
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.flake8` configuration file is presented; the required file with `max-line-length\
+    \ = 88` and the specified `exclude` list is missing from the evidence. The task\u2019\
+    s core deliverable is therefore not satisfied."
 T004b:
   c: true
   h: e01eeb02f09ada50be7cb0465009f98bf48352d07bfff57013c716f7cddc5b87
@@ -12,16 +32,17 @@ T026:
     \ `fit_regression_model` on the high\u2011engagement subset, nor any comparison\
     \ of the subset coefficients/significance to those of the full model. The required\
     \ artifact (re\u2011fitted regression output and comparative analysis) is missing."
-T031:
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md or docs/ files were presented, nor any diff or content showing that
-    documentation was updated. Without the actual updated documentation artifacts,
-    the claim that the documentation task is complete cannot be verified.
-T032:
+  r: "No code, script, or benchmark results were provided that demonstrate pandas\
+    \ operations have been vectorized, that chunking is used for large files, or that\
+    \ processing 10\u202F000 records completes in under 60\u202Fseconds. The required\
+    \ performance\u2011optimization artifact is missing."
+T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, diff logs, or refactored modules were provided; the implementer\
-    \ did not supply any evidence of unused imports being removed or helper functions\
-    \ being extracted, which are the required artifacts for task T032. The claim therefore\
-    \ does not satisfy the task\u2019s requirement."
+  r: "No evidence of a `quickstart.md` validation run (e.g., log output, validation\
+    \ report, or updated documentation) is present, and no artifacts matching the\
+    \ task\u2019s requirement are provided. The implementer has not supplied any files\
+    \ or results demonstrating that the quickstart guide was validated."

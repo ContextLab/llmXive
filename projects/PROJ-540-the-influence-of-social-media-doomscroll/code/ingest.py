@@ -1,3 +1,7 @@
+"""
+Data ingestion module for the Doomscrolling Anxiety study.
+Handles downloading, parsing, and initial validation of raw survey data.
+"""
 import pandas as pd
 import logging
 import sys
@@ -5,7 +9,7 @@ import requests
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from config import load_config, ensure_directories, get_dataset_url
+from config import load_config, get_dataset_url, ensure_directories
 from exceptions import DataValidationError
 
 logger = logging.getLogger(__name__)
@@ -18,122 +22,118 @@ REQUIRED_COLUMNS = [
     'gender'
 ]
 
-def download_data(output_path: Path) -> Path:
+def download_data(url: str, output_path: Path) -> Path:
     """
-    Downloads the dataset from the configured URL.
-    Raises an error if the download fails.
+    Fetches data from a remote URL and saves it to the specified output path.
+
+    Args:
+        url: The URL to download data from.
+        output_path: Local path where the data will be saved.
+
+    Returns:
+        Path: The path to the downloaded file.
+
+    Raises:
+        RuntimeError: If the download fails (404, timeout, etc.).
     """
-    config = load_config()
-    url = get_dataset_url(config)
-    
-    logger.info(f"Downloading data from: {url}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Downloading data from {url}...")
     try:
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         
-        # Assume CSV format for this implementation
-        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'wb') as f:
             f.write(response.content)
         
-        logger.info(f"Data downloaded successfully to {output_path}")
+        logger.info(f"Data successfully saved to {output_path}")
         return output_path
-    except requests.RequestException as e:
-        logger.error(f"Failed to download data: {e}")
-        raise
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Failed to download data from {url}: {str(e)}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg) from e
 
-def validate_schema(df: pd.DataFrame) -> bool:
+def parse_and_validate(raw_path: Path) -> pd.DataFrame:
     """
-    Validates that the dataframe contains all required columns.
-    Raises DataValidationError if columns are missing.
+    Reads a raw data file, validates the schema, and returns a DataFrame.
+
+    Args:
+        raw_path: Path to the raw data file.
+
+    Returns:
+        pd.DataFrame: Validated DataFrame.
+
+    Raises:
+        DataValidationError: If required columns are missing or file cannot be read.
     """
+    logger.info(f"Reading and validating data from {raw_path}")
+    
+    try:
+        if raw_path.suffix.lower() == '.csv':
+            df = pd.read_csv(raw_path)
+        elif raw_path.suffix.lower() in ['.xlsx', '.xls']:
+            df = pd.read_excel(raw_path)
+        else:
+            raise DataValidationError(f"Unsupported file format: {raw_path.suffix}")
+    except Exception as e:
+        error_msg = f"Failed to parse data file {raw_path}: {str(e)}"
+        logger.error(error_msg)
+        raise DataValidationError(error_msg) from e
+
+    # Validate schema
     missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing_cols:
-        error_msg = f"Missing required columns: {missing_cols}"
+        error_msg = f"Missing required columns: {missing_cols}. Found: {list(df.columns)}"
         logger.error(error_msg)
         raise DataValidationError(error_msg)
-    
-    logger.info("Schema validation passed.")
-    return True
+
+    logger.info(f"Schema validation passed. Columns: {list(df.columns)}")
+    return df
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Performs basic cleaning: listwise deletion for missing predictor/outcome values.
-    Logs row counts and missing value statistics.
+    Performs initial cleaning: drops rows with missing values in required columns.
+    Note: Full listwise deletion with power checks is handled in clean.py.
+    This function is a helper for basic null removal before downstream processing.
+
+    Args:
+        df: Input DataFrame.
+
+    Returns:
+        pd.DataFrame: Cleaned DataFrame with no nulls in required columns.
     """
-    original_count = len(df)
-    logger.info(f"Starting with {original_count} rows.")
+    initial_count = len(df)
+    df_clean = df.dropna(subset=REQUIRED_COLUMNS)
+    dropped_count = initial_count - len(df_clean)
     
-    # Log missing value statistics per column
-    missing_stats = df[REQUIRED_COLUMNS].isnull().sum()
-    logger.info("Missing value statistics before cleaning:")
-    for col, count in missing_stats.items():
-        logger.info(f"  {col}: {count} missing")
-    
-    # Listwise deletion for the key predictor and outcome variables
-    # Spec FR-002: HALT if resulting N < 30 (handled in clean.py main logic usually, 
-    # but we log the result here as per T014)
-    subset_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety']
-    df_clean = df.dropna(subset=subset_cols)
-    
-    cleaned_count = len(df_clean)
-    dropped_count = original_count - cleaned_count
-    
-    logger.info(f"Listwise deletion removed {dropped_count} rows due to missing values.")
-    logger.info(f"Remaining rows after cleaning: {cleaned_count}")
-    
-    if cleaned_count < 30:
-        logger.error(f"Power limitation: Remaining N ({cleaned_count}) is below the minimum threshold of 30.")
-        # Note: The actual exception raising is typically done in the clean.py orchestration logic
-        # as per T012, but we log the condition here.
+    if dropped_count > 0:
+        logger.info(f"Dropped {dropped_count} rows with missing values in required columns.")
     
     return df_clean
 
 def main():
     """
-    Main entry point for data ingestion, validation, and cleaning.
-    Orchestrates the flow and logs all critical statistics.
+    Main entry point for the ingestion pipeline.
     """
     config = load_config()
-    ensure_directories(config)
+    ensure_directories()
     
-    raw_path = config['paths']['raw_data']
-    processed_path = config['paths']['processed_data']
+    raw_url = get_dataset_url()
+    raw_output = Path(config['paths']['raw_data']) / 'raw_survey.csv'
+    parsed_output = Path(config['paths']['raw_data']) / 'parsed_data.csv'
     
-    # 1. Download
-    raw_file_path = Path(raw_path) / "survey_data.csv"
-    try:
-        download_data(raw_file_path)
-    except Exception as e:
-        logger.critical(f"Ingestion failed: {e}")
-        sys.exit(1)
+    # Download
+    download_data(raw_url, raw_output)
     
-    # 2. Load and Validate
-    try:
-        df = pd.read_csv(raw_file_path)
-        validate_schema(df)
-    except Exception as e:
-        logger.critical(f"Validation failed: {e}")
-        sys.exit(1)
+    # Parse and Validate
+    df = parse_and_validate(raw_output)
     
-    # 3. Clean and Log Stats (T014 requirement)
-    try:
-        df_clean = clean_data(df)
-    except Exception as e:
-        logger.critical(f"Cleaning failed: {e}")
-        sys.exit(1)
+    # Basic Clean
+    df_clean = clean_data(df)
     
-    # 4. Save
-    try:
-        output_file = Path(processed_path) / "analysis_data.csv"
-        df_clean.to_csv(output_file, index=False)
-        logger.info(f"Cleaned data saved to {output_file}")
-    except Exception as e:
-        logger.critical(f"Failed to save cleaned data: {e}")
-        sys.exit(1)
+    # Save parsed data for downstream steps
+    df_clean.to_csv(parsed_output, index=False)
+    logger.info(f"Parsed and cleaned data saved to {parsed_output}")
 
-if __name__ == "__main__":
-    # Ensure logging is configured before running
-    from logging_config import setup_logging
-    setup_logging()
+if __name__ == '__main__':
     main()

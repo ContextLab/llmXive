@@ -1,5 +1,5 @@
 """
-Module to save correlation results to a JSON file.
+Helper script to save correlation results.
 """
 import json
 import logging
@@ -12,65 +12,29 @@ from model import run_initial_correlations
 
 logger = logging.getLogger(__name__)
 
-def save_correlation_results(
-    results: Dict[str, Any],
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Save correlation results to a JSON file.
+def save_correlation_results(correlations: Dict[str, Any], output_path: Path) -> Path:
+    """Saves correlation results to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(correlations, f, indent=2)
+    logger.info(f"Saved to {output_path}")
+    return output_path
 
-    Args:
-        results: Dictionary containing correlation results.
-        output_path: Path to save the JSON file. If None, uses config default.
-
-    Returns:
-        Path to the saved file.
-    """
+def main():
+    """Main entry point."""
     config = load_config()
-    if output_path is None:
-        output_path = Path(config.get('output_dir', 'outputs')) / 'correlation_results.json'
+    ensure_directories()
     
-    ensure_directories([output_path.parent])
+    input_path = Path(config['paths']['processed_data']) / 'analysis_data.csv'
+    output_path = Path(config['paths']['outputs']) / 'correlation_results.json'
     
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2, default=str)
-        logger.info(f"Correlation results saved to {output_path}")
-        return output_path
-    except IOError as e:
-        logger.error(f"Failed to save correlation results: {e}")
-        raise
+    if not input_path.exists():
+        raise FileNotFoundError(f"Processed data not found: {input_path}")
+    
+    import pandas as pd
+    df = pd.read_csv(input_path)
+    correlations = run_initial_correlations(df)
+    save_correlation_results(correlations, output_path)
 
-def main() -> None:
-    """
-    Main function to run correlation analysis and save results.
-    """
-    # Setup logging
-    from logging_config import setup_logging
-    setup_logging()
-    
-    config = load_config()
-    
-    # Load processed data
-    data_path = Path(config.get('processed_data_path', 'data/processed/analysis_data.csv'))
-    if not data_path.exists():
-        logger.error(f"Processed data file not found: {data_path}")
-        sys.exit(1)
-    
-    try:
-        # Run correlation analysis
-        logger.info("Running correlation analysis...")
-        results = run_initial_correlations(data_path)
-        
-        # Save results
-        output_path = Path(config.get('output_dir', 'outputs')) / 'correlation_results.json'
-        save_correlation_results(results, output_path)
-        
-        logger.info("Correlation analysis and saving completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Error during correlation analysis: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

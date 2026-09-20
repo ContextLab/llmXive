@@ -31,7 +31,7 @@ This project implements a statistical analysis pipeline to determine if the freq
 
 | Principle | Status | Implementation Strategy |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds (`np.random.seed(42)`, `statsmodels` defaults) will be pinned. Data ingestion will use fixed URLs. `requirements.txt` will pin versions. |
+| **I. Reproducibility** | **PASS** | Random seeds and `statsmodels` defaults will be pinned to ensure reproducibility. Data ingestion will use fixed URLs. `requirements.txt` will pin versions. |
 | **II. Verified Accuracy** | **WARN** | The process of verification is followed, but current verified URLs point to text datasets, not survey data. The pipeline will halt with a clear error if no valid source is found. |
 | **III. Data Hygiene** | **PASS** | Raw data will be downloaded to `data/raw/` and checksummed. Cleaned data will be written to `data/processed/` with derivation logs. No in-place modification. |
 | **IV. Single Source of Truth** | **PASS** | All statistics in the final output will be generated programmatically from the `data/processed/` artifacts. No hand-typed numbers. |

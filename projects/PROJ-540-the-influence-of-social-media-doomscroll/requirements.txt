@@ -7,3 +7,7 @@ requests==2.31.0
 pyyaml==6.0.1
 scipy==1.11.3
 numpy==1.24.3
+flake8==6.1.0
+black==23.9.1
+isort==5.12.0
+pytest==7.4.2

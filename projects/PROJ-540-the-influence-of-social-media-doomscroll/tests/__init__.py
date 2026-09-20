@@ -1,3 +1,1 @@
-"""
-Initialization file for the tests package.
-"""
+# PROJ-540 Tests Package

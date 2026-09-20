@@ -92,3 +92,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T15:30:31Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/docs/FAQ.md
+  attempts: 1
+  canonical: minimum sample size of 130 after cleaning
+  claim_id: c_49aa4117
+  context: The pipeline requires a minimum sample size of N=130 after cleaning. If
+    the dataset is too small or too many rows are dropped due to missing values, the
+    process halts to ensure statistical power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires a minimum sample size of N=130 after cleaning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T23:21:02Z'

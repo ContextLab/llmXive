@@ -1,15 +1,19 @@
+"""
+Custom exceptions for the Doomscrolling Anxiety study.
+"""
+
 class PowerLimitationError(Exception):
-    """Raised when sample size is insufficient for statistical power."""
+    """Raised when the sample size is insufficient for statistical power."""
     pass
 
 class MathematicalCouplingError(Exception):
-    """Raised when variables are mathematically coupled (e.g., identical or derived from each other)."""
+    """Raised when mathematical coupling or multicollinearity is detected."""
     pass
 
 class DataValidationError(Exception):
-    """Raised when data validation fails (schema, types, etc.)."""
+    """Raised when data validation fails."""
     pass
 
 class ConfigurationError(Exception):
-    """Raised when configuration is invalid or missing."""
+    """Raised when configuration is invalid."""
     pass

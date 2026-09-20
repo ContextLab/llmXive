@@ -1,10 +1,13 @@
+"""
+Configuration management for the Doomscrolling Anxiety study.
+Handles environment variables, seeds, and directory setup.
+"""
 import os
 import random
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import yaml
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -12,81 +15,126 @@ class ConfigError(Exception):
     """Custom exception for configuration errors."""
     pass
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    if config_path is None:
-        config_path = Path("config.yaml")
-    
-    if not config_path.exists():
+def load_config(config_path: str = 'config.yaml') -> Dict[str, Any]:
+    """
+    Loads configuration from a YAML file.
+
+    Args:
+        config_path: Path to the config file.
+
+    Returns:
+        Dict containing configuration.
+
+    Raises:
+        ConfigError: If file not found or invalid.
+    """
+    if not os.path.exists(config_path):
         # Default config if file missing
         logger.warning(f"Config file {config_path} not found. Using defaults.")
         return {
-            'random_seed': 42,
             'paths': {
-                'raw_data': Path('data/raw/ingested_data.csv'),
-                'processed_data': Path('data/processed/analysis_data.csv'),
-                'correlation_results': Path('outputs/correlation_results.json'),
-                'regression_results': Path('outputs/regression_results.json'),
-                'robustness_results': Path('outputs/robustness_results.json'),
-                'plot': Path('outputs/plot.png'),
-                'final_report': Path('outputs/final_report.md')
+                'raw_data': 'data/raw',
+                'processed_data': 'data/processed',
+                'outputs': 'outputs'
             },
-            'dataset_url': 'https://raw.githubusercontent.com/plotly/datasets/master/tips.csv' # Placeholder, overridden by env or specific task
+            'dataset_url': os.getenv('DATASET_URL', 'https://example.com/data.csv'),
+            'seed': None
         }
     
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    # Ensure paths are Path objects
-    if 'paths' in config:
-        for k, v in config['paths'].items():
-            if isinstance(v, str):
-                config['paths'][k] = Path(v)
-    
-    return config
+    try:
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        raise ConfigError(f"Failed to load config: {e}") from e
 
 def set_seed(seed: Optional[int]) -> None:
-    """Set the random seed for reproducibility."""
-    if seed is None:
-        logger.warning("Random seed not set. Results may not be reproducible.")
-        return
-    
-    random.seed(seed)
-    np.random.seed(seed)
-    logger.info(f"Random seed set to: {seed}")
+    """
+    Sets the random seed for reproducibility.
+
+    Args:
+        seed: The seed value.
+    """
+    if seed is not None:
+        random.seed(seed)
+        np.random.seed(seed) # Assuming numpy is used
+        logger.info(f"Random seed set to: {seed}")
+    else:
+        logger.warning("No random seed provided. Results may not be reproducible.")
 
 def verify_and_apply_seed(config: Dict[str, Any]) -> int:
-    """Verify seed is set and apply it. Returns the seed used."""
-    seed = config.get('random_seed')
+    """
+    Verifies seed exists in config and applies it.
+
+    Args:
+        config: Configuration dictionary.
+
+    Returns:
+        The seed value used.
+
+    Raises:
+        ValueError: If seed is missing.
+    """
+    seed = config.get('seed')
     if seed is None:
-        logger.warning("No random seed configured in config. Setting to default 42.")
-        seed = 42
+        raise ValueError("Seed is missing in configuration. Reproducibility cannot be guaranteed.")
     
     set_seed(seed)
-    log_seed_status(seed)
     return seed
 
-def log_seed_status(seed: int) -> None:
-    """Log the seed status."""
-    logger.info(f"Reproducibility Seed Applied: {seed}")
+def log_seed_status(seed: Optional[int]) -> None:
+    """
+    Logs the status of the random seed.
 
-def get_dataset_url(config: Dict[str, Any]) -> str:
-    """Get the dataset URL from config or environment."""
-    url = os.getenv('DATASET_URL')
-    if url:
-        return url
-    
-    url = config.get('dataset_url')
-    if url:
-        return url
-    
-    # Fallback to a known public dataset if none configured
-    # Using a realistic placeholder that returns JSON/CSV
-    return "https://raw.githubusercontent.com/plotly/datasets/master/tips.csv"
+    Args:
+        seed: The seed value.
+    """
+    if seed is None:
+        logger.warning("WARNING: Random seed not set. Execution is non-deterministic.")
+    else:
+        logger.info(f"INFO: Random seed set to {seed}.")
 
-def ensure_directories(*paths: Path) -> None:
-    """Ensure all directories for the given paths exist."""
-    for p in paths:
-        parent = p.parent if p.is_file() else p
-        parent.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {parent}")
+def get_dataset_url(config: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Retrieves the dataset URL from config or environment.
+
+    Args:
+        config: Optional config dict.
+
+    Returns:
+        Dataset URL.
+    """
+    if config:
+        return config.get('dataset_url', os.getenv('DATASET_URL', ''))
+    return os.getenv('DATASET_URL', '')
+
+def ensure_directories(config: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Ensures all required directories exist.
+
+    Args:
+        config: Optional config dict.
+    """
+    if config is None:
+        config = load_config()
+    
+    paths = config.get('paths', {})
+    for key, path_str in paths.items():
+        p = Path(path_str)
+        p.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Ensured directory: {p}")
+
+def main():
+    """
+    Main entry point for config verification.
+    """
+    config = load_config()
+    try:
+        seed = verify_and_apply_seed(config)
+        log_seed_status(seed)
+        ensure_directories(config)
+        logger.info("Configuration verified and applied successfully.")
+    except ValueError as e:
+        logger.error(str(e))
+
+if __name__ == '__main__':
+    main()

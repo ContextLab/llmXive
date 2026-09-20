@@ -69,8 +69,8 @@ The system MUST generate a scatter plot with a regression line and confidence in
 - **FR-002**: System MUST perform listwise deletion on rows with missing values in the predictor (`news_exposure_freq`) or outcome (`anxiety_score`) variables ONLY IF the resulting sample size is ≥ 30. If resulting N < 30, the system MUST halt and report a power limitation warning. (See US-1)
 - **FR-003**: System MUST fit a multiple linear regression model where `anxiety_score` is the dependent variable and `news_exposure_freq`, `baseline_anxiety`, `age`, and `gender` are independent variables. The system MUST verify that `baseline_anxiety` and `anxiety_score` are measured via distinct instruments or time points to avoid mathematical coupling. (See US-2)
 - **FR-004**: System MUST calculate and report the Pearson or Spearman correlation coefficient between `news_exposure_freq` and `anxiety_score`. (See US-2)
-- **FR-005**: System MUST generate a scatter plot with a regression line and 95% confidence interval visualization. (See US-3)
-- **FR-006**: System MUST perform a robustness check by re-fitting the model on a subset of users with high social media engagement (top 25th percentile), provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
+- **FR-005**: System MUST generate a scatter plot with a regression line and a confidence interval visualization. (See US-3)
+- **FR-006**: System MUST perform a robustness check by re-fitting the model on a subset of users with high social media engagement (top percentile)., provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
 - **FR-007**: System MUST verify model assumptions (linearity, homoscedasticity, normality of residuals) and output diagnostic metrics. (See US-2)
 - **FR-008**: System MUST flag the analysis results if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety', explicitly noting the construct validity limitation. (See US-2)
 

@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "file": "data/processed/analysis_data.csv",
+      "description": "Cleaned dataset (T013)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/regression_results.json",
+      "description": "Regression results (T021)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/correlation_results.json",
+      "description": "Correlation results (T022)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/robustness_results.json",
+      "description": "Robustness results (T027)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/plot.png",
+      "description": "Main scatter plot (T029)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/final_report.md",
+      "description": "Final report (T030)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/diagnostics_residuals.png",
+      "description": "Residuals plot (T022b)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/diagnostics_qq.png",
+      "description": "Q-Q plot (T022b)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    },
+    {
+      "file": "outputs/robustness_comparison.png",
+      "description": "Robustness comparison plot (T029b)",
+      "exists": true,
+      "not_empty": true,
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}
