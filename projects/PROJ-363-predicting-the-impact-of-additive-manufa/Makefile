@@ -1,72 +1,41 @@
-# Makefile for Additive Manufacturing Porosity Prediction Pipeline
-# This Makefile orchestrates the pipeline execution and includes checks for degenerate datasets.
+.PHONY: all download preprocess check_degenerate train analyze clean
 
-.PHONY: all download preprocess train analyze clean help
+# Main entry point
+all: check_degenerate preprocess train analyze
 
-# Configuration
-PYTHON := python
-CODE_DIR := code
-DATA_DIR := data
-RESULTS_DIR := results
-MODELS_DIR := models
+# Phase 1: Download Data
+download:
+	@echo "=== Phase 1: Downloading Data ==="
+	python code/download_data.py
 
-# Default target
-all: check_degenerate download preprocess train analyze
+# Phase 2: Preprocessing
+preprocess:
+	@echo "=== Phase 2: Preprocessing Data ==="
+	python code/preprocess.py
 
-# Helper target to ensure directories exist
-ensure_dirs:
-	@mkdir -p $(DATA_DIR)/raw $(DATA_DIR)/processed $(RESULTS_DIR)/reports $(RESULTS_DIR)/plots $(MODELS_DIR)/artifacts
+# Phase 3: Orchestration Check (Halt if Degenerate)
+# This must run AFTER preprocess (which writes the flag if needed)
+# and BEFORE train/analyze.
+check_degenerate:
+	@echo "=== Phase 3: Checking for Degenerate Dataset ==="
+	python code/orchestration_check.py
 
-# Check for degenerate dataset before proceeding
-check_degenerate: ensure_dirs
-	@echo "Checking for degenerate dataset status..."
-	@$(PYTHON) $(CODE_DIR)/orchestration_check.py
-	@echo "Degenerate check passed. Proceeding to download."
+# Phase 4: Train Models
+train:
+	@echo "=== Phase 4: Training Models ==="
+	python code/train_models.py
 
-# Download raw data
-download: check_degenerate
-	@echo "Downloading dataset..."
-	@$(PYTHON) $(CODE_DIR)/download_data.py
-	@echo "Download complete."
-
-# Preprocess data (mapping, imputation, feature engineering, normalization)
-preprocess: download
-	@echo "Preprocessing data..."
-	@$(PYTHON) $(CODE_DIR)/preprocess.py
-	@echo "Preprocessing complete."
-
-# Train models
-train: preprocess
-	@echo "Training models..."
-	@$(PYTHON) $(CODE_DIR)/train_models.py
-	@echo "Training complete."
-
-# Analyze explainability
-analyze: train
-	@echo "Running explainability analysis..."
-	@$(PYTHON) $(CODE_DIR)/analyze_explainability.py
-	@echo "Analysis complete."
+# Phase 5: Analyze Explainability
+analyze:
+	@echo "=== Phase 5: Analyzing Explainability ==="
+	python code/analyze_explainability.py
 
 # Clean generated artifacts
 clean:
-	@echo "Cleaning artifacts..."
-	@rm -rf $(DATA_DIR)/raw/* $(DATA_DIR)/processed/* $(RESULTS_DIR)/* $(MODELS_DIR)/artifacts/*
-	@rm -f $(DATA_DIR)/processed/degenerate_flag.json
-	@rm -f results/reports/pipeline_start.json results/reports/pipeline_end.json
-	@echo "Clean complete."
-
-# Run full pipeline with timer (SC-003 compliance)
-run_pipeline:
-	@$(PYTHON) $(CODE_DIR)/run_pipeline_with_timer.py
-
-help:
-	@echo "Available targets:"
-	@echo "  all              - Run the full pipeline (Check -> Download -> Preprocess -> Train -> Analyze)"
-	@echo "  check_degenerate - Check for degenerate dataset and halt if found"
-	@echo "  download         - Download the raw dataset"
-	@echo "  preprocess       - Preprocess the data"
-	@echo "  train            - Train the models"
-	@echo "  analyze          - Run explainability analysis"
-	@echo "  clean            - Remove generated artifacts"
-	@echo "  run_pipeline     - Run the full pipeline with timing (SC-003)"
-	@echo "  help             - Show this help message"
+	@echo "Cleaning up generated files..."
+	rm -rf data/processed/*.csv data/processed/*.json
+	rm -rf models/artifacts/*.pkl
+	rm -rf results/reports/*.json
+	rm -rf results/plots/*.png
+	rm -f state.yaml
+	@echo "Cleanup complete."

@@ -11,28 +11,21 @@ T001b:
   r: No evidence of the `projects/PROJ-363-predicting-the-impact-of-additive-manufa/`
     directory (or any subfolders) is provided; the claim cannot be verified without
     an actual filesystem artifact.
-T015:
-  c: false
-  h: c5bca6ec8d4fb8f51880f6dda996a232cd1244cfe7faa9378ee0f86f95a37c64
-  r: 'The repository lacks the required `data/processed/degenerate_flag.json` file
-    and the `state.yaml` does not contain a `degenerate: true` entry. Moreover, the
-    provided `code/preprocess.py` (truncated) shows no implementation that writes
-    the flag file, updates `state.yaml`, or exits on detection of zero porosity variance.
-    These essential pieces are missing, so the task is not satisfied.'
 T021:
-  c: true
-  h: b9282f17092b50426123d1802ad19caef9d2320e6a47fb5d3591262257bf9f5c
-  r: "The file `code/train_models.py` exists, is non\u2011empty, and defines a `load_data`\
-    \ function that reads `data/processed/cleaned_316L.csv` and `data/processed/X_raw.csv`,\
-    \ extracting the target column `porosity` as\u202Fy and the feature matrix X,\
-    \ fulfilling the task\u2019s specification."
+  c: false
+  h: 08f98f506dd1447cd52fc1e7da5d0a7dc29a78500c1d89c774fabc88660d574f
+  r: "The `code/train_models.py` script does not contain any logic that loads `data/processed/cleaned_316L.csv`\
+    \ or `data/processed/X_raw.csv`; it only defines generic loading functions. Moreover,\
+    \ both required CSV files are absent from the repository. Consequently, the task\u2019\
+    s requirement to implement loading of those specific processed datasets is not\
+    \ met."
 T021b:
-  c: true
-  h: a0f418b1a19d98efa8e9acdbc40b2ac833530663c16b7db92969198490a30f7f
-  r: "The `code/train_models.py` file exists, is non\u2011empty, and defines a `load_data`\
-    \ function that reads `data/processed/cleaned_316L.csv` and `data/processed/X_derived.csv`,\
-    \ extracts the target column `porosity`, and returns the feature matrix `X` and\
-    \ target vector `y`, satisfying the task\u2019s requirement."
+  c: false
+  h: 68a8132b8b69f2f6225700193c32ab3f68d464b78659c967e7b2650a423206a7
+  r: The required processed CSV files (`data/processed/cleaned_316L.csv` and `data/processed/X_derived.csv`)
+    are absent, and the provided `train_models.py` does not explicitly load those
+    two files as the task specifies. Without the data files and correct loading logic,
+    the implementation does not meet the requirement.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,9 +48,9 @@ T029:
     \ (a runnable unit test) is missing."
 T030:
   c: true
-  h: aced317ba30d5af960e2f7d849d0df190a1341f7fe7d0cae61ad87834b5c4ba9
-  r: "The `code/analyze_explainability.py` file exists, is non\u2011empty, and contains\
-    \ functions that read `state/selected_model.yaml`, determine the selected subset,\
-    \ and map it to the correct model (`best_raw_model.pkl` or `best_derived_model.pkl`)\
-    \ and data CSV (`X_raw.csv` or `X_derived.csv`). This matches the task\u2019s\
-    \ required loading logic."
+  h: 8faf24262d4eb988bcfbaaad1cc6ccb800f41e3d2a48db7cd878ebca2781520b
+  r: "The repository contains `code/analyze_explainability.py` (\u224814\u202FKB)\
+    \ which defines functions to read `state/selected_model.yaml`, determines the\
+    \ subset (`X_raw` or `X_derived`), and selects the corresponding model and data\
+    \ file paths exactly as specified. The script therefore fulfills the implementation\
+    \ requirement."

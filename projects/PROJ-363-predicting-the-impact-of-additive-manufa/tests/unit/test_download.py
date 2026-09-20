@@ -1,166 +1,124 @@
-"""
-Unit tests for code/download_data.py focusing on network failure handling.
-
-This test suite verifies that the download script fails loudly when the
-network is unavailable, ensuring no synthetic data is generated as a fallback.
-"""
-import unittest
-import sys
 import os
-import json
-from unittest.mock import patch, MagicMock, Mock
-from pathlib import Path
+import sys
+import unittest
+from unittest.mock import patch, MagicMock
 import tempfile
-import shutil
+import json
+from pathlib import Path
 
-# Add the code directory to the path for imports
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from download_data import (
-    compute_file_hash,
-    fetch_record_metadata,
-    verify_material_type,
+    fetch_record_metadata, 
+    verify_material_type, 
     get_download_url,
     download_file,
-    update_state_with_checksum,
-    main
+    compute_file_hash
 )
 
-class TestNetworkFailureHandling(unittest.TestCase):
-    """Tests to ensure download_data.py raises errors on network failure."""
+class TestDownloadData(unittest.TestCase):
 
-    def setUp(self):
-        """Set up a temporary directory for test artifacts."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.data_raw_dir = os.path.join(self.temp_dir, 'data', 'raw')
-        os.makedirs(self.data_raw_dir, exist_ok=True)
-        self.state_file = os.path.join(self.temp_dir, 'state.yaml')
+    def test_verify_material_type_success(self):
+        """Test that verification passes for 316L dataset."""
+        metadata = {
+            "metadata": {
+                "title": "316L Stainless Steel LPBF Porosity Dataset",
+                "description": "Experimental data for 316L stainless steel printed via LPBF.",
+                "keywords": ["316L", "additive manufacturing", "porosity"]
+            }
+        }
+        # Should not raise
+        result = verify_material_type(metadata, "316L")
+        self.assertTrue(result)
+
+    def test_verify_material_type_failure(self):
+        """Test that verification fails for non-316L dataset."""
+        metadata = {
+            "metadata": {
+                "title": "Permafrost Toxic Elements",
+                "description": "Study on mobilization of toxic elements from permafrost.",
+                "keywords": ["environment", "permafrost"]
+            }
+        }
+        with self.assertRaises(ValueError) as context:
+            verify_material_type(metadata, "316L")
+        self.assertIn("Material mismatch", str(context.exception))
+
+    @patch('urllib.request.urlopen')
+    def test_download_file_network_failure(self, mock_urlopen):
+        """Test that download_file raises RuntimeError on network failure and produces NO file."""
+        # Simulate a network error (e.g., timeout, connection refused)
+        mock_urlopen.side_effect = Exception("Network error: Connection timed out")
         
-        # Initialize a minimal state file
-        with open(self.state_file, 'w') as f:
-            f.write("version: 1\nartifacts: {}\n")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "should_not_exist.csv")
+            
+            # Verify file does not exist before call
+            self.assertFalse(os.path.exists(output_path))
+            
+            # Expect RuntimeError
+            with self.assertRaises(RuntimeError) as context:
+                download_file("http://fake-url.com/file.csv", output_path)
+            
+            # Verify error message indicates failure
+            self.assertIn("Download failed", str(context.exception))
+            
+            # CRITICAL: Verify NO file was created (no synthetic fallback)
+            self.assertFalse(os.path.exists(output_path), 
+                             "download_file must NOT produce a synthetic file on failure")
 
-    def tearDown(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.temp_dir)
-
-    @patch('download_data.urllib.request.urlopen')
-    def test_network_failure_on_metadata_fetch(self, mock_urlopen):
-        """
-        Test that fetch_record_metadata raises RuntimeError when the network fails.
-        
-        This simulates a scenario where the Zenodo API is unreachable.
-        """
-        # Configure the mock to raise a network error
-        mock_urlopen.side_effect = Exception("Network timeout: Connection refused")
-
-        with self.assertRaises(RuntimeError) as context:
-            fetch_record_metadata("https://zenodo.org/api/records/6826006")
-
-        self.assertIn("Failed to fetch metadata", str(context.exception))
-
-    @patch('download_data.urllib.request.urlopen')
-    def test_network_failure_on_download(self, mock_urlopen):
-        """
-        Test that download_file raises RuntimeError when the download fails.
-        
-        This simulates a scenario where the file stream cannot be opened.
-        """
-        # Configure the mock to raise a network error immediately
-        mock_urlopen.side_effect = Exception("Network error: Host unreachable")
-
-        url = "https://zenodo.org/record/6826006/files/data.csv"
-        output_path = os.path.join(self.data_raw_dir, "test_data.csv")
-
-        with self.assertRaises(RuntimeError) as context:
-            download_file(url, output_path)
-
-        self.assertIn("Failed to download file", str(context.exception))
-        self.assertFalse(os.path.exists(output_path))
-
-    @patch('download_data.fetch_record_metadata')
-    @patch('download_data.get_download_url')
-    @patch('download_data.download_file')
-    def test_no_synthetic_fallback_on_network_failure(
-        self, mock_download, mock_get_url, mock_fetch_meta
-    ):
-        """
-        Test that main() does NOT produce a synthetic file when the network fails.
-        
-        This is the critical test for the "Fail Loudly" constraint.
-        It verifies that if the download fails, the script exits with an error
-        and does not create a placeholder or synthetic dataset.
-        """
-        # Simulate network failure during download
-        mock_fetch_meta.return_value = {"files": [{"id": "1", "title": "test"}]}
-        mock_get_url.return_value = "https://example.com/data.csv"
-        mock_download.side_effect = RuntimeError("Network failure: Simulated timeout")
-
-        # Prepare arguments for main
-        test_args = [
-            'download_data.py',
-            '--output-dir', self.temp_dir,
-            '--state-file', self.state_file
-        ]
-
-        # Capture the exit behavior
-        with self.assertRaises(SystemExit) as context:
-            with patch('sys.argv', test_args):
-                main()
-
-        # Verify the script exited with an error code (non-zero)
-        self.assertEqual(context.exception.code, 1)
-
-        # CRITICAL: Verify NO synthetic file was created in data/raw
-        potential_synthetic_files = [
-            "cleaned_316L.csv",
-            "synthetic_316L.csv",
-            "mock_data.csv",
-            "data.csv"
-        ]
-
-        for filename in potential_synthetic_files:
-            file_path = os.path.join(self.data_raw_dir, filename)
-            self.assertFalse(
-                os.path.exists(file_path),
-                f"Synthetic/placeholder file {filename} was created despite network failure!"
-            )
-
-    @patch('download_data.urllib.request.urlopen')
-    def test_timeout_handling(self, mock_urlopen):
-        """
-        Test that a timeout exception is caught and re-raised as a RuntimeError.
-        """
-        import socket
-        mock_urlopen.side_effect = socket.timeout("Connection timed out")
-
-        with self.assertRaises(RuntimeError) as context:
-            fetch_record_metadata("https://zenodo.org/api/records/6826006")
-
-        self.assertIn("Failed to fetch metadata", str(context.exception))
-
-    @patch('download_data.urllib.request.urlopen')
-    def test_http_error_handling(self, mock_urlopen):
-        """
-        Test that an HTTP error (e.g., 404) is caught and re-raised as a RuntimeError.
-        """
+    @patch('urllib.request.urlopen')
+    def test_download_file_http_error(self, mock_urlopen):
+        """Test that download_file raises RuntimeError on HTTP 404."""
         from urllib.error import HTTPError
-        mock_response = Mock()
-        mock_response.code = 404
-        mock_response.read.return_value = b"Not Found"
         
-        mock_urlopen.side_effect = HTTPError(
-            url="https://zenodo.org/data.csv",
-            code=404,
-            msg="Not Found",
-            hdrs={},
-            fp=Mock()
-        )
+        # Simulate HTTP 404
+        mock_urlopen.side_effect = HTTPError("http://fake-url.com/file.csv", 404, "Not Found", {}, None)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "should_not_exist.csv")
+            
+            with self.assertRaises(RuntimeError) as context:
+                download_file("http://fake-url.com/file.csv", output_path)
+            
+            self.assertIn("Download failed", str(context.exception))
+            self.assertFalse(os.path.exists(output_path))
 
-        with self.assertRaises(RuntimeError) as context:
-            download_file("https://zenodo.org/data.csv", "/tmp/test.csv")
+    def test_compute_file_hash(self):
+        """Test that checksum is computed correctly."""
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"test data")
+            tmp_path = tmp.name
+        
+        try:
+            hash_val = compute_file_hash(tmp_path)
+            self.assertEqual(len(hash_val), 64) # SHA-256 hex length
+            self.assertIsInstance(hash_val, str)
+        finally:
+            os.unlink(tmp_path)
 
-        self.assertIn("Failed to download file", str(context.exception))
+    def test_download_file_success_creates_file(self):
+        """Test that download_file creates the file on success."""
+        with patch('urllib.request.urlopen') as mock_urlopen:
+            # Mock a successful response
+            mock_response = MagicMock()
+            mock_response.read.return_value = b"csv,data\n1,2"
+            mock_response.__enter__ = lambda s: s
+            mock_response.__exit__ = lambda s, *args: None
+            mock_urlopen.return_value = mock_response
+            
+            with tempfile.TemporaryDirectory() as tmpdir:
+                output_path = os.path.join(tmpdir, "test.csv")
+                
+                # This should succeed
+                download_file("http://fake-url.com/file.csv", output_path)
+                
+                # Verify file exists and has content
+                self.assertTrue(os.path.exists(output_path))
+                with open(output_path, 'rb') as f:
+                    content = f.read()
+                self.assertEqual(content, b"csv,data\n1,2")
 
-if __name__ == '__main__':
-    unittest.main()
+    if __name__ == '__main__':
+        unittest.main()

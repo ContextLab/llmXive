@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/raw/316L_LPBF_dataset.csv",
+    "required": []
+  }
+]
