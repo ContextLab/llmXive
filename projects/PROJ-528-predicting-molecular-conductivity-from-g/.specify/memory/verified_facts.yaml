@@ -1,11 +1,24 @@
-'|aromatic conjugated energy resonance significant system':
-  quote: 'Hydrogenation of one mole of double bonds delivers 119.7 kJ (28.6 kcal),
-    as can be deduced from the last step, the hydrogenation of cyclohexene. In benzene,
-    however, 23.4 kJ (5.6 kcal) are needed to hydrogenate one mole of double bonds.
-    The difference, being 143.1 kJ (34.2 kcal), is the empirical resonance energy
-    of benzene. Because 1,3-cyclohexadiene also has a small delocalization energy
-    (7.6 kJ or 1.8 kcal/mol) the net resonance energy, relative to the localized cyclohexatriene,
-    is a bit higher: 151 kJ or 36 kcal/mol.'
-  source_id: Resonance (chemistry)
-  url: https://en.wikipedia.org/wiki/Resonance_(chemistry)
-  value: 36 kcal/mol
+95|confidence coverage interval nominal target:
+  quote: '0.95'
+  source_id: Binomial proportion confidence interval
+  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  value: '0.95'
+'|aromatic bond estimated order':
+  quote: "In molecules which have resonance, bond order may not be an integer. In\
+    \ benzene, the delocalized molecular orbitals contain 6 pi electrons over six\
+    \ carbons, essentially yielding half a pi bond together with the sigma bond for\
+    \ each pair of carbon atoms, giving a calculated bond order of 1.5 (one and a\
+    \ half bond). Furthermore, bond orders of 1.1 (eleven tenths bond), 4/3 (or 1.333333...,\
+    \ four thirds bond) or 0.5 (half bond), for example, can occur in some molecules\
+    \ and essentially refer to bond strength relative to bonds with order 1. In the\
+    \ nitrate anion (NO\u22123), the bond order for each bond between nitrogen and\
+    \ oxygen is 4/3 (or 1.333333...)."
+  source_id: Bond order
+  url: https://en.wikipedia.org/wiki/Bond_order
+  value: '1.5'
+'|boosting gradient learning model rate use':
+  quote: "rate (\U0001D702) is the same for all trees and is set to 0.1. Note that\U0001D702\
+    \ is"
+  source_id: '2304.07537'
+  url: https://arxiv.org/abs/2304.07537
+  value: '0.1'

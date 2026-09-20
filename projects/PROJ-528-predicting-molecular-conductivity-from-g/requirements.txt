@@ -6,5 +6,7 @@ matplotlib
 seaborn
 pyyaml
 pytest
+networkx
 statsmodels
-scipy
+joblib
+jsonschema
