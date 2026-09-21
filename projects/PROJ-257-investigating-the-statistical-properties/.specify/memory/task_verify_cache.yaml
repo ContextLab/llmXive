@@ -1,0 +1,22 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `src/` directory hierarchy (src/data, src/analysis,\
+    \ src/viz, src/utils) is provided; the implementer did not supply any file\u2011\
+    system listing or screenshots confirming those directories exist. The task remains\
+    \ unfinished until those directories are created and can be verified with the\
+    \ specified `test -d` commands."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `.gitkeep` files in the four `src/*` directories
+    is provided, nor any `stat` output confirming their existence. The implementer
+    must add the `.gitkeep` files and supply verification (e.g., `stat src/data/.gitkeep`
+    etc.).
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directories `tests/unit/`, `tests/integration/`,
+    and `tests/contract/` exist, nor that a `.gitkeep` file was placed in each. The
+    implementer must supply a directory listing or the actual `.gitkeep` files to
+    confirm the task is completed.
