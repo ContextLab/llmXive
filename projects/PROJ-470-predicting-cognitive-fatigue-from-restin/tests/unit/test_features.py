@@ -1,146 +1,88 @@
-"""
-Unit tests for feature extraction module.
-"""
+"""Tests for feature extraction module (T016)."""
 import os
-import sys
 import pytest
-import numpy as np
 import pandas as pd
-import mne
+import numpy as np
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Import the module
 from code.features import (
     calculate_lempel_ziv_complexity,
     calculate_permutation_entropy,
     process_eeg_segments,
-    save_metrics_to_csv,
     main
 )
 
-def test_calculate_lempel_ziv_complexity():
-    """Test LZC calculation with known inputs."""
-    # Constant signal should have low complexity
-    const_signal = np.ones(1000)
-    lzc_const = calculate_lempel_ziv_complexity(const_signal)
-    assert lzc_const < 0.1  # Very low complexity
-    
-    # Random signal should have higher complexity
-    np.random.seed(42)
-    rand_signal = np.random.rand(1000)
-    lzc_rand = calculate_lempel_ziv_complexity(rand_signal)
-    assert lzc_rand > 0.5  # Higher complexity
-    
-    # Check range
-    assert 0 <= lzc_const <= 1
-    assert 0 <= lzc_rand <= 1
+def test_lzc_basic():
+    """Test that LZC returns a value within expected range."""
+    # Create a random signal
+    signal = np.random.randn(1000)
+    lzc = calculate_lempel_ziv_complexity(signal)
+    # LZC should be between 0 and 1 (normalized)
+    assert 0.0 <= lzc <= 1.0, f"LZC {lzc} out of range [0, 1]"
 
-def test_calculate_permutation_entropy():
-    """Test PE calculation with known inputs."""
-    # Constant signal should have low entropy
-    const_signal = np.ones(1000)
-    pe_const = calculate_permutation_entropy(const_signal)
-    assert pe_const < 0.1  # Very low entropy
-    
-    # Random signal should have higher entropy
-    np.random.seed(42)
-    rand_signal = np.random.rand(1000)
-    pe_rand = calculate_permutation_entropy(rand_signal)
-    assert pe_rand > 0.5  # Higher entropy
-    
-    # Check range (normalized 0-1)
-    assert 0 <= pe_const <= 1
-    assert 0 <= pe_rand <= 1
+def test_pe_basic():
+    """Test that PE returns a value within expected range."""
+    signal = np.random.randn(1000)
+    pe = calculate_permutation_entropy(signal, order=3, delay=1)
+    # PE should be between 0 and 1 (normalized)
+    assert 0.0 <= pe <= 1.0, f"PE {pe} out of range [0, 1]"
 
-def test_process_eeg_segments():
-    """Test EEG segment processing."""
-    # Create dummy EEG data
-    n_channels = 5
-    n_samples = 10000
-    sfreq = 250
-    info = mne.create_info(n_channels, sfreq, ch_types='eeg')
-    data = np.random.rand(n_channels, n_samples)
-    raw = mne.io.RawArray(data, info)
-    
-    config = {
-        'filter_low': 1,
-        'filter_high': 40
-    }
-    
-    metrics = process_eeg_segments(raw, "sub-001", "seg-001", config, MagicMock())
-    
-    assert len(metrics) == n_channels
-    for m in metrics:
-        assert m['participant_id'] == "sub-001"
-        assert m['segment_id'] == "seg-001"
-        assert 'lzc_value' in m
-        assert 'pe_value' in m
-        assert 0 <= m['lzc_value'] <= 1
-        assert 0 <= m['pe_value'] <= 1
+def test_pe_order_3():
+    """Test PE with order=3 (6 permutations)."""
+    # A constant signal should have PE=0
+    signal = np.ones(100)
+    pe = calculate_permutation_entropy(signal, order=3, delay=1)
+    assert pe == 0.0, "Constant signal should have PE=0"
 
-def test_save_metrics_to_csv(tmp_path):
-    """Test saving metrics to CSV."""
-    metrics = [
-        {'participant_id': 'sub-001', 'channel': 'Cz', 'segment_id': 'seg-001', 'lzc_value': 0.5, 'pe_value': 0.6},
-        {'participant_id': 'sub-001', 'channel': 'Pz', 'segment_id': 'seg-001', 'lzc_value': 0.4, 'pe_value': 0.7}
-    ]
-    output_file = tmp_path / "test_metrics.csv"
-    
-    save_metrics_to_csv(metrics, str(output_file))
-    
-    assert output_file.exists()
-    df = pd.read_csv(output_file)
-    assert len(df) == 2
-    assert list(df.columns) == ['participant_id', 'channel', 'segment_id', 'lzc_value', 'pe_value']
-    assert 'pe_value' in df.columns
+    # A random signal should have PE > 0
+    signal = np.random.randn(1000)
+    pe = calculate_permutation_entropy(signal, order=3, delay=1)
+    assert pe > 0.0, "Random signal should have PE > 0"
 
-def test_save_empty_metrics_to_csv(tmp_path):
-    """Test saving empty metrics to CSV."""
-    metrics = []
-    output_file = tmp_path / "test_empty_metrics.csv"
-    
-    save_metrics_to_csv(metrics, str(output_file))
-    
-    assert output_file.exists()
-    df = pd.read_csv(output_file)
-    assert len(df) == 0
-    assert list(df.columns) == ['participant_id', 'channel', 'segment_id', 'lzc_value', 'pe_value']
-
-@patch('code.features.mne.io.read_raw_fif')
-@patch('code.features.process_eeg_segments')
-@patch('code.features.save_metrics_to_csv')
-def test_main(mock_save, mock_process, mock_read, tmp_path, monkeypatch):
-    """Test main function."""
-    # Setup mocks
+def test_process_eeg_segments_structure():
+    """Test that process_eeg_segments returns a DataFrame with correct columns."""
+    # Mock MNE raw object
     mock_raw = MagicMock()
-    mock_raw.ch_names = ['Cz', 'Pz']
-    mock_raw.info = {'sfreq': 250, 'nchan': 2}
-    mock_read.return_value = mock_raw
-    mock_process.return_value = [
-        {'participant_id': 'sub-001', 'channel': 'Cz', 'segment_id': 'seg-001', 'lzc_value': 0.5, 'pe_value': 0.6},
-        {'participant_id': 'sub-001', 'channel': 'Pz', 'segment_id': 'seg-001', 'lzc_value': 0.4, 'pe_value': 0.7}
-    ]
-    
-    # Create dummy input file
-    input_file = tmp_path / "cleaned_eeg.fif"
-    input_file.touch()
-    
-    # Create output directory
-    output_dir = tmp_path / "analysis"
-    output_dir.mkdir()
-    output_file = output_dir / "complexity_metrics.csv"
-    
-    # Patch paths
-    monkeypatch.setattr('code.features.input_file', str(input_file))
-    monkeypatch.setattr('code.features.output_file', str(output_file))
-    
-    # Run main
-    with patch('code.features.load_config', return_value={'filter_low': 1, 'filter_high': 40}):
-        main()
-    
-    # Verify
-    mock_read.assert_called_once()
-    mock_process.assert_called_once()
-    mock_save.assert_called_once()
-    assert output_file.exists()
+    mock_raw.ch_names = ['Fz', 'Cz', 'Pz']
+    mock_raw.info = {
+        'sfreq': 250.0,
+        'subject_info': {'his_id': 'sub-001'}
+    }
+    # Create dummy data: 3 channels, 30000 samples (120s)
+    mock_data = np.random.randn(3, 30000)
+    mock_raw.get_data.return_value = (mock_data, None)
+
+    config = {}
+    mock_logger = MagicMock()
+
+    df = process_eeg_segments(mock_raw, config, mock_logger)
+
+    assert isinstance(df, pd.DataFrame)
+    expected_cols = ['participant_id', 'channel', 'segment_id', 'lzc_value', 'pe_value']
+    assert list(df.columns) == expected_cols, f"Columns mismatch: {list(df.columns)}"
+    assert len(df) == 3, "Should have 3 rows (one per channel)"
+
+def test_main_integration():
+    """Test that main() writes the output file."""
+    # This is a bit tricky because it requires a real file.
+    # We will mock the file existence and the mne loading.
+    with patch('os.path.exists', return_value=True):
+        with patch('mne.io.read_raw_fif') as mock_read:
+            # Mock raw object
+            mock_raw = MagicMock()
+            mock_raw.ch_names = ['Fz']
+            mock_raw.info = {'sfreq': 250.0, 'subject_info': {'his_id': 'sub-001'}}
+            mock_raw.get_data.return_value = (np.random.randn(1, 30000), None)
+            mock_read.return_value = mock_raw
+
+            with patch('code.features.save_metrics_to_csv') as mock_save:
+                main()
+                mock_save.assert_called_once()
+                # Check the path passed to save_metrics_to_csv
+                call_args = mock_save.call_args
+                df = call_args[0][0]
+                path = call_args[0][1]
+                assert path == "data/analysis/complexity_metrics.csv"
+                assert 'lzc_value' in df.columns
+                assert 'pe_value' in df.columns

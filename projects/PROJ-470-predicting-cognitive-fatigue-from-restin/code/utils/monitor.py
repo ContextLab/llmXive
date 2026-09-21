@@ -1,171 +1,125 @@
-"""Resource monitoring infrastructure for the EEG fatigue pipeline.
+"""Resource monitoring utilities for pipeline execution.
 
-Captures peak RSS memory usage and total runtime during pipeline execution.
-Outputs results to data/analysis/resource_usage.json.
+This module provides cross-platform memory tracking using psutil and
+runtime measurement using the time module. It captures peak RSS memory
+usage and total runtime during pipeline execution.
 """
 from __future__ import annotations
 
 import json
 import os
 import time
-import resource
 from datetime import datetime
-from typing import Any, Dict, Callable, Tuple
+from typing import Any, Dict
+import psutil
+import threading
 
 
 class ResourceMonitor:
-    """Monitors memory and runtime for a pipeline execution."""
+    """Monitor resource usage (memory, runtime) during pipeline execution."""
 
     def __init__(self) -> None:
-        self.start_time: float = 0.0
-        self.peak_rss_bytes: int = 0
-        self.end_time: float = 0.0
-        self._initial_rss: int = 0
+        self.process = psutil.Process(os.getpid())
+        self.start_time: float | None = None
+        self.end_time: float | None = None
+        self.peak_memory_bytes: int = 0
+        self._monitoring = False
+        self._monitor_thread: threading.Thread | None = None
 
     def start(self) -> None:
-        """Start the timer and record initial state."""
+        """Start monitoring resource usage."""
         self.start_time = time.time()
-        try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            # ru_maxrss is in KB on Linux, bytes on macOS
-            # We normalize to bytes for internal calculation
-            current_rss = usage.ru_maxrss
-            if os.name == 'nt':
-                # Windows does not support ru_maxrss in the same way
-                # Fallback to a basic estimation or 0 if unavailable
-                self._initial_rss = 0
-                self.peak_rss_bytes = 0
-            else:
-                # Check if value is already in bytes (macOS) or KB (Linux)
-                # Linux typically returns KB. If value > 1GB, assume bytes.
-                if current_rss < 100000000: # Arbitrary threshold for KB vs Bytes
-                    self._initial_rss = current_rss * 1024
-                else:
-                    self._initial_rss = current_rss
-                self.peak_rss_bytes = self._initial_rss
-        except Exception:
-            self._initial_rss = 0
-            self.peak_rss_bytes = 0
-
-    def update_peak(self) -> None:
-        """Update the peak RSS if current usage is higher."""
-        try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            current_rss = usage.ru_maxrss
-            if os.name == 'nt':
-                return
-            if current_rss < 100000000:
-                current_bytes = current_rss * 1024
-            else:
-                current_bytes = current_rss
-
-            if current_bytes > self.peak_rss_bytes:
-                self.peak_rss_bytes = current_bytes
-        except Exception:
-            pass
+        self._monitoring = True
+        self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self._monitor_thread.start()
 
     def stop(self) -> None:
-        """Stop the timer and capture final metrics."""
+        """Stop monitoring resource usage."""
+        self._monitoring = False
+        if self._monitor_thread:
+            self._monitor_thread.join(timeout=1.0)
         self.end_time = time.time()
-        self.update_peak()
+        # Final memory check
+        current_memory = self.process.memory_info().rss
+        if current_memory > self.peak_memory_bytes:
+            self.peak_memory_bytes = current_memory
 
-    @property
-    def total_runtime_seconds(self) -> float:
-        """Calculate total runtime in seconds."""
-        if self.end_time == 0:
-            self.end_time = time.time()
-        return self.end_time - self.start_time
+    def _monitor_loop(self) -> None:
+        """Background loop to track peak memory usage."""
+        while self._monitoring:
+            try:
+                current_memory = self.process.memory_info().rss
+                if current_memory > self.peak_memory_bytes:
+                    self.peak_memory_bytes = current_memory
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                break
+            time.sleep(0.1)
 
-    @property
-    def peak_rss_gb(self) -> float:
-        """Convert peak RSS to gigabytes."""
-        return self.peak_rss_bytes / (1024 ** 3)
+    def get_peak_memory_gb(self) -> float:
+        """Get peak memory usage in gigabytes."""
+        return self.peak_memory_bytes / (1024 ** 3)
 
-    @property
-    def total_runtime_hours(self) -> float:
-        """Convert total runtime to hours."""
-        return self.total_runtime_seconds / 3600
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Return metrics as a dictionary."""
-        return {
-            "peak_rss_gb": round(self.peak_rss_gb, 4),
-            "total_runtime_hours": round(self.total_runtime_hours, 4),
-            "timestamp": datetime.utcnow().isoformat(),
-            "peak_rss_bytes": self.peak_rss_bytes,
-            "total_runtime_seconds": round(self.total_runtime_seconds, 2)
-        }
-
-    def save(self, output_path: str) -> None:
-        """Save metrics to a JSON file."""
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(self.to_dict(), f, indent=2)
+    def get_total_runtime_hours(self) -> float:
+        """Get total runtime in hours."""
+        if self.start_time is None:
+            return 0.0
+        end = self.end_time if self.end_time is not None else time.time()
+        duration_seconds = end - self.start_time
+        return duration_seconds / 3600.0
 
 
 def get_peak_memory_mb() -> float:
-    """Convenience function to get current peak memory in MB."""
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        current_rss = usage.ru_maxrss
-        if os.name == 'nt':
-            return 0.0
-        if current_rss < 100000000:
-            return (current_rss * 1024) / (1024 ** 2)
-        else:
-            return current_rss / (1024 ** 2)
-    except Exception:
-        return 0.0
+    """Get current peak memory usage in megabytes for the current process."""
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / (1024 ** 2)
 
 
-def run_stage_with_memory(stage_func: Callable, *args, **kwargs) -> Tuple[Any, ResourceMonitor]:
-    """Decorator-like function to run a function while monitoring resources.
-
-    Args:
-        stage_func: The function to execute.
-        *args: Positional arguments for the function.
-        **kwargs: Keyword arguments for the function.
-
-    Returns:
-        A tuple of (function_result, ResourceMonitor instance).
-    """
+def run_stage_with_memory(stage_name: str, func: Any, *args: Any, **kwargs: Any) -> Any:
+    """Run a function stage with memory monitoring."""
     monitor = ResourceMonitor()
     monitor.start()
     try:
-        result = stage_func(*args, **kwargs)
+        result = func(*args, **kwargs)
+        return result
     finally:
         monitor.stop()
-    return result, monitor
+        usage = {
+            "stage": stage_name,
+            "peak_memory_gb": monitor.get_peak_memory_gb(),
+            "runtime_hours": monitor.get_total_runtime_hours(),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        # Log usage to console for debugging
+        print(f"Stage {stage_name} completed: {usage}")
 
 
 def main() -> None:
-    """Entry point for standalone monitoring test or pipeline integration."""
-    import sys
+    """Main entry point for standalone monitoring test.
 
-    # Default output path as per spec
+    This function demonstrates the monitoring capabilities by running a
+    simple workload and writing the resource usage to a JSON file.
+    """
+    monitor = ResourceMonitor()
+    monitor.start()
+
+    # Simulate some work
+    time.sleep(1)
+    _ = [i * i for i in range(1000000)]
+
+    monitor.stop()
+
+    usage = {
+        "peak_rss_gb": monitor.get_peak_memory_gb(),
+        "total_runtime_hours": monitor.get_total_runtime_hours()
+    }
+
     output_path = "data/analysis/resource_usage.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(usage, f, indent=2)
 
-    # If arguments provided, we assume we are running a specific stage or command
-    # For T026 verification, we just need to ensure the file is written with correct keys
-    if len(sys.argv) > 1:
-        # In a real pipeline, we might wrap a specific stage here.
-        # For now, we simulate a short work period to ensure runtime > 0
-        monitor = ResourceMonitor()
-        monitor.start()
-        time.sleep(0.1)  # Simulate minimal work
-        monitor.stop()
-        monitor.save(output_path)
-        print(f"Resource usage saved to {output_path}")
-        print(f"Peak RSS: {monitor.peak_rss_gb:.4f} GB")
-        print(f"Total Runtime: {monitor.total_runtime_hours:.6f} hours")
-    else:
-        # Default behavior: just save current state (useful for quick checks)
-        monitor = ResourceMonitor()
-        monitor.update_peak()
-        monitor.save(output_path)
-        print(f"Resource usage saved to {output_path}")
-        print(f"Peak RSS: {monitor.peak_rss_gb:.4f} GB")
-        print(f"Total Runtime: {monitor.total_runtime_hours:.6f} hours")
+    print(f"Resource usage: {usage}")
+    print(f"Written to: {output_path}")
 
 
 if __name__ == "__main__":

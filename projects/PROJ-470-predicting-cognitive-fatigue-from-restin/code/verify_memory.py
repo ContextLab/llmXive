@@ -1,142 +1,119 @@
 """
-Memory verification script for the cognitive fatigue pipeline.
-Monitors peak memory usage across all pipeline stages to ensure compliance with SC-003 (<= 7 GB).
+Verify total pipeline memory usage ≤ 7 GB (SC-003, DC-001).
+Runs the full pipeline stages (Download -> Preprocess -> Features -> Analysis -> Report)
+while monitoring peak RSS memory usage.
 """
+from __future__ import annotations
+
 import os
 import sys
 import json
-import resource
 import time
-import traceback
+import subprocess
+import resource
 from pathlib import Path
+from typing import Any, Dict
 
-# Add project root to path if necessary (assuming script runs from project root or code/)
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent
+sys.path.insert(0, str(code_dir))
 
-from code.utils.logging import get_logger
-from code.download import main as run_download
-from code.preprocess import main as run_preprocess
-from code.features import main as run_features
-from code.analysis import main as run_analysis
-from code.report import main as run_report
+from utils.logging import get_logger, log_operation
+from utils.monitor import ResourceMonitor
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
-OUTPUT_FILE = project_root / "data" / "processed" / "memory_profile.json"
+def load_config() -> Dict[str, Any]:
+    """Load configuration from code/config.yaml."""
+    import yaml
+    config_path = code_dir / "config.yaml"
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-logger = get_logger("verify_memory")
-
-def get_peak_memory_mb():
+def run_pipeline() -> float:
     """
-    Returns the peak memory usage of the current process in MB.
-    Uses resource.getrusage for Unix-like systems.
+    Execute the full pipeline stages and return peak memory usage in GB.
+    Stages: Download, Preprocess, Features, Analysis, Report
     """
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # maxrss is in KB on Linux/macOS
-    return usage.ru_maxrss / 1024
-
-def check_sample_size():
-    """
-    Checks if the sample size is sufficient before running the full pipeline.
-    This prevents wasting resources on datasets that will fail analysis validation.
-    """
-    logger.info("Checking sample size constraint (N >= 30)...")
-    # This is a placeholder check; the actual check_sample_size logic is in code/check_sample_size.py
-    # We assume the download stage has already populated the data and validation would catch it.
-    # However, for memory profiling, we want to ensure we don't run on a massive dataset if not needed.
-    # For now, we proceed assuming the dataset is within bounds as per previous validation tasks.
-    logger.info("Sample size check passed (assumed based on previous validation).")
-    return True
-
-def run_stage_with_memory(stage_name, stage_func):
-    """
-    Runs a pipeline stage and records memory usage.
-    """
-    logger.info(f"Starting stage: {stage_name}")
-    start_mem = get_peak_memory_mb()
-    logger.info(f"Memory at start of {stage_name}: {start_mem:.2f} MB")
-
-    try:
-        stage_func()
-        end_mem = get_peak_memory_mb()
-        logger.info(f"Memory at end of {stage_name}: {end_mem:.2f} MB")
-        delta_mem = end_mem - start_mem
-        logger.info(f"Memory delta for {stage_name}: {delta_mem:.2f} MB")
-        return True, delta_mem
-    except Exception as e:
-        logger.error(f"Stage {stage_name} failed: {e}")
-        traceback.print_exc()
-        return False, 0
-
-def run_pipeline():
-    """
-    Executes the full pipeline stages sequentially and monitors memory.
-    """
-    results = {
-        "pipeline_start_time": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "memory_limit_gb": MEMORY_LIMIT_GB,
-        "stages": {}
-    }
+    logger = get_logger("verify_memory")
+    log_operation("run_pipeline", status="starting")
 
     stages = [
-        ("download", run_download),
-        ("preprocess", run_preprocess),
-        ("features", run_features),
-        ("analysis", run_analysis),
-        ("report", run_report)
+        ("Download", "python code/download.py --validate"),
+        ("Preprocess", "python code/preprocess.py"),
+        ("Features", "python code/features.py"),
+        ("Analysis", "python code/analysis.py"),
+        ("Report", "python code/report.py")
     ]
 
-    for name, func in stages:
-        success, delta = run_stage_with_memory(name, func)
-        results["stages"][name] = {
-            "success": success,
-            "delta_memory_mb": delta
-        }
-        if not success:
-            logger.error(f"Pipeline aborted at stage {name} due to failure.")
-            break
+    monitor = ResourceMonitor()
+    monitor.start()
 
-    results["pipeline_end_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    results["peak_memory_mb"] = get_peak_memory_mb()
-    results["status"] = "passed" if results["peak_memory_mb"] <= MEMORY_LIMIT_MB else "failed"
+    for stage_name, command in stages:
+        logger.info(f"Running stage: {stage_name}")
+        try:
+            result = subprocess.run(
+                command,
+                shell=True,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            logger.info(f"Stage {stage_name} completed successfully")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Stage {stage_name} failed: {e.stderr}")
+            raise RuntimeError(f"Pipeline stage {stage_name} failed")
 
-    # Ensure output directory exists
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    monitor.stop()
+    peak_memory_bytes = monitor.get_peak_memory()
+    peak_memory_gb = peak_memory_bytes / (1024 ** 3)
 
-    # Write results to disk
-    with open(OUTPUT_FILE, 'w') as f:
-        json.dump(results, f, indent=2)
+    log_operation("run_pipeline", status="completed", peak_memory_gb=peak_memory_gb)
+    return peak_memory_gb
 
-    logger.info(f"Memory profile written to {OUTPUT_FILE}")
-    logger.info(f"Peak memory usage: {results['peak_memory_mb']:.2f} MB (Limit: {MEMORY_LIMIT_MB:.2f} MB)")
+def check_memory_usage(peak_memory_gb: float, threshold_gb: float = 7.0) -> bool:
+    """Check if peak memory usage is within threshold."""
+    return peak_memory_gb <= threshold_gb
 
-    if results["status"] == "failed":
-        logger.error(f"Memory limit exceeded! Peak: {results['peak_memory_mb']:.2f} MB > {MEMORY_LIMIT_MB:.2f} MB")
-        return False
-    else:
-        logger.info("Memory usage within acceptable limits.")
-        return True
+def write_resource_usage(peak_memory_gb: float, passed: bool, output_path: str) -> None:
+    """Write resource usage metrics to JSON file."""
+    usage_data = {
+        "peak_rss_gb": round(peak_memory_gb, 4),
+        "total_runtime_hours": 0.0,  # Can be calculated if needed
+        "memory_threshold_gb": 7.0,
+        "passed": passed
+    }
 
-def main():
-    """
-    Main entry point for memory verification.
-    """
-    logger.info("Starting memory verification pipeline...")
-    
-    # Ensure data directories exist
-    (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (project_root / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    (project_root / "data" / "analysis").mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
-    success = run_pipeline()
+    with open(output_path, 'w') as f:
+        json.dump(usage_data, f, indent=2)
 
-    if success:
-        logger.info("Memory verification PASSED.")
-        sys.exit(0)
-    else:
-        logger.error("Memory verification FAILED.")
+def main() -> None:
+    """Main entry point for memory verification."""
+    logger = get_logger("verify_memory")
+    logger.info("Starting memory verification pipeline")
+
+    try:
+        config = load_config()
+        threshold = config.get("memory_threshold_gb", 7.0)
+
+        peak_memory_gb = run_pipeline()
+        passed = check_memory_usage(peak_memory_gb, threshold)
+
+        output_path = "data/analysis/resource_usage.json"
+        write_resource_usage(peak_memory_gb, passed, output_path)
+
+        if passed:
+            logger.info(f"Memory check PASSED: {peak_memory_gb:.4f} GB <= {threshold} GB")
+            sys.exit(0)
+        else:
+            logger.error(f"Memory check FAILED: {peak_memory_gb:.4f} GB > {threshold} GB")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"Memory verification failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

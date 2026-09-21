@@ -30,31 +30,13 @@ class ReproducibilityLogger:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.log_file = kwargs.get("log_file", None)
         self.entries: list = []
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
-        if self.log_file:
-            self._write_to_file(entry)
         return entry
-
-    def _write_to_file(self, entry: LogEntry) -> None:
-        if not self.log_file:
-            return
-        os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
-        file_exists = os.path.exists(self.log_file)
-        with open(self.log_file, 'a', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['operation', 'parameters', 'timestamp'])
-            if not file_exists:
-                writer.writeheader()
-            writer.writerow({
-                'operation': entry.operation,
-                'parameters': json.dumps(entry.parameters),
-                'timestamp': entry.timestamp
-            })
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
@@ -93,60 +75,61 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_artifact_rejection(artifact_id: str, reason: str) -> None:
-    """Log rejection of an artifact."""
-    logger = get_logger("artifact_rejection")
-    logger.log("artifact_rejected", artifact_id=artifact_id, reason=reason)
+def log_artifact_rejection(artifact_type: str, artifact_id: str, reason: str) -> None:
+    """Log artifact rejection to the exclusion log."""
+    entry = get_logger().log("artifact_rejection", artifact_type=artifact_type, artifact_id=artifact_id, reason=reason)
+    save_rejection_summary()
 
 
 def log_participant_exclusion(participant_id: str, reason: str) -> None:
-    """Log exclusion of a participant."""
-    logger = get_logger("participant_exclusion")
-    logger.log("participant_excluded", participant_id=participant_id, reason=reason)
+    """Log participant exclusion to the exclusion log."""
+    entry = get_logger().log("participant_exclusion", participant_id=participant_id, reason=reason)
+    save_rejection_summary()
 
 
-def save_rejection_summary(output_path: str) -> None:
-    """Save a summary of rejections to a CSV file."""
-    logger = get_logger("rejection_summary")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['operation', 'parameters', 'timestamp'])
-        writer.writeheader()
+def save_rejection_summary() -> None:
+    """Save all rejection entries to the exclusion log CSV."""
+    logger = get_logger()
+    exclusion_log_path = "data/processed/exclusion_log.csv"
+    os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
+
+    # Check if file exists to determine if we need headers
+    file_exists = os.path.exists(exclusion_log_path)
+
+    with open(exclusion_log_path, "a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["participant_id", "reason", "timestamp"])
+
         for entry in logger.entries:
-            writer.writerow({
-                'operation': entry.operation,
-                'parameters': json.dumps(entry.parameters),
-                'timestamp': entry.timestamp
-            })
+            if entry.operation in ["participant_exclusion", "artifact_rejection"]:
+                pid = entry.parameters.get("participant_id", entry.parameters.get("artifact_id", "unknown"))
+                reason = entry.parameters.get("reason", "unknown")
+                writer.writerow([pid, reason, entry.timestamp])
 
 
 def get_rejection_counts() -> dict:
-    """Get counts of different rejection types."""
-    logger = get_logger("rejection_summary")
+    """Get counts of rejections by reason."""
+    logger = get_logger()
     counts = {}
     for entry in logger.entries:
-        op = entry.operation
-        counts[op] = counts.get(op, 0) + 1
+        if entry.operation in ["participant_exclusion", "artifact_rejection"]:
+            reason = entry.parameters.get("reason", "unknown")
+            counts[reason] = counts.get(reason, 0) + 1
     return counts
 
 
-def save_exclusion_log_csv(exclusions: list, output_path: str) -> None:
-    """Save exclusion log to CSV.
+def save_exclusion_log_csv(entries: list) -> None:
+    """Save exclusion log entries directly to CSV."""
+    exclusion_log_path = "data/processed/exclusion_log.csv"
+    os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
 
-    Args:
-        exclusions: List of dicts with 'participant_id', 'reason', 'timestamp'
-        output_path: Path to write CSV
-    """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    if not exclusions:
-        # Write empty file with headers
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['participant_id', 'reason', 'timestamp'])
-            writer.writeheader()
-        return
+    file_exists = os.path.exists(exclusion_log_path)
 
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['participant_id', 'reason', 'timestamp'])
-        writer.writeheader()
-        for exc in exclusions:
-            writer.writerow(exc)
+    with open(exclusion_log_path, "a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["participant_id", "reason", "timestamp"])
+
+        for entry in entries:
+            writer.writerow([entry.get("participant_id", "unknown"), entry.get("reason", "unknown"), entry.get("timestamp", datetime.utcnow().isoformat())])
