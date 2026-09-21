@@ -1,7 +1,6 @@
 {
-  "success": true,
-  "count": 0,
-  "ids": [],
-  "message": "No studies found matching query.",
-  "timestamp": "2024-01-15T10:30:00.000000"
+  "search_query": "16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)",
+  "status": "no_real_data_found",
+  "accession": null,
+  "message": "No real data found. Synthetic data mode activated."
 }

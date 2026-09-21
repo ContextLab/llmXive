@@ -30,7 +30,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T010 [US1] [SC-001] **NCBI SRA Search & Verification**.
  - *Input*: Research question.
- - *Action*: 
+ - *Action*:
  1. **Primary Source**: Attempt to fetch the dataset from a verified Hugging Face dataset repository as mandated by Plan Constitution Check II. Use the `datasets` library to load and verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
  2. **Secondary Source**: If the Hugging Face dataset is unavailable or unverified, search for open-access SRA studies with paired 16S and Influenza serology using the NCBI E-utilities API. Use the specific search query: `"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"`.
  - *Output*:
@@ -114,7 +114,7 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Create configuration module `code/utils/config.py` with paths, seeds, and thresholds. **Include `SRA_ACCESSION`, `LOD_VALUE` (must be set in .env, default None), `SEROCONVERSION_THRESHOLD` (default), `NUM_SYNTHETIC_TAXA` (default 20), `TARGET_CORRELATION`, and `SAMPLING_FACTOR` (default 0.1) variables** to be populated during research phase. **Note**: `LOD_VALUE` MUST be explicitly set in `.env` before T011d runs.
+- [X] T004 [P] Create configuration module `code/utils/config.py` with paths, seeds, and thresholds. **Include `SRA_ACCESSION`, `LOD_VALUE` (must be set in.env, default None), `SEROCONVERSION_THRESHOLD` (default), `NUM_SYNTHETIC_TAXA` (default 20), `TARGET_CORRELATION`, and `SAMPLING_FACTOR` (default 0.1) variables** to be populated during research phase. **Note**: `LOD_VALUE` MUST be explicitly set in `.env` before T011d runs.
 - [X] T005 [P] Implement schema validators `code/utils/validators.py` for dataset, correlation, and model metrics
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture exclusion counts and errors
 - [X] T007 [P] Create base data loading helpers in `code/utils/data_loader.py`
@@ -370,7 +370,7 @@ description: "Task list template for feature implementation"
  - **Runtime Guard**: If estimated runtime (Multiple thresholds * 5 folds * inner loop) > 2 hours, **proactively reduce the number of thresholds** (e.g., reduce sweep range to -1, 0, 1) to ensure total runtime < 2 hours (SC-005). **DO NOT reduce folds**.
  3. **For EACH threshold**:
  a. Define the NEW responder labels based on the current threshold.
- b. **Regenerate Folds**: Generate a **NEW set of outer folds** specifically for this threshold. **Store these folds in `data/results/folds_threshold_{i}.json`** (where {i} is the threshold index). **Schema**: `[[subject_id_list], [subject_id_list], ...]` (list of lists of subject IDs). **DO NOT reuse folds from previous thresholds.**
+ b. **Regenerate Folds**: Generate a **NEW set of outer folds** specifically for this threshold. **Store these folds in `data/results/folds_threshold_{i}.json`** (where {i} is the threshold index). **Schema**: `[[subject_id_list], [subject_id_list],...]` (list of lists of subject IDs). **DO NOT reuse folds from previous thresholds.**
  - *Output*: `data/results/folds_threshold_{i}.json` files.
  - *Note*: This task handles the outer loop structure and fold generation.
 

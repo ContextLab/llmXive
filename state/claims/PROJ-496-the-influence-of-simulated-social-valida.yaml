@@ -382,3 +382,422 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T08:50:08Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Polich 2007 supports P300 sweep range of 75, 100, and 150 microvolts
+  claim_id: c_a0425a06
+  context: "Generate data/results/threshold_justification.md. Content: Cite Polich,\
+    \ 2007... supporting the sweep range {75, 100, 150 \xB5V}."
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: "Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: 'P300: A review\
+    \ of the literature', Authors: Polich, J.) supporting the sweep range {75, 100,\
+    \ 150 \xB5V}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:54:29Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 extraction window 250-550 ms at electrodes Pz and CPz
+  claim_id: c_c07c113c
+  context: "Implement P300 extraction: find peak amplitude (maximum positive voltage)\
+    \ within a **250\u2013550 ms** window **specifically at electrodes Pz and CPz**\
+    \ for each trial."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement P300 extraction: find peak amplitude (maximum positive voltage)\
+    \ within a 250\u2013550 ms window specifically at electrodes Pz and CPz for each\
+    \ trial."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:55:30Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: EEG epoching window tmin -0.2 s to tmax 0.8 s with baseline -0.2 to 0
+    s
+  claim_id: c_0038839a
+  context: 'Implement epoching logic: baseline pre-stimulus to post-stimulus window
+    around feedback onset. **Call**: `mne.Epochs(raw, events, tmin=-0.2, tmax=0.8,
+    baseline=(-0.2, 0))`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement epoching logic: baseline pre-stimulus to post-stimulus window
+    around feedback onset. Call: mne.Epochs(raw, events, tmin=-0.2, tmax=0.8, baseline=(-0.2,
+    0)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:55:50Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: EEG band-pass filter 0.1 Hz high-pass 40 Hz low-pass
+  claim_id: c_f7c95489
+  context: Implement `code/preprocess.py` to load raw.edf files, apply band-pass filter
+    (0.1 Hz high-pass, 40 Hz low-pass)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement band-pass filter (0.1 Hz high-pass, 40 Hz low-pass).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:56:19Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "QC validation requires >80% trial retention and 2-15 \xB5V amplitude\
+    \ range"
+  claim_id: c_74fa8c2b
+  context: "Implement QC validation: check trial retention (>80%) and amplitude range\
+    \ (2\u201315 \xB5V); exclude participants failing QC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement QC validation: check trial retention (>80%) and amplitude range\
+    \ (2\u201315 \xB5V)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:56:19Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "Polich 2007 DOI 10.1016/j.biopsycho.2007.01.005 supports rejection threshold\
+    \ sweep 75-150 \xB5V"
+  claim_id: c_be2d1536
+  context: "Generate `data/results/threshold_justification.md`. **Content**: Cite\
+    \ Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: 'P300: A review of\
+    \ the literature', Authors: Polich, J.) supporting the sweep range {75, 100, 150\
+    \ \xB5V}."
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: "Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: 'P300:\
+    \ A review of the literature', Authors: Polich, J.) supporting the sweep range\
+    \ {75, 100, 150 \xB5V}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:56:20Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis thresholds 75 100 150 \xB5V"
+  claim_id: c_24bb57e8
+  context: "Implement Sensitivity Loop: For each threshold in {\xB175, \xB1100, \xB1\
+    150 \xB5V}:"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Sensitivity Loop: For each threshold in {\xB175, \xB1100, \xB1\
+    150 \xB5V}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:56:44Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction and Cohen's d effect sizes for fixed effects
+  claim_id: c_178588fd
+  context: Implement Holm-Bonferroni correction for fixed effects and compute Cohen's
+    d effect sizes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_and_Cohen's_d_effect_sizes_for_fi
+  kind: entity_fact
+  raw_text: Implement Holm-Bonferroni correction for fixed effects and compute Cohen's
+    d effect sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:58:40Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 42 for reproducibility
+  claim_id: c_2b79684a
+  context: '**Constitution Compliance**: Implement random seed pinning in `code/config.py`
+    (set `RANDOM_SEED=42`) and propagate to `numpy`, `random`, and any ML libraries...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement random seed pinning in code/config.py (set RANDOM_SEED=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T09:59:10Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Project aborts if single dataset not found
+  claim_id: c_12181432
+  context: 'Goal: Identify a single dataset containing both social feedback manipulation
+    and social anxiety measures. If none found, execute the Manual Review Protocol
+    (expanded search). If still no single dataset, trigger the Negative Finding Protocol
+    (T016b). NOTE: Per Plan Critical Data Constraint, meta-analysis of separate datasets
+    is scientifically invalid for this hypothesis; the project MUST abort if a single
+    dataset is not found.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_aborts_if_single_dataset_not_found
+  kind: entity_fact
+  raw_text: The project MUST abort if a single dataset is not found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:00:50Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Band-pass filter 0.1 Hz to 40 Hz
+  claim_id: c_ea7c4d81
+  context: "T020 [US2] Implement code/preprocess.py to load raw.edf files, apply band-pass\
+    \ filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a --rejection_threshold\
+    \ argument (default \xB1100 \xB5V) for epoch rejection."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The band-pass filter applies a 0.1 Hz high-pass and 40 Hz low-pass.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:01:26Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "Default rejection threshold \xB1100 microvolts"
+  claim_id: c_31752bd1
+  context: "T020 [US2] Implement code/preprocess.py to load raw.edf files, apply band-pass\
+    \ filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a --rejection_threshold\
+    \ argument (default \xB1100 \xB5V) for epoch rejection."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The default rejection threshold is \xB1100 \xB5V."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:01:50Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Baseline window -0.2 to 0 seconds
+  claim_id: c_9c1eb3c5
+  context: 'T024 [US2] Implement epoching logic: baseline pre-stimulus to post-stimulus
+    window around feedback onset. Call: mne.Epochs(raw, events, tmin=-0.2, tmax=0.8,
+    baseline=(-0.2, 0)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline window for epoching is -0.2 to 0 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:02:15Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 peak amplitude found within 250 to 550 ms window
+  claim_id: c_5aa473ad
+  context: "T025 [US2] Implement P300 extraction: find peak amplitude (maximum positive\
+    \ voltage) within a 250\u2013550 ms window specifically at electrodes Pz and CPz\
+    \ for each trial."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: It is usually elicited using the oddball paradigm, in which low-probability
+        target items are mixed with high-probability non-target (or "standard") items.
+        When recorded by EEG, it surfaces as a positive deflection in voltage with
+        a latency (delay between stimulus and response) of roughly 250 to 500 ms.
+        P3 is sometimes divided into the early window (300-400 ms) and late window
+        (380-440 ms).
+      source_id: P300 (neuroscience)
+      url: https://en.wikipedia.org/wiki/P300_(neuroscience)
+      value: 250 to 500 ms
+    filled: true
+  kind: numeric
+  raw_text: "The P300 peak amplitude is found within a 250\u2013550 ms window."
+  resolved_value: 250 to 500 ms
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T10:02:24Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 extraction at electrodes Pz and CPz
+  claim_id: c_c20047db
+  context: "T025 [US2] Implement P300 extraction: find peak amplitude (maximum positive\
+    \ voltage) within a 250\u2013550 ms window specifically at electrodes Pz and CPz\
+    \ for each trial."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P300_extraction_at_electrodes_Pz_and_CPz
+  kind: entity_fact
+  raw_text: P300 extraction is performed specifically at electrodes Pz and CPz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:02:49Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Trial retention greater than 80 percent
+  claim_id: c_130803cb
+  context: "T026 [US2] Implement QC validation: check trial retention (>80%) and amplitude\
+    \ range (2\u201315 \xB5V); exclude participants failing QC."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trial_retention_greater_than_80_percent
+  kind: magnitude
+  raw_text: Trial retention must be greater than 80% for QC validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:03:19Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 amplitude range 2 to 15 microvolts
+  claim_id: c_e10f9846
+  context: "T026 [US2] Implement QC validation: check trial retention (>80%) and amplitude\
+    \ range (2\u201315 \xB5V); exclude participants failing QC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The acceptable P300 amplitude range is 2\u201315 \xB5V."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:03:42Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 75 100 150 microvolts
+  claim_id: c_66934001
+  context: "T061 [US3] Threshold Justification: Generate data/results/threshold_justification.md.\
+    \ Content: Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: P300:\
+    \ A review of the literature, Authors: Polich, J.) supporting the sweep range\
+    \ {75, 100, 150 \xB5V}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps thresholds at \xB175, \xB1100, and \xB1\
+    150 \xB5V."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:04:06Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Stability score less than 0.8 flags result as unstable
+  claim_id: c_4ef50b8a
+  context: 'T062 [US3] Stability Metric Enhancement: Refine T044 to calculate a Stability
+    Score (0.0 to 1.0) based on the coefficient of variation of the interaction effect
+    size across the three thresholds. Output: Add stability_score column to data/results/sensitivity_comparison.csv.
+    A score < 0.8 should flag the result as Unstable in the final report (T037).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_score_less_than_0.8_flags_result_as_unstable
+  kind: magnitude
+  raw_text: A stability score less than 0.8 flags the result as Unstable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:05:05Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Stability coefficient of variation threshold less than 0.2
+  claim_id: c_0f013da4
+  context: 'T044 [US3] Compare Interaction Stability: Read model_summary_75.csv, model_summary_100.csv,
+    model_summary_150.csv. Extract the interaction term estimate and p_value for each.
+    Stability Logic: ... is_stable = (direction_stable) and (cv < 0.2 or (cv >= 0.2
+    and all(p < 0.05) or all(p > 0.05)))'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_coefficient_of_variation_threshold_less_than_0.2
+  kind: magnitude
+  raw_text: The stability coefficient of variation threshold is less than 0.2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:05:35Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Direct download exceeding 14GB requires streaming
+  claim_id: c_e22ee1a2
+  context: 'T065 [US1] Real Data Stream Implementation: Implement code/search.py to
+    support streaming large EEG datasets via datasets.load_dataset(..., streaming=True)
+    if a direct download exceeds 14GB disk.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Direct_download_exceeding_14GB_requires_streaming
+  kind: entity_fact
+  raw_text: Direct download of datasets exceeding 14GB requires streaming.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:06:01Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Polich 2007 supports P300 window and threshold range
+  claim_id: c_b08a10dd
+  context: "T061 [US3] Threshold Justification: Generate data/results/threshold_justification.md.\
+    \ Content: Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: P300:\
+    \ A review of the literature, Authors: Polich, J.) supporting the sweep range\
+    \ {75, 100, 150 \xB5V}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Polich (2007) supports the P300 window and threshold range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:06:16Z'

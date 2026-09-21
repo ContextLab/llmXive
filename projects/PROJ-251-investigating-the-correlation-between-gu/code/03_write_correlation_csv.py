@@ -12,42 +12,54 @@ from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def load_correlation_results(filepath: str) -> pd.DataFrame:
-    """Load correlation results from JSON."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Correlation results file not found: {filepath}")
-    return pd.read_json(filepath)
+def load_correlation_results() -> pd.DataFrame:
+    """Load the correlation results from JSON."""
+    path = get_results_path() / "correlation_results.json"
+    if not path.exists():
+        raise FileNotFoundError(f"Correlation results not found at {path}. "
+                                "Ensure T032 has completed.")
+    return pd.read_json(path)
 
-def write_correlation_csv(df_results: pd.DataFrame, output_path: Path):
-    """Write correlation results to CSV."""
-    df_results.to_csv(output_path, index=False)
+def write_correlation_csv(df: pd.DataFrame):
+    """Write results to CSV."""
+    output_path = get_results_path() / "correlation_results.csv"
+    
+    # Ensure columns are in correct order
+    cols = ['taxon', 'coefficient', 'raw_pvalue', 'adj_pvalue']
+    if not all(c in df.columns for c in cols):
+        raise ValueError(f"Expected columns {cols} not found in results.")
+        
+    df[cols].to_csv(output_path, index=False)
     logger.info(f"Wrote correlation results to {output_path}")
 
-def validate_output(output_path: Path):
-    """Validate that the output CSV exists and has the correct schema."""
-    if not output_path.exists():
-        raise FileNotFoundError(f"Output file not found: {output_path}")
+def validate_output():
+    """Basic validation of the output CSV."""
+    path = get_results_path() / "correlation_results.csv"
+    if not path.exists():
+        raise FileNotFoundError("Output CSV not found.")
     
-    df = pd.read_csv(output_path)
-    required_cols = {'taxon', 'coefficient', 'raw_pvalue', 'adj_pvalue'}
-    if not required_cols.issubset(df.columns):
-        raise ValueError(f"Output CSV missing required columns. Found: {df.columns.tolist()}, Expected: {required_cols}")
+    df = pd.read_csv(path)
+    required = ['taxon', 'coefficient', 'raw_pvalue', 'adj_pvalue']
+    for col in required:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
     
-    logger.info(f"Validation passed for {output_path}")
+    # Check for NaNs in numeric columns
+    if df['coefficient'].isna().any() or df['raw_pvalue'].isna().any():
+        logger.warning("NaN values found in coefficient or raw_pvalue.")
+        
+    logger.info("Validation passed.")
 
-def run_correlation_csv_pipeline(input_dir: Path, output_dir: Path):
-    """Run the pipeline to convert JSON results to CSV."""
-    json_path = input_dir / "correlation_results.json"
-    csv_path = output_dir / "correlation_results.csv"
-    
-    df = load_correlation_results(str(json_path))
-    write_correlation_csv(df, csv_path)
-    validate_output(csv_path)
+def run_correlation_csv_pipeline():
+    """Main pipeline for writing CSV."""
+    logger.info("Starting Correlation CSV generation.")
+    df = load_correlation_results()
+    write_correlation_csv(df)
+    validate_output()
+    logger.info("Correlation CSV generation completed.")
 
 def main():
-    """Main entry point."""
-    results_dir = get_results_path()
-    run_correlation_csv_pipeline(results_dir, results_dir)
+    run_correlation_csv_pipeline()
 
 if __name__ == "__main__":
     main()

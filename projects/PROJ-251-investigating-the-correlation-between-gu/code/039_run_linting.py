@@ -1,3 +1,9 @@
+"""
+Task T039: Run ruff check and black format on all files in code/ and fix all reported issues.
+
+This script executes ruff and black on the codebase, fixes all issues, and writes a report
+to data/results/lint_report.txt containing the exit codes and summary of actions.
+"""
 import os
 import sys
 import subprocess
@@ -5,139 +11,137 @@ import json
 from pathlib import Path
 import logging
 
-from utils.logging_config import get_logger
+# Add project root to path to ensure imports work if needed, though this script is self-contained
+PROJECT_ROOT = Path(__file__).parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+LINT_REPORT_PATH = RESULTS_DIR / "lint_report.txt"
 
-def run_command(cmd: list, cwd: Path = None) -> tuple:
+# Ensure results directory exists
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def run_command(cmd: list, description: str) -> tuple:
     """
-    Executes a shell command and returns (stdout, stderr, returncode).
+    Execute a shell command and return (stdout, stderr, return_code).
     """
-    logger = get_logger("linting")
-    logger.info(f"Running command: {' '.join(cmd)}")
+    logger.info(f"Running: {description}")
+    logger.info(f"Command: {' '.join(cmd)}")
+    
     try:
         result = subprocess.run(
             cmd,
-            cwd=cwd,
+            cwd=PROJECT_ROOT,
             capture_output=True,
             text=True,
-            check=False
+            check=False  # We handle non-zero exits manually
         )
         return result.stdout, result.stderr, result.returncode
     except Exception as e:
-        logger.error(f"Error executing command: {e}")
-        return "", str(e), 1
+        logger.error(f"Exception running {description}: {e}")
+        return "", str(e), -1
 
-def run_ruff_check_and_fix(code_root: Path) -> tuple:
+def run_ruff_check_and_fix() -> tuple:
     """
-    Runs ruff check on the code directory, attempts to fix issues,
-    and returns the report content and exit code.
+    Run ruff check with fix option.
+    Returns (stdout, stderr, exit_code).
     """
-    logger = get_logger("linting")
-    report_lines = []
-    report_lines.append("--- RUFF CHECK ---")
+    # First, run ruff check to see what issues exist
+    cmd_check = [sys.executable, "-m", "ruff", "check", str(CODE_DIR)]
+    stdout, stderr, code = run_command(cmd_check, "Ruff Check (Initial)")
+    
+    # Run ruff check with --fix to automatically fix issues
+    cmd_fix = [sys.executable, "-m", "ruff", "check", str(CODE_DIR), "--fix"]
+    stdout_fix, stderr_fix, code_fix = run_command(cmd_fix, "Ruff Check with --fix")
+    
+    # Run ruff check again to verify all issues are fixed
+    cmd_verify = [sys.executable, "-m", "ruff", "check", str(CODE_DIR)]
+    stdout_verify, stderr_verify, code_verify = run_command(cmd_verify, "Ruff Check (Verification)")
+    
+    # Combine outputs for the report
+    full_output = (
+        f"=== RUFF CHECK (Initial) ===\n{stdout}\n{stderr}\nExit Code: {code}\n\n"
+        f"=== RUFF CHECK WITH FIX ===\n{stdout_fix}\n{stderr_fix}\nExit Code: {code_fix}\n\n"
+        f"=== RUFF CHECK (Verification) ===\n{stdout_verify}\n{stderr_verify}\nExit Code: {code_verify}\n"
+    )
+    
+    return full_output, "", code_verify
 
-    # 1. Initial check (dry run) to see what needs fixing
-    cmd_check = [sys.executable, "-m", "ruff", "check", str(code_root)]
-    out, err, code = run_command(cmd_check, code_root)
-    report_lines.append(out)
-    report_lines.append(err)
-    report_lines.append(f"Initial Check Exit Code: {code}")
-
-    if code != 0:
-        logger.info("Ruff found issues. Attempting to fix...")
-        # 2. Fix attempt
-        cmd_fix = [sys.executable, "-m", "ruff", "fix", str(code_root)]
-        out_fix, err_fix, code_fix = run_command(cmd_fix, code_root)
-        report_lines.append("--- RUFF FIX ---")
-        report_lines.append(out_fix)
-        report_lines.append(err_fix)
-        report_lines.append(f"Fix Exit Code: {code_fix}")
-
-        # 3. Re-check to ensure all issues are resolved
-        cmd_final = [sys.executable, "-m", "ruff", "check", str(code_root)]
-        out_final, err_final, code_final = run_command(cmd_final, code_root)
-        report_lines.append("--- RUFF FINAL CHECK ---")
-        report_lines.append(out_final)
-        report_lines.append(err_final)
-        report_lines.append(f"Final Check Exit Code: {code_final}")
-
-        return "\n".join(report_lines), code_final
-    else:
-        return "\n".join(report_lines), 0
-
-def run_black_format(code_root: Path) -> tuple:
+def run_black_format() -> tuple:
     """
-    Runs black format on the code directory and returns the report content and exit code.
+    Run black formatter on code directory.
+    Returns (stdout, stderr, exit_code).
     """
-    logger = get_logger("linting")
-    report_lines = []
-    report_lines.append("--- BLACK FORMAT ---")
+    cmd = [sys.executable, "-m", "black", str(CODE_DIR)]
+    stdout, stderr, code = run_command(cmd, "Black Format")
+    return stdout, stderr, code
 
-    cmd_check = [sys.executable, "-m", "black", "--check", str(code_root)]
-    out, err, code = run_command(cmd_check, code_root)
-    report_lines.append(out)
-    report_lines.append(err)
-    report_lines.append(f"Black Check Exit Code: {code}")
-
-    if code != 0:
-        logger.info("Black found formatting issues. Attempting to format...")
-        cmd_format = [sys.executable, "-m", "black", str(code_root)]
-        out_fmt, err_fmt, code_fmt = run_command(cmd_format, code_root)
-        report_lines.append("--- BLACK FORMAT APPLIED ---")
-        report_lines.append(out_fmt)
-        report_lines.append(err_fmt)
-        report_lines.append(f"Format Exit Code: {code_fmt}")
-
-        # Re-check to ensure formatting is correct
-        cmd_final = [sys.executable, "-m", "black", "--check", str(code_root)]
-        out_final, err_final, code_final = run_command(cmd_final, code_root)
-        report_lines.append("--- BLACK FINAL CHECK ---")
-        report_lines.append(out_final)
-        report_lines.append(err_final)
-        report_lines.append(f"Final Check Exit Code: {code_final}")
-
-        return "\n".join(report_lines), code_final
-    else:
-        return "\n".join(report_lines), 0
+def write_report(ruff_output: str, ruff_code: int, black_output: str, black_code: int):
+    """
+    Write the final lint report to data/results/lint_report.txt.
+    """
+    report_content = (
+        f"Lint Report for Project: investigating-the-correlation-between-gu\n"
+        f"Generated at: {Path.cwd()}\n"
+        f"{'='*80}\n\n"
+        
+        f"RUFF CHECK RESULTS:\n"
+        f"{'-'*40}\n"
+        f"{ruff_output}\n"
+        f"Ruff Final Exit Code: {ruff_code}\n\n"
+        
+        f"BLACK FORMAT RESULTS:\n"
+        f"{'-'*40}\n"
+        f"{black_output}\n"
+        f"Black Exit Code: {black_code}\n\n"
+        
+        f"SUMMARY:\n"
+        f"{'-'*40}\n"
+        f"Ruff Status: {'SUCCESS' if ruff_code == 0 else 'FAILED'}\n"
+        f"Black Status: {'SUCCESS' if black_code == 0 else 'FAILED'}\n"
+        f"Overall Status: {'SUCCESS' if ruff_code == 0 and black_code == 0 else 'FAILED'}\n"
+    )
+    
+    with open(LINT_REPORT_PATH, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+    
+    logger.info(f"Report written to: {LINT_REPORT_PATH}")
 
 def main():
-    logger = get_logger("linting")
-    logger.info("Starting linting and formatting process for T039")
-
-    # Determine project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-
-    code_dir = project_root / "code"
-
-    if not code_dir.exists():
-        logger.error(f"Code directory not found: {code_dir}")
-        sys.exit(1)
-
+    """
+    Main entry point for T039.
+    """
+    logger.info("Starting T039: Linting and Formatting")
+    
+    # Check if ruff and black are installed
+    try:
+        subprocess.run([sys.executable, "-m", "ruff", "--version"], check=True, capture_output=True)
+        subprocess.run([sys.executable, "-m", "black", "--version"], check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Required tools (ruff, black) are not installed or not in PATH: {e}")
+        # We still proceed to let the commands fail naturally if tools are missing
+    
     # Run Ruff
-    ruff_report, ruff_code = run_ruff_check_and_fix(code_dir)
-
+    ruff_stdout, ruff_stderr, ruff_code = run_ruff_check_and_fix()
+    
     # Run Black
-    black_report, black_code = run_black_format(code_dir)
-
-    # Compile full report
-    full_report = f"{ruff_report}\n\n{black_report}"
-
-    # Save report
-    results_dir = project_root / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
-    report_path = results_dir / "lint_report.txt"
-
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(full_report)
-
-    logger.info(f"Lint report saved to: {report_path}")
-
-    # Determine success: Both ruff and black must exit with 0 after fixes
+    black_stdout, black_stderr, black_code = run_black_format()
+    
+    # Write Report
+    write_report(ruff_stdout, ruff_code, black_stdout, black_code)
+    
+    # Determine success
     if ruff_code == 0 and black_code == 0:
-        logger.info("Linting and formatting completed successfully.")
+        logger.info("T039 completed successfully. All linting and formatting issues resolved.")
         sys.exit(0)
     else:
-        logger.error(f"Linting or formatting failed. Ruff: {ruff_code}, Black: {black_code}")
+        logger.error(f"T039 failed. Ruff code: {ruff_code}, Black code: {black_code}. Check report at {LINT_REPORT_PATH}")
         sys.exit(1)
 
 if __name__ == "__main__":

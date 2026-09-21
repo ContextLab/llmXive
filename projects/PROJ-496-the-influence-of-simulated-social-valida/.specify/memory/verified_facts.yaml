@@ -1,0 +1,9 @@
+250 550|amplitude found ms p300 peak window within:
+  quote: It is usually elicited using the oddball paradigm, in which low-probability
+    target items are mixed with high-probability non-target (or "standard") items.
+    When recorded by EEG, it surfaces as a positive deflection in voltage with a latency
+    (delay between stimulus and response) of roughly 250 to 500 ms. P3 is sometimes
+    divided into the early window (300-400 ms) and late window (380-440 ms).
+  source_id: P300 (neuroscience)
+  url: https://en.wikipedia.org/wiki/P300_(neuroscience)
+  value: 250 to 500 ms

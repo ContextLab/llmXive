@@ -12,13 +12,6 @@ T001b:
     \ dest_path)` were provided, nor any evidence that a SHA\u2011256 checksum file\
     \ is written or that a verification test was added. The required implementation\
     \ and its test are missing."
-T005a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/loader.py` file or any code implementing the OpenWebText, GSM8K,\
-    \ ARC\u2011Challenge, and BoolQ loaders is present, nor are there tests that check\
-    \ the required `FileNotFoundError` messages or the exponential\u2011backoff retry\
-    \ behavior. The necessary artifacts are missing, so the task is not satisfied."
 T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,13 +19,12 @@ T005b:
     test was provided; the claim lacks any tangible artifact to inspect. The required
     wrapper and its test must be added to the repository for the task to be considered
     complete.
-T006:
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/model.py` file or its contents were presented; therefore the required\
-    \ code for loading a GPT checkpoint and performing CPU\u2011compatible weight\
-    \ manipulation is missing. The task cannot be considered done without the actual\
-    \ implementation artifact."
+  r: No code for `run_bootstrap_and_regression` is present, nor evidence that it reads
+    `NUM_RESAMPLES` from `config.py` or that a verification test was added. The required
+    implementation and test artifacts are missing.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,6 +45,19 @@ T010:
     \ provided evidence; therefore the required benchmark runner and evaluation logic,\
     \ as well as the mocked\u2011dataset test asserting accuracy/ECE, are missing.\
     \ The implementer must add the module and its test to satisfy T010."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `ModificationProposal` Pydantic model file or corresponding verification test
+    is present in the provided evidence; the claim lacks any concrete code or test
+    artifacts to confirm the schema was defined. The required files must be added
+    and contain a valid Pydantic schema plus a passing test.
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `validate_schema` implementation or accompanying verification test was provided
+    in the evidence; the required artifact is missing, so the task cannot be considered
+    completed.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -82,3 +87,17 @@ T018:
     \ core deliverable is missing. The implementer must add a non\u2011empty `pipeline/evaluator.py`\
     \ that computes GSM8K accuracy, ARC\u2011Challenge accuracy, and Wikitext\u2011\
     2 Expected Calibration Error."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test files, or documentation for a `validate_distinctness` function\
+    \ were presented, nor any evidence that a distinctness validator checking Hamming\
+    \ distance\u202F\u2265\u202F1 or >5\u202F% parameter change against history was\
+    \ added. The required implementation and its verification test are missing."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `validate_external_oracle`, no enforcement of the \u226430\u202F\
+    % parameter increase rule, and no structural\u2011validity checks are present,\
+    \ nor is there a verification test added. The required implementation and its\
+    \ test are missing, so the task is not satisfied."

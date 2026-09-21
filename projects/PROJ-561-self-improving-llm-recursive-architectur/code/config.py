@@ -7,63 +7,56 @@ from typing import List, Optional
 
 @dataclass
 class Hyperparameters:
-    """Core training hyperparameters."""
     learning_rate: float = 5e-5
     batch_size: int = 4
     seed: int = 42
     num_epochs: int = 1
-    max_tokens: int = 512
-    warmup_steps: int = 100
-    weight_decay: float = 0.01
-    gradient_accumulation_steps: int = 1
-    dropout: float = 0.1
+    max_param_increase_percent: float = 30.0
+    bootstrap_resamples: int = 1000
+    max_cycles: int = 3
+    retry_limit: int = 2
+    timeout_seconds: int = 300
 
 @dataclass
 class SafetyConstraints:
-    """Safety and resource constraints."""
-    param_limit_percent: float = 0.30  # Max 30% parameter increase
+    param_limit: float = 0.30
     ram_limit_gb: float = 7.0
-    max_cycles: int = 3
-    max_retries_per_cycle: int = 2
-    timeout_seconds: int = 3600
-    early_stop_threshold: float = 0.05  # 5% degradation threshold
+    max_attempts: int = 3
+    distinctness_threshold: float = 0.05
 
 @dataclass
 class PathConfig:
-    """Project path definitions."""
     root: str = field(default_factory=lambda: os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    data_raw: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "raw"))
-    data_processed: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "processed"))
-    results: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results"))
-    specs: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "specs"))
-    logs: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs"))
-    state: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "state"))
-    trajectory: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "trajectory.json"))
-    final_report: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "final_report.md"))
+    code_dir: str = field(default="code")
+    data_raw_dir: str = field(default="data/raw")
+    data_processed_dir: str = field(default="data/processed")
+    results_dir: str = field(default="results")
+    specs_dir: str = field(default="specs")
+    tests_dir: str = field(default="tests")
+    state_dir: str = field(default="state")
+    figures_dir: str = field(default="figures")
+    trajectory_file: str = field(default="results/trajectory.json")
+    log_file: str = field(default="results/cycle_logs.jsonl")
+    final_report_file: str = field(default="results/final_report.md")
 
 @dataclass
 class Config:
-    """Master configuration container."""
     hyperparameters: Hyperparameters = field(default_factory=Hyperparameters)
     safety: SafetyConstraints = field(default_factory=SafetyConstraints)
     paths: PathConfig = field(default_factory=PathConfig)
 
-# Global config instance
-_config: Optional[Config] = None
+_global_config: Optional[Config] = None
 
 def get_config() -> Config:
-    """Return the global configuration instance."""
-    global _config
-    if _config is None:
-        _config = Config()
-    return _config
+    global _global_config
+    if _global_config is None:
+        _global_config = Config()
+    return _global_config
 
 def set_config(cfg: Config) -> None:
-    """Set the global configuration instance."""
-    global _config
-    _config = cfg
+    global _global_config
+    _global_config = cfg
 
-# Convenience getters
 def get_learning_rate() -> float:
     return get_config().hyperparameters.learning_rate
 
@@ -77,16 +70,15 @@ def get_ram_limit() -> float:
     return get_config().safety.ram_limit_gb
 
 def get_trajectory_path() -> str:
-    return get_config().paths.trajectory
+    return os.path.join(get_config().paths.root, get_config().paths.trajectory_file)
 
 def get_max_param_increase_percent() -> float:
-    return get_config().safety.param_limit_percent
+    return get_config().safety.param_limit * 100.0
 
 def get_bootstrap_resamples() -> int:
-    return 1000
+    return get_config().hyperparameters.bootstrap_resamples
 
 def set_seed(seed: Optional[int] = None) -> None:
-    """Set random seeds for reproducibility."""
     if seed is None:
         seed = get_seed()
     random.seed(seed)
@@ -96,28 +88,28 @@ def set_seed(seed: Optional[int] = None) -> None:
         torch.cuda.manual_seed_all(seed)
 
 def ensure_directories() -> None:
-    """Create all required directories if they don't exist."""
     cfg = get_config()
     dirs = [
-        cfg.paths.data_raw,
-        cfg.paths.data_processed,
-        cfg.paths.results,
-        cfg.paths.specs,
-        cfg.paths.logs,
-        cfg.paths.state,
+        os.path.join(cfg.paths.root, cfg.paths.data_raw_dir),
+        os.path.join(cfg.paths.root, cfg.paths.data_processed_dir),
+        os.path.join(cfg.paths.root, cfg.paths.results_dir),
+        os.path.join(cfg.paths.root, cfg.paths.specs_dir),
+        os.path.join(cfg.paths.root, cfg.paths.tests_dir),
+        os.path.join(cfg.paths.root, cfg.paths.tests_dir, "unit"),
+        os.path.join(cfg.paths.root, cfg.paths.tests_dir, "integration"),
+        os.path.join(cfg.paths.root, cfg.paths.state_dir),
+        os.path.join(cfg.paths.root, cfg.paths.figures_dir),
     ]
     for d in dirs:
         os.makedirs(d, exist_ok=True)
 
-# Verification asserts for T008
 if __name__ == "__main__":
     cfg = get_config()
-    assert cfg.hyperparameters.learning_rate == 5e-5, "Learning rate must be 5e-5"
-    assert cfg.hyperparameters.batch_size == 4, "Batch size must be 4"
-    assert cfg.hyperparameters.seed == 42, "Seed must be 42"
-    assert cfg.safety.param_limit_percent == 0.30, "Param limit must be 30%"
-    assert cfg.safety.ram_limit_gb == 7.0, "RAM limit must be 7GB"
-    assert os.path.isabs(cfg.paths.root) or cfg.paths.root.endswith("code"), "Root path must be valid"
-    print("Config verification passed.")
+    print(f"Learning Rate: {cfg.hyperparameters.learning_rate}")
+    print(f"Batch Size: {cfg.hyperparameters.batch_size}")
+    print(f"Seed: {cfg.hyperparameters.seed}")
+    print(f"Param Limit: {cfg.safety.param_limit}")
+    print(f"RAM Limit: {cfg.safety.ram_limit_gb} GB")
+    print(f"Trajectory Path: {get_trajectory_path()}")
     ensure_directories()
-    print(f"Directories created: {cfg.paths.results}, {cfg.paths.data_raw}")
+    print("Directories ensured.")

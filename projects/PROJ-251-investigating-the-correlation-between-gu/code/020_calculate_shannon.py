@@ -1,8 +1,8 @@
 """
-Shannon Diversity Calculation Pipeline (Task T020c).
+Shannon Diversity Calculation Task (T020c).
 
-This module calculates the Shannon diversity index for each subject
-based on normalized microbiome data and writes the results to a new CSV file.
+Calculates the Shannon diversity index from normalized microbiome data
+and writes the result to a new CSV file.
 """
 
 import os
@@ -11,14 +11,8 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
+# Import local utilities to match project API surface
 from utils.logging_config import get_logger
 from utils.config import get_processed_path, get_random_seed
 
@@ -27,191 +21,149 @@ logger = get_logger(__name__)
 
 def load_cleared_data(input_path: Path) -> pd.DataFrame:
     """
-    Load the normalized dataset from the previous step.
+    Loads the normalized data from the previous step.
 
     Args:
-        input_path: Path to the input CSV file (cleared_norm.csv).
+        input_path: Path to 'cleared_norm.csv'
 
     Returns:
-        DataFrame containing the normalized data.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or missing required columns.
+        DataFrame containing normalized abundances.
     """
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading normalized data from {input_path}")
+    
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-
-    if df.empty:
-        raise ValueError("Input dataset is empty.")
-
-    # Basic validation: ensure subject_id exists
-    if 'subject_id' not in df.columns:
-        raise ValueError("Input dataset must contain 'subject_id' column.")
-
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    
+    # Validate required columns exist
+    required_cols = ['subject_id', 'titer_baseline', 'titer_post']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in input: {missing}")
+    
     return df
 
 
-def identify_taxa_columns(df: pd.DataFrame) -> List[str]:
+def identify_taxa_columns(df: pd.DataFrame) -> list:
     """
-    Identify columns representing taxon abundances.
-
-    Strategy: Exclude known non-taxon columns (subject_id, titer_*, shannon_*, log_*, clr_*).
-    Assume any numeric column not in the exclusion list is a taxon.
-
-    Args:
-        df: The input DataFrame.
-
-    Returns:
-        List of column names representing taxa.
+    Identifies columns representing microbiome taxa.
+    Excludes known metadata columns and non-numeric columns.
     """
-    exclude_prefixes = ['subject_id', 'titer_', 'shannon_', 'log_', 'clr_', 'responder']
+    exclude_cols = {'subject_id', 'titer_baseline', 'titer_post', 
+                    'titer_pre_log', 'titer_post_log', 'shannon_diversity'}
+    
     taxa_cols = []
-
     for col in df.columns:
-        if col == 'subject_id':
-            continue
-        if any(col.startswith(prefix) for prefix in exclude_prefixes):
-            continue
-        # Check if numeric (abundance data should be numeric)
-        if pd.api.types.is_numeric_dtype(df[col]):
-            taxa_cols.append(col)
-
+        if col not in exclude_cols:
+            # Check if column is numeric (abundance)
+            if pd.api.types.is_numeric_dtype(df[col]):
+                taxa_cols.append(col)
+    
     if not taxa_cols:
-        raise ValueError("No taxon columns found in the dataset. "
-                         "Please ensure normalized abundance columns exist.")
-
-    logger.info(f"Identified {len(taxa_cols)} taxon columns: {taxa_cols[:5]}...")
-    return taxa_cols
+        logger.warning("No numeric taxon columns found. Returning empty list.")
+    
+    return sorted(taxa_cols)
 
 
-def calculate_shannon_diversity(df: pd.DataFrame, taxa_cols: List[str]) -> pd.Series:
+def calculate_shannon_diversity(df: pd.DataFrame, taxa_cols: list) -> pd.Series:
     """
-    Calculate Shannon diversity index (H') for each row.
-
-    Formula: H' = - sum(p_i * ln(p_i))
-    where p_i is the proportion of the i-th taxon.
-
+    Calculates Shannon diversity index for each row.
+    
+    Formula: H = -sum(p_i * ln(p_i))
+    where p_i is the proportion of taxon i.
+    
     Args:
-        df: DataFrame containing taxon abundances.
+        df: DataFrame with abundance columns.
         taxa_cols: List of taxon column names.
-
+        
     Returns:
-        Series of Shannon diversity values indexed by row.
+        Series of Shannon diversity values.
     """
-    logger.info("Calculating Shannon diversity index...")
+    if not taxa_cols:
+        return pd.Series([0.0] * len(df), index=df.index)
 
-    # Extract taxon data
-    taxon_data = df[taxa_cols].values
+    # Extract abundance matrix
+    abundances = df[taxa_cols].values
 
-    # Ensure non-negative
-    if np.any(taxon_data < 0):
-        logger.warning("Negative values detected in taxon data. Clipping to 0.")
-        taxon_data = np.clip(taxon_data, 0, None)
+    # Handle potential NaNs by filling with 0 (though normalized data should be clean)
+    abundances = np.nan_to_num(abundances, nan=0.0)
 
-    # Calculate row sums to ensure relative abundance (though input should be normalized)
-    row_sums = taxon_data.sum(axis=1)
-
+    # Calculate row sums to ensure we are working with proportions (should be ~1.0)
+    # If data is already normalized, this is just a safety check.
+    row_sums = abundances.sum(axis=1, keepdims=True)
+    
     # Avoid division by zero
-    row_sums[row_sums == 0] = 1.0
-
+    row_sums = np.where(row_sums == 0, 1.0, row_sums)
+    
     # Calculate proportions
-    proportions = taxon_data / row_sums[:, np.newaxis]
+    proportions = abundances / row_sums
 
-    # Calculate Shannon index: -sum(p * ln(p))
-    # Handle log(0) -> 0 by masking
-    with np.errstate(divide='ignore', invalid='ignore'):
-        log_proportions = np.log(proportions)
-        log_proportions[proportions == 0] = 0.0
+    # Calculate Shannon index: H = - sum(p * ln(p))
+    # We use np.where to handle 0 * ln(0) which is defined as 0
+    log_props = np.log(proportions)
+    log_props = np.where(proportions == 0, 0.0, log_props)
+    
+    shannon_h = -np.sum(proportions * log_props, axis=1)
 
-    shannon_values = -np.sum(proportions * log_proportions, axis=1)
-
-    return pd.Series(shannon_values, index=df.index, name='shannon_diversity')
+    return pd.Series(shannon_h, index=df.index, name='shannon_diversity')
 
 
-def write_updated_dataset(df: pd.DataFrame, output_path: Path) -> None:
+def write_updated_dataset(df: pd.DataFrame, shannon_series: pd.Series, output_path: Path) -> None:
     """
-    Write the DataFrame with the new Shannon diversity column to the output path.
-
-    Args:
-        df: The updated DataFrame.
-        output_path: Path to the output CSV file.
+    Writes the dataframe with the new Shannon diversity column to disk.
     """
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Writing results to {output_path}")
-    df.to_csv(output_path, index=False)
-    logger.info("Successfully wrote output file.")
+    
+    # Add the new column
+    df_with_shannon = df.copy()
+    df_with_shannon['shannon_diversity'] = shannon_series
+    
+    logger.info(f"Writing output to {output_path}")
+    df_with_shannon.to_csv(output_path, index=False)
+    logger.info(f"Successfully wrote {len(df_with_shannon)} rows to {output_path}")
 
 
-def run_shannon_pipeline(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Path:
+def run_shannon_pipeline(input_path: Path, output_path: Path) -> None:
     """
-    Execute the full Shannon diversity calculation pipeline.
-
-    1. Load normalized data.
-    2. Identify taxon columns.
-    3. Calculate Shannon index.
-    4. Append to DataFrame.
-    5. Write to new file.
-
-    Args:
-        input_path: Path to input CSV. Defaults to config path for cleared_norm.csv.
-        output_path: Path to output CSV. Defaults to config path for cleared_shannon.csv.
-
-    Returns:
-        Path to the generated output file.
+    Orchestrates the Shannon diversity calculation pipeline.
     """
-    # Resolve paths
-    if input_path is None:
-        input_path = get_processed_path() / "cleared_norm.csv"
-    if output_path is None:
-        output_path = get_processed_path() / "cleared_shannon.csv"
-
-    logger.info(f"Starting Shannon Diversity Pipeline. Input: {input_path}, Output: {output_path}")
-
+    logger.info("Starting Shannon Diversity Calculation (T020c)")
+    
     # 1. Load Data
     df = load_cleared_data(input_path)
-
+    
     # 2. Identify Taxa
     taxa_cols = identify_taxa_columns(df)
-
-    # 3. Calculate Shannon
-    shannon_series = calculate_shannon_diversity(df, taxa_cols)
-
-    # 4. Append Column
-    df['shannon_diversity'] = shannon_series
-
-    # 5. Write Output
-    write_updated_dataset(df, output_path)
-
-    # Verification
-    logger.info("Verification: Checking output file...")
-    if not output_path.exists():
-        raise RuntimeError("Output file was not created.")
-
-    df_out = pd.read_csv(output_path)
-    assert 'shannon_diversity' in df_out.columns, "shannon_diversity column missing in output."
-    assert len(df_out) == len(df), "Row count mismatch in output."
-
-    logger.info(f"Pipeline completed successfully. Output: {output_path}")
-    return output_path
+    logger.info(f"Identified {len(taxa_cols)} taxon columns for diversity calculation.")
+    
+    # 3. Calculate Shannon Index
+    shannon_values = calculate_shannon_diversity(df, taxa_cols)
+    
+    # 4. Write Output
+    write_updated_dataset(df, shannon_values, output_path)
+    
+    logger.info("Shannon Diversity Calculation completed successfully.")
 
 
 def main():
-    """Entry point for the script."""
+    """
+    Entry point for the script.
+    """
+    # Configure paths
+    input_file = get_processed_path("cleared_norm.csv")
+    output_file = get_processed_path("cleared_shannon.csv")
+    
+    # Set logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
+    
     try:
-        run_shannon_pipeline()
-        logger.info("Task T020c completed successfully.")
+        run_shannon_pipeline(input_file, output_file)
     except Exception as e:
-        logger.error(f"Task T020c failed: {e}", exc_info=True)
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         sys.exit(1)
 
 

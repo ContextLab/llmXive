@@ -1,23 +1,26 @@
-T008a:
+T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` template file was provided; there is no evidence of a file containing
-    placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`. The required artifact is missing.
-T010:
+  r: "No synthetic dataset file or code to generate one was provided; the evidence\
+    \ contains only the project specification and user stories, with no actual artifact\
+    \ (e.g., CSV, script, or notebook) that creates the required synthetic data. The\
+    \ implementer must supply a non\u2011empty synthetic dataset (or the generation\
+    \ script) that matches the described format."
+T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, output CSV, logs, or analysis results were provided; the\
-    \ claim lacks any tangible artifacts (code, data files, or result tables) that\
-    \ demonstrate the required data filtering, validation, correlation calculations,\
-    \ multiple\u2011testing correction, or predictive modeling. The implementer must\
-    \ supply the actual scripts and generated outputs to satisfy the user stories."
-T011a:
+  r: No sampling utility code, script, or documentation was provided; the only evidence
+    shown are the project specifications and user stories, with no actual artifact
+    files or implementation details. The required utility is therefore missing.
+T011d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data files were provided that actually fetch the pre\u2011\
-    processed OTU table and serology metadata for the SRP accession series, so the\
-    \ required artifact is missing. The claim lacks any concrete implementation or\
-    \ output to verify."
+  r: "No ingestion script, validation logs, or output CSV with the filtered microbiome\u2011\
+    serology dataset is present. Likewise, there are no analysis results (CLR\u2011\
+    transformed data, Shannon indices, Spearman correlations, Benjamini\u2011Hochberg\
+    \ adjusted p\u2011values) or predictive\u2011model artifacts (trained Random Forest,\
+    \ cross\u2011validation reports). The required deliverables are missing, so the\
+    \ task is not satisfied."
 T020a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,22 +28,6 @@ T020a:
     \ lacks any actual artifact (code, results, or documentation) demonstrating that\
     \ the microbiome data were CLR\u2011transformed, correlations computed, or p\u2011\
     values corrected. The required deliverables are missing, so the task is not satisfied."
-T020b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file implementing or demonstrating relative\
-    \ abundance normalization was provided; the only evidence is the high\u2011level\
-    \ feature specification, which does not contain the required artifact. The task\
-    \ therefore lacks the concrete output it demands."
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result outputs (e.g., a script that computes Shannon\
-    \ diversity, a CSV with per\u2011subject Shannon indices, or a report showing\
-    \ the calculations) were provided. Without any tangible artifact, we cannot verify\
-    \ that the Shannon diversity calculation was actually implemented or that it meets\
-    \ the specification. The next implementer must supply the implementation and its\
-    \ resulting output."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,6 +43,14 @@ T025:
   r: "No artifact (e.g., log file, report, or measurement output) was provided to\
     \ demonstrate that SC-004\u2019s outcome was measured and recorded; the only evidence\
     \ is the task description itself. The required deliverable is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, analysis results, or figures were supplied; the implementer\
+    \ did not provide the ingestion script, CLR\u2011transformed dataset, Spearman\
+    \ correlation table with raw and Benjamini\u2011Hochberg adjusted p\u2011values,\
+    \ Shannon diversity calculations, or any evidence of the required outputs. Consequently\
+    \ the task\u2019s core deliverables are missing."
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -79,10 +74,10 @@ T036a:
     \ precision, recall, or F1\u2011score for the high/low responder classification\
     \ was provided. The claim lacks any concrete artifact demonstrating that these\
     \ metrics were calculated and recorded."
-T039:
+T036b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a ruff linting run or black formatting was executed
-    on the `code/` directory, nor any logs, diff outputs, or updated files showing
-    that reported issues were fixed. The required artifacts (lint/format reports and
-    corrected code) are missing.
+  r: "No artifact showing the model\u2019s nested 5\u2011fold cross\u2011validated\
+    \ accuracy was provided, nor any log or report confirming that the accuracy exceeds\
+    \ the >60\u202F% success criterion. The required evidence to verify SC\u2011003\
+    \ is missing."

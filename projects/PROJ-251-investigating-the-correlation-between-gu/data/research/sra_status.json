@@ -1,5 +1,6 @@
 {
-  "status": "real_data_found",
-  "use_synthetic": false,
-  "accession": "SRP123456"
+  "status": "no_real_data",
+  "use_synthetic": true,
+  "accession": null,
+  "message": "No real data found in SRA/HuggingFace. Proceeding with synthetic data for code validation only."
 }

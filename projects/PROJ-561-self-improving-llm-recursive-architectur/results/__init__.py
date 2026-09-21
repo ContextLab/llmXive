@@ -1,3 +1,5 @@
 """
-Initialization file for the results package.
+Results Package for llmXive Self-Improving LLM.
+
+Contains output metrics, trajectory logs, and final reports.
 """

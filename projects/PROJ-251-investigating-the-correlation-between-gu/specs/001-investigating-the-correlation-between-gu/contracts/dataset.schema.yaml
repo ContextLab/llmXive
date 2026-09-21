@@ -15,5 +15,5 @@ properties:
   log_titer:
     type: number
   # Dynamic numeric columns for taxa abundances and CLR values are allowed via additionalProperties
-additionalProperties:
-  type: number
+  additionalProperties:
+    type: number

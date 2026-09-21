@@ -1,0 +1,55 @@
+{
+  "project_id": "PROJ-251-investigating-the-correlation-between-gu",
+  "tasks": [
+    {
+      "task_key": "T010",
+      "reject_count": 1,
+      "last_reason": "No ingestion script, output CSV, logs, or analysis results were provided; the claim lacks any tangible artifacts (code, data files, or result tables) that demonstrate the required data filtering, validation, correlation calculations, multiple\u2011testing correction, or predictive modeling. The implementer must supply the actual scripts and generated outputs to satisfy the user stories.",
+      "first_seen": "2026-09-21T10:17:01.149420+00:00",
+      "last_seen": "2026-09-21T10:17:01.149420+00:00"
+    },
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-21T10:17:01.170419+00:00",
+      "last_seen": "2026-09-21T10:17:01.170419+00:00"
+    },
+    {
+      "task_key": "T008a",
+      "reject_count": 1,
+      "last_reason": "No `.env` template file was provided; there is no evidence of a file containing placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`. The required artifact is missing.",
+      "first_seen": "2026-09-21T10:17:01.173159+00:00",
+      "last_seen": "2026-09-21T10:17:01.173159+00:00"
+    },
+    {
+      "task_key": "T039",
+      "reject_count": 1,
+      "last_reason": "No evidence was provided that a ruff linting run or black formatting was executed on the `code/` directory, nor any logs, diff outputs, or updated files showing that reported issues were fixed. The required artifacts (lint/format reports and corrected code) are missing.",
+      "first_seen": "2026-09-21T10:17:01.173924+00:00",
+      "last_seen": "2026-09-21T10:17:01.173924+00:00"
+    },
+    {
+      "task_key": "T011a",
+      "reject_count": 1,
+      "last_reason": "No code, script, or data files were provided that actually fetch the pre\u2011processed OTU table and serology metadata for the SRP accession series, so the required artifact is missing. The claim lacks any concrete implementation or output to verify.",
+      "first_seen": "2026-09-21T10:17:01.174701+00:00",
+      "last_seen": "2026-09-21T10:17:01.174701+00:00"
+    },
+    {
+      "task_key": "T020b",
+      "reject_count": 1,
+      "last_reason": "No code, script, notebook, or data file implementing or demonstrating relative abundance normalization was provided; the only evidence is the high\u2011level feature specification, which does not contain the required artifact. The task therefore lacks the concrete output it demands.",
+      "first_seen": "2026-09-21T10:17:06.536883+00:00",
+      "last_seen": "2026-09-21T10:17:06.536883+00:00"
+    },
+    {
+      "task_key": "T020c",
+      "reject_count": 1,
+      "last_reason": "No code, data files, or result outputs (e.g., a script that computes Shannon diversity, a CSV with per\u2011subject Shannon indices, or a report showing the calculations) were provided. Without any tangible artifact, we cannot verify that the Shannon diversity calculation was actually implemented or that it meets the specification. The next implementer must supply the implementation and its resulting output.",
+      "first_seen": "2026-09-21T10:17:06.537900+00:00",
+      "last_seen": "2026-09-21T10:17:06.537900+00:00"
+    }
+  ],
+  "updated_at": "2026-09-21T10:17:06.537900+00:00"
+}

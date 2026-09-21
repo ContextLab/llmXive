@@ -4,24 +4,30 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Tuple, List
 
-# Import config utilities from the existing API surface
+# Ensure the code directory is in the path for imports if running as script
+code_root = Path(__file__).resolve().parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
+
 from utils.config import (
     get_num_synthetic_taxa,
     get_target_correlation,
     get_random_seed,
-    get_min_sample_size,
     get_use_synthetic_data,
-    get_raw_path,
-    get_research_path
+    get_min_sample_size
 )
+from utils.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def generate_synthetic_otu_table(n_subjects: int, n_taxa: int, seed: int) -> pd.DataFrame:
     """
-    Generate a synthetic OTU table with relative abundances.
+    Generate a synthetic OTU table with controlled correlation structure.
+    
+    Creates n_taxa columns named 'taxon_0' through 'taxon_{n_taxa-1}'.
+    The first `n_taxa` taxa (all of them in this context) are correlated 
+    with a latent variable that will drive the serology response.
     
     Args:
         n_subjects: Number of subjects (rows).
@@ -29,266 +35,217 @@ def generate_synthetic_otu_table(n_subjects: int, n_taxa: int, seed: int) -> pd.
         seed: Random seed for reproducibility.
         
     Returns:
-        DataFrame with columns: subject_id, taxon_0, taxon_1, ..., taxon_{n_taxa-1}
+        pd.DataFrame: OTU table with subject_id and taxon columns.
     """
     np.random.seed(seed)
     
-    # Generate raw counts from a Dirichlet distribution to simulate compositional data
-    # Concentration parameter alpha < 1 creates sparse data (many zeros), typical of microbiome
-    alpha = 0.5
-    raw_abundances = np.random.dirichlet(np.ones(n_taxa) * alpha, size=n_subjects)
+    # Generate a latent variable Z that drives the correlation
+    Z = np.random.normal(0, 1, n_subjects)
     
-    # Create subject IDs
-    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
+    # Generate taxa abundances
+    # We want taxa to be correlated with Z and with each other to some degree
+    # to simulate a realistic microbiome structure.
+    # Abundances must be positive.
     
-    # Create column names
-    taxon_columns = [f"taxon_{i}" for i in range(n_taxa)]
+    # Base abundances (log-normal distribution is common for microbiome)
+    base_abundances = np.random.lognormal(mean=0, sigma=1, size=(n_subjects, n_taxa))
     
-    # Construct DataFrame
-    df = pd.DataFrame(raw_abundances, columns=taxon_columns)
-    df.insert(0, 'subject_id', subject_ids)
+    # Introduce correlation with Z
+    # We add a component of Z to the log-abundance before exponentiating
+    # This ensures the resulting abundance is correlated with Z
+    correlation_strength = 0.5 # Moderate correlation
+    log_abundances = np.log(base_abundances) + correlation_strength * Z[:, np.newaxis]
     
-    # Ensure relative abundances sum to 1 (floating point tolerance)
-    row_sums = df[taxon_columns].sum(axis=1)
-    df[taxon_columns] = df[taxon_columns] / row_sums.values[:, np.newaxis]
+    # Add some noise
+    noise = np.random.normal(0, 0.1, size=(n_subjects, n_taxa))
+    log_abundances += noise
+    
+    abundances = np.exp(log_abundances)
+    
+    # Convert to relative abundances (sum to 1 per row)
+    row_sums = abundances.sum(axis=1, keepdims=True)
+    relative_abundances = abundances / row_sums
+    
+    # Create DataFrame
+    taxon_cols = [f'taxon_{i}' for i in range(n_taxa)]
+    df = pd.DataFrame(relative_abundances, columns=taxon_cols)
+    df.insert(0, 'subject_id', [f'SUBJ_{i:04d}' for i in range(n_subjects)])
     
     return df
 
-def generate_synthetic_serology(
-    n_subjects: int, 
-    n_taxa: int, 
-    target_correlation: float, 
-    taxa_indices: List[int], 
-    seed: int
-) -> pd.DataFrame:
+def generate_synthetic_serology(n_subjects: int, n_taxa: int, target_corr: float, seed: int) -> pd.DataFrame:
     """
-    Generate synthetic serology metadata with controlled correlation to specific taxa.
+    Generate synthetic serology metadata with controlled correlation to taxa.
+    
+    The post-vaccination titer is generated to have a correlation of `target_corr`
+    with the latent variable Z used in OTU generation.
     
     Args:
         n_subjects: Number of subjects.
-        n_taxa: Total number of taxa (needed to know correlation structure).
-        target_correlation: Target correlation coefficient for selected taxa.
-        taxa_indices: List of indices of taxa that should correlate with titer.
-        seed: Random seed.
+        n_taxa: Number of taxa (used to determine which columns correlate).
+        target_corr: Target correlation coefficient between latent variable and log_titer.
+        seed: Random seed for reproducibility.
         
     Returns:
-        DataFrame with columns: subject_id, titer_baseline, titer_post
+        pd.DataFrame: Serology data with subject_id, titer_baseline, titer_post.
     """
     np.random.seed(seed)
     
-    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
+    # Generate latent variable Z (same seed logic as OTU table to ensure correlation)
+    # Note: In a real scenario, we'd pass Z from the OTU generator, 
+    # but for modularity, we regenerate with same seed if n_subjects matches.
+    # A more robust way is to pass Z, but here we assume seed consistency.
+    Z = np.random.normal(0, 1, n_subjects)
     
-    # Generate baseline titers (log-normal distribution, typical for serology)
-    # Mean ~ 10, std ~ 5 in log space
-    baseline_log = np.random.normal(loc=np.log(10), scale=0.5, size=n_subjects)
-    titer_baseline = np.exp(baseline_log)
+    # Generate baseline titers (log-normal, typical for antibody titers)
+    # HAI titers are often powers of 2, but we'll use continuous log-normal for simplicity
+    baseline_mean = np.log(20) # Mean around 20
+    baseline_sigma = 0.5
+    titer_baseline = np.exp(np.random.normal(baseline_mean, baseline_sigma, n_subjects))
     
     # Generate post-vaccination titers
-    # Start with baseline + noise
-    noise = np.random.normal(loc=0, scale=0.2, size=n_subjects)
-    titer_post_log = baseline_log + noise
+    # We want log(titer_post) to correlate with Z
+    # log(titer_post) = mu + beta * Z + noise
+    # Correlation = beta * std(Z) / std(log(titer_post))
     
-    # Add correlation effect for selected taxa
-    # We need to inject correlation without having the actual OTU table yet
-    # We simulate the "latent" effect that the OTU table would have
-    if taxa_indices:
-        # Create a latent variable that represents the combined effect of selected taxa
-        # This variable will be correlated with the final titer
-        latent_effect = np.sum(np.random.normal(loc=0, scale=1, size=(n_subjects, len(taxa_indices))), axis=1)
-        latent_effect = latent_effect / np.std(latent_effect)  # Normalize
-        
-        # Scale the effect to achieve target correlation
-        # Simple linear injection: titer_post = baseline + beta * latent_effect
-        beta = target_correlation
-        titer_post_log = titer_post_log + beta * latent_effect
+    # Let's set up the relationship
+    # target_corr = corr(Z, log_titer_post)
+    # log_titer_post = mu + target_corr * Z + sqrt(1-target_corr^2) * noise
+    # (assuming Z and noise are standard normal)
     
-    titer_post = np.exp(titer_post_log)
+    noise = np.random.normal(0, 1, n_subjects)
+    log_titer_post_mean = np.log(40) # Mean around 40
+    
+    # Construct log_titer_post to have the desired correlation with Z
+    # We scale Z by target_corr and noise by sqrt(1 - target_corr^2)
+    # Then shift and scale to have the desired mean
+    std_target = 0.5 # Standard deviation of log_titer_post
+    log_titer_post = (
+        log_titer_post_mean + 
+        target_corr * std_target * Z + 
+        np.sqrt(1 - target_corr**2) * std_target * noise
+    )
+    
+    titer_post = np.exp(log_titer_post)
     
     # Create DataFrame
     df = pd.DataFrame({
-        'subject_id': subject_ids,
+        'subject_id': [f'SUBJ_{i:04d}' for i in range(n_subjects)],
         'titer_baseline': titer_baseline,
         'titer_post': titer_post
     })
     
     return df
 
-def generate_synthetic_otu_table_with_latent(
-    n_subjects: int, 
-    n_taxa: int, 
-    target_correlation: float, 
-    taxa_indices: List[int], 
-    seed: int
-) -> pd.DataFrame:
+def generate_synthetic_otu_table_with_latent(n_subjects: int, n_taxa: int, seed: int) -> tuple:
     """
-    Generate OTU table where specific taxa are explicitly correlated with a latent response variable.
-    This ensures the correlation exists in the generated data.
+    Generate OTU table and return the latent variable Z for consistent serology generation.
     
     Args:
         n_subjects: Number of subjects.
-        n_taxa: Total number of taxa.
-        target_correlation: Target correlation for selected taxa.
-        taxa_indices: Indices of taxa to correlate.
+        n_taxa: Number of taxa.
         seed: Random seed.
         
     Returns:
-        DataFrame with OTU table.
+        tuple: (df_otu, Z)
     """
     np.random.seed(seed)
-    
-    # Generate a latent response variable (simulating immune response strength)
-    latent_response = np.random.normal(loc=0, scale=1, size=n_subjects)
-    
-    # Initialize abundance matrix
-    abundances = np.zeros((n_subjects, n_taxa))
-    
-    # Generate uncorrelated taxa first (indices not in taxa_indices)
-    uncorrelated_indices = [i for i in range(n_taxa) if i not in taxa_indices]
-    if uncorrelated_indices:
-        # Dirichlet for uncorrelated part
-        alpha_uncorr = 0.5
-        uncorr_part = np.random.dirichlet(np.ones(len(uncorrelated_indices)) * alpha_uncorr, size=n_subjects)
-        for i, idx in enumerate(uncorrelated_indices):
-            abundances[:, idx] = uncorr_part[:, i]
-    
-    # Generate correlated taxa
-    if taxa_indices:
-        # For correlated taxa, we make them dependent on the latent response
-        # Abundance = base + beta * latent_response + noise
-        beta = target_correlation * 0.5  # Scaling factor
-        noise = np.random.normal(loc=0, scale=0.1, size=(n_subjects, len(taxa_indices)))
-        
-        for i, idx in enumerate(taxa_indices):
-            base = np.abs(np.random.normal(loc=0.1, scale=0.05, size=n_subjects))
-            abundances[:, idx] = base + beta * latent_response + noise[:, i]
-            abundances[:, idx] = np.abs(abundances[:, idx])  # Ensure positive
-    
-    # Normalize to relative abundances (sum to 1)
+    Z = np.random.normal(0, 1, n_subjects)
+    base_abundances = np.random.lognormal(mean=0, sigma=1, size=(n_subjects, n_taxa))
+    correlation_strength = 0.5
+    log_abundances = np.log(base_abundances) + correlation_strength * Z[:, np.newaxis]
+    noise = np.random.normal(0, 0.1, size=(n_subjects, n_taxa))
+    log_abundances += noise
+    abundances = np.exp(log_abundances)
     row_sums = abundances.sum(axis=1, keepdims=True)
-    row_sums[row_sums == 0] = 1  # Avoid division by zero
-    abundances = abundances / row_sums
-    
-    # Create DataFrame
-    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
-    taxon_columns = [f"taxon_{i}" for i in range(n_taxa)]
-    df = pd.DataFrame(abundances, columns=taxon_columns)
-    df.insert(0, 'subject_id', subject_ids)
-    
-    return df
+    relative_abundances = abundances / row_sums
+    taxon_cols = [f'taxon_{i}' for i in range(n_taxa)]
+    df = pd.DataFrame(relative_abundances, columns=taxon_cols)
+    df.insert(0, 'subject_id', [f'SUBJ_{i:04d}' for i in range(n_subjects)])
+    return df, Z
 
-def generate_synthetic_serology_with_latent(
-    n_subjects: int, 
-    latent_response: np.ndarray, 
-    seed: int
-) -> pd.DataFrame:
+def generate_synthetic_serology_with_latent(n_subjects: int, Z: np.ndarray, target_corr: float, seed: int) -> pd.DataFrame:
     """
-    Generate serology data based on the same latent response variable used in OTU generation.
+    Generate serology using a provided latent variable Z.
     
     Args:
         n_subjects: Number of subjects.
-        latent_response: The latent response variable from OTU generation.
+        Z: Latent variable array.
+        target_corr: Target correlation.
         seed: Random seed.
         
     Returns:
-        DataFrame with serology data.
+        pd.DataFrame: Serology data.
     """
-    np.random.seed(seed + 1)  # Slightly different seed for independence but reproducibility
-    
-    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
-    
-    # Baseline titers (log-normal)
-    baseline_log = np.random.normal(loc=np.log(10), scale=0.5, size=n_subjects)
-    titer_baseline = np.exp(baseline_log)
-    
-    # Post titers correlated with latent response
-    # titer_post_log = baseline_log + beta * latent_response + noise
-    beta = 0.8  # Strong correlation
-    noise = np.random.normal(loc=0, scale=0.1, size=n_subjects)
-    titer_post_log = baseline_log + beta * latent_response + noise
-    titer_post = np.exp(titer_post_log)
+    np.random.seed(seed)
+    noise = np.random.normal(0, 1, n_subjects)
+    log_titer_post_mean = np.log(40)
+    std_target = 0.5
+    log_titer_post = (
+        log_titer_post_mean + 
+        target_corr * std_target * Z + 
+        np.sqrt(1 - target_corr**2) * std_target * noise
+    )
+    titer_post = np.exp(log_titer_post)
+    baseline_mean = np.log(20)
+    baseline_sigma = 0.5
+    titer_baseline = np.exp(np.random.normal(baseline_mean, baseline_sigma, n_subjects))
     
     df = pd.DataFrame({
-        'subject_id': subject_ids,
+        'subject_id': [f'SUBJ_{i:04d}' for i in range(n_subjects)],
         'titer_baseline': titer_baseline,
         'titer_post': titer_post
     })
-    
     return df
 
 def main():
     """
-    Main entry point for generating synthetic datasets.
-    Checks config.USE_SYNTHETIC_DATA before proceeding.
+    Main entry point to generate synthetic dataset.
+    Reads configuration from utils.config and writes to data/raw/.
     """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logger.info("Starting synthetic data generation task T011b")
     
-    # Check if synthetic data generation is enabled
-    use_synthetic = get_use_synthetic_data()
-    if not use_synthetic:
-        logger.info("USE_SYNTHETIC_DATA is False. Skipping synthetic data generation.")
+    # Check if synthetic data is enabled
+    if not get_use_synthetic_data():
+        logger.warning("USE_SYNTHETIC_DATA is False. Skipping synthetic data generation.")
         return
-    
-    logger.info("Starting synthetic dataset generation...")
     
     # Get configuration parameters
     n_taxa = get_num_synthetic_taxa()
     target_corr = get_target_correlation()
     seed = get_random_seed()
-    n_subjects = get_min_sample_size()  # Default N=50 as per spec
+    n_subjects = get_min_sample_size() # Use minimum sample size as target
     
-    logger.info(f"Generating {n_subjects} subjects with {n_taxa} taxa.")
-    logger.info(f"Target correlation: {target_corr}, Seed: {seed}")
+    logger.info(f"Generating synthetic data: N={n_subjects}, Taxa={n_taxa}, Target_Corr={target_corr}, Seed={seed}")
     
-    # Define indices of taxa that will be correlated
-    # Spec says: "indices 0 to NUM_SYNTHETIC_TAXA-1"
-    correlated_indices = list(range(n_taxa))
+    # Ensure output directory exists
+    output_dir = Path("data/raw")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Generate OTU table with latent variable
-    otu_df = generate_synthetic_otu_table_with_latent(
-        n_subjects=n_subjects,
-        n_taxa=n_taxa,
-        target_correlation=target_corr,
-        taxa_indices=correlated_indices,
-        seed=seed
-    )
+    # Generate OTU table and latent variable
+    df_otu, Z = generate_synthetic_otu_table_with_latent(n_subjects, n_taxa, seed)
     
-    # Extract latent response from the generation process (we need to regenerate it or pass it)
-    # To ensure perfect correlation, we regenerate the latent response with the same seed logic
-    np.random.seed(seed)
-    latent_response = np.random.normal(loc=0, scale=1, size=n_subjects)
+    # Generate serology using the same latent variable
+    df_serology = generate_synthetic_serology_with_latent(n_subjects, Z, target_corr, seed + 1)
     
-    # Generate serology based on the same latent response
-    serology_df = generate_synthetic_serology_with_latent(
-        n_subjects=n_subjects,
-        latent_response=latent_response,
-        seed=seed
-    )
+    # Save to CSV
+    otu_path = output_dir / "synthetic_otutable.csv"
+    serology_path = output_dir / "synthetic_serology.csv"
     
-    # Define output paths
-    raw_path = get_raw_path()
-    Path(raw_path).mkdir(parents=True, exist_ok=True)
+    df_otu.to_csv(otu_path, index=False)
+    df_serology.to_csv(serology_path, index=False)
     
-    otu_output_path = Path(raw_path) / "synthetic_otutable.csv"
-    serology_output_path = Path(raw_path) / "synthetic_serology.csv"
+    logger.info(f"Successfully generated {otu_path}")
+    logger.info(f"Successfully generated {serology_path}")
     
-    # Save datasets
-    otu_df.to_csv(otu_output_path, index=False)
-    serology_df.to_csv(serology_output_path, index=False)
+    # Verification
+    assert len(df_otu) == n_subjects, f"Expected {n_subjects} rows in OTU table, got {len(df_otu)}"
+    assert len(df_serology) == n_subjects, f"Expected {n_subjects} rows in serology, got {len(df_serology)}"
+    assert list(df_otu.columns[:1]) == ['subject_id'], "First column must be subject_id"
+    assert list(df_serology.columns[:1]) == ['subject_id'], "First column must be subject_id"
+    assert len([c for c in df_otu.columns if c.startswith('taxon_')]) == n_taxa, f"Expected {n_taxa} taxon columns"
     
-    logger.info(f"Synthetic OTU table saved to: {otu_output_path}")
-    logger.info(f"Synthetic serology saved to: {serology_output_path}")
-    
-    # Verify output
-    logger.info(f"OTU table shape: {otu_df.shape}")
-    logger.info(f"Serology shape: {serology_df.shape}")
-    
-    # Log first few rows for verification
-    logger.info("OTU table head:\n" + otu_df.head().to_string())
-    logger.info("Serology head:\n" + serology_df.head().to_string())
+    logger.info("Synthetic data generation completed and verified.")
 
 if __name__ == "__main__":
     main()

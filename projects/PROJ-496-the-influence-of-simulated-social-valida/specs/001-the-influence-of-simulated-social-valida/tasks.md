@@ -138,12 +138,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for band-pass filtering in `tests/test_preprocess.py`
-- [ ] T022 [P] [US2] Unit test for ICA artifact removal in `tests/test_preprocess.py`
+- [X] T021 [P] [US2] Unit test for band-pass filtering in `tests/test_preprocess.py` <!-- FAILED: unspecified -->
+- [X] T022 [P] [US2] Unit test for ICA artifact removal in `tests/test_preprocess.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/preprocess.py` to load raw.edf files, apply band-pass filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a `--rejection_threshold` argument (default ±100 µV) for epoch rejection. **Output**: Preprocessed epochs object.
+- [X] T020 [US2] Implement `code/preprocess.py` to load raw.edf files, apply band-pass filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a `--rejection_threshold` argument (default ±100 µV) for epoch rejection. **Output**: Preprocessed epochs object.
 - [ ] T023 [US2] Implement average referencing and ICA-based ocular artifact removal in `code/preprocess.py`. **Call**: `mne.preprocessing.ICA`.
 - [X] T024 [US2] Implement epoching logic: baseline pre-stimulus to post-stimulus window around feedback onset. **Call**: `mne.Epochs(raw, events, tmin=-0.2, tmax=0.8, baseline=(-0.2, 0))`. **Output**: `data/processed/epochs_raw.fif`.
 - [X] T025 [US2] Implement P300 extraction: find peak amplitude (maximum positive voltage) within a **250–550 ms** window **specifically at electrodes Pz and CPz** for each trial. **Method**: `np.max(epochs_data[channels=[Pz, CPz],:, time_indices])`. **Output**: `data/processed/p300_measures.csv`.

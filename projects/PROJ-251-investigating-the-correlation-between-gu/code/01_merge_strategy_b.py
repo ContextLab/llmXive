@@ -4,210 +4,249 @@ import logging
 import pandas as pd
 import json
 from pathlib import Path
-import psutil
+from typing import Optional
 
-from utils.config import get_lod_value, get_use_synthetic_data, get_min_sample_size
-from utils.logging_config import get_logger
+# Local imports from utils
+from utils.config import (
+    get_lod_value,
+    get_use_synthetic_data,
+    get_raw_path,
+    get_processed_path,
+    get_results_path,
+    get_random_seed,
+    get_min_sample_size,
+)
+from utils.logging_config import get_logger, log_error_context
+
+logger = get_logger(__name__)
+
 
 class ConfigurationError(Exception):
     """Raised when configuration is missing or invalid."""
     pass
 
+
 class InsufficientSampleSizeError(Exception):
-    """Raised when the sample size is below the required minimum."""
+    """Raised when the sample size is below the required threshold for real data."""
     pass
 
+
 def estimate_memory_footprint(df: pd.DataFrame) -> int:
-    """Estimate memory footprint of a DataFrame in MB."""
-    return df.memory_usage(deep=True).sum() / (1024 * 1024)
+    """Estimate memory usage of a DataFrame in bytes."""
+    return df.memory_usage(deep=True).sum()
+
 
 def handle_lod_titers(df: pd.DataFrame, lod_value: float) -> pd.DataFrame:
     """
-    Handle Limit of Detection (LOD) for titer columns.
-    Replaces 'ND', '', or NaN values with 0.5 * LOD_VALUE.
-    Ensures titer columns are numeric.
+    Impute missing titer values ('ND', '', or NaN) based on LOD_VALUE.
+    If lod_value is None, raises ConfigurationError.
+    Imputation strategy: 0.5 * LOD_VALUE.
     """
-    titer_cols = ['titer_baseline', 'titer_post']
     if lod_value is None:
-        raise ConfigurationError("LOD_VALUE must be explicitly set in config. No default allowed.")
+        raise ConfigurationError(
+            "LOD_VALUE must be explicitly set in config. No default allowed."
+        )
+
+    titer_cols = ["titer_baseline", "titer_post"]
+    df = df.copy()
 
     for col in titer_cols:
         if col not in df.columns:
             continue
-        
         # Ensure column is numeric, coercing errors to NaN
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-        
-        # Identify missing or non-numeric values (NaN)
-        # The task description implies 'ND' or '' might be present as strings before conversion
-        # pd.to_numeric with errors='coerce' handles this by turning them into NaN
-        
-        # Impute missing values as 0.5 * LOD
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        # Identify missing values (NaN or string representations like 'ND')
+        # Since we coerced to numeric, 'ND' etc. are already NaN
         mask = df[col].isna()
+
         if mask.any():
+            logger.info(f"Imputing {mask.sum()} missing values in {col} with 0.5 * LOD ({0.5 * lod_value})")
             df.loc[mask, col] = 0.5 * lod_value
-            logging.info(f"Imputed {mask.sum()} missing values in {col} with 0.5 * LOD ({0.5 * lod_value})")
 
     return df
 
-def merge_otu_serology(otu_path: Path, serology_path: Path) -> pd.DataFrame:
-    """Merge OTU table and serology metadata on subject_id."""
-    if not otu_path.exists():
-        raise FileNotFoundError(f"OTU table not found at {otu_path}")
-    if not serology_path.exists():
-        raise FileNotFoundError(f"Serology file not found at {serology_path}")
 
-    otu_df = pd.read_csv(otu_path)
-    sero_df = pd.read_csv(serology_path)
+def merge_otu_serology(otu_df: pd.DataFrame, serology_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge OTU table and Serology metadata on subject_id.
+    """
+    merged = pd.merge(
+        otu_df,
+        serology_df,
+        on="subject_id",
+        how="inner"
+    )
+    logger.info(f"Merged dataset shape: {merged.shape}")
+    return merged
 
-    if 'subject_id' not in otu_df.columns or 'subject_id' not in sero_df.columns:
-        raise ValueError("Both datasets must contain 'subject_id' column for merging.")
-
-    merged_df = pd.merge(otu_df, sero_df, on='subject_id', how='inner')
-    logging.info(f"Merged dataset shape: {merged_df.shape}")
-    return merged_df
 
 def filter_complete_records(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter out subjects where titer_baseline OR titer_post is truly missing (NaN).
-    Microbiome columns: '0' abundance is valid, but actual NaNs in taxon columns are filtered.
+    Microbiome columns: '0' is valid, but NaN is not.
     """
-    titer_cols = ['titer_baseline', 'titer_post']
+    titer_cols = ["titer_baseline", "titer_post"]
     
-    # Filter rows where titer columns are not NaN
+    # Filter rows where titers are not NaN
+    initial_count = len(df)
     df = df.dropna(subset=titer_cols)
+    dropped_titer = initial_count - len(df)
+    if dropped_titer > 0:
+        logger.warning(f"Dropped {dropped_titer} rows due to missing titer values.")
+
+    # Check microbiome columns for NaN (excluding subject_id and titer columns)
+    non_taxa_cols = ["subject_id"] + titer_cols
+    taxa_cols = [c for c in df.columns if c not in non_taxa_cols]
     
-    # Identify microbiome columns (exclude subject_id and titer columns)
-    exclude_cols = ['subject_id'] + titer_cols
-    taxon_cols = [c for c in df.columns if c not in exclude_cols]
+    if taxa_cols:
+        initial_count = len(df)
+        df = df.dropna(subset=taxa_cols)
+        dropped_taxa = initial_count - len(df)
+        if dropped_taxa > 0:
+            logger.warning(f"Dropped {dropped_taxa} rows due to missing microbiome data.")
     
-    if taxon_cols:
-        # Filter rows where any taxon column is NaN (actual missing data)
-        # '0' is a valid abundance and should not be dropped
-        df = df.dropna(subset=taxon_cols)
-    
-    logging.info(f"Filtered dataset shape: {df.shape}")
     return df
 
-def validate_minimum_sample_size(df: pd.DataFrame, min_size: int, use_synthetic: bool) -> None:
+
+def validate_minimum_sample_size(df: pd.DataFrame, use_synthetic: bool) -> None:
     """
-    Validate sample size against minimum requirement.
-    If real data is insufficient, raise InsufficientSampleSizeError.
-    If synthetic data is used, proceed regardless.
+    Validate sample size.
+    If real data and N < 50, raise InsufficientSampleSizeError.
+    If synthetic data, proceed regardless of size.
     """
     n = len(df)
-    if n < min_size:
-        if not use_synthetic:
-            error_msg = f"Insufficient sample size (N={n} < {min_size}). Execution halted as per Spec Edge Cases."
-            raise InsufficientSampleSizeError(error_msg)
-        else:
-            logging.warning(f"Sample size (N={n}) is below minimum ({min_size}), but proceeding because USE_SYNTHETIC_DATA is True.")
-    else:
-        logging.info(f"Sample size validation passed: N={n} >= {min_size}")
+    min_n = get_min_sample_size() # Default 50
 
-def write_assumptions(n: int, use_synthetic: bool, output_path: Path) -> None:
-    """Write assumptions documentation to data/results/assumptions.md."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not use_synthetic and n < min_n:
+        logger.error(f"Insufficient sample size for real data: N={n} < {min_n}")
+        raise InsufficientSampleSizeError(
+            f"Insufficient sample size (N={n}). Execution halted as per Spec Edge Cases."
+        )
     
-    content = f"""# Data Processing Assumptions
+    logger.info(f"Sample size validation passed: N={n}")
+
+
+def write_assumptions(n: int, use_synthetic: bool, lod_value: float) -> None:
+    """
+    Write assumptions documentation to data/results/assumptions.md.
+    """
+    results_path = get_results_path()
+    results_path.mkdir(parents=True, exist_ok=True)
+    assumptions_file = results_path / "assumptions.md"
+
+    content = f"""# Assumptions and Methodology Notes
+
+## Data Merging and Filtering
+- **Merge Key**: `subject_id`
+- **Missing Titer Handling**: Rows with missing `titer_baseline` or `titer_post` were dropped.
+- **Microbiome Completeness**: Rows with missing taxon abundances (NaN) were dropped. '0' abundance is valid.
 
 ## LOD Handling
-- Method: Imputation of missing/non-numeric values in titer columns.
-- Value: 0.5 * LOD_VALUE (where LOD_VALUE is configured).
-- Columns Affected: titer_baseline, titer_post.
+- **LOD Value Used**: {lod_value}
+- **Imputation Strategy**: Missing/ND values in titer columns were imputed as `0.5 * LOD_VALUE`.
 
 ## Sample Size Outcome
-- Final Count: {n}
-- Synthetic Data Used: {use_synthetic}
-- Threshold: Minimum 50 subjects required for real data analysis.
-
-## Methodology Note
-- Data merging performed on 'subject_id'.
-- Records with missing titer values or missing microbiome taxon data (NaN) were excluded.
-- Zero abundance values in microbiome data were retained as valid observations.
+- **Final Count (N)**: {n}
+- **Data Source**: {'Synthetic' if use_synthetic else 'Real'}
+- **Validation**: {'Passed' if (use_synthetic or n >= 50) else 'Failed (Halted)'}
 """
     
-    with open(output_path, 'w') as f:
+    with open(assumptions_file, "w") as f:
         f.write(content)
-    logging.info(f"Assumptions written to {output_path}")
+    logger.info(f"Assumptions written to {assumptions_file}")
 
-def write_error_report(error_type: str, count: int, message: str, results_dir: Path) -> None:
-    """Write error report to data/results/sampling_error.json and error_log.txt."""
-    results_dir.mkdir(parents=True, exist_ok=True)
+
+def write_error_report(error_type: str, count: int, message: str) -> None:
+    """
+    Write error report to data/results/sampling_error.json and error_log.txt.
+    """
+    results_path = get_results_path()
+    results_path.mkdir(parents=True, exist_ok=True)
     
-    error_json = {
+    error_json_path = results_path / "sampling_error.json"
+    error_txt_path = results_path / "error_log.txt"
+
+    error_data = {
         "error_type": error_type,
         "count": count,
         "message": message
     }
-    
-    with open(results_dir / 'sampling_error.json', 'w') as f:
-        json.dump(error_json, f, indent=2)
-    
-    with open(results_dir / 'error_log.txt', 'w') as f:
-        f.write(message + '\n')
-    
-    logging.error(f"Error report written: {message}")
 
-def main():
-    """Main entry point for T011d: Merge Microbiome and Serology."""
-    logger = get_logger(__name__)
+    with open(error_json_path, "w") as f:
+        json.dump(error_data, f, indent=2)
     
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent
-    data_raw = project_root / 'data' / 'raw'
-    data_processed = project_root / 'data' / 'processed'
-    data_results = project_root / 'data' / 'results'
+    with open(error_txt_path, "w") as f:
+        f.write(message + "\n")
     
-    # Determine input files based on config
+    logger.error(f"Error report written to {error_json_path} and {error_txt_path}")
+
+
+def run_ingestion() -> None:
+    """
+    Main ingestion logic for T011d: Merge Microbiome and Serology.
+    """
     use_synthetic = get_use_synthetic_data()
+    
+    # Determine input paths
     if use_synthetic:
-        otu_file = data_raw / 'synthetic_otutable.csv'
-        sero_file = data_raw / 'synthetic_serology.csv'
+        otu_path = get_raw_path() / "synthetic_otutable.csv"
+        sero_path = get_raw_path() / "synthetic_serology.csv"
+        logger.info("Using synthetic data sources.")
     else:
-        otu_file = data_raw / 'otutable.csv'
-        sero_file = data_raw / 'serology.csv'
-    
-    # Check if input files exist
-    if not otu_file.exists():
-        logger.error(f"Input OTU table not found: {otu_file}")
-        sys.exit(1)
-    if not sero_file.exists():
-        logger.error(f"Input Serology file not found: {sero_file}")
-        sys.exit(1)
-    
+        otu_path = get_raw_path() / "otutable.csv"
+        sero_path = get_raw_path() / "serology.csv"
+        logger.info("Using real data sources.")
+
+    # Load data
     try:
-        # 1. Merge
-        df = merge_otu_serology(otu_file, sero_file)
-        
-        # 2. LOD Handling
-        lod_value = get_lod_value()
-        df = handle_lod_titers(df, lod_value)
-        
-        # 3. Filter Complete Records
-        df = filter_complete_records(df)
-        
-        # 4. Validate Sample Size
-        min_size = get_min_sample_size()
-        validate_minimum_sample_size(df, min_size, use_synthetic)
-        
-        # 5. Write Output
-        output_path = data_processed / 'cleared.csv'
-        df.to_csv(output_path, index=False)
-        logger.info(f"Successfully wrote filtered dataset to {output_path}")
-        
-        # 6. Document Assumptions
-        write_assumptions(len(df), use_synthetic, data_results / 'assumptions.md')
-        
-    except InsufficientSampleSizeError as e:
-        write_error_report("InsufficientSampleSize", len(df), str(e), data_results)
-        sys.exit(1)
-    except ConfigurationError as e:
-        logger.error(f"Configuration Error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during merge process: {e}")
+        otu_df = pd.read_csv(otu_path)
+        sero_df = pd.read_csv(sero_path)
+    except FileNotFoundError as e:
+        logger.critical(f"Input files not found: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+    # Merge
+    merged_df = merge_otu_serology(otu_df, sero_df)
+
+    # Handle LOD
+    lod_value = get_lod_value()
+    try:
+        merged_df = handle_lod_titers(merged_df, lod_value)
+    except ConfigurationError as e:
+        logger.critical(str(e))
+        sys.exit(1)
+
+    # Filter
+    filtered_df = filter_complete_records(merged_df)
+
+    # Validate Sample Size
+    try:
+        validate_minimum_sample_size(filtered_df, use_synthetic)
+    except InsufficientSampleSizeError as e:
+        write_error_report(
+            error_type="InsufficientSampleSize",
+            count=len(filtered_df),
+            message=str(e)
+        )
+        sys.exit(1)
+
+    # Write Output
+    processed_path = get_processed_path()
+    processed_path.mkdir(parents=True, exist_ok=True)
+    output_file = processed_path / "cleared.csv"
+    
+    filtered_df.to_csv(output_file, index=False)
+    logger.info(f"Filtered dataset written to {output_file} with {len(filtered_df)} rows.")
+
+    # Write Assumptions
+    write_assumptions(len(filtered_df), use_synthetic, lod_value)
+
+
+def main() -> None:
+    """Entry point."""
+    run_ingestion()
+
+
+if __name__ == "__main__":
     main()
