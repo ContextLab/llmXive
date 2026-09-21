@@ -3,32 +3,38 @@ from pathlib import Path
 
 def main():
     """
-    Create the standard project directory structure.
-    This script ensures that code/, data/raw/, data/processed/, data/results/, and tests/ exist.
+    Creates the required directory structure for the llmXive project.
+    Directories created:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - tests/
     """
-    root = Path(".")
+    # Define the project root (current directory where script is run, or explicitly set)
+    # Assuming script runs from project root as per standard llmXive conventions
+    project_root = Path(".")
     
-    dirs_to_create = [
-        root / "code",
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "results",
-        root / "tests",
+    # List of directories to create relative to project root
+    directories = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests"
     ]
-
+    
     created_count = 0
-    for d in dirs_to_create:
-        if not d.exists():
-            d.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {d}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {d}")
-
-    if created_count == 0:
-        print("All required directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directories.")
+            print(f"Directory already exists: {full_path}")
+    
+    print(f"Directory setup complete. {created_count} new directories created.")
 
 if __name__ == "__main__":
     main()

@@ -1,27 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or screenshots were provided to show that `code/`, `data/raw/`,
-    `data/processed/`, `data/results/`, and `tests/` actually exist; the claim is
-    unsubstantiated. The implementer must supply evidence (e.g., `ls -R` output or
-    a file tree) confirming the creation of these directories.
-T007b:
-  c: false
-  h: 150f0d2083a24ee35a2279348ce9446ef547adda80f183028ff07b85bc4b8a28
-  r: The repository lacks the required `dataset.schema.yaml` file, so the validator
-    cannot load the external schema. Moreover, `validators.py` does not contain a
-    complete function that validates a sample row against the loaded schema and raises
-    a `ValidationError` on mismatch (the file is truncated and missing such logic).
-    These missing pieces prevent the task from being fulfilled.
-T008b:
-  c: false
-  h: 150f0d2083a24ee35a2279348ce9446ef547adda80f183028ff07b85bc4b8a28
-  r: "The repository lacks the required `output.schema.yaml` (or any `schema.yaml`)\
-    \ file, so the validator cannot load the schema. Moreover, `validators.py` is\
-    \ truncated (e.g., an unfinished `validate_column_schema` function, an empty `SplitRatiosRecord`,\
-    \ and no logic that actually validates a sample output object against the loaded\
-    \ schema). The implementation therefore does not fulfill the task\u2019s requirement\
-    \ to load and enforce the output schema."
 T010:
   c: false
   h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
@@ -30,16 +6,6 @@ T010:
     Moreover, the required output column should be named `scaffold_id`, while the
     script creates a column called `murcko_scaffold`. The input parquet file and the
     expected output file are both missing.
-T014:
-  c: false
-  h: 70d220e5adec491822544cb26407979485bd70f640a03d01b7d62b0805f33914
-  r: The provided `sanitize.py` is truncated (the `remove_salts_and_standardize` function
-    ends abruptly) and never loads the Parquet file, applies `MolStandardize.Cleaner().clean()`,
-    calls `RemoveHs`, or writes out sanitized SMILES. Moreover, the required data
-    files (`data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`)
-    are absent, so the script cannot be exercised as specified. The implementation
-    must be completed to read the raw data, verify the checksum, sanitize each SMILES
-    using the specified RDKit calls, and output the results.
 T015:
   c: false
   h: aac6c9aceaec1a160f3fd2327763aa1fb9be9f77bae7c35b9e46d1b2aad1d301
@@ -64,23 +30,14 @@ T017:
     is missing, and the schema file `dataset.schema.yaml` (needed for validation)
     is also absent. Without these artifacts the pipeline cannot be verified as producing
     and validating the cleaned dataset.
-T022b:
+T019:
   c: false
-  h: 679c9d7c6e5fdc31b89fe4e0292bb79a2a065f301abf1eea10a1c0f482b79618
-  r: "The repository contains a partially\u2011implemented `code/modeling/split.py`\
-    \ (the file is truncated and lacks the full splitting logic and file\u2011writing\
-    \ code). The required output artifacts `data/processed/stratified_groups.csv`\
-    \ and `data/results/split_log.json` are not present on disk. Consequently the\
-    \ task\u2019s deliverables are missing."
-T022c:
-  c: false
-  h: 64cf537c11e4f76afaa93137e8e270a292e9ed6932749751b81080827ef9d1bd
-  r: "The required output file `data/processed/tuning_validation_indices.csv` does\
-    \ not exist, and the provided `split.py` excerpt shows no logic that writes this\
-    \ CSV or explicitly designates a held\u2011out test split. Consequently the task\u2019\
-    s core requirement\u2014generating strictly held\u2011out sets and outputting\
-    \ the indices file while ensuring scaffold IDs are not shared across splits\u2014\
-    is not satisfied."
+  h: 294846d70e160dfddda1121c027faa727ef722986bf4d8036e796fda7f5d886b
+  r: "The provided `download.py` script exists but includes fallback logic (e.g.,\
+    \ trying alternative splits if the \u201Ctrain\u201D split fails), which violates\
+    \ the \u201Cno fallback mechanisms\u201D rule, and the required output files `data/raw/uspto_raw.parquet`\
+    \ and `data/results/download_checksum.txt` are absent, indicating the download\
+    \ step has not been completed."
 T027b:
   c: false
   h: ef01497be22832321c9b419fe468426dced4ee9702445cdbee55a4f7af5dea33
@@ -96,14 +53,6 @@ T030:
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ The implementer must add a non\u2011empty test file that exercises the generalization\
     \ analysis as specified."
-T031a:
-  c: false
-  h: e5f5832bba568f7244f0664124bd094790b448b56d8326458b7a11e21e512617
-  r: "The repository contains `code/modeling/evaluate.py`, but the file is truncated\
-    \ and does not show the logic that writes `data/results/per_class_metrics.json`.\
-    \ Moreover, the required output file `data/results/per_class_metrics.json` is\
-    \ absent from the project. The missing JSON file (and likely incomplete implementation)\
-    \ means the task\u2019s requirement is not satisfied."
 T032a:
   c: false
   h: 1b275a77c9eba13cad98ac2e4ce0965d70f7a0d7081a86f9a4020eb6e1f7bd9f

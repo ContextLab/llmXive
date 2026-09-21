@@ -4,6 +4,7 @@ properties:
     type: string
   hyperparameters:
     type: object
+    additionalProperties: true
   metrics:
     type: object
     properties:
@@ -19,6 +20,7 @@ properties:
       - MAE
   split_ratios:
     type: object
+    additionalProperties: true
 required:
   - model_type
   - hyperparameters

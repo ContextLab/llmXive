@@ -7,7 +7,7 @@ from typing import Optional
 import pandas as pd
 from datasets import load_dataset
 
-# Ensure we can find config if needed, though we use local constants
+# Ensure we can find config if needed
 try:
     from config import ensure_dirs
 except ImportError:
@@ -49,15 +49,24 @@ def download_from_hf(dataset_id: str, output_path: Path) -> Optional[str]:
     try:
         logger.info(f"Attempting to download dataset '{dataset_id}' from HuggingFace...")
         
-        # Load dataset with streaming=False to ensure we get the full data for processing
-        # The task requires a real download. If the dataset is too large for memory,
-        # we rely on the runner's constraints or the dataset's actual size.
-        # We attempt to load the 'train' split as it's the standard for USPTO.
+        # Step 1: Verify dataset ID exists by loading info
+        logger.info("Verifying dataset existence via streaming info load...")
+        try:
+            ds_stream = load_dataset(dataset_id, split="train", streaming=True)
+            info = ds_stream.info
+            if info is None:
+                raise ValueError("Dataset info is None")
+            logger.info(f"Dataset verified. Description: {info.description[:100] if info.description else 'N/A'}...")
+        except Exception as verify_err:
+            raise FileNotFoundError(f"Dataset verification failed: {verify_err}") from verify_err
+
+        # Step 2: Fetch data
+        logger.info("Fetching full dataset (non-streaming) to memory...")
         try:
             dataset = load_dataset(dataset_id, split="train", streaming=False)
-        except Exception as e:
+        except Exception as load_err:
             # If 'train' split fails, try loading without split to see available splits
-            logger.warning(f"Split 'train' not found or failed: {e}. Attempting default load.")
+            logger.warning(f"Split 'train' not found or failed: {load_err}. Attempting default load.")
             full_dataset = load_dataset(dataset_id, streaming=False)
             if isinstance(full_dataset, dict):
                 if "train" in full_dataset:
@@ -74,7 +83,6 @@ def download_from_hf(dataset_id: str, output_path: Path) -> Optional[str]:
         logger.info(f"Dataset size: {len(dataset)} rows")
 
         # Convert to DataFrame
-        # Note: This may be memory intensive. The task requires real data.
         df = dataset.to_pandas()
         
         # Verify memory usage
@@ -105,9 +113,10 @@ def write_checksum(source: str, checksum: str, file_path: Path) -> None:
 def download_uspto_dataset() -> None:
     """
     Main orchestration function to download the USPTO dataset.
-    1. Attempts download from HuggingFace.
-    2. If that fails, raises FileNotFoundError.
-    3. On success, calculates checksum and writes to data/results/download_checksum.txt.
+    1. Verifies dataset exists.
+    2. Attempts download from HuggingFace.
+    3. If that fails, raises FileNotFoundError.
+    4. On success, calculates checksum and writes to data/results/download_checksum.txt.
     """
     source = None
     

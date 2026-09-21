@@ -4,36 +4,27 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Type, Tuple
 import yaml
 import pandas as pd
-from pydantic import BaseModel, Field, ValidationError, field_validator
-from pydantic_settings import BaseSettings
-import numpy as np
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List as TypedList
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------
-# Dataset Schemas (for reference/completeness based on T007b)
-# ---------------------------------------------------------------------
-
+# Pydantic Models for Dataset Validation
 class DatasetRecord(BaseModel):
     smiles: str = Field(..., min_length=1)
     yield_val: float = Field(..., ge=0.0, le=100.0, alias="yield")
     reaction_class: str = Field(..., min_length=1)
-    fingerprint_ecfp: List[int] = Field(..., min_length=2048, max_length=2048)
-    fingerprint_maccs: List[int] = Field(..., min_length=167, max_length=167)
+    fingerprint_ecfp: TypedList[int] = Field(..., min_length=2048, max_length=2048)
+    fingerprint_maccs: TypedList[int] = Field(..., min_length=167, max_length=167)
 
-    class Config:
-        populate_by_name = True
+    # Adjust field name for pydantic alias mapping if needed, 
+    # but we validate the raw dict structure via a wrapper or direct check.
+    # For strict schema enforcement on dicts, we rely on the schema loading logic below.
 
 class DatasetSchema(BaseModel):
-    type: str = Field("object", const=True)
+    type: str
     properties: Dict[str, Any]
-    required: List[str]
-
-# ---------------------------------------------------------------------
-# Output Schemas (for T008b)
-# ---------------------------------------------------------------------
+    required: TypedList[str]
 
 class MetricsRecord(BaseModel):
     R2: float
@@ -41,190 +32,193 @@ class MetricsRecord(BaseModel):
     MAE: float
 
 class SplitRatiosRecord(BaseModel):
-    # Flexible dict to allow various split keys (e.g., train, val, test)
-    # but we enforce it's a dict of numbers if possible, or just generic object
-    pass
-
-    @field_validator('*')
-    @classmethod
-    def check_numeric(cls, v: Any, info) -> Any:
-        # Allow any value but log if it's not numeric for better debugging
-        if not isinstance(v, (int, float)):
-            logger.warning(f"Split ratio value for {info.field_name} is not numeric: {v}")
-        return v
+    train: float
+    val: float
+    test: float
 
 class OutputRecord(BaseModel):
     model_type: str
     hyperparameters: Dict[str, Any]
     metrics: MetricsRecord
-    split_ratios: Dict[str, Any]  # Using Dict to match "object" type in schema
+    split_ratios: SplitRatiosRecord
 
 class OutputSchema(BaseModel):
-    type: str = Field("object", const=True)
+    type: str
     properties: Dict[str, Any]
-    required: List[str]
-
-# ---------------------------------------------------------------------
-# Utility Functions
-# ---------------------------------------------------------------------
+    required: TypedList[str]
 
 def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
-    """Load a YAML schema definition."""
+    """Load a YAML schema file into a dictionary."""
     path = Path(schema_path)
     if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        raise FileNotFoundError(f"Schema file not found: {path}")
     
     with open(path, 'r') as f:
-        return yaml.safe_load(f)
+        schema = yaml.safe_load(f)
+    
+    if schema is None:
+        raise ValueError(f"Schema file {path} is empty or invalid YAML")
+    
+    return schema
 
-def validate_column_schema(df: pd.DataFrame, schema_props: Dict[str, Any]) -> List[str]:
+def validate_column_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """Validate DataFrame columns against schema properties."""
     errors = []
-    for col, props in schema_props.items():
-        if col not in df.columns:
-            errors.append(f"Missing column: {col}")
+    properties = schema.get("properties", {})
+    required = schema.get("required", [])
+    
+    # Check required columns
+    missing_cols = set(required) - set(df.columns)
+    if missing_cols:
+        errors.append(f"Missing required columns: {missing_cols}")
+    
+    # Check types and constraints (basic check)
+    for col, col_schema in properties.items():
+        if col in df.columns:
+            dtype = df[col].dtype
+            col_type = col_schema.get("type")
+            
+            if col_type == "string" and not pd.api.types.is_string_dtype(dtype):
+                errors.append(f"Column '{col}' should be string type, got {dtype}")
+            elif col_type == "number" and not pd.api.types.is_numeric_dtype(dtype):
+                errors.append(f"Column '{col}' should be numeric type, got {dtype}")
+            elif col_type == "array" and not isinstance(df[col].iloc[0], (list, np.ndarray)):
+                # Check first non-null if possible
+                first_val = df[col].dropna().iloc[0] if len(df[col].dropna()) > 0 else None
+                if first_val is not None and not isinstance(first_val, (list, np.ndarray)):
+                    errors.append(f"Column '{col}' should be array type, got {type(first_val)}")
+    
+    return errors
+
+def validate_fingerprint_dimensions(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+    """Validate array lengths for fingerprint columns."""
+    errors = []
+    properties = schema.get("properties", {})
+    
+    for col_name, col_schema in properties.items():
+        if col_schema.get("type") == "array":
+            min_items = col_schema.get("minItems")
+            max_items = col_schema.get("maxItems")
+            
+            if col_name in df.columns:
+                # Check first few rows for consistency
+                sample = df[col_name].dropna()
+                if len(sample) > 0:
+                    first_val = sample.iloc[0]
+                    if isinstance(first_val, (list, np.ndarray)):
+                        length = len(first_val)
+                        if min_items is not None and length < min_items:
+                            errors.append(f"Column '{col_name}' length {length} < minItems {min_items}")
+                        if max_items is not None and length > max_items:
+                            errors.append(f"Column '{col_name}' length {length} > maxItems {max_items}")
+                    else:
+                        errors.append(f"Column '{col_name}' is not a list/array")
+    return errors
+
+def validate_record_content(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+    """Validate content constraints (min/max values)."""
+    errors = []
+    properties = schema.get("properties", {})
+    
+    for col_name, col_schema in properties.items():
+        if col_name in df.columns:
+            if col_schema.get("type") == "number":
+                minimum = col_schema.get("minimum")
+                maximum = col_schema.get("maximum")
+                series = df[col_name]
+                
+                if minimum is not None and series.min() < minimum:
+                    errors.append(f"Column '{col_name}' has values below minimum {minimum}")
+                if maximum is not None and series.max() > maximum:
+                    errors.append(f"Column '{col_name}' has values above maximum {maximum}")
+            elif col_schema.get("type") == "string":
+                min_length = col_schema.get("minLength")
+                if min_length is not None:
+                    # Check string length for non-null values
+                    mask = df[col_name].notna()
+                    if mask.any():
+                        min_len_actual = df.loc[mask, col_name].str.len().min()
+                        if min_len_actual < min_length:
+                            errors.append(f"Column '{col_name}' has string length {min_len_actual} < min {min_length}")
+    return errors
+
+def validate_dataset(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """Perform full validation of a DataFrame against a schema."""
+    errors = []
+    
+    errors.extend(validate_column_schema(df, schema))
+    errors.extend(validate_fingerprint_dimensions(df, schema))
+    errors.extend(validate_record_content(df, schema))
+    
+    # Check for nulls in required fields
+    required = schema.get("required", [])
+    for col in required:
+        if col in df.columns:
+            if df[col].isna().any():
+                errors.append(f"Column '{col}' contains null values")
         else:
-            # Basic type checking
-            dtype = props.get('type')
-            if dtype == 'string' and not df[col].dtype == 'object':
-                errors.append(f"Column {col} should be string but is {df[col].dtype}")
-            elif dtype == 'number':
-                if not pd.api.types.is_numeric_dtype(df[col]):
-                    errors.append(f"Column {col} should be numeric but is {df[col].dtype}")
-    return errors
-
-def validate_fingerprint_dimensions(df: pd.DataFrame, col_name: str, expected_len: int) -> List[str]:
-    """Validate that a list-column has the expected length."""
-    errors = []
-    if col_name not in df.columns:
-        return [f"Missing column: {col_name}"]
+            # Already caught in column_schema check, but explicit here
+            pass
     
-    # Check a sample or all rows
-    invalid_rows = []
-    for idx, val in df[col_name].items():
-        if isinstance(val, list) and len(val) != expected_len:
-            invalid_rows.append(idx)
+    return len(errors) == 0, errors
+
+def validate_sample_row(sample_row: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Validate a single row (dict) against the schema."""
+    # Basic type and constraint check without pandas
+    properties = schema.get("properties", {})
+    required = schema.get("required", [])
     
-    if invalid_rows:
-        errors.append(f"Column {col_name} has {len(invalid_rows)} rows with length != {expected_len}")
-    return errors
-
-def validate_record_content(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
-    """Validate a single record (dict) against a schema dict."""
-    errors = []
-    required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
-
-    # Check required fields
-    for field in required_fields:
-        if field not in record:
-            errors.append(f"Missing required field: {field}")
-
-    # Check types (basic)
-    for field, val in record.items():
-        if field in properties:
-            prop_type = properties[field].get('type')
-            if prop_type == 'string' and not isinstance(val, str):
-                errors.append(f"Field {field} should be string, got {type(val)}")
-            elif prop_type == 'number' and not isinstance(val, (int, float)):
-                errors.append(f"Field {field} should be number, got {type(val)}")
-            elif prop_type == 'object' and not isinstance(val, dict):
-                errors.append(f"Field {field} should be object, got {type(val)}")
-            elif prop_type == 'array' and not isinstance(val, list):
-                errors.append(f"Field {field} should be array, got {type(val)}")
-    return errors
-
-def validate_dataset(df: pd.DataFrame, schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
-    """Validate a DataFrame against a dataset schema."""
-    schema = load_schema(schema_path)
-    errors = []
+    # Check required keys
+    for req in required:
+        if req not in sample_row:
+            raise ValueError(f"Missing required field: {req}")
     
-    # Validate columns
-    col_errors = validate_column_schema(df, schema.get('properties', {}))
-    errors.extend(col_errors)
+    # Check types and basic constraints
+    for key, value in sample_row.items():
+        if key in properties:
+            prop = properties[key]
+            if prop.get("type") == "string":
+                if not isinstance(value, str):
+                    raise ValueError(f"Field '{key}' must be string")
+                if prop.get("minLength") and len(value) < prop["minLength"]:
+                    raise ValueError(f"Field '{key}' too short")
+            elif prop.get("type") == "number":
+                if not isinstance(value, (int, float)):
+                    raise ValueError(f"Field '{key}' must be number")
+                if prop.get("minimum") is not None and value < prop["minimum"]:
+                    raise ValueError(f"Field '{key}' below minimum")
+                if prop.get("maximum") is not None and value > prop["maximum"]:
+                    raise ValueError(f"Field '{key}' above maximum")
+            elif prop.get("type") == "array":
+                if not isinstance(value, list):
+                    raise ValueError(f"Field '{key}' must be list")
+                if prop.get("minItems") and len(value) < prop["minItems"]:
+                    raise ValueError(f"Field '{key}' too short")
+                if prop.get("maxItems") and len(value) > prop["maxItems"]:
+                    raise ValueError(f"Field '{key}' too long")
     
-    # Validate specific constraints if defined
-    # (Simplified for this implementation)
-    
-    if errors:
-        return False, errors
-    return True, []
+    return True
 
-def save_validation_report(errors: List[str], output_path: Union[str, Path]) -> None:
-    """Save validation errors to a JSON file."""
-    path = Path(output_path)
-    report = {
-        "status": "failed" if errors else "passed",
-        "errors": errors,
-        "timestamp": str(pd.Timestamp.now())
-    }
-    with open(path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-def validate_output_record(record: Dict[str, Any], schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
-    """
-    Validate a single output record (dict) against the output schema.
-    Uses Pydantic models for strict validation.
-    """
-    # Load schema to ensure it exists (optional but good practice)
-    try:
-        schema = load_schema(schema_path)
-    except FileNotFoundError as e:
-        return False, [str(e)]
-
-    errors = []
-    try:
-        # Map the input dict to the Pydantic model
-        # The input dict might have keys like "R2" which map to the model
-        # We need to ensure the structure matches OutputRecord
-        
-        # If the record has a nested "metrics" dict, ensure it matches MetricsRecord
-        if 'metrics' in record:
-            metrics_data = record['metrics']
-            # Validate metrics structure
-            try:
-                MetricsRecord(**metrics_data)
-            except ValidationError as ve:
-                for err in ve.errors():
-                    errors.append(f"Metrics error: {err['msg']} (field: {err['loc']})")
-        
-        # Validate split_ratios (loose check, just ensure it's a dict)
-        if 'split_ratios' in record:
-            if not isinstance(record['split_ratios'], dict):
-                errors.append("split_ratios must be a dictionary/object")
-        
-        # Validate top level
-        OutputRecord(**record)
-        
-    except ValidationError as e:
-        for err in e.errors():
-            # Format error message
-            field = ".".join(str(loc) for loc in err['loc'])
-            msg = err['msg']
-            errors.append(f"Validation error for '{field}': {msg}")
-    
-    if errors:
-        return False, errors
-    return True, []
+def validate_output_record(record: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Validate an output record (model metrics) against schema."""
+    return validate_sample_row(record, schema)
 
 def validate_dataset_file(file_path: Union[str, Path], schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
-    """Load a parquet file and validate it against the dataset schema."""
-    try:
-        df = pd.read_parquet(file_path)
-        return validate_dataset(df, schema_path)
-    except Exception as e:
-        return False, [f"Error reading file: {str(e)}"]
+    """Load a dataset file and validate against schema."""
+    schema = load_schema(schema_path)
+    df = pd.read_parquet(file_path)
+    return validate_dataset(df, schema)
 
-def validate_sample_row(sample_data: Dict[str, Any], schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
-    """
-    Validate a sample row (dict) against the dataset schema.
-    This is a convenience wrapper for T007b/T008b style validation.
-    """
-    # Determine if it's dataset or output schema based on content or path
-    # For T008b, we specifically expect output schema validation
-    if 'metrics' in sample_data or 'model_type' in sample_data:
-        return validate_output_record(sample_data, schema_path)
-    else:
-        # Assume dataset schema
-        errors = validate_record_content(sample_data, load_schema(schema_path))
-        return (len(errors) == 0), errors
+def validate_sample_row_from_file(file_path: Union[str, Path], schema_path: Union[str, Path]) -> bool:
+    """Load schema and validate a sample row from the file."""
+    schema = load_schema(schema_path)
+    df = pd.read_parquet(file_path)
+    if len(df) == 0:
+        raise ValueError("DataFrame is empty")
+    sample = df.iloc[0].to_dict()
+    return validate_sample_row(sample, schema)
+
+def validate_output_sample(sample: Dict[str, Any], schema_path: Union[str, Path]) -> bool:
+    """Validate a sample output object against schema."""
+    schema = load_schema(schema_path)
+    return validate_output_record(sample, schema)
