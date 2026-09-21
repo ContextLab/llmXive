@@ -20,13 +20,6 @@ T022:
     so no integration test for the sensitivity sweep and collinearity flags is present.
     The task cannot be considered completed until this test file is added with appropriate
     test implementations.
-T023:
-  c: false
-  h: 5aede10ac01cbfaac5b9b5c017ed7b4ef6168bfc326501ecc0a9b76ab5c7ce6c
-  r: "The `code/collinearity_check.py` file is truncated (ends mid\u2011function)\
-    \ and never creates or writes the required `data/processed/redundancy_masks.json`.\
-    \ The expected generation of per\u2011molecule mask arrays and JSON output is\
-    \ absent, and the output file does not exist."
 T024:
   c: false
   h: f9c774306350ed333d63c4bfa258106a6fedf238e8263243a9d40c32a699bbdc
@@ -43,30 +36,16 @@ T027:
     \ and the required output file `data/processed/metrics.json` is missing from the\
     \ repository. The task\u2019s required keys and output artifact are therefore\
     \ not produced."
-T028a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file was presented in the evidence, nor any excerpt of its\
-    \ contents showing environment\u2011setup, data\u2011fetching, and end\u2011to\u2011\
-    end pipeline instructions in the required directory. The required artifact is\
-    \ missing."
-T029a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `README.md` file was presented, nor any excerpt showing a revised\
-    \ \u201CQuickstart\u201D section with step\u2011by\u2011step commands for running\
-    \ the full pipeline or guidance on interpreting the generated `metrics.json`.\
-    \ Without the actual README content, the requirement cannot be confirmed as satisfied.\
-    \ The implementer must add the updated README containing the requested instructions."
-T029b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No documentation file or new section in `docs/` was provided; there is no evidence
-    of a written description of the feature attribution visualization or guidance
-    on interpreting masked attribution results. The required artifact is missing.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of any code changes, linting reports, or cleaned files in the `code/`
     directory is provided; the implementer did not supply the required artifact showing
     unused imports removed and linting errors fixed. The task therefore remains unfinished.
+T044:
+  c: false
+  h: 95925f602217356bbfa0be6a29fa34296db33765ab33de6b19f7254edf01c494
+  r: The required artifact `data/processed/metrics.json` does not exist, so there
+    is no content to verify for required keys or data types. The implementer must
+    create the file with the appropriate structure and ensure it contains all mandated
+    keys with correct types.

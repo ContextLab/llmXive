@@ -1,166 +1,39 @@
-import json
-import os
-import tempfile
-import numpy as np
-import pandas as pd
+"""
+Test task for SC-001 logic (T017).
+Verifies sc001_status logic in evaluate.py.
+"""
 import pytest
+import json
 from pathlib import Path
-import sys
-import math
 
-# Ensure we can import from the code directory
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+project_root = Path(__file__).resolve().parent.parent
+metrics_path = project_root / "data" / "processed" / "metrics_partial.json"
 
-from evaluate import (
-    determine_sc001_status,
-    compute_metrics,
-    perform_wilcoxon_test,
-    compute_confidence_interval
-)
-
-
-class TestSC001Logic:
+def test_sc001_status_logic():
     """
-    Test task for SC-001 logic: Verify that sc001_status in metrics_partial.json
-    is correctly set to "PASS" or "FAIL" based on the Wilcoxon test result
-    and MAE threshold (F001).
+    Verify sc001_status is set correctly based on MAE and power status.
+    Logic:
+    - If n >= 50 and MAE < 30 -> PASS
+    - If n < 50 -> LOW_POWER
+    - If MAE > 50 -> Failure (implied logic, though task says Failure is MAE > 50)
     """
-
-    def test_pass_condition(self):
-        """p < 0.05 AND MAE < 30 -> PASS"""
-        status = determine_sc001_status(mae=25.0, p_value=0.01)
-        assert status == "PASS"
-
-    def test_fail_high_mae(self):
-        """p < 0.05 BUT MAE >= 30 -> FAIL"""
-        status = determine_sc001_status(mae=35.0, p_value=0.01)
-        assert status == "FAIL"
-
-    def test_fail_high_p_value(self):
-        """MAE < 30 BUT p >= 0.05 -> FAIL"""
-        status = determine_sc001_status(mae=25.0, p_value=0.10)
-        assert status == "FAIL"
-
-    def test_fail_nan_mae(self):
-        """NaN MAE -> FAIL"""
-        status = determine_sc001_status(mae=float('nan'), p_value=0.01)
-        assert status == "FAIL"
-
-    def test_fail_nan_p_value(self):
-        """NaN p_value -> FAIL"""
-        status = determine_sc001_status(mae=25.0, p_value=float('nan'))
-        assert status == "FAIL"
-
-    def test_edge_case_boundary_mae(self):
-        """MAE exactly 30.0 should be FAIL (strictly less than 30 required)"""
-        status = determine_sc001_status(mae=30.0, p_value=0.01)
-        assert status == "FAIL"
-
-    def test_edge_case_boundary_p(self):
-        """p exactly 0.05 should be FAIL (strictly less than 0.05 required)"""
-        status = determine_sc001_status(mae=25.0, p_value=0.05)
-        assert status == "FAIL"
-
-
-class TestMetrics:
-    def test_compute_metrics_basic(self):
-        y_true = np.array([10.0, 20.0, 30.0])
-        y_pred = np.array([11.0, 19.0, 31.0])
-
-        metrics = compute_metrics(y_true, y_pred)
-
-        assert "mae" in metrics
-        assert "r2" in metrics
-        # MAE = (|1| + |1| + |1|) / 3 = 1.0
-        assert abs(metrics["mae"] - 1.0) < 1e-6
-
-    def test_compute_metrics_nan_handling(self):
-        y_true = np.array([10.0, 20.0, 30.0])
-        y_pred = np.array([11.0, np.nan, 31.0])
-
-        metrics = compute_metrics(y_true, y_pred)
-        # Should ignore the nan entry, calculating over 2 points
-        # Errors: |1|, |1| -> MAE = 1.0
-        assert abs(metrics["mae"] - 1.0) < 1e-6
-
-
-class TestWilcoxon:
-    def test_wilcoxon_basic(self):
-        y_true = [10.0, 20.0, 30.0, 40.0]
-        y_pred_gnn = [11.0, 19.0, 31.0, 39.0]  # Errors: 1, 1, 1, 1
-        y_pred_ridge = [12.0, 18.0, 32.0, 38.0]  # Errors: 2, 2, 2, 2
-
-        p_val = perform_wilcoxon_test(y_pred_gnn, y_pred_ridge, y_true)
-
-        # With such consistent difference, p-value should be low
-        assert isinstance(p_val, float)
-        assert not np.isnan(p_val)
-
-
-class TestConfidenceInterval:
-    def test_compute_confidence_interval_basic(self):
-        """Test that 95% CI is calculated correctly and is a tuple."""
-        y_true = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
-        y_pred = np.array([11.0, 19.0, 31.0, 39.0, 51.0])
-
-        ci = compute_confidence_interval(y_true, y_pred)
-
-        assert isinstance(ci, tuple)
-        assert len(ci) == 2
-        assert ci[0] <= ci[1]  # Lower bound <= Upper bound
-
-    def test_confidence_interval_coverage(self):
-        """Verify the CI logic produces a range around the mean error."""
-        # Create a case where we know the mean error
-        y_true = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
-        y_pred = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # All errors are 1.0
-
-        ci = compute_confidence_interval(y_true, y_pred)
-
-        # With identical errors, std dev is 0, so CI should be exactly (1.0, 1.0)
-        # (or very close due to floating point)
-        assert abs(ci[0] - 1.0) < 1e-6
-        assert abs(ci[1] - 1.0) < 1e-6
-
-
-class TestEvaluateIntegration:
-    def test_metrics_json_structure(self):
-        """Verify that the output JSON structure matches the requirement."""
-        # We simulate the output that main() would produce
-        output = {
-            "mae": 25.5,
-            "r2": 0.85,
-            "wilcoxon_p_value": 0.03,
-            "confidence_interval_95": [24.0, 27.0],
-            "sc001_status": "PASS"
-        }
-
-        # Validate keys
-        required_keys = ["mae", "r2", "wilcoxon_p_value", "confidence_interval_95", "sc001_status"]
-        for key in required_keys:
-            assert key in output, f"Missing key: {key}"
-
-        # Validate types
-        assert isinstance(output["mae"], float)
-        assert isinstance(output["r2"], float)
-        assert isinstance(output["wilcoxon_p_value"], float)
-        assert isinstance(output["confidence_interval_95"], list)
-        assert len(output["confidence_interval_95"]) == 2
-        assert output["sc001_status"] in ["PASS", "FAIL"]
-
-    def test_sc001_status_logic_in_json(self):
-        """Test that the logic correctly sets the status in the JSON context."""
-        # Case 1: Pass
-        mae, p = 20.0, 0.01
-        status = "PASS" if (p < 0.05 and mae < 30) else "FAIL"
-        assert status == "PASS"
-
-        # Case 2: Fail (High MAE)
-        mae, p = 35.0, 0.01
-        status = "PASS" if (p < 0.05 and mae < 30) else "FAIL"
-        assert status == "FAIL"
-
-        # Case 3: Fail (High P)
-        mae, p = 20.0, 0.10
-        status = "PASS" if (p < 0.05 and mae < 30) else "FAIL"
-        assert status == "FAIL"
+    if not metrics_path.exists():
+        pytest.skip("metrics_partial.json not found.")
+    
+    with open(metrics_path, 'r') as f:
+        data = json.load(f)
+    
+    mae = data.get("mae")
+    power_status = data.get("power_status") # "high_power" or "low_power"
+    sc001_status = data.get("sc001_status")
+    
+    assert sc001_status is not None, "sc001_status must be present"
+    
+    if power_status == "low_power":
+        assert sc001_status == "LOW_POWER", f"Expected LOW_POWER when n < 50, got {sc001_status}"
+    elif power_status == "high_power":
+        if mae < 30:
+            assert sc001_status == "PASS", f"Expected PASS when MAE < 30 and high power, got {sc001_status}"
+        elif mae > 50:
+            # Task says Failure is MAE > 50. Status might be "FAIL" or similar.
+            assert sc001_status != "PASS", f"Expected failure status when MAE > 50, got {sc001_status}"

@@ -553,3 +553,453 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T07:37:11Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: 7GB RAM limit for data processing
+  claim_id: c_e79243e6
+  context: Enforce streaming/sampling by default for large datasets to guarantee 7GB
+    limit is never breached. (FR-001, Constitution II).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_RAM_limit_for_data_processing
+  kind: entity_fact
+  raw_text: The pipeline enforces a 7GB RAM limit for data processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:29:24Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNN model architecture parameter count less than 1 million
+  claim_id: c_dceefcde
+  context: Define MPNN GNN (2 layers, hidden units, mean aggregation, <1M params).
+    (FR-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GNN_model_architecture_parameter_count_less_than_1_million
+  kind: magnitude
+  raw_text: The model architecture must have fewer than 1 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:29:53Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time less than or equal to 6 hours on CPU
+  claim_id: c_6d14b265
+  context: "Verify \u22646 hours. Constraint: If time > 6 hours, raise RuntimeError\
+    \ (do not just warn). (SC-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_less_than_or_equal_to_6_hours_on_CPU
+  kind: magnitude
+  raw_text: The entire pipeline must complete within 6 hours on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:30:31Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNNExplainer 50 steps subset size 10
+  claim_id: c_7c99376c
+  context: Perform GNNExplainer (steps=50, subset_size=10) on test set. (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNNExplainer method uses 50 steps and a subset size of 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:30:50Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep range 15 nm to 50 nm
+  claim_id: c_6d8bf0c8
+  context: Sweep MAE thresholds from to 50 nm in steps of varying magnitudes (range(15,
+    51, 5)). (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps MAE thresholds from 15 nm to 50 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:31:23Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha 0.05 power 0.8 effect size 0.5
+  claim_id: c_a9317cbf
+  context: Calculate required sample size (alpha=0.05, power=0.8, effect_size=0.5).
+    (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha of 0.05, power of 0.8, and effect size
+    of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:31:57Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Title-token-overlap threshold 0.7
+  claim_id: c_aaa765e9
+  context: Validate URL reachability, HTTP headers, AND title-token-overlap >= 0.7
+    against the cited source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The title-token-overlap threshold for source verification is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:32:20Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: ECFP collinearity flag threshold Pearson r 0.9
+  claim_id: c_a231c5b7
+  context: Calculate Pearson r for ECFP bits. Flag if r >= 0.9. (FR-007)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ECFP_collinearity_flag_threshold_Pearson_r_0.9
+  kind: magnitude
+  raw_text: The collinearity check flags ECFP bits if the Pearson r correlation is
+    greater than or equal to 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:33:35Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNN latent cosine similarity redundancy flag threshold 0.9
+  claim_id: c_0b6c8085
+  context: Calculate latent cosine similarity for GNN subgraphs. Flag if > 0.9.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN latent cosine similarity redundancy flag threshold is 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:34:07Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Fixed random seed 42 for sampling and training
+  claim_id: c_c57d7ea3
+  context: Enforce deterministic sampling using itertools.islice (fixed seed) to fit
+    in RAM. ... Training loop with CPU-only execution, fixed seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset uses a fixed random seed of 42 for sampling and training.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:34:37Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Validation and test set sizes calculated as floor(0.1 * N)
+  claim_id: c_a8b83e23
+  context: 'Split data into training, validation, and test sets. Rounding: Use floor(0.1
+    * N) for val/test sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation and test set sizes are calculated using floor(0.1 * N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:35:02Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: High power status if test set size n greater than or equal to 50
+  claim_id: c_f40ae354
+  context: "Output: Write data/processed/power_analysis.json with n, power_status\
+    \ ('high_power' if n\u226550, 'low_power' otherwise)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_power_status_if_test_set_size_n_greater_than_or_equal_t
+  kind: magnitude
+  raw_text: The power status is classified as 'high_power' if the test set size n
+    is greater than or equal to 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:35:35Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Baseline Ridge Regression alpha 1.0
+  claim_id: c_1d1751d2
+  context: Define ECFP+Ridge Regression baseline (alpha=1.0). (FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline model uses Ridge Regression with an alpha of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: RDKit version 2023.9.5
+  claim_id: c_fce111cf
+  context: 'Create requirements.txt with pinned versions: rdkit==2023.9.5...'
+  evidence:
+    asserted: '2023.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The RDKit version pinned in requirements is 2023.9.5.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.1.0+cpu
+  claim_id: c_9da3b8ac
+  context: 'Create requirements.txt with pinned versions: ... torch==2.1.0+cpu...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch version pinned in requirements is 2.1.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: PyTorch Geometric version 2.4.0
+  claim_id: c_6235fba3
+  context: 'Create requirements.txt with pinned versions: ... torch-geometric==2.4.0...'
+  evidence:
+    asserted: '2.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch Geometric version pinned in requirements is 2.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.1.0
+  claim_id: c_a22960ea
+  context: 'Create requirements.txt with pinned versions: ... pandas==2.1.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Pandas version pinned in requirements is 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version 1.3.0
+  claim_id: c_65a11d71
+  context: 'Create requirements.txt with pinned versions: ... scikit-learn==1.3.0...'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Scikit-learn version pinned in requirements is 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:18Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: NumPy version 1.24.0
+  claim_id: c_5ebb7205
+  context: 'Create requirements.txt with pinned versions: ... numpy==1.24.0...'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The NumPy version pinned in requirements is 1.24.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:19Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: PyYAML version 6.0.1
+  claim_id: c_c2c6c22f
+  context: 'Create requirements.txt with pinned versions: ... pyyaml==6.0.1...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyYAML version pinned in requirements is 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:19Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Pytest version 7.4.0
+  claim_id: c_f04f9d91
+  context: 'Create requirements.txt with pinned versions: ... pytest==7.4.0'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Pytest version pinned in requirements is 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T08:36:19Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity of code/split.py less than 10
+  claim_id: c_184dcacd
+  context: 'Refactor: Reduce cyclomatic complexity of code/split.py to < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_of_code/split.py_less_than_10
+  kind: magnitude
+  raw_text: The cyclomatic complexity of code/split.py is reduced to less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:36:49Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Data loading optimization target less than 30 seconds
+  claim_id: c_1a9196f9
+  context: Optimize data loading in code/ingest.py with workers=2 to target <30s.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_loading_optimization_target_less_than_30_seconds
+  kind: magnitude
+  raw_text: The data loading optimization targets a duration of less than 30 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:37:54Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Data loading optimization 2 workers
+  claim_id: c_bf609f02
+  context: Optimize data loading in code/ingest.py with workers=2 to target <30s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data loading optimization uses 2 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:38:25Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Experimental noise floor plus or minus 15 nm
+  claim_id: c_f060b083
+  context: "Sweep range (15-50 nm) derived from SC-001 target (nanoscale), failure\
+    \ threshold (nanoscale), and experimental noise floor (\xB115 nm)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The experimental noise floor is stated as \xB115 nm."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:38:51Z'

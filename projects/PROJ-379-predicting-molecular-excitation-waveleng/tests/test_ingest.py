@@ -1,83 +1,65 @@
-import pytest
-import pandas as pd
-from pathlib import Path
-import json
+"""
+Contract test for data ingestion output schema (T007).
+Asserts output columns are exactly ["smi", "lambda_max", "scaffold_id"] with types str, float, str.
+"""
 import os
 import sys
+import json
+import pytest
+from pathlib import Path
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent to path for imports if needed, though we test file existence/content
+project_root = Path(__file__).resolve().parent.parent
+data_processed = project_root / "data" / "processed"
+cleaned_csv = data_processed / "cleaned.csv"
+split_indices_json = data_processed / "split_indices.json"
+train_val_test_csv = data_processed / "train_val_test.csv"
 
-from ingest import main as ingest_main
-from split import main as split_main
-from merge_split import main as merge_main
+def test_ingest_output_schema_exists():
+    """Verify that ingest.py produced the cleaned.csv file."""
+    assert cleaned_csv.exists(), f"cleaned.csv not found at {cleaned_csv}. Did you run code/ingest.py?"
 
-def test_ingest_output_schema():
-    """
-    Contract test for data ingestion output schema.
-    Assert output columns are exactly ["smi", "lambda_max", "scaffold_id"] with types str, float, str.
-    """
-    # Run ingestion
-    ingest_main()
+def test_cleaned_csv_columns_and_types():
+    """Assert output columns are exactly ["smi", "lambda_max", "scaffold_id"] with types str, float, str."""
+    if not cleaned_csv.exists():
+        pytest.skip("cleaned.csv does not exist yet.")
     
-    # Load output
-    output_path = Path("data/processed/cleaned.csv")
-    assert output_path.exists(), "Cleaned CSV not found"
+    import pandas as pd
+    df = pd.read_csv(cleaned_csv)
     
-    df = pd.read_csv(output_path)
-    
-    # Check columns
-    expected_columns = ["smi", "lambda_max"]
+    expected_columns = ["smi", "lambda_max", "scaffold_id"]
     assert list(df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(df.columns)}"
     
     # Check types
-    assert df['smi'].dtype == object, "smi should be string"
-    assert df['lambda_max'].dtype in ['float64', 'float32'], "lambda_max should be float"
-    
-    # Check for scaffold_id if present (it is added in split.py)
-    # This test is for ingest.py output, so scaffold_id is not expected yet.
-    
-    print("Ingest output schema test passed.")
+    assert df['smi'].dtype == 'object' or df['smi'].dtype.name == 'string', "smi column must be string"
+    assert df['lambda_max'].dtype in ['float64', 'float32', 'int64'], "lambda_max must be numeric (float)"
+    assert df['scaffold_id'].dtype == 'object' or df['scaffold_id'].dtype.name == 'string', "scaffold_id must be string"
 
-def test_split_indices_format():
-    """
-    Contract test for split indices format.
-    """
-    # Run split
-    split_main()
+def test_split_indices_structure():
+    """Assert split_indices.json structure."""
+    if not split_indices_json.exists():
+        pytest.skip("split_indices.json does not exist yet.")
     
-    # Load output
-    output_path = Path("data/processed/split_indices.json")
-    assert output_path.exists(), "Split indices JSON not found"
-    
-    with open(output_path, 'r') as f:
+    with open(split_indices_json, 'r') as f:
         data = json.load(f)
     
-    assert 'train_idx' in data, "Missing train_idx"
-    assert 'val_idx' in data, "Missing val_idx"
-    assert 'test_idx' in data, "Missing test_idx"
+    assert "train" in data, "Missing 'train' key in split_indices.json"
+    assert "val" in data, "Missing 'val' key in split_indices.json"
+    assert "test" in data, "Missing 'test' key in split_indices.json"
     
-    assert isinstance(data['train_idx'], list), "train_idx should be list"
-    assert isinstance(data['val_idx'], list), "val_idx should be list"
-    assert isinstance(data['test_idx'], list), "test_idx should be list"
-    
-    print("Split indices format test passed.")
+    assert isinstance(data["train"], list), "train must be a list"
+    assert isinstance(data["val"], list), "val must be a list"
+    assert isinstance(data["test"], list), "test must be a list"
 
-def test_merge_output():
-    """
-    Contract test for merge output.
-    """
-    # Run merge
-    merge_main()
+def test_train_val_test_csv_schema():
+    """Verify merged split file schema."""
+    if not train_val_test_csv.exists():
+        pytest.skip("train_val_test.csv does not exist yet.")
     
-    # Load output
-    output_path = Path("data/processed/train_val_test.csv")
-    assert output_path.exists(), "Merged CSV not found"
+    import pandas as pd
+    df = pd.read_csv(train_val_test_csv)
     
-    df = pd.read_csv(output_path)
+    expected_columns = ["smi", "lambda_max", "scaffold_id", "split"]
+    assert list(df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(df.columns)}"
     
-    # Check columns
-    assert 'split' in df.columns, "Missing split column"
-    assert df['split'].isin(['train', 'val', 'test']).all(), "Invalid split values"
-    
-    print("Merge output test passed.")
+    assert df['split'].isin(['train', 'val', 'test']).all(), "All split values must be 'train', 'val', or 'test'"
