@@ -16,29 +16,14 @@ dependencies = [
     "pyyaml",
     "jsonschema",
     "pytest",
-    "datasets",
+    "ruff",
+    "black",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+skip-magic-trailing-comma = true
 
-[tool.ruff]
-# Linting rules (referenced from T003a context, included here for completeness if needed)
-lint.select = ["E", "F", "W", "I", "N"]
-line-length = 88
-target-version = "py311"
+[tool.setuptools.packages.find]
+where = ["code"]

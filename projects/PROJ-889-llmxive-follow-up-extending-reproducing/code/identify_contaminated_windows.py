@@ -1,155 +1,165 @@
-"""
-Identify contaminated windows based on FR-009.
-
-Logic:
-1. Read data/processed/trajectories_divergence.csv.
-2. Identify contiguous segments where the duration of elevated G(t)
-   (above global median) exceeds the sliding window size (W=20).
-3. Store the indices of these segments in a DataFrame column 'is_contaminated'.
-"""
-
 import os
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
-
 import pandas as pd
 import numpy as np
 
-# Import project utilities
-from config import get_project_root, DataConfig
-from utils.io_utils import read_csv, write_csv
+from code.config import get_project_root
+from code.utils.io_utils import load_csv, save_csv
 
-
-def identify_contaminated_segments(
-    df: pd.DataFrame,
-    window_size: int = 20,
-    value_column: str = "G_t"
-) -> pd.DataFrame:
+def identify_contaminated_segments(df: pd.DataFrame, window_size: int = 20) -> List[Tuple[int, int]]:
     """
-    Identify contiguous segments where G(t) > global_median for > window_size steps.
+    Identify contiguous segments of timesteps where the ground-truth label is 'hacked'
+    AND the segment duration exceeds the sliding window size.
+
+    Logic:
+    1. Flag a timestep as an 'event' if G(t) > 3 * MAD(G).
+    2. Identify contiguous segments of 'hacked' ground-truth labels.
+    3. Filter segments where duration > window_size.
+    4. Return list of (start_idx, end_idx) tuples.
 
     Args:
-        df: DataFrame containing trajectory data with 'seed_id', 'timestep', and 'G_t'.
-        window_size: The minimum duration (W) to consider a segment contaminated.
-        value_column: The column name for the divergence gap (default 'G_t').
+        df: DataFrame containing 'hacked_label' (bool) and 'G(t)' (float).
+        window_size: The sliding window size (default 20).
 
     Returns:
-        DataFrame with an added 'is_contaminated' boolean column.
+        List of (start, end) tuples representing contaminated segments.
     """
-    # Calculate global median of G(t) across ALL seeds and timesteps
-    global_median = df[value_column].median()
+    if 'hacked_label' not in df.columns or 'G(t)' not in df.columns:
+        raise ValueError("DataFrame must contain 'hacked_label' and 'G(t)' columns.")
 
-    # Initialize contamination mask
-    df = df.copy()
-    df["is_contaminated"] = False
+    # Step 1: Identify 'hacking events' based on G(t) > 3 * MAD(G)
+    # This is used to confirm the nature of the segment, but the mask generation
+    # is primarily driven by the duration of the 'hacked' label segment.
+    # The spec says: "To identify 'hacking events' for duration calculation, flag a timestep... if G(t) > 3 * MAD(G)"
+    # This implies we might need to ensure the segment consists of actual events,
+    # or simply use this to define what counts as a valid 'hacked' segment if labels are noisy.
+    # However, T031 produces 'hacked_label'. The spec says: "Identify contiguous segments... where ground-truth label is 'hacked'".
+    # The G(t) condition seems to be a secondary validation or definition of 'event' for the segment.
+    # Interpretation: A segment is contaminated if it is a contiguous block of 'hacked' labels
+    # AND its length > window_size. The G(t) > 3*MAD is likely a check to ensure these are indeed
+    # significant deviations, but the primary filter is the label duration.
+    # Let's strictly follow: "Identify contiguous segments... where ground-truth label is 'hacked' AND segment duration > window_size".
+    # The G(t) condition is mentioned as "To identify 'hacking events' for duration calculation".
+    # This might mean we only count a 'hacked' label as part of the duration if G(t) > 3*MAD?
+    # Or it means we use G(t) to detect events if labels are missing?
+    # Given T031 produces labels, we assume labels are the ground truth.
+    # Re-reading: "flag a timestep as an 'event' if G(t) > 3 * MAD(G)... Identify contiguous segments... where ground-truth label is 'hacked'".
+    # This phrasing is slightly ambiguous. It likely means:
+    # 1. Calculate MAD of G(t).
+    # 2. A 'hacking event' is defined as a timestep where G(t) > 3*MAD.
+    # 3. A 'contaminated segment' is a contiguous run of timesteps that are BOTH 'hacked' (label) AND 'events' (G(t) condition)?
+    # OR: The duration calculation is only valid if the segment consists of events?
+    # Let's assume the strictest interpretation that ensures robustness:
+    # We look for contiguous runs of 'hacked' labels. We verify that these runs contain significant G(t) deviations.
+    # Actually, the most logical flow for "contamination exclusion" is:
+    # If a long period is labeled 'hacked', it contaminates the baseline.
+    # The G(t) > 3*MAD condition is likely a filter to ensure we don't flag noise as a long segment.
+    # Let's implement:
+    # 1. Compute MAD of G(t).
+    # 2. Create a boolean mask `is_event` where G(t) > 3 * MAD.
+    # 3. Combine with `hacked_label`: `is_contaminated_candidate = hacked_label & is_event`.
+    # 4. Find contiguous segments of `is_contaminated_candidate`.
+    # 5. Filter segments where length > window_size.
 
-    # Process each seed independently to ensure contiguous segments are per-seed
-    # as per standard time-series contamination logic in this context.
-    for seed_id in df["seed_id"].unique():
-        mask = df["seed_id"] == seed_id
-        seed_df = df.loc[mask]
+    g_values = df['G(t)'].values
+    mad = np.median(np.abs(g_values - np.median(g_values)))
+    if mad == 0:
+        # If MAD is 0, no deviation. No events.
+        return []
 
-        # Sort by timestep to ensure order
-        seed_df = seed_df.sort_values("timestep")
+    threshold = 3.0 * mad
+    is_event = g_values > threshold
+    is_hacked = df['hacked_label'].values
 
-        # Identify elevated points
-        elevated = seed_df[value_column] > global_median
+    # A timestep is a candidate for a contaminated segment if it is both hacked and an event
+    candidate_mask = is_hacked & is_event
 
-        # Find contiguous runs of True values
-        # We use diff to find transitions
-        diff = elevated.astype(int).diff()
-        start_indices = diff[elevated.astype(int) == 1].index
-        end_indices = diff[elevated.astype(int) == -1].index
+    # Find contiguous segments in candidate_mask
+    segments = []
+    if len(candidate_mask) == 0:
+        return []
 
-        # Handle edge cases where a run starts at index 0 or ends at last index
-        if elevated.iloc[0]:
-            if len(start_indices) == 0 or start_indices[0] != elevated.index[0]:
-                start_indices = pd.concat([pd.Series([elevated.index[0]]), start_indices])
-        
-        if elevated.iloc[-1]:
-            if len(end_indices) == 0 or end_indices[-1] != elevated.index[-1]:
-                end_indices = pd.concat([end_indices, pd.Series([elevated.index[-1]])])
+    in_segment = False
+    start_idx = -1
 
-        # Convert to lists for iteration
-        start_list = start_indices.tolist()
-        end_list = end_indices.tolist()
-
-        # Pair starts and ends
-        # If start and end lists are empty, no runs
-        if not start_list:
-            continue
-
-        # Ensure we have matching pairs. If start exists but end is missing, 
-        # it means the run goes to the end.
-        runs = []
-        for i, start_idx in enumerate(start_list):
-            if i < len(end_list):
-                end_idx = end_list[i]
-            else:
-                end_idx = seed_df.index[-1]
-            
-            # Calculate duration (number of timesteps)
-            # Since index is not necessarily 0..N, we count rows
-            duration = len(seed_df.loc[start_idx:end_idx])
-            
+    for i, val in enumerate(candidate_mask):
+        if val and not in_segment:
+            in_segment = True
+            start_idx = i
+        elif not val and in_segment:
+            in_segment = False
+            end_idx = i - 1
+            duration = end_idx - start_idx + 1
             if duration > window_size:
-                runs.append((start_idx, end_idx))
+                segments.append((start_idx, end_idx))
 
-        # Mark contaminated rows in the main DataFrame
-        for start_idx, end_idx in runs:
-            df.loc[start_idx:end_idx, "is_contaminated"] = True
+    if in_segment:
+        end_idx = len(candidate_mask) - 1
+        duration = end_idx - start_idx + 1
+        if duration > window_size:
+            segments.append((start_idx, end_idx))
 
-    return df
+    return segments
 
+def generate_is_contaminated_mask(df: pd.DataFrame, segments: List[Tuple[int, int]]) -> pd.Series:
+    """
+    Generate a boolean Series 'is_contaminated' based on the identified segments.
+
+    Args:
+        df: Original DataFrame.
+        segments: List of (start, end) tuples.
+
+    Returns:
+        pd.Series of booleans, True for timesteps in contaminated segments.
+    """
+    mask = pd.Series(False, index=df.index)
+    for start, end in segments:
+        mask.iloc[start:end+1] = True
+    return mask
 
 def main():
     """
-    Main entry point for identifying contaminated windows.
-    Reads trajectories_divergence.csv, computes mask, writes to 
-    trajectories_divergence_contaminated.csv (or updates in place if needed, 
-    but here we write a new file to preserve raw US1 output).
-    
-    Note: T025b expects this logic to produce the mask. 
-    Per T025c, we update the dataframe. 
-    To be safe and explicit, we write the result to a new file 
-    that T022/T025b can consume, or update the existing one if the spec implies 
-    overwriting. The task description says "Store the indices... in a temporary list 
-    or DataFrame". T025b says "Create a boolean column... in the DataFrame".
-    We will write the updated DataFrame to a new file: 
-    data/processed/trajectories_divergence_contaminated.csv
+    Main entry point to identify contaminated windows and append the mask to the data.
+    Reads data/processed/trajectories_divergence.csv (which should have hacked_label from T031).
+    Outputs data/processed/trajectories_divergence_masked.csv with is_contaminated column.
     """
     project_root = get_project_root()
     input_path = project_root / "data" / "processed" / "trajectories_divergence.csv"
-    
+    output_path = project_root / "data" / "processed" / "trajectories_divergence_masked.csv"
+
     if not input_path.exists():
-        print(f"ERROR: Input file not found: {input_path}")
+        print(f"Error: Input file not found: {input_path}")
+        print("Ensure T031 (ground truth labels) has been run successfully.")
         sys.exit(1)
 
-    print(f"Reading {input_path}...")
-    df = read_csv(input_path)
+    print(f"Loading data from {input_path}...")
+    df = load_csv(str(input_path))
 
-    # Validate required columns
-    required_cols = ["seed_id", "timestep", "G_t"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        print(f"ERROR: Missing required columns: {missing_cols}")
+    if 'hacked_label' not in df.columns:
+        print("Error: 'hacked_label' column not found in input data.")
+        print("Ensure T031 has been run to generate ground truth labels.")
         sys.exit(1)
 
-    print("Identifying contaminated windows (duration > 20 steps above global median)...")
-    df_contaminated = identify_contaminated_segments(df, window_size=20, value_column="G_t")
+    if 'G(t)' not in df.columns:
+        print("Error: 'G(t)' column not found in input data.")
+        sys.exit(1)
 
-    output_path = project_root / "data" / "processed" / "trajectories_divergence_contaminated.csv"
-    print(f"Writing results to {output_path}...")
-    write_csv(df_contaminated, output_path)
+    print("Identifying contaminated segments...")
+    # W=20 as per spec
+    contaminated_segments = identify_contaminated_segments(df, window_size=20)
+    print(f"Found {len(contaminated_segments)} contaminated segments.")
 
-    # Summary stats
-    total_rows = len(df_contaminated)
-    contaminated_rows = df_contaminated["is_contaminated"].sum()
-    print(f"Total rows: {total_rows}")
-    print(f"Contaminated rows: {contaminated_rows} ({100*contaminated_rows/total_rows:.2f}%)")
-    print("Task T025a completed successfully.")
+    print("Generating is_contaminated mask...")
+    is_contaminated_mask = generate_is_contaminated_mask(df, contaminated_segments)
+    df['is_contaminated'] = is_contaminated_mask
 
+    print(f"Saving output to {output_path}...")
+    save_csv(df, str(output_path))
+
+    print(f"Task complete. Output saved to {output_path}")
+    print(f"Total contaminated timesteps: {df['is_contaminated'].sum()}")
 
 if __name__ == "__main__":
     main()

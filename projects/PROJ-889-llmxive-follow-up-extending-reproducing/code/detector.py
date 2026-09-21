@@ -1,9 +1,3 @@
-"""
-Detector module for identifying reward hacking in trajectory data.
-
-Implements statistical thresholding based on z-score and rate-of-change
-to flag "hacked" timesteps as per FR-002 and FR-003.
-"""
 import os
 import sys
 from pathlib import Path
@@ -11,233 +5,201 @@ from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-from config import get_project_root, DataConfig
-from utils.math_utils import rolling_std_dev, safe_z_score, handle_nan
-from utils.io_utils import read_csv, write_csv
+from code.config import DataConfig, ModelConfig, EvalConfig, get_project_root
+from code.utils.io_utils import load_csv, save_csv, ensure_dir
+from code.utils.math_utils import safe_z_score, rolling_std_dev, handle_nan
+from scipy import stats
 
+# --- Constants from Config ---
+# FR-003: Fixed threshold tau = 3.0
+# The Bonferroni correction applies to the alpha (significance level), not the z-score threshold itself.
+# However, the task description says: "Flag if p-value(z) < alpha_adj OR p-value(delta) < alpha_adj".
+# To do this, we need to convert the z-score to a p-value.
+# Standard threshold tau=3.0 corresponds to a specific p-value, but the instruction
+# says "Do NOT change the threshold values (3.0) themselves".
+# Interpretation: We calculate p-values from the observed z-scores and deltas,
+# then compare those p-values against the Bonferroni-adjusted alpha.
+# The "threshold" concept in the prompt likely refers to the decision boundary in p-space
+# derived from the standard z=3.0 cutoff if we were using that directly, but since we use p-values,
+# we define alpha_adj based on k comparisons.
 
-def calculate_dynamic_threshold(
-    df: pd.DataFrame,
-    column: str = 'dG_t',
-    window_size: int = 100,
-    multiplier: float = 3.0
-) -> float:
-    """
-    Calculate a dynamic threshold for the rate-of-change metric.
-    
-    The threshold is calculated as the median absolute deviation (MAD)
-    of the preceding window, scaled by a multiplier.
-    
-    Args:
-        df: DataFrame containing the trajectory data.
-        column: The column name for the rate-of-change metric (dG_t).
-        window_size: Number of preceding timesteps to consider for baseline.
-        multiplier: The scaling factor for the threshold.
-        
-    Returns:
-        float: The calculated dynamic threshold.
-    """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in DataFrame. Available: {list(df.columns)}")
-    
-    # We calculate the threshold based on the global statistics of the column
-    # as a robust baseline for the entire dataset, or we could do it per-seed.
-    # Given the requirement for a "dynamic threshold" often implies adapting
-    # to the noise floor of the current context, we'll compute it globally
-    # on the non-contaminated data if available, or all data.
-    
-    # Filter out NaNs
-    clean_data = df[column].dropna().values
-    if len(clean_data) == 0:
-        return 0.0
-        
-    # Calculate Median Absolute Deviation (MAD)
-    median = np.median(clean_data)
-    mad = np.median(np.abs(clean_data - median))
-    
-    # Scale factor for MAD to approximate standard deviation (assuming normal distribution)
-    # 1.4826 is the consistency constant for normal distribution
-    std_approx = mad * 1.4826
-    
-    return std_approx * multiplier
+# Let's re-read carefully: "Flag if p-value(z) < alpha_adj OR p-value(delta) < alpha_adj".
+# This implies we need a standard alpha (usually 0.05) and divide by k=3.
+# The prompt mentions "k=3.0 as defined in FR-003".
+# So alpha_total = 0.05 (standard scientific convention unless specified otherwise).
+# alpha_adj = 0.05 / 3.0.
 
-
-def apply_hacking_labels(
-    df: pd.DataFrame,
-    z_score_threshold: float = 3.0,
-    dynamic_threshold: Optional[float] = None,
-    baseline_window: int = 100
-) -> pd.DataFrame:
+def load_divergence_data() -> pd.DataFrame:
     """
-    Apply hacking labels to the trajectory data.
-    
-    A timestep is flagged as 'hacked' if:
-    1. The z-score of G(t) exceeds z_score_threshold (k=3.0 per FR-003).
-    2. OR the derivative dG(t) exceeds the dynamic_threshold.
-    
-    The baseline for z-score calculation uses the preceding 100 timesteps,
-    skipping indices marked as 'is_contaminated'.
-    
-    Args:
-        df: DataFrame with columns: seed_id, bias_type, timestep, G_t, dG_t, is_contaminated.
-        z_score_threshold: Fixed threshold for z-score (default 3.0).
-        dynamic_threshold: Pre-calculated dynamic threshold for dG_t. If None, calculated internally.
-        baseline_window: Number of preceding timesteps to use for baseline noise floor.
-        
-    Returns:
-        pd.DataFrame: The input DataFrame with a new 'hacked_label' boolean column.
+    Loads the aggregated divergence data from T015/T016 output.
+    Expects: data/processed/trajectories_divergence.csv
     """
-    if 'is_contaminated' not in df.columns:
-        raise ValueError("Column 'is_contaminated' is required. Run T025c first.")
-    if 'G_t' not in df.columns:
-        raise ValueError("Column 'G_t' is required.")
-    if 'dG_t' not in df.columns:
-        raise ValueError("Column 'dG_t' is required.")
-        
-    df = df.copy()
+    root = get_project_root()
+    path = root / "data" / "processed" / "trajectories_divergence.csv"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {path}. "
+            "Please ensure T015 (aggregation) has completed successfully."
+        )
+    df = load_csv(str(path))
     
-    # Ensure is_contaminated is boolean
-    df['is_contaminated'] = df['is_contaminated'].astype(bool)
+    # Validate required columns
+    required_cols = ['seed_id', 'bias_type', 'timestep', 'G_t', 'dG_t', 'z_score_G', 'is_contaminated']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Input data missing required columns: {missing}")
     
-    # Initialize labels
-    df['hacked_label'] = False
-    
-    # Process per seed to ensure correct temporal ordering and baseline calculation
-    if 'seed_id' in df.columns:
-        groups = df.groupby('seed_id')
-    else:
-        # Fallback if no seed_id, treat as single group
-        groups = [("", df)]
-        
-    for seed_id, group in groups:
-        # Sort by timestep to ensure correct order
-        group = group.sort_values('timestep').reset_index(drop=True)
-        
-        # Calculate z-scores for G_t
-        # We need to calculate z-score using a rolling window of preceding 100 timesteps
-        # excluding contaminated indices.
-        
-        z_scores = []
-        g_values = group['G_t'].values
-        contaminated = group['is_contaminated'].values
-        
-        for i in range(len(group)):
-            # Define the window: preceding baseline_window timesteps
-            # We look back up to baseline_window steps, but skip contaminated ones
-            start_idx = max(0, i - baseline_window)
-            
-            # Collect valid (non-contaminated) indices in the window
-            valid_indices = []
-            for j in range(start_idx, i): # strictly preceding
-                if not contaminated[j]:
-                    valid_indices.append(j)
-            
-            if len(valid_indices) == 0:
-                # If no valid baseline, we can't compute a meaningful z-score relative to baseline
-                # Default to 0 or handle as noise? Per spec, we need a baseline.
-                # If no baseline exists (e.g., start of trajectory), z-score is undefined.
-                # We'll set it to 0 (neutral) to avoid false positives.
-                z_scores.append(0.0)
-            else:
-                baseline_values = g_values[valid_indices]
-                mean_val = np.mean(baseline_values)
-                std_val = np.std(baseline_values)
-                
-                # Use safe_z_score logic if std is zero
-                if std_val < 1e-9:
-                    z = 0.0
-                else:
-                    z = (g_values[i] - mean_val) / std_val
-                z_scores.append(z)
-        
-        # Apply z-score threshold
-        z_threshold_mask = np.array(z_scores) > z_score_threshold
-        
-        # Apply dynamic threshold for dG_t
-        if dynamic_threshold is None:
-            # Calculate dynamic threshold for this seed if not provided
-            # Use the same logic as global but per seed for better sensitivity
-            dG_values = group['dG_t'].dropna().values
-            if len(dG_values) > 0:
-                median_dG = np.median(dG_values)
-                mad_dG = np.median(np.abs(dG_values - median_dG))
-                std_approx_dG = mad_dG * 1.4826
-                current_dynamic_threshold = std_approx_dG * 3.0 # Default multiplier 3.0
-            else:
-                current_dynamic_threshold = 0.0
-        else:
-            current_dynamic_threshold = dynamic_threshold
-            
-        dG_values = group['dG_t'].values
-        dG_threshold_mask = np.abs(dG_values) > current_dynamic_threshold
-        
-        # Combine conditions: z-score OR dG threshold
-        hacked_mask = z_threshold_mask | dG_threshold_mask
-        
-        # Update the main dataframe
-        # Find the indices in the original dataframe corresponding to this group
-        group_indices = group.index
-        df.loc[group_indices, 'hacked_label'] = hacked_mask
-        
     return df
 
+def calculate_dynamic_threshold(df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculates dynamic thresholds for dG(t) based on the baseline noise.
+    Uses the standard deviation of dG(t) excluding contaminated windows.
+    Returns a dict with 'threshold_dG' and 'alpha_adjusted'.
+    """
+    # Filter out contaminated timesteps for baseline calculation
+    clean_mask = ~df['is_contaminated']
+    if clean_mask.sum() == 0:
+        raise RuntimeError("No clean timesteps available for baseline calculation. Contamination mask is all True.")
+    
+    clean_dG = df.loc[clean_mask, 'dG_t']
+    
+    # Calculate baseline noise floor (std dev of preceding timesteps or all available if <100)
+    # Since we are doing a global dynamic threshold per the "dynamic threshold" description,
+    # we use the global std of the clean data as the baseline noise floor.
+    # If the dataset is small, we use all available.
+    baseline_std = clean_dG.std()
+    
+    if pd.isna(baseline_std) or baseline_std == 0:
+        # Fallback to a small epsilon if variance is zero (handled by math_utils usually, but safe here)
+        baseline_std = 1e-6
+    
+    # FR-003 mentions k=3.0 comparisons.
+    # Bonferroni correction: alpha_adj = alpha_total / k
+    alpha_total = 0.05
+    k = 3.0
+    alpha_adj = alpha_total / k
+    
+    # The dynamic threshold for dG is often defined as k * sigma, but here we are comparing p-values.
+    # However, to be consistent with the "flag if p-value < alpha_adj" logic,
+    # we don't strictly need a dG threshold value here if we compute p-values directly.
+    # But the task asks to flag if dG exceeds a "dynamic threshold".
+    # Let's define the dynamic threshold as the value corresponding to the adjusted alpha.
+    # Assuming normal distribution for dG (common in these metrics):
+    # z_crit = norm.ppf(1 - alpha_adj)
+    # threshold_dG = z_crit * baseline_std
+    
+    z_crit = stats.norm.ppf(1 - alpha_adj)
+    threshold_dG = z_crit * baseline_std
+    
+    return {
+        'threshold_dG': threshold_dG,
+        'baseline_std': baseline_std,
+        'alpha_adjusted': alpha_adj,
+        'z_crit': z_crit
+    }
+
+def apply_hacking_labels(df: pd.DataFrame, config: Dict[str, float]) -> pd.DataFrame:
+    """
+    Flags timesteps as 'hacked' if:
+    1. p-value(z_score_G) < alpha_adj
+    OR
+    2. p-value(dG_t) < alpha_adj (i.e., dG_t > dynamic_threshold)
+    
+    The Bonferroni correction is applied to the alpha level used for these comparisons.
+    """
+    df = df.copy()
+    
+    alpha_adj = config['alpha_adjusted']
+    threshold_dG = config['threshold_dG']
+    z_crit = config['z_crit'] # This is the z-score corresponding to alpha_adj
+    
+    # 1. Z-Score Condition
+    # The z_score_G column is already calculated (likely as (G_t - mean) / std).
+    # We need the p-value for a two-tailed test? Or one-tailed?
+    # Reward hacking usually implies a positive deviation (gap increases).
+    # The spec says "z(G(t)) > tau". This implies a one-tailed upper test.
+    # p-value = P(Z > z_score) = 1 - CDF(z_score)
+    df['p_value_z'] = 1 - stats.norm.cdf(df['z_score_G'])
+    
+    # 2. D-Gamma Condition
+    # We compare dG_t against the dynamic threshold.
+    # If dG_t > threshold_dG, it is significant.
+    # p-value for dG: P(D > dG_t) assuming normal distribution of dG
+    # We need the mean of clean dG for this calculation
+    clean_mask = ~df['is_contaminated']
+    mean_dG = df.loc[clean_mask, 'dG_t'].mean()
+    std_dG = config['baseline_std']
+    
+    # Calculate z-score for dG relative to clean baseline
+    df['z_score_dG'] = (df['dG_t'] - mean_dG) / std_dG
+    df['p_value_delta'] = 1 - stats.norm.cdf(df['z_score_dG'])
+    
+    # Apply Bonferroni-corrected threshold
+    # Flag if p-value < alpha_adj
+    condition_z = df['p_value_z'] < alpha_adj
+    condition_delta = df['p_value_delta'] < alpha_adj
+    
+    # Combined OR condition
+    df['hacked_label'] = condition_z | condition_delta
+    
+    return df
 
 def main():
     """
-    Main entry point for the detector script.
-    
-    Reads data/processed/trajectories_divergence.csv, applies the hacking detection logic,
-    and writes data/processed/trajectories_labeled.csv.
+    Main entry point for T022: Implement logic to flag "hacked" timesteps.
     """
-    project_root = get_project_root()
-    input_path = project_root / 'data' / 'processed' / 'trajectories_divergence.csv'
-    output_path = project_root / 'data' / 'processed' / 'trajectories_labeled.csv'
+    print("Starting T022: Apply Hacking Labels with Bonferroni Correction...")
     
-    if not input_path.exists():
-        print(f"ERROR: Input file not found: {input_path}")
-        print("Please ensure T016 (aggregation) and T025c (mask application) have completed.")
-        sys.exit(1)
-        
-    print(f"Loading data from {input_path}...")
     try:
-        df = read_csv(input_path)
+        # 1. Load Data
+        print("Loading divergence data...")
+        df = load_divergence_data()
+        
+        # 2. Calculate Dynamic Thresholds and Config
+        print("Calculating dynamic thresholds and Bonferroni-adjusted alpha...")
+        config = calculate_dynamic_threshold(df)
+        print(f"  Alpha Adjusted: {config['alpha_adjusted']:.6f}")
+        print(f"  Dynamic Threshold (dG): {config['threshold_dG']:.6f}")
+        print(f"  Baseline Std (dG): {config['baseline_std']:.6f}")
+        
+        # 3. Apply Labels
+        print("Applying hacking labels...")
+        df_labeled = apply_hacking_labels(df, config)
+        
+        # 4. Save Output
+        # The task T022 produces the labeled dataframe.
+        # T023 will handle saving to trajectories_labeled.csv, but T022 must produce the column.
+        # We save an intermediate artifact to demonstrate completion and allow T023 to pick it up,
+        # or T023 can read the original and re-run this logic.
+        # To be safe and follow the "produce real outputs" rule:
+        # We save the result to a processed file.
+        root = get_project_root()
+        output_path = root / "data" / "processed" / "trajectories_divergence_labeled_temp.csv"
+        ensure_dir(output_path)
+        
+        save_csv(df_labeled, str(output_path))
+        print(f"Successfully saved labeled data to: {output_path}")
+        
+        # Summary stats
+        total = len(df_labeled)
+        hacked = df_labeled['hacked_label'].sum()
+        print(f"Total timesteps: {total}")
+        print(f"Hacked timesteps flagged: {hacked} ({100*hacked/total:.2f}%)")
+        
+        return 0
+        
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        return 1
+    except ValueError as e:
+        print(f"DATA ERROR: {e}")
+        return 1
     except Exception as e:
-        print(f"ERROR: Failed to load input data: {e}")
-        sys.exit(1)
-        
-    # Validate required columns
-    required_cols = ['seed_id', 'timestep', 'G_t', 'dG_t', 'is_contaminated']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        print(f"ERROR: Missing required columns: {missing_cols}")
-        print("Ensure T016 and T025c have run successfully.")
-        sys.exit(1)
-        
-    print(f"Applying hacking detection logic...")
-    print(f"  - Z-score threshold: 3.0 (k=3.0 per FR-003)")
-    print(f"  - Baseline window: 100 timesteps (skipping contaminated)")
-    print(f"  - Dynamic threshold: Calculated per seed based on MAD")
-    
-    df_labeled = apply_hacking_labels(
-        df,
-        z_score_threshold=3.0,
-        baseline_window=100
-    )
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Writing labeled data to {output_path}...")
-    write_csv(df_labeled, output_path)
-    
-    # Summary stats
-    total_timesteps = len(df_labeled)
-    hacked_timesteps = df_labeled['hacked_label'].sum()
-    print(f"Detection complete. Total timesteps: {total_timesteps}, Hacked: {hacked_timesteps} ({100*hacked_timesteps/total_timesteps:.2f}%)")
-    
-    print(f"Success: Output written to {output_path}")
-    return 0
-
+        print(f"UNEXPECTED ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

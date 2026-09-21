@@ -1,129 +1,91 @@
 """
-Task T023: Generate labeled trajectories.
+Generate labeled trajectories by appending hacking labels to divergence data.
 
-This module loads the divergence data computed in US1, applies the hacking labels
-determined by the detector (US2), and writes the final labeled dataset to disk.
+This script reads the aggregated divergence data (output of US1), applies the
+hacking detection logic (from T022), and generates the final labeled dataset.
 
-Dependency: Requires T022 (detector logic) to have populated the 'hacked_label' column
-in the input data or for this script to re-apply the logic if the column is missing
-(though per spec, T022 should have prepared the data).
+It preserves the separation of concerns:
+- US1 (Ingestion): Computes G(t) and Delta G(t)
+- US2 (Detection): Computes labels based on thresholds
 
-Output: data/processed/trajectories_labeled.csv
+Output:
+    data/processed/trajectories_labeled.csv
 """
+
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
+import numpy as np
 
-# Import from sibling modules as per API surface
+# Import from project modules
 from code.config import get_project_root
-from code.detector import apply_hacking_labels
-from code.utils.io_utils import write_csv, ensure_dir
-
-
-def load_divergence_data(input_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load the aggregated divergence data from US1.
-
-    Args:
-        input_path: Optional path override. Defaults to data/processed/trajectories_divergence.csv.
-
-    Returns:
-        DataFrame containing trajectory data with G(t), dG(t), and z-scores.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-    """
-    if input_path is None:
-        root = get_project_root()
-        input_path = root / "data" / "processed" / "trajectories_divergence.csv"
-
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Input divergence data not found at {input_path}. "
-            "Ensure T016 (aggregation) has completed successfully."
-        )
-
-    df = pd.read_csv(input_path)
-    return df
-
-
-def apply_hacking_labels(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Ensure the 'hacked_label' column is present and boolean.
-
-    If the column already exists (e.g., from T022 intermediate run), it validates
-    the type. If not, it delegates to the detector module to apply the logic
-    defined in T022 (z-score > 3.0 or dynamic threshold).
-
-    Args:
-        df: The divergence dataframe.
-
-    Returns:
-        DataFrame with 'hacked_label' column added.
-    """
-    if "hacked_label" not in df.columns:
-        # If T022 hasn't written the label yet, we apply the logic here.
-        # The detector.apply_hacking_labels function is designed to take
-        # the raw divergence data and return the labeled dataframe.
-        df = apply_hacking_labels(df)
-    else:
-        # Ensure it is boolean
-        df["hacked_label"] = df["hacked_label"].astype(bool)
-
-    return df
+from code.detector import load_divergence_data, apply_hacking_labels
 
 
 def main():
     """
-    Main entry point for T023.
+    Main entry point for generating labeled trajectories.
 
-    1. Load data from data/processed/trajectories_divergence.csv
-    2. Ensure 'hacked_label' is present and boolean (calling detector logic if needed)
-    3. Save to data/processed/trajectories_labeled.csv
+    1. Loads divergence data from data/processed/trajectories_divergence.csv
+    2. Applies hacking detection logic to generate 'hacked_label'
+    3. Saves the result to data/processed/trajectories_labeled.csv
     """
-    root = get_project_root()
-    input_path = root / "data" / "processed" / "trajectories_divergence.csv"
-    output_path = root / "data" / "processed" / "trajectories_labeled.csv"
+    project_root = get_project_root()
+    input_path = project_root / "data" / "processed" / "trajectories_divergence.csv"
+    output_path = project_root / "data" / "processed" / "trajectories_labeled.csv"
 
-    ensure_dir(output_path.parent)
-
-    print(f"[T023] Loading divergence data from {input_path}...")
-    try:
-        df = load_divergence_data(input_path)
-    except FileNotFoundError as e:
-        print(f"[T023] ERROR: {e}")
+    # Verify input exists
+    if not input_path.exists():
+        print(f"ERROR: Input file not found: {input_path}")
+        print("Please ensure T015 (US1) has completed successfully.")
         sys.exit(1)
 
-    print(f"[T023] Processing {len(df)} rows to apply hacking labels...")
+    print(f"Loading divergence data from {input_path}...")
+    df = load_divergence_data(input_path)
 
-    # The detector module's apply_hacking_labels is the source of truth for the label logic
-    # We call it to ensure consistency with T022.
-    # Note: The function signature in detector.py might expect the raw df and return labeled df.
-    # We assume apply_hacking_labels from detector.py performs the z-score check and returns the df.
-    # If the column already exists, we just ensure type safety.
-    
-    if "hacked_label" not in df.columns:
-        # Re-apply logic if missing (fallback for robustness)
-        # This assumes detector.apply_hacking_labels takes the df and returns it with the column
-        df = apply_hacking_labels(df)
-    else:
-        df["hacked_label"] = df["hacked_label"].astype(bool)
-
-    print(f"[T023] Writing labeled data to {output_path}...")
-    write_csv(df, output_path)
-
-    # Verify output
-    if output_path.exists():
-        print(f"[T023] SUCCESS: Generated {output_path} with {len(df)} rows.")
-        print(f"[T023] Columns: {list(df.columns)}")
-        print(f"[T023] Label distribution:\n{df['hacked_label'].value_counts()}")
-    else:
-        print(f"[T023] ERROR: Failed to write output file.")
+    if df is None or df.empty:
+        print("ERROR: Loaded data is empty or invalid.")
         sys.exit(1)
+
+    # Ensure required columns exist before applying labels
+    required_cols = ["G_t", "dG_t", "z_score", "is_contaminated"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        print(f"ERROR: Missing required columns for labeling: {missing_cols}")
+        print("Ensure T021 and T022 have run successfully to populate z_score and is_contaminated.")
+        sys.exit(1)
+
+    print(f"Applying hacking labels (Threshold tau=3.0, Bonferroni correction)...")
+    df_labeled = apply_hacking_labels(df)
+
+    # Verify the label column was added and is boolean
+    if "hacked_label" not in df_labeled.columns:
+        print("ERROR: Failed to generate 'hacked_label' column.")
+        sys.exit(1)
+
+    if df_labeled["hacked_label"].dtype != bool:
+        print(f"WARNING: 'hacked_label' column is not boolean type. Converting...")
+        df_labeled["hacked_label"] = df_labeled["hacked_label"].astype(bool)
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Saving labeled trajectories to {output_path}...")
+    df_labeled.to_csv(output_path, index=False)
+
+    # Summary stats
+    total_rows = len(df_labeled)
+    hacked_count = df_labeled["hacked_label"].sum()
+    hacked_pct = (hacked_count / total_rows * 100) if total_rows > 0 else 0.0
+
+    print(f"Done. Total rows: {total_rows}, Hacked: {hacked_count} ({hacked_pct:.2f}%)")
+    print(f"Output saved to: {output_path}")
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

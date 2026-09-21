@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-889-llmxive-follow-up-extending-reproducing",
+  "tasks": [
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "No `download_cherrl_logs.py` script or any code was presented, and thus there is no evidence that the required logic (real HuggingFace fetch, loud failure on error, saving to `data/raw/cherrl_logs/`) has been implemented. The necessary artifact is missing.",
+      "first_seen": "2026-09-21T13:49:52.277091+00:00",
+      "last_seen": "2026-09-21T13:49:52.277091+00:00"
+    }
+  ],
+  "updated_at": "2026-09-21T13:49:52.277091+00:00"
+}

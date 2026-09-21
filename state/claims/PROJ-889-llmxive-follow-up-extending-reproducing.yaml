@@ -2853,3 +2853,166 @@
   source_type: external
   status: verified
   updated_at: '2026-08-04T22:16:24Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Wilcoxon passed status defined as p-value less than 0.05
+  claim_id: c_ed288ab6
+  context: 'The report MUST include the raw boolean value wilcoxon_passed: true/false
+    where wilcoxon_passed is defined strictly as p_value < 0.05. Include a clear PASS/FAIL
+    statement for SC-002 based on this value.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_passed_status_defined_as_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: 'The report MUST include the raw boolean value wilcoxon_passed: true/false
+    where wilcochon_passed is defined strictly as p_value < 0.05.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:42:56Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if correlation between J_unbiased/J_gold or J_biased/J_gold
+    exceeds 0.8
+  claim_id: c_372811a1
+  context: 'If correlation > 0.8 for *either* check in *any* seed: ... HALT: Immediately
+    raise SystemExit(1) to stop the entire pipeline.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline must halt immediately if the correlation between J_unbiased
+    and J_gold or J_biased and J_gold exceeds 0.8 for any seed.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T13:42:57Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sliding window size for z-score is 20
+  claim_id: c_e77614df
+  context: Implement code/detector.py to calculate sliding window z-score (W=20, minimum
+    of 5 samples) per FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding window size for z-score calculation is 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:43:33Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Rolling z-score requires minimum 5 samples
+  claim_id: c_ca9e3891
+  context: Implement code/detector.py to calculate sliding window z-score (W=20, minimum
+    of 5 samples) per FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rolling z-score calculation requires a minimum of 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:43:58Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth derived from J_gold drops of 0.1 over 50 steps
+  claim_id: c_81e2815f
+  context: "Implement code/ground_truth.py to derive labels from J_gold drops (\u2265\
+    0.1 decrease over 50 steps, sustained for >= 3 timesteps) per FR-004."
+  evidence:
+    entailment_evidence: Ground truth derived from J gold drops of 0.1 over 50 steps
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_derived_from_J_gold_drops_of_0.1_over_50_steps
+  kind: magnitude
+  raw_text: Ground-truth labels are derived from J_gold drops of at least 0.1 decrease
+    over 50 steps.
+  resolved_value: Ground truth derived from J_gold drops of 0.1 over 50 steps
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T13:44:00Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth hacking events sustained for 3 timesteps
+  claim_id: c_41b6f6f6
+  context: "Implement code/ground_truth.py to derive labels from J_gold drops (\u2265\
+    0.1 decrease over 50 steps, sustained for >= 3 timesteps) per FR-004."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_hacking_events_sustained_for_3_timesteps
+  kind: magnitude
+  raw_text: Ground-truth hacking events must be sustained for at least 3 timesteps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:44:29Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Default BASELINE_SAMPLE_FRACTION is 0.1
+  claim_id: c_99193015
+  context: T033 must use a fixed sample fraction defined in code/config.py (BASELINE_SAMPLE_FRACTION)
+    with a default value of 0.1 if not specified.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for BASELINE_SAMPLE_FRACTION is 0.1 if not specified
+    in config.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:44:54Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Default random seed for baseline generation is 42
+  claim_id: c_316a6a5f
+  context: If the value is missing or None, use a default value of BASELINE_SAMPLE_FRACTION
+    and a default seed of 42 for BASELINE_SEED.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed for baseline generation is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:45:19Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Hacking event flagged if G(t) > 3 * MAD(G)
+  claim_id: c_83b1c949
+  context: "To identify 'hacking events' for duration calculation, flag a timestep\
+    \ as an 'event' if G(t) > 3 \xD7 MAD(G) (Median Absolute Deviation)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A hacking event is flagged if G(t) exceeds 3 times the Median Absolute
+    Deviation (MAD) of G.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:46:37Z'

@@ -64,14 +64,3 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-26T02:26:07.973428Z'
-- artifact_hash: 569cd8a8244d0246215294f7bfa8949b696da94e21b4179a53a4f750f38a42ca
-  artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: markdown - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q107380638
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q107380638
-  verified_at: '2026-09-16T21:34:00.172520Z'

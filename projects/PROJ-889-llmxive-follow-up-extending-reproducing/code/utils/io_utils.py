@@ -12,7 +12,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import pandas as pd
 import yaml
+
+from jsonschema import validate, ValidationError
 
 
 def ensure_dir(path: Union[str, Path]) -> Path:
@@ -214,3 +217,69 @@ def write_yaml(
     ensure_dir(path)
     with open(path, "w", encoding="utf-8") as f:
         yaml.dump(data, f, default_flow_style=default_flow_style, allow_unicode=True)
+
+
+def load_csv(path: str) -> pd.DataFrame:
+    """
+    Loads a CSV file into a pandas DataFrame.
+
+    Args:
+        path: Path to the CSV file.
+
+    Returns:
+        A pandas DataFrame containing the CSV data.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pd.errors.EmptyDataError: If the CSV is empty.
+    """
+    return pd.read_csv(path)
+
+
+def save_csv(df: pd.DataFrame, path: str) -> None:
+    """
+    Saves a pandas DataFrame to a CSV file.
+
+    Args:
+        df: The DataFrame to save.
+        path: Path to the output CSV file.
+
+    Raises:
+        OSError: If the file cannot be written.
+    """
+    ensure_dir(path)
+    df.to_csv(path, index=False)
+
+
+def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
+    """
+    Validates a DataFrame against a JSON Schema defined in a YAML file.
+
+    The YAML file is expected to contain a JSON Schema. The function converts
+    the DataFrame to a list of dictionaries (rows) and validates it against
+    the schema.
+
+    Args:
+        df: The pandas DataFrame to validate.
+        schema_path: Path to the YAML file containing the JSON Schema.
+
+    Returns:
+        True if the data is valid, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        yaml.YAMLError: If the schema file is invalid YAML.
+        ValidationError: If the data does not match the schema (raised if validation fails).
+    """
+    schema = read_yaml(schema_path)
+    
+    # Convert DataFrame to a list of dictionaries for validation
+    # We treat each row as an object in a JSON array
+    data_to_validate = df.to_dict(orient="records")
+    
+    try:
+        validate(instance=data_to_validate, schema=schema)
+        return True
+    except ValidationError as e:
+        # Log the specific validation error for debugging
+        raise ValidationError(f"Schema validation failed: {e.message}")

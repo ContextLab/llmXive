@@ -1,170 +1,106 @@
-"""
-Unit tests for ground truth validation module (T032a, T032b, T031).
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
+import json
+import tempfile
 import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.ground_truth import (
-    check_independence,
-    check_unbiased_independence,
-    check_biased_independence,
-    derive_ground_truth_labels
-)
+from ground_truth import check_unbiased_independence, check_biased_independence, check_independence, derive_ground_truth_labels
+from config import get_project_root, DataConfig
 
+@pytest.fixture
+def sample_df():
+    # Create a mock dataframe with seed_id, bias_type, timestep, J_unbiased, J_biased, J_gold
+    n = 100
+    data = {
+        'seed_id': ['seed_001'] * n,
+        'bias_type': ['lexical'] * n,
+        'timestep': list(range(n)),
+        'J_unbiased': np.random.rand(n),
+        'J_biased': np.random.rand(n),
+        'J_gold': np.random.rand(n)
+    }
+    return pd.DataFrame(data)
 
-class TestIndependenceChecks:
-    """Tests for FR-006 and FR-008 independence checks."""
+def test_check_unbiased_independence_pass(sample_df):
+    # Create data with low correlation
+    sample_df['J_unbiased'] = np.random.rand(100)
+    sample_df['J_gold'] = np.random.rand(100)
     
-    def test_passes_when_correlation_below_threshold(self):
-        """Test that check passes when correlation is below threshold."""
-        # Create data with low correlation
-        np.random.seed(42)
-        df = pd.DataFrame({
-            'J_unbiased': np.random.randn(100),
-            'J_gold': np.random.randn(100) * 0.5 + np.random.randn(100) * 0.5
-        })
-        
-        corr, is_circular = check_independence(df, 'J_unbiased', 'J_gold', threshold=0.8)
-        
-        assert not is_circular
-        assert corr <= 0.8
-    
-    def test_raises_on_high_correlation(self):
-        """Test that RuntimeError is raised when correlation exceeds threshold."""
-        # Create data with high correlation
-        df = pd.DataFrame({
-            'J_unbiased': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'J_gold': [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1]
-        })
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            check_independence(df, 'J_unbiased', 'J_gold', threshold=0.8)
-        
-        assert "CIRCULAR_VALIDATION" in str(excinfo.value)
-    
-    def test_handles_missing_columns(self):
-        """Test that ValueError is raised for missing columns."""
-        df = pd.DataFrame({
-            'J_unbiased': [1, 2, 3],
-            'J_gold': [4, 5, 6]
-        })
-        
-        with pytest.raises(ValueError):
-            check_independence(df, 'J_unbiased', 'J_missing')
-    
-    def test_handles_insufficient_data(self):
-        """Test that ValueError is raised for insufficient data points."""
-        df = pd.DataFrame({
-            'J_unbiased': [1],
-            'J_gold': [2]
-        })
-        
-        with pytest.raises(ValueError):
-            check_independence(df, 'J_unbiased', 'J_gold')
-    
-    def test_unbiased_check_integration(self):
-        """Test FR-006 specific check."""
-        df = pd.DataFrame({
-            'J_unbiased': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'J_gold': [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1]
-        })
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            check_unbiased_independence(df)
-        
-        assert "CIRCULAR_VALIDATION" in str(excinfo.value)
-    
-    def test_biased_check_integration(self):
-        """Test FR-008 specific check."""
-        df = pd.DataFrame({
-            'J_biased': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'J_gold': [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1]
-        })
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            check_biased_independence(df)
-        
-        assert "CIRCULAR_VALIDATION" in str(excinfo.value)
+    passed, corr = check_unbiased_independence(sample_df, 'seed_001')
+    assert passed is True
+    assert abs(corr) < 0.8
 
+def test_check_unbiased_independence_fail(sample_df):
+    # Create data with high correlation
+    x = np.random.rand(100)
+    sample_df['J_unbiased'] = x
+    sample_df['J_gold'] = x + np.random.normal(0, 0.01, 100) # High correlation
+    
+    passed, corr = check_unbiased_independence(sample_df, 'seed_001')
+    assert passed is False
+    assert corr > 0.8
 
-class TestGroundTruthDerivation:
-    """Tests for FR-004 ground truth label derivation."""
+def test_check_biased_independence_pass(sample_df):
+    # Create data with low correlation for non-hacked phases
+    # Simulate non-contaminated data
+    sample_df['is_contaminated'] = False
+    sample_df['J_biased'] = np.random.rand(100)
+    sample_df['J_gold'] = np.random.rand(100)
     
-    def test_detects_large_drop(self):
-        """Test that a large drop is correctly detected."""
-        # Create data with a clear drop
-        j_gold = [10.0] * 50 + [5.0] * 50  # Drop of 5.0 at step 50
-        df = pd.DataFrame({'J_gold': j_gold})
-        
-        result = derive_ground_truth_labels(
-            df,
-            drop_threshold=2.0,
-            window_size=10,
-            sustain_steps=1
-        )
-        
-        # After the drop, labels should be 1
-        assert result['ground_truth_label'].iloc[60] == 1
+    passed, corr = check_biased_independence(sample_df, 'seed_001')
+    assert passed is True
+    assert abs(corr) < 0.8
+
+def test_check_biased_independence_fail(sample_df):
+    # Create data with high correlation
+    sample_df['is_contaminated'] = False
+    x = np.random.rand(100)
+    sample_df['J_biased'] = x
+    sample_df['J_gold'] = x + np.random.normal(0, 0.01, 100)
     
-    def test_ignores_small_drop(self):
-        """Test that small drops are not detected."""
-        # Create data with small fluctuation
-        j_gold = [10.0] * 100
-        df = pd.DataFrame({'J_gold': j_gold})
-        
-        result = derive_ground_truth_labels(
-            df,
-            drop_threshold=2.0,
-            window_size=10,
-            sustain_steps=1
-        )
-        
-        # No labels should be set
-        assert result['ground_truth_label'].sum() == 0
+    passed, corr = check_biased_independence(sample_df, 'seed_001')
+    assert passed is False
+    assert corr > 0.8
+
+def test_derive_ground_truth_labels():
+    # Create a dataframe with a clear drop in J_gold
+    n = 200
+    data = {
+        'seed_id': ['seed_001'] * n,
+        'bias_type': ['lexical'] * n,
+        'timestep': list(range(n)),
+        'J_unbiased': np.random.rand(n),
+        'J_biased': np.random.rand(n),
+        'J_gold': [1.0] * 50 + [0.5] * 100 + [1.0] * 50 # Drop of 0.5 over 50 steps, sustained
+    }
+    df = pd.DataFrame(data)
     
-    def test_requires_sustained_drop(self):
-        """Test that drop must be sustained for N steps."""
-        # Create data with transient drop
-        j_gold = [10.0] * 40 + [5.0] * 5 + [10.0] * 55
-        df = pd.DataFrame({'J_gold': j_gold})
-        
-        # Require 10 sustained steps
-        result = derive_ground_truth_labels(
-            df,
-            drop_threshold=2.0,
-            window_size=10,
-            sustain_steps=10
-        )
-        
-        # Drop was only 5 steps, so no labels should be set
-        assert result['ground_truth_label'].sum() == 0
+    df_labeled = derive_ground_truth_labels(df)
     
-    def test_handles_missing_j_gold(self):
-        """Test that ValueError is raised if J_gold is missing."""
-        df = pd.DataFrame({'J_biased': [1, 2, 3]})
-        
-        with pytest.raises(ValueError):
-            derive_ground_truth_labels(df)
+    # Check that labels are True in the drop region
+    # The drop happens at index 50 (t=50) relative to t=0
+    # We expect labels to be True from t=50 onwards for at least 3 steps
+    assert df_labeled['hacked_label'].sum() > 0
+    # Specifically, check the region of the drop
+    drop_region = df_labeled[(df_labeled['timestep'] >= 50) & (df_labeled['timestep'] < 150)]
+    assert drop_region['hacked_label'].all()
+
+def test_check_independence_halt_on_fail(sample_df, tmp_path):
+    # Mock the config to use tmp_path
+    original_root = get_project_root()
+    # We can't easily mock get_project_root, so we'll test the logic directly
+    # Create a dataframe that fails
+    fail_df = sample_df.copy()
+    x = np.random.rand(100)
+    fail_df['J_unbiased'] = x
+    fail_df['J_gold'] = x # Perfect correlation
     
-    def test_edge_case_window_at_start(self):
-        """Test behavior when window is not fully available at start."""
-        # Short sequence where window covers entire available history
-        j_gold = [10.0, 9.0, 8.0, 7.0, 6.0]
-        df = pd.DataFrame({'J_gold': j_gold})
-        
-        result = derive_ground_truth_labels(
-            df,
-            drop_threshold=2.0,
-            window_size=3,
-            sustain_steps=1
-        )
-        
-        # Should handle gracefully without crashing
-        assert 'ground_truth_label' in result.columns
+    results = check_independence(fail_df)
+    assert results['status'] == 'failed'
+    assert len(results['failed_seeds']) > 0
