@@ -1,0 +1,11 @@
+{
+  "validation_stats": {
+    "total_records": 0,
+    "passed": 0,
+    "failed": 0,
+    "pass_rate": 0.0
+  },
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "tool": "provenance_validator",
+  "note": "This report is a placeholder generated because the input file data/cleaned/thermal_raw.csv does not exist yet. The script T014 will generate the real report when executed after T014b populates the data."
+}

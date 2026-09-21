@@ -2,19 +2,17 @@ import os
 import sys
 from pathlib import Path
 
-def setup_project_structure(base_path: Path) -> None:
+def setup_project_structure():
     """
     Creates the exact directory tree required for the project.
-    
-    Required directories:
-    - src/ (source code)
-    - tests/ (unit and integration tests)
-    - data/raw/ (raw downloaded data)
-    - data/cleaned/ (processed data)
-    - data/results/ (analysis outputs)
-    - figures/ (plots and visualizations)
-    - contracts/ (schema definitions)
+    Directories: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
     """
+    # Define the project root (assuming this script is at code/setup_project.py)
+    # We want to create the structure relative to the repository root.
+    # If running from code/, we go up one level.
+    current_path = Path(__file__).resolve()
+    project_root = current_path.parent.parent
+
     directories = [
         "src",
         "tests",
@@ -24,33 +22,31 @@ def setup_project_structure(base_path: Path) -> None:
         "figures",
         "contracts"
     ]
-    
+
     created_count = 0
     for dir_name in directories:
-        target_dir = base_path / dir_name
-        if not target_dir.exists():
-            target_dir.mkdir(parents=True, exist_ok=True)
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            # Ensure it is actually a directory if it exists
-            if not target_dir.is_dir():
-                raise NotADirectoryError(f"Path exists but is not a directory: {target_dir}")
-    
-    print(f"Project structure verified/created at {base_path}")
-    print(f"Directories created: {created_count}")
+            print(f"Directory already exists: {dir_path}")
 
-def main() -> int:
-    """Entry point for script execution."""
-    # Determine project root (assuming script is at code/setup_project.py)
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    
-    try:
-        setup_project_structure(project_root)
-        return 0
-    except Exception as e:
-        print(f"Error setting up project structure: {e}", file=sys.stderr)
-        return 1
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} new directories.")
+
+    return True
+
+def main():
+    """Entry point for CLI execution."""
+    success = setup_project_structure()
+    if success:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

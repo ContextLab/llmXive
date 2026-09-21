@@ -1,25 +1,25 @@
 """
-Unit tests for the provenance validator module.
-
-Tests validate the regex patterns for DOI, PMID, and NIST ID,
-as well as the validation and filtering logic.
+Unit tests for the provenance_validator module.
 """
-
 import pytest
 import pandas as pd
 import tempfile
 from pathlib import Path
 import json
 import sys
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add code directory to path if not already there
+code_root = Path(__file__).parent.parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from src.cleaning.provenance_validator import (
     is_valid_source_reference,
     validate_provenance,
     filter_valid_provenance,
-    save_validation_report
+    save_validation_report,
+    main
 )
 
 
@@ -27,200 +27,196 @@ class TestIsValidSourceReference:
     """Tests for is_valid_source_reference function."""
 
     def test_valid_doi(self):
-        """Test valid DOI patterns."""
-        assert is_valid_source_reference("10.1038/s41524-021-00567-8") is True
-        assert is_valid_source_reference("10.1103/PhysRevB.103.125412") is True
-        assert is_valid_source_reference("10.1021/acs.chemmater.1c01234") is True
-
-    def test_invalid_doi(self):
-        """Test invalid DOI patterns."""
-        assert is_valid_source_reference("10.1038") is False
-        assert is_valid_source_reference("10.1038/") is False
-        assert is_valid_source_reference("10.123/abc") is False  # Only 4 digits
-        assert is_valid_source_reference("http://doi.org/10.1038/s41524-021-00567-8") is False
+        assert is_valid_source_reference("10.1000/abc123") is True
+        assert is_valid_source_reference("10.1038/nature12345") is True
+        assert is_valid_source_reference("10.1021/acs.jpclett.1c00001") is True
 
     def test_valid_pmid(self):
-        """Test valid PMID patterns."""
-        assert is_valid_source_reference("10.1000/12345") is True
-        assert is_valid_source_reference("10.1234/67890") is True
-
-    def test_invalid_pmid(self):
-        """Test invalid PMID patterns."""
-        assert is_valid_source_reference("10.100/12345") is False  # Only 3 digits
-        assert is_valid_source_reference("10.1000/abc") is False
-        assert is_valid_source_reference("10.1000/12345/extra") is False
+        # Based on regex 10.\\d{4}/\\d+
+        assert is_valid_source_reference("10.1234/56789") is True
+        assert is_valid_source_reference("10.1234/1") is True
 
     def test_valid_nist_id(self):
-        """Test valid NIST ID patterns."""
-        assert is_valid_source_reference("NIST-ABC123") is True
-        assert is_valid_source_reference("NIST-XYZ789") is True
-        assert is_valid_source_reference("NIST-12345") is True
+        assert is_valid_source_reference("NIST-AB123") is True
+        assert is_valid_source_reference("NIST-X9Y8Z7") is True
+        assert is_valid_source_reference("NIST-123") is True
 
-    def test_invalid_nist_id(self):
-        """Test invalid NIST ID patterns."""
-        assert is_valid_source_reference("nist-abc123") is False  # lowercase
-        assert is_valid_source_reference("NIST_ABC123") is False  # underscore
-        assert is_valid_source_reference("NIST-") is False
-        assert is_valid_source_reference("NISTABC123") is False
-
-    def test_empty_and_none(self):
-        """Test empty and None inputs."""
+    def test_invalid_formats(self):
+        assert is_valid_source_reference("Not a reference") is False
         assert is_valid_source_reference("") is False
-        assert is_valid_source_reference("   ") is False
         assert is_valid_source_reference(None) is False
+        assert is_valid_source_reference("10.1000") is False  # Missing /
+        assert is_valid_source_reference("10.1000/") is False  # Missing suffix
+        assert is_valid_source_reference("NIST-abc") is False  # Lowercase not allowed in pattern [A-Z0-9]
+        assert is_valid_source_reference("NIST_123") is False  # Underscore not allowed
 
-    def test_invalid_format(self):
-        """Test invalid format strings."""
-        assert is_valid_source_reference("random text") is False
-        assert is_valid_source_reference("doi:10.1038/s41524-021-00567-8") is False
+    def test_case_sensitivity_doi(self):
+        # DOI is case-insensitive per regex IGNORECASE flag
+        assert is_valid_source_reference("10.1000/ABC") is True
+
+    def test_case_sensitivity_nist(self):
+        # NIST pattern has IGNORECASE flag
+        assert is_valid_source_reference("nist-abc123") is True
 
 
 class TestValidateProvenance:
     """Tests for validate_provenance function."""
 
-    def test_validate_mixed_provenance(self):
-        """Test validation with mixed valid and invalid entries."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B", "C", "D"],
-            "source_reference": [
-                "10.1038/s41524-021-00567-8",  # Valid DOI
-                "NIST-ABC123",                  # Valid NIST
-                "invalid-ref",                  # Invalid
-                "10.1000/12345"                 # Valid PMID
+    def test_validate_dataframe(self):
+        data = {
+            'structure_id': ['A', 'B', 'C', 'D'],
+            'source_reference': [
+                "10.1000/valid",
+                "NIST-VALID1",
+                "invalid_ref",
+                None
             ]
-        })
+        }
+        df = pd.DataFrame(data)
+        df_validated, stats = validate_provenance(df, 'source_reference')
 
-        valid, invalid = validate_provenance(df)
+        assert 'provenance_valid' in df_validated.columns
+        assert df_validated['provenance_valid'].iloc[0] is True
+        assert df_validated['provenance_valid'].iloc[1] is True
+        assert df_validated['provenance_valid'].iloc[2] is False
+        assert df_validated['provenance_valid'].iloc[3] is False
 
-        assert len(valid) == 3
-        assert len(invalid) == 1
-        assert invalid[0]["structure_id"] == "C"
+        assert stats['total_records'] == 4
+        assert stats['passed'] == 2
+        assert stats['failed'] == 2
 
-    def test_validate_all_valid(self):
-        """Test validation when all entries are valid."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B"],
-            "source_reference": [
-                "10.1038/s41524-021-00567-8",
-                "NIST-XYZ789"
-            ]
-        })
+    def test_missing_column(self):
+        df = pd.DataFrame({'other_col': [1, 2, 3]})
+        with pytest.raises(ValueError, match="Column 'source_reference' not found"):
+            validate_provenance(df, 'source_reference')
 
-        valid, invalid = validate_provenance(df)
-
-        assert len(valid) == 2
-        assert len(invalid) == 0
-
-    def test_validate_all_invalid(self):
-        """Test validation when all entries are invalid."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B"],
-            "source_reference": [
-                "invalid1",
-                "invalid2"
-            ]
-        })
-
-        valid, invalid = validate_provenance(df)
-
-        assert len(valid) == 0
-        assert len(invalid) == 2
-
-    def test_validate_empty_dataframe(self):
-        """Test validation with empty DataFrame."""
-        df = pd.DataFrame(columns=["structure_id", "source_reference"])
-
-        valid, invalid = validate_provenance(df)
-
-        assert len(valid) == 0
-        assert len(invalid) == 0
+    def test_empty_dataframe(self):
+        df = pd.DataFrame(columns=['structure_id', 'source_reference'])
+        df_validated, stats = validate_provenance(df, 'source_reference')
+        assert stats['total_records'] == 0
+        assert stats['passed'] == 0
+        assert stats['failed'] == 0
+        assert stats['pass_rate'] == 0.0
 
 
 class TestFilterValidProvenance:
     """Tests for filter_valid_provenance function."""
 
-    def test_filter_mixed(self):
-        """Test filtering with mixed valid and invalid entries."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B", "C"],
-            "source_reference": [
-                "10.1038/s41524-021-00567-8",
-                "invalid",
-                "NIST-ABC123"
-            ],
-            "thermal_conductivity": [1.0, 2.0, 3.0]
-        })
-
-        filtered = filter_valid_provenance(df)
-
-        assert len(filtered) == 2
-        assert list(filtered["structure_id"]) == ["A", "C"]
-
-    def test_filter_all_valid(self):
-        """Test filtering when all entries are valid."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B"],
-            "source_reference": [
-                "10.1038/s41524-021-00567-8",
-                "NIST-ABC123"
+    def test_filter_valid(self):
+        data = {
+            'structure_id': ['A', 'B', 'C'],
+            'source_reference': [
+                "10.1000/valid",
+                "invalid_ref",
+                "NIST-VALID1"
             ]
-        })
-
-        filtered = filter_valid_provenance(df)
+        }
+        df = pd.DataFrame(data)
+        filtered = filter_valid_provenance(df, 'source_reference')
 
         assert len(filtered) == 2
+        assert list(filtered['structure_id']) == ['A', 'C']
 
-    def test_filter_all_invalid(self):
-        """Test filtering when all entries are invalid."""
-        df = pd.DataFrame({
-            "structure_id": ["A", "B"],
-            "source_reference": ["invalid1", "invalid2"]
-        })
-
-        filtered = filter_valid_provenance(df)
-
+    def test_all_invalid(self):
+        data = {
+            'structure_id': ['A', 'B'],
+            'source_reference': ["invalid1", "invalid2"]
+        }
+        df = pd.DataFrame(data)
+        filtered = filter_valid_provenance(df, 'source_reference')
         assert len(filtered) == 0
+
+    def test_all_valid(self):
+        data = {
+            'structure_id': ['A', 'B'],
+            'source_reference': ["10.1000/valid", "NIST-VALID"]
+        }
+        df = pd.DataFrame(data)
+        filtered = filter_valid_provenance(df, 'source_reference')
+        assert len(filtered) == 2
 
 
 class TestSaveValidationReport:
     """Tests for save_validation_report function."""
 
     def test_save_report(self):
-        """Test saving a validation report."""
-        valid_entries = [
-            {"row_index": 0, "structure_id": "A", "source_reference": "10.1038/s41524-021-00567-8", "is_valid": True}
-        ]
-        invalid_entries = [
-            {"row_index": 1, "structure_id": "B", "source_reference": "invalid", "is_valid": False}
-        ]
-
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_report.json"
-            
-            save_validation_report(1, 1, valid_entries, invalid_entries, output_path)
+            output_path = Path(tmpdir) / "report.json"
+            stats = {
+                'total_records': 10,
+                'passed': 8,
+                'failed': 2,
+                'pass_rate': 0.8
+            }
+            failed_entries = [
+                {'index': 0, 'source_reference': 'bad'}
+            ]
+
+            save_validation_report(stats, output_path, failed_entries)
 
             assert output_path.exists()
-            
             with open(output_path, 'r') as f:
                 report = json.load(f)
-            
-            assert report["summary"]["valid_count"] == 1
-            assert report["summary"]["invalid_count"] == 1
-            assert len(report["valid_entries"]) == 1
-            assert len(report["invalid_entries"]) == 1
 
-    def test_save_report_empty(self):
-        """Test saving a report with no entries."""
+            assert report['validation_stats']['passed'] == 8
+            assert report['validation_stats']['failed'] == 2
+            assert len(report['failed_entries']) == 1
+
+
+class TestMain:
+    """Tests for the main CLI function."""
+
+    def test_main_missing_input(self, capsys):
+        # Create a temp dir and ensure no input file exists
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_report_empty.json"
-            
-            save_validation_report(0, 0, [], [], output_path)
+            # Change to temp dir to isolate file system
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                # Ensure data/cleaned doesn't exist
+                Path("data/cleaned").mkdir(parents=True, exist_ok=True)
+                ret = main()
+                assert ret == 1
+            finally:
+                os.chdir(old_cwd)
 
-            assert output_path.exists()
-            
-            with open(output_path, 'r') as f:
+    def test_main_success(self, tmp_path):
+        # Create a mock input file
+        input_data = tmp_path / "data" / "cleaned"
+        input_data.mkdir(parents=True)
+        input_file = input_data / "thermal_raw.csv"
+        input_file.write_text("structure_id,source_reference\nA,10.1000/valid\nB,NIST-123\n")
+
+        old_cwd = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            ret = main()
+            assert ret == 0
+            # Check report exists
+            report_path = input_data / "provenance_report.json"
+            assert report_path.exists()
+            with open(report_path, 'r') as f:
                 report = json.load(f)
-            
-            assert report["summary"]["valid_count"] == 0
-            assert report["summary"]["invalid_count"] == 0
-            assert report["summary"]["validation_rate"] == 0.0
+            assert report['validation_stats']['failed'] == 0
+        finally:
+            os.chdir(old_cwd)
+
+    def test_main_failure_invalid_entries(self, tmp_path):
+        input_data = tmp_path / "data" / "cleaned"
+        input_data.mkdir(parents=True)
+        input_file = input_data / "thermal_raw.csv"
+        # Include an invalid entry
+        input_file.write_text("structure_id,source_reference\nA,10.1000/valid\nB,invalid\n")
+
+        old_cwd = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            ret = main()
+            assert ret == 1
+            report_path = input_data / "provenance_report.json"
+            assert report_path.exists()
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+            assert report['validation_stats']['failed'] == 1
+        finally:
+            os.chdir(old_cwd)

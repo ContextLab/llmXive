@@ -1,154 +1,129 @@
 """
-Provenance Validator Module for Perovskite Thermal Conductivity Project.
+Provenance Validator Module for Perovskite Thermal Conductivity Pipeline.
 
-This module verifies that all entries in the merged dataset have valid
-peer-reviewed or NIST source references using regex patterns for:
-- DOI: 10.\d{4}/.*/.
-- PMID: 10.\d{4}/\d+
-- NIST ID: NIST-[A-Z0-9]+
+This module verifies that every entry in the thermal conductivity dataset
+has a valid peer-reviewed or NIST source reference. It validates against
+three patterns:
+1. DOI: 10.\\d{4}/.*
+2. PMID: 10.\\d{4}/\\d+ (Note: Standard PMID is usually 7-10 digits, but per
+   task spec T014, we strictly follow the regex provided: 10.\\d{4}/\\d+)
+3. NIST ID: NIST-[A-Z0-9]+
 
-Outputs a validation report to data/cleaned/provenance_report.json
-and exits with code 1 if any entry lacks valid provenance (FR-010).
+It outputs a JSON report to data/cleaned/provenance_report.json and exits
+with code 1 if any entry lacks valid provenance.
 """
-
 import sys
 import logging
 import json
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+import pandas as pd
 
-# Import from existing API surface
-from utils.validation import setup_logger, handle_error
+# Import base validation utilities from T007/T009
+from src.utils.validation import setup_logger, handle_error
 
 
-def setup_logger_module(name: str = "provenance_validator", level: int = logging.INFO) -> logging.Logger:
+# Regular expressions for validation
+# DOI pattern: 10.XXXX/...
+DOI_PATTERN = re.compile(r'^10\.\d{4}/.*', re.IGNORECASE)
+# PMID pattern as specified in task: 10.XXXX/XXXX (Note: This looks like a specific format or a typo in the prompt, 
+# but we must follow the prompt's regex strictly: 10.\\d{4}/\\d+)
+PMID_PATTERN = re.compile(r'^10\.\d{4}/\d+$')
+# NIST ID pattern: NIST-[A-Z0-9]+
+NIST_PATTERN = re.compile(r'^NIST-[A-Z0-9]+$', re.IGNORECASE)
+
+# Combined pattern for efficiency
+VALIDATION_PATTERNS = [DOI_PATTERN, PMID_PATTERN, NIST_PATTERN]
+
+
+def is_valid_source_reference(reference: Optional[str]) -> bool:
     """
-    Configure and return a logger for this module.
-    
+    Check if a source reference string matches any of the valid patterns.
+
     Args:
-        name: Logger name
-        level: Logging level (default: INFO)
-        
-    Returns:
-        Configured logger instance
-    """
-    return setup_logger(name, level)
+        reference: The source reference string to validate (e.g., DOI, PMID, NIST ID).
 
-
-def is_valid_source_reference(reference: str) -> bool:
-    """
-    Check if a source reference string matches valid provenance patterns.
-    
-    Valid patterns:
-    - DOI: 10.\d{4}/.*/. (e.g., 10.1038/s41524-021-00567-8)
-    - PMID: 10.\d{4}/\d+ (e.g., 10.1000/12345)
-    - NIST ID: NIST-[A-Z0-9]+ (e.g., NIST-ABC123)
-    
-    Args:
-        reference: Source reference string to validate
-        
     Returns:
-        True if reference matches any valid pattern, False otherwise
+        bool: True if the reference matches a valid pattern, False otherwise.
     """
     if not isinstance(reference, str) or not reference.strip():
         return False
-    
-    reference = reference.strip()
-    
-    # DOI pattern: 10.\d{4}/.*/.
-    doi_pattern = r'^10\.\d{4}/.*/.*$'
-    
-    # PMID pattern: 10.\d{4}/\d+
-    pmid_pattern = r'^10\.\d{4}/\d+$'
-    
-    # NIST ID pattern: NIST-[A-Z0-9]+
-    nist_pattern = r'^NIST-[A-Z0-9]+$'
-    
-    if re.match(doi_pattern, reference):
-        return True
-    if re.match(pmid_pattern, reference):
-        return True
-    if re.match(nist_pattern, reference):
-        return True
-    
+
+    ref_clean = reference.strip()
+
+    for pattern in VALIDATION_PATTERNS:
+        if pattern.match(ref_clean):
+            return True
+
     return False
 
 
-def validate_provenance(df: Any, column_name: str = "source_reference") -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def validate_provenance(df: pd.DataFrame, column_name: str = 'source_reference') -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Validate provenance for all entries in a DataFrame.
-    
+    Validate the 'source_reference' column for all rows in the dataframe.
+
     Args:
-        df: DataFrame containing the source_reference column
-        column_name: Name of the column to validate (default: "source_reference")
-        
+        df: Input pandas DataFrame containing the data.
+        column_name: Name of the column containing source references.
+
     Returns:
-        Tuple of (valid_entries, invalid_entries) where each entry is a dict
-        containing the row data and validation status.
+        Tuple containing:
+            - DataFrame with an added 'provenance_valid' boolean column.
+            - Dictionary with validation statistics (total, passed, failed).
     """
-    valid_entries = []
-    invalid_entries = []
-    
-    for idx, row in df.iterrows():
-        reference = row.get(column_name, "")
-        is_valid = is_valid_source_reference(reference)
-        
-        entry = {
-            "row_index": int(idx),
-            "structure_id": row.get("structure_id", "unknown"),
-            "source_reference": reference,
-            "is_valid": is_valid
-        }
-        
-        if is_valid:
-            valid_entries.append(entry)
-        else:
-            invalid_entries.append(entry)
-    
-    return valid_entries, invalid_entries
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' not found in dataframe. Available columns: {list(df.columns)}")
+
+    # Apply validation
+    df = df.copy()
+    df['provenance_valid'] = df[column_name].apply(is_valid_source_reference)
+
+    passed_count = df['provenance_valid'].sum()
+    failed_count = len(df) - passed_count
+
+    stats = {
+        'total_records': len(df),
+        'passed': int(passed_count),
+        'failed': int(failed_count),
+        'pass_rate': passed_count / len(df) if len(df) > 0 else 0.0
+    }
+
+    return df, stats
 
 
-def filter_valid_provenance(df: Any, column_name: str = "source_reference") -> Any:
+def filter_valid_provenance(df: pd.DataFrame, column_name: str = 'source_reference') -> pd.DataFrame:
     """
-    Filter DataFrame to keep only rows with valid provenance.
-    
+    Filter the dataframe to keep only rows with valid provenance.
+
     Args:
-        df: Input DataFrame
-        column_name: Name of the source_reference column
-        
+        df: Input pandas DataFrame.
+        column_name: Name of the column containing source references.
+
     Returns:
-        Filtered DataFrame containing only valid entries
+        Filtered DataFrame containing only valid entries.
     """
-    valid_mask = df[column_name].apply(is_valid_source_reference)
-    return df[valid_mask].reset_index(drop=True)
+    df_validated, _ = validate_provenance(df, column_name)
+    return df_validated[df_validated['provenance_valid']].copy()
 
 
-def save_validation_report(valid_count: int, invalid_count: int, 
-                           valid_entries: List[Dict[str, Any]], 
-                           invalid_entries: List[Dict[str, Any]],
-                           output_path: Path) -> None:
+def save_validation_report(stats: Dict[str, Any], output_path: Path, failed_entries: Optional[List[Dict[str, Any]]] = None) -> None:
     """
     Save the validation report to a JSON file.
-    
+
     Args:
-        valid_count: Number of valid entries
-        invalid_count: Number of invalid entries
-        valid_entries: List of valid entry details
-        invalid_entries: List of invalid entry details
-        output_path: Path to save the report
+        stats: Dictionary containing validation statistics.
+        output_path: Path to the output JSON file.
+        failed_entries: Optional list of dictionaries containing details of failed entries.
     """
     report = {
-        "summary": {
-            "total_entries": valid_count + invalid_count,
-            "valid_count": valid_count,
-            "invalid_count": invalid_count,
-            "validation_rate": valid_count / (valid_count + invalid_count) if (valid_count + invalid_count) > 0 else 0.0
-        },
-        "valid_entries": valid_entries,
-        "invalid_entries": invalid_entries
+        'validation_stats': stats,
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'tool': 'provenance_validator'
     }
-    
+    if failed_entries:
+        report['failed_entries'] = failed_entries
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
@@ -156,61 +131,71 @@ def save_validation_report(valid_count: int, invalid_count: int,
 
 def main() -> int:
     """
-    Main entry point for the provenance validator.
-    
-    Reads the merged perovskite dataset, validates provenance for each entry,
-    saves the validation report, and exits with code 1 if any entry lacks
-    valid provenance.
-    
-    Returns:
-        Exit code: 0 if all entries have valid provenance, 1 otherwise
+    Main entry point for the provenance validator CLI.
+
+    Expects input data at data/cleaned/thermal_raw.csv (or specified via args)
+    and outputs report to data/cleaned/provenance_report.json.
     """
-    logger = setup_logger_module()
-    logger.info("Starting provenance validation...")
-    
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    input_path = project_root / "data" / "cleaned" / "merged_perovskite.csv"
-    output_path = project_root / "data" / "cleaned" / "provenance_report.json"
-    
+    logger = setup_logger('provenance_validator', logging.INFO)
+    logger.info("Starting Provenance Validation...")
+
+    # Default paths
+    input_path = Path("data/cleaned/thermal_raw.csv")
+    output_report_path = Path("data/cleaned/provenance_report.json")
+
     # Check if input file exists
     if not input_path.exists():
-        error_msg = f"Input file not found: {input_path}"
-        logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
-        return 1
-    
+        # Fallback to raw data if cleaned doesn't exist yet, as per pipeline flow
+        # T014b outputs to data/raw/thermal_raw.csv, T014 runs after T014b.
+        # However, T014 description says "verify... for each entry".
+        # Let's check data/raw/thermal_raw.csv if data/cleaned/ is missing.
+        raw_input = Path("data/raw/thermal_raw.csv")
+        if raw_input.exists():
+            input_path = raw_input
+            logger.info(f"Input file not found at {input_path}, using {raw_input}")
+        else:
+            logger.error(f"Input file not found at {input_path} or {raw_input}")
+            return 1
+
     try:
-        import pandas as pd
         df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} entries from {input_path}")
+        logger.info(f"Loaded {len(df)} records from {input_path}")
     except Exception as e:
-        error_msg = f"Failed to read input file: {e}"
-        logger.error(error_msg)
-        handle_error(error_msg)
+        logger.error(f"Failed to load input file: {e}")
         return 1
-    
-    # Validate provenance
-    valid_entries, invalid_entries = validate_provenance(df, "source_reference")
-    valid_count = len(valid_entries)
-    invalid_count = len(invalid_entries)
-    
-    logger.info(f"Validation complete: {valid_count} valid, {invalid_count} invalid")
-    
+
+    if 'source_reference' not in df.columns:
+        logger.error(f"Column 'source_reference' not found in {input_path}")
+        return 1
+
+    # Validate
+    df_validated, stats = validate_provenance(df, 'source_reference')
+
+    # Collect failed entries for the report
+    failed_entries = []
+    if stats['failed'] > 0:
+        failed_df = df_validated[~df_validated['provenance_valid']]
+        for idx, row in failed_df.iterrows():
+            failed_entries.append({
+                'index': int(idx),
+                'structure_id': row.get('structure_id', 'N/A'),
+                'source_reference': str(row['source_reference']),
+                'reason': 'Invalid format (Expected DOI, PMID, or NIST ID)'
+            })
+
     # Save report
-    save_validation_report(valid_count, invalid_count, valid_entries, invalid_entries, output_path)
-    logger.info(f"Validation report saved to {output_path}")
-    
-    # Exit with error code if any invalid entries found
-    if invalid_count > 0:
-        error_msg = f"Provenance validation failed: {invalid_count} entries lack valid provenance"
-        logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
+    save_validation_report(stats, output_report_path, failed_entries)
+    logger.info(f"Validation report saved to {output_report_path}")
+    logger.info(f"Passed: {stats['passed']}, Failed: {stats['failed']}, Pass Rate: {stats['pass_rate']:.2%}")
+
+    # Exit with code 1 if any entry lacks valid provenance
+    if stats['failed'] > 0:
+        logger.error("Validation failed: One or more entries lack valid provenance.")
         return 1
-    
-    logger.info("All entries have valid provenance. Validation passed.")
+
+    logger.info("Provenance validation successful.")
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

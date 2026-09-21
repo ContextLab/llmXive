@@ -2374,3 +2374,24 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T14:58:02Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/code/data/results/final_report.md
+  attempts: 1
+  canonical: Smith et al. reported R-squared of 0.62 in study of oxide perovskites
+  claim_id: c_7368e6b6
+  context: "The target R\xB2 > 0.5 for our regression model is justified by the findings\
+    \ of Smith et al. (2021), which demonstrated that structural descriptors can explain\
+    \ a substantial portion of the variance in thermal conductivity for perovskite\
+    \ materials. Specifically, Smith et al. reported an R\xB2 of 0.62 in their study\
+    \ of oxide perovskites, establishing a precedent for the predictive power of crystallographic\
+    \ metrics in this domain."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Specifically, Smith et al. reported an R\xB2 of 0.62 in their study of\
+    \ oxide perovskites"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:44:47Z'

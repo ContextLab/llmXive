@@ -1,151 +1,404 @@
 """
 Fetch perovskite crystal structures from Materials Project API.
-Implements ABX3 filtering and deterministic seed handling.
+
+This module implements T013: Download perovskite crystal structures from
+Materials Project API with ABX₃ filtering, exponential backoff, error
+handling, and deterministic retry behavior via --seed argument.
+
+Requirements:
+- FR-001: API key management and error handling
+- FR-002: Schema compliance for output data
+- Deterministic retries via seed argument
 """
+
 import os
 import sys
 import time
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple, Any
+import requests
+import pandas as pd
 import numpy as np
+from pymatgen.core import Structure
+from pymatgen.analysis.structure_analyzer import oxide_type
 
-# Import seed manager for deterministic behavior
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils.seed_manager import init_seed, get_seed, add_seed_argument
-from config.env import load_api_key, setup_logger
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from src.config.env import load_api_key, setup_logger
+from src.utils.seed_manager import init_seed, get_seed
+
+# Constants
+MP_API_BASE_URL = "https://api.materialsproject.org"
+MAX_RETRIES = 5
+INITIAL_BACKOFF = 1.0
+BACKOFF_MULTIPLIER = 2.0
+PEROVSKITE_STOICHIOMETRY = "ABX3"
+OUTPUT_PATH = Path("data/raw/structures_raw.csv")
 logger = setup_logger("fetch_structures")
 
-def fetch_with_backoff(url: str, params: Dict, max_retries: int = 3, base_delay: float = 1.0) -> Optional[Dict]:
+
+def load_api_key() -> str:
+    """Load Materials Project API key from environment."""
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
+        logger.error("MP_API_KEY not set in environment")
+        sys.exit(1)
+    return api_key
+
+
+def fetch_with_backoff(
+    url: str,
+    params: Dict[str, Any],
+    headers: Dict[str, str],
+    max_retries: int = MAX_RETRIES,
+    seed: Optional[int] = None
+) -> Optional[Dict[str, Any]]:
     """
-    Fetch data from URL with exponential backoff retry logic.
-    Uses deterministic seed for jitter calculation if needed.
+    Fetch data from URL with exponential backoff and deterministic jitter.
 
     Args:
-        url: Target URL
+        url: API endpoint URL
         params: Query parameters
+        headers: Request headers
         max_retries: Maximum number of retry attempts
-        base_delay: Base delay in seconds
+        seed: Random seed for deterministic jitter (optional)
 
     Returns:
-        Response JSON or None if all retries fail
+        JSON response dict or None if all retries exhausted
+
+    Raises:
+        SystemExit: If API key is invalid or rate limit exceeded after retries
     """
-    import requests
-    
+    backoff = INITIAL_BACKOFF
+    last_error = None
+
+    # Initialize seed for deterministic jitter if provided
+    if seed is not None:
+        np.random.seed(seed)
+
     for attempt in range(max_retries):
         try:
-            response = requests.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            return response.json()
+            response = requests.get(url, params=params, headers=headers, timeout=30)
+
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 429:
+                # Rate limited - exponential backoff
+                jitter = np.random.uniform(0.5, 1.5) if seed is not None else 1.0
+                wait_time = backoff * jitter
+                logger.warning(f"Rate limited. Waiting {wait_time:.2f}s before retry {attempt + 1}/{max_retries}")
+                time.sleep(wait_time)
+                backoff *= BACKOFF_MULTIPLIER
+            elif response.status_code == 401:
+                logger.error("Authentication failed. Check MP_API_KEY.")
+                sys.exit(1)
+            elif response.status_code == 404:
+                logger.warning(f"Resource not found: {url}")
+                return None
+            else:
+                last_error = f"HTTP {response.status_code}: {response.text}"
+                logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {last_error}")
+                time.sleep(backoff)
+                backoff *= BACKOFF_MULTIPLIER
+
+        except requests.exceptions.Timeout:
+            last_error = "Request timeout"
+            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {last_error}")
+            time.sleep(backoff)
+            backoff *= BACKOFF_MULTIPLIER
         except requests.exceptions.RequestException as e:
-            delay = base_delay * (2 ** attempt)
-            # Add small deterministic jitter based on seed
-            jitter = (get_seed() % 100) / 1000.0
-            logger.warning(f"Request failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {delay + jitter:.2f}s")
-            time.sleep(delay + jitter)
-    
-    logger.error("All retry attempts failed")
+            last_error = str(e)
+            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {last_error}")
+            time.sleep(backoff)
+            backoff *= BACKOFF_MULTIPLIER
+
+    logger.error(f"All {max_retries} retries exhausted. Last error: {last_error}")
     return None
 
-def is_perovskite(stoichiometry: str) -> bool:
+
+def is_perovskite(structure: Structure) -> bool:
     """
-    Check if a stoichiometry matches the ABX3 perovskite pattern.
+    Check if a structure matches ABX₃ perovskite stoichiometry.
 
     Args:
-        stoichiometry: Chemical formula string (e.g., "ABX3")
+        structure: pymatgen Structure object
 
     Returns:
-        True if matches ABX3 pattern, False otherwise
+        True if structure matches ABX₃ stoichiometry, False otherwise
     """
-    # Basic check: must have exactly 3 element types and ratio 1:1:3
-    # This is a simplified check; real implementation would use pymatgen
-    parts = stoichiometry.replace(" ", "").split(":")
-    if len(parts) != 3:
+    composition = structure.composition
+    elements = list(composition.elements)
+    num_elements = len(elements)
+
+    # Perovskite should have exactly 3 distinct elements (A, B, X)
+    if num_elements != 3:
         return False
-    
-    # Check if the counts match 1:1:3 pattern (order independent)
-    counts = [int(p.split("-")[1]) for p in parts]
-    counts.sort()
-    return counts == [1, 1, 3]
 
-def fetch_perovskite_structures(output_path: Optional[str] = None, seed: int = 42) -> List[Dict]:
+    # Get elemental fractions
+    fractions = {el.symbol: comp for el, comp in composition.items()}
+
+    # Sort by fraction to identify A, B, X roles
+    # A is typically largest cation, B is smaller cation, X is anion
+    sorted_elements = sorted(fractions.items(), key=lambda x: x[1], reverse=True)
+
+    # ABX₃ pattern: one element at ~1/5, one at ~1/5, one at ~3/5
+    # Allow some tolerance for mixed occupancies
+    target_fractions = [0.2, 0.2, 0.6]
+    tolerance = 0.1
+
+    actual_fractions = [f for _, f in sorted_elements]
+
+    # Check if fractions match ABX₃ pattern within tolerance
+    matches = True
+    for actual, target in zip(actual_fractions, target_fractions):
+        if abs(actual - target) > tolerance:
+            matches = False
+            break
+
+    return matches
+
+
+def fetch_perovskite_structures(
+    api_key: str,
+    output_path: Path,
+    seed: Optional[int] = None,
+    max_structures: Optional[int] = None
+) -> Tuple[int, int]:
     """
-    Main function to fetch perovskite structures from Materials Project.
+    Fetch perovskite structures from Materials Project API.
 
     Args:
-        output_path: Optional path to save results as JSON
+        api_key: Materials Project API key
+        output_path: Path to save output CSV
         seed: Random seed for deterministic behavior
+        max_structures: Maximum number of structures to fetch (optional)
 
     Returns:
-        List of perovskite structure records
+        Tuple of (total_fetched, perovskite_count)
     """
-    init_seed(seed)
-    logger.info(f"Starting perovskite structure fetch with seed={seed}")
-
-    api_key = load_api_key()
-    if not api_key:
-        logger.error("Materials Project API key not found")
-        return []
-
-    # MP API endpoint for structures
-    base_url = "https://api.materialsproject.org/v2/materials"
-    params = {
-        "api_key": api_key,
-        "formula": {"$regex": "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?[0-9]{1,3}$"}, # Simplified regex
-        "nelements": 3,
-        "pretty_form": "ABX3",
-        "fields": ["material_id", "pretty_formula", "structure", "nsites"]
+    headers = {
+        "X-API-Key": api_key,
+        "Content-Type": "application/json"
     }
 
-    # Note: In a real implementation, we would iterate through all materials
-    # and filter by is_perovskite(). For this implementation, we simulate
-    # the fetching process with deterministic behavior.
-    
-    # Since we cannot actually call the API without a valid key and rate limits,
-    # we structure the code to be ready for real data when the key is valid.
-    # The seed ensures that any local randomization (e.g., sampling) is deterministic.
-    
-    structures = []
-    
-    # Placeholder for actual API iteration logic
-    # In production, this would iterate through MP materials and filter
-    logger.info("API connection established (simulated for seed validation)")
-    
-    if output_path:
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w') as f:
-            json.dump({"seed": get_seed(), "count": len(structures), "data": structures}, f, indent=2)
-        logger.info(f"Saved {len(structures)} structures to {output_path}")
+    # Query for oxide perovskites first (most common)
+    # We'll iterate through known perovskite-forming elements
+    perovskite_elements = [
+        # Common A-site: alkali, alkaline earth, rare earth
+        "Li", "Na", "K", "Rb", "Cs", "Mg", "Ca", "Sr", "Ba", "La", "Ce",
+        # Common B-site: transition metals
+        "Ti", "Zr", "Hf", "V", "Nb", "Ta", "Cr", "Mo", "W", "Mn", "Fe",
+        "Co", "Ni", "Cu", "Zn", "Al", "Ga", "In", "Sc", "Y",
+        # X-site: O, F, Cl, Br, I
+        "O", "F", "Cl", "Br", "I"
+    ]
 
-    return structures
+    all_structures = []
+    total_fetched = 0
+    perovskite_count = 0
+
+    # Use Materials Project's materials endpoint with composition filter
+    # We'll use the /materials endpoint with formula pattern matching
+    base_url = f"{MP_API_BASE_URL}/materials"
+
+    # Fetch materials with perovskite-like formulas
+    # MP API supports formula pattern matching
+    formula_patterns = [
+        # Oxide perovskites: ABO3
+        "ABO3",
+        # Halide perovskites: ABX3
+        "ABX3",
+    ]
+
+    # Alternative: fetch all materials and filter by composition
+    # This is more reliable but slower
+    logger.info("Fetching materials from Materials Project API...")
+
+    # Use the materials endpoint with pagination
+    params = {
+        "pretty": "false",
+        "fields": "material_id,structure,formula_pretty,nsites,nelements",
+        "num_chunks": 100,
+    }
+
+    # We need to iterate through materials - MP API doesn't have a simple
+    # perovskite filter, so we fetch and filter
+    # For efficiency, we'll fetch a representative sample
+
+    # Strategy: Fetch materials and filter for ABX3 stoichiometry
+    cursor = None
+    fetched = 0
+    max_fetch = max_structures if max_structures else 10000
+
+    while fetched < max_fetch:
+        if cursor:
+            params["cursor"] = cursor
+
+        result = fetch_with_backoff(
+            base_url,
+            params,
+            headers,
+            seed=seed
+        )
+
+        if not result or "data" not in result:
+            logger.warning("No more data or error fetching materials")
+            break
+
+        materials = result.get("data", [])
+        if not materials:
+            break
+
+        cursor = result.get("next_cursor")
+
+        for material in materials:
+            if fetched >= max_fetch:
+                break
+
+            try:
+                # Parse structure from API response
+                structure_dict = material.get("structure", {})
+                if not structure_dict:
+                    continue
+
+                # Convert to pymatgen Structure
+                structure = Structure.from_dict(structure_dict)
+
+                # Check if it's a perovskite
+                if is_perovskite(structure):
+                    perovskite_count += 1
+                    total_fetched += 1
+
+                    # Extract relevant data
+                    structure_data = {
+                        "structure_id": material.get("material_id"),
+                        "formula_pretty": material.get("formula_pretty"),
+                        "nsites": material.get("nsites"),
+                        "nelements": material.get("nelements"),
+                        "elements": [el.symbol for el in structure.composition.elements],
+                        "lattice_a": structure.lattice.a,
+                        "lattice_b": structure.lattice.b,
+                        "lattice_c": structure.lattice.c,
+                        "lattice_alpha": structure.lattice.alpha,
+                        "lattice_beta": structure.lattice.beta,
+                        "lattice_gamma": structure.lattice.gamma,
+                        "volume": structure.volume,
+                        "density": structure.density,
+                        "is_perovskite": True,
+                        "source": "Materials Project",
+                    }
+                    all_structures.append(structure_data)
+
+                    logger.debug(f"Fetched perovskite: {material.get('material_id')}")
+
+                fetched += 1
+
+            except Exception as e:
+                logger.warning(f"Error processing material {material.get('material_id')}: {e}")
+                continue
+
+        if not cursor:
+            break
+
+    logger.info(f"Total materials fetched: {fetched}, Perovskites found: {perovskite_count}")
+
+    # Save to CSV
+    if all_structures:
+        df = pd.DataFrame(all_structures)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved {len(all_structures)} perovskite structures to {output_path}")
+    else:
+        logger.warning("No perovskite structures found in fetched data")
+        # Create empty file with headers
+        pd.DataFrame(columns=[
+            "structure_id", "formula_pretty", "nsites", "nelements",
+            "elements", "lattice_a", "lattice_b", "lattice_c",
+            "lattice_alpha", "lattice_beta", "lattice_gamma",
+            "volume", "density", "is_perovskite", "source"
+        ]).to_csv(output_path, index=False)
+
+    return total_fetched, perovskite_count
+
 
 def main():
-    """Main entry point for the script."""
-    parser = argparse.ArgumentParser(description="Fetch perovskite structures from Materials Project")
-    parser = add_seed_argument(parser)
+    """Main entry point for fetching perovskite structures."""
+    parser = argparse.ArgumentParser(
+        description="Fetch perovskite crystal structures from Materials Project API"
+    )
     parser.add_argument(
-        '--output',
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for deterministic retry behavior (default: 42)"
+    )
+    parser.add_argument(
+        "--max-structures",
+        type=int,
+        default=None,
+        help="Maximum number of structures to fetch (optional)"
+    )
+    parser.add_argument(
+        "--output",
         type=str,
-        default='data/raw/structures_raw.json',
-        help='Output file path for fetched structures'
+        default=str(OUTPUT_PATH),
+        help=f"Output CSV path (default: {OUTPUT_PATH})"
     )
-    
+
     args = parser.parse_args()
-    
-    structures = fetch_perovskite_structures(
-        output_path=args.output,
-        seed=args.seed
-    )
-    
-    if not structures:
-        logger.warning("No structures retrieved. Check API key and connectivity.")
+
+    # Initialize seed
+    init_seed(args.seed)
+    logger.info(f"Initialized with seed: {args.seed}")
+
+    # Load API key
+    api_key = load_api_key()
+    logger.info("API key loaded successfully")
+
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Fetch structures
+    try:
+        total, perovskite_count = fetch_perovskite_structures(
+            api_key=api_key,
+            output_path=output_path,
+            seed=args.seed,
+            max_structures=args.max_structures
+        )
+
+        logger.info(f"Fetch complete: {total} total, {perovskite_count} perovskites")
+
+        # Verify output
+        if output_path.exists():
+            df = pd.read_csv(output_path)
+            logger.info(f"Output verification: {len(df)} rows in {output_path}")
+
+            # Check for required columns
+            required_cols = ["structure_id", "formula_pretty", "is_perovskite"]
+            missing = [col for col in required_cols if col not in df.columns]
+            if missing:
+                logger.error(f"Missing required columns: {missing}")
+                sys.exit(1)
+
+            # Filter for perovskites only
+            perovskites = df[df["is_perovskite"] == True]
+            logger.info(f"Perovskite count in output: {len(perovskites)}")
+
+            if len(perovskites) == 0:
+                logger.warning("No perovskites found in output - check API connectivity and stoichiometry filter")
+
+        else:
+            logger.error(f"Output file not created: {output_path}")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"Error during fetch: {e}")
         sys.exit(1)
-    
-    logger.info(f"Successfully fetched {len(structures)} structures")
-    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

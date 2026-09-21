@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or any of the required folders (src/, tests/, data/raw/, data/cleaned/,
-    data/results/, figures/, contracts/) were presented in the evidence; thus the
-    claimed project structure cannot be verified.
 T005b:
   c: false
   h: 18fe4374dc9ebbda734c8c535ad2bf1c68fca084fb49f3771e271abda4a3fb05
@@ -18,13 +12,6 @@ T009:
     \ so the requested VIF exclusion logic and causal\u2011language scanner functions\
     \ cannot be present. The implementer must add the file and implement the specified\
     \ functionality."
-T011:
-  c: false
-  h: a6303c7620f784b90d60b46974aa44d89abbffed99c9dbd2ced732e48bec72ba
-  r: The repository contains `tests/contract/test_schema.py`, but the required `merged_perovskite.schema.yaml`
-    file is missing, causing the test to fail on file existence. Additionally, the
-    test file is truncated and does not fully implement CSV validation. The task is
-    therefore not genuinely completed.
 T014b:
   c: false
   h: fb2d654b6f63b9f7b2724e0288440bce8eff4ac34a7d05411dd77a0df6bb64d9
@@ -32,35 +19,33 @@ T014b:
     \ actual data\u2011fetching, validation, and CSV\u2011writing logic required by\
     \ T014b, and the expected output file `data/raw/thermal_raw.csv` is absent. Consequently\
     \ the implementation cannot be confirmed to meet the specification."
-T015:
+T023:
   c: false
-  h: 66a4b16321eea783dbe4eac9f0c9aea5205aadbfa797add224a7e9f7af608f3f
-  r: "The required file `src/cleaning/clean_merge.py` does not exist, so none of the\
-    \ specified merging, validation, normalization, or error\u2011handling logic is\
-    \ present. The task cannot be considered fulfilled until the script is created\
-    \ with the described functionality."
-T016:
+  h: 5d7f20e817445be41d5413e2c8f2fc8d1b18f3d07da78ab03498a36191ab4bfd
+  r: "The repository lacks the required input file `data/results/sensitivity_analysis.json`\
+    \ and the expected output `data/results/correlation_matrix.json`. Moreover, the\
+    \ provided `src/analysis/correlation.py` does not show implementation of the command\u2011\
+    line interface (`--correction-method`, `--seed`), nor does it demonstrate reading\
+    \ the missing JSON or writing the required fields. These essential artifacts are\
+    \ absent, so the task is not genuinely completed."
+T025b:
   c: false
-  h: 9c09d6fb3eed49bc6eb8459ef8eba9e9ed8e1d983326b53d95b096543ef02806
-  r: "The required output file `data/cleaned/normalized_thermal.csv` does not exist,\
-    \ so the normalization step was not executed or its results were not saved. Without\
-    \ this file the task\u2019s core requirement is unmet."
-T021:
+  h: ac5a84bcd476ffa9e7e365b3be0737c231b10d1726c2d41324b70eaf82b8d406
+  r: The required output artifacts `data/cleaned/descriptors_vif_filtered.csv` and
+    `data/results/vif_report.json` are absent, indicating the VIF check was not run
+    and the filtered dataset/report were not generated. The presence of `src/utils/validation.py`
+    alone does not satisfy the execution requirement.
+T028:
   c: false
-  h: 3b8e9d0c0492c7bf205bea2dcf40fb75772675dd2553e01efb90ac157fd29d90
-  r: "The required file `src/utils/validation.py` does not exist, so the VIF exclusion\
-    \ logic and causal\u2011language scanner functions cannot be present. The task\u2019\
-    s core artifact is missing entirely."
+  h: 2c1476b9e17a45bf8749d05279286b337dd987b94f48e50e0d9a152a7be934e5
+  r: "The required input file `data/cleaned/descriptors_vif_filtered.csv` is missing,\
+    \ and the `evaluate_test` function is truncated (does not show R\xB2, RMSE, feature\u2011\
+    importance reporting, or the explicit R\xB2\u202F>\u202F0.5 pass/fail check, nor\
+    \ does the script read the required CSV or handle the `--seed` argument). These\
+    \ critical pieces are absent, so the task is not fully satisfied."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of a `research.md` file containing a documented conflict between\
     \ Constitution VII and FR\u2011010, nor any flag or note indicating a required\
     \ specification amendment, was provided. The required artifact is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script checking Constitution VII against FR\u2011010 is provided, nor is\
-    \ there any \u201Cresearch.md\u201D entry or amendment evidence. The only artifacts\
-    \ shown relate to perovskite data analysis, which do not satisfy the verification\
-    \ task. The required verification code and documented alignment are missing."

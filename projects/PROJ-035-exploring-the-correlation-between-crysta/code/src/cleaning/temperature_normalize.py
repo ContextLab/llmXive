@@ -2,12 +2,15 @@
 Temperature normalization module for thermal conductivity data.
 
 Implements the Slack (1979) formula to normalize thermal conductivity
-measurements to a reference temperature of 300K ± 10K.
+measurements to a reference temperature of 300K.
 
-Formula: k(T) = k_ref * (T_ref / T)^1.0
-
-This module explicitly identifies and discards entries with 'unknown'
-temperature before normalization, as required by FR-013.
+Formula: k(T) = k_ref * (T_ref / T)^n
+where:
+    k(T) = thermal conductivity at temperature T
+    k_ref = thermal conductivity at reference temperature T_ref
+    T_ref = reference temperature (300K)
+    T = measurement temperature
+    n = dimensionless temperature scaling exponent (default 1.5 for perovskites)
 """
 
 import sys
@@ -17,260 +20,378 @@ from typing import Optional, List, Tuple
 import pandas as pd
 import numpy as np
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Set up logger
+logger = logging.getLogger(__name__)
 
-from src.utils.seed_manager import setup_logger_module, init_seed
-from src.utils.validation import setup_logger, handle_error
+# Reference temperature for normalization
+REFERENCE_TEMPERATURE = 300.0  # Kelvin
+TEMPERATURE_TOLERANCE = 10.0   # ±10K tolerance window
 
-# Reference temperature for normalization (K)
-REFERENCE_TEMP = 300.0
-TEMP_TOLERANCE = 10.0  # ±10K window
+# Default exponent for perovskites (Slack, 1979)
+DEFAULT_EXPONENT = 1.5
 
-def slack_normalization_factor(temp_measured: float, temp_ref: float = REFERENCE_TEMP) -> float:
+
+def setup_logger_module(name: str = __name__, level: int = logging.INFO) -> logging.Logger:
     """
-    Calculate the Slack (1979) normalization factor.
-
-    k(T) = k_ref * (T_ref / T)^1.0
-    Therefore: k_ref = k(T) * (T / T_ref)^1.0
-
+    Configure and return a module logger.
+    
     Args:
-        temp_measured: The temperature at which the measurement was taken (K).
-        temp_ref: The reference temperature (default 300K).
-
+        name: Logger name (default: module name)
+        level: Logging level (default: INFO)
+        
     Returns:
-        The factor to multiply k(T) by to get k_ref.
+        Configured logger instance
     """
-    if temp_measured <= 0:
-        raise ValueError(f"Temperature must be positive, got {temp_measured}")
-    return (temp_measured / temp_ref) ** 1.0
+    log = logging.getLogger(name)
+    log.setLevel(level)
+    if not log.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        log.addHandler(handler)
+    return log
 
-def is_within_reference_window(temp: float, tolerance: float = TEMP_TOLERANCE) -> bool:
-    """
-    Check if a temperature is within the acceptable reference window.
 
-    Args:
-        temp: Temperature to check (K).
-        tolerance: Acceptable deviation from reference (default 10K).
-
-    Returns:
-        True if temp is within [REFERENCE_TEMP - tolerance, REFERENCE_TEMP + tolerance].
-    """
-    return (REFERENCE_TEMP - tolerance) <= temp <= (REFERENCE_TEMP + tolerance)
-
-def normalize_thermal_conductivity(
-    k_measured: float,
-    temp_measured: float,
-    temp_ref: float = REFERENCE_TEMP
+def slack_normalization_factor(
+    T: float, 
+    T_ref: float = REFERENCE_TEMPERATURE, 
+    n: float = DEFAULT_EXPONENT
 ) -> float:
     """
-    Normalize a single thermal conductivity measurement to reference temperature.
-
+    Calculate the Slack (1979) normalization factor.
+    
     Args:
-        k_measured: Measured thermal conductivity (W/m·K).
-        temp_measured: Temperature at which k was measured (K).
-        temp_ref: Reference temperature (default 300K).
-
+        T: Measurement temperature in Kelvin
+        T_ref: Reference temperature in Kelvin (default: 300K)
+        n: Dimensionless temperature scaling exponent (default: 1.5)
+        
     Returns:
-        Normalized thermal conductivity at temp_ref (W/m·K).
+        Normalization factor (T_ref / T)^n
+        
+    Raises:
+        ValueError: If T <= 0 or T_ref <= 0
     """
-    factor = slack_normalization_factor(temp_measured, temp_ref)
-    return k_measured * factor
+    if T <= 0:
+        raise ValueError(f"Temperature must be positive, got {T}")
+    if T_ref <= 0:
+        raise ValueError(f"Reference temperature must be positive, got {T_ref}")
+    
+    return (T_ref / T) ** n
+
+
+def is_within_reference_window(
+    T: float, 
+    T_ref: float = REFERENCE_TEMPERATURE, 
+    tolerance: float = TEMPERATURE_TOLERANCE
+) -> bool:
+    """
+    Check if a temperature is within the reference window.
+    
+    Args:
+        T: Temperature to check in Kelvin
+        T_ref: Reference temperature in Kelvin
+        tolerance: Tolerance in Kelvin (default: ±10K)
+        
+    Returns:
+        True if |T - T_ref| <= tolerance
+    """
+    return abs(T - T_ref) <= tolerance
+
+
+def is_unknown_temperature(value) -> bool:
+    """
+    Check if a temperature value is unknown/invalid.
+    
+    Args:
+        value: Temperature value to check
+        
+    Returns:
+        True if value is null, NaN, 'N/A', -1, 'unknown', 'None', or empty string
+    """
+    if pd.isna(value):
+        return True
+    if isinstance(value, str):
+        lower_val = value.strip().lower()
+        if lower_val in ['n/a', 'unknown', 'none', '']:
+            return True
+    if isinstance(value, (int, float)):
+        if value == -1:
+            return True
+    return False
+
+
+def normalize_thermal_conductivity(
+    k: float, 
+    T: float, 
+    T_ref: float = REFERENCE_TEMPERATURE, 
+    n: float = DEFAULT_EXPONENT
+) -> float:
+    """
+    Normalize thermal conductivity to reference temperature using Slack formula.
+    
+    Args:
+        k: Thermal conductivity at temperature T
+        T: Measurement temperature in Kelvin
+        T_ref: Reference temperature in Kelvin
+        n: Dimensionless temperature scaling exponent
+        
+    Returns:
+        Normalized thermal conductivity at T_ref
+    """
+    factor = slack_normalization_factor(T, T_ref, n)
+    return k * factor
+
 
 def normalize_dataframe(
     df: pd.DataFrame,
-    k_col: str = 'thermal_conductivity',
-    temp_col: str = 'temperature'
-) -> Tuple[pd.DataFrame, int, List[str]]:
+    temperature_col: str = 'temperature',
+    thermal_col: str = 'thermal_conductivity',
+    T_ref: float = REFERENCE_TEMPERATURE,
+    tolerance: float = TEMPERATURE_TOLERANCE,
+    n: float = DEFAULT_EXPONENT
+) -> Tuple[pd.DataFrame, int, int]:
     """
-    Normalize thermal conductivity values in a DataFrame to 300K.
-
-    This function:
-    1. Identifies and discards rows with 'unknown' or missing temperature.
-    2. Normalizes valid rows using the Slack formula.
-    3. Returns the normalized DataFrame, count of discarded rows, and list of discarded IDs.
-
+    Normalize thermal conductivity values in a DataFrame to reference temperature.
+    
+    Logic:
+        1. Identify 'unknown' temperatures and discard those entries
+        2. For known temperatures outside T_ref ± tolerance: apply Slack correction
+        3. For known temperatures within T_ref ± tolerance: keep as is
+        
     Args:
-        df: Input DataFrame with thermal conductivity and temperature columns.
-        k_col: Name of the thermal conductivity column.
-        temp_col: Name of the temperature column.
-
+        df: Input DataFrame with thermal conductivity and temperature columns
+        temperature_col: Name of temperature column
+        thermal_col: Name of thermal conductivity column
+        T_ref: Reference temperature (default: 300K)
+        tolerance: Tolerance window in Kelvin (default: ±10K)
+        n: Slack exponent (default: 1.5)
+        
     Returns:
-        Tuple of (normalized_df, discarded_count, discarded_ids).
+        Tuple of (normalized DataFrame, count of discarded rows, count of corrected rows)
+        
+    Raises:
+        ValueError: If required columns are missing
     """
-    if temp_col not in df.columns:
-        raise ValueError(f"Temperature column '{temp_col}' not found in DataFrame")
-    if k_col not in df.columns:
-        raise ValueError(f"Thermal conductivity column '{k_col}' not found in DataFrame")
-
-    # Create a copy to avoid modifying the original
-    df_norm = df.copy()
-
-    # Identify rows with 'unknown' or missing temperature
-    # Handle both string 'unknown' and NaN/None values
-    unknown_mask = df_norm[temp_col].isna() | (df_norm[temp_col].astype(str).str.lower() == 'unknown')
-
+    # Validate columns
+    if temperature_col not in df.columns:
+        raise ValueError(f"Temperature column '{temperature_col}' not found in DataFrame")
+    if thermal_col not in df.columns:
+        raise ValueError(f"Thermal conductivity column '{thermal_col}' not found in DataFrame")
+    
+    # Create a copy to avoid modifying original
+    result_df = df.copy()
+    
+    # Track statistics
+    discarded_count = 0
+    corrected_count = 0
+    
+    # Identify unknown temperatures
+    unknown_mask = result_df[temperature_col].apply(is_unknown_temperature)
     discarded_count = unknown_mask.sum()
-    discarded_ids = df_norm.loc[unknown_mask, 'structure_id'].tolist() if 'structure_id' in df_norm.columns else []
-
-    # Filter out unknown temperatures
-    df_valid = df_norm[~unknown_mask].copy()
-
-    if len(df_valid) == 0:
-        logging.warning("No valid temperature entries found after filtering unknown values.")
-        return pd.DataFrame(), discarded_count, discarded_ids
-
-    # Ensure temperature is numeric
-    df_valid[temp_col] = pd.to_numeric(df_valid[temp_col], errors='coerce')
-
-    # Drop rows where conversion failed (now NaN)
-    valid_temp_mask = df_valid[temp_col].notna()
-    if not valid_temp_mask.all():
-        additional_discarded = df_valid[~valid_temp_mask]['structure_id'].tolist() if 'structure_id' in df_valid.columns else []
-        discarded_ids.extend(additional_discarded)
-        discarded_count += (~valid_temp_mask).sum()
-        df_valid = df_valid[valid_temp_mask]
-
-    if len(df_valid) == 0:
-        logging.warning("No valid temperature entries after numeric conversion.")
-        return pd.DataFrame(), discarded_count, discarded_ids
-
-    # Apply normalization
-    df_valid['thermal_conductivity_normalized'] = df_valid.apply(
-        lambda row: normalize_thermal_conductivity(
-            row[k_col],
-            row[temp_col]
-        ),
-        axis=1
+    
+    if discarded_count > 0:
+        logger.warning(f"Discarding {discarded_count} rows with unknown temperatures")
+    
+    # Remove unknown temperature entries
+    result_df = result_df[~unknown_mask]
+    
+    # Convert temperature column to numeric, coercing errors to NaN
+    result_df[temperature_col] = pd.to_numeric(result_df[temperature_col], errors='coerce')
+    
+    # Re-check for any NaN that may have resulted from conversion
+    nan_mask = result_df[temperature_col].isna()
+    if nan_mask.sum() > 0:
+        logger.warning(f"Discarding {nan_mask.sum()} additional rows with NaN temperatures after conversion")
+        result_df = result_df[~nan_mask]
+    
+    # Identify temperatures outside the reference window
+    outside_window = ~result_df[temperature_col].apply(
+        lambda T: is_within_reference_window(T, T_ref, tolerance)
     )
+    
+    # Apply normalization only to those outside the window
+    if outside_window.any():
+        corrected_count = outside_window.sum()
+        logger.info(f"Applying Slack normalization to {corrected_count} rows outside {T_ref}K ± {tolerance}K")
+        
+        # Apply normalization
+        result_df.loc[outside_window, thermal_col] = result_df.loc[outside_window].apply(
+            lambda row: normalize_thermal_conductivity(
+                row[thermal_col],
+                row[temperature_col],
+                T_ref,
+                n
+            ),
+            axis=1
+        )
+        
+        # Update temperature to reference for normalized entries
+        result_df.loc[outside_window, temperature_col] = T_ref
+    else:
+        logger.info("All temperatures already within reference window; no normalization needed")
+    
+    # Reset index
+    result_df = result_df.reset_index(drop=True)
+    
+    return result_df, discarded_count, corrected_count
 
-    # Update the original thermal conductivity column with normalized values
-    df_norm = df_norm.copy()
-    df_norm.loc[df_valid.index, 'thermal_conductivity'] = df_valid['thermal_conductivity_normalized']
-
-    # Add metadata about normalization
-    df_norm['normalization_reference_temp'] = REFERENCE_TEMP
-    df_norm['normalization_formula'] = 'Slack (1979): k(T) = k_ref * (T_ref / T)^1.0'
-
-    return df_norm, discarded_count, discarded_ids
 
 def apply_temperature_normalization(
     input_path: str,
     output_path: str,
-    seed: int = 42,
-    k_col: str = 'thermal_conductivity',
-    temp_col: str = 'temperature'
-) -> None:
+    temperature_col: str = 'temperature',
+    thermal_col: str = 'thermal_conductivity',
+    T_ref: float = REFERENCE_TEMPERATURE,
+    tolerance: float = TEMPERATURE_TOLERANCE,
+    n: float = DEFAULT_EXPONENT,
+    seed: Optional[int] = None
+) -> dict:
     """
     Main function to load, normalize, and save thermal conductivity data.
-
+    
     Args:
-        input_path: Path to input CSV file.
-        output_path: Path to save normalized CSV file.
-        seed: Random seed for reproducibility (used for logging consistency).
-        k_col: Name of thermal conductivity column.
-        temp_col: Name of temperature column.
+        input_path: Path to input CSV file
+        output_path: Path to save normalized CSV file
+        temperature_col: Name of temperature column
+        thermal_col: Name of thermal conductivity column
+        T_ref: Reference temperature (default: 300K)
+        tolerance: Tolerance window in Kelvin (default: ±10K)
+        n: Slack exponent (default: 1.5)
+        seed: Random seed (for reproducibility, though not used in this deterministic operation)
+        
+    Returns:
+        Dictionary with processing statistics
     """
-    # Initialize seed for reproducibility
-    init_seed(seed)
-
-    # Setup logger
-    logger = setup_logger('temperature_normalize', logging.INFO)
-    logger.info(f"Starting temperature normalization for {input_path}")
-    logger.info(f"Reference temperature: {REFERENCE_TEMP}K ± {TEMP_TOLERANCE}K")
-
-    # Load data
-    try:
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} records from {input_path}")
-    except FileNotFoundError:
-        handle_error(f"Input file not found: {input_path}", logger, "FileNotFoundError")
-        sys.exit(1)
-    except Exception as e:
-        handle_error(f"Error loading input file: {e}", logger, "IOError")
-        sys.exit(1)
-
+    if seed is not None:
+        np.random.seed(seed)
+        logger.info(f"Seed set to {seed}")
+    
+    # Load input data
+    logger.info(f"Loading data from {input_path}")
+    input_file = Path(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    
     # Normalize
-    df_normalized, discarded_count, discarded_ids = normalize_dataframe(
-        df, k_col=k_col, temp_col=temp_col
+    normalized_df, discarded, corrected = normalize_dataframe(
+        df,
+        temperature_col=temperature_col,
+        thermal_col=thermal_col,
+        T_ref=T_ref,
+        tolerance=tolerance,
+        n=n
     )
-
-    logger.info(f"Discarded {discarded_count} entries with unknown/invalid temperature")
-    if discarded_ids:
-        logger.debug(f"Discarded structure IDs: {discarded_ids[:10]}...")  # Log first 10
-
-    if len(df_normalized) == 0:
-        handle_error("No valid data remaining after normalization", logger, "ValueError")
-        sys.exit(1)
-
-    # Save output
+    
+    # Ensure output directory exists
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save normalized data
+    normalized_df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(normalized_df)} rows to {output_path}")
+    
+    # Return statistics
+    stats = {
+        'input_rows': len(df),
+        'output_rows': len(normalized_df),
+        'discarded_unknown_temp': discarded,
+        'normalized_outside_window': corrected,
+        'reference_temperature': T_ref,
+        'tolerance': tolerance,
+        'slack_exponent': n,
+        'output_path': str(output_path)
+    }
+    
+    return stats
 
-    try:
-        df_normalized.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(df_normalized)} normalized records to {output_path}")
-    except Exception as e:
-        handle_error(f"Error saving output file: {e}", logger, "IOError")
-        sys.exit(1)
 
 def main():
     """CLI entry point for temperature normalization."""
     import argparse
-
+    
     parser = argparse.ArgumentParser(
-        description="Normalize thermal conductivity data to 300K using Slack (1979) formula."
+        description='Normalize thermal conductivity data to reference temperature using Slack (1979) formula'
     )
     parser.add_argument(
         '--input', '-i',
-        type=str,
         required=True,
-        help='Path to input CSV file containing thermal conductivity data.'
+        help='Path to input CSV file with thermal conductivity data'
     )
     parser.add_argument(
         '--output', '-o',
-        type=str,
         required=True,
-        help='Path to save normalized CSV file.'
+        help='Path to save normalized CSV file'
+    )
+    parser.add_argument(
+        '--temperature-col',
+        default='temperature',
+        help='Name of temperature column (default: temperature)'
+    )
+    parser.add_argument(
+        '--thermal-col',
+        default='thermal_conductivity',
+        help='Name of thermal conductivity column (default: thermal_conductivity)'
+    )
+    parser.add_argument(
+        '--ref-temp',
+        type=float,
+        default=REFERENCE_TEMPERATURE,
+        help=f'Reference temperature in Kelvin (default: {REFERENCE_TEMPERATURE})'
+    )
+    parser.add_argument(
+        '--tolerance',
+        type=float,
+        default=TEMPERATURE_TOLERANCE,
+        help=f'Tolerance window in Kelvin (default: {TEMPERATURE_TOLERANCE})'
+    )
+    parser.add_argument(
+        '--exponent', '-n',
+        type=float,
+        default=DEFAULT_EXPONENT,
+        help=f'Slack exponent n (default: {DEFAULT_EXPONENT})'
     )
     parser.add_argument(
         '--seed',
         type=int,
-        default=42,
-        help='Random seed for reproducibility (default: 42).'
+        default=None,
+        help='Random seed for reproducibility'
     )
     parser.add_argument(
-        '--k-col',
-        type=str,
-        default='thermal_conductivity',
-        help='Name of thermal conductivity column (default: thermal_conductivity).'
+        '--log-level',
+        default='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        help='Logging level (default: INFO)'
     )
-    parser.add_argument(
-        '--temp-col',
-        type=str,
-        default='temperature',
-        help='Name of temperature column (default: temperature).'
-    )
-    parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging.'
-    )
-
+    
     args = parser.parse_args()
+    
+    # Setup logging
+    level = getattr(logging, args.log_level.upper())
+    setup_logger_module(level=level)
+    
+    try:
+        stats = apply_temperature_normalization(
+            input_path=args.input,
+            output_path=args.output,
+            temperature_col=args.temperature_col,
+            thermal_col=args.thermal_col,
+            T_ref=args.ref_temp,
+            tolerance=args.tolerance,
+            n=args.exponent,
+            seed=args.seed
+        )
+        
+        logger.info("Normalization completed successfully")
+        logger.info(f"Statistics: {stats}")
+        
+    except Exception as e:
+        logger.error(f"Normalization failed: {e}")
+        sys.exit(1)
 
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    logger = setup_logger('temperature_normalize', log_level)
-
-    apply_temperature_normalization(
-        input_path=args.input,
-        output_path=args.output,
-        seed=args.seed,
-        k_col=args.k_col,
-        temp_col=args.temp_col
-    )
-
-    logger.info("Temperature normalization completed successfully.")
 
 if __name__ == '__main__':
     main()
