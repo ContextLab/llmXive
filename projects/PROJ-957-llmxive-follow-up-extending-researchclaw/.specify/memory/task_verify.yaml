@@ -2,4 +2,15 @@ T004: 1
 T005: 1
 T007b: 2
 T008: 1
-T009c: 1
+? 'T009b_map [S] [P] Generate Task-Template Mapping: Read the filtered task IDs from
+  `data/processed/protocol_mismatch_subset.json` (produced by T008) and the list of
+  fetched template IDs from `assets/templates/`. Implement a mapping logic that matches
+  tasks to templates based on a specific heuristic defined in the manifest (e.g.,
+  "match by domain tag" or "match by task_id prefix"). **CRITICAL**: This task MUST
+  produce `assets/templates/task_template_mapping.json` containing the explicit 1-to-1
+  mapping (e.g., `{"task_id_1": "template_id_1",...}`). If the manifest does not provide
+  a clear mapping rule, the system MUST abort with exit code 1 and log "GATE: Mapping
+  Rule Missing". **Dependency**: T008, T009b.'
+: 1
+T042: 2
+T043: 1

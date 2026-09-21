@@ -5607,3 +5607,697 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-15T04:25:34Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: experimental baseline is 140 runs calculated as 7 agents times 2 conditions
+    times 10 tasks
+  claim_id: c_98733c5c
+  context: 'T026 [US2] Implement logic to calculate the completion rate against the
+    140-run baseline. CRITICAL: The task MUST explicitly calculate the expected baseline
+    as 7 agents * 2 conditions * 10 tasks = 140.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST explicitly calculate the expected baseline as 7 agents
+    * 2 conditions * 10 tasks = 140.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:38:30Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Config class defines SCIENTIFIC_CORE_MARGIN as 5, MAX_CONCURRENCY as
+    7, TIMEOUT_PER_RUN as 3600, and TOTAL_WALL_CLOCK_BUDGET as 86400
+  claim_id: c_ebb2a9f5
+  context: 'The file MUST define a class Config with the following attributes and
+    default values: RESEARCHCLAWBENCH_DATASET_ID: str = ''researchclawbench/v'', SCIENTIFIC_CORE_MARGIN:
+    int = 5, MAX_CONCURRENCY: int = 7, TIMEOUT_PER_RUN: int = 3600, TOTAL_WALL_CLOCK_BUDGET:
+    int = 86400'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The class MUST define attributes RESEARCHCLAWBENCH_DATASET_ID with default
+    'researchclawbench/v', SCIENTIFIC_CORE_MARGIN with default 5, MAX_CONCURRENCY
+    with default 7, TIMEOUT_PER_RUN with default 3600, and TOTAL_WALL_CLOCK_BUDGET
+    with default 86400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:38:56Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: ruff and black configurations set line-length to 88
+  claim_id: c_35a0a4c1
+  context: The file MUST contain a [tool.ruff] section with line-length = 88 and target-version
+    = 'py3', and a [tool.black] section with line-length = 88 and target-version =
+    ['py311'].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain a [tool.ruff] section with line-length = 88 and
+    a [tool.black] section with line-length = 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:39:34Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: dominant mode is calculated as the mode of the failure_mode field across
+    the entire dataset
+  claim_id: c_170da88d
+  context: 'The algorithm for ''dominant mode'' MUST be explicitly defined as: ''calculate
+    the mode of the failure_mode field across the entire loaded dataset''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dominant_mode_is_calculated_as_the_mode_of_the_failure_mode
+  kind: entity_fact
+  raw_text: 'The algorithm for ''dominant mode'' MUST be explicitly defined as: calculate
+    the mode of the failure_mode field across the entire loaded dataset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:40:21Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test performed on Scientific Core scores with margin
+    of 5
+  claim_id: c_17b5b65a
+  context: perform TOST on 'Scientific Core' scores with MARGIN=5 from config (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST perform a TOST equivalence test on 'Scientific Core' scores
+    with MARGIN=5 from config.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:40:47Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: system proceeds with test if statistical power is less than 0.4
+  claim_id: c_cebf5d29
+  context: if power is low (<0.4), log warning but proceed with the selected test
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_proceeds_with_test_if_statistical_power_is_less_than
+  kind: magnitude
+  raw_text: If statistical power is low (<0.4), the system MUST log a warning but
+    proceed with the selected test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:41:19Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: interpreted status is safe if TOST p-values are less than 0.05
+  claim_id: c_eafe36d5
+  context: 'AND interpreted_status (value: ''safe'' if TOST p-values < 0.05, otherwise
+    ''inconclusive'') to verify the ''safe'' status defined in SC-003 and FR-005.'
+  evidence:
+    entailment_evidence: Interpreted status is safe if TOST p-values are less than
+      0.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Interpreted_status_is_safe_if_TOST_p-values_are_less_than_0.
+  kind: magnitude
+  raw_text: The interpreted_status in the report MUST be 'safe' if TOST p-values <
+    0.05, otherwise 'inconclusive'.
+  resolved_value: interpreted status is safe if TOST p-values are less than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T00:41:22Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: power_warning field included in report if power is less than 0.4
+  claim_id: c_9d6751e8
+  context: If power < 0.4, the results/statistical_report.json (T030) MUST include
+    a specific power_warning field with the exact power value and a recommendation
+    to interpret results as 'inconclusive' rather than 'validated'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_warning_field_included_in_report_if_power_is_less_than
+  kind: magnitude
+  raw_text: The report MUST include a power_warning field with the exact power value
+    if power < 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:42:32Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: rubric validation asserts Set B score is at least 40 and Set A score
+    is less than 10
+  claim_id: c_ec6b9659
+  context: 'Assert that Set B scores high (>= threshold_high from rubric_schema.json)
+    and Set A scores low (< threshold_low from rubric_schema.json) as per FR-008.
+    CRITICAL: The thresholds (>= 40, < 10) MUST be read from rubric_schema.json or
+    a config file'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rubric_validation_asserts_Set_B_score_is_at_least_40_and_Set
+  kind: magnitude
+  raw_text: The rubric validation test MUST assert that Set B scores high (>= 40)
+    and Set A scores low (< 10).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:44:27Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: system selects first 10 tasks with experimental protocol mismatch failure
+    mode sorted by task_id
+  claim_id: c_3d60210f
+  context: If count >= 10, sort the matching tasks by task_id ascending and select
+    the first 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST select the first 10 tasks with failure_mode == 'experimental
+    protocol mismatch' sorted by task_id ascending.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:44:50Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: agent list includes Llama, Mistral, Gemma, CodeLlama, Zephyr, OpenChat,
+    and WizardLM
+  claim_id: c_aebb2265
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Alpha (Llama...), Agent-Beta (Mistral...), Agent-Gamma (Gemma...), Agent-Delta
+    (CodeLlama...), Agent-Epsilon (Zephyr...), Agent-Zeta (OpenChat...), Agent-Eta
+    (WizardLM...).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_list_includes_Llama,_Mistral,_Gemma,_CodeLlama,_Zephyr
+  kind: entity_fact
+  raw_text: The list of agents MUST include Agent-Alpha (Llama), Agent-Beta (Mistral),
+    Agent-Gamma (Gemma), Agent-Delta (CodeLlama), Agent-Epsilon (Zephyr), Agent-Zeta
+    (OpenChat), and Agent-Eta (WizardLM).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:45:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: concurrency controller uses semaphore limit of 7
+  claim_id: c_82b973d5
+  context: Implement code/agents/concurrency.py with a semaphore-based concurrency
+    controller (limit=7) and a wall-clock budget enforcement function.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The concurrency controller MUST use a semaphore-based limit of 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:45:51Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: mean difference calculated as mean of Scaffolded minus mean of Zero-Shot
+  claim_id: c_99b2f110
+  context: 'mean_difference (CALCULATED VALUE: mean(Scaffolded) - mean(Zero-Shot)
+    from results/paired_scores.json)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mean_difference_calculated_as_mean_of_Scaffolded_minus_mean
+  kind: entity_fact
+  raw_text: The mean_difference in the statistical report MUST be calculated as mean(Scaffolded)
+    - mean(Zero-Shot).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:46:33Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 95 percent confidence interval bounds are the mean difference
+  claim_id: c_d75111d1
+  context: ci_95_lower (mean difference), ci_95_upper (mean difference)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI 95 lower and upper bounds in the report MUST be the mean difference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:47:05Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'List of 7 specific autonomous agents from the original study: Agent-Alpha,
+    Agent-Beta, Agent-Gamma, Agent-Delta, Agent-Epsilon, Agent-Zeta, Agent-Eta'
+  claim_id: c_192380fc
+  context: T022a_gen task description defining the agents from the original study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Alpha (Llama, context size, [threshold], "General reasoning"), Agent-Beta
+    (Mistral, context size, [threshold], "Code generation"), Agent-Gamma (Gemma, context
+    size, [threshold], "Scientific text"), Agent-Delta (CodeLlama, context size, [threshold],
+    "Code execution"), Agent-Epsilon (Zephyr, context size, [threshold], "Instruction
+    following"), Agent-Zeta (OpenChat, context size, [threshold], "Multi-turn dialogue"),
+    Agent-Eta (WizardLM, context size, [threshold], "Complex reasoning").'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:48:09Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Configuration defaults: MAX_CONCURRENCY=7, TIMEOUT_PER_RUN=3600, TOTAL_WALL_CLOCK_BUDGET=86400'
+  claim_id: c_90147bf5
+  context: T006 task description for code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The class MUST define attributes with default values: MAX_CONCURRENCY:
+    int = 7, TIMEOUT_PER_RUN: int = 3600, TOTAL_WALL_CLOCK_BUDGET: int = 86400.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:48:29Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Abort if count of 'experimental protocol mismatch' failure mode tasks
+    is less than 10
+  claim_id: c_1a6c7efa
+  context: T007 task description regarding dataset validation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_count_of_'experimental_protocol_mismatch'_failure_m
+  kind: magnitude
+  raw_text: If the count of tasks with failure_mode == "experimental protocol mismatch"
+    is < 10, abort with error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:49:15Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Select first 10 tasks sorted by task_id if count of 'experimental protocol
+    mismatch' is >= 10
+  claim_id: c_60766503
+  context: T007 task description regarding dataset filtering.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If count >= 10, sort the matching tasks by task_id ascending and select
+    the first 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:10Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Scoring algorithm weights: Protocol Alignment (0.4, 0.6), Scientific
+    Core (0.5, 0.5)'
+  claim_id: c_e71cb96f
+  context: T010a task description for rubric schema.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The scoring algorithm MUST be a weighted sum of specific criteria: Protocol
+    Alignment (weights 0.4, 0.6) and Scientific Core (weights 0.5, 0.5).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:38Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Rubric thresholds: threshold_high=40, threshold_low=10'
+  claim_id: c_6d8a91ad
+  context: T010a task description for rubric schema validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The schema MUST include keys threshold_high (value 40) and threshold_low
+    (value 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:58Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Experimental baseline: 7 agents * 2 conditions * 10 tasks = 140 runs'
+  claim_id: c_4eee6a3d
+  context: T026 task description for completion rate calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:51:29Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: System exit if success rate is less than 95%
+  claim_id: c_8b7dd9c9
+  context: T026 task description for completion rate gate.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_exit_if_success_rate_is_less_than_95%25
+  kind: magnitude
+  raw_text: If the success rate is < 95%, the system MUST log a critical error and
+    exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:51:55Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test margin for Scientific Core is 5
+  claim_id: c_6be79a21
+  context: T029 task description for statistical analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform TOST on "Scientific Core" scores with MARGIN=5 from config.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:14Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power warning threshold is 0.4
+  claim_id: c_36740975
+  context: T029 task description for statistical analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If power is low (<0.4), log warning but proceed with the selected test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:14Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power insufficient warning for N=10
+  claim_id: c_eb34600a
+  context: T031 task description for statistical reporting.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report "inconclusive" status explicitly if statistical power is insufficient
+    (N=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:43Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'List of 7 autonomous agents defined in the original study: Agent-Alpha
+    (Llama), Agent-Beta (Mistral), Agent-Gamma (Gemma), Agent-Delta (CodeLlama), Agent-Epsilon
+    (Zephyr), Agent-Zeta (OpenChat), Agent-Eta (WizardLM)'
+  claim_id: c_a91f091e
+  context: T022a_gen requires creating a markdown table with these specific agents.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Alpha (Llama, context size, [threshold], "General reasoning"), Agent-Beta
+    (Mistral, context size, [threshold], "Code generation"), Agent-Gamma (Gemma, context
+    size, [threshold], "Scientific text"), Agent-Delta (CodeLlama, context size, [threshold],
+    "Code execution"), Agent-Epsilon (Zephyr, context size, [threshold], "Instruction
+    following"), Agent-Zeta (OpenChat, context size, [threshold], "Multi-turn dialogue"),
+    Agent-Eta (WizardLM, context size, [threshold], "Complex reasoning").'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:53:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Rubric scoring algorithm uses weighted sum: Protocol Alignment (step_1:
+    0.4, step_2: 0.6) and Scientific Core (hypothesis_clarity: 0.5, methodology_soundness:
+    0.5)'
+  claim_id: c_98163e17
+  context: T010a defines the rubric schema for Protocol Alignment and Scientific Core
+    scoring.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The scoring algorithm MUST be a weighted sum of specific criteria: {"Protocol
+    Alignment": {"criteria": [{"key": "protocol_step_1", "weight": 0.4}, {"key": "protocol_step_2",
+    "weight": 0.6}]}, "Scientific Core": {"criteria": [{"key": "hypothesis_clarity",
+    "weight": 0.5}, {"key": "methodology_soundness", "weight": 0.5}]}}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:54:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Experimental baseline calculated as 7 agents times 2 conditions times
+    10 tasks equals 140 runs
+  claim_id: c_d3d7ca40
+  context: T026 describes the logic to calculate completion rate against the 140-run
+    baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:54:01Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Log warning if statistical power is less than 0.4
+  claim_id: c_4082494f
+  context: T029 describes handling of low statistical power in the analysis module.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_statistical_power_is_less_than_0.4
+  kind: magnitude
+  raw_text: if power is low (<0.4), log warning but proceed with the selected test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:54:32Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical analysis outputs raw p-values, statistics, and effect sizes
+  claim_id: c_e5b886f9
+  context: T029 specifies the output requirements for the analysis module.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_outputs_raw_p-values,_statistics,_and_e
+  kind: entity_fact
+  raw_text: This task MUST output raw stats (p-values, statistics, effect sizes) to
+    be passed to the report generator.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:55:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical report includes TOST p-values, Wilcoxon statistic, effect
+    sizes, mean difference, 95% CI, power estimate, and Shapiro test results
+  claim_id: c_52082b54
+  context: T030 defines the schema for the statistical report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The output results/statistical_report.json must include keys: tost_p_value_lower,
+    tost_p_value_upper, tost_equivalence_margin (value=5), wilcoxon_statistic, wilcoxon_p_value,
+    effect_size_cohen_d, effect_size_rank_biserial, mean_difference, ci_95_lower,
+    ci_95_upper, power_estimate, shapiro_statistic, shapiro_p_value, and interpreted_status.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:55:22Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Interpreted status is 'safe' if TOST p-values are less than 0.05, otherwise
+    'inconclusive'
+  claim_id: c_8e6feaa4
+  context: T030 defines the logic for the interpreted_status field in the report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interpreted_status_is_%27safe%27_if_TOST_p-values_are_less_than
+  kind: magnitude
+  raw_text: 'interpreted_status (value: "safe" if TOST p-values < 0.05, otherwise
+    "inconclusive")'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:56:03Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Linting configuration sets line-length to 88 for Ruff and Black, targeting
+    Python 3 and 3.11
+  claim_id: c_f399faa6
+  context: T003 specifies the required content of pyproject.toml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain a [tool.ruff] section with line-length = 88 and
+    target-version = "py3", and a [tool.black] section with line-length = 88 and target-version
+    = ["py311"].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:56:43Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Config class defines SCIENTIFIC_CORE_MARGIN as 5, MAX_CONCURRENCY as
+    7, TIMEOUT_PER_RUN as 3600, and TOTAL_WALL_CLOCK_BUDGET as 86400
+  claim_id: c_3f70ed35
+  context: T006 details the Config class attributes and default values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The class MUST define attributes: RESEARCHCLAWBENCH_DATASET_ID, SCIENTIFIC_CORE_MARGIN:
+    int = 5, MAX_CONCURRENCY: int = 7, TIMEOUT_PER_RUN: int = 3600, TOTAL_WALL_CLOCK_BUDGET:
+    int = 86400.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:57:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Execution must not use N=30 generations or sampling.py
+  claim_id: c_26e26699
+  context: T023 explicitly forbids using N=30 generations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Do NOT use sampling.py or N=30 generations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:57:41Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Success rate formula: (Total Runs - Excluded Runs - Failed Runs) divided
+    by (Total Runs - Excluded Runs)'
+  claim_id: c_7cf42c8d
+  context: T026 defines the success rate calculation logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Success_rate_formula:_(Total_Runs_-_Excluded_Runs_-_Failed_R
+  kind: entity_fact
+  raw_text: The success rate is calculated as (Total Runs - Excluded Runs - Failed
+    Runs) / (Total Runs - Excluded Runs).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:58:10Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Abort if insufficient templates are found during manifest fetch
+  claim_id: c_ef64f0cf
+  context: T009b describes the template fetching logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If an insufficient number of templates are found, abort with exit code
+    1 and log to stderr.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:58:52Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dominant mode algorithm calculates the mode of the failure_mode field
+    across the entire dataset
+  claim_id: c_4b2e4880
+  context: T008 defines the logic for determining the dominant failure mode.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dominant_mode_algorithm_calculates_the_mode_of_the_failure_m
+  kind: entity_fact
+  raw_text: 'The algorithm for ''dominant mode'' MUST be explicitly defined as: "calculate
+    the mode of the failure_mode field across the entire loaded dataset".'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:58:54Z'

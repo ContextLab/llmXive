@@ -14,3 +14,19 @@ T008:
     \ mode differs, and does not compute or record the SHA\u2011256 checksum. Moreover,\
     \ those output files are absent from the repository. The task\u2019s required\
     \ artifacts are therefore missing."
+T042:
+  c: false
+  h: 715f130e19e9a772309c5268e7b157452974ad3ac7bec588c7f9765c49258904
+  r: "The provided `timeout_guard.py` defines a `_log_timeout_trace` function but\
+    \ the implementation is truncated and never shows the actual file\u2011write operation;\
+    \ consequently the required `results/timeout_traces.log` does not exist. The task\
+    \ is not satisfied until the function writes a JSON line containing the agent\
+    \ name, task ID, and step to that log file."
+T043:
+  c: false
+  h: 6e89eb2d11a4fdae34cfc2b4d8b2ebaa04f8b322f9825e0c9b0f068141b883be
+  r: "The provided `power_calculator.py` stops short of generating or updating `results/statistical_report.json`\
+    \ and does not contain any code that adds a `power_warning` field when power\u202F\
+    <\u202F0.4. Moreover, the required `results/statistical_report.json` file is absent\
+    \ entirely. The task\u2019s core requirement\u2014writing the warning into the\
+    \ report\u2014is therefore unmet."

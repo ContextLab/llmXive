@@ -123,7 +123,7 @@ results/
 - **T010a**: Finalize `rubric_schema.json` (Protocol Alignment & Scientific Core).
 - **T010b**: Implement scoring engine logic (T010b).
 - **T011**: Define `task_metadata.schema.yaml`.
-- **T012**: Define `agents_config.yaml` (7 agents) and `agents/loader.py`.
+- **T012**: Define `agents_config.yaml` (multiple agents) and `agents/loader.py`.
 - **T013**: Implement `scaffolding/template_loader.py`.
 - **T014**: Implement `scaffolding/validator.py` (FR-007).
 - **T015**: Implement `scoring/dummy_test.py` (FR-008).

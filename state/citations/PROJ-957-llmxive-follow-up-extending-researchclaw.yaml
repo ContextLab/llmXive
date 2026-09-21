@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-14T09:52:35.289246Z'
-- artifact_hash: 3b594e0dd071c0cb6755ba78c8bb447c8c0a49c162543306e6edbddb7f4e67dd
+- artifact_hash: 37207164cc76abd20173ea3f7d54806be75e1763bf60e2f172a6270b06e35844
   artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,27 +30,15 @@
   value: https://en.wikipedia.org/wiki/History_of_Python
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/History_of_Python
-  verified_at: '2026-09-15T04:25:35.798596Z'
-- artifact_hash: 3b594e0dd071c0cb6755ba78c8bb447c8c0a49c162543306e6edbddb7f4e67dd
+  verified_at: '2026-09-21T00:58:55.507267Z'
+- artifact_hash: 37207164cc76abd20173ea3f7d54806be75e1763bf60e2f172a6270b06e35844
   artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: OSF
   kind: url
-  value: https://osf.io/{OSF_TEMPLATE_ID}/`
+  value: https://osf.io/{OSF_TEMPLATE_MANIFEST_ID}/manifest.json`
   verification_status: pending
-  verified_against_url: https://osf.io/%7BOSF_TEMPLATE_ID%7D/
-  verified_at: '2026-09-15T04:25:35.798596Z'
-- artifact_hash: 3b594e0dd071c0cb6755ba78c8bb447c8c0a49c162543306e6edbddb7f4e67dd
-  artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2603.28823] Time is Not Compute: Scaling Laws for Wall-Clock Constrained
-    Training on Consumer GPUs'
-  kind: url
-  value: https://arxiv.org/abs/2603.28823
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2603.28823
-  verified_at: '2026-09-15T04:25:35.798596Z'
+  verified_against_url: https://osf.io/%7BOSF_TEMPLATE_MANIFEST_ID%7D/manifest.json
+  verified_at: '2026-09-21T00:58:55.507267Z'
