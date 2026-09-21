@@ -1,195 +1,290 @@
-"""
-Mixed-effects model analysis for the Visual Aesthetics Credibility Study.
-
-This script:
-1. Loads wide-format data
-2. Runs linear mixed-effects model with condition as fixed effect and participant as random effect
-3. Includes age and education as covariates
-4. Checks for model convergence
-5. Outputs results to JSON
-"""
-
 import os
 import sys
 import json
-import random
+import argparse
 import numpy as np
 import pandas as pd
-
-# Set seeds for reproducibility
-np.random.seed(42)
-random.seed(42)
-
 from pathlib import Path
+from scipy import stats
+import warnings
+
+# Suppress specific convergence warnings for cleaner output, we handle them explicitly
+warnings.filterwarnings('ignore', category=FutureWarning, module='statsmodels')
+warnings.filterwarnings('ignore', category=UserWarning, module='statsmodels')
+
+try:
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+except ImportError:
+    print("Error: statsmodels is required. Install with: pip install statsmodels")
+    sys.exit(1)
 
 def get_project_root():
     """Get the project root directory."""
-    current = Path(__file__).resolve()
-    while current.parent != current:
-        if (current / "data").exists() and (current / "code").exists():
-            return current
-        current = current.parent
-    return Path.cwd()
-
-PROJECT_ROOT = get_project_root()
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent
+    return project_root
 
 def load_wide_data_for_mixed(input_path):
     """
-    Load wide-format data and reshape to long format for mixed-effects model.
-    
-    Args:
-        input_path: Path to the wide-format CSV file
-    
-    Returns:
-        pandas DataFrame in long format
+    Load wide-format data for mixed effects analysis.
+    Expects columns: participant_id, credibility_professional, condition, age, education
+    or similar wide format where conditions are columns.
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    
-    # Verify required columns exist
-    required_cols = [
-        "credibility_Professional",
-        "credibility_Minimalist",
-        "credibility_Low-Quality",
-        "credibility_Neutral"
-    ]
-    
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-    
-    # Reshape to long format
-    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
-    credibility_cols = [f"credibility_{cond}" for cond in conditions]
-    
-    # Keep only necessary columns
-    df_subset = df[["participant_id", "age", "education"] + credibility_cols].copy()
-    
-    # Melt to long format
-    df_long = df_subset.melt(
-        id_vars=["participant_id", "age", "education"],
-        value_vars=credibility_cols,
-        var_name="condition",
-        value_name="credibility"
-    )
-    
-    # Extract condition name from column name
-    df_long["condition"] = df_long["condition"].str.replace("credibility_", "")
-    
-    # Drop rows with NaN credibility
-    df_long = df_long.dropna(subset=["credibility"])
-    
-    return df_long
 
-def run_mixed_effects_model(df):
+    df = pd.read_csv(input_path)
+
+    # Basic validation
+    required_cols = ['participant_id']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Input file missing required columns: {required_cols}")
+
+    return df
+
+def run_mixed_effects_model(df, formula, dependent_var, output_path):
     """
-    Run linear mixed-effects model.
-    
-    Formula: credibility ~ condition + age + education + (1|participant_id)
-    
+    Run a linear mixed effects model with normality checks and transformations.
+
     Args:
-        df: Long-format DataFrame
-    
-    Returns:
-        dict: Model results including coefficients and convergence status
+        df: DataFrame with the data
+        formula: String formula for the model (e.g., "Credibility ~ Condition + (1|ParticipantID)")
+        dependent_var: Name of the dependent variable column
+        output_path: Path to save the JSON results
     """
-    import statsmodels.formula.api as smf
-    import warnings
-    
-    # Suppress convergence warnings for cleaner output
-    warnings.filterwarnings("ignore", category=UserWarning)
-    
-    # Fit model
-    try:
-        model = smf.mixedlm(
-            "credibility ~ C(condition) + age + education",
-            df,
-            groups=df["participant_id"]
-        )
-        result = model.fit()
-        
-        convergence_failed = False
-    except Exception as e:
-        # Model failed to converge or other error
-        convergence_failed = True
-        result = None
-    
-    if convergence_failed or result is None:
-        return {
-            "convergence_failed": True,
-            "error": "Model failed to converge or encountered an error",
-            "condition_coef": None,
-            "condition_p": None,
-            "age_coef": None,
-            "education_coef": None,
-            "r_squared": None
-        }
-    
-    # Extract condition coefficients (relative to reference category)
-    # The reference category is the first one alphabetically: "Low-Quality"
-    condition_params = {}
-    for param_name, param in result.params.items():
-        if param_name.startswith("C(condition)"):
-            condition_params[param_name] = param
-    
-    # Extract p-values
-    condition_pvalues = {}
-    for param_name, param in result.pvalues.items():
-        if param_name.startswith("C(condition)"):
-            condition_pvalues[param_name] = param
-    
-    # Get age and education coefficients
-    age_coef = result.params.get("age", None)
-    education_coef = result.params.get("education", None)
-    
-    # Calculate pseudo R-squared (marginal)
-    # This is a simplified approximation
-    try:
-        r_squared = result.prsquared if hasattr(result, 'prsquared') else None
-    except:
-        r_squared = None
-    
-    return {
-        "convergence_failed": False,
-        "condition_coef": {k: float(v) for k, v in condition_params.items()},
-        "condition_p": {k: float(v) for k, v in condition_pvalues.items()},
-        "age_coef": float(age_coef) if age_coef is not None else None,
-        "education_coef": float(education_coef) if education_coef is not None else None,
-        "r_squared": float(r_squared) if r_squared is not None else None
+    results = {
+        "model_type": "Linear Mixed Effects",
+        "formula": formula,
+        "dependent_variable": dependent_var,
+        "original_model": {},
+        "transformation_applied": False,
+        "transformed_model": None,
+        "normality_test": {}
     }
 
-def main():
-    """Main entry point for mixed-effects analysis."""
-    parser = argparse.ArgumentParser(description="Run mixed-effects model analysis")
-    parser.add_argument("--input", type=str, required=True, help="Path to wide-format CSV")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
-    args = parser.parse_args()
+    # 1. Extract residuals from the original model
+    try:
+        # Fit the original model
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            model = smf.mixedlm(formula, df, groups=df["participant_id"])
+            result = model.fit(reml=True)
+
+            # Check convergence
+            converged = result.converged
+            if not converged:
+                results["original_model"]["convergence_status"] = "failed"
+                # Try different optimizers if failed
+                for optimizer in ['bfgs', 'newton', 'nm', 'powell']:
+                    try:
+                        result_retry = model.fit(reml=True, method=optimizer)
+                        if result_retry.converged:
+                            result = result_retry
+                            converged = True
+                            results["original_model"]["convergence_status"] = f"converged_after_retry_{optimizer}"
+                            break
+                    except Exception:
+                        continue
+
+            if not converged:
+                results["original_model"]["convergence_status"] = "failed_all_retries"
+
+        # Get residuals
+        residuals = result.resid
+
+        # 2. Shapiro-Wilk Test for Normality
+        shapiro_stat, shapiro_p = stats.shapiro(residuals)
+        results["normality_test"] = {
+            "test": "Shapiro-Wilk",
+            "statistic": float(shapiro_stat),
+            "p_value": float(shapiro_p),
+            "is_normal": bool(shapiro_p >= 0.05)
+        }
+
+        # Store original model results
+        results["original_model"]["convergence_status"] = "converged" if converged else results["original_model"].get("convergence_status", "unknown")
+        results["original_model"]["log_likelihood"] = float(result.llf)
+        results["original_model"]["aic"] = float(result.aic)
+        results["original_model"]["bic"] = float(result.bic)
+
+        # Extract fixed effects
+        fixed_effects = {}
+        for name, param in result.params.items():
+            fixed_effects[name] = {
+                "estimate": float(param),
+                "std_err": float(result.bse[name]) if name in result.bse else None,
+                "z_value": float(result.tvalues[name]) if name in result.tvalues else None,
+                "p_value": float(result.pvalues[name]) if name in result.pvalues else None
+            }
+        results["original_model"]["fixed_effects"] = fixed_effects
+
+        # Check if transformation is needed
+        if shapiro_p < 0.05:
+            results["transformation_applied"] = True
+            transformed_df = df.copy()
+            transformed_var_name = f"{dependent_var}_log"
+
+            # Attempt Log transformation (add small epsilon to avoid log(0))
+            try:
+                min_val = transformed_df[dependent_var].min()
+                epsilon = 1.0 if min_val <= 0 else 0.0
+                transformed_df[transformed_var_name] = np.log(transformed_df[dependent_var] + epsilon)
+                
+                # Update formula for transformed variable
+                transformed_formula = formula.replace(dependent_var, transformed_var_name)
+                
+                # Fit transformed model
+                with warnings.catch_warnings(record=True):
+                    warnings.simplefilter("always")
+                    transformed_model = smf.mixedlm(transformed_formula, transformed_df, groups=transformed_df["participant_id"])
+                    transformed_result = transformed_model.fit(reml=True)
+                
+                # Check convergence for transformed
+                if not transformed_result.converged:
+                    for optimizer in ['bfgs', 'newton']:
+                        try:
+                            t_res = transformed_model.fit(reml=True, method=optimizer)
+                            if t_res.converged:
+                                transformed_result = t_res
+                                break
+                        except Exception:
+                            continue
+
+                # Residual check for transformed
+                trans_residuals = transformed_result.resid
+                trans_shapiro_stat, trans_shapiro_p = stats.shapiro(trans_residuals)
+                
+                trans_fixed_effects = {}
+                for name, param in transformed_result.params.items():
+                    trans_fixed_effects[name] = {
+                        "estimate": float(param),
+                        "std_err": float(transformed_result.bse[name]) if name in transformed_result.bse else None,
+                        "z_value": float(transformed_result.tvalues[name]) if name in transformed_result.tvalues else None,
+                        "p_value": float(transformed_result.pvalues[name]) if name in transformed_result.pvalues else None
+                    }
+
+                results["transformed_model"] = {
+                    "transformation": "log",
+                    "variable": transformed_var_name,
+                    "convergence_status": "converged" if transformed_result.converged else "failed",
+                    "log_likelihood": float(transformed_result.llf),
+                    "aic": float(transformed_result.aic),
+                    "bic": float(transformed_result.bic),
+                    "normality_test": {
+                        "test": "Shapiro-Wilk",
+                        "statistic": float(trans_shapiro_stat),
+                        "p_value": float(trans_shapiro_p),
+                        "is_normal": bool(trans_shapiro_p >= 0.05)
+                    },
+                    "fixed_effects": trans_fixed_effects
+                }
+
+            except Exception as e:
+                results["transformation_error"] = f"Log transformation failed: {str(e)}"
+                # Try square root as fallback
+                try:
+                    transformed_df[transformed_var_name] = np.sqrt(transformed_df[dependent_var] + 1) # +1 to avoid 0 issues
+                    transformed_formula = formula.replace(dependent_var, transformed_var_name)
+                    
+                    with warnings.catch_warnings(record=True):
+                        warnings.simplefilter("always")
+                        transformed_model = smf.mixedlm(transformed_formula, transformed_df, groups=transformed_df["participant_id"])
+                        transformed_result = transformed_model.fit(reml=True)
+                    
+                    if not transformed_result.converged:
+                        for optimizer in ['bfgs', 'newton']:
+                            try:
+                                t_res = transformed_model.fit(reml=True, method=optimizer)
+                                if t_res.converged:
+                                    transformed_result = t_res
+                                    break
+                            except Exception:
+                                continue
+                    
+                    trans_residuals = transformed_result.resid
+                    trans_shapiro_stat, trans_shapiro_p = stats.shapiro(trans_residuals)
+                    
+                    trans_fixed_effects = {}
+                    for name, param in transformed_result.params.items():
+                        trans_fixed_effects[name] = {
+                            "estimate": float(param),
+                            "std_err": float(transformed_result.bse[name]) if name in transformed_result.bse else None,
+                            "z_value": float(transformed_result.tvalues[name]) if name in transformed_result.tvalues else None,
+                            "p_value": float(transformed_result.pvalues[name]) if name in transformed_result.pvalues else None
+                        }
+
+                    results["transformed_model"] = {
+                        "transformation": "square_root",
+                        "variable": transformed_var_name,
+                        "convergence_status": "converged" if transformed_result.converged else "failed",
+                        "log_likelihood": float(transformed_result.llf),
+                        "aic": float(transformed_result.aic),
+                        "bic": float(transformed_result.bic),
+                        "normality_test": {
+                            "test": "Shapiro-Wilk",
+                            "statistic": float(trans_shapiro_stat),
+                            "p_value": float(trans_shapiro_p),
+                            "is_normal": bool(trans_shapiro_p >= 0.05)
+                        },
+                        "fixed_effects": trans_fixed_effects
+                    }
+                except Exception as e2:
+                    results["transformation_error"] = f"Both log and sqrt transformations failed: {str(e2)}"
+
+    except Exception as e:
+        results["error"] = str(e)
+        results["original_model"]["status"] = "failed"
+
+    # Write results to JSON
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    print(f"Loading data from {args.input}...")
-    df = load_wide_data_for_mixed(args.input)
-    
-    print(f"Loaded {len(df)} observations from {df['participant_id'].nunique()} participants.")
-    
-    print("Running mixed-effects model...")
-    results = run_mixed_effects_model(df)
-    
-    if results["convergence_failed"]:
-        print("Warning: Model failed to converge.")
-        # Log warning to file
-        log_path = DATA_PROCESSED_DIR / "mixed_effects_warnings.log"
-        with open(log_path, "a") as f:
-            f.write(f"{args.input}: {results.get('error', 'Unknown error')}\n")
-    else:
-        print("Model converged successfully.")
-    
-    # Write output
-    with open(args.output, "w") as f:
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"Results written to {args.output}")
+    print(f"Mixed effects analysis complete. Results saved to: {output_path}")
+    return results
+
+def main():
+    parser = argparse.ArgumentParser(description="Run Mixed Effects Model with Normality Checks")
+    parser.add_argument("--input", type=str, required=True, help="Path to input wide-format CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON results")
+    parser.add_argument("--formula", type=str, default="Credibility ~ Condition + (1|participant_id)",
+                        help="Model formula (default: Credibility ~ Condition + (1|participant_id))")
+    parser.add_argument("--dependent-var", type=str, default="Credibility",
+                        help="Name of dependent variable column (default: Credibility)")
+    
+    args = parser.parse_args()
+
+    project_root = get_project_root()
+    input_path = Path(args.input)
+    if not input_path.is_absolute():
+        input_path = project_root / args.input
+    
+    output_path = Path(args.output)
+    if not output_path.is_absolute():
+        output_path = project_root / args.output
+
+    print(f"Loading data from {input_path}...")
+    try:
+        df = load_wide_data_for_mixed(str(input_path))
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    print(f"Running Mixed Effects Model...")
+    print(f"Formula: {args.formula}")
+    print(f"Dependent Variable: {args.dependent_var}")
+    
+    results = run_mixed_effects_model(df, args.formula, args.dependent_var, str(output_path))
+    
+    if "error" in results:
+        print(f"Model execution failed: {results['error']}")
+        sys.exit(1)
+        
+    print("Analysis completed successfully.")
 
 if __name__ == "__main__":
     main()

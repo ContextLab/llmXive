@@ -26,39 +26,6 @@ T015:
   r: "No code, configuration, or documentation showing that the \u201CI Do Not Agree\u201D\
     \ button now redirects to a withdrawal page was provided; the required implementation\
     \ artifact is missing. The task cannot be verified as completed."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or documentation was provided showing a validation check
-    that prevents form submission when fewer than eight ratings have been entered.
-    Without an artifact demonstrating this logic, the requirement is not satisfied.
-    The implementer must supply the relevant implementation (e.g., JavaScript/backend
-    validation code) and evidence (e.g., test results or screenshots) that the submission
-    is blocked under the specified condition.
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was provided that demonstrates the\
-    \ use of Streamlit\u2019s session state for in\u2011memory tracking, the prohibition\
-    \ of `sessionStorage`/`localStorage`/cookies (except the specified edge case),\
-    \ or the required clearing of state on submission or abandonment. Consequently,\
-    \ the required client\u2011side state\u2011management implementation cannot be\
-    \ verified."
-T022h:
-  c: false
-  h: fa56617e2c3affab1be2ebf4bb662b4bda5573b5e04158557b07f91e6c418594
-  r: "The repository lacks the required `data/raw/submissions.csv` and `data/raw/duplicate_audit.csv`\
-    \ files, and the provided `app.py` snippet is incomplete (truncated) with no concrete\
-    \ implementation that reads the CSV, detects duplicate `hashed_ip` values, and\
-    \ writes them to `duplicate_audit.csv`. The task\u2019s core output is therefore\
-    \ missing."
-T028d:
-  c: false
-  h: 4714a00e470bdbf559100bace7f3084bceb9efc7f229b2830dc070b1611d0ca9
-  r: "The required input file `data/raw/submissions.csv` and the output file `data/raw/duplicate_audit.csv`\
-    \ are both missing, so the duplicate\u2011detection script cannot have been executed\
-    \ and no audit results exist. The implementer must provide the submissions CSV\
-    \ and generate the duplicate audit CSV as specified."
 T043a:
   c: true
   h: a1f468c9441f9b2e453940c258973e8fc1641ef03c91d96635789f6e682a0b1d
@@ -82,3 +49,49 @@ T045:
     \ mode, and in development mode creates `data/processed/no_data_report.json` with\
     \ the exact required message and exits with code\u202F0. No mock data generation\
     \ is present."
+T048:
+  c: false
+  h: c6be368a66e9f2746b84dd74b4a9cbb6f2ec992b884d777be6c78f8d6f887498
+  r: "The `analysis_results.json` file is absent, so the required output artifact\
+    \ is missing. Moreover, while the script defines Bonferroni and FDR correction\
+    \ functions, the provided excerpt does not show a new `--correction-method` command\u2011\
+    line argument or its integration, leaving it unclear whether the script meets\
+    \ the specification. Both the JSON output and the CLI change need to be added."
+T049:
+  c: false
+  h: 32de6e97861d749c8e46aa54a1d9e3f9333e8e8d1febe9382ee13da128dc0e31
+  r: "The provided `03_mixed_effects.py` script (truncated) does not contain any Shapiro\u2011\
+    Wilk test, conditional transformation of the dependent variable, or code that\
+    \ writes results to `data/processed/mixed_effects_results.json`. Moreover, the\
+    \ required JSON results file is absent from the repository. The task\u2019s core\
+    \ requirements are therefore unmet."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The task T050 was removed from the project, so there are no required artifacts\
+    \ to verify; consequently no evidence of a completed implementation exists. The\
+    \ implementer\u2019s claim cannot be validated because the task no longer has\
+    \ a defined deliverable."
+T051:
+  c: false
+  h: 9ff01fe3701a5891089bb8b5b6e44450fe2fa2c8791f83a1d934568c2129d80e
+  r: "The provided `02_pairwise.py` and `03_mixed_effects.py` snippets do not show\
+    \ any bootstrapping or confidence\u2011interval calculation for Cohen\u2019s\u202F\
+    d or \u03B7\xB2, nor do they write results to JSON files. Moreover, the required\
+    \ output files `data/processed/analysis_results.json` and `data/processed/mixed_effects_results.json`\
+    \ are absent. The task\u2019s core deliverables are therefore missing."
+T052:
+  c: false
+  h: 32de6e97861d749c8e46aa54a1d9e3f9333e8e8d1febe9382ee13da128dc0e31
+  r: "The repository contains `code/analysis/03_mixed_effects.py`, but the shown portion\
+    \ stops before any convergence\u2011checking logic, optimizer switching, or JSON\
+    \ writing; the required `data/processed/mixed_effects_results.json` file is absent.\
+    \ Consequently the task\u2019s requirements (retry with different optimizers,\
+    \ log attempts, and output a results JSON with UNCONVERGED flag) are not fulfilled."
+T053:
+  c: false
+  h: 2e5859b1b245b81232d1a30bb2b37ec401e9bee52c9acbb010a343eebe621515
+  r: The `code/analysis/06_integrity_audit.py` script is present, but the required
+    input file `data/raw/submissions.csv` does not exist, and the expected output
+    `data/processed/integrity_audit.json` was never generated. Without the data file
+    the script cannot run, and the audit report is missing, so the task is not fulfilled.

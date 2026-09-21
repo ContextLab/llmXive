@@ -1,6 +1,8 @@
 """
 Contract test for CSV schema validation (T040).
 Validates that submissions.csv and duplicate_audit.csv adhere to the expected schema.
+Ensures that the data collection pipeline produces files with the exact required columns,
+including hashed IP addresses and status flags, as defined in the project specification.
 """
 import os
 import sys
@@ -15,6 +17,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from utils.helpers import get_submissions_csv_path, get_duplicate_audit_path, ensure_data_dirs
 
 # Expected schema for submissions.csv
+# Must match the schema defined in T022g_logic and the project data model.
 EXPECTED_SUBMISSIONS_HEADERS = [
     'participant_id', 'stimulus_id', 'credibility', 'professionalism',
     'timestamp', 'hashed_ip', 'age', 'education', 'duplicate_flag',
@@ -30,10 +33,6 @@ def test_submissions_schema_structure():
     Verify that if submissions.csv exists, it has the correct headers.
     This is a contract test: the schema must not change without updating this test.
     """
-    # Create a dummy file to test the reader logic if real file doesn't exist yet
-    # Or verify the real file if it exists.
-    # For this test, we check the headers of an existing file or the expected headers.
-
     ensure_data_dirs()
     path = get_submissions_csv_path()
 
@@ -43,6 +42,8 @@ def test_submissions_schema_structure():
             reader = csv.reader(f)
             headers = next(reader, None)
             assert headers is not None, "Submissions CSV is empty (no headers)."
+            
+            # Sort both lists to compare sets regardless of order
             assert set(headers) == set(EXPECTED_SUBMISSIONS_HEADERS), \
                 f"Submissions CSV headers mismatch.\nExpected: {EXPECTED_SUBMISSIONS_HEADERS}\nGot: {headers}"
     else:
@@ -110,3 +111,37 @@ def test_audit_contains_duplicates_only():
         ip = row.get('hashed_ip')
         assert ip in duplicate_ips, \
             f"Audit row contains IP '{ip}' which is not a duplicate in submissions."
+
+def test_required_fields_present_in_sample():
+    """
+    Contract test: If submissions.csv exists, verify that a sample row
+    contains all required fields with non-null values (except user_agent which can be truncated).
+    """
+    path = get_submissions_csv_path()
+    if not path.exists():
+        pytest.skip("Submissions CSV does not exist yet.")
+
+    with open(path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    if not rows:
+        pytest.skip("Submissions CSV has no data rows.")
+
+    required_fields = [
+        'participant_id', 'stimulus_id', 'credibility', 'professionalism',
+        'timestamp', 'hashed_ip', 'age', 'education', 'duplicate_flag',
+        'session_status', 'submission_status'
+    ]
+
+    for i, row in enumerate(rows):
+        for field in required_fields:
+            value = row.get(field)
+            # Allow empty strings for optional fields if the spec allows, 
+            # but hashed_ip and IDs should be present.
+            if field in ['hashed_ip', 'participant_id', 'stimulus_id']:
+                assert value is not None and value.strip() != "", \
+                    f"Row {i}: Required field '{field}' is missing or empty."
+            elif field in ['credibility', 'professionalism']:
+                assert value is not None and value.strip() != "", \
+                    f"Row {i}: Rating field '{field}' is missing or empty."

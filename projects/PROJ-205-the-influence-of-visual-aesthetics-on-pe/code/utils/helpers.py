@@ -1,260 +1,282 @@
-"""
-Helper utilities for the Visual Aesthetics Credibility Survey project.
-Provides functions for ID generation, data formatting, CSV handling, and IP hashing.
-"""
 import hashlib
 import uuid
 import os
 import csv
 import json
 from datetime import datetime
-from typing import Optional, Dict, Any, List, Tuple
 from pathlib import Path
+from utils.config import get_project_root, get_consent_file_path
 
-# Constants
-USER_AGENT_MAX_LENGTH = 255
-SUBMISSIONS_FILENAME = "submissions.csv"
-SUBMISSIONS_PATH = "data/raw/submissions.csv"
-CONSENT_LOG_PATH = "data/consent/consent_log.csv"
-DUPLICATE_AUDIT_PATH = "data/raw/duplicate_audit.csv"
+def get_project_root():
+    """Return the project root directory path."""
+    return get_project_root()
 
-# Education mapping (Ordinal)
-EDUCATION_MAPPING = {
-    "High School": 1,
-    "Bachelor's": 2,
-    "Master's": 3,
-    "PhD": 4
-}
-
-def get_project_root() -> Path:
-    """Returns the root directory of the project (parent of 'code')."""
-    current_file = Path(__file__).resolve()
-    # Assuming this file is at code/utils/helpers.py
-    return current_file.parent.parent.parent
-
-def ensure_data_dirs() -> None:
-    """Creates necessary data directories if they don't exist."""
+def ensure_data_dirs():
+    """Ensure data/raw and data/processed directories exist."""
     root = get_project_root()
-    raw_dir = root / "data" / "raw"
-    processed_dir = root / "data" / "processed"
-    consent_dir = root / "data" / "consent"
-    
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    consent_dir.mkdir(parents=True, exist_ok=True)
+    Path(root, "data", "raw").mkdir(parents=True, exist_ok=True)
+    Path(root, "data", "processed").mkdir(parents=True, exist_ok=True)
+    Path(root, "data", "consent").mkdir(parents=True, exist_ok=True)
 
-def get_submissions_csv_path() -> Path:
-    """Returns the absolute path to the submissions CSV file."""
+def get_submissions_csv_path():
+    """Return the path to the submissions CSV file."""
     root = get_project_root()
-    return root / SUBMISSIONS_PATH
+    return os.path.join(root, "data", "raw", "submissions.csv")
 
-def get_consent_log_path() -> Path:
-    """Returns the absolute path to the consent log CSV file."""
+def get_consent_log_path():
+    """Return the path to the consent log CSV file."""
     root = get_project_root()
-    return root / "data" / "consent" / "consent_log.csv"
+    return os.path.join(root, "data", "raw", "consent_log.csv")
 
-def get_duplicate_audit_path() -> Path:
-    """Returns the absolute path to the duplicate audit CSV file."""
+def get_duplicate_audit_path():
+    """Return the path to the duplicate audit CSV file."""
     root = get_project_root()
-    return root / "data" / "raw" / "duplicate_audit.csv"
+    return os.path.join(root, "data", "raw", "duplicate_audit.csv")
 
-def generate_user_id() -> str:
-    """Generates a unique participant ID (UUID v4)."""
+def generate_user_id():
+    """Generate a unique user ID (UUID v4)."""
     return str(uuid.uuid4())
 
-def hash_ip(ip_address: str) -> str:
+def hash_ip(ip_address):
     """
-    Hashes an IP address using SHA-256 for privacy compliance.
-    Returns the hexadecimal digest.
+    Hash an IP address using SHA-256.
+    This is used for privacy-preserving identity tracking.
     """
     if not ip_address:
-        raise ValueError("IP address cannot be empty")
+        return None
     return hashlib.sha256(ip_address.encode('utf-8')).hexdigest()
 
-def format_timestamp(dt: Optional[datetime] = None) -> str:
-    """Formats a datetime object to ISO 8601 string. Defaults to now."""
+def format_timestamp(dt=None):
+    """Format a datetime object as an ISO 8601 string."""
     if dt is None:
-        dt = datetime.now()
-    return dt.isoformat()
+        dt = datetime.utcnow()
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-def log_consent_decision(user_id: str, decision: bool, irb_protocol_id: str) -> None:
+def compute_consent_form_hash():
     """
-    Logs a consent decision to the consent log CSV.
-    decision: True for 'I Agree', False for 'I Do Not Agree'
+    Compute a SHA-256 hash of the IRB-approved consent form file.
+    This hash is used for internal version tracking ONLY.
+    The full text must be displayed to participants; the hash is never shown.
+    
+    Returns:
+        str: The hexadecimal SHA-256 hash of the consent form file.
+        
+    Raises:
+        FileNotFoundError: If the consent form file does not exist.
+        IOError: If the file cannot be read.
+    """
+    consent_path = get_consent_file_path()
+    if not os.path.exists(consent_path):
+        raise FileNotFoundError(f"Consent form file not found: {consent_path}")
+    
+    with open(consent_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+
+def log_consent_decision(user_id, decision, irb_protocol_id, consent_form_hash=None):
+    """
+    Log a consent decision to the consent log CSV.
+    
+    Args:
+        user_id (str): The unique participant ID.
+        decision (str): 'agreed' or 'declined'.
+        irb_protocol_id (str): The IRB protocol ID.
+        consent_form_hash (str, optional): SHA-256 hash of the consent form for version tracking.
     """
     ensure_data_dirs()
-    path = get_consent_log_path()
-    timestamp = format_timestamp()
+    log_path = get_consent_log_path()
     
-    file_exists = path.exists()
+    file_exists = os.path.exists(log_path)
     
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
+    with open(log_path, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['timestamp', 'user_id', 'decision', 'irb_protocol_id'])
+            writer.writerow(['timestamp', 'user_id', 'decision', 'irb_protocol_id', 'consent_form_hash'])
         
         writer.writerow([
-            timestamp,
+            format_timestamp(),
             user_id,
-            "Agreed" if decision else "Denied",
-            irb_protocol_id
+            decision,
+            irb_protocol_id,
+            consent_form_hash or "N/A"
         ])
 
-def validate_rating_count(count: int, min_required: int = 8) -> bool:
-    """Validates that the number of ratings meets the minimum requirement."""
-    return count >= min_required
+def validate_rating_count(ratings):
+    """
+    Validate that the required number of ratings are present.
+    
+    Args:
+        ratings (list): List of rating values.
+        
+    Returns:
+        bool: True if all ratings are present and valid, False otherwise.
+    """
+    return len(ratings) == 4 and all(r is not None for r in ratings)
 
-def calculate_safe_truncation_length(max_length: int = USER_AGENT_MAX_LENGTH) -> int:
-    """Returns the safe truncation length for metadata fields."""
-    return max_length
+def calculate_safe_truncation_length(max_length=255):
+    """
+    Calculate a safe truncation length for metadata fields.
+    
+    Args:
+        max_length (int): Maximum allowed length.
+        
+    Returns:
+        int: The safe length to use.
+    """
+    return min(max_length, 255)
 
-def truncate_user_agent(user_agent: str, max_length: int = USER_AGENT_MAX_LENGTH) -> str:
-    """Truncates the user agent string to the specified maximum length."""
+def truncate_user_agent(user_agent, max_length=255):
+    """
+    Truncate a user agent string to a safe length.
+    
+    Args:
+        user_agent (str): The user agent string.
+        max_length (int): Maximum allowed length.
+        
+    Returns:
+        str: The truncated user agent string.
+    """
     if not user_agent:
         return ""
-    return user_agent[:max_length]
+    return user_agent[:calculate_safe_truncation_length(max_length)]
 
-def get_education_code(education_str: str) -> int:
+def get_education_code(education):
     """
-    Converts education string to ordinal code.
-    Raises KeyError if invalid.
+    Convert education level to a numeric code for analysis.
+    
+    Args:
+        education (str): Education level string.
+        
+    Returns:
+        int: Numeric code (1=High School, 2=Bachelor's, 3=Master's, 4=PhD).
     """
-    return EDUCATION_MAPPING[education_str]
+    mapping = {
+        "High School": 1,
+        "Bachelor's": 2,
+        "Master's": 3,
+        "PhD": 4
+    }
+    return mapping.get(education, 0)
 
-def get_current_csv_size(path: Path) -> int:
-    """Returns the size of the file in bytes, or 0 if it doesn't exist."""
-    if path.exists():
-        return path.stat().st_size
+def get_current_csv_size(file_path):
+    """
+    Get the current size of a CSV file in bytes.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+        
+    Returns:
+        int: Size in bytes, or 0 if file does not exist.
+    """
+    if os.path.exists(file_path):
+        return os.path.getsize(file_path)
     return 0
 
-def check_duplicate_ip(hashed_ip: str, current_path: Path) -> bool:
+def check_duplicate_ip(ip_hash, existing_hashes):
     """
-    Checks if a hashed IP already exists in the submissions CSV.
-    Returns True if duplicate found, False otherwise.
-    """
-    if not current_path.exists():
-        return False
+    Check if an IP hash already exists in the dataset.
     
-    try:
-        with open(current_path, mode='r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if row.get('hashed_ip') == hashed_ip:
-                    return True
-    except Exception:
-        # If file is corrupted or unreadable, assume safe to proceed or handle externally
-        pass
-    return False
-
-def prepare_submission_row(
-    participant_id: str,
-    stimulus_id: str,
-    credibility: int,
-    professionalism: int,
-    timestamp: str,
-    hashed_ip: str,
-    age: int,
-    education_code: int,
-    duplicate_flag: bool,
-    session_status: str,
-    submission_status: str,
-    user_agent: str = ""
-) -> Dict[str, Any]:
+    Args:
+        ip_hash (str): The SHA-256 hash of the IP address.
+        existing_hashes (set): Set of existing IP hashes.
+        
+    Returns:
+        bool: True if duplicate, False otherwise.
     """
-    Prepares a dictionary row for the submissions CSV.
-    Handles truncation of user_agent.
+    return ip_hash in existing_hashes
+
+def prepare_submission_row(participant_id, stimulus_id, credibility, professionalism, 
+                           timestamp, hashed_ip, age, education, user_agent, 
+                           session_status, submission_status):
+    """
+    Prepare a row for the submissions CSV.
+    
+    Args:
+        participant_id (str): Unique participant ID.
+        stimulus_id (str): Stimulus condition identifier.
+        credibility (int): Credibility rating.
+        professionalism (int): Professionalism rating.
+        timestamp (str): ISO 8601 timestamp.
+        hashed_ip (str): SHA-256 hash of IP address.
+        age (int): Participant age.
+        education (str): Education level.
+        user_agent (str): Browser user agent string.
+        session_status (str): Session status (e.g., 'complete', 'timeout').
+        submission_status (str): Submission status (e.g., 'submitted', 'incomplete').
+        
+    Returns:
+        dict: Dictionary representing the CSV row.
     """
     return {
-        "participant_id": participant_id,
-        "stimulus_id": stimulus_id,
-        "credibility": credibility,
-        "professionalism": professionalism,
-        "timestamp": timestamp,
-        "hashed_ip": hashed_ip,
-        "age": age,
-        "education": education_code,
-        "duplicate_flag": duplicate_flag,
-        "session_status": session_status,
-        "submission_status": submission_status,
-        "user_agent": truncate_user_agent(user_agent)
+        'participant_id': participant_id,
+        'stimulus_id': stimulus_id,
+        'credibility': credibility,
+        'professionalism': professionalism,
+        'timestamp': timestamp,
+        'hashed_ip': hashed_ip,
+        'age': age,
+        'education': education,
+        'user_agent': truncate_user_agent(user_agent),
+        'duplicate_flag': 'N/A',  # Will be set by audit script
+        'session_status': session_status,
+        'submission_status': submission_status
     }
 
-def append_to_submissions_csv(row_data: Dict[str, Any]) -> None:
+def append_to_submissions_csv(row_data):
     """
-    Appends a single row to the submissions CSV file.
-    Creates the file with headers if it does not exist.
+    Append a row to the submissions CSV file.
+    
+    Args:
+        row_data (dict): Row data dictionary.
     """
     ensure_data_dirs()
-    path = get_submissions_csv_path()
+    file_path = get_submissions_csv_path()
+    file_exists = os.path.exists(file_path)
     
-    fieldnames = [
-        "participant_id", "stimulus_id", "credibility", "professionalism",
-        "timestamp", "hashed_ip", "age", "education", "duplicate_flag",
-        "session_status", "submission_status", "user_agent"
-    ]
+    fieldnames = ['participant_id', 'stimulus_id', 'credibility', 'professionalism', 
+                  'timestamp', 'hashed_ip', 'age', 'education', 'user_agent', 
+                  'duplicate_flag', 'session_status', 'submission_status']
     
-    file_exists = path.exists()
-    
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
+    with open(file_path, 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
         writer.writerow(row_data)
 
-def save_submission(
-    participant_id: str,
-    stimulus_id: str,
-    credibility: int,
-    professionalism: int,
-    hashed_ip: str,
-    age: int,
-    education_str: str,
-    session_status: str,
-    submission_status: str,
-    user_agent: str = "",
-    timestamp: Optional[datetime] = None
-) -> None:
+def save_submission(participant_id, stimulus_id, credibility, professionalism, 
+                    timestamp, hashed_ip, age, education, user_agent, 
+                    session_status='complete', submission_status='submitted'):
     """
-    High-level function to save a single submission to the CSV.
-    Handles education mapping, timestamp formatting, and duplicate checking.
+    Save a complete survey submission to the CSV.
+    
+    Args:
+        participant_id (str): Unique participant ID.
+        stimulus_id (str): Stimulus condition identifier.
+        credibility (int): Credibility rating.
+        professionalism (int): Professionalism rating.
+        timestamp (str): ISO 8601 timestamp.
+        hashed_ip (str): SHA-256 hash of IP address.
+        age (int): Participant age.
+        education (str): Education level.
+        user_agent (str): Browser user agent string.
+        session_status (str): Session status.
+        submission_status (str): Submission status.
     """
-    education_code = get_education_code(education_str)
-    ts = format_timestamp(timestamp)
-    
-    # Check for duplicate IP
-    path = get_submissions_csv_path()
-    is_duplicate = check_duplicate_ip(hashed_ip, path)
-    
-    row = prepare_submission_row(
-        participant_id=participant_id,
-        stimulus_id=stimulus_id,
-        credibility=credibility,
-        professionalism=professionalism,
-        timestamp=ts,
-        hashed_ip=hashed_ip,
-        age=age,
-        education_code=education_code,
-        duplicate_flag=is_duplicate,
-        session_status=session_status,
-        submission_status=submission_status,
-        user_agent=user_agent
+    row_data = prepare_submission_row(
+        participant_id, stimulus_id, credibility, professionalism,
+        timestamp, hashed_ip, age, education, user_agent,
+        session_status, submission_status
     )
-    
-    append_to_submissions_csv(row)
+    append_to_submissions_csv(row_data)
 
-def write_audit_log(duplicates: List[Dict[str, Any]], output_path: Optional[Path] = None) -> None:
+def write_audit_log(audit_data, output_path):
     """
-    Writes duplicate detection results to the audit log CSV.
+    Write an audit log to a JSON file.
+    
+    Args:
+        audit_data (dict): Audit data dictionary.
+        output_path (str): Path to the output JSON file.
     """
-    if output_path is None:
-        output_path = get_duplicate_audit_path()
-    
-    ensure_data_dirs()
-    
-    fieldnames = ["hashed_ip", "count", "participant_ids", "first_seen", "last_seen"]
-    
-    with open(output_path, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for dup in duplicates:
-            writer.writerow(dup)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(audit_data, f, indent=2, default=str)

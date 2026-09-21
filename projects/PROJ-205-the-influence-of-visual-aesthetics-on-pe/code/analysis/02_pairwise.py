@@ -1,48 +1,22 @@
-"""
-Pairwise t-tests with effect sizes for the Visual Aesthetics Credibility Study.
-
-This script:
-1. Loads wide-format data
-2. Runs paired t-tests for all condition pairs
-3. Applies Bonferroni correction
-4. Calculates Cohen's d effect sizes
-5. Outputs results to JSON
-"""
-
 import os
 import sys
 import json
-import random
 import argparse
 import numpy as np
-
-# Set seeds for reproducibility
-np.random.seed(42)
-random.seed(42)
-
 from pathlib import Path
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
 
 def get_project_root():
-    """Get the project root directory."""
-    current = Path(__file__).resolve()
-    while current.parent != current:
-        if (current / "data").exists() and (current / "code").exists():
-            return current
-        current = current.parent
-    return Path.cwd()
-
-PROJECT_ROOT = get_project_root()
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
 def load_wide_data(input_path):
     """
-    Load wide-format data from CSV.
-    
-    Args:
-        input_path: Path to the wide-format CSV file
-    
-    Returns:
-        pandas DataFrame with wide-format data
+    Load the wide-format data for analysis.
+    Expected columns: participant_id, professional_cred, minimalist_cred, 
+    low_quality_cred, neutral_cred, professional_prof, minimalist_prof, 
+    low_quality_prof, neutral_prof, age, education.
     """
     import pandas as pd
     
@@ -51,137 +25,176 @@ def load_wide_data(input_path):
     
     df = pd.read_csv(input_path)
     
-    # Verify required columns exist
+    # Ensure required columns exist
     required_cols = [
-        "credibility_Professional",
-        "credibility_Minimalist",
-        "credibility_Low-Quality",
-        "credibility_Neutral"
+        'participant_id', 
+        'professional_cred', 'minimalist_cred', 'low_quality_cred', 'neutral_cred',
+        'professional_prof', 'minimalist_prof', 'low_quality_prof', 'neutral_prof'
     ]
     
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
     return df
 
-def calculate_cohens_d(group1, group2, paired=True):
+def calculate_cohens_d(group1, group2):
     """
-    Calculate Cohen's d effect size.
-    
-    For paired samples: d = mean(diff) / std(diff)
-    For independent samples: d = (mean1 - mean2) / pooled_std
-    
-    Args:
-        group1: First group of values
-        group2: Second group of values
-        paired: Whether samples are paired (default: True)
-    
-    Returns:
-        float: Cohen's d value
+    Calculate Cohen's d effect size for two independent groups.
+    For paired data (within-subject), we use the standard deviation of the differences.
     """
-    import numpy as np
+    n1, n2 = len(group1), len(group2)
+    mean_diff = np.mean(group1) - np.mean(group2)
     
-    if paired:
-        diff = group1 - group2
-        std_diff = diff.std(ddof=1)
+    # For paired t-test context, we calculate d based on the standard deviation of differences
+    # This is the appropriate effect size for within-subject designs
+    if len(group1) == len(group2):
+        # Paired design
+        diffs = group1 - group2
+        std_diff = np.std(diffs, ddof=1)
         if std_diff == 0:
             return 0.0
-        return float(diff.mean() / std_diff)
+        cohens_d = mean_diff / std_diff
     else:
-        mean1, mean2 = group1.mean(), group2.mean()
-        std1, std2 = group1.std(ddof=1), group2.std(ddof=1)
-        n1, n2 = len(group1), len(group2)
-        
-        # Pooled standard deviation
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        
+        # Independent design (fallback)
+        pooled_std = np.sqrt(((n1 - 1) * np.std(group1, ddof=1)**2 + 
+                             (n2 - 1) * np.std(group2, ddof=1)**2) / (n1 + n2 - 2))
         if pooled_std == 0:
             return 0.0
+        cohens_d = mean_diff / pooled_std
         
-        return float((mean1 - mean2) / pooled_std)
+    return cohens_d
 
-def run_pairwise_tests_with_effects(df):
+def apply_bonferroni(p_values, alpha=0.05):
     """
-    Run all pairwise t-tests with Bonferroni correction and Cohen's d.
+    Apply Bonferroni correction to p-values.
+    Returns corrected p-values and whether each is significant.
+    """
+    n_tests = len(p_values)
+    corrected_p = [min(p * n_tests, 1.0) for p in p_values]
+    significant = [p < alpha for p in corrected_p]
+    return corrected_p, significant
+
+def apply_fdr_bh(p_values, alpha=0.05):
+    """
+    Apply Benjamini-Hochberg (FDR) correction to p-values.
+    Returns corrected p-values and whether each is significant.
+    """
+    # Use statsmodels for robust FDR implementation
+    reject, pvals_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
+    return pvals_corrected.tolist(), reject.tolist()
+
+def run_pairwise_tests_with_effects(df, conditions, alpha=0.05, correction_method='bonferroni'):
+    """
+    Run pairwise t-tests between all condition pairs with effect sizes.
     
     Args:
-        df: Wide-format DataFrame with credibility columns
+        df: Wide-format DataFrame with condition columns
+        conditions: List of condition names (e.g., ['professional', 'minimalist', 'low_quality', 'neutral'])
+        alpha: Significance threshold
+        correction_method: 'bonferroni' or 'fdr'
     
     Returns:
-        list: List of dictionaries with comparison results
+        Dictionary with test results
     """
-    import pandas as pd
-    import numpy as np
-    from scipy import stats
+    results = {
+        'alpha': alpha,
+        'correction_method': correction_method,
+        'comparisons': []
+    }
     
-    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
-    credibility_cols = [f"credibility_{cond}" for cond in conditions]
+    # Collect all p-values for correction
+    all_p_values = []
+    comparisons_data = []
     
-    df_clean = df[credibility_cols].dropna()
+    # Generate all unique pairs
+    from itertools import combinations
+    pairs = list(combinations(conditions, 2))
     
-    if len(df_clean) < 2:
-        raise ValueError("Not enough data points for pairwise tests (need at least 2 participants)")
+    for cond1, cond2 in pairs:
+        # Get data for both conditions (using credibility ratings)
+        col1 = f"{cond1}_cred"
+        col2 = f"{cond2}_cred"
+        
+        data1 = df[col1].dropna().values
+        data2 = df[col2].dropna().values
+        
+        if len(data1) == 0 or len(data2) == 0:
+            continue
+        
+        # Run paired t-test (within-subject design)
+        t_stat, p_value = stats.ttest_rel(data1, data2)
+        
+        # Calculate Cohen's d for paired design
+        cohens_d = calculate_cohens_d(data1, data2)
+        
+        comparisons_data.append({
+            'condition_1': cond1,
+            'condition_2': cond2,
+            't_statistic': float(t_stat),
+            'unadjusted_p': float(p_value),
+            'cohens_d': float(cohens_d),
+            'n_observations': len(data1)
+        })
+        all_p_values.append(p_value)
     
-    # All pairwise comparisons
-    comparisons = []
-    n_comparisons = len(conditions) * (len(conditions) - 1) // 2
-    bonferroni_factor = n_comparisons
+    # Apply correction method
+    if correction_method == 'bonferroni':
+        corrected_p, significant = apply_bonferroni(all_p_values, alpha)
+    elif correction_method == 'fdr':
+        corrected_p, significant = apply_fdr_bh(all_p_values, alpha)
+    else:
+        raise ValueError(f"Unknown correction method: {correction_method}")
     
-    for i in range(len(conditions)):
-        for j in range(i + 1, len(conditions)):
-            cond1 = conditions[i]
-            cond2 = conditions[j]
-            col1 = f"credibility_{cond1}"
-            col2 = f"credibility_{cond2}"
-            
-            # Paired t-test
-            t_stat, p_raw = stats.ttest_rel(df_clean[col1], df_clean[col2])
-            
-            # Bonferroni correction
-            p_adj = min(p_raw * bonferroni_factor, 1.0)
-            
-            # Cohen's d for paired samples
-            cohens_d = calculate_cohens_d(df_clean[col1], df_clean[col2], paired=True)
-            
-            comparisons.append({
-                "comparison": f"{cond1} vs {cond2}",
-                "p_val": float(p_adj),
-                "raw_p_val": float(p_raw),
-                "bonferroni_factor": bonferroni_factor,
-                "cohens_d": cohens_d,
-                "df_pairwise": len(df_clean) - 1
-            })
+    # Attach corrected p-values and significance to results
+    for i, comp in enumerate(comparisons_data):
+        comp['corrected_p'] = float(corrected_p[i])
+        comp['is_significant'] = significant[i]
+        results['comparisons'].append(comp)
     
-    return comparisons
+    return results
 
 def main():
-    """Main entry point for pairwise analysis."""
-    parser = argparse.ArgumentParser(description='Run pairwise t-tests with effect sizes')
-    parser.add_argument("--input", type=str, required=True, help="Path to wide-format CSV")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
+    parser = argparse.ArgumentParser(description='Run pairwise comparisons with effect sizes')
+    parser.add_argument('--input', type=str, required=True, 
+                      help='Path to wide-format CSV file')
+    parser.add_argument('--output', type=str, required=True,
+                      help='Path to output JSON file')
+    parser.add_argument('--alpha', type=float, default=0.05,
+                      help='Significance threshold')
+    parser.add_argument('--correction-method', type=str, 
+                      choices=['bonferroni', 'fdr'],
+                      default='bonferroni',
+                      help='P-value correction method (default: bonferroni)')
+    
     args = parser.parse_args()
     
     print(f"Loading data from {args.input}...")
     df = load_wide_data(args.input)
     
-    print("Running pairwise t-tests with Bonferroni correction...")
-    pairwise_results = run_pairwise_tests_with_effects(df)
+    conditions = ['professional', 'minimalist', 'low_quality', 'neutral']
     
-    print(f"Found {len(pairwise_results)} pairwise comparisons.")
+    print(f"Running pairwise comparisons with {args.correction_method} correction...")
+    results = run_pairwise_tests_with_effects(
+        df, 
+        conditions, 
+        alpha=args.alpha, 
+        correction_method=args.correction_method
+    )
     
-    # Prepare output
-    output = {
-        "n": len(df),
-        "bonferroni_factor": len(pairwise_results),
-        "pairwise": pairwise_results
-    }
+    # Save results
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write output
-    with open(args.output, "w") as f:
-        json.dump(output, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    print(f"Results written to {args.output}")
+    print(f"Results saved to {args.output}")
+    print(f"Correction method used: {args.correction_method}")
+    print(f"Number of comparisons: {len(results['comparisons'])}")
+    
+    significant_count = sum(1 for comp in results['comparisons'] if comp['is_significant'])
+    print(f"Significant comparisons: {significant_count}/{len(results['comparisons'])}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
