@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or file listing was provided to confirm that the required folders (`projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/{raw,processed,results}` and `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/{code,tests}`) actually exist. The implementer’s claim cannot be verified without concrete evidence of the created directories.
+- `T002` (rejected 1x): The required file at `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/code/requirements.txt` does not exist, even though a similarly named file with the correct contents is present elsewhere. The task explicitly demands the file in the specified project subdirectory, so the necessary artifact is missing.
 
 ## Required change
 

@@ -3,7 +3,7 @@
 **Branch**: `001-assessing-parcellation-sensitivity` | **Date**: 2026-07-09 | **Spec**: `specs/001-assessing-parcellation-sensitivity/spec.md`
 
 ## Summary
-This project quantifies the sensitivity of "hub" identification in healthy human connectomes to changes in parcellation resolution (AAL-90 vs. Schaefer-200/400). The technical approach involves downloading raw resting-state fMRI data (or verified pre-computed matrices) for N=20 subjects, generating adjacency matrices for three resolutions, computing degree and betweenness centrality, defining hubs via a top-10% threshold, and statistically validating overlap using Excess Overlap indices, Spearman rank correlations, and a Volumetric Spatial Spin Test. The pipeline is designed to run entirely on a CPU-first CI runner (limited cores, constrained RAM) by streaming data and using efficient graph libraries, with a fallback to pre-computed matrices if raw processing exceeds time limits.
+This project quantifies the sensitivity of "hub" identification in healthy human connectomes to changes in parcellation resolution (AAL-90 vs. Schaefer-200/400). The technical approach involves downloading raw resting-state fMRI data (or verified pre-computed matrices) for N=20 subjects, generating adjacency matrices for three resolutions, computing degree and betweenness centrality, defining hubs via a top% threshold, and statistically validating overlap using Excess Overlap indices, Spearman rank correlations, and a Volumetric Spatial Spin Test. The pipeline is designed to run entirely on a CPU-first CI runner (limited cores, constrained RAM) by streaming data and using efficient graph libraries, with a fallback to pre-computed matrices if raw processing exceeds time limits.
 
 ## Technical Context
 

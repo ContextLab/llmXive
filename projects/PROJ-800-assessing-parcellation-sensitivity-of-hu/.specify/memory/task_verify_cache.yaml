@@ -1,3 +1,10 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing (`ls -R \u2026`) was provided, so we cannot verify that\
+    \ the required folders (`raw`, `processed`, `results`, `code`, `tests`) actually\
+    \ exist in the specified project path. The artifact needed to confirm the task\
+    \ is missing."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

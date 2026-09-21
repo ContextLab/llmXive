@@ -1,0 +1,12 @@
+nibabel
+nilearn
+networkx
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+requests
+scipy
+pytest
+huggingface_hub

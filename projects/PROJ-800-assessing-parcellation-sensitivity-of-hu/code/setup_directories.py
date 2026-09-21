@@ -1,7 +1,3 @@
-"""
-Script to initialize the project directory structure for PROJ-800.
-This implements Task T001: Create project directory structure.
-"""
 import os
 import sys
 from pathlib import Path
@@ -9,79 +5,68 @@ from utils.logger import get_logger, ConfigurationError
 
 logger = get_logger(__name__)
 
-
-def ensure_directory(path: Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-
-    Args:
-        path: The Path object representing the directory to create.
-
-    Returns:
-        True if the directory was created or already existed, False on failure.
-    """
+def ensure_directory(path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
     try:
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path}")
-            return True
-        elif path.is_dir():
-            logger.debug(f"Directory already exists: {path}")
-            return True
-        else:
-            logger.error(f"Path exists but is not a directory: {path}")
-            return False
-    except PermissionError as e:
-        logger.error(f"Permission denied creating directory {path}: {e}")
-        return False
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Directory ensured: {path}")
     except OSError as e:
-        logger.error(f"OS error creating directory {path}: {e}")
-        return False
-
+        logger.error(f"Failed to create directory {path}: {e}")
+        raise ConfigurationError(f"Failed to create directory {path}: {e}") from e
 
 def main() -> int:
     """
-    Main entry point for directory setup.
-    Creates the required project structure under projects/PROJ-800-assessing-parcellation-sensitivity-of-hu.
-
+    Create the project directory structure for PROJ-800-assessing-parcellation-sensitivity-of-hu.
+    
+    Structure:
+    projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/
+    ├── code/
+    ├── tests/
+    └── data/
+        ├── raw/
+        ├── processed/
+        └── results/
+    
     Returns:
-        Exit code: 0 for success, 1 for failure.
+        int: 0 on success, 1 on failure.
     """
     project_root = Path("projects/PROJ-800-assessing-parcellation-sensitivity-of-hu")
     
-    # Define the required directory structure
+    # Define the directory structure to create
     directories = [
+        project_root,
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "data" / "results",
-        project_root / "code",
-        project_root / "tests",
     ]
-
-    logger.info(f"Initializing project structure at: {project_root}")
     
-    success = True
+    logger.info(f"Creating project directory structure at: {project_root}")
+    
     for directory in directories:
-        if not ensure_directory(directory):
-            success = False
-            logger.error(f"Failed to create directory: {directory}")
+        ensure_directory(directory)
     
-    if success:
-        logger.info("Project directory structure created successfully.")
-        # Print the tree structure for verification
-        print("\nCreated directory structure:")
+    # Verification: List the directory structure
+    logger.info("Verifying directory structure...")
+    try:
+        # Using os.walk to simulate ls -R behavior for verification
         for root, dirs, files in os.walk(project_root):
             level = root.replace(str(project_root), '').count(os.sep)
             indent = ' ' * 2 * level
-            print(f'{indent}{os.path.basename(root)}/')
+            print(f"{indent}{os.path.basename(root)}/")
             sub_indent = ' ' * 2 * (level + 1)
             for file in files:
-                print(f'{sub_indent}{file}')
-        return 0
-    else:
-        logger.error("Failed to create some directories. Check logs for details.")
+                print(f"{sub_indent}{file}")
+            # Sort dirs to ensure consistent output
+            dirs.sort()
+    except Exception as e:
+        logger.error(f"Verification failed: {e}")
         return 1
-
+    
+    logger.info("Directory structure created and verified successfully.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

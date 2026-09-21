@@ -1,71 +1,70 @@
-"""
-Tests for the setup_directories module.
-Verifies that the project structure is created correctly.
-"""
 import os
+import shutil
 import tempfile
 from pathlib import Path
 import pytest
-import shutil
 
-# We need to import the logic from setup_directories but we need to mock the paths
-# to avoid modifying the actual project structure during tests.
-# We will test the logic by passing temporary paths.
+# We need to import the function, but since the code is in 'code/', 
+# we adjust the path or assume the test runner adds 'code/' to sys.path.
+# For this implementation, we assume the test is run from the project root
+# and the 'code' directory is in the path, or we import via relative logic.
+# However, to be safe and standard, we will import the logic directly.
 
-from setup_directories import ensure_directory
+# Add 'code' to path for imports if running as script
+import sys
+from pathlib import Path
+current_dir = Path(__file__).parent.parent
+code_dir = current_dir / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-class TestEnsureDirectory:
-    def test_create_new_directory(self, tmp_path):
-        """Test creating a new directory."""
-        new_dir = tmp_path / "new" / "nested" / "dir"
-        assert not new_dir.exists()
-        result = ensure_directory(new_dir)
-        assert result is True
-        assert new_dir.exists()
-        assert new_dir.is_dir()
+from setup_directories import ensure_directory, main
 
-    def test_existing_directory(self, tmp_path):
-        """Test that existing directory returns True and doesn't error."""
-        existing_dir = tmp_path / "existing"
-        existing_dir.mkdir()
-        result = ensure_directory(existing_dir)
-        assert result is True
-        assert existing_dir.exists()
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as the project root for testing."""
+    temp_dir = tempfile.mkdtemp()
+    original_cwd = os.getcwd()
+    os.chdir(temp_dir)
+    yield Path(temp_dir)
+    os.chdir(original_cwd)
+    shutil.rmtree(temp_dir)
 
-    def test_create_multiple_times(self, tmp_path):
-        """Test idempotency of directory creation."""
-        target = tmp_path / "test_dir"
-        assert ensure_directory(target)
-        assert ensure_directory(target)
-        assert target.exists()
+def test_ensure_directory_creates_new(temp_project_root):
+    """Test that ensure_directory creates a new directory."""
+    new_dir = temp_project_root / "new_dir" / "sub_dir"
+    ensure_directory(new_dir)
+    assert new_dir.exists()
+    assert new_dir.is_dir()
 
-# Integration style test for the structure logic (mocked)
-def test_structure_logic():
-    """
-    Test the logic of directory creation without touching the real file system.
-    We create a temp root and verify the relative paths are constructed correctly.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        project_root = root / "projects" / "PROJ-800-assessing-parcellation-sensitivity-of-hu"
-        
-        # Simulate the list of directories
-        standard_dirs = [
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "code",
-            "tests",
-        ]
-        
-        for subdir in standard_dirs:
-            full_path = project_root / subdir
-            ensure_directory(full_path)
-            assert full_path.exists(), f"Failed to create {subdir}"
-        
-        # Verify specific nested structure
-        assert (project_root / "data" / "raw").is_dir()
-        assert (project_root / "data" / "processed").is_dir()
-        assert (project_root / "data" / "results").is_dir()
-        assert (project_root / "code").is_dir()
-        assert (project_root / "tests").is_dir()
+def test_ensure_directory_exists(temp_project_root):
+    """Test that ensure_directory does not fail if directory exists."""
+    existing_dir = temp_project_root / "existing"
+    existing_dir.mkdir()
+    # Should not raise
+    ensure_directory(existing_dir)
+    assert existing_dir.exists()
+
+def test_main_creates_structure(temp_project_root):
+    """Test that main() creates the expected directory structure."""
+    # Change to temp root so relative paths resolve correctly
+    os.chdir(temp_project_root)
+    
+    result = main()
+    
+    assert result == 0, "main() should return 0 on success"
+    
+    expected_dirs = [
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/code",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/tests",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/raw",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/processed",
+        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/results",
+    ]
+    
+    for dir_path in expected_dirs:
+        full_path = temp_project_root / dir_path
+        assert full_path.exists(), f"Directory {dir_path} was not created"
+        assert full_path.is_dir(), f"{dir_path} is not a directory"
