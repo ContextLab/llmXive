@@ -98,7 +98,7 @@ The system MUST generate all unique ternary combinations from the most abundant 
 
 ## Assumptions
 
-- **Data Availability**: The GFA Experimental Dataset (2014) is accessible via the verified HuggingFace URL `https://huggingface.co/datasets/GFA-D2/pilot_flags`. The dataset schema MUST contain a continuous `log10_Rc` column; if not, the pipeline fails (See FR-001). The Materials Project dataset is excluded due to lack of verified access.; the system relies solely on the verified HuggingFace source.
+- **Data Availability**: The GFA Experimental Dataset is accessible via the verified HuggingFace URL `https://huggingface.co/datasets/GFA-D2/pilot_flags`. The dataset schema MUST contain a continuous `log10_Rc` column; if not, the pipeline fails (See FR-001). The Materials Project dataset is excluded due to lack of verified access.; the system relies solely on the verified HuggingFace source.
 - **Physics-Based Descriptors**: Pymatgen's element database contains accurate and complete physical properties (atomic radius, electronegativity, valence electrons) for all elements present in the metallic glass datasets.
 - **Linearity of Log-Transformation**: Transforming the critical cooling rate ($R_c$) to its logarithm ($log_{10}(R_c)$) sufficiently normalizes the target distribution for standard regression models, subject to heteroscedasticity checks (FR-010).
 - **Combinatorial Feasibility**: Generating and predicting GFA for all unique ternary combinations of the 30 most abundant metallic elements fits within the memory and time constraints of the free-tier GitHub Actions runner.
