@@ -1,3 +1,4 @@
+# Existing dependencies
 numpy
 pandas
 scipy
@@ -9,5 +10,5 @@ numpyro
 openneuro-py
 pytest
 pyyaml
-matplotlib
-seaborn
+arviz
+# New dependencies added for this task if any (none strictly new, using existing)

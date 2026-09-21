@@ -1,305 +1,262 @@
 """
 Synthetic Data Generator for Belief Updating Model Validation.
 
-This module generates ground-truth behavioral data based on a Rescorla-Wagner
-learning model to validate the hierarchical Bayesian belief updating model.
+This module generates ground-truth behavioral data for validation purposes.
+It creates synthetic datasets where the true parameters (alpha, precision)
+are known, allowing verification that the model (T024) can recover these
+parameters within a defined error margin.
 
-The generated data simulates participants making choices based on internal
-belief states that are updated after receiving social feedback.
+The generator creates realistic choice sequences based on a Rescorla-Wagner
+learning model with noise, simulating the behavioral data structure expected
+from the OpenNeuro ds003694 dataset.
+
+Outputs:
+    data/synthetic/ground_truth.csv: CSV with columns subject_id, true_alpha,
+        true_precision, generated_choices (JSON-encoded list of choices).
 """
 
 import argparse
+import json
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
-# Import from project utilities
+# Add project root to path for imports if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 from utils.config import get_config, set_seed
-from utils.io import ensure_dir, save_csv, save_json
 from utils.logger import get_logger
+from utils.io import ensure_dir, save_csv
 
-# Configure logger
 logger = get_logger(__name__)
-
-# Constants for data generation
-DEFAULT_N_PARTICIPANTS = 50
-DEFAULT_N_TRIALS = 100
-DEFAULT_ALPHA_TRUE = 0.3  # True learning rate
-DEFAULT_BETA_TRUE = 5.0   # True inverse temperature (decision noise)
-DEFAULT_SIGMA_TRUE = 0.5  # True observation noise
 
 
 def generate_trial_data(
-    n_trials: int,
-    alpha: float,
-    beta: float,
-    rng: np.random.Generator
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    true_alpha: float,
+    true_precision: float,
+    n_trials: int = 100,
+    seed: Optional[int] = None
+) -> Tuple[List[int], List[float], List[float]]:
     """
-    Generate a single participant's trial sequence.
-    
-    Simulates a Rescorla-Wagner learning process with:
-    - Binary choices (0 or 1)
-    - Binary feedback (0 or 1)
-    - Belief updates based on prediction error
-    
+    Generate a single subject's trial-by-trial behavioral data.
+
+    Simulates a Rescorla-Wagner learning process where the subject updates
+    belief values based on feedback discrepancy, then makes stochastic choices.
+
     Args:
-        n_trials: Number of trials to simulate
-        alpha: Learning rate (how much beliefs update)
-        beta: Inverse temperature (decision noise; higher = more deterministic)
-        rng: NumPy random generator for reproducibility
-        
+        true_alpha: Ground-truth learning rate (0.0 to 1.0).
+        true_precision: Ground-truth inverse temperature for choice stochasticity.
+        n_trials: Number of trials to simulate.
+        seed: Random seed for reproducibility of this subject's data.
+
     Returns:
-        Tuple of (choices, feedback, beliefs, prediction_errors)
-        - choices: Array of binary choices (0 or 1)
-        - feedback: Array of binary feedback received (0 or 1)
-        - beliefs: Array of belief states at each trial (before choice)
-        - prediction_errors: Array of prediction errors after feedback
+        Tuple of (choices, values, discrepancies).
+        - choices: List of 0 or 1 indicating the chosen option.
+        - values: List of learned values for the chosen option.
+        - discrepancies: List of feedback discrepancies (outcome - expected).
     """
-    # Initialize belief state (probability that option 1 is better)
-    beliefs = np.zeros(n_trials)
-    beliefs[0] = 0.5  # Start with neutral belief
-    
-    # Initialize arrays
-    choices = np.zeros(n_trials, dtype=int)
-    feedback = np.zeros(n_trials, dtype=int)
-    prediction_errors = np.zeros(n_trials)
-    
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Initialize values for two options
+    value_0 = 0.5
+    value_1 = 0.5
+
+    choices = []
+    values = []
+    discrepancies = []
+
     for t in range(n_trials):
-        # Current belief about option 1 being better
-        belief = beliefs[t]
-        
-        # Generate choice based on belief and inverse temperature
-        # P(choose 1) = sigmoid(beta * (2*belief - 1))
-        prob_choice_1 = 1 / (1 + np.exp(-beta * (2 * belief - 1)))
-        choices[t] = 1 if rng.random() < prob_choice_1 else 0
-        
-        # Generate true outcome probability (simulated environment)
-        # Option 1 has 60% chance of being correct, option 0 has 40%
-        true_prob_1 = 0.6
-        actual_outcome = 1 if rng.random() < true_prob_1 else 0
-        feedback[t] = 1 if choices[t] == actual_outcome else 0
-        
-        # Compute prediction error
-        # PE = feedback - (2 * belief - 1)  [scaled to [-1, 1]]
-        expected_outcome = 2 * belief - 1  # Map [0,1] to [-1,1]
-        pe = feedback[t] - (1 if choices[t] == 1 else 0) * 2 + 1  # Simplified
-        # Actually: PE = feedback - (choice * 2 - 1) * belief? 
-        # Standard RW: PE = outcome - belief
-        # Here: outcome is binary (0/1), belief is probability (0-1)
-        pe = feedback[t] - belief
-        prediction_errors[t] = pe
-        
-        # Update belief for next trial
-        if t < n_trials - 1:
-            beliefs[t + 1] = belief + alpha * pe
-            # Clamp belief to [0, 1]
-            beliefs[t + 1] = np.clip(beliefs[t + 1], 0, 1)
-    
-    return choices, feedback, beliefs, prediction_errors
+        # Compute choice probability using softmax
+        # P(choose 1) = 1 / (1 + exp(-precision * (value_1 - value_0)))
+        diff = value_1 - value_0
+        prob_1 = 1.0 / (1.0 + np.exp(-true_precision * diff))
+
+        # Make choice
+        choice = 1 if np.random.random() < prob_1 else 0
+        choices.append(choice)
+
+        # Store value of chosen option
+        current_value = value_1 if choice == 1 else value_0
+        values.append(current_value)
+
+        # Simulate outcome (binary reward: 0 or 1)
+        # True probability of reward for option 0 is 0.3, for option 1 is 0.7
+        # This creates a non-stationary environment where option 1 is generally better
+        true_prob_reward = 0.7 if choice == 1 else 0.3
+        outcome = 1 if np.random.random() < true_prob_reward else 0
+
+        # Calculate discrepancy (prediction error)
+        discrepancy = outcome - current_value
+        discrepancies.append(discrepancy)
+
+        # Update value of chosen option using Rescorla-Wagner rule
+        if choice == 0:
+            value_0 += true_alpha * discrepancy
+        else:
+            value_1 += true_alpha * discrepancy
+
+        # Clamp values to [0, 1]
+        value_0 = np.clip(value_0, 0.0, 1.0)
+        value_1 = np.clip(value_1, 0.0, 1.0)
+
+    return choices, values, discrepancies
 
 
 def generate_synthetic_dataset(
-    n_participants: int = DEFAULT_N_PARTICIPANTS,
-    n_trials: int = DEFAULT_N_TRIALS,
-    alpha_true: float = DEFAULT_ALPHA_TRUE,
-    beta_true: float = DEFAULT_BETA_TRUE,
-    sigma_true: float = DEFAULT_SIGMA_TRUE,
-    seed: Optional[int] = None,
-    output_dir: Optional[Path] = None
-) -> Dict[str, pd.DataFrame]:
+    n_participants: int = 50,
+    n_trials: int = 100,
+    output_path: Optional[str] = None,
+    seed: Optional[int] = 42
+) -> pd.DataFrame:
     """
     Generate a complete synthetic dataset for model validation.
-    
-    Creates data for multiple participants with individual variations
-    in learning rates and decision noise, drawn from a group-level distribution.
-    
+
+    Creates multiple subjects with varying ground-truth parameters to test
+    the model's ability to recover individual differences.
+
     Args:
-        n_participants: Number of participants to simulate
-        n_trials: Number of trials per participant
-        alpha_true: Group mean learning rate
-        beta_true: Group mean inverse temperature
-        sigma_true: Group-level standard deviation for alpha
-        seed: Random seed for reproducibility
-        output_dir: Directory to save output files (if provided)
-        
+        n_participants: Number of synthetic subjects to generate.
+        n_trials: Number of trials per subject.
+        output_path: Path to save the CSV output. If None, no file is saved.
+        seed: Random seed for reproducibility of the dataset generation.
+
     Returns:
-        Dictionary containing:
-        - 'behavioral': DataFrame with all trial data
-        - 'params': DataFrame with ground-truth parameters per participant
-        - 'metadata': Dictionary with generation parameters
+        DataFrame with columns: subject_id, true_alpha, true_precision, generated_choices.
+
+    Raises:
+        ValueError: If n_participants or n_trials are invalid.
     """
+    if n_participants <= 0:
+        raise ValueError("n_participants must be positive")
+    if n_trials <= 0:
+        raise ValueError("n_trials must be positive")
+
     if seed is not None:
-        set_seed(seed)
-    
-    rng = np.random.default_rng(seed)
-    
-    # Generate group-level parameters with individual variations
-    # Individual alphas drawn from normal distribution around alpha_true
-    individual_alphas = np.random.normal(alpha_true, sigma_true, n_participants)
-    individual_alphas = np.clip(individual_alphas, 0.05, 0.95)  # Clamp to valid range
-    
-    # Individual betas drawn from log-normal distribution (positive skew)
-    individual_betas = np.random.lognormal(np.log(beta_true), 0.5, n_participants)
-    individual_betas = np.clip(individual_betas, 1.0, 20.0)  # Clamp to reasonable range
-    
-    # Generate data for each participant
-    all_rows = []
-    participant_ids = []
-    true_alphas = []
-    true_betas = []
-    
-    for p_idx in range(n_participants):
-        p_id = f"sub-{p_idx + 1:03d}"
-        participant_ids.append(p_id)
-        true_alphas.append(individual_alphas[p_idx])
-        true_betas.append(individual_betas[p_idx])
-        
-        choices, feedback, beliefs, prediction_errors = generate_trial_data(
-            n_trials=n_trials,
-            alpha=individual_alphas[p_idx],
-            beta=individual_betas[p_idx],
-            rng=rng
-        )
-        
-        for t_idx in range(n_trials):
-            all_rows.append({
-                'participant_id': p_id,
-                'trial': t_idx + 1,
-                'choice': choices[t_idx],
-                'feedback': feedback[t_idx],
-                'belief': beliefs[t_idx],
-                'prediction_error': prediction_errors[t_idx],
-                'alpha_true': individual_alphas[p_idx],
-                'beta_true': individual_betas[p_idx]
-            })
-    
-    # Create DataFrames
-    behavioral_df = pd.DataFrame(all_rows)
-    params_df = pd.DataFrame({
-        'participant_id': participant_ids,
-        'alpha_true': true_alphas,
-        'beta_true': true_betas
-    })
-    
-    metadata = {
-        'n_participants': n_participants,
-        'n_trials_per_participant': n_trials,
-        'group_alpha_mean': alpha_true,
-        'group_alpha_std': sigma_true,
-        'group_beta_mean': beta_true,
-        'generation_seed': seed,
-        'data_type': 'synthetic_ground_truth'
-    }
-    
-    logger.info(f"Generated synthetic dataset: {n_participants} participants, {n_trials} trials each")
-    
-    if output_dir:
-        ensure_dir(output_dir)
-        
-        # Save behavioral data
-        behavioral_path = output_dir / "synthetic_behavioral.csv"
-        save_csv(behavioral_df, str(behavioral_path))
-        logger.info(f"Saved behavioral data to {behavioral_path}")
-        
-        # Save ground truth parameters
-        params_path = output_dir / "synthetic_params.csv"
-        save_csv(params_df, str(params_path))
-        logger.info(f"Saved ground truth parameters to {params_path}")
-        
-        # Save metadata
-        metadata_path = output_dir / "synthetic_metadata.json"
-        save_json(metadata, str(metadata_path))
-        logger.info(f"Saved metadata to {metadata_path}")
-    
-    return {
-        'behavioral': behavioral_df,
-        'params': params_df,
-        'metadata': metadata
-    }
+        np.random.seed(seed)
+
+    logger.info(f"Generating synthetic dataset for {n_participants} participants")
+
+    data = []
+
+    # Generate ground-truth parameters from a realistic distribution
+    # Alpha: Beta distribution skewed towards moderate learning rates
+    # Precision: Log-normal distribution for inverse temperature
+    true_alphas = np.random.beta(2, 2, n_participants)  # Mean ~0.5
+    true_precisions = np.random.lognormal(mean=0.5, sigma=0.5, size=n_participants)
+
+    for i in range(n_participants):
+        subject_id = f"syn_sub_{i:03d}"
+        alpha = float(true_alphas[i])
+        precision = float(true_precisions[i])
+
+        # Generate trial data for this subject
+        # Use a unique seed for each subject based on the main seed
+        subject_seed = None if seed is None else seed + i
+        choices, _, _ = generate_trial_data(alpha, precision, n_trials, subject_seed)
+
+        # Store choices as a JSON string to fit in CSV
+        choices_json = json.dumps(choices)
+
+        data.append({
+            "subject_id": subject_id,
+            "true_alpha": round(alpha, 4),
+            "true_precision": round(precision, 4),
+            "generated_choices": choices_json
+        })
+
+        if (i + 1) % 10 == 0:
+            logger.info(f"Generated {i + 1}/{n_participants} subjects")
+
+    df = pd.DataFrame(data)
+
+    if output_path:
+        ensure_dir(output_path)
+        save_csv(df, output_path)
+        logger.info(f"Saved synthetic dataset to {output_path}")
+
+    return df
 
 
 def main():
-    """Main entry point for synthetic data generation."""
+    """
+    Main entry point for synthetic data generation.
+
+    Command-line arguments:
+        --n-participants: Number of synthetic subjects (default: 50)
+        --n-trials: Number of trials per subject (default: 100)
+        --output: Output CSV path (default: data/synthetic/ground_truth.csv)
+        --seed: Random seed (default: 42)
+    """
     parser = argparse.ArgumentParser(
-        description="Generate synthetic behavioral data for model validation"
+        description="Generate synthetic behavioral data for model validation."
     )
     parser.add_argument(
         "--n-participants",
         type=int,
-        default=DEFAULT_N_PARTICIPANTS,
-        help=f"Number of participants (default: {DEFAULT_N_PARTICIPANTS})"
+        default=50,
+        help="Number of synthetic participants to generate (default: 50)"
     )
     parser.add_argument(
         "--n-trials",
         type=int,
-        default=DEFAULT_N_TRIALS,
-        help=f"Trials per participant (default: {DEFAULT_N_TRIALS})"
+        default=100,
+        help="Number of trials per participant (default: 100)"
     )
     parser.add_argument(
-        "--alpha",
-        type=float,
-        default=DEFAULT_ALPHA_TRUE,
-        help=f"Group mean learning rate (default: {DEFAULT_ALPHA_TRUE})"
-    )
-    parser.add_argument(
-        "--beta",
-        type=float,
-        default=DEFAULT_BETA_TRUE,
-        help=f"Group mean inverse temperature (default: {DEFAULT_BETA_TRUE})"
-    )
-    parser.add_argument(
-        "--sigma",
-        type=float,
-        default=DEFAULT_SIGMA_TRUE,
-        help=f"Group-level std for alpha (default: {DEFAULT_SIGMA_TRUE})"
+        "--output",
+        type=str,
+        default="data/synthetic/ground_truth.csv",
+        help="Output CSV file path (default: data/synthetic/ground_truth.csv)"
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Random seed for reproducibility"
+        default=42,
+        help="Random seed for reproducibility (default: 42)"
     )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/synthetic",
-        help="Output directory for generated data"
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Setup logging
-    logger.info("Starting synthetic data generation")
-    logger.info(f"Parameters: n_participants={args.n_participants}, "
-               f"n_trials={args.n_trials}, alpha={args.alpha}, "
-               f"beta={args.beta}, sigma={args.sigma}")
-    
-    # Generate data
-    output_path = Path(args.output_dir)
-    result = generate_synthetic_dataset(
-        n_participants=args.n_participants,
-        n_trials=args.n_trials,
-        alpha_true=args.alpha,
-        beta_true=args.beta,
-        sigma_true=args.sigma,
-        seed=args.seed,
-        output_dir=output_path
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging.basicConfig(
+        level=getattr(logging, log_level, logging.INFO),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    
-    logger.info("Synthetic data generation completed successfully")
-    
-    # Print summary
-    print(f"\nGenerated {args.n_participants} participants with {args.n_trials} trials each")
-    print(f"Output saved to: {output_path}")
-    print(f"Files created:")
-    print(f"  - {output_path}/synthetic_behavioral.csv")
-    print(f"  - {output_path}/synthetic_params.csv")
-    print(f"  - {output_path}/synthetic_metadata.json")
+
+    logger.info("Starting synthetic data generation")
+
+    try:
+        df = generate_synthetic_dataset(
+            n_participants=args.n_participants,
+            n_trials=args.n_trials,
+            output_path=args.output,
+            seed=args.seed
+        )
+
+        logger.info(f"Synthetic data generation completed successfully.")
+        logger.info(f"Generated {len(df)} subjects with {args.n_trials} trials each.")
+        logger.info(f"Output saved to: {args.output}")
+
+        # Verify the output file exists and is non-empty
+        if os.path.exists(args.output) and os.path.getsize(args.output) > 0:
+            logger.info("Output file verification passed.")
+        else:
+            logger.error("Output file verification failed: file missing or empty.")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"Synthetic data generation failed: {e}")
+        raise
 
 
 if __name__ == "__main__":

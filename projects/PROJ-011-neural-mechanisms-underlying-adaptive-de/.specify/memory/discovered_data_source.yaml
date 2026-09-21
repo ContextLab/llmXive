@@ -1,19 +1,18 @@
 status: none
-intent: OpenNeuro ds003694 fMRI dlPFC ventral striatum ACC ROI time series python
-  package dataset
+intent: OpenNeuro ds003694 fMRI social feedback python package dataset
 required_fields:
-- participant_id
+- subject_id
 - session_id
 - run_id
 - bold_nifti_path
-- behavioral_csv_path
+- tr
+- te
 - motion_parameters
-- preprocessed_bold_path
-- roi_dlPFC_timeseries
-- roi_ventral_striatum_timeseries
-- roi_ACC_timeseries
-- timepoint
-- trial_event
-cache_key: c0b71800aa5021b33175244a0a83bc0cd5be49c83c95d30ba6b1ee928e3cf86a
-searched_at: '2026-09-19T00:41:14.406160+00:00'
+- behavioral_trial
+- condition
+- reaction_time
+- response
+- event_onset
+cache_key: 8b6aeabd8f40babe9c8a19d18f29c74583b320db60dd8d9c29d009c77a0802fc
+searched_at: '2026-09-21T16:18:23.961743+00:00'
 retry_count: 1

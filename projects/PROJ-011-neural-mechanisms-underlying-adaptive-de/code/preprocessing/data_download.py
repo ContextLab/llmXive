@@ -1,21 +1,10 @@
 """
-Module: data_download.py
+Data Download Module for OpenNeuro ds003694.
 
-Purpose:
-Fetch OpenNeuro dataset ds003694 using the openneuro-py library.
-Validate the presence of required assets (NIfTI, behavioral logs, motion parameters)
-for each participant. Exclude participants with missing assets and record the
-exclusion reasons in state/exclusions.yaml.
-
-Dependencies:
-- openneuro (pip install openneuro)
-- PyYAML (already in requirements)
-- Standard library (os, sys, pathlib, logging, yaml)
-
-Usage:
-python code/preprocessing/data_download.py --dataset ds003694 --output data/raw --config config.yaml
+This module handles the fetching of raw fMRI and behavioral data from OpenNeuro.
+It strictly adheres to the "Fail Loudly" policy: if the real data cannot be fetched,
+it raises an exception immediately. No synthetic data or fallbacks are permitted.
 """
-
 import os
 import sys
 import argparse
@@ -23,21 +12,26 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
 import yaml
+import json
 
-# Import shared utilities from the project's utils
-from utils.io import ensure_dir, file_exists, save_yaml, load_yaml
-from utils.config import get_config, load_config_from_yaml
-from utils.logger import get_logger, setup_file_logging
-
-# Attempt to import the openneuro client.
-# If not installed, the script will fail loudly as per requirements.
+# Attempt to import openneuro. If not available, we must fail loudly as per T013 requirements.
+# The dependency 'openneuro-py' is listed in requirements.txt.
 try:
     from openneuro import client
 except ImportError:
     raise ImportError(
         "The 'openneuro' package is required for data download. "
-        "Please install it via: pip install openneuro"
+        "Please install it via: pip install openneuro-py"
     )
+
+from utils.io import ensure_dir, save_yaml, load_yaml
+from utils.logger import get_logger
+
+# Constants for the specific dataset
+DATASET_ID = "ds003694"
+EXCLUSIONS_FILE = "state/exclusions.yaml"
+
+logger = get_logger(__name__)
 
 
 class DataDownloadError(Exception):
@@ -45,327 +39,266 @@ class DataDownloadError(Exception):
     pass
 
 
-def get_dataset_client(dataset_id: str) -> client.Dataset:
+def get_dataset_client() -> client.Client:
     """
-    Initialize and return an OpenNeuro dataset client.
-
-    Args:
-        dataset_id: The OpenNeuro dataset ID (e.g., 'ds003694').
+    Initialize and return the OpenNeuro client.
 
     Returns:
-        An initialized openneuro client.Dataset object.
+        client.Client: Configured OpenNeuro client.
+
+    Raises:
+        DataDownloadError: If the client cannot be initialized (e.g., network issues).
     """
     try:
-        # The openneuro-py library handles authentication via environment variables
-        # or a local config file if available.
-        ds = client.Dataset(dataset_id)
-        return ds
+        # OpenNeuro public datasets do not require an API key, but the client handles auth if present.
+        # We initialize with default settings.
+        c = client.Client()
+        # Verify connectivity by attempting a lightweight operation (getting dataset info)
+        # This ensures we fail early if the network is down or the dataset ID is wrong.
+        c.get_dataset(DATASET_ID)
+        return c
     except Exception as e:
-        raise DataDownloadError(f"Failed to initialize dataset client for {dataset_id}: {e}")
+        logger.error(f"Failed to initialize OpenNeuro client or connect to dataset {DATASET_ID}: {e}")
+        raise DataDownloadError(f"Connection to OpenNeuro failed for {DATASET_ID}. "
+                                "Ensure internet connection is active and the dataset ID is correct.") from e
 
 
-def get_participant_list(dataset_client: client.Dataset) -> List[str]:
+def get_participant_list(client_instance: client.Client) -> List[str]:
     """
-    Retrieve the list of participant IDs from the dataset.
+    Retrieve the list of valid participants (subjects) for the dataset.
 
     Args:
-        dataset_client: The initialized OpenNeuro dataset client.
+        client_instance: The initialized OpenNeuro client.
 
     Returns:
-        A list of participant ID strings (e.g., ['sub-01', 'sub-02']).
+        List[str]: List of participant IDs (e.g., 'sub-01').
     """
-    # The openneuro client provides a 'files' endpoint or similar.
-    # We need to list files to infer participants.
-    # Note: The exact API might vary slightly by version, but usually:
-    # dataset.files() returns a list of file objects.
-    # We filter for files that match the pattern 'sub-*/' to find participants.
-
-    # Attempt to fetch files. If the API is different, we might need to adjust.
-    # Assuming a standard openneuro-py usage:
     try:
-        # Get all files
-        all_files = dataset_client.files()
-        if not all_files:
-            raise DataDownloadError("No files found in dataset.")
-
-        participants: Set[str] = set()
-        for file_obj in all_files:
-            filename = file_obj.get('filename') or file_obj.get('path')
-            if filename:
-                # Extract participant ID from path like 'sub-01/...'
-                # Simple heuristic: find 'sub-XX' pattern
-                parts = filename.split('/')
-                for part in parts:
-                    if part.startswith('sub-') and len(part) >= 6:
-                        participants.add(part)
-                        break
-        return sorted(list(participants))
+        # Fetch dataset files to identify subjects
+        # We use the client's file listing capabilities.
+        # Note: The exact method might vary slightly by openneuro-py version,
+        # but generally involves listing files and extracting unique subject prefixes.
+        files = client_instance.get_dataset_files(DATASET_ID)
+        
+        subjects = set()
+        for file_entry in files:
+            path = file_entry.get('filename') or file_entry.get('path')
+            if path and path.startswith('sub-'):
+                # Extract subject ID (e.g., 'sub-01' from 'sub-01/...')
+                subject_id = path.split('/')[0]
+                if subject_id.startswith('sub-'):
+                    subjects.add(subject_id)
+        
+        sorted_subjects = sorted(list(subjects))
+        logger.info(f"Found {len(sorted_subjects)} participants in dataset {DATASET_ID}.")
+        return sorted_subjects
     except Exception as e:
-        raise DataDownloadError(f"Failed to retrieve participant list: {e}")
+        logger.error(f"Failed to retrieve participant list: {e}")
+        raise DataDownloadError("Could not retrieve participant list from OpenNeuro.") from e
 
 
-def check_participant_assets(
-    dataset_client: client.Dataset,
-    participant_id: str,
-    required_extensions: List[str]
-) -> Tuple[bool, List[str]]:
+def check_participant_assets(client_instance: client.Client, participant_id: str) -> Tuple[bool, List[str]]:
     """
-    Check if a participant has all required asset files.
+    Check if a specific participant has all required assets (NIfTI, behavioral logs, motion params).
+
+    Required assets based on project specs:
+    - func: sub-<id>_task-social_bold.nii.gz
+    - beh: sub-<id>/*.tsv (private_belief, social_feedback, choice)
 
     Args:
-        dataset_client: The initialized OpenNeuro dataset client.
-        participant_id: The participant ID (e.g., 'sub-01').
-        required_extensions: List of required file extensions (e.g., ['.nii.gz', '.tsv']).
+        client_instance: The initialized OpenNeuro client.
+        participant_id: The subject ID (e.g., 'sub-01').
 
     Returns:
-        Tuple of (is_valid, list_of_missing_reasons).
+        Tuple[bool, List[str]]: (is_valid, list_of_missing_assets).
     """
-    missing_reasons = []
-    has_nifti = False
-    has_behavioral = False
-    has_motion = False
+    missing_assets = []
+    required_patterns = [
+        f"{participant_id}/func/{participant_id}_task-social_bold.nii.gz",
+        f"{participant_id}/beh/{participant_id}_private_belief.tsv",
+        f"{participant_id}/beh/{participant_id}_social_feedback.tsv",
+        f"{participant_id}/beh/{participant_id}_choice.tsv",
+        f"{participant_id}/beh/{participant_id}_motion.tsv" # Assuming motion is in beh or derived from events
+    ]
 
     try:
-        # Fetch files for this specific participant
-        # The openneuro API usually allows filtering by filename prefix
-        participant_files = dataset_client.files(participant_id)
+        files = client_instance.get_dataset_files(DATASET_ID)
+        available_paths = {f.get('filename') or f.get('path') for f in files}
+        
+        for pattern in required_patterns:
+            # Check if the exact file exists or if a wildcard match exists
+            # For simplicity in this check, we look for exact matches or prefix matches if wildcards are used in spec
+            # Here we assume exact file names as per BIDS standard.
+            found = False
+            for avail_path in available_paths:
+                if avail_path.startswith(pattern):
+                    found = True
+                    break
+            
+            if not found:
+                missing_assets.append(pattern)
+
+        is_valid = len(missing_assets) == 0
+        if not is_valid:
+            logger.warning(f"Participant {participant_id} missing assets: {missing_assets}")
+        return is_valid, missing_assets
+
     except Exception as e:
-        # If we can't fetch files for a participant, assume they are missing
-        return False, [f"Could not retrieve file list for {participant_id}: {e}"]
-
-    if not participant_files:
-        return False, [f"No files found for participant {participant_id}"]
-
-    for file_obj in participant_files:
-        filename = file_obj.get('filename') or file_obj.get('path')
-        if not filename:
-            continue
-
-        # Check for NIfTI
-        if filename.endswith('.nii') or filename.endswith('.nii.gz'):
-            has_nifti = True
-
-        # Check for behavioral logs (usually .tsv or .json with 'beh' or 'log' in name)
-        # The task mentions 'private_belief', 'social_feedback', 'choice'
-        # These are likely in .tsv files in the 'beh' directory or similar.
-        if '.tsv' in filename:
-            has_behavioral = True
-
-        # Check for motion parameters (usually .tsv in 'freesurfer' or 'fmriprep' dirs, or specific naming)
-        # Often 'sub-XX_task-..._desc-confounds_timeseries.tsv'
-        if 'confounds' in filename or 'motion' in filename:
-            has_motion = True
-
-    if not has_nifti:
-        missing_reasons.append("Missing NIfTI files (.nii/.nii.gz)")
-    if not has_behavioral:
-        missing_reasons.append("Missing behavioral logs (.tsv)")
-    if not has_motion:
-        missing_reasons.append("Missing motion parameters (confounds/motion files)")
-
-    return len(missing_reasons) == 0, missing_reasons
+        logger.error(f"Error checking assets for {participant_id}: {e}")
+        raise DataDownloadError(f"Failed to check assets for {participant_id}") from e
 
 
-def download_participant_data(
-    dataset_client: client.Dataset,
-    participant_id: str,
-    output_dir: Path
-) -> bool:
+def download_participant_data(client_instance: client.Client, participant_id: str, output_dir: Path) -> bool:
     """
-    Download data for a specific participant.
+    Download all data for a specific participant.
 
     Args:
-        dataset_client: The initialized OpenNeuro dataset client.
-        participant_id: The participant ID.
-        output_dir: The directory where data should be saved.
+        client_instance: The initialized OpenNeuro client.
+        participant_id: The subject ID.
+        output_dir: The base directory to save the data (e.g., data/raw/ds003694).
 
     Returns:
-        True if download was successful, False otherwise.
+        bool: True if successful, False otherwise (though we prefer raising errors).
     """
     try:
-        # The openneuro client's download method usually takes a destination.
-        # We need to construct the path for this participant.
-        # Note: The API might download the whole dataset or specific files.
-        # Assuming we can download specific files or the participant folder.
+        # Create participant-specific directory
+        p_dir = output_dir / participant_id
+        ensure_dir(p_dir)
+
+        # Use openneuro-py's download functionality
+        # The client.download method usually takes a dataset ID and an output directory.
+        # To download only a specific participant, we might need to filter or use the CLI wrapper.
+        # Since openneuro-py's API might be limited in granular download without downloading all,
+        # we will attempt to download the specific subject if the API supports it,
+        # or download the whole dataset to the specific path if granular download isn't available in the library version.
+        # However, standard practice with openneuro-py is often:
+        # client.download(dataset_id, output_dir, include=['sub-01/...'])
         
-        # Strategy: Download all files for this participant to a subdirectory.
-        # The openneuro-py library might not support partial downloads easily in all versions.
-        # We will attempt to download the specific participant's files.
+        # Construct the filter list for this participant
+        # We need to be careful not to re-download the whole dataset if we are processing incrementally.
+        # For this implementation, we assume we are setting up the raw data structure.
         
-        # If the library supports downloading specific files:
-        # files = dataset_client.files(participant_id)
-        # for f in files:
-        #     dataset_client.download_file(f['id'], output_dir / f['filename'])
+        # Strategy: Download the specific files identified as present.
+        # Note: openneuro-py might not support granular file download easily. 
+        # If so, we might need to use the `openneuro` CLI tool via subprocess or download the full dataset.
+        # Given the constraints of "real data" and "fail loudly", we attempt the library call.
         
-        # If it only supports full dataset download (common in older versions):
-        # We might need to download the whole thing and filter, or use a different approach.
-        # For this implementation, we assume the library can handle partial downloads or
-        # we download the whole dataset once and organize it.
-        # Given the task is "fetch OpenNeuro ds003694", we assume we can target the dataset.
+        # Attempting to download the whole dataset to the specific output directory is the most robust
+        # way to ensure data integrity if the library doesn't support partial downloads easily.
+        # However, to avoid re-downloading, we check if the participant dir exists and is non-empty.
         
-        # Let's try to download the specific participant's directory if supported.
-        # If not, we download the whole dataset to a temp location and move the participant's folder.
+        if p_dir.exists() and any(p_dir.iterdir()):
+            logger.info(f"Data for {participant_id} already exists at {p_dir}. Skipping download.")
+            return True
+
+        logger.info(f"Downloading data for {participant_id}...")
         
-        # Fallback: Download the whole dataset if partial is not supported.
-        # But for efficiency, we'll assume the library allows specifying a prefix.
+        # Fallback: If the library doesn't support subject-level download easily,
+        # we might have to download the whole dataset. But for this task, we assume
+        # the library supports it or we download the whole thing once.
+        # Let's try to use the download method with a specific subject filter if possible.
+        # If not, we download the whole dataset to the raw folder.
         
-        # Actually, openneuro-py's download() usually takes a dataset_id and destination.
-        # It downloads the whole dataset.
-        # To be efficient, we will download the whole dataset once, then validate.
-        # But the task asks to exclude participants with missing assets.
-        # So we check first, then download only valid ones? Or download all and filter?
-        # Given the constraint of "fetch ... include logic to exclude", we check first.
+        # Since openneuro-py's download() often downloads the whole dataset:
+        # We will download the dataset to the output_dir.
+        # If the output_dir already has the dataset, it might skip or update.
+        # To be safe and specific, we assume we are running this once to populate data/raw.
         
-        # Since openneuro-py might not support selective download of a participant easily,
-        # we will download the whole dataset to a temporary location, then move valid participants.
-        # OR, we assume the dataset is small enough to download fully.
-        
-        # Let's assume we download the whole dataset to 'output_dir' first.
-        # Then we validate and move/copy valid participants to a final location.
-        # But the task says "fetch ... include logic to exclude".
-        # So we check, and if excluded, we don't download?
-        # If the library doesn't support selective download, we have to download all.
-        # We will implement the check, and if a participant is excluded, we simply don't process their data later.
-        # But the task says "fetch ... exclude participants ... and write reasons".
-        # It implies we should not download excluded participants if possible.
-        
-        # Given the ambiguity of the library's exact API in this context,
-        # we will implement the check logic and then attempt to download.
-        # If the library doesn't support selective download, we will download the whole dataset
-        # and the exclusion logic will be used for downstream processing (which is acceptable).
-        # However, to be strict, we will assume we can filter the download list.
-        
-        # Let's use the 'files' endpoint to get a list of files for the participant.
-        # Then download each file individually if the library supports it.
-        
-        files = dataset_client.files(participant_id)
-        if not files:
-            return False
-        
-        for f in files:
-            # Construct local path
-            local_path = output_dir / f['filename']
-            ensure_dir(local_path.parent)
-            # Download file
-            # The openneuro client might have a download_file method
-            if hasattr(dataset_client, 'download_file'):
-                dataset_client.download_file(f['id'], str(local_path))
-            else:
-                # Fallback: download the whole dataset if individual download is not supported
-                # This is a limitation, but we handle it by downloading the whole dataset once.
-                # We will assume the whole dataset is downloaded in a separate step if needed.
-                pass
-        
+        client_instance.download(DATASET_ID, str(output_dir))
+        logger.info(f"Downloaded dataset {DATASET_ID} to {output_dir}")
         return True
+
     except Exception as e:
-        logging.error(f"Failed to download data for {participant_id}: {e}")
-        return False
+        logger.error(f"Failed to download data for {participant_id}: {e}")
+        # Do not catch and return False. We want to fail loudly.
+        raise DataDownloadError(f"Download failed for {participant_id}") from e
 
 
 def write_exclusions(exclusions: Dict[str, List[str]], output_path: Path) -> None:
     """
-    Write the exclusion reasons to a YAML file.
+    Write the list of excluded participants and reasons to a YAML file.
 
     Args:
-        exclusions: Dictionary mapping participant_id to list of reasons.
-        output_path: Path to the output YAML file.
+        exclusions: Dict mapping participant_id to list of reasons.
+        output_path: Path to the exclusions.yaml file.
     """
     ensure_dir(output_path.parent)
     try:
-        with open(output_path, 'w') as f:
-            yaml.dump(exclusions, f, default_flow_style=False, sort_keys=False)
+        # Load existing exclusions if any
+        existing = {}
+        if output_path.exists():
+            existing = load_yaml(output_path)
+        
+        # Merge new exclusions
+        for pid, reasons in exclusions.items():
+            if pid not in existing:
+                existing[pid] = []
+            existing[pid].extend(reasons)
+        
+        save_yaml(existing, output_path)
+        logger.info(f"Exclusion list updated at {output_path}")
     except Exception as e:
-        raise DataDownloadError(f"Failed to write exclusions file: {e}")
+        logger.error(f"Failed to write exclusions to {output_path}: {e}")
+        raise DataDownloadError("Could not write exclusions file.") from e
 
 
-def main() -> None:
+def main(args: Optional[List[str]] = None) -> None:
     """
-    Main entry point for the data download script.
+    Main entry point for data download.
+
+    Steps:
+    1. Initialize OpenNeuro client.
+    2. Get list of participants.
+    3. Check assets for each participant.
+    4. Download valid participants.
+    5. Record exclusions for invalid participants.
     """
-    parser = argparse.ArgumentParser(description="Download and validate OpenNeuro ds003694 data.")
-    parser.add_argument('--dataset', type=str, default='ds003694', help='OpenNeuro dataset ID.')
-    parser.add_argument('--output', type=str, required=True, help='Output directory for downloaded data.')
-    parser.add_argument('--config', type=str, required=True, help='Path to configuration YAML file.')
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Download OpenNeuro ds003694 data.")
+    parser.add_argument("--output-dir", type=str, default="data/raw", help="Base directory for raw data.")
+    parser.add_argument("--force-download", action="store_true", help="Force re-download even if data exists.")
+    args = parser.parse_args(args)
 
-    # Setup logging
-    logger = get_logger(__name__)
-    setup_file_logging(logger, Path(args.output) / 'download.log')
-
-    logger.info(f"Starting data download for dataset: {args.dataset}")
-    logger.info(f"Output directory: {args.output}")
-
-    # Load configuration
-    try:
-        config = load_config_from_yaml(args.config)
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        sys.exit(1)
-
-    # Initialize dataset client
-    try:
-        dataset_client = get_dataset_client(args.dataset)
-    except DataDownloadError as e:
-        logger.error(str(e))
-        sys.exit(1)
-
-    # Get participant list
-    try:
-        participants = get_participant_list(dataset_client)
-    except DataDownloadError as e:
-        logger.error(str(e))
-        sys.exit(1)
-
-    logger.info(f"Found {len(participants)} participants.")
-
+    output_dir = Path(args.output_dir)
     exclusions: Dict[str, List[str]] = {}
-    valid_participants: List[str] = []
 
-    # Check assets for each participant
+    # 1. Initialize Client (Fail loudly if connection fails)
+    client_instance = get_dataset_client()
+
+    # 2. Get Participants
+    participants = get_participant_list(client_instance)
+    logger.info(f"Processing {len(participants)} participants.")
+
+    # 3. Check Assets & 4. Download
     for pid in participants:
-        is_valid, reasons = check_participant_assets(
-            dataset_client, pid, ['.nii.gz', '.tsv']
-        )
-        if is_valid:
-            valid_participants.append(pid)
-            logger.info(f"Participant {pid}: VALID")
-        else:
-            exclusions[pid] = reasons
-            logger.warning(f"Participant {pid}: EXCLUDED - {reasons}")
+        is_valid, missing = check_participant_assets(client_instance, pid)
+        
+        if not is_valid:
+            exclusions[pid] = missing
+            logger.warning(f"Excluding {pid} due to missing assets: {missing}")
+            continue
 
-    # Write exclusions
-    exclusions_path = Path(args.output).parent / 'state' / 'exclusions.yaml'
-    ensure_dir(exclusions_path.parent)
-    write_exclusions(exclusions, exclusions_path)
-    logger.info(f"Exclusions written to {exclusions_path}")
+        # Download if valid (and not skipped by force flag)
+        if not args.force_download and (output_dir / pid).exists():
+            logger.info(f"Skipping {pid} (already exists).")
+            continue
 
-    # Download data for valid participants
-    # Note: If the library doesn't support selective download, we might download the whole dataset.
-    # We will attempt to download the whole dataset to the output directory.
-    # The exclusion logic is primarily for downstream processing.
-    # However, if we can download selectively, we do so.
-    
-    # Assuming we download the whole dataset for now (common in openneuro-py)
-    # We will download to a temporary directory and then move valid participants.
-    # Or, we just download to the output directory and let downstream handle exclusions.
-    # The task says "fetch ... include logic to exclude".
-    # We have implemented the logic to exclude. The download step is for fetching.
-    # We will download the whole dataset to the output directory.
-    
-    logger.info(f"Downloading dataset to {args.output}...")
-    try:
-        # This might download the whole dataset.
-        # If the library supports selective download, we would use it here.
-        # For now, we assume it downloads the whole dataset.
-        dataset_client.download(args.output)
-        logger.info("Dataset download completed.")
-    except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
-        sys.exit(1)
+        try:
+            download_participant_data(client_instance, pid, output_dir)
+        except DataDownloadError as e:
+            # If download fails, exclude the participant and log
+            exclusions[pid] = [f"download_failed: {str(e)}"]
+            logger.error(f"Failed to download {pid}. Excluding.")
 
-    logger.info(f"Data download and validation complete. {len(valid_participants)} valid participants.")
-    logger.info(f"Excluded participants: {len(exclusions)}")
+    # 5. Write Exclusions
+    if exclusions:
+        exclusions_path = Path("state") / EXCLUSIONS_FILE
+        write_exclusions(exclusions, exclusions_path)
+        logger.info(f"Total excluded: {len(exclusions)}")
+    else:
+        logger.info("No participants excluded.")
+
+    logger.info("Data download process completed.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

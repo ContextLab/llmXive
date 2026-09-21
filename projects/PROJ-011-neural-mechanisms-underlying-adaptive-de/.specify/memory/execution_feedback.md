@@ -16,52 +16,98 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Starting synthetic data generation")     logger.…”
 - code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…)          logger.info("Synthetic data generation completed suc…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/utils/io.py --verify-checksums`
+  - script usage: `io.py [-h] {verify-checksums} ...`
+  - argparse error: `io.py: error: unrecognized arguments: --verify-checksums`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Belief Upd…”; code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “….DataFrame]:     """     Generate a complete synthetic dataset for model valida…”; code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…}          logger.info(f"Generated synthetic dataset: {n_participants…”; 6 command(s) failed: python code/utils/io.py --verify-checksums (rc=1); python code/main.py --stage preprocessing (rc=1); python code/main.py --stage modeling (rc=1); 1 declared deliverable(s) absent: data/reports/qc_summary.json
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Belief Upd…”; code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “….DataFrame]:     """     Generate a complete synthetic dataset for model valida…”; code/modeling/synthetic_data_generator.py: synthetic/fake INPUT data not authorized by the spec — “…}          logger.info(f"Generated synthetic dataset: {n_participants…”; 6 command(s) failed: python code/utils/io.py --verify-checksums (rc=2); python code/main.py --stage preprocessing (rc=1); python code/main.py --stage modeling (rc=1); 1 declared deliverable(s) absent: data/reports/qc_summary.json
 
 ## Failing / missing run-book commands
 
-- python code/utils/io.py --verify-checksums -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/io.py", line 7, in <module>
-    import yaml
-ModuleNotFoundError: No module named 'yaml'
+- python code/utils/io.py --verify-checksums -> rc=2
+    usage: io.py [-h] {verify-checksums} ...
+io.py: error: unrecognized arguments: --verify-checksums
 - python code/main.py --stage preprocessing -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 7, in <module>
-    from utils.config import get_config, load_config_from_yaml, set_seed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/config.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+    __.py:50: FutureWarning: 
+ArviZ is undergoing a major refactor to improve flexibility and extensibility while maintaining a user-friendly interface.
+Some upcoming changes may be backward incompatible.
+For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
+  warn(
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 35, in <module>
+    from openneuro import client
+ModuleNotFoundError: No module named 'openneuro'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 19, in <module>
+    from preprocessing.data_download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 37, in <module>
+    raise ImportError(
+ImportError: The 'openneuro' package is required for data download. Please install it via: pip install openneuro
 - python code/main.py --stage modeling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 7, in <module>
-    from utils.config import get_config, load_config_from_yaml, set_seed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/config.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 35, in <module>
+    from openneuro import client
+ModuleNotFoundError: No module named 'openneuro'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 19, in <module>
+    from preprocessing.data_download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 37, in <module>
+    raise ImportError(
+ImportError: The 'openneuro' package is required for data download. Please install it via: pip install openneuro
 - python code/main.py --stage analysis -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 7, in <module>
-    from utils.config import get_config, load_config_from_yaml, set_seed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/config.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 35, in <module>
+    from openneuro import client
+ModuleNotFoundError: No module named 'openneuro'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 19, in <module>
+    from preprocessing.data_download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 37, in <module>
+    raise ImportError(
+ImportError: The 'openneuro' package is required for data download. Please install it via: pip install openneuro
 - python code/main.py --stage sensitivity -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 7, in <module>
-    from utils.config import get_config, load_config_from_yaml, set_seed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/config.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 35, in <module>
+    from openneuro import client
+ModuleNotFoundError: No module named 'openneuro'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 19, in <module>
+    from preprocessing.data_download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 37, in <module>
+    raise ImportError(
+ImportError: The 'openneuro' package is required for data download. Please install it via: pip install openneuro
 - python code/main.py --stage reporting -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 7, in <module>
-    from utils.config import get_config, load_config_from_yaml, set_seed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/utils/config.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 35, in <module>
+    from openneuro import client
+ModuleNotFoundError: No module named 'openneuro'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/main.py", line 19, in <module>
+    from preprocessing.data_download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/data_download.py", line 37, in <module>
+    raise ImportError(
+ImportError: The 'openneuro' package is required for data download. Please install it via: pip install openneuro
 
 ## Declared deliverables still missing
 
@@ -72,6 +118,5 @@ ModuleNotFoundError: No module named 'numpy'
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/reports/qc_summary.json` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
     - `code/preprocessing/qc_reporter.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/reports/qc_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
