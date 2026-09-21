@@ -1,0 +1,1129 @@
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Project dependencies pinned to transformers 4.30.0, datasets 2.14.0,
+    scikit-learn 1.3.0, pandas 2.0.0, numpy 1.24.0, torch 2.0.0, and pytest 7.0.0
+  claim_id: c_1af12629
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002a Pin dependencies:
+    Create requirements.txt containing transformers==4.30.0, datasets==2.14.0, scikit-learn==1.3.0,
+    pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:14:42Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Document filtering logic retains only documents with token count greater
+    than or equal to 32000
+  claim_id: c_623a4cf1
+  context: "Phase 2: Foundational (Blocking Prerequisites) - T005 Implement document\
+    \ filtering logic: Add function to retain only documents with token count \u2265\
+    \ 32,000, logging excluded counts in src/data_loader.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Document_filtering_logic_retains_only_documents_with_token_c
+  kind: magnitude
+  raw_text: "Implement document filtering logic to retain only documents with token\
+    \ count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:15:06Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Chunking logic skips documents with length less than 2048 tokens
+  claim_id: c_e0cf48be
+  context: 'Phase 3: User Story 1 - T013 Implement chunking logic: Add function chunk_document(text:
+    str, chunk_size: int) -> List[Chunk] in src/extraction.py; if len(text) < 2048,
+    skip and log; else pad to chunk_size'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Chunking_logic_skips_documents_with_length_less_than_2048_to
+  kind: magnitude
+  raw_text: Implement chunking logic where if len(text) < 2048, skip and log; else
+    pad to chunk_size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:15:28Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Static index lookup latency must be less than 50ms on a 2-core CPU
+  claim_id: c_8b37212f
+  context: 'Phase 4: User Story 2 - T023 Add performance check: Add function benchmark_lookup(index:
+    StaticIndex, token_count: int) in src/clustering.py that returns True if latency
+    < 50ms on a 2-core CPU (Intel Xeon or equivalent), else False'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Static_index_lookup_latency_must_be_less_than_50ms_on_a_2-co
+  kind: magnitude
+  raw_text: Add function benchmark_lookup that returns True if latency < 50ms on a
+    2-core CPU (Intel Xeon or equivalent)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-21T23:16:24Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: HotpotQA is used as the primary benchmark for long-context QA evaluation
+  claim_id: c_06a9f293
+  context: 'Phase 5: User Story 3 - T028 Implement downstream long-context QA evaluation:
+    Add function evaluate_qa(model, dataset) in src/evaluation.py using HotpotQA (or
+    equivalent long-context QA) as the primary benchmark.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HotpotQA_is_used_as_the_primary_benchmark_for_long-context_Q
+  kind: entity_fact
+  raw_text: Use HotpotQA as the primary benchmark for downstream long-context QA evaluation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:17:01Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Statistical significance testing uses a paired t-test instead of Wilcoxon
+    test
+  claim_id: c_0f709473
+  context: 'Phase 5: User Story 3 - T029 Implement statistical significance testing:
+    Add function run_statistical_tests(dynamic_scores: List[float], static_scores:
+    List[float]) -> Dict[str, float] in src/evaluation.py that performs a paired t-test
+    and returns p-value and test_type. Note: This task overrides the plan.md ''Complexity
+    Tracking'' recommendation for Wilcoxon test to satisfy spec FR-005/SC-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_testing_uses_a_paired_t-test_instea
+  kind: entity_fact
+  raw_text: Perform a paired t-test for statistical significance testing, overriding
+    the plan.md recommendation for Wilcoxon test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:17:34Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps K values including 100 and 200
+  claim_id: c_bb1afc67
+  context: 'Phase 5: User Story 3 - T031 Implement sensitivity analysis sweep: Add
+    function sweep_k_values(k_values: List[int] = [100, 200]) in src/evaluation.py
+    that iterates K, rebuilds index, and appends results to a list'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep K values for sensitivity analysis with list [100, 200]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:19:19Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: 'Pin dependencies to specific versions: transformers 4.30.0, datasets
+    2.14.0, scikit-learn 1.3.0, pandas 2.0.0, numpy 1.24.0, torch 2.0.0, pytest 7.0.0'
+  claim_id: c_2766d012
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002a Pin dependencies:
+    Create requirements.txt containing...'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:19:59Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Filter documents to retain only those with token count greater than or
+    equal to 32000
+  claim_id: c_032afd7a
+  context: "Phase 2: Foundational (Blocking Prerequisites) - T005 Implement document\
+    \ filtering logic: Add function to retain only documents with token count \u2265\
+    \ 32,000..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_documents_to_retain_only_those_with_token_count_great
+  kind: magnitude
+  raw_text: "Add function to retain only documents with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:20:29Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Skip documents with length less than 2048 tokens and pad others to chunk_size
+  claim_id: c_f2fbe75a
+  context: 'Phase 3: User Story 1 - T013 Implement chunking logic: Add function chunk_document...
+    if len(text) < 2048, skip and log...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_documents_with_length_less_than_2048_tokens_and_pad_oth
+  kind: magnitude
+  raw_text: if len(text) < 2048, skip and log; else pad to chunk_size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:21:01Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Benchmark lookup returns True if latency is less than 50ms on a 2-core
+    CPU
+  claim_id: c_9828a5a4
+  context: 'Phase 4: User Story 2 - T023 Add performance check: Add function benchmark_lookup...
+    that returns True if latency < 50ms on a 2-core CPU...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_lookup_returns_True_if_latency_is_less_than_50ms_o
+  kind: magnitude
+  raw_text: returns True if latency < 50ms on a 2-core CPU (Intel Xeon or equivalent)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:21:53Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Evaluation report keys must be exactly perplexity, qa_accuracy, p_value,
+    latency, and memory_footprint
+  claim_id: c_a3e3b027
+  context: 'Phase 5: User Story 3 - T024 Contract test for evaluation report schema...
+    Assert set(report.keys()) == {''perplexity'', ''qa_accuracy'', ''p_value'', ''latency'',
+    ''memory_footprint''}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_report_keys_must_be_exactly_perplexity,_qa_accura
+  kind: entity_fact
+  raw_text: Assert set(report.keys()) == {'perplexity', 'qa_accuracy', 'p_value',
+    'latency', 'memory_footprint'}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:22:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: P-value must be a float between 0 and 1 inclusive
+  claim_id: c_78720b02
+  context: 'Phase 5: User Story 3 - T025 Integration test for paired t-test execution...
+    Assert isinstance(p_value, float) and 0 <= p_value <= 1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert isinstance(p_value, float) and 0 <= p_value <= 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:22:49Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Use HotpotQA as the primary long-context QA benchmark
+  claim_id: c_97ae8c8f
+  context: 'Phase 5: User Story 3 - T028 Implement downstream long-context QA evaluation...
+    using HotpotQA (or equivalent long-context QA) as the primary benchmark.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_HotpotQA_as_the_primary_long-context_QA_benchmark
+  kind: entity_fact
+  raw_text: Use HotpotQA as the primary benchmark
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:23:11Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Perform a paired t-test for statistical significance
+  claim_id: c_1502e141
+  context: 'Phase 5: User Story 3 - T029 Implement statistical significance testing...
+    that performs a paired t-test and returns p-value...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_a_paired_t-test_for_statistical_significance
+  kind: entity_fact
+  raw_text: Perform a paired t-test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:23:34Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Sweep K values including 200
+  claim_id: c_c883c157
+  context: 'Phase 5: User Story 3 - T031 Implement sensitivity analysis sweep: Add
+    function sweep_k_values(k_values: List[int] = [,, 200])...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'sweep_k_values(k_values: List[int] = [,, 200])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:24:21Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: K-Means clustering retry count set to 3
+  claim_id: c_11eae481
+  context: 'Phase 4: User Story 2 - T020 Implement K-Means clustering algorithm: Add
+    function run_kmeans(data: np.ndarray, k: int, retry_count: int = 3)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'retry_count: int = 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:24:40Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: requirements.txt contains transformers==4.30.0, datasets==2.14.0, scikit-learn==1.3.0,
+    pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  claim_id: c_08c11ff0
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002a Pin dependencies'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:35:11Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Filter documents retaining only those with token count >= 32000
+  claim_id: c_b8464a86
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 Implement document
+    filtering logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add function to retain only documents with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:35:12Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Skip text if length is less than 2048 tokens
+  claim_id: c_3ece145b
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T013 Implement
+    chunking logic'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_text_if_length_is_less_than_2048_tokens
+  kind: magnitude
+  raw_text: if len(text) < 2048, skip and log; else pad to chunk_size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:35:14Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Benchmark lookup latency is less than 50ms on a 2-core CPU
+  claim_id: c_f665e180
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T023 Add performance
+    check'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_lookup_latency_is_less_than_50ms_on_a_2-core_CPU
+  kind: magnitude
+  raw_text: returns True if latency < 50ms on a 2-core CPU (Intel Xeon or equivalent)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:35:15Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Sample dataset if memory limits are exceeded
+  claim_id: c_5b9b327f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006b Implement dataset
+    sampling logic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_dataset_if_memory_limits_are_exceeded
+  kind: entity_fact
+  raw_text: Add function to sample dataset if memory limits are exceeded (e.g., itertools.islice
+    or random seed)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:35:39Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: transformers version 4.30.0
+  claim_id: c_d05d4be6
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.30.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:38:13Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_4dba8e34
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:38:29Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_c562eda5
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:38:45Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.0
+  claim_id: c_d3fb1e18
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:39:20Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0
+  claim_id: c_6215aa50
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:39:52Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: torch version 2.0.0
+  claim_id: c_869d0d58
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:39:59Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pytest version 7.0.0
+  claim_id: c_1d115163
+  context: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:04Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: filter documents to retain those with token count >= 32000
+  claim_id: c_08df8228
+  context: "Add function to retain only documents with token count \u2265 32,000,\
+    \ logging excluded counts in src/data_loader.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "retain only documents with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:05Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: skip and log documents with text length < 2048
+  claim_id: c_11171103
+  context: 'Add function chunk_document(text: str, chunk_size: int) -> List[Chunk]
+    in src/extraction.py; if len(text) < 2048, skip and log'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if len(text) < 2048, skip and log
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:05Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: benchmark lookup latency < 50ms on 2-core CPU
+  claim_id: c_cfba49ab
+  context: 'Add function benchmark_lookup(index: StaticIndex, token_count: int) in
+    src/clustering.py that returns True if latency < 50ms on a 2-core CPU'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latency < 50ms on a 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:05Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Intel Xeon CPU or equivalent
+  claim_id: c_dcbeab7b
+  context: returns True if latency < 50ms on a 2-core CPU (Intel Xeon or equivalent)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Xeon
+      source_id: Q656154
+      url: https://www.wikidata.org/wiki/Q656154
+      value: Xeon
+    filled: true
+  kind: entity_fact
+  raw_text: Intel Xeon or equivalent
+  resolved_value: Xeon
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:40:15Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: use HotpotQA as primary long-context QA benchmark
+  claim_id: c_66e0a92a
+  context: Add function evaluate_qa(model, dataset) in src/evaluation.py using HotpotQA
+    (or equivalent long-context QA) as the primary benchmark
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_HotpotQA_as_primary_long-context_QA_benchmark
+  kind: entity_fact
+  raw_text: HotpotQA as the primary benchmark
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:21Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: perform paired t-test for statistical significance
+  claim_id: c_2945e869
+  context: 'Add function run_statistical_tests(dynamic_scores: List[float], static_scores:
+    List[float]) -> Dict[str, float] in src/evaluation.py that performs a paired t-test'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_paired_t-test_for_statistical_significance
+  kind: entity_fact
+  raw_text: paired t-test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:30Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: sweep k values including 200
+  claim_id: c_86b4c8a4
+  context: 'Add function sweep_k_values(k_values: List[int] = [,, 200]) in src/evaluation.py
+    that iterates K'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'k_values: List[int] = [,, 200]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:40:37Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Project dependencies pinned to specific versions
+  claim_id: c_cbbcf250
+  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T002a'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'T002a Pin dependencies: Create requirements.txt containing transformers==4.30.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0,
+    pytest==7.0.0'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:41:36Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: 'pin dependencies: transformers 4.30.0, datasets 2.14.0, scikit-learn
+    1.3.0, pandas 2.0.0, numpy 1.24.0, torch 2.0.0, pytest 7.0.0'
+  claim_id: c_ae958e92
+  context: 'T002a Pin dependencies: Create requirements.txt containing transformers==4.30.0
+    , datasets==2.14.0 , scikit-learn==1.3.0 , pandas==2.0.0 , numpy==1.24.0 , torch==2.0.0
+    , pytest==7.0.0'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create requirements.txt containing transformers==4.30.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, numpy==1.24.0, torch==2.0.0, pytest==7.0.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:42:49Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: retain documents with token count >= 32000
+  claim_id: c_fc2e72e4
+  context: "T005 Implement document filtering logic: Add function to retain only documents\
+    \ with token count \u2265 32,000, logging excluded counts in src/data_loader.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add function to retain only documents with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:42:50Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: assert extraction output shape equals (num_chunks, num_tokens)
+  claim_id: c_bed3c0f2
+  context: 'T010 [P] [US1] Integration test for end-to-end extraction on sample data
+    in tests/test_extraction.py (pytest function: test_end_to_end_extraction): Assert
+    len(scores) > 0 and shape == (num_chunks, num_tokens) where num_chunks and num_tokens
+    are derived from the sample input'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert len(scores) > 0 and shape == (num_chunks, num_tokens) where num_chunks
+    and num_tokens are derived from the sample input
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:42:50Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: benchmark lookup latency < 50ms on 2-core CPU
+  claim_id: c_435a9bb2
+  context: 'T023 [US2] Add performance check: Add function benchmark_lookup(index:
+    StaticIndex, token_count: int) in src/clustering.py that returns True if latency
+    < 50ms on a 2-core CPU'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: returns True if latency < 50ms on a 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:42:50Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: use HotpotQA as primary benchmark for downstream long-context QA evaluation
+  claim_id: c_8d7ecbd4
+  context: 'T028 [US3] Implement downstream long-context QA evaluation: Add function
+    evaluate_qa(model, dataset) in src/evaluation.py using HotpotQA (or equivalent
+    long-context QA) as the primary benchmark.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_HotpotQA_as_primary_benchmark_for_downstream_long-contex
+  kind: entity_fact
+  raw_text: Use HotpotQA as the primary benchmark
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:42:52Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: perform paired t-test for statistical significance testing
+  claim_id: c_a1cef58a
+  context: 'T029 [US3] Implement statistical significance testing: Add function run_statistical_tests(dynamic_scores:
+    List[float], static_scores: List[float]) -> Dict[str, float] in src/evaluation.py
+    that performs a paired t-test and returns p-value and test_type.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_paired_t-test_for_statistical_significance_testing
+  kind: entity_fact
+  raw_text: Perform a paired t-test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:42:53Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: assert p-value is between 0 and 1
+  claim_id: c_53a8c3bd
+  context: 'T025 [P] [US3] Integration test for paired t-test execution in tests/test_evaluation.py:
+    Assert isinstance(p_value, float) and 0 <= p_value <= 1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert 0 <= p_value <= 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:43:26Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: sweep k values including 200
+  claim_id: c_fd03947b
+  context: 'T031 [US3] Implement sensitivity analysis sweep: Add function sweep_k_values(k_values:
+    List[int] = [,, 200]) in src/evaluation.py that iterates K, rebuilds index, and
+    appends results to a list'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate K values including 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:43:33Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: retain documents with token count >= 32000
+  claim_id: c_9da599d4
+  context: "Implement document filtering logic: Add function to retain only documents\
+    \ with token count \u2265 32,000, logging excluded counts in `src/data_loader.py`\
+    \ (Depends on T004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add function to retain only documents with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:44:25Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: skip documents with length < 2048
+  claim_id: c_1a6ed446
+  context: 'Implement chunking logic: Add function `chunk_document(text: str, chunk_size:
+    int) -> List[Chunk]` in `src/extraction.py`; if `len(text) < 2048`, skip and log;
+    else pad to `chunk_size`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function `chunk_document(text: str, chunk_size: int) -> List[Chunk]`
+    in `src/extraction.py`; if `len(text) < 2048`, skip and log'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:44:25Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: run kmeans with retry count 3
+  claim_id: c_7d43233b
+  context: 'Implement K-Means clustering algorithm: Add function `run_kmeans(data:
+    np.ndarray, k: int, retry_count: int = 3)` in `src/clustering.py` with retry logic
+    for empty cluster convergence (Depends on T019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function `run_kmeans(data: np.ndarray, k: int, retry_count: int =
+    3)` in `src/clustering.py` with retry logic for empty cluster convergence'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:44:47Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: latency < 50ms on 2-core CPU
+  claim_id: c_d8936a37
+  context: 'Add function `benchmark_lookup(index: StaticIndex, token_count: int)`
+    in `src/clustering.py` that returns True if latency < 50ms on a 2-core CPU ({{claim:c_dcbeab7b}}
+    (Wikidata Q656154, https://www.wikidata.org/wiki/Q656154)), else False'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: returns True if latency < 50ms on a 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:44:47Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: use HotpotQA as primary benchmark
+  claim_id: c_42a894ea
+  context: 'Add function `evaluate_qa(model, dataset)` in `src/evaluation.py` using
+    **HotpotQA** (or equivalent long-context QA) as the primary benchmark. Note: Needle-in-Haystack
+    is optional for internal validation only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_HotpotQA_as_primary_benchmark
+  kind: entity_fact
+  raw_text: uses **HotpotQA** (or equivalent long-context QA) as the primary benchmark
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:44:49Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: perform paired t-test
+  claim_id: c_6c2cc95a
+  context: 'Add function `run_statistical_tests(dynamic_scores: List[float], static_scores:
+    List[float]) -> Dict[str, float]` in `src/evaluation.py` that performs a **paired
+    t-test ** and returns p-value and test_type. **Note**: This task overrides the
+    plan.md ''Complexity Tracking'' recommendation for Wilcoxon test to satisfy spec
+    FR-005/SC-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_paired_t-test
+  kind: entity_fact
+  raw_text: performs a **paired t-test ** and returns p-value and test_type
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:45:15Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: sweep k values including 200
+  claim_id: c_81d65131
+  context: 'Add function `sweep_k_values(k_values: List[int] = [,, 200]) ` in `src/evaluation.py`
+    that iterates K, rebuilds index, and appends results to a list'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'sweep_k_values(k_values: List[int] = [,, 200])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:45:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: assert p_value is float between 0 and 1
+  claim_id: c_3d91813d
+  context: 'Integration test for paired t-test execution in `tests/test_evaluation.py`:
+    Assert `isinstance(p_value, float) and 0 <= p_value <= 1`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert `isinstance(p_value, float) and 0 <= p_value <= 1`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:45:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin transformers version 4.30.0
+  claim_id: c_b34d4d3d
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: transformers==4.30.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin datasets version 2.14.0
+  claim_id: c_4b04eb74
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin scikit-learn version 1.3.0
+  claim_id: c_1fccb176
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T23:45:16Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin pandas version 2.0.0
+  claim_id: c_756fb879
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:17Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin numpy version 1.24.0
+  claim_id: c_3b9f96af
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:17Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin torch version 2.0.0
+  claim_id: c_c2fdf861
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: torch==2.0.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:17Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: pin pytest version 7.0.0
+  claim_id: c_b3316af5
+  context: 'Pin dependencies: Create `requirements.txt` containing `transformers==4.30.0
+    `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `pandas==2.0.0 `, `numpy==1.24.0
+    `, `torch==2.0.0 `, `pytest==7.0.0 `'
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pytest==7.0.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T23:45:17Z'
