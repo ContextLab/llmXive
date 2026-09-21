@@ -67,6 +67,11 @@ def stratify_by_motion(
     Assign motion category based on flow magnitude.
     Thresholds: {0.5, 5.0} from config.
     Categories: Static, Slow Rigid, Fast Non-Rigid
+    
+    Edge Cases:
+    - Values exactly at 0.5 and 5.0 are assigned to the higher category.
+      - 0.5 -> "Slow Rigid" (>= 0.5)
+      - 5.0 -> "Fast Non-Rigid" (>= 5.0)
     """
     if thresholds is None:
         thresholds = STRATIFICATION_THRESHOLDS
@@ -75,6 +80,10 @@ def stratify_by_motion(
     low_thresh = sorted_thresh[0] if len(sorted_thresh) > 0 else 0.5
     high_thresh = sorted_thresh[1] if len(sorted_thresh) > 1 else 5.0
 
+    # Logic:
+    # Static: < low_thresh (e.g., < 0.5)
+    # Slow Rigid: >= low_thresh AND < high_thresh (e.g., >= 0.5 and < 5.0)
+    # Fast Non-Rigid: >= high_thresh (e.g., >= 5.0)
     if flow_magnitude < low_thresh:
         category = "Static"
     elif flow_magnitude < high_thresh:

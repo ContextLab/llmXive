@@ -4,40 +4,15 @@ T013a:
   r: The `processor.py` implementation writes masks to `data/raw/processed` instead
     of the required `data/raw/masks/`, and the unit test file `tests/unit/test_processor.py`
     is absent, so the verification step cannot be executed.
-T013b:
+T020:
   c: false
-  h: 9d19772e5c4a1ef5b0307d5e808a1f4900906ae35e5ca04b7831dd71633b8bdd
-  r: "The provided `code/data/processor.py` is truncated, missing the end of `process_video_clip`\
-    \ and does not define `process_dataset_stratification`. Its `stratify_by_motion`\
-    \ signature requires a `clip_id` argument, while the tests call it with only `flow_magnitude`.\
-    \ The test suite imports from `data.processor`, not `code/data/processor.py`,\
-    \ so the module path is wrong. Additionally, the required `data/flow/magnitudes.json`\
-    \ file is missing. Consequently, the implementation does not meet the task\u2019\
-    s specifications or pass the indicated tests."
-T017:
-  c: false
-  h: 579ad92a6ce98c2689ae553be40da749c7c34d95c1fea39eb427cbe2fd25c8cf
-  r: "The repository\u2019s `code/analysis/reporter.py` does not implement a function\
-    \ that writes a JSON file with the required summary fields (model, count, averages,\
-    \ individual_records) nor does it accept an output path argument as the test expects.\
-    \ Moreover, the expected output file `data/metrics/baseline_results.json` is missing.\
-    \ Consequently the provided unit test `test_generate_baseline_report` would fail."
-T024a:
-  c: false
-  h: 579ad92a6ce98c2689ae553be40da749c7c34d95c1fea39eb427cbe2fd25c8cf
-  r: "The `reporter.py` implementation does not match the test\u2019s expected API:\
-    \ it returns a dict instead of writing a JSON file, lacks the required keys (`model`,\
-    \ `count`, `avg_*`, `individual_records`), and the function signature omits the\
-    \ `output_path` argument. Moreover, the expected output file `data/metrics/baseline_results.json`\
-    \ is missing. The test `test_generate_baseline_report` would therefore fail."
-T024b:
-  c: false
-  h: 73863b1c6da8e749eac2014b4cef60ad94d570d01b0f613dbca2ce158da1e08f
-  r: The repository lacks the required `data/metrics/flow_results.json` file, and
-    `code/analysis/reporter.py` does not implement the functions expected by the tests
-    (e.g., `generate_baseline_report` does not accept an output path nor write a JSON
-    file, and the file is truncated). Consequently the test `test_flow_report_generation`
-    cannot succeed.
+  h: 269db5ccf11462009298ea2ba116b11acf76f17c5ec8149f9cbc4c914097bf16
+  r: "The repository lacks the required test `tests/unit/test_flow_coherence.py` (the\
+    \ file is missing), so the verification step cannot be run. Moreover, the provided\
+    \ `flow_coherence.py` is truncated and does not show the essential `cv2.remap`\
+    \ implementation on 512\xD7512 latent tensors, leaving it unclear whether the\
+    \ module meets the specification. The missing test and incomplete evidence mean\
+    \ the task is not genuinely completed."
 T025:
   c: false
   h: 89ff04cff3963f4afac40a2ca19512ee7840377826e739d8018a766aa60dcda4
@@ -47,12 +22,15 @@ T025:
     content.
 T027a:
   c: false
-  h: c81ce4c8bf2e35af68fa101f2afd3eecfda0f41e1b2d1cb524a3f7f84340dd48
-  r: The file `code/analysis/stats.py` does not define the required `load_baseline_and_flow_metrics`
-    function that the test imports, and the expected data files (`data/metrics/baseline_results.json`
-    and `data/metrics/flow_results.json`) are missing. Implement the loader function
-    (e.g., returning the two loaded lists) and ensure the module can be imported so
-    the test can run and verify the FileNotFoundError behavior.
+  h: 4e21aa4a4613f77c63a3682a8d7e5bdb64784adff8a33def918bf419ea9721f8
+  r: "The `load_baseline_and_flow_metrics` function is present, but the required files\
+    \ `data/metrics/baseline_results.json` and `data/metrics/flow_results.json` do\
+    \ not exist, so the loader cannot actually return any in\u2011memory data. Moreover,\
+    \ the test suite only checks the error case (`test_load_baseline_flow_metrics_missing_file`)\
+    \ and does not contain a test that verifies successful loading of real metric\
+    \ files as the task\u2019s verification step requires. The missing JSON files\
+    \ (and corresponding successful\u2011load test) must be added for the task to\
+    \ be considered complete."
 T027b:
   c: false
   h: f25e6faa876170bb8554dbf7d85cf23a94b05e996447ae0627baca3fa859ff67

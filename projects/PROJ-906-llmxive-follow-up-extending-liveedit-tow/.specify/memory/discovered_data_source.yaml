@@ -1,12 +1,17 @@
 status: none
-intent: DAVIS 2017 YouTube-VOS video segmentation datasets python package dataset
+intent: download DAVIS and YouTube-VOS video segmentation datasets python package
+  dataset
 required_fields:
 - video_id
-- frame_paths
-- object_mask_paths
-- resolution
+- video_path
+- frame_count
 - frame_rate
-- annotation_category
-cache_key: c601e05827136329e253d3c79ace90bd635d9fcfb27d766404d9fbc979cc9035
-searched_at: '2026-07-22T01:13:40.986184+00:00'
+- resolution
+- motion_complexity_label
+- optical_flow_magnitude
+- optical_flow_divergence
+- synthetic_edit_mask_path
+- background_region_mask_path
+cache_key: 216943cd832a4003fc910e5cb6f7d8c2c30a1528f790f10631a907c92efe0546
+searched_at: '2026-09-21T17:10:57.213977+00:00'
 retry_count: 1

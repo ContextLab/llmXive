@@ -1,2 +1,2 @@
-# This directory is for generated results and summary reports.
-# It is kept in version control to ensure the directory structure exists.
+# This directory is for generated results and reports.
+# Files here are not tracked by git but are essential for the pipeline.

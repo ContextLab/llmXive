@@ -4,7 +4,7 @@ import json
 import numpy as np
 import tempfile
 from pathlib import Path
-from data.flow import compute_flow_magnitude, extract_flow_magnitudes_for_dataset
+from data.flow import compute_flow_magnitude, extract_flow_magnitudes_for_dataset, compute_farneback_flow
 
 class TestFlowMagnitudeExtraction:
     """Tests for T009a: Lightweight flow magnitude extraction."""
@@ -110,3 +110,62 @@ class TestFlowMagnitudeExtraction:
             )
             
             assert isinstance(results, dict)
+
+    def test_compute_farneback_flow_basic(self):
+        """Test Farneback flow computation on simple frames."""
+        # Create two simple frames with a known shift
+        prev_frame = np.zeros((100, 100), dtype=np.uint8)
+        prev_frame[20:40, 20:40] = 255  # White square at (20,20)
+        
+        curr_frame = np.zeros((100, 100), dtype=np.uint8)
+        curr_frame[25:45, 25:45] = 255  # White square shifted by (5,5)
+        
+        flow = compute_farneback_flow(prev_frame, curr_frame)
+        
+        assert flow is not None
+        assert flow.shape == (100, 100, 2)
+        assert flow.dtype == np.float32
+
+    def test_compute_farneback_flow_identical_frames(self):
+        """Test that identical frames produce zero flow."""
+        frame = np.random.randint(0, 255, (100, 100), dtype=np.uint8)
+        
+        flow = compute_farneback_flow(frame, frame)
+        
+        assert flow is not None
+        # Flow should be close to zero
+        assert np.allclose(flow, 0.0, atol=1e-3)
+
+    def test_flow_field_computation(self):
+        """Test the full flow field computation workflow."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a simple test video (using a sequence of BMPs as proxy)
+            # In practice, this would be a real video file
+            video_path = os.path.join(tmpdir, "test_video.mp4")
+            
+            # Create dummy frames
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(video_path, fourcc, 10.0, (640, 480))
+            
+            for i in range(10):
+                frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                # Draw a moving square
+                x = i * 50
+                cv2.rectangle(frame, (x, 100), (x+50, 150), (255, 255, 255), -1)
+                out.write(frame)
+            
+            out.release()
+            
+            # Test flow computation
+            output_dir = os.path.join(tmpdir, "flow_output")
+            saved_files = compute_full_flow_field(video_path, output_dir, "farneback", frame_stride=2)
+            
+            # Verify files were created
+            assert len(saved_files) > 0
+            assert all(os.path.exists(f) for f in saved_files)
+            
+            # Verify the content of saved flow fields
+            for flow_file in saved_files:
+                flow_data = np.load(flow_file)
+                assert flow_data.shape[2] == 2  # Flow has 2 components (u, v)
+                assert np.isfinite(flow_data).all()

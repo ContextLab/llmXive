@@ -11,6 +11,9 @@ SENSITIVITY_CUTOFFS: Set[float] = {0.01, 0.05, 0.1}
 # Thresholds for Stratification (Plan.md)
 STRATIFICATION_THRESHOLDS: Set[float] = {0.5, 5.0}
 
+# Alias for backward compatibility with existing imports
+CUTOFFS = SENSITIVITY_CUTOFFS
+
 # Random seeds
 DEFAULT_SEED = 42
 

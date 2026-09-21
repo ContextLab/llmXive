@@ -31,7 +31,6 @@ def test_ruff_config_valid():
     # We check that the configuration is parseable and has the expected structure.
     assert "line-length" in ruff_config or True, "line-length is recommended but not strictly required for validity"
 
-
 def test_black_config_valid():
     """
     Verify that black configuration exists in pyproject.toml and is valid.

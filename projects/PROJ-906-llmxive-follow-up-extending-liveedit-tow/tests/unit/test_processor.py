@@ -1,133 +1,166 @@
-import pytest
-import json
 import os
+import json
+import tempfile
+import pytest
 from pathlib import Path
 import numpy as np
+import cv2
 
 from data.processor import (
-    stratify_by_motion,
-    process_dataset_stratification,
     ProcessedClip,
-    generate_synthetic_mask
+    generate_synthetic_mask,
+    stratify_by_motion,
+    process_video_clip,
+    process_dataset_stratification,
+    load_processed_clips,
 )
 from config import STRATIFICATION_THRESHOLDS
 
+# Helper to create a dummy video file
+def create_dummy_video(path: str, frames: int = 10, h: int = 100, w: int = 100):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    out = cv2.VideoWriter(
+        path,
+        cv2.VideoWriter_fourcc(*'mp4v'),
+        10,
+        (w, h)
+    )
+    for _ in range(frames):
+        frame = np.random.randint(0, 255, (h, w, 3), dtype=np.uint8)
+        out.write(frame)
+    out.release()
+    return path
+
 class TestStratificationLogic:
-    """Tests for T013b: Stratification by motion complexity."""
+    """Tests for T013b: Stratify clips by motion complexity."""
 
-    def test_stratify_static_motion(self):
-        """Test that low flow magnitude is classified as Static."""
-        result = stratify_by_motion(flow_magnitude=0.1)
-        assert result == "Static"
-
-    def test_stratify_slow_rigid_motion(self):
-        """Test that medium flow magnitude is classified as Slow Rigid."""
-        result = stratify_by_motion(flow_magnitude=1.0)
-        assert result == "Slow Rigid"
-
-    def test_stratify_fast_non_rigid_motion(self):
-        """Test that high flow magnitude is classified as Fast Non-Rigid."""
-        result = stratify_by_motion(flow_magnitude=10.0)
-        assert result == "Fast Non-Rigid"
-
-    def test_stratify_uses_config_thresholds(self):
-        """Test that stratify_by_motion uses STRATIFICATION_THRESHOLDS from config."""
-        # The function should default to config thresholds
+    def test_stratification_static(self):
+        """Test that low flow magnitude results in 'Static'."""
         # Thresholds are {0.5, 5.0}
-        # Test boundary conditions
-        assert stratify_by_motion(0.4) == "Static"
-        assert stratify_by_motion(0.6) == "Slow Rigid"
-        assert stratify_by_motion(4.9) == "Slow Rigid"
-        assert stratify_by_motion(5.1) == "Fast Non-Rigid"
+        # < 0.5 -> Static
+        category = stratify_by_motion("clip_001", 0.1)
+        assert category == "Static"
 
-    def test_stratify_custom_thresholds(self):
-        """Test that custom thresholds can be passed."""
+    def test_stratification_slow_rigid(self):
+        """Test that medium flow magnitude results in 'Slow Rigid'."""
+        # 0.5 <= x < 5.0 -> Slow Rigid
+        category = stratify_by_motion("clip_002", 1.5)
+        assert category == "Slow Rigid"
+
+    def test_stratification_fast_non_rigid(self):
+        """Test that high flow magnitude results in 'Fast Non-Rigid'."""
+        # >= 5.0 -> Fast Non-Rigid
+        category = stratify_by_motion("clip_003", 10.0)
+        assert category == "Fast Non-Rigid"
+
+    def test_stratification_edge_case_low_threshold(self):
+        """Test edge case: exactly 0.5 should be 'Slow Rigid' (higher category)."""
+        # Edge case: 0.5 is the boundary.
+        # Logic: if mag < 0.5 -> Static, else (>= 0.5) check next.
+        # Since 0.5 is not < 0.5, it falls to 'Slow Rigid'.
+        category = stratify_by_motion("clip_004", 0.5)
+        assert category == "Slow Rigid"
+
+    def test_stratification_edge_case_high_threshold(self):
+        """Test edge case: exactly 5.0 should be 'Fast Non-Rigid' (higher category)."""
+        # Edge case: 5.0 is the boundary.
+        # Logic: if mag < 5.0 -> Slow Rigid, else (>= 5.0) -> Fast Non-Rigid.
+        category = stratify_by_motion("clip_005", 5.0)
+        assert category == "Fast Non-Rigid"
+
+    def test_stratification_custom_thresholds(self):
+        """Test stratification with custom thresholds."""
         custom_thresh = {1.0, 10.0}
-        assert stratify_by_motion(0.5, thresholds=custom_thresh) == "Static"
-        assert stratify_by_motion(5.0, thresholds=custom_thresh) == "Slow Rigid"
-        assert stratify_by_motion(15.0, thresholds=custom_thresh) == "Fast Non-Rigid"
+        # 0.5 < 1.0 -> Static
+        assert stratify_by_motion("c1", 0.5, custom_thresh) == "Static"
+        # 5.0 >= 1.0 and < 10.0 -> Slow Rigid
+        assert stratify_by_motion("c2", 5.0, custom_thresh) == "Slow Rigid"
+        # 15.0 >= 10.0 -> Fast Non-Rigid
+        assert stratify_by_motion("c3", 15.0, custom_thresh) == "Fast Non-Rigid"
 
-    def test_stratify_boundary_values(self):
-        """Test exact boundary values."""
-        # At exactly 0.5, it should be Static (< 0.5)
-        assert stratify_by_motion(0.5) == "Slow Rigid"
-        # At exactly 5.0, it should be Fast Non-Rigid (< 5.0 is False)
-        assert stratify_by_motion(5.0) == "Fast Non-Rigid"
+class TestMaskGeneration:
+    """Tests for T013a: Mask generation (prerequisite)."""
 
-class TestSyntheticMaskGeneration:
-    """Tests for T013a: Synthetic mask generation."""
-
-    def test_mask_dimensions(self):
-        """Test that generated mask has correct dimensions."""
-        frames = np.zeros((10, 512, 512, 3), dtype=np.uint8)
-        mask = generate_synthetic_mask(frames)
-        assert mask.shape == (512, 512)
-
-    def test_mask_values(self):
-        """Test that mask contains only 0 and 255 values."""
-        frames = np.zeros((10, 512, 512, 3), dtype=np.uint8)
-        mask = generate_synthetic_mask(frames)
-        unique_vals = np.unique(mask)
-        assert all(v in [0, 255] for v in unique_vals)
-
-    def test_mask_seed_reproducibility(self):
-        """Test that same seed produces same mask."""
-        frames = np.zeros((10, 512, 512, 3), dtype=np.uint8)
-        mask1 = generate_synthetic_mask(frames, seed=42)
-        mask2 = generate_synthetic_mask(frames, seed=42)
-        assert np.array_equal(mask1, mask2)
-
-class TestDatasetStratification:
-    """Tests for process_dataset_stratification integration."""
-
-    def test_stratification_report_structure(self):
-        """Test that stratification report has required keys."""
-        # We can't run full dataset download in unit test,
-        # but we can verify the logic structure
-        expected_keys = ["dataset", "total_clips", "distribution", "thresholds_used", "timestamp"]
+    def test_mask_generation_creates_file(self, tmp_path):
+        video_path = create_dummy_video(str(tmp_path / "test.mp4"))
+        mask_path = generate_synthetic_mask(video_path, str(tmp_path / "masks"))
         
-        # Mock report structure
-        report = {
-            "dataset": "test",
-            "total_clips": 10,
-            "distribution": {"Static": 3, "Slow Rigid": 4, "Fast Non-Rigid": 3},
-            "thresholds_used": list(STRATIFICATION_THRESHOLDS),
-            "timestamp": "2024-01-01T00:00:00"
-        }
+        assert os.path.exists(mask_path)
+        assert mask_path.endswith(".png")
         
-        for key in expected_keys:
-            assert key in report
+        # Verify mask is binary (0 or 255)
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        assert mask is not None
+        assert np.all((mask == 0) | (mask == 255))
 
-    def test_distribution_counts(self):
-        """Test that distribution counts sum to total clips."""
-        distribution = {"Static": 3, "Slow Rigid": 4, "Fast Non-Rigid": 3}
-        total = sum(distribution.values())
-        assert total == 10
+    def test_mask_dimensions_match_video(self, tmp_path):
+        h, w = 200, 300
+        video_path = create_dummy_video(str(tmp_path / "dims.mp4"), h=h, w=w)
+        mask_path = generate_synthetic_mask(video_path, str(tmp_path / "masks"))
+        
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        assert mask.shape == (h, w)
 
-class TestProcessedClipDataclass:
-    """Tests for ProcessedClip dataclass."""
+class TestProcessedClip:
+    """Tests for ProcessedClip data structure."""
 
-    def test_processed_clip_creation(self):
-        """Test creating a ProcessedClip instance."""
+    def test_processed_clip_initialization(self):
         clip = ProcessedClip(
-            id="test_clip",
-            path="/path/to/clip",
+            clip_id="test_001",
+            path="/fake/path.mp4",
+            mask_path="/fake/mask.png",
             motion_category="Static",
             flow_magnitude=0.1
         )
-        assert clip.id == "test_clip"
+        assert clip.clip_id == "test_001"
         assert clip.motion_category == "Static"
         assert clip.flow_magnitude == 0.1
 
-    def test_processed_clip_optional_fields(self):
-        """Test that optional fields can be None."""
-        clip = ProcessedClip(
-            id="test_clip",
-            path="/path/to/clip",
-            motion_category="Static",
-            flow_magnitude=0.1,
-            mask_path=None,
-            metadata=None
+class TestDatasetStratification:
+    """Tests for process_dataset_stratification."""
+
+    def test_process_dataset_stratification_report(self, tmp_path):
+        # Create dummy videos
+        clip1 = create_dummy_video(str(tmp_path / "clip1.mp4"))
+        clip2 = create_dummy_video(str(tmp_path / "clip2.mp4"))
+        clip3 = create_dummy_video(str(tmp_path / "clip3.mp4"))
+        
+        clips = [clip1, clip2, clip3]
+        # Magnitudes: 0.1 (Static), 1.0 (Slow), 10.0 (Fast)
+        magnitudes = {
+            "clip1": 0.1,
+            "clip2": 1.0,
+            "clip3": 10.0
+        }
+        
+        mask_dir = str(tmp_path / "masks")
+        report_path = str(tmp_path / "stratification_report.json")
+        
+        result = process_dataset_stratification(
+            clips, magnitudes, mask_dir, report_path
         )
-        assert clip.mask_path is None
-        assert clip.metadata is None
+        
+        assert len(result) == 3
+        assert os.path.exists(report_path)
+        
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        
+        assert report["total_clips"] == 3
+        assert report["distribution"]["Static"] == 1
+        assert report["distribution"]["Slow Rigid"] == 1
+        assert report["distribution"]["Fast Non-Rigid"] == 1
+        assert 0.5 in report["thresholds_used"]
+        assert 5.0 in report["thresholds_used"]
+
+    def test_load_processed_clips(self, tmp_path):
+        report_path = str(tmp_path / "report.json")
+        dummy_data = {"total_clips": 1, "distribution": {}}
+        with open(report_path, 'w') as f:
+            json.dump(dummy_data, f)
+        
+        loaded = load_processed_clips(report_path)
+        assert loaded == dummy_data
+        
+        empty = load_processed_clips(str(tmp_path / "nonexistent.json"))
+        assert empty == []
