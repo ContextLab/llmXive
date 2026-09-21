@@ -13,3 +13,10 @@ T008:
     \ to HCP data handling and graph analysis, not to the required checksumming feature.\
     \ The task therefore lacks the required implementation and cannot be considered\
     \ complete."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, log file, or computed value) showing the mean\
+    \ framewise displacement of the final retained dataset was provided, nor any evidence\
+    \ that the value was logged and checked against the \u22640.2\u202Fmm threshold.\
+    \ Without such concrete output, the task requirement is not satisfied."

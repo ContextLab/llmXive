@@ -1,10 +1,23 @@
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+matplotlib>=3.7.0
 statsmodels>=0.14.0
-prophet>=1.1.5
+prophet>=1.1.0
 torch>=2.0.0
 properscoring>=0.1
-scikit-learn>=1.3.0
-scipy>=1.11.0
-pandas>=2.0.0
-numpy>=1.24.0
-matplotlib>=3.7.0
+
+# Utilities
+pytest>=7.3.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
 pdoc>=14.0.0
+
+# Data loading
+huggingface-hub>=0.14.0
+
+# Logging and monitoring
+jsonlines>=3.1.0

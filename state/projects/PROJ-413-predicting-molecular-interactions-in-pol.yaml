@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T21:27:32.737989Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-413-predicting-molecular-interactions-in-pol
-last_run_id: d0d2bd9a-1a12-4b49-b583-5859caafc671
+last_run_id: 04b43ff8-8d8d-4870-8931-c5c55db0d1d8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol
 title: Predicting Molecular Interactions in Polymer Composites with Graph Neural Networks
-updated_at: '2026-09-02T03:35:36.593629Z'
+updated_at: '2026-09-21T07:08:56.617164Z'

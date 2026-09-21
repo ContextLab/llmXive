@@ -1,53 +1,33 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-calibration"
-version = "0.1.0"
-description = "Calibration of Predictive Intervals for Time-Series Forecasts"
-requires-python = ">=3.11"
-dependencies = [
-    "statsmodels",
-    "prophet",
-    "torch",
-    "properscoring",
-    "scikit-learn",
-    "scipy",
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov"
-]
-
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.pytest_cache
+    | __pycache__
+    | node_modules
+    | venv
+    | env
+    | build
+    | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = ["calibration", "models", "metrics", "utils", "data", "evaluation", "scripts", "config", "data_loader", "setup_project_structure", "setup_data_dirs", "setup_results_dirs", "setup_tests_structure"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --cov=code --cov-report=term-missing"
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

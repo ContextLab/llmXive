@@ -2,5 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007** — No evidence was provided that the `data/raw/`, `data/processed/`, and `data/results/` directories actually exist; the response contains only the task description without any file‑system listing or screenshots confirming the directory structure. The required artifacts are missing.
-- **T008** — No checksum utility (e.g., a script, module, or documentation showing SHA‑256 generation and verification) is present; the only artifacts described relate to HCP data handling and graph analysis, not to the required checksumming feature. The task therefore lacks the required implementation and cannot be considered complete.
+- **T014b** — No artifact (e.g., script output, log file, or computed value) showing the mean framewise displacement of the final retained dataset was provided, nor any evidence that the value was logged and checked against the ≤0.2 mm threshold. Without such concrete output, the task requirement is not satisfied.
+- **T015** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-190-investigating-the-relationship-between-b.yaml

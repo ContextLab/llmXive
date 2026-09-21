@@ -11,6 +11,13 @@ T003b:
   r: "The `code/.black.toml` file exists, is non\u2011empty, and contains a full Black\
     \ configuration (line length, target version, include/exclude patterns, and formatting\
     \ options), fulfilling the requirement to configure formatting in that location."
+T004c:
+  c: false
+  h: 16b4c859c79d10f16c53d4dc4c24eb67651f067056977f23e5692a31c7c6635a
+  r: The `code/config.py` file contains only static dataclass defaults and no runtime
+    logic to read `data/processed/config.yaml`, and the required `data/processed/config.yaml`
+    file is absent from the repository. Consequently, the configuration loader and
+    deferred parameters are not implemented.
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,13 +43,6 @@ T014c:
     Moreover, the required data file `data/processed/subtle_cue_subset.parquet` is
     absent, and `code/config.py` is truncated and lacks the expected accessor functions.
     These missing pieces prevent the task from being fulfilled.
-T020:
-  c: false
-  h: 1fa7a2d1c090cc7b515eb96b23bc2c8e5f76d5e5bd212f71df5b401d6e7dd630
-  r: "The required config files `data/processed/class_config_subtle.yaml` and `data/processed/class_config_control.yaml`\
-    \ are absent, and the expected output file `data/processed/subtle_cue_subset.parquet`\
-    \ was not generated. Consequently the loader cannot perform the required filtering\
-    \ nor produce the checksum\u2011verified parquet file."
 T021c:
   c: false
   h: 60d73e333b9c284d6c3312458f5ad8bcf3e20a279662fb8ad094c64b8827e5a1

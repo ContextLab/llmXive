@@ -108,7 +108,7 @@
 
 - [X] T021 [P] Implement `code/metrics/pit.py`: Calculate Probability Integral Transform for forecast errors, generate histogram data, perform Ljung-Box test for uniformity, and return p-value and histogram bins.
 - [X] T022 [P] Implement `code/metrics/crps.py`: Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`.
-- [ ] T022b [P] Implement `code/metrics/distributional_shape.py`: Calculate kurtosis and tail-weight metrics for the PIT values. Flag series as having 'heavy tails' if kurtosis > 3.5.
+- [X] T022b [P] Implement `code/metrics/distributional_shape.py`: Calculate kurtosis and tail-weight metrics for the PIT values. Flag series as having 'heavy tails' if kurtosis > 3.5.
 - [X] T023 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (logic merged into T018).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,7 +128,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031a [US3] Implement `code/evaluation/bootstrap_test.py`: Paired bootstrap test with 1000 resamples at the time-series level, compare coverage deviations between models, and return p-values for significance at α=0.05.
+- [X] T031a [US3] Implement `code/evaluation/bootstrap_test.py`: Paired bootstrap test with 1000 resamples at the time-series level, compare coverage deviations between models, and return p-values for significance at α=0.05.
 - [ ] T031b [US3] Implement `code/calibration/conformal_orchestrator.py`: Self-Calibrating Conformal Prediction wrapper. Write results to `results/conformal_results.csv` with columns: `series_id`, `model`, `calibration_metric`, `baseline_value`, `conformal_value`.
 - [ ] T031 [US3] Implement `code/evaluation/significance_orchestrator.py`: Read completed `results/coverage.csv` and `results/distributional_metrics.csv`, execute `bootstrap_test.py` and `conformal_orchestrator.py`, and write final results to `results/significance_test.csv` and `results/conformal_results.csv`. **Note**: This is a separate script, not a modification of `runner.py`.
 - [ ] T032 [US3] Implement `code/evaluation/runner.py::write_significance_results` to serialize the bootstrap p-values to `results/significance_test.csv`.

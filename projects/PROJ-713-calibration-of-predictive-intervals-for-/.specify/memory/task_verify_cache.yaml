@@ -21,14 +21,6 @@ T015:
     reduced\u2011learning\u2011rate logic nor any logging to `results/skipped_series.log`\
     \ (the log file is missing). Consequently the task requirements are not fully\
     \ met."
-T018:
-  c: false
-  h: 07ea32971ca0c07dd6435039407852079dfb791162d42c295cec76f7e53d9ab3
-  r: The required output file `results/coverage.csv` does not exist, so aggregation
-    of results is not performed. Moreover, the provided `code/evaluation/runner.py`
-    is only partially shown and does not demonstrate a loop that processes all M4/UCI
-    series or streams UCI data, leaving the core task unverified. The missing CSV
-    and incomplete script mean the requirement is not satisfied.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,6 +34,22 @@ T025:
   r: The required output file `results/distributional_metrics.csv` does not exist,
     so the aggregation of PIT and CRPS results was not produced. The task therefore
     lacks the essential artifact.
+T031:
+  c: false
+  h: 0a57711a334c4aafb51664655b0c0889ff4a95bc56f7a0001864079321e35127
+  r: The provided `significance_orchestrator.py` is truncated and ends abruptly, indicating
+    missing implementation logic. Moreover, the required input files (`results/coverage.csv`,
+    `results/distributional_metrics.csv`) and the expected output files (`results/significance_test.csv`,
+    `results/conformal_results.csv`) are absent from the repository. Without these
+    files and a complete script, the task requirements are not met.
+T031b:
+  c: false
+  h: 4f12104d8d94735b6672fbb77ab55eee0528484793edafd5683d66ae13621ab2
+  r: The required output file `results/conformal_results.csv` does not exist, and
+    the provided `conformal_orchestrator.py` is truncated and does not show the logic
+    that writes a CSV with the specified columns (`series_id`, `model`, `calibration_metric`,
+    `baseline_value`, `conformal_value`). Both the artifact and its expected behavior
+    are missing.
 T033a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -68,3 +76,17 @@ T036:
   r: "No evidence of new test files in `tests/unit/` was provided; the claim lacks\
     \ any displayed or described unit test code that checks constant\u2011variance\
     \ or NaN edge cases, so the required artifact is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced\
+    \ results, or a report confirming end\u2011to\u2011end reproducibility) was provided;\
+    \ the implementer supplied only the feature specification without any artifact\
+    \ demonstrating the required validation."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test results, logs, or documentation were provided that demonstrate\
+    \ the `state/` directory\u2019s hash values and `updated_at` timestamps are being\
+    \ computed and stored correctly; the claim lacks any concrete artifact to verify\
+    \ the requirement."

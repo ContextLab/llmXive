@@ -1,304 +1,226 @@
-"""
-Benchmark script to run the full pipeline on M4/UCI subset and record runtime.
-
-This script executes the evaluation runner on a subset of the data to measure
-total execution time, model fitting times, and metric calculation times.
-Results are saved to results/benchmark_timing.csv.
-"""
 import os
 import sys
 import time
 import argparse
+import csv
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-import pandas as pd
-import numpy as np
 import logging
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import RESULTS_DIR, DATA_RAW_DIR, DATA_PROCESSED_DIR
+from config import Config, ensure_dirs
 from utils.logger import get_logger
-from evaluation.runner import run_evaluation, aggregate_and_save_results
-from data_loader import load_m4_hourly, load_uci_electricity, split_series
+from utils.exceptions import DataValidationError, ModelConvergenceError
+from data.sampler import stratified_sampler, save_sample_metadata
+from data_loader import fetch_data, load_m4_hourly, load_uci_electricity, split_series, standardize
 from models.arima_model import ARIMAModel
 from models.prophet_model import ProphetModel
 from models.lstm_model import LSTMModel
-from metrics.coverage import compute_coverage
-from metrics.pit import calculate_pit, ljung_box_test
+from metrics.coverage import compute_coverage, aggregate_coverage_results
+from metrics.pit import compute_pit_metrics
 from metrics.crps import compute_crps
-from calibration.conformal import SelfCalibratingConformalWrapper
+from evaluation.runner import load_sample_metadata, process_single_series, run_evaluation
 
 logger = get_logger(__name__)
 
-def time_function(func, *args, **kwargs) -> tuple:
-    """Time a function execution and return result and duration."""
-    start = time.perf_counter()
-    result = func(*args, **kwargs)
-    end = time.perf_counter()
-    return result, end - start
+def time_function(func, *args, **kwargs) -> float:
+    """
+    Times the execution of a function.
+    Returns the elapsed time in seconds.
+    """
+    start_time = time.perf_counter()
+    func(*args, **kwargs)
+    end_time = time.perf_counter()
+    return end_time - start_time
 
 def run_benchmark_on_subset(
-    dataset: str = "m4_hourly",
+    config: Config,
+    models: List[str],
     num_series: int = 10,
-    models: List[str] = None,
-    use_conformal: bool = False
-) -> Dict[str, Any]:
+    limit_per_model: Optional[int] = None
+) -> List[Dict[str, Any]]:
     """
-    Run the full pipeline on a subset of data and record timing metrics.
+    Runs the full evaluation pipeline on a stratified subset of data
+    to measure runtime.
     
     Args:
-        dataset: Dataset to use ('m4_hourly' or 'uci_electricity')
-        num_series: Number of series to process (subset size)
-        models: List of models to evaluate ('arima', 'prophet', 'lstm')
-        use_conformal: Whether to apply conformal prediction wrapper
-    
+        config: Configuration object
+        models: List of model names to benchmark (e.g., ['arima', 'prophet'])
+        num_series: Number of series to sample from the dataset
+        limit_per_model: Optional limit on series per model for speed
+        
     Returns:
-        Dictionary containing timing metrics and results
+        List of dictionaries containing benchmark results
     """
-    if models is None:
-        models = ['arima', 'prophet', 'lstm']
+    logger.info(f"Starting benchmark on {num_series} series for models: {models}")
     
-    logger.info(f"Starting benchmark on {dataset} with {num_series} series")
-    logger.info(f"Models: {models}, Conformal: {use_conformal}")
+    # Ensure directories exist
+    ensure_dirs(config)
+    
+    # Load or create sample metadata
+    # We assume a sample has been created or we create one on the fly for the benchmark
+    # If sample_metadata doesn't exist, we create a small one
+    sample_path = config.SAMPLE_METADATA_PATH
+    if not sample_path.exists():
+        logger.info("No sample metadata found. Creating a stratified sample.")
+        # Fetch a small amount of real data to sample from
+        try:
+            # Attempt to load a small subset of M4 hourly data
+            m4_data = load_m4_hourly(limit=num_series * 2) # Fetch slightly more to sample
+            if m4_data is None or len(m4_data) == 0:
+                raise DataValidationError("Could not load M4 hourly data for sampling.")
+            
+            # Create sample metadata
+            sample_indices = stratified_sampler(m4_data, n_samples=num_series, seed=config.SEED)
+            save_sample_metadata(sample_indices, sample_path)
+            logger.info(f"Saved sample metadata to {sample_path}")
+        except Exception as e:
+            logger.error(f"Failed to create sample metadata: {e}")
+            raise
+    
+    sample_meta = load_sample_metadata(sample_path)
+    results = []
     
     total_start = time.perf_counter()
     
-    # Load data
-    logger.info("Loading data...")
-    load_start = time.perf_counter()
-    
-    if dataset == "m4_hourly":
-        data = load_m4_hourly()
-        series_list = list(data.keys())[:num_series]
-    elif dataset == "uci_electricity":
-        data = load_uci_electricity()
-        series_list = list(data.columns[:num_series])
-    else:
-        raise ValueError(f"Unknown dataset: {dataset}")
-    
-    load_duration = time.perf_counter() - load_start
-    logger.info(f"Data loaded in {load_duration:.2f}s")
-    
-    # Initialize timing records
-    timing_records = []
-    results_summary = {
-        'total_duration': 0,
-        'data_loading': load_duration,
-        'models': {},
-        'metrics': {},
-        'conformal': {},
-        'series_processed': num_series,
-        'dataset': dataset
-    }
-    
-    # Process each series
-    for idx, series_id in enumerate(series_list):
-        logger.info(f"Processing series {idx+1}/{num_series}: {series_id}")
-        
-        if dataset == "m4_hourly":
-            series_data = data[series_id]
-        else:
-            series_data = data[series_id]
-        
-        train_data, test_data = split_series(series_data, train_ratio=0.8)
+    for idx, series_info in enumerate(sample_meta):
+        series_id = series_info['series_id']
+        logger.info(f"Processing series {idx+1}/{len(sample_meta)}: {series_id}")
         
         series_start = time.perf_counter()
         
-        # Fit models
-        model_times = {}
-        model_results = {}
-        
         for model_name in models:
-            model_start = time.perf_counter()
-            
-            try:
-                if model_name == 'arima':
-                    model = ARIMAModel()
-                    forecasts, intervals = model.fit_predict(train_data, test_data)
-                elif model_name == 'prophet':
-                    model = ProphetModel()
-                    forecasts, intervals = model.fit_predict(train_data, test_data)
-                elif model_name == 'lstm':
-                    model = LSTMModel()
-                    forecasts, intervals = model.fit_predict(train_data, test_data)
-                else:
-                    raise ValueError(f"Unknown model: {model_name}")
-                
-                model_time = time.perf_counter() - model_start
-                model_times[model_name] = model_time
-                model_results[model_name] = {
-                    'forecasts': forecasts,
-                    'intervals': intervals
-                }
-                
-                logger.info(f"  {model_name} completed in {model_time:.2f}s")
-                
-            except Exception as e:
-                logger.error(f"  {model_name} failed: {str(e)}")
-                model_times[model_name] = -1
-                model_results[model_name] = None
-        
-        # Calculate metrics
-        metric_times = {}
-        metric_results = {}
-        
-        for model_name in models:
-            if model_results[model_name] is None:
+            if limit_per_model and len([r for r in results if r['model'] == model_name]) >= limit_per_model:
                 continue
             
-            metric_start = time.perf_counter()
-            
+            model_start = time.perf_counter()
             try:
-                forecasts = model_results[model_name]['forecasts']
-                intervals = model_results[model_name]['intervals']
+                # Run the evaluation for this series and model
+                # We use the existing process_single_series logic but wrap it for timing
+                # Note: process_single_series expects a loaded series, we need to fetch it
+                # Re-fetching data for the specific series to ensure real data usage
+                full_data = fetch_data(config.DATA_DIR, series_id)
+                if full_data is None:
+                    logger.warning(f"Could not fetch data for {series_id}, skipping.")
+                    continue
+                    
+                train, test = split_series(full_data, test_size=config.TEST_SIZE)
                 
-                # Coverage
-                coverage = compute_coverage(test_data, forecasts, intervals)
+                # Initialize model
+                if model_name == 'arima':
+                    model = ARIMAModel()
+                elif model_name == 'prophet':
+                    model = ProphetModel()
+                elif model_name == 'lstm':
+                    model = LSTMModel()
+                else:
+                    logger.error(f"Unknown model: {model_name}")
+                    continue
                 
-                # PIT
-                pit_values, pit_hist = calculate_pit(test_data, forecasts, intervals)
-                lb_pvalue = ljung_box_test(pit_values)
+                # Fit and Predict
+                model.fit(train)
+                predictions, intervals = model.predict(test)
                 
-                # CRPS
-                crps_score = compute_crps(test_data, forecasts, intervals)
+                # Metrics
+                coverage_res = compute_coverage(test['value'].values, predictions, intervals, config)
+                pit_res = compute_pit_metrics(test['value'].values, predictions, intervals)
+                crps_val = compute_crps(test['value'].values, predictions, intervals)
                 
-                metric_time = time.perf_counter() - metric_start
-                metric_times[model_name] = metric_time
-                metric_results[model_name] = {
-                    'coverage': coverage,
-                    'pit_pvalue': lb_pvalue,
-                    'crps': crps_score
-                }
+                model_end = time.perf_counter()
+                model_time = model_end - model_start
                 
+                results.append({
+                    'series_id': series_id,
+                    'model': model_name,
+                    'status': 'success',
+                    'runtime_seconds': model_time,
+                    'coverage_0.80': coverage_res.get('coverage_0.80', 0.0),
+                    'coverage_0.95': coverage_res.get('coverage_0.95', 0.0),
+                    'crps': crps_val
+                })
+                
+            except (ModelConvergenceError, DataValidationError) as e:
+                model_end = time.perf_counter()
+                model_time = model_end - model_start
+                logger.warning(f"Series {series_id} / Model {model_name} failed: {e}")
+                results.append({
+                    'series_id': series_id,
+                    'model': model_name,
+                    'status': 'failed',
+                    'runtime_seconds': model_time,
+                    'error': str(e)
+                })
             except Exception as e:
-                logger.error(f"  Metrics for {model_name} failed: {str(e)}")
-                metric_times[model_name] = -1
-                metric_results[model_name] = None
+                model_end = time.perf_counter()
+                model_time = model_end - model_start
+                logger.error(f"Unexpected error for {series_id} / {model_name}: {e}")
+                results.append({
+                    'series_id': series_id,
+                    'model': model_name,
+                    'status': 'error',
+                    'runtime_seconds': model_time,
+                    'error': str(e)
+                })
         
-        # Conformal prediction (if requested)
-        conformal_time = 0
-        conformal_results = None
-        if use_conformal:
-            conformal_start = time.perf_counter()
-            try:
-                wrapper = SelfCalibratingConformalWrapper()
-                conformal_forecasts, conformal_intervals = wrapper.fit_predict(
-                    train_data, test_data, model_results['arima']['forecasts']
-                )
-                conformal_coverage = compute_coverage(test_data, conformal_forecasts, conformal_intervals)
-                conformal_time = time.perf_counter() - conformal_start
-                conformal_results = {'coverage': conformal_coverage}
-            except Exception as e:
-                logger.error(f"  Conformal prediction failed: {str(e)}")
-                conformal_time = -1
-                conformal_results = None
-        
-        series_duration = time.perf_counter() - series_start
-        
-        # Record timing for this series
-        timing_records.append({
-            'series_id': series_id,
-            'series_index': idx + 1,
-            'total_series_time': series_duration,
-            **{f'{m}_fit_time': model_times.get(m, -1) for m in models},
-            **{f'{m}_metric_time': metric_times.get(m, -1) for m in models},
-            'conformal_time': conformal_time
-        })
-        
-        # Aggregate results
-        results_summary['total_duration'] += series_duration
-        for m in models:
-            if m not in results_summary['models']:
-                results_summary['models'][m] = {'fit_times': [], 'metric_times': []}
-            results_summary['models'][m]['fit_times'].append(model_times.get(m, -1))
-            results_summary['models'][m]['metric_times'].append(metric_times.get(m, -1))
-        
-        if use_conformal and conformal_results:
-            results_summary['conformal'] = conformal_results
+        series_end = time.perf_counter()
+        logger.info(f"Finished series {series_id} in {series_end - series_start:.2f}s")
     
-    total_duration = time.perf_counter() - total_start
-    results_summary['total_duration'] = total_duration
+    total_end = time.perf_counter()
+    total_time = total_end - total_start
+    logger.info(f"Benchmark completed in {total_time:.2f} seconds")
     
-    logger.info(f"Benchmark completed in {total_duration:.2f}s")
-    
-    return {
-        'timing_records': pd.DataFrame(timing_records),
-        'summary': results_summary
-    }
+    return results
 
-def save_benchmark_results(benchmark_results: Dict[str, Any], output_path: str):
-    """Save benchmark results to CSV."""
-    timing_df = benchmark_results['timing_records']
-    summary = benchmark_results['summary']
+def save_benchmark_results(results: List[Dict[str, Any]], output_path: Path):
+    """
+    Saves benchmark results to a CSV file.
+    """
+    logger.info(f"Saving benchmark results to {output_path}")
+    if not results:
+        logger.warning("No results to save.")
+        return
     
-    # Create summary row
-    summary_data = {
-        'metric': 'total_duration',
-        'value': summary['total_duration'],
-        'dataset': summary['dataset'],
-        'series_count': summary['series_processed']
-    }
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    for model_name, model_data in summary['models'].items():
-        avg_fit = np.mean([t for t in model_data['fit_times'] if t > 0]) if model_data['fit_times'] else -1
-        avg_metric = np.mean([t for t in model_data['metric_times'] if t > 0]) if model_data['metric_times'] else -1
-        
-        summary_data[f'{model_name}_avg_fit_time'] = avg_fit
-        summary_data[f'{model_name}_avg_metric_time'] = avg_metric
+    fieldnames = list(results[0].keys())
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
     
-    summary_df = pd.DataFrame([summary_data])
-    
-    # Combine timing records and summary
-    full_df = pd.concat([timing_df, summary_df], ignore_index=True)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    full_df.to_csv(output_path, index=False)
-    logger.info(f"Benchmark results saved to {output_path}")
+    logger.info(f"Saved {len(results)} benchmark results.")
 
 def main():
-    parser = argparse.ArgumentParser(description='Benchmark the predictive interval calibration pipeline')
-    parser.add_argument('--dataset', type=str, default='m4_hourly', 
-                      choices=['m4_hourly', 'uci_electricity'],
-                      help='Dataset to benchmark on')
-    parser.add_argument('--num-series', type=int, default=10,
-                      help='Number of series to process')
-    parser.add_argument('--models', type=str, nargs='+', default=['arima', 'prophet', 'lstm'],
-                      help='Models to evaluate')
-    parser.add_argument('--conformal', action='store_true',
-                      help='Include conformal prediction in benchmark')
-    parser.add_argument('--output', type=str, default=None,
-                      help='Output file path (default: results/benchmark_timing.csv)')
+    parser = argparse.ArgumentParser(description="Benchmark the full pipeline on a subset.")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config file")
+    parser.add_argument("--models", type=str, nargs="+", default=["arima", "prophet"], 
+                        help="Models to benchmark")
+    parser.add_argument("--num-series", type=int, default=5, help="Number of series to process")
+    parser.add_argument("--output", type=str, default="results/benchmark_timing.csv", 
+                        help="Output path for benchmark results")
     
     args = parser.parse_args()
     
-    if args.output is None:
-        args.output = str(RESULTS_DIR / 'benchmark_timing.csv')
+    # Load config
+    config = Config(args.config)
+    ensure_dirs(config)
     
-    logger.info(f"Starting benchmark: dataset={args.dataset}, series={args.num_series}")
+    # Run benchmark
+    results = run_benchmark_on_subset(
+        config, 
+        models=args.models, 
+        num_series=args.num_series
+    )
     
-    try:
-        results = run_benchmark_on_subset(
-            dataset=args.dataset,
-            num_series=args.num_series,
-            models=args.models,
-            use_conformal=args.conformal
-        )
-        
-        save_benchmark_results(results, args.output)
-        
-        logger.info("Benchmark completed successfully")
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Benchmark failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return 1
+    # Save results
+    output_path = Path(args.output)
+    save_benchmark_results(results, output_path)
+    
+    print(f"Benchmark completed. Results saved to {output_path}")
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

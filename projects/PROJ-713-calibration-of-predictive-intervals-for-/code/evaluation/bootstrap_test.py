@@ -1,14 +1,9 @@
 """
-Bootstrap significance testing for predictive interval calibration.
+Bootstrap test module for statistical significance of coverage deviations.
 
-This module implements paired bootstrap tests to compare coverage deviations
-between different forecasting models (ARIMA, Prophet, LSTM) on the same
-time series data.
-
-The test uses time-series level resampling to preserve autocorrelation structure
-within blocks while allowing variation between series.
+Implements paired bootstrap tests to compare predictive interval coverage
+between different models at the time-series level.
 """
-
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Optional, Union
@@ -20,259 +15,251 @@ logger = get_logger(__name__)
 
 
 def paired_bootstrap_test(
-    coverage_deviation_model_a: Union[np.ndarray, List[float]],
-    coverage_deviation_model_b: Union[np.ndarray, List[float]],
+    coverage_deviations_model_a: np.ndarray,
+    coverage_deviations_model_b: np.ndarray,
     n_resamples: int = 1000,
     alpha: float = 0.05,
     random_seed: Optional[int] = None
-) -> Dict[str, float]:
+) -> Dict[str, Union[float, bool, int]]:
     """
     Perform a paired bootstrap test to compare coverage deviations between two models.
 
-    The null hypothesis is that there is no difference in the mean coverage deviation
-    between the two models. The alternative is that they differ (two-sided test).
+    The test assesses whether the mean difference in coverage deviations between
+    two models is statistically significant.
 
     Args:
-        coverage_deviation_model_a: Array of coverage deviations for model A
-            (empirical_coverage - nominal_coverage) for each series.
-        coverage_deviation_model_b: Array of coverage deviations for model B.
-        n_resamples: Number of bootstrap resamples to generate.
-        alpha: Significance level for the test (default 0.05).
+        coverage_deviations_model_a: Array of coverage deviations (empirical - nominal) for model A.
+        coverage_deviations_model_b: Array of coverage deviations (empirical - nominal) for model B.
+        n_resamples: Number of bootstrap resamples (default: 1000).
+        alpha: Significance level (default: 0.05).
         random_seed: Random seed for reproducibility.
 
     Returns:
         Dictionary containing:
-            - 'p_value': Two-sided p-value from the bootstrap test.
-            - 'mean_diff_a': Mean coverage deviation for model A.
-            - 'mean_diff_b': Mean coverage deviation for model B.
-            - 'observed_diff': Observed difference (mean_a - mean_b).
-            - 'significant': Boolean indicating if p_value < alpha.
-            - 'confidence_interval': 95% CI for the difference in means.
-
-    Raises:
-        DataValidationError: If input arrays have different lengths or are empty.
-        CalibrationError: If bootstrap computation fails.
+            - 'mean_diff': Mean difference (Model A - Model B)
+            - 'bootstrap_mean_diff': Mean of bootstrap distribution of differences
+            - 'ci_lower': Lower bound of 95% confidence interval
+            - 'ci_upper': Upper bound of 95% confidence interval
+            - 'p_value': Two-sided p-value from bootstrap test
+            - 'significant': Boolean indicating if p_value < alpha
+            - 'n_resamples': Number of resamples performed
     """
-    dev_a = np.asarray(coverage_deviation_model_a, dtype=float)
-    dev_b = np.asarray(coverage_deviation_model_b, dtype=float)
-
-    if len(dev_a) == 0 or len(dev_b) == 0:
-        raise DataValidationError("Coverage deviation arrays cannot be empty.")
-
-    if len(dev_a) != len(dev_b):
+    if len(coverage_deviations_model_a) != len(coverage_deviations_model_b):
         raise DataValidationError(
-            f"Coverage deviation arrays must have same length. "
-            f"Got {len(dev_a)} and {len(dev_b)}."
+            f"Coverage deviation arrays must have the same length. "
+            f"Got {len(coverage_deviations_model_a)} and {len(coverage_deviations_model_b)}"
         )
+
+    if len(coverage_deviations_model_a) == 0:
+        raise DataValidationError("Coverage deviation arrays cannot be empty.")
 
     if random_seed is not None:
         np.random.seed(random_seed)
 
-    # Observed difference in means
-    mean_a = np.mean(dev_a)
-    mean_b = np.mean(dev_b)
-    observed_diff = mean_a - mean_b
+    # Calculate observed mean difference
+    differences = coverage_deviations_model_a - coverage_deviations_model_b
+    observed_mean_diff = np.mean(differences)
 
-    # Paired bootstrap: resample indices and compute difference of means
-    n = len(dev_a)
-    bootstrap_diffs = np.empty(n_resamples)
+    # Bootstrap resampling
+    bootstrap_means = []
+    n_series = len(differences)
 
-    try:
-        for i in range(n_resamples):
-            indices = np.random.choice(n, size=n, replace=True)
-            resampled_a = dev_a[indices]
-            resampled_b = dev_b[indices]
-            bootstrap_diffs[i] = np.mean(resampled_a) - np.mean(resampled_b)
+    for _ in range(n_resamples):
+        # Resample with replacement at the series level
+        indices = np.random.choice(n_series, size=n_series, replace=True)
+        resampled_diffs = differences[indices]
+        bootstrap_means.append(np.mean(resampled_diffs))
 
-    except Exception as e:
-        raise CalibrationError(f"Bootstrap resampling failed: {e}")
+    bootstrap_means = np.array(bootstrap_means)
 
-    # Two-sided p-value: proportion of bootstrap diffs with |diff| >= |observed|
-    abs_observed = np.abs(observed_diff)
-    p_value = np.mean(np.abs(bootstrap_diffs) >= abs_observed)
+    # Calculate confidence interval (percentile method)
+    ci_lower = np.percentile(bootstrap_means, (alpha / 2) * 100)
+    ci_upper = np.percentile(bootstrap_means, (1 - alpha / 2) * 100)
 
-    # Confidence interval for the difference (percentile method)
-    lower_ci = np.percentile(bootstrap_diffs, 100 * alpha / 2)
-    upper_ci = np.percentile(bootstrap_diffs, 100 * (1 - alpha / 2))
+    # Calculate two-sided p-value
+    # Count how many bootstrap means are as extreme or more extreme than observed
+    # under the null hypothesis that the true difference is zero
+    # We center the bootstrap distribution at zero for the null hypothesis
+    centered_bootstrap = bootstrap_means - np.mean(bootstrap_means)
+    extreme_count = np.sum(np.abs(centered_bootstrap) >= np.abs(observed_mean_diff))
+    p_value = extreme_count / n_resamples
 
-    return {
+    result = {
+        'mean_diff': float(observed_mean_diff),
+        'bootstrap_mean_diff': float(np.mean(bootstrap_means)),
+        'ci_lower': float(ci_lower),
+        'ci_upper': float(ci_upper),
         'p_value': float(p_value),
-        'mean_diff_a': float(mean_a),
-        'mean_diff_b': float(mean_b),
-        'observed_diff': float(observed_diff),
         'significant': bool(p_value < alpha),
-        'confidence_interval': (float(lower_ci), float(upper_ci)),
-        'n_resamples': n_resamples,
-        'n_series': n
+        'n_resamples': n_resamples
     }
+
+    logger.info(
+        f"Bootstrap test completed: mean_diff={observed_mean_diff:.4f}, "
+        f"p_value={p_value:.4f}, significant={p_value < alpha}"
+    )
+
+    return result
 
 
 def compare_models_coverage(
     results_df: pd.DataFrame,
     model_a: str,
     model_b: str,
-    confidence_level: float,
+    nominal_level: float,
     n_resamples: int = 1000,
     alpha: float = 0.05,
     random_seed: Optional[int] = None
-) -> Dict[str, Any]:
+) -> Dict[str, Union[float, bool, int, str]]:
     """
-    Compare coverage deviations between two models for a specific confidence level.
+    Compare coverage deviations between two specific models for a given nominal level.
 
     Args:
         results_df: DataFrame containing coverage results with columns:
-            - 'model': Model name
-            - 'confidence_level': Nominal confidence level
-            - 'coverage_deviation': Deviation from nominal coverage
+                    'series_id', 'model', 'nominal_level', 'empirical_coverage', 'deviation'
         model_a: Name of the first model to compare.
         model_b: Name of the second model to compare.
-        confidence_level: The confidence level to filter results (e.g., 0.80, 0.95).
+        nominal_level: The confidence level (e.g., 0.80, 0.95) to compare.
         n_resamples: Number of bootstrap resamples.
         alpha: Significance level.
-        random_seed: Random seed.
+        random_seed: Random seed for reproducibility.
 
     Returns:
-        Dictionary with test results for the specified models and confidence level.
-
-    Raises:
-        DataValidationError: If required columns are missing or data is insufficient.
+        Dictionary containing test results and metadata.
     """
-    required_cols = ['model', 'confidence_level', 'coverage_deviation']
-    missing_cols = [c for c in required_cols if c not in results_df.columns]
-    if missing_cols:
+    # Filter data for the two models and specified nominal level
+    mask = (
+        (results_df['model'].isin([model_a, model_b])) &
+        (results_df['nominal_level'] == nominal_level)
+    )
+    filtered_df = results_df[mask]
+
+    if len(filtered_df) == 0:
         raise DataValidationError(
-            f"Results DataFrame missing required columns: {missing_cols}"
+            f"No data found for models {model_a} and {model_b} at nominal level {nominal_level}"
         )
 
-    # Filter for the specified confidence level
-    mask = results_df['confidence_level'] == confidence_level
-    subset = results_df[mask]
+    # Extract deviations for each model
+    deviations_a = filtered_df[filtered_df['model'] == model_a]['deviation'].values
+    deviations_b = filtered_df[filtered_df['model'] == model_b]['deviation'].values
 
-    if len(subset) == 0:
+    if len(deviations_a) != len(deviations_b):
+        # In case of missing series for one model, we need to handle this
+        # For paired test, we should only include series present in both
+        logger.warning(
+            f"Unequal number of series: {model_a} has {len(deviations_a)}, "
+            f"{model_b} has {len(deviations_b)}. Filtering to common series."
+        )
+        # This assumes series_id is the key for pairing
+        common_series = set(filtered_df[filtered_df['model'] == model_a]['series_id']) & \
+                        set(filtered_df[filtered_df['model'] == model_b]['series_id'])
+        
+        deviations_a = filtered_df[
+            (filtered_df['model'] == model_a) & 
+            (filtered_df['series_id'].isin(common_series))
+        ]['deviation'].values
+        
+        deviations_b = filtered_df[
+            (filtered_df['model'] == model_b) & 
+            (filtered_df['series_id'].isin(common_series))
+        ]['deviation'].values
+
+    if len(deviations_a) == 0:
         raise DataValidationError(
-            f"No results found for confidence_level={confidence_level}"
+            f"No common series found between {model_a} and {model_b} for nominal level {nominal_level}"
         )
 
-    # Get deviations for each model
-    dev_a = subset[subset['model'] == model_a]['coverage_deviation'].values
-    dev_b = subset[subset['model'] == model_b]['coverage_deviation'].values
+    logger.info(
+        f"Running bootstrap test for {model_a} vs {model_b} at level {nominal_level} "
+        f"with {len(deviations_a)} series"
+    )
 
-    if len(dev_a) == 0 or len(dev_b) == 0:
-        raise DataValidationError(
-            f"Insufficient data for comparison. "
-            f"Model A ({model_a}): {len(dev_a)} series, "
-            f"Model B ({model_b}): {len(dev_b)} series."
-        )
-
-    # Run paired bootstrap test
     test_result = paired_bootstrap_test(
-        dev_a,
-        dev_b,
+        deviations_a,
+        deviations_b,
         n_resamples=n_resamples,
         alpha=alpha,
         random_seed=random_seed
     )
 
-    test_result['model_a'] = model_a
-    test_result['model_b'] = model_b
-    test_result['confidence_level'] = confidence_level
-
-    logger.info(
-        f"Bootstrap test: {model_a} vs {model_b} at {confidence_level:.2f} "
-        f"(p={test_result['p_value']:.4f}, significant={test_result['significant']})"
-    )
-
-    return test_result
+    return {
+        'model_a': model_a,
+        'model_b': model_b,
+        'nominal_level': nominal_level,
+        'n_series': len(deviations_a),
+        **test_result
+    }
 
 
 def run_all_pairwise_comparisons(
     results_df: pd.DataFrame,
     models: List[str],
-    confidence_levels: List[float],
+    nominal_levels: List[float],
     n_resamples: int = 1000,
     alpha: float = 0.05,
     random_seed: Optional[int] = None
-) -> pd.DataFrame:
+) -> List[Dict[str, Union[float, bool, int, str]]]:
     """
-    Run pairwise bootstrap tests for all model combinations and confidence levels.
+    Run pairwise bootstrap tests for all model combinations across all nominal levels.
 
     Args:
-        results_df: DataFrame with coverage results.
+        results_df: DataFrame containing coverage results.
         models: List of model names to compare.
-        confidence_levels: List of confidence levels to test.
-        n_resamples: Number of bootstrap resamples per test.
+        nominal_levels: List of nominal confidence levels to test.
+        n_resamples: Number of bootstrap resamples.
         alpha: Significance level.
-        random_seed: Random seed.
+        random_seed: Random seed for reproducibility.
 
     Returns:
-        DataFrame with one row per model pair and confidence level, containing
-        test statistics and p-values.
+        List of dictionaries, each containing results for one comparison.
     """
-    results = []
+    all_results = []
 
-    for cl in confidence_levels:
-        for i, model_a in enumerate(models):
-            for model_b in models[i+1:]:
-                try:
-                    test_result = compare_models_coverage(
-                        results_df,
-                        model_a,
-                        model_b,
-                        cl,
-                        n_resamples,
-                        alpha,
-                        random_seed
-                    )
-                    results.append(test_result)
-                except (DataValidationError, CalibrationError) as e:
-                    logger.warning(
-                        f"Skipping comparison {model_a} vs {model_b} at {cl}: {e}"
-                    )
-                    continue
+    # Generate all unique pairs
+    from itertools import combinations
+    model_pairs = list(combinations(models, 2))
 
-    if not results:
-        return pd.DataFrame()
+    for model_a, model_b in model_pairs:
+        for level in nominal_levels:
+            try:
+                result = compare_models_coverage(
+                    results_df,
+                    model_a,
+                    model_b,
+                    level,
+                    n_resamples=n_resamples,
+                    alpha=alpha,
+                    random_seed=random_seed
+                )
+                all_results.append(result)
+            except DataValidationError as e:
+                logger.warning(f"Skipping comparison {model_a} vs {model_b} at level {level}: {e}")
+            except Exception as e:
+                logger.error(f"Error in comparison {model_a} vs {model_b} at level {level}: {e}")
+                raise
 
-    return pd.DataFrame(results)
+    return all_results
 
 
 def aggregate_bootstrap_results(
-    results_df: pd.DataFrame,
-    models: List[str],
-    confidence_levels: List[float],
-    output_path: str,
-    n_resamples: int = 1000,
-    alpha: float = 0.05,
-    random_seed: Optional[int] = None
+    comparison_results: List[Dict[str, Union[float, bool, int, str]]],
+    output_path: str
 ) -> pd.DataFrame:
     """
-    Run all pairwise comparisons and save results to CSV.
+    Aggregate bootstrap test results and save to CSV.
 
     Args:
-        results_df: DataFrame with coverage results.
-        models: List of model names.
-        confidence_levels: List of confidence levels.
-        output_path: Path to save the results CSV.
-        n_resamples: Number of bootstrap resamples.
-        alpha: Significance level.
-        random_seed: Random seed.
+        comparison_results: List of result dictionaries from run_all_pairwise_comparisons.
+        output_path: Path to save the CSV file.
 
     Returns:
-        DataFrame with all test results.
+        DataFrame containing all results.
     """
-    comparison_df = run_all_pairwise_comparisons(
-        results_df,
-        models,
-        confidence_levels,
-        n_resamples,
-        alpha,
-        random_seed
-    )
+    if not comparison_results:
+        raise DataValidationError("No comparison results to aggregate.")
 
-    if not comparison_df.empty:
-        comparison_df.to_csv(output_path, index=False)
-        logger.info(f"Saved bootstrap comparison results to {output_path}")
-    else:
-        logger.warning("No comparisons were successful; no output file created.")
+    df = pd.DataFrame(comparison_results)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} bootstrap comparison results to {output_path}")
 
-    return comparison_df
+    return df

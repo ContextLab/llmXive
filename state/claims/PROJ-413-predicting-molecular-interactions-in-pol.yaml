@@ -390,3 +390,755 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T04:08:40Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: MolNet molecule split contains polymer/filler pairs and adhesion energy
+    fields
+  claim_id: c_b37fea2c
+  context: 'This task fetches the ''molecule'' split which contains polymer/filler
+    pairs and adhesion energy fields. Plan Override: Per plan.md Section Critical
+    Note on Spec Alignment and Spec Amendment Flags, the NIST cross-referencing step
+    is removed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MolNet_molecule_split_contains_polymer/filler_pairs_and_adhe
+  kind: entity_fact
+  raw_text: The pipeline fetches the 'molecule' split which contains polymer/filler
+    pairs and adhesion energy fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:50:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Target dataset size is 100 to 500 interface pairs
+  claim_id: c_7193131b
+  context: "Independent Test: Verify the data pipeline executes without errors, produces\
+    \ data/curated/curated_dataset.csv with \u2265100 rows (target \u2265500) of interface\
+    \ pairs, and confirms all required variables are present."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The goal is to produce data/curated/curated_dataset.csv with \u2265100\
+    \ rows (target \u2265500) of interface pairs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:50:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Data validation threshold is 5% missing values per column
+  claim_id: c_bd6aecf1
+  context: "Independent Test: Verify the data pipeline executes without errors, produces\
+    \ data/curated/curated_dataset.csv with \u2265100 rows (target \u2265500) of interface\
+    \ pairs, and confirms all required variables (atom types, bond types, adhesion\
+    \ energy) are present with \u22645% missing values per column."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The data validation requires \u22645% missing values per column."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:50:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training convergence time limit is 6 hours
+  claim_id: c_1a6ef3a9
+  context: "Goal: Train a Graph Attention Network (GAT) with multiple layers on the\
+    \ curated data using CPU-only execution, ensuring convergence within 6 hours and\
+    \ \u22646GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script must ensure convergence within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:51:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training peak memory limit is 6 GB
+  claim_id: c_79245880
+  context: "Goal: Train a Graph Attention Network (GAT) with multiple layers on the\
+    \ curated data using CPU-only execution, ensuring convergence within 6 hours and\
+    \ \u22646GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training script must ensure peak memory usage is \u22646GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:51:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training completion target is 4.5 hours
+  claim_id: c_8f8aa18e
+  context: "Independent Test: Execute the training script on a CPU-only environment,\
+    \ confirm completion within 4.5 hours (hard limit 6h), peak memory \u22646GB,\
+    \ and verify training loss convergence (MSE reduction \u226550%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test requires training completion within 4.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:51:40Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training loss convergence requires 50% MSE reduction
+  claim_id: c_93777fdf
+  context: "Independent Test: Execute the training script on a CPU-only environment,\
+    \ confirm completion within 4.5 hours (hard limit 6h), peak memory \u22646GB,\
+    \ and verify training loss convergence (MSE reduction \u226550%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The independent test requires MSE reduction of \u226550%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:51:40Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Permutation test involves 100 iterations
+  claim_id: c_08f0c637
+  context: "Independent Test: Run permutation test (100 iterations, 10 epochs each),\
+    \ confirm p < 0.05, identify \u22653 topological features with std > 0.1, and\
+    \ compute VIF on hand-crafted descriptors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test involves 100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:52:38Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10 epochs per iteration
+  claim_id: c_6fb4d0bb
+  context: "Independent Test: Run permutation test (100 iterations, 10 epochs each),\
+    \ confirm p < 0.05, identify \u22653 topological features with std > 0.1, and\
+    \ compute VIF on hand-crafted descriptors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10 epochs per iteration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:53:00Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Analysis must identify 3 topological features with standard deviation
+    greater than 0.1
+  claim_id: c_245be8fe
+  context: "Independent Test: Run permutation test (100 iterations, 10 epochs each),\
+    \ confirm p < 0.05, identify \u22653 topological features with std > 0.1, and\
+    \ compute VIF on hand-crafted descriptors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_must_identify_3_topological_features_with_standard
+  kind: magnitude
+  raw_text: "The analysis must identify \u22653 topological features with a standard\
+    \ deviation > 0.1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:54:00Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Integrated Gradients attribution uses 50 steps
+  claim_id: c_f62dc225
+  context: 'Implement gradient-based Integrated Gradients attribution in code/analysis/attribution.py
+    on a set of test samples using the trained model from T031. Baseline: Zero input.
+    Steps: 50.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: of attributions and graphs show the relationship between sample locations
+        and IDG quality as 50, 250, and 600 steps are used
+      source_id: '2305.20052'
+      url: https://arxiv.org/abs/2305.20052
+      value: '50'
+    filled: true
+  kind: numeric
+  raw_text: The Integrated Gradients attribution uses 50 steps.
+  resolved_value: '50'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T06:54:28Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold is 5
+  claim_id: c_46c098ac
+  context: 'Implement VIF calculation on hand-crafted descriptors from data/processed/descriptors.csv
+    in code/analysis/collinearity.py. Formula: 1 / (1 - R^2). Threshold: VIF > 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold is set to > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:54:28Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis assumes medium effect size f squared 0.15
+  claim_id: c_06e5c7b3
+  context: "Document power analysis assumptions (medium effect size f\xB2=0.15, \u03B1\
+    =0.05, Power=0.80) and determine Required N in analysis/power_analysis.md."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis assumes a medium effect size f\xB2=0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:55:26Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis assumes alpha 0.05
+  claim_id: c_cc90e6ae
+  context: "Document power analysis assumptions (medium effect size f\xB2=0.15, \u03B1\
+    =0.05, Power=0.80) and determine Required N in analysis/power_analysis.md."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "The power analysis assumes alpha \u03B1=0.05."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T06:55:36Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis assumes power 0.80
+  claim_id: c_95af4b1e
+  context: "Document power analysis assumptions (medium effect size f\xB2=0.15, \u03B1\
+    =0.05, Power=0.80) and determine Required N in analysis/power_analysis.md."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis assumes Power=0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T06:55:44Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis uses two-sample t-test
+  claim_id: c_4361c2d7
+  context: "Document power analysis assumptions (medium effect size f\xB2=0.15, \u03B1\
+    =0.05, Power=0.80) and determine Required N in analysis/power_analysis.md. Statistical\
+    \ Test: Two-sample t-test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_uses_two-sample_t-test
+  kind: entity_fact
+  raw_text: The statistical test used for power analysis is a two-sample t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:56:16Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 0
+  canonical: Integrated Gradients steps 50
+  claim_id: c_cd668fd6
+  context: 'T043: ...Steps: 50. Aggregation: Mean absolute importance.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: of attributions and graphs show the relationship between sample locations
+        and IDG quality as 50, 250, and 600 steps are used
+      source_id: '2305.20052'
+      url: https://arxiv.org/abs/2305.20052
+      value: '50'
+    filled: true
+  kind: numeric
+  raw_text: Integrated Gradients attribution uses 50 steps.
+  resolved_value: '50'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T06:57:46Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: MolNet molecule split contains polymer/filler pairs and adhesion energy
+    fields
+  claim_id: c_5608421a
+  context: 'T012: Implement MolNet download via datasets.load_dataset(''molnet'',
+    split=''molecule'') in code/data/download.py with SHA256 checksum recording.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MolNet_molecule_split_contains_polymer/filler_pairs_and_adhe
+  kind: entity_fact
+  raw_text: Download MolNet data via datasets.load_dataset('molnet', split='molecule')
+    which contains polymer/filler pairs and adhesion energy fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:58:11Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Curated dataset minimum row count 100
+  claim_id: c_9c055798
+  context: "Independent Test for User Story 1: Verify the data pipeline executes without\
+    \ errors, produces data/curated/curated_dataset.csv with \u2265100 rows (target\
+    \ \u2265500) of interface pairs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_dataset_minimum_row_count_100
+  kind: magnitude
+  raw_text: The curated dataset must contain at least 100 rows of interface pairs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:58:37Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Curated dataset missing values threshold 5% per column
+  claim_id: c_3d058562
+  context: "Independent Test for User Story 1: ...confirms all required variables\
+    \ (atom types, bond types, adhesion energy) are present with \u22645% missing\
+    \ values per column."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_dataset_missing_values_threshold_5%25_per_column
+  kind: magnitude
+  raw_text: Missing values per column in the curated dataset must be less than or
+    equal to 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:58:59Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: GAT model architecture 3 layers hidden 64 dropout 0.5
+  claim_id: c_02ca2259
+  context: 'T023: Implement 3-layer Graph Attention Network (GAT) using torch_geometric.nn.GATConv
+    in code/models/gat.py (3 layers, hidden=64, dropout=0.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Graph Attention Network (GAT) model uses 3 layers, a hidden dimension
+    of 64, and a dropout rate of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:59:26Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training maximum runtime 6 hours
+  claim_id: c_508e7256
+  context: 'Independent Test for User Story 2: Execute the training script on a CPU-only
+    environment, confirm completion within 4.5 hours (hard limit 6h)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training process is constrained to a maximum runtime of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T06:59:46Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training peak memory limit 6GB
+  claim_id: c_36d65814
+  context: "Independent Test for User Story 2: ...peak memory \u22646GB, and verify\
+    \ training loss convergence (MSE reduction \u226550%)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_peak_memory_limit_6GB
+  kind: entity_fact
+  raw_text: The training process is constrained to a peak memory usage of 6GB or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:00:02Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training MSE reduction target 50%
+  claim_id: c_a5f70bf2
+  context: "Independent Test for User Story 2: ...verify training loss convergence\
+    \ (MSE reduction \u226550%)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_MSE_reduction_target_50%25
+  kind: magnitude
+  raw_text: The training process must achieve a Mean Squared Error (MSE) reduction
+    of at least 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:01:09Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Permutation test 100 iterations
+  claim_id: c_17c2e8bd
+  context: 'Independent Test for User Story 3: Run permutation test (100 iterations,
+    10 epochs each)...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe\
+        \ rmutations"
+      source_id: '1411.7565'
+      url: https://arxiv.org/abs/1411.7565
+      value: '100'
+    filled: true
+  kind: numeric
+  raw_text: The permutation test consists of 100 iterations.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T07:01:35Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Permutation test 10 epochs per iteration
+  claim_id: c_ebae4026
+  context: 'Independent Test for User Story 3: Run permutation test (100 iterations,
+    10 epochs each)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each iteration of the permutation test runs for 10 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:01:58Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Topological features count 3 with std > 0.1
+  claim_id: c_13f17e54
+  context: "Independent Test for User Story 3: ...identify \u22653 topological features\
+    \ with std > 0.1, and compute VIF on hand-crafted descriptors."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Topological_features_count_3_with_std_%3E_0.1
+  kind: magnitude
+  raw_text: At least 3 topological features must have a standard deviation greater
+    than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:02:35Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis assumptions f2 0.15 alpha 0.05 power 0.80
+  claim_id: c_e19b9e61
+  context: "T055: Document power analysis assumptions (medium effect size f\xB2=0.15,\
+    \ \u03B1=0.05, Power=0.80 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)))..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis assumes a medium effect size (f\xB2=0.15), alpha of\
+    \ 0.05, and power of 0.80."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:03:30Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Power analysis statistical test two-sample t-test
+  claim_id: c_ea939ddf
+  context: 'T055: ...Statistical Test: Two-sample t-test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_statistical_test_two-sample_t-test
+  kind: entity_fact
+  raw_text: The statistical test used for power analysis is a two-sample t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:03:31Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold 5
+  claim_id: c_ec6c9abe
+  context: 'T046: ...Threshold: VIF > 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_collinearity_threshold_5
+  kind: magnitude
+  raw_text: The VIF threshold for detecting collinearity is greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:04:00Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training 20% train-test split
+  claim_id: c_48d3216f
+  context: "T028: Implement training loop in code/models/train.py with /20 train-test\
+    \ split, batch \u226432, MSE loss, fixed seed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training uses a 20% train-test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:04:00Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Training batch size limit 32
+  claim_id: c_411f8243
+  context: "T028: Implement training loop in code/models/train.py with /20 train-test\
+    \ split, batch \u226432, MSE loss, fixed seed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training batch size is limited to 32 or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:04:45Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: GAT implementation torch_geometric.nn.GATConv
+  claim_id: c_76754488
+  context: 'T023: Implement 3-layer Graph Attention Network (GAT) using torch_geometric.nn.GATConv
+    in code/models/gat.py...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GAT_implementation_torch_geometric.nn.GATConv
+  kind: entity_fact
+  raw_text: The GAT model is implemented using torch_geometric.nn.GATConv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:05:24Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Data pipeline hard abort E-DATA-001 if missing adhesion energy or rows
+    < 100
+  claim_id: c_3d648152
+  context: 'T014: Implement hard abort logic with exit code E-DATA-001 if adhesion
+    energy is missing OR row count <100 in code/data/clean.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_hard_abort_E-DATA-001_if_missing_adhesion_ener
+  kind: magnitude
+  raw_text: The data pipeline triggers a hard abort with exit code E-DATA-001 if adhesion
+    energy is missing or row count is less than 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:05:57Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Curated dataset schema columns polymer_smiles filler_smiles adhesion_energy
+  claim_id: c_1c04e088
+  context: 'T017: Generate data/curated/curated_dataset.csv with complete molecular
+    graph structures and adhesion energy measurements. Schema: Columns must be polymer_smiles
+    (str), filler_smiles (str), adhesion_energy (float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Curated_dataset_schema_columns_polymer_smiles_filler_smiles
+  kind: entity_fact
+  raw_text: The curated dataset schema includes columns polymer_smiles, filler_smiles,
+    and adhesion_energy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:06:14Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Descriptor extraction RDKit degree density clustering coefficient
+  claim_id: c_663362e7
+  context: 'T018: Extract hand-crafted descriptors (degree, density, clustering coefficient)
+    from SMILES strings in data/curated/curated_dataset.csv using RDKit...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptor_extraction_RDKit_degree_density_clustering_coeffi
+  kind: entity_fact
+  raw_text: The descriptor extraction uses RDKit to calculate degree, density, and
+    clustering coefficient from SMILES strings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:06:37Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Margin of error calculation 1.96 * std / sqrt(n for 100-500 rows
+  claim_id: c_52fc1270
+  context: "T016: ...if 100 \u2264 rows < 500, log warning and calculate margin of\
+    \ error (e.g., 1.96 * std / sqrt(n))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The margin of error is calculated using the formula 1.96 * std / sqrt(n)
+    when the dataset has between 100 and 500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:06:59Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: P-value calculation formula count(permuted <= observed) + 1 / N + 1
+  claim_id: c_fa5e14a2
+  context: 'T042: Compute p-value using the formula (count(permuted <= observed) +
+    1) / (N + 1) and save to results/stats.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value is computed using the formula (count(permuted <= observed)
+    + 1) / (N + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:07:31Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction formula p * n
+  claim_id: c_8c061efd
+  context: 'T049: Apply Bonferroni correction to p-values in results/stats.csv if
+    >1 metric present. Formula: p_corrected = p * n.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_formula_p_*_n
+  kind: entity_fact
+  raw_text: The Bonferroni correction formula is p_corrected = p * n.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:08:36Z'
+- artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  attempts: 1
+  canonical: VIF formula 1 / (1 - R^2)
+  claim_id: c_4130e709
+  context: 'T046: Implement VIF calculation on hand-crafted descriptors... Formula:
+    1 / (1 - R^2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF formula is 1 / (1 - R^2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:08:52Z'

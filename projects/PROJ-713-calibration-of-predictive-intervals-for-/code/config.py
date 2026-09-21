@@ -1,51 +1,84 @@
-"""
-Configuration module for the Calibration of Predictive Intervals project.
-Defines constants for paths, hyperparameters, and random seeds.
-"""
 import os
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Project Root
-# Assumes this file is at code/config.py, so root is parent of parent
+# Project root directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Directory Structure
 CODE_DIR = PROJECT_ROOT / "code"
 DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
-LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR = RESULTS_DIR / "logs"
 TESTS_DIR = PROJECT_ROOT / "tests"
-
-# Data Subdirectories
 DATA_RAW_DIR = DATA_DIR / "raw"
 DATA_PROCESSED_DIR = DATA_DIR / "processed"
 
-# Hyperparameters
-RANDOM_SEED = 42
-TRAIN_SPLIT_RATIO = 0.80  # 80/20 split as per FR-001 override
-TEST_SPLIT_RATIO = 0.20
+# Random seed for reproducibility
+SEED = 42
 
-# Model Hyperparameters
-ARIMA_ORDER = (1, 1, 1)
-PROPHET_UNCERTAINTY_SAMPLES = 1000
-LSTM_HIDDEN_UNITS = 32
-LSTM_MAX_EPOCHS = 50
-LSTM_EARLY_STOPPING_PATIENCE = 5
-LSTM_INITIAL_LEARNING_RATE = 0.01
-LSTM_LEARNING_RATE_REDUCTION = 0.1
-LSTM_MAX_RETRIES = 3
+# Configuration constants
+class Config:
+    """Central configuration for all hyperparameters and settings."""
+    
+    # Data settings
+    DATA_DIR = DATA_DIR
+    DATA_RAW_DIR = DATA_RAW_DIR
+    DATA_PROCESSED_DIR = DATA_PROCESSED_DIR
+    
+    # Results settings
+    RESULTS_DIR = RESULTS_DIR
+    FIGURES_DIR = FIGURES_DIR
+    LOG_DIR = LOG_DIR
+    
+    # Model settings
+    DEFAULT_MODEL_TYPE = "arima"
+    VALID_MODEL_TYPES = ["arima", "prophet", "lstm"]
+    
+    # Evaluation settings
+    CONFIDENCE_LEVELS = [0.80, 0.95]
+    MAX_EPOCHS = 50
+    EARLY_STOPPING_PATIENCE = 5
+    LSTM_HIDDEN_UNITS = 32
+    
+    # Bootstrap settings
+    BOOTSTRAP_RESAMPLES = 1000
+    SIGNIFICANCE_LEVEL = 0.05
+    
+    # Conformal prediction settings
+    CONFORMAL_CALIBRATION_SIZE = 0.2
+    
+    # Logging settings
+    LOG_LEVEL = "INFO"
+    
+    # File paths (using constants, no hardcoded paths)
+    COVERAGE_RESULTS_FILE = RESULTS_DIR / "coverage.csv"
+    DISTRIBUTIONAL_METRICS_FILE = RESULTS_DIR / "distributional_metrics.csv"
+    SIGNIFICANCE_RESULTS_FILE = RESULTS_DIR / "significance_test.csv"
+    CONFORMAL_RESULTS_FILE = RESULTS_DIR / "conformal_results.csv"
+    SAMPLE_METADATA_FILE = DATA_PROCESSED_DIR / "sample_metadata.json"
+    SKIPPED_SERIES_LOG = RESULTS_DIR / "skipped_series.log"
+    BENCHMARK_TIMING_FILE = RESULTS_DIR / "benchmark_timing.csv"
 
-# Evaluation Parameters
-CONFIDENCE_LEVELS = [0.80, 0.95]
-BOOTSTRAP_RESAMPLES = 1000
-SIGNIFICANCE_ALPHA = 0.05
-
-# Ensure directories exist (lazy initialization helper)
+# Ensure directories exist
 def ensure_dirs():
-    """Create necessary directories if they do not exist."""
-    for dir_path in [DATA_RAW_DIR, DATA_PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR, LOG_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
+    """Create all necessary directories if they don't exist."""
+    directories = [
+        CODE_DIR,
+        DATA_DIR,
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        RESULTS_DIR,
+        FIGURES_DIR,
+        LOG_DIR,
+        TESTS_DIR
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        if not directory.exists():
+            raise FileNotFoundError(f"Failed to create directory: {directory}")
+    
+    return True
 
-# Initialize directories on import if desired, or call ensure_dirs() explicitly
-# ensure_dirs()
+# Initialize directories on import
+ensure_dirs()

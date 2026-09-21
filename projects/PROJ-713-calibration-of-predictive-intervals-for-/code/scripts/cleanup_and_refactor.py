@@ -1,247 +1,230 @@
-"""
-T034: Code cleanup and refactoring script.
-
-This script performs the following cleanup tasks:
-1. Scans the codebase for hardcoded paths and replaces them with config-based paths.
-2. Ensures all random seeds are set consistently using the config module.
-3. Removes any temporary debug code or print statements.
-4. Updates imports to use absolute paths from the project root.
-5. Verifies that all configuration values are loaded from config.py.
-
-Usage:
-    python code/scripts/cleanup_and_refactor.py
-"""
-
 import os
 import re
 import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
 import ast
+import json
+import logging
 
-# Add project root to path to import config
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
+from config import PROJECT_ROOT, RESULTS_DIR, DATA_DIR, CODE_DIR
+from utils.logger import get_logger
+from utils.exceptions import ConfigurationError
 
-# Hardcoded patterns to detect (relative to project root)
+logger = get_logger(__name__)
+
+# Patterns for hardcoded paths
 HARDCODED_PATH_PATTERNS = [
-    r'["\'](/tmp/.*|/home/.*|/data/.*|/results/.*|/projects/PROJ-713.*|data/raw|data/processed|results/|figures/)[^"\']*["\']',
-    r'Path\(["\'](/tmp/.*|/home/.*|/data/.*|/results/.*|/projects/PROJ-713.*|data/raw|data/processed|results/|figures/)[^"\']*["\']\)',
+    r'["\'](/tmp/|/var/tmp/|/home/\w+/|/Users/\w+/|C:\\Users\\|C:\\Program)',
+    r'["\'](/absolute/path|/some/fixed/dir)',
+    r'os\.path\.join\(\s*["\'][^"\']+["\']\s*,\s*["\'][^"\']+["\']\s*\)',
 ]
 
-# Config imports that should exist
-CONFIG_IMPORTS = [
-    "from config import PROJECT_ROOT, DATA_RAW_DIR, DATA_PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR, LOG_DIR",
-    "import config"
-]
-
-# Random seed patterns
+# Patterns for seed usage
 SEED_PATTERNS = [
-    r'np\.random\.seed\(\d+\)',
-    r'torch\.manual_seed\(\d+\)',
-    r'set_seed\(\d+\)',
-    r'random\.seed\(\d+\)'
+    r'np\.random\.seed\(\s*\d+\s*\)',
+    r'random\.seed\(\s*\d+\s*\)',
+    r'torch\.manual_seed\(\s*\d+\s*\)',
+    r'random_state\s*=\s*\d+',
 ]
 
-def find_python_files(directory: Path) -> List[Path]:
-    """Find all Python files in a directory."""
-    return list(directory.rglob("*.py"))
+# Config variable patterns
+CONFIG_USAGE = [
+    r'from\s+config\s+import',
+    r'config\.\w+',
+    r'CONFIG\.\w+',
+]
+
+def find_python_files(root_dir: str) -> List[Path]:
+    """Find all Python files in the given directory recursively."""
+    py_files = []
+    for root, _, files in os.walk(root_dir):
+        # Skip hidden directories and __pycache__
+        dirs_to_skip = {'.git', '__pycache__', '.pytest_cache', 'node_modules', 'venv', 'env'}
+        root_path = Path(root)
+        if any(dir_name in root_path.parts for dir_name in dirs_to_skip):
+            continue
+        
+        for file in files:
+            if file.endswith('.py'):
+                py_files.append(Path(root) / file)
+    return py_files
 
 def check_hardcoded_paths(file_path: Path) -> List[Tuple[int, str, str]]:
-    """Check for hardcoded paths in a file."""
+    """Check for hardcoded paths in a Python file."""
     issues = []
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            
+        
         for i, line in enumerate(lines, 1):
             for pattern in HARDCODED_PATH_PATTERNS:
                 if re.search(pattern, line):
-                    # Skip if it's in a comment or string that's clearly a config reference
-                    if 'config' in line.lower() or '#' in line.split('"')[0] if '"' in line else True:
-                        continue
-                    issues.append((i, line.strip(), pattern))
+                    issues.append((i, pattern, line.strip()))
     except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-        
+        logger.error(f"Error reading {file_path}: {e}")
+    
     return issues
 
-def check_seed_consistency(file_path: Path) -> List[Tuple[int, str]]:
-    """Check for inconsistent seed settings."""
+def check_seed_consistency(file_path: Path) -> List[Tuple[int, str, str]]:
+    """Check for hardcoded seed values that should use config."""
     issues = []
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            
-        # Check if config is imported
-        has_config_import = any(imp in content for imp in CONFIG_IMPORTS)
+            lines = f.readlines()
         
-        # Find all seed settings
-        for pattern in SEED_PATTERNS:
-            matches = re.finditer(pattern, content)
-            for match in matches:
-                line_num = content[:match.start()].count('\n') + 1
-                if not has_config_import:
-                    issues.append((line_num, f"Hardcoded seed without config import: {match.group()}"))
-                elif 'config.SEED' not in match.group():
-                    issues.append((line_num, f"Hardcoded seed value: {match.group()}"))
-                    
+        for i, line in enumerate(lines, 1):
+            # Look for hardcoded numeric seeds
+            if re.search(r'(\d{2,})', line) and any(p in line for p in ['seed', 'random_state']):
+                # Skip if it's clearly a comment or string literal not related to seeding
+                if 'seed' in line.lower() and not line.strip().startswith('#'):
+                    issues.append((i, 'hardcoded_seed', line.strip()))
     except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-        
+        logger.error(f"Error reading {file_path}: {e}")
+    
     return issues
 
-def check_config_usage(file_path: Path) -> List[Tuple[int, str]]:
-    """Check if config paths are used correctly."""
-    issues = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            
-        # Check for direct path usage instead of config
-        direct_path_usage = [
-            'DATA_RAW_DIR', 'DATA_PROCESSED_DIR', 'RESULTS_DIR', 
-            'FIGURES_DIR', 'LOG_DIR', 'PROJECT_ROOT'
-        ]
-        
-        has_config_import = any(imp in content for imp in CONFIG_IMPORTS)
-        
-        if not has_config_import:
-            # If file uses paths, it should import config
-            for path_var in direct_path_usage:
-                if path_var in content:
-                    issues.append((1, f"Uses {path_var} but doesn't import config"))
-                    
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-        
-    return issues
-
-def generate_cleanup_report() -> Dict:
-    """Generate a report of cleanup issues found."""
-    report = {
-        'hardcoded_paths': {},
-        'seed_issues': {},
-        'config_usage': {},
-        'files_checked': 0,
-        'total_issues': 0
+def check_config_usage(file_path: Path) -> Dict[str, bool]:
+    """Check if a file properly imports and uses config."""
+    result = {
+        'imports_config': False,
+        'uses_config_vars': False,
+        'has_hardcoded_paths': False
     }
     
-    python_files = find_python_files(CODE_DIR)
-    report['files_checked'] = len(python_files)
-    
-    for file_path in python_files:
-        relative_path = str(file_path.relative_to(PROJECT_ROOT))
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
         
+        # Check imports
+        if re.search(r'from\s+config\s+import', content):
+            result['imports_config'] = True
+        
+        # Check usage
+        if re.search(r'(CONFIG|config|PROJECT_ROOT|DATA_DIR|RESULTS_DIR)\.\w+', content):
+            result['uses_config_vars'] = True
+        
+        # Check for hardcoded paths
+        if any(re.search(p, content) for p in HARDCODED_PATH_PATTERNS):
+            result['has_hardcoded_paths'] = True
+            
+    except Exception as e:
+        logger.error(f"Error reading {file_path}: {e}")
+    
+    return result
+
+def generate_cleanup_report(issues: Dict[str, List[Tuple[Path, List[Tuple[int, str, str]]]]]) -> str:
+    """Generate a detailed cleanup report."""
+    report_lines = []
+    report_lines.append("# Code Cleanup and Refactoring Report")
+    report_lines.append(f"Generated at: {Path.cwd()}")
+    report_lines.append("")
+    
+    if not any(issues.values()):
+        report_lines.append("✅ No issues found. Codebase is clean!")
+        return "\n".join(report_lines)
+    
+    if issues['hardcoded_paths']:
+        report_lines.append("## ⚠️ Hardcoded Paths Found")
+        for file_path, file_issues in issues['hardcoded_paths']:
+            report_lines.append(f"\n### {file_path}")
+            for line_num, pattern, line_content in file_issues:
+                report_lines.append(f"  Line {line_num}: {line_content}")
+                report_lines.append(f"    Pattern: {pattern}")
+        
+    if issues['seed_consistency']:
+        report_lines.append("\n## ⚠️ Seed Consistency Issues")
+        for file_path, file_issues in issues['seed_consistency']:
+            report_lines.append(f"\n### {file_path}")
+            for line_num, issue_type, line_content in file_issues:
+                report_lines.append(f"  Line {line_num}: {line_content}")
+    
+    report_lines.append("\n## Recommendations")
+    report_lines.append("1. Replace hardcoded paths with `config.PROJECT_ROOT`, `config.DATA_DIR`, etc.")
+    report_lines.append("2. Use `config.SEED` for all random seed initializations.")
+    report_lines.append("3. Ensure all data paths are relative to the project root.")
+    
+    return "\n".join(report_lines)
+
+def apply_fixes(file_path: Path, fixes: Dict[str, List[Tuple[int, str]]]) -> bool:
+    """Apply automatic fixes to a file."""
+    if not fixes:
+        return True
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        # Sort fixes by line number in reverse order to avoid index shifting
+        all_fixes = []
+        for fix_type, fix_list in fixes.items():
+            all_fixes.extend(fix_list)
+        
+        all_fixes.sort(key=lambda x: x[0], reverse=True)
+        
+        for line_num, fix_desc in all_fixes:
+            if line_num <= len(lines):
+                # Mark for review - we don't auto-fix complex logic
+                logger.info(f"Flagged line {line_num} in {file_path} for manual review: {fix_desc}")
+        
+        # For now, we only log issues rather than auto-modifying code
+        # This is safer than potentially breaking logic
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to apply fixes to {file_path}: {e}")
+        return False
+
+def main():
+    """Main entry point for the cleanup and refactor script."""
+    logger.info("Starting code cleanup and refactoring analysis...")
+    
+    # Find all Python files
+    py_files = find_python_files(str(CODE_DIR))
+    logger.info(f"Found {len(py_files)} Python files to analyze.")
+    
+    # Initialize issue tracking
+    issues = {
+        'hardcoded_paths': [],
+        'seed_consistency': [],
+        'config_usage': []
+    }
+    
+    # Analyze each file
+    for file_path in py_files:
         # Check hardcoded paths
         path_issues = check_hardcoded_paths(file_path)
         if path_issues:
-            report['hardcoded_paths'][relative_path] = path_issues
-            report['total_issues'] += len(path_issues)
-            
+            issues['hardcoded_paths'].append((file_path, path_issues))
+        
         # Check seed consistency
         seed_issues = check_seed_consistency(file_path)
         if seed_issues:
-            report['seed_issues'][relative_path] = seed_issues
-            report['total_issues'] += len(seed_issues)
-            
+            issues['seed_consistency'].append((file_path, seed_issues))
+        
         # Check config usage
-        config_issues = check_config_usage(file_path)
-        if config_issues:
-            report['config_usage'][relative_path] = config_issues
-            report['total_issues'] += len(config_issues)
-    
-    return report
-
-def apply_fixes(report: Dict) -> bool:
-    """Apply fixes to the codebase based on the report."""
-    fixes_applied = 0
-    
-    # For now, we'll just log what would be fixed
-    # In a real implementation, this would modify the files
-    
-    for file_path, issues in report['hardcoded_paths'].items():
-        print(f"Would fix {len(issues)} hardcoded path issues in {file_path}")
-        fixes_applied += len(issues)
-        
-    for file_path, issues in report['seed_issues'].items():
-        print(f"Would fix {len(issues)} seed issues in {file_path}")
-        fixes_applied += len(issues)
-        
-    for file_path, issues in report['config_usage'].items():
-        print(f"Would fix {len(issues)} config usage issues in {file_path}")
-        fixes_applied += len(issues)
-    
-    return fixes_applied > 0
-
-def main():
-    """Main function to run cleanup and refactoring."""
-    print("=" * 60)
-    print("T034: Code Cleanup and Refactoring")
-    print("=" * 60)
-    
-    print(f"Scanning project at: {PROJECT_ROOT}")
-    print(f"Code directory: {CODE_DIR}")
-    print()
+        config_status = check_config_usage(file_path)
+        if config_status['has_hardcoded_paths']:
+            logger.warning(f"File {file_path} has hardcoded paths despite config usage check")
     
     # Generate report
-    report = generate_cleanup_report()
+    report = generate_cleanup_report(issues)
     
-    print(f"Files checked: {report['files_checked']}")
-    print(f"Total issues found: {report['total_issues']}")
-    print()
+    # Save report
+    report_path = RESULTS_DIR / "cleanup_refactor_report.md"
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write(report)
     
-    if report['hardcoded_paths']:
-        print("Hardcoded Path Issues:")
-        for file_path, issues in report['hardcoded_paths'].items():
-            print(f"  {file_path}:")
-            for line_num, line, pattern in issues:
-                print(f"    Line {line_num}: {line}")
-        print()
-        
-    if report['seed_issues']:
-        print("Seed Consistency Issues:")
-        for file_path, issues in report['seed_issues'].items():
-            print(f"  {file_path}:")
-            for line_num, issue in issues:
-                print(f"    Line {line_num}: {issue}")
-        print()
-        
-    if report['config_usage']:
-        print("Config Usage Issues:")
-        for file_path, issues in report['config_usage'].items():
-            print(f"  {file_path}:")
-            for line_num, issue in issues:
-                print(f"    Line {line_num}: {issue}")
-        print()
+    logger.info(f"Cleanup report saved to {report_path}")
     
-    # Apply fixes (in a real implementation)
-    if report['total_issues'] > 0:
-        print("Applying fixes...")
-        fixes_applied = apply_fixes(report)
-        if fixes_applied:
-            print(f"Applied {fixes_applied} fixes")
-        else:
-            print("No fixes were applied (dry run mode)")
+    # Summary
+    total_issues = sum(len(v) for v in issues.values())
+    if total_issues > 0:
+        logger.warning(f"Found {total_issues} issues that need attention.")
+        return 1
     else:
-        print("No issues found! Codebase is clean.")
-    
-    print()
-    print("=" * 60)
-    print("Cleanup and refactoring complete.")
-    print("=" * 60)
-    
-    # Save report to results
-    import json
-    from config import RESULTS_DIR
-    
-    report_path = RESULTS_DIR / "cleanup_report.json"
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    print(f"Report saved to: {report_path}")
-    
-    return 0
+        logger.info("✅ All checks passed! Codebase is clean.")
+        return 0
 
 if __name__ == "__main__":
     sys.exit(main())

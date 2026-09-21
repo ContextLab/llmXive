@@ -43,7 +43,7 @@
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
   verified_at: '2026-07-05T00:21:53.969983Z'
-- artifact_hash: 0725a8f9c4a3664b2604c693c3bac2ca7fb5b226450a309a97c4d22f5bfe204b
+- artifact_hash: e8c11de91ae23c535320915e2b24bfb1bc630bbbf4b8892150daeb5a3df3ade3
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -53,8 +53,8 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-18T12:33:25.488128Z'
-- artifact_hash: 0725a8f9c4a3664b2604c693c3bac2ca7fb5b226450a309a97c4d22f5bfe204b
+  verified_at: '2026-09-21T07:32:17.906452Z'
+- artifact_hash: e8c11de91ae23c535320915e2b24bfb1bc630bbbf4b8892150daeb5a3df3ade3
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -64,4 +64,4 @@
   value: https://www.wikidata.org/wiki/Q387749
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q387749
-  verified_at: '2026-08-18T12:33:25.488128Z'
+  verified_at: '2026-09-21T07:32:17.906452Z'

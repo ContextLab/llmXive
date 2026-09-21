@@ -3927,22 +3927,6 @@
   updated_at: '2026-08-30T23:44:04Z'
 - artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   attempts: 1
-  canonical: LASSO logistic regression with 5-fold cross-validation
-  claim_id: c_4e7d989b
-  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py
-    (FR-006) and report out-of-sample AUC value.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement LASSO logistic regression with 5-fold cross-validation.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-30T23:44:05Z'
-- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
-  attempts: 1
   canonical: Reservoir sampling with seed 42 and N=5000 rows for datasets exceeding
     14GB
   claim_id: c_736e696a
@@ -4808,24 +4792,6 @@
   updated_at: '2026-09-05T07:41:52Z'
 - artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   attempts: 1
-  canonical: dataset size exceeds 14GB
-  claim_id: c_c302c813
-  context: 'Data Size Check: If the dataset exceeds 14GB (unexpected for ~A substantial
-    number of colonies), HALT with error ERR_DATA_SIZE_EXCEEDED and log the discrepancy.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Dataset_size_exceeds_14GB
-  kind: entity_fact
-  raw_text: The dataset exceeds 14GB.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-05T07:43:32Z'
-- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
-  attempts: 1
   canonical: halt if sample size less than 80
   claim_id: c_47850ac5
   context: HALT ONLY IF n < 80 with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
@@ -5115,3 +5081,534 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T07:56:13Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 0
+  canonical: Reference genome Amel_HAv3.1 for Western honey bee
+  claim_id: c_5483d101
+  context: 'Align reads to reference genome Amel_HAv3.1 (Wikipedia: Western honey
+    bee, https://en.wikipedia.org/wiki/Western_honey_bee) using bwa mem.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Since 2018 a new version of the honey bee genome is available on NCBI
+        (Amel_HAv3.1, BioProject ID: PRJNA471592). This assembly contains full chromosome
+        length scaffolds, which means that the sequence data for each chromosome is
+        contiguous, and not split between multiple pieces called scaffolds. The existence
+        of a highly contiguous reference genome for a species enables more detailed
+        investigations of evolutionary processes that affect the genome as well as
+        more accurate estimations of for example differentiation between populations
+        and diversity within populations.'
+      source_id: Western honey bee
+      url: https://en.wikipedia.org/wiki/Western_honey_bee
+      value: Amel_HAv3.1
+    filled: true
+  kind: numeric
+  raw_text: The reference genome used is Amel_HAv3.1.
+  resolved_value: Amel_HAv3.1
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T07:09:29Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: bee_genome_variants dataset derived from NCBI BioProject PRJNA/566029
+  claim_id: c_194dd58c
+  context: Implement code/01_download.py to fetch data from the verified Hugging Face
+    dataset bee_genome_variants (derived from NCBI BioProject PRJNA/566029) with associated
+    metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset bee_genome_variants is derived from NCBI BioProject PRJNA/566029.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:09:51Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Filter high-quality biallelic SNPs with QUAL > 30 and depth >= 10
+  claim_id: c_6f00c112
+  context: "Filter to high-quality biallelic SNPs (QUAL > 30, depth \u2265 10) using\
+    \ bcftools."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_high-quality_biallelic_SNPs_with_QUAL_%3E_30_and_depth_
+  kind: magnitude
+  raw_text: High-quality biallelic SNPs are filtered using a QUAL threshold greater
+    than 30 and depth greater than or equal to 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:10:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning parameters 50 5 0.2
+  claim_id: c_172720c8
+  context: Perform LD pruning using PLINK --indep-pairwise 50 5 0.2 and output the
+    pruned bim file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LD pruning is performed using PLINK with parameters 50 5 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:10:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Insert size distribution Normal(mean=350, std=50)
+  claim_id: c_77c85412
+  context: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The insert size distribution for simulated FASTQ files is Normal with
+    a mean of 350 and a standard deviation of 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:11:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: P-values formatted to 10 decimal places
+  claim_id: c_c5b5c639
+  context: MUST sort by p-value in ascending order before processing. P-values must
+    be formatted to 10 decimal places.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values in the FDR correction output are formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:11:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 2
+  canonical: LASSO logistic regression with 5-fold cross-validation
+  claim_id: c_4e7d989b
+  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py
+    (FR-006) and report out-of-sample AUC value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement LASSO logistic regression with 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:11:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO random_state 42
+  claim_id: c_d43c7fe9
+  context: 'Split data: [deferred] for training, [deferred] for testing using train_test_split
+    with random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LASSO model training uses a random_state of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:12:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO AUC < 0.75 flagged as low predictive power
+  claim_id: c_c9b0fdfb
+  context: Compute AUC on the held-out test set. Report AUC value. If AUC < 0.75,
+    flag as low predictive power.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LASSO_AUC_%3C_0.75_flagged_as_low_predictive_power
+  kind: magnitude
+  raw_text: A LASSO model with an AUC less than 0.75 is flagged as having low predictive
+    power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:13:00Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Dataset derived from NCBI BioProject PRJNA/566029
+  claim_id: c_2e1dace7
+  context: Implement code/01_download.py to fetch data from the verified Hugging Face
+    dataset bee_genome_variants (derived from NCBI BioProject PRJNA/566029) with associated
+    metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is derived from NCBI BioProject PRJNA/566029.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:13:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Simulated insert size distribution Normal(mean=350, std=50)
+  claim_id: c_f4366f7a
+  context: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The insert size distribution for simulated data is Normal(mean=350, std=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:14:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO train-test split random_state 42
+  claim_id: c_e6e18d5f
+  context: 'Split data: [deferred] for training, [deferred] for testing using train_test_split
+    with random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LASSO model uses a random_state of 42 for train-test splitting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:14:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n < 80
+  claim_id: c_945d9090
+  context: HALT ONLY IF n < 80 with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_%3C_80
+  kind: magnitude
+  raw_text: The power analysis halts if the sample size n is less than 80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:15:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if dataset size exceeds 14GB
+  claim_id: c_d68b4ff1
+  context: 'Data Size Check: If the dataset exceeds 14GB (unexpected for ~A substantial
+    number of colonies), HALT with error ERR_DATA_SIZE_EXCEEDED and log the discrepancy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_dataset_size_exceeds_14GB
+  kind: entity_fact
+  raw_text: The pipeline halts if the dataset size exceeds 14GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:16:01Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if Varroa data coverage < 80%
+  claim_id: c_815aa1ee
+  context: 'Varroa Check: Calculate the percentage of samples with Varroa data. If
+    < 80%, exit with code ERR_VARROA_COVARIATE_MISSING and a clear error message.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_Varroa_data_coverage_%3C_80%25
+  kind: magnitude
+  raw_text: The pipeline halts if the percentage of samples with Varroa data is less
+    than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:16:30Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline flags low predictive power if LASSO AUC < 0.75
+  claim_id: c_f6e92aea
+  context: Report AUC value. If AUC < 0.75, flag as low predictive power.
+  evidence:
+    asserted: '0.75'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if the LASSO AUC is less than 0.75.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T07:16:30Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours
+  claim_id: c_7daabf3a
+  context: 'Profile pipeline with cProfile and generate data/processed/profile_report.txt.
+    Verification: MUST verify runtime < 6h and RAM < 7GB; halt if limits exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_limit_6_hours
+  kind: magnitude
+  raw_text: The pipeline profile verification requires runtime less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:16:49Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline RAM limit 7GB
+  claim_id: c_77d2fc98
+  context: 'Profile pipeline with cProfile and generate data/processed/profile_report.txt.
+    Verification: MUST verify runtime < 6h and RAM < 7GB; halt if limits exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_RAM_limit_7GB
+  kind: magnitude
+  raw_text: The pipeline profile verification requires RAM usage less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:17:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: SNP filtering QUAL > 30 and depth >= 10
+  claim_id: c_14248f8b
+  context: "Filter to high-quality biallelic SNPs (QUAL > 30, depth \u2265 10) using\
+    \ bcftools."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "High-quality biallelic SNPs are filtered using QUAL > 30 and depth \u2265\
+    \ 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:17:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning threshold r^2 < 0.2
+  claim_id: c_f8cb42e2
+  context: "Implement code/utils/preprocess_phenotype.py for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding (geographic region, sampling year, Varroa mite count)\
+    \ (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "LD pruning uses a threshold of r\xB2 < 0.2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:17:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: GWAS uses PLINK logistic regression
+  claim_id: c_51ab76ff
+  context: Create code/03_gwas.sh to execute PLINK logistic regression with mandatory
+    covariates (from T046) and output raw association statistics (FR-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GWAS_uses_PLINK_logistic_regression
+  kind: entity_fact
+  raw_text: The GWAS pipeline uses PLINK logistic regression.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:18:00Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied
+  claim_id: c_b6411185
+  context: Implement Benjamini-Hochberg FDR correction in code/utils/fdr_correction.py
+    (FR-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_applied
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg FDR correction is applied to the GWAS results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:18:26Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 2
+  canonical: dataset size exceeds 14GB
+  claim_id: c_c302c813
+  context: 'Data Size Check: If the dataset exceeds 14GB (unexpected for ~A substantial
+    number of colonies), HALT with error ERR_DATA_SIZE_EXCEEDED and log the discrepancy.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: The Pile (dataset)
+        url: https://en.wikipedia.org/wiki/The_Pile_(dataset)
+        value: 886 GB
+      quote: "The dataset has size 760 GB. It contains 79,302,017 32\xD732-pixel color\
+        \ images, scaled down from images scraped from the World Wide Web over 8 months.\
+        \ The images are classified into 75,062 classes. Each class is a non-abstract\
+        \ noun in WordNet. Images may appear in more than one class. The dataset was\
+        \ motivated by non-parametric models of neural activations in the visual cortex\
+        \ upon seeing images."
+      source_id: 80 Million Tiny Images
+      url: https://en.wikipedia.org/wiki/80_Million_Tiny_Images
+      value: 760 GB
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset exceeds 14GB.
+  resolved_value: 760 GB
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T07:19:17Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: high-quality biallelic SNPs filter QUAL > 30 depth >= 10
+  claim_id: c_916e9216
+  context: "Call variants using FreeBayes. Filter to high-quality biallelic SNPs (QUAL\
+    \ > 30, depth \u2265 10) using bcftools."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter to high-quality biallelic SNPs (QUAL > 30, depth \u2265 10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:19:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning PLINK 50 5 0.2
+  claim_id: c_eed043d1
+  context: Perform LD pruning using PLINK --indep-pairwise 50 5 0.2 and output the
+    pruned bim file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform LD pruning using PLINK --indep-pairwise 50 5 0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:19:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: insert size distribution Normal mean 350 std 50
+  claim_id: c_4a4651b1
+  context: 'Command Example: dwgsim -e -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Insert size distribution: Normal(mean=350, std=50)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:20:08Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: p-values formatted to 10 decimal places
+  claim_id: c_2299560f
+  context: 'Input: data/interim/gwas_raw.tsv. MUST sort by p-value in ascending order
+    before processing. P-values must be formatted to 10 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:20:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: low predictive power if AUC < 0.75
+  claim_id: c_28e85db8
+  context: Compute AUC on the held-out test set. Report AUC value. If AUC < 0.75,
+    flag as low predictive power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag as low predictive power if AUC < 0.75
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:20:34Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: verify runtime < 6h RAM < 7GB
+  claim_id: c_d22e6918
+  context: 'Profile pipeline with cProfile and generate data/processed/profile_report.txt.
+    Verification: MUST verify runtime < 6h and RAM < 7GB; halt if limits exceeded.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/verify_runtime_%3C_6h_RAM_%3C_7GB
+  kind: entity_fact
+  raw_text: Verify runtime < 6h and RAM < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:21:00Z'

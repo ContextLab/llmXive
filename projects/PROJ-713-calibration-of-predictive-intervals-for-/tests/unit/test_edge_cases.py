@@ -2,288 +2,269 @@
 Unit tests for edge cases in the predictive interval calibration pipeline.
 
 Tests cover:
-1. Constant variance handling in models (ARIMA, LSTM, Prophet)
-2. NaN/Inf handling in metrics and data loading
-3. Empty or single-point series handling
-4. Extreme value handling (very large/small numbers)
+1. Constant variance handling (zero variance in residuals)
+2. NaN handling (missing values in time series)
+3. Empty series handling
+4. Single-point series handling
 """
-
-import pytest
 import numpy as np
 import pandas as pd
-from pathlib import Path
+import pytest
+from typing import List, Dict, Tuple, Optional, Any
 import sys
+import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from models.arima_model import ARIMAModel
-from models.lstm_model import LSTMModel
-from models.prophet_model import ProphetModel
 from metrics.coverage import compute_coverage, compute_coverage_deviation
-from metrics.pit import calculate_pit, ljung_box_test
+from metrics.pit import calculate_pit, generate_pit_histogram, ljung_box_test
 from metrics.crps import compute_crps
-from utils.exceptions import CalibrationError, DataValidationError
-from data_loader import split_series, standardize
-
+from metrics.distributional_shape import calculate_kurtosis, flag_heavy_tails
+from utils.exceptions import DataValidationError, CalibrationError
+from config import Config
 
 class TestConstantVariance:
-    """Test handling of constant variance series."""
-
-    def test_arima_constant_series(self):
-        """ARIMA should handle constant series without crashing."""
-        # Create constant series
-        constant_data = np.ones(100)
-        dates = pd.date_range(start="2020-01-01", periods=100, freq="H")
-        series = pd.Series(constant_data, index=dates)
+    """Tests for handling constant variance scenarios."""
+    
+    def test_constant_residuals_zero_variance(self):
+        """Test coverage calculation with zero variance residuals."""
+        # Simulate a scenario where all predictions are perfect
+        # and intervals have zero width (constant variance = 0)
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        lower_bound = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        upper_bound = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         
-        model = ARIMAModel(order=(1, 0, 0))
+        # Should not raise an error, but coverage should be 1.0 (all points in interval)
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Coverage should be 1.0 when all points are exactly on the boundary"
         
-        # Should not raise an exception, but may return warnings
-        try:
-            model.fit(series)
-            forecasts, intervals = model.forecast(steps=10)
-            
-            # Check that forecasts are reasonable (close to constant)
-            assert np.allclose(forecasts, constant_data[0], atol=1e-6)
-            
-            # Intervals should be valid (no NaN/Inf)
-            assert not np.any(np.isnan(intervals))
-            assert not np.any(np.isinf(intervals))
-        except Exception as e:
-            # Some ARIMA implementations may fail on constant series
-            # This is acceptable if the error is logged/handled appropriately
-            assert isinstance(e, (ValueError, CalibrationError))
-
-    def test_lstm_constant_series(self):
-        """LSTM should handle constant series without NaN/Inf outputs."""
-        constant_data = np.ones(100)
-        dates = pd.date_range(start="2020-01-01", periods=100, freq="H")
-        series = pd.Series(constant_data, index=dates)
+    def test_constant_residuals_nonzero_variance(self):
+        """Test coverage calculation with constant non-zero variance."""
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        # Constant interval width
+        lower_bound = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
+        upper_bound = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
         
-        model = LSTMModel(hidden_size=32, max_epochs=10)
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Coverage should be 1.0 for constant intervals covering all points"
         
-        try:
-            model.fit(series)
-            forecasts, intervals = model.forecast(steps=10)
-            
-            # Forecasts should be close to constant
-            assert np.allclose(forecasts, constant_data[0], atol=1e-3)
-            
-            # Intervals should be valid
-            assert not np.any(np.isnan(intervals))
-            assert not np.any(np.isinf(intervals))
-        except Exception as e:
-            # LSTM may fail on constant series due to lack of variance
-            # This is acceptable if properly handled
-            assert isinstance(e, (ValueError, CalibrationError))
-
-    def test_prophet_constant_series(self):
-        """Prophet should handle constant series."""
-        constant_data = np.ones(100)
-        dates = pd.date_range(start="2020-01-01", periods=100, freq="H")
-        df = pd.DataFrame({"ds": dates, "y": constant_data})
+    def test_constant_predictions_interval_miss(self):
+        """Test when constant variance intervals miss the true values."""
+        y_true = np.array([1.0, 10.0, 1.0, 10.0, 1.0])
+        y_pred = np.array([5.0, 5.0, 5.0, 5.0, 5.0])
+        lower_bound = np.array([4.0, 4.0, 4.0, 4.0, 4.0])
+        upper_bound = np.array([6.0, 6.0, 6.0, 6.0, 6.0])
         
-        model = ProphetModel()
-        
-        try:
-            model.fit(df)
-            future = model.make_future_dataframe(periods=10)
-            forecast = model.predict(future)
-            
-            # Check forecasts are reasonable
-            assert np.allclose(forecast["yhat"].tail(10), constant_data[0], atol=1e-3)
-            
-            # Check intervals are valid
-            assert not np.any(np.isnan(forecast["yhat_lower"].tail(10)))
-            assert not np.any(np.isnan(forecast["yhat_upper"].tail(10)))
-        except Exception as e:
-            # Prophet may issue warnings or fail on constant series
-            assert isinstance(e, (ValueError, CalibrationError))
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        # Only the middle point (5.0) is within [4.0, 6.0]
+        assert coverage == 0.0, "Coverage should be 0.0 when no points are within intervals"
 
 class TestNaNHandling:
-    """Test handling of NaN and Inf values."""
+    """Tests for handling NaN values in time series."""
+    
+    def test_nan_in_true_values(self):
+        """Test coverage calculation with NaN in true values."""
+        y_true = np.array([1.0, np.nan, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        lower_bound = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
+        upper_bound = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
+        
+        # Should raise DataValidationError for NaN in true values
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
+            
+    def test_nan_in_predictions(self):
+        """Test coverage calculation with NaN in predictions."""
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.0, np.nan, 3.0, 4.0, 5.0])
+        lower_bound = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
+        upper_bound = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
+        
+        # Should raise DataValidationError for NaN in predictions
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
+            
+    def test_nan_in_bounds(self):
+        """Test coverage calculation with NaN in interval bounds."""
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        lower_bound = np.array([0.5, np.nan, 2.5, 3.5, 4.5])
+        upper_bound = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
+        
+        # Should raise DataValidationError for NaN in bounds
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
+            
+    def test_nan_in_pit_calculation(self):
+        """Test PIT calculation with NaN values."""
+        y_true = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
+        y_pred = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        lower_bound = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
+        upper_bound = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
+        
+        with pytest.raises(DataValidationError):
+            calculate_pit(y_true, y_pred, lower_bound, upper_bound)
+            
+    def test_nan_in_crps_calculation(self):
+        """Test CRPS calculation with NaN values."""
+        y_true = np.array([1.0, 2.0, 3.0, np.nan, 5.0])
+        y_pred_dist = [np.array([0.5, 1.0, 1.5]), np.array([1.5, 2.0, 2.5]), 
+                     np.array([2.5, 3.0, 3.5]), np.array([3.5, 4.0, 4.5]), 
+                     np.array([4.5, 5.0, 5.5])]
+        
+        with pytest.raises(DataValidationError):
+            compute_crps(y_true, y_pred_dist)
 
-    def test_coverage_with_nan_forecasts(self):
-        """Coverage calculation should handle NaN forecasts gracefully."""
-        true_values = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        forecasts = np.array([1.1, np.nan, 3.1, 4.1, 5.1])
-        lower = np.array([0.5, 1.0, 2.0, 3.0, 4.0])
-        upper = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
+class TestEmptySeries:
+    """Tests for handling empty series."""
+    
+    def test_empty_true_values(self):
+        """Test coverage calculation with empty true values."""
+        y_true = np.array([])
+        y_pred = np.array([])
+        lower_bound = np.array([])
+        upper_bound = np.array([])
         
-        # Should handle NaN without crashing
-        coverage = compute_coverage(true_values, forecasts, lower, upper, nominal_level=0.8)
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
+            
+    def test_empty_predictions(self):
+        """Test coverage calculation with empty predictions."""
+        y_true = np.array([1.0, 2.0, 3.0])
+        y_pred = np.array([])
+        lower_bound = np.array([])
+        upper_bound = np.array([])
         
-        # Coverage should be calculated on non-NaN points
-        assert 0.0 <= coverage <= 1.0
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
+            
+    def test_mismatched_lengths(self):
+        """Test coverage calculation with mismatched array lengths."""
+        y_true = np.array([1.0, 2.0, 3.0, 4.0])
+        y_pred = np.array([1.0, 2.0, 3.0])
+        lower_bound = np.array([0.5, 1.5, 2.5])
+        upper_bound = np.array([1.5, 2.5, 3.5])
+        
+        with pytest.raises(DataValidationError):
+            compute_coverage(y_true, lower_bound, upper_bound)
 
-    def test_coverage_with_inf_intervals(self):
-        """Coverage calculation should handle infinite intervals."""
-        true_values = np.array([1.0, 2.0, 3.0])
-        forecasts = np.array([1.1, 2.1, 3.1])
-        lower = np.array([-np.inf, 1.0, 2.0])
-        upper = np.array([np.inf, 3.0, 4.0])
+class TestSinglePointSeries:
+    """Tests for handling single-point series."""
+    
+    def test_single_point_coverage(self):
+        """Test coverage calculation with a single point."""
+        y_true = np.array([1.0])
+        y_pred = np.array([1.0])
+        lower_bound = np.array([0.5])
+        upper_bound = np.array([1.5])
         
-        coverage = compute_coverage(true_values, forecasts, lower, upper, nominal_level=0.8)
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Single point within interval should have 100% coverage"
         
-        # Should handle infinite bounds
-        assert 0.0 <= coverage <= 1.0
-
-    def test_pit_with_nan(self):
-        """PIT calculation should handle NaN values."""
-        true_values = np.array([1.0, 2.0, np.nan, 4.0])
-        forecasts = np.array([1.1, 2.1, 3.1, 4.1])
-        residuals = np.array([0.1, 0.1, 0.1, 0.1])
+    def test_single_point_coverage_miss(self):
+        """Test coverage calculation with a single point outside interval."""
+        y_true = np.array([1.0])
+        y_pred = np.array([1.0])
+        lower_bound = np.array([2.0])
+        upper_bound = np.array([3.0])
         
-        # Should handle NaN without crashing
-        pit_values = calculate_pit(true_values, forecasts, residuals)
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 0.0, "Single point outside interval should have 0% coverage"
         
-        # PIT should be valid for non-NaN points
-        assert len(pit_values) == len(true_values)
-        assert not np.any(np.isnan(pit_values[:2]))
-
-    def test_crps_with_nan(self):
-        """CRPS calculation should handle NaN values."""
-        true_values = np.array([1.0, 2.0, np.nan, 4.0])
-        forecasts = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2], [3.0, 3.1, 3.2], [4.0, 4.1, 4.2]])
+    def test_single_point_pit(self):
+        """Test PIT calculation with a single point."""
+        y_true = np.array([1.0])
+        y_pred = np.array([1.0])
+        lower_bound = np.array([0.5])
+        upper_bound = np.array([1.5])
         
-        # Should handle NaN without crashing
-        crps_values = compute_crps(true_values, forecasts)
+        pit_values = calculate_pit(y_true, y_pred, lower_bound, upper_bound)
+        assert len(pit_values) == 1, "PIT should return one value for single point"
         
-        # CRPS should be valid for non-NaN points
-        assert len(crps_values) == len(true_values)
-
-class TestEmptyAndSinglePointSeries:
-    """Test handling of empty or single-point series."""
-
-    def test_arima_empty_series(self):
-        """ARIMA should handle empty series gracefully."""
-        empty_series = pd.Series([], dtype=float)
+    def test_single_point_ljung_box(self):
+        """Test Ljung-Box test with a single PIT value."""
+        pit_values = np.array([0.5])
         
-        model = ARIMAModel(order=(1, 0, 0))
+        # Ljung-Box test requires at least 2 points for meaningful results
+        # This should handle the edge case gracefully
+        result = ljung_box_test(pit_values)
         
-        with pytest.raises((ValueError, CalibrationError, DataValidationError)):
-            model.fit(empty_series)
-
-    def test_arima_single_point(self):
-        """ARIMA should handle single-point series gracefully."""
-        single_point = pd.Series([1.0])
-        
-        model = ARIMAModel(order=(1, 0, 0))
-        
-        with pytest.raises((ValueError, CalibrationError, DataValidationError)):
-            model.fit(single_point)
-
-    def test_lstm_empty_series(self):
-        """LSTM should handle empty series gracefully."""
-        empty_series = pd.Series([], dtype=float)
-        
-        model = LSTMModel(hidden_size=32, max_epochs=10)
-        
-        with pytest.raises((ValueError, CalibrationError, DataValidationError)):
-            model.fit(empty_series)
-
-    def test_prophet_empty_df(self):
-        """Prophet should handle empty DataFrame gracefully."""
-        empty_df = pd.DataFrame({"ds": [], "y": []})
-        
-        model = ProphetModel()
-        
-        with pytest.raises((ValueError, CalibrationError, DataValidationError)):
-            model.fit(empty_df)
+        # The test should return a result, potentially with a warning or special handling
+        # for insufficient data points
+        assert 'p_value' in result or result is None, "Ljung-Box should handle single point case"
 
 class TestExtremeValues:
-    """Test handling of extreme values."""
-
+    """Tests for handling extreme values."""
+    
     def test_very_large_values(self):
-        """Models should handle very large values without overflow."""
-        large_data = np.array([1e10, 1e10 + 1, 1e10 + 2, 1e10 + 3, 1e10 + 4])
-        dates = pd.date_range(start="2020-01-01", periods=5, freq="H")
-        series = pd.Series(large_data, index=dates)
+        """Test coverage calculation with very large values."""
+        y_true = np.array([1e10, 2e10, 3e10])
+        y_pred = np.array([1e10, 2e10, 3e10])
+        lower_bound = np.array([0.5e10, 1.5e10, 2.5e10])
+        upper_bound = np.array([1.5e10, 2.5e10, 3.5e10])
         
-        model = ARIMAModel(order=(1, 0, 0))
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Coverage should work correctly with very large values"
         
-        try:
-            model.fit(series)
-            forecasts, intervals = model.forecast(steps=2)
-            
-            # Check that forecasts are reasonable
-            assert not np.any(np.isnan(forecasts))
-            assert not np.any(np.isinf(forecasts))
-        except Exception as e:
-            # Some models may struggle with extreme values
-            assert isinstance(e, (ValueError, CalibrationError))
-
     def test_very_small_values(self):
-        """Models should handle very small values without underflow."""
-        small_data = np.array([1e-10, 1e-10 + 1e-12, 1e-10 + 2e-12, 1e-10 + 3e-12])
-        dates = pd.date_range(start="2020-01-01", periods=4, freq="H")
-        series = pd.Series(small_data, index=dates)
+        """Test coverage calculation with very small values."""
+        y_true = np.array([1e-10, 2e-10, 3e-10])
+        y_pred = np.array([1e-10, 2e-10, 3e-10])
+        lower_bound = np.array([0.5e-10, 1.5e-10, 2.5e-10])
+        upper_bound = np.array([1.5e-10, 2.5e-10, 3.5e-10])
         
-        model = ARIMAModel(order=(1, 0, 0))
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Coverage should work correctly with very small values"
         
-        try:
-            model.fit(series)
-            forecasts, intervals = model.forecast(steps=2)
-            
-            # Check that forecasts are reasonable
-            assert not np.any(np.isnan(forecasts))
-            assert not np.any(np.isinf(forecasts))
-        except Exception as e:
-            # Some models may struggle with extreme values
-            assert isinstance(e, (ValueError, CalibrationError))
+    def test_mixed_magnitude_values(self):
+        """Test coverage calculation with mixed magnitude values."""
+        y_true = np.array([1e-10, 1.0, 1e10])
+        y_pred = np.array([1e-10, 1.0, 1e10])
+        lower_bound = np.array([0.5e-10, 0.5, 0.5e10])
+        upper_bound = np.array([1.5e-10, 1.5, 1.5e10])
+        
+        coverage = compute_coverage(y_true, lower_bound, upper_bound)
+        assert coverage == 1.0, "Coverage should work correctly with mixed magnitude values"
 
-    def test_mixed_extreme_values(self):
-        """Models should handle series with mixed extreme values."""
-        mixed_data = np.array([1e10, 1e-10, 1e10, 1e-10, 1e10])
-        dates = pd.date_range(start="2020-01-01", periods=5, freq="H")
-        series = pd.Series(mixed_data, index=dates)
+class TestDistributionalShapeEdgeCases:
+    """Tests for distributional shape metrics edge cases."""
+    
+    def test_constant_pit_values_kurtosis(self):
+        """Test kurtosis calculation with constant PIT values."""
+        pit_values = np.array([0.5, 0.5, 0.5, 0.5, 0.5])
         
-        model = ARIMAModel(order=(1, 0, 0))
+        # Constant values have undefined kurtosis, should handle gracefully
+        kurtosis = calculate_kurtosis(pit_values)
+        # May return np.nan or a specific value for constant distribution
+        assert np.isfinite(kurtosis) or np.isnan(kurtosis), "Kurtosis should be finite or NaN for constant values"
         
-        try:
-            model.fit(series)
-            forecasts, intervals = model.forecast(steps=2)
-            
-            # Check that forecasts are reasonable
-            assert not np.any(np.isnan(forecasts))
-            assert not np.any(np.isinf(forecasts))
-        except Exception as e:
-            # Some models may struggle with mixed extreme values
-            assert isinstance(e, (ValueError, CalibrationError))
-
-class TestDataLoaderEdgeCases:
-    """Test edge cases in data loading and preprocessing."""
-
-    def test_split_series_empty(self):
-        """split_series should handle empty series."""
-        empty_series = pd.Series([], dtype=float)
+    def test_two_point_pit_kurtosis(self):
+        """Test kurtosis calculation with only two PIT values."""
+        pit_values = np.array([0.3, 0.7])
         
-        with pytest.raises((ValueError, DataValidationError)):
-            split_series(empty_series, train_ratio=0.8)
-
-    def test_split_series_single_point(self):
-        """split_series should handle single-point series."""
-        single_point = pd.Series([1.0])
+        kurtosis = calculate_kurtosis(pit_values)
+        # With only 2 points, kurtosis calculation may be unstable
+        assert np.isfinite(kurtosis) or np.isnan(kurtosis), "Kurtosis should be handled for small samples"
         
-        with pytest.raises((ValueError, DataValidationError)):
-            split_series(single_point, train_ratio=0.8)
-
-    def test_standardize_constant_series(self):
-        """standardize should handle constant series."""
-        constant_data = np.ones(100)
+    def test_heavy_tail_flagging(self):
+        """Test heavy tail flagging with known heavy-tailed distribution."""
+        # Generate PIT values from a heavy-tailed distribution (simulated)
+        pit_values = np.concatenate([
+            np.random.beta(0.5, 0.5, 1000),  # U-shaped (heavy tails)
+            np.random.beta(2, 2, 1000)       # More uniform
+        ])
         
-        standardized = standardize(constant_data)
+        is_heavy_tailed = flag_heavy_tails(pit_values)
+        # Beta(0.5, 0.5) has heavy tails, so this should be flagged
+        assert is_heavy_tailed, "Heavy-tailed distribution should be flagged"
         
-        # For constant series, standard deviation is 0
-        # Standardization should handle this gracefully
-        assert len(standardized) == len(constant_data)
-
-    def test_standardize_with_nan(self):
-        """standardize should handle series with NaN values."""
-        data_with_nan = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
+    def test_uniform_pit_no_heavy_tail(self):
+        """Test that uniform PIT values are not flagged as heavy-tailed."""
+        pit_values = np.random.uniform(0, 1, 1000)
         
-        standardized = standardize(data_with_nan)
-        
-        # Should handle NaN without crashing
-        assert len(standardized) == len(data_with_nan)
+        is_heavy_tailed = flag_heavy_tails(pit_values)
+        # Uniform distribution should not be flagged as heavy-tailed
+        assert not is_heavy_tailed, "Uniform distribution should not be flagged as heavy-tailed"

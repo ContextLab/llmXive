@@ -79,8 +79,8 @@
 - [X] T015 [US1] Implement data cleaning and validation script in `code/data/clean.py` to flag missing values (≤5% threshold) and process data if row count ≥100.
 - [X] T016 [US1] Implement 'Limited Power' warning logic in `code/data/clean.py`: if 100 ≤ rows < 500, log warning and calculate margin of error (e.g., `1.96 * std / sqrt(n)`).
 - [ ] T017 [US1] Generate `data/curated/curated_dataset.csv` with complete molecular graph structures and adhesion energy measurements. **Schema**: Columns must be `polymer_smiles` (str), `filler_smiles` (str), `adhesion_energy` (float). **Validation**: Must have ≥100 rows, and missing values per column must be ≤5%. <!-- FAILED: unspecified -->
-- [ ] T018 [US1] Extract hand-crafted descriptors (degree, density, clustering coefficient) from SMILES strings in `data/curated/curated_dataset.csv` using RDKit and save to `data/processed/descriptors.csv`. **Output Schema**: Columns `polymer_smiles`, `filler_smiles`, `polymer_degree`, `polymer_density`, `polymer_clustering`, `filler_degree`, `filler_density`, `filler_clustering`. <!-- FAILED: unspecified -->
-- [ ] T019 [US1] Calculate SHA256 hash of `data/curated/curated_dataset.csv` in `code/utils/hash_state.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T018 [US1] Extract hand-crafted descriptors (degree, density, clustering coefficient) from SMILES strings in `data/curated/curated_dataset.csv` using RDKit and save to `data/processed/descriptors.csv`. **Output Schema**: Columns `polymer_smiles`, `filler_smiles`, `polymer_degree`, `polymer_density`, `polymer_clustering`, `filler_degree`, `filler_density`, `filler_clustering`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T019 [US1] Calculate SHA256 hash of `data/curated/curated_dataset.csv` in `code/utils/hash_state.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T020 [US1] Update `state/projects/PROJ-413-predicting-molecular-interactions-in-pol.yaml` with the calculated hash under key `artifact_hashes.curated_dataset`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,7 +102,7 @@
 
 - [X] T023 [P] [US2] Implement 3-layer Graph Attention Network (GAT) using `torch_geometric.nn.GATConv` in `code/models/gat.py` (3 layers, hidden=64, dropout=0.5). **Plan Override**: Per `plan.md` Section "Critical Note on Spec Alignment" and "Spec Amendment Flags", this task implements GAT to satisfy attention requirements, overriding Spec FR-003's GCN requirement.
 - [ ] T024 [US2] Implement SMILES-to-heterogeneous graph conversion in `code/data/graph_build.py` using `rdkit.Chem.rdmolfiles.MolFromSmiles` to generate `data/processed/graphs.pt` from `data/curated/curated_dataset.csv`. **Feature Mapping**: `atom type -> integer ID`, `bond order -> float`. **Output Schema**: PyG `Data` object with `x` (node features), `edge_index`, `edge_attr`. **Note**: This generates the final graph schema with topological features only (node degree, edge connectivity, graph density) as per Spec FR-002. <!-- FAILED: unspecified -->
-- [ ] T025 [US2] Generate `analysis/topology_audit.md` from `graph_build.py` listing node counts, edge counts, and pruning statistics. **Required Sections**: 'Node Counts', 'Edge Counts', 'Pruning Statistics', 'Physical Parameterization Summary' (Note: Physical parameterization is not implemented; this section will confirm its absence or note that only topological features are used). <!-- FAILED: unspecified -->
+- [ ] T025 [US2] Generate `analysis/topology_audit.md` from `graph_build.py` listing node counts, edge counts, and pruning statistics. **Required Sections**: 'Node Counts', 'Edge Counts', 'Pruning Statistics', 'Physical Parameterization Summary' (Note: Physical parameterization is not implemented; this section will confirm its absence or note that only topological features are used). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T026 [US2] Save processed graphs to `data/processed/graphs.pt` and verify the file loads without error.
 - [X] T027 [US2] Implement checkpointing logic at periodic intervals to `results/checkpoint_{epoch}.pt` in `code/models/train.py`.
 - [ ] T028 [US2] Implement training loop in `code/models/train.py` with /20 train-test split, batch ≤32, MSE loss, fixed seed.
@@ -158,7 +158,7 @@
 
 **Purpose**: Document power analysis and final packaging
 
-- [X] T055 [P] Document power analysis assumptions (medium effect size f²=0.15, α=0.05, Power=0.80) and determine Required N in `analysis/power_analysis.md`. **Required Sections**: Effect Size, Alpha, Power, Required N, Limitations. **Statistical Test**: Two-sample t-test. **Note**: Assumptions are based on topological features only as per Spec FR-002 and FR-006.
+- [X] T055 [P] Document power analysis assumptions (medium effect size f²=0.15, α=0.05, Power=0.80 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))) and determine Required N in `analysis/power_analysis.md`. **Required Sections**: Effect Size, Alpha, Power, Required N, Limitations. **Statistical Test**: Two-sample t-test. **Note**: Assumptions are based on topological features only as per Spec FR-002 and FR-006.
 - [X] T056 [P] Compile final report referencing `results/` and `analysis/` artifacts exclusively. **Structure**: Introduction, Methods, Results, Discussion. **Template**: Use the project's standard report template.
 - [X] T057 [P] Verify all artifacts have corresponding SHA256 hashes in `state/projects/PROJ-413-predicting-molecular-interactions-in-pol.yaml` by running `utils/verify_hashes.py`. **Criteria**: Exact filename match and key match in YAML.
 

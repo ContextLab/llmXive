@@ -25,3 +25,10 @@ T082:
   r: "No `plan.md` file or its contents were provided, so we cannot confirm that the\
     \ \u201CCandidate-Gene Pre-filtering\u201D entry was removed from the \u201CComplexity\
     \ Tracking\u201D table as required. The necessary artifact is missing."
+T085:
+  c: true
+  h: 024ac6c51579ac71e503258070abfe35a77e2582a66fa03ab06219e34491367c
+  r: "The `docs/data_dictionary.md` file exists (6\u202FKB) and contains a dedicated\
+    \ \u201CCritical Distinction\u201D section that explicitly explains the difference\
+    \ between `data/interim/bed.bim` (all high\u2011quality SNPs) and `data/interim/immune_pathway_snps.txt`\
+    \ (filtered immune\u2011pathway subset), fulfilling the update request."

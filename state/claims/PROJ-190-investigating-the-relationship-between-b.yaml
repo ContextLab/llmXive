@@ -631,27 +631,6 @@
   status: not_enough_info
   updated_at: '2026-07-28T10:11:29Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: report includes phrase findings are associational and do not imply causation
-    due to the observational study design
-  claim_id: c_72d652dd
-  context: 'T031 [US3] Generate data/results/report.md: Include correlation stats,
-    p-values, effect sizes, VIFs, and the phrase ''Findings are associational and
-    do not imply causation due to the observational study design'''
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Report_includes_phrase_findings_are_associational_and_do_not
-  kind: entity_fact
-  raw_text: Include the phrase 'Findings are associational and do not imply causation
-    due to the observational study design'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T10:11:36Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 2
   canonical: all analysis must complete on CPU within 6 hours
   claim_id: c_bb11ddfb
@@ -1006,3 +985,372 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T12:32:52Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: warm-up permutations employed to evaluate robustness consistent with
+    established practices
+  claim_id: c_5fda14f8
+  context: 'Task T030: Implement adaptive logic: 1. Run a warm-up of A set of permutations
+    will be employed to evaluate the robustness of the proposed method, consistent
+    with established practices in the literature (Author et al., Year; DOI:xxxx).
+    to estimate avg_perm_time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Warm-up_permutations_employed_to_evaluate_robustness_consist
+  kind: entity_fact
+  raw_text: Run a warm-up of A set of permutations will be employed to evaluate the
+    robustness of the proposed method, consistent with established practices in the
+    literature (Author et al., Year; DOI:xxxx).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:22:49Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: NIH Toolbox Fluid Intelligence validation has a verifiable primary source
+  claim_id: c_8de96080
+  context: 'Task T032: Citation Verification: Run the Reference-Validator Agent to
+    identify the primary source for the NIH Toolbox Fluid Intelligence validation,
+    then insert the verified year into the report.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIH_Toolbox_Fluid_Intelligence_validation_has_a_verifiable_p
+  kind: entity_fact
+  raw_text: The NIH Toolbox Fluid Intelligence validation has a primary source that
+    can be verified via a Reference-Validator Agent.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:23:35Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor is a metric for multicollinearity in regression
+  claim_id: c_2b1f1b6c
+  context: 'Task T028: Implement VIF check: Compute Variance Inference Factor, {{claim:c_62d77d97}}
+    ({{claim:c_d2b706cd}}, https://www.wikidata.org/wiki/Q113106917)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_is_a_metric_for_multicollinearity
+  kind: entity_fact
+  raw_text: Variance Inflation Factor (VIF) is a metric used to compute multicollinearity
+    in regression analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:23:56Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Findings are associational and do not imply causation due to observational
+    study design
+  claim_id: c_d1a7bfaa
+  context: 'Task T031: Generate data/results/report.md: Include correlation stats,
+    p-values, effect sizes, VIFs, and the phrase ''Findings are associational and
+    do not imply causation due to the observational study design'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_are_associational_and_do_not_imply_causation_due_to
+  kind: entity_fact
+  raw_text: Findings from the study are associational and do not imply causation due
+    to the observational study design.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:24:32Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP 1200-release provides raw fMRI and NIH Toolbox Fluid Intelligence
+    scores
+  claim_id: c_9f0d96b1
+  context: "Task T011: Implement code/data/download_hcp.py: Fetch raw fMRI and NIH\
+    \ Toolbox scores from HCP 1200-release (handle access restrictions, \u22651 retry)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Human Connectome Project (HCP) 1200-release provides raw fMRI and
+    NIH Toolbox Fluid Intelligence scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:24:52Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas used for brain parcellation
+  claim_id: c_5da7c47e
+  context: 'Phase 4 Goal: Parcellate brains using Schaefer atlas, compute connectivity
+    matrices, calculate global and frontoparietal efficiency.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_used_for_brain_parcellation
+  kind: entity_fact
+  raw_text: The Schaefer atlas is used for brain parcellation in the study.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:25:57Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Yeo atlas network definition used for Frontoparietal Efficiency calculation
+  claim_id: c_a2b5b520
+  context: 'Task T021: Implement code/graph/metrics.py: Calculate Frontoparietal Efficiency
+    using Yeo atlas network definition for each density in {0.15, Generate binary
+    graphs for densities {, 0.20, 0.25} }'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Yeo_atlas_network_definition_used_for_Frontoparietal_Efficie
+  kind: entity_fact
+  raw_text: The Yeo atlas network definition is used to calculate Frontoparietal Efficiency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:26:45Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: warm-up permutations employed to evaluate robustness consistent with
+    established practices
+  claim_id: c_d1580396
+  context: 'T030 [US3] Implement adaptive logic: 1. Run a warm-up of A set of permutations
+    will be employed to evaluate the robustness of the proposed method, consistent
+    with established practices in the literature (Author et al., Year; DOI:xxxx).
+    to estimate avg_perm_time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Warm-up_permutations_employed_to_evaluate_robustness_consist
+  kind: entity_fact
+  raw_text: Run a warm-up of A set of permutations will be employed to evaluate the
+    robustness of the proposed method, consistent with established practices in the
+    literature (Author et al., Year; DOI:xxxx).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:27:47Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for at least 95% of subjects
+  claim_id: c_4b9fc2e7
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95%25_of_subjects
+  kind: magnitude
+  raw_text: "Verify efficiency metrics are computed for efficiency metrics are computed\
+    \ for \u226595% of subjects and stored with expected ranges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:28:17Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: graph density within 1% of target
+  claim_id: c_6f6e2e42
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify graph density is within graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:28:18Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutations set to max of 1000 or floor of 6 hours minus elapsed time
+    divided by average permutation time if elapsed time exceeds 5.5 hours
+  claim_id: c_e4e73c92
+  context: 3. If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:28:18Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: analysis must complete on CPU within 6 hours
+  claim_id: c_2be8ed6d
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:28:39Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: never fabricate data
+  claim_id: c_66521dc8
+  context: 'Critical Constraint: {{claim:c_92c7d144}} (Wikidata Q387749, https://www.wikidata.org/wiki/Q387749);
+    never fabricate data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Never_fabricate_data
+  kind: entity_fact
+  raw_text: never fabricate data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:29:18Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sample to at most 500 subjects dynamically
+  claim_id: c_e05ca3d4
+  context: "4. If dataset >500 subjects and time is critical, sample to \u2264500\
+    \ subjects dynamically."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_to_at_most_500_subjects_dynamically
+  kind: magnitude
+  raw_text: "sample to \u2264500 subjects dynamically"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:30:19Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: mean framewise displacement less than or equal to 0.2 mm
+  claim_id: c_60fcfcab
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_mm
+  kind: magnitude
+  raw_text: "mean FD \u22640.2 mm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:30:43Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: filter subjects with mean framewise displacement greater than 0.5 mm
+  claim_id: c_75cac28e
+  context: 'T014a [US1] Implement exclusion logic: Filter subjects with mean FD >0.5
+    mm, log the exclusion count, and proceed; do NOT halt the pipeline if the retained
+    cohort drops below [deferred] of the original'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_subjects_with_mean_framewise_displacement_greater_tha
+  kind: magnitude
+  raw_text: Filter subjects with mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:31:09Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: verify mean FD is less than or equal to 0.2 mm
+  claim_id: c_fe6748a0
+  context: "T014b [US1] Verify quality: Calculate the mean FD of the final retained\
+    \ dataset; log the value and verify it is \u22640.2 mm (if >0.2 mm, log a warning\
+    \ but continue)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_mean_FD_is_less_than_or_equal_to_0.2_mm
+  kind: magnitude
+  raw_text: "verify it is \u22640.2 mm (if >0.2 mm, log a warning but continue)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:31:31Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: report includes phrase findings are associational and do not imply causation
+    due to the observational study design
+  claim_id: c_72d652dd
+  context: 'T031 [US3] Generate data/results/report.md: Include correlation stats,
+    p-values, effect sizes, VIFs, and the phrase ''Findings are associational and
+    do not imply causation due to the observational study design'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_phrase_findings_are_associational_and_do_not
+  kind: entity_fact
+  raw_text: Include the phrase 'Findings are associational and do not imply causation
+    due to the observational study design'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T07:32:11Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: compute variance inflation factor
+  claim_id: c_86cfecf2
+  context: 'T028 [US3] Implement VIF check: Compute Variance Inference Factor, {{claim:c_62d77d97}}
+    ({{claim:c_d2b706cd}}, https://www.wikidata.org/wiki/Q113106917)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: entity_fact
+  raw_text: Compute Variance Inference Factor, {{claim:c_62d77d97}} ({{claim:c_d2b706cd}},
+    https://www.wikidata.org/wiki/Q113106917)
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T07:32:17Z'

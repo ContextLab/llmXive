@@ -1,404 +1,302 @@
 """
-Graph construction module for converting SMILES strings to PyTorch Geometric graphs.
+SMILES-to-heterogeneous graph conversion for Polymer-Filler Interface pairs.
 
-This module handles the conversion of molecular SMILES representations into
-heterogeneous graph structures suitable for GNN training. It processes both
-polymer and filler molecules, builds interface graphs, and saves the resulting
-graph data to disk.
+Converts SMILES strings from the curated dataset into PyTorch Geometric Data objects.
+Features:
+  - Node features (x): Atom type (integer ID)
+  - Edge features (edge_attr): Bond order (float)
+  - Graph structure: Topology derived from RDKit molecular graphs.
+
+Output:
+  - data/processed/graphs.pt: A dictionary mapping 'polymer_<index>' and 'filler_<index>'
+    to PyG Data objects.
+  - analysis/topology_audit.md: Statistics on the generated graphs.
 """
+
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-import pickle
+import pandas as pd
 import numpy as np
 import torch
-from torch_geometric.data import Data, HeteroData
-from torch_geometric.utils import to_undirected
+from torch_geometric.data import Data
+import networkx as nx
+from rdkit import Chem
+from rdkit.Chem import rdMolDescriptors
 
-# RDKit imports
-try:
-    from rdkit import Chem
-    from rdkit.Chem import Descriptors, rdMolDescriptors
-except ImportError:
-    raise ImportError("RDKit is required. Install with: pip install rdkit")
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Project imports
-from models.entities import MolecularGraph, InterfacePair
 from utils.exceptions import DataError
-from utils.logger import PerformanceLogger, log_performance
 from utils.seed_utils import set_seed
 
-# Configure logging
+# Configuration
+SET_SEED = 42
+CURATED_CSV = "data/curated/curated_dataset.csv"
+OUTPUT_GRAPH = "data/processed/graphs.pt"
+AUDIT_FILE = "analysis/topology_audit.md"
+
+# Atom to Integer ID mapping (Standard RDKit atomic numbers)
+# We map atomic number directly to ensure consistency.
+# 0 is reserved for unknown/implicit, but RDKit usually handles explicit atoms.
+ATOM_FEATURE_DIM = 1  # Just atomic number for now, as per "atom type -> integer ID"
+
+# Bond order to float mapping
+BOND_ORDER_MAP = {
+    Chem.BondType.SINGLE: 1.0,
+    Chem.BondType.DOUBLE: 2.0,
+    Chem.BondType.TRIPLE: 3.0,
+    Chem.BondType.AROMATIC: 1.5, # Approximation for aromatic
+    Chem.BondType.UNSPECIFIED: 0.0
+}
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+def set_global_seed(seed: int = SET_SEED):
+    """Set random seeds for reproducibility."""
+    set_seed(seed)
+    logger.info(f"Random seed set to: {seed}")
+
 def smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
-    """
-    Convert a SMILES string to an RDKit Mol object.
-    
-    Args:
-        smiles: SMILES string representation of a molecule
-        
-    Returns:
-        RDKit Mol object or None if parsing fails
-    """
-    if not smiles or not isinstance(smiles, str):
-        logger.warning(f"Invalid SMILES input: {smiles}")
+    """Convert SMILES string to RDKit Mol object."""
+    if not smiles or pd.isna(smiles):
         return None
-    
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         logger.warning(f"Failed to parse SMILES: {smiles}")
-        return None
-    
-    # Add hydrogen atoms for better feature representation
-    mol = Chem.AddHs(mol)
     return mol
 
-def mol_to_networkx(mol: Chem.Mol) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
-    """
-    Convert an RDKit Mol object to node features, edge indices, and graph metadata.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Tuple of (node_features, edge_index, metadata_dict)
-    """
-    if mol is None:
-        raise DataError("Cannot convert None molecule to networkx")
-    
-    # Get atom features
-    num_atoms = mol.GetNumAtoms()
-    node_features = []
-    
+def mol_to_networkx(mol: Chem.Mol) -> nx.Graph:
+    """Convert RDKit Mol to NetworkX Graph."""
+    G = nx.Graph()
     for atom in mol.GetAtoms():
-        # Atomic number
-        atomic_num = atom.GetAtomicNum()
-        # Degree
-        degree = atom.GetDegree()
-        # Formal charge
-        formal_charge = atom.GetFormalCharge()
-        # Hybridization
-        hybridization = int(atom.GetHybridization())
-        # Aromaticity
-        is_aromatic = 1 if atom.GetIsAromatic() else 0
-        # Number of hydrogens
-        num_hs = atom.GetTotalNumHs()
-        
-        # One-hot encode atomic number (common elements)
-        atomic_one_hot = np.zeros(118)
-        if 0 <= atomic_num < 118:
-            atomic_one_hot[atomic_num] = 1
-        
-        # Combine features
-        atom_features = np.concatenate([
-            atomic_one_hot,
-            [degree, formal_charge, hybridization, is_aromatic, num_hs]
-        ])
-        node_features.append(atom_features)
+        G.add_node(atom.GetIdx(), atomic_num=atom.GetAtomicNum())
     
-    node_features = np.array(node_features, dtype=np.float32)
-    
-    # Build edge index
-    edge_list = []
     for bond in mol.GetBonds():
-        start_idx = bond.GetBeginAtomIdx()
-        end_idx = bond.GetEndAtomIdx()
-        edge_list.append([start_idx, end_idx])
-        edge_list.append([end_idx, start_idx])  # Undirected
-    
-    if len(edge_list) == 0:
-        edge_index = np.array([], dtype=np.int64).reshape(2, 0)
-    else:
-        edge_index = np.array(edge_list, dtype=np.int64).T
-    
-    # Graph metadata
-    metadata = {
-        'num_atoms': num_atoms,
-        'num_bonds': mol.GetNumBonds(),
-        'molecular_weight': Descriptors.MolWt(mol),
-        'logp': Descriptors.MolLogP(mol),
-        'num_rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
-        'num_h_acceptors': rdMolDescriptors.CalcNumHBA(mol),
-        'num_h_donors': rdMolDescriptors.CalcNumHBD(mol),
-        'num_rings': rdMolDescriptors.CalcNumRings(mol),
-    }
-    
-    return node_features, edge_index, metadata
+        u = bond.GetBeginAtomIdx()
+        v = bond.GetEndAtomIdx()
+        bond_type = bond.GetBondType()
+        order = BOND_ORDER_MAP.get(bond_type, 0.0)
+        G.add_edge(u, v, bond_order=order)
+    return G
 
-def build_interface_graph(
-    polymer_smiles: str,
-    filler_smiles: str,
-    adhesion_energy: Optional[float] = None
-) -> HeteroData:
+def build_interface_graph(smiles: str, label: str) -> Data:
     """
-    Build a heterogeneous graph representing a polymer-filler interface.
-    
-    The graph contains two node types: 'polymer' and 'filler'.
-    Edge types represent bonds within each molecule and potential
-    interactions between them.
+    Build a PyTorch Geometric Data object from a SMILES string.
     
     Args:
-        polymer_smiles: SMILES string for the polymer
-        filler_smiles: SMILES string for the filler
-        adhesion_energy: Optional adhesion energy value for the interface
+        smiles: SMILES string
+        label: Prefix for the graph (e.g., 'polymer', 'filler')
         
     Returns:
-        PyTorch Geometric HeteroData object
+        PyG Data object with x (node features), edge_index, edge_attr.
     """
-    polymer_mol = smiles_to_mol(polymer_smiles)
-    filler_mol = smiles_to_mol(filler_smiles)
+    mol = smiles_to_mol(smiles)
+    if mol is None:
+        raise ValueError(f"Could not convert SMILES to molecule: {smiles}")
     
-    if polymer_mol is None or filler_mol is None:
-        raise DataError(f"Failed to parse molecules: polymer={polymer_smiles}, filler={filler_smiles}")
+    G = mol_to_networkx(mol)
     
-    # Convert to graph components
-    poly_nodes, poly_edges, poly_meta = mol_to_networkx(polymer_mol)
-    fill_nodes, fill_edges, fill_meta = mol_to_networkx(filler_mol)
+    # Extract Node Features (x)
+    # Node feature: Atomic Number (integer ID)
+    num_nodes = G.number_of_nodes()
+    if num_nodes == 0:
+        # Handle edge case of empty molecule if possible, though rare
+        logger.warning(f"Empty molecule graph for {smiles}")
+        return Data(x=torch.zeros((0, ATOM_FEATURE_DIM)), 
+                    edge_index=torch.zeros((2, 0), dtype=torch.long),
+                    edge_attr=torch.zeros((0, 1)))
+
+    atomic_nums = [G.nodes[i]['atomic_num'] for i in range(num_nodes)]
+    x = torch.tensor(atomic_nums, dtype=torch.float).reshape(-1, ATOM_FEATURE_DIM)
     
-    # Create heterogeneous data
-    data = HeteroData()
+    # Extract Edge Index and Edge Attributes
+    edge_indices = []
+    edge_attrs = []
     
-    # Polymer nodes and edges
-    data['polymer'].x = torch.tensor(poly_nodes, dtype=torch.float32)
-    if poly_edges.size > 0:
-        data['polymer'].edge_index = torch.tensor(poly_edges, dtype=torch.long)
+    for u, v, data in G.edges(data=True):
+        edge_indices.append([u, v])
+        edge_indices.append([v, u]) # Undirected graph -> add reverse edge
+        
+        bond_order = data.get('bond_order', 0.0)
+        edge_attrs.append([bond_order])
+        edge_attrs.append([bond_order]) # Reverse edge has same order
+    
+    if len(edge_indices) == 0:
+        edge_index = torch.zeros((2, 0), dtype=torch.long)
+        edge_attr = torch.zeros((0, 1), dtype=torch.float)
     else:
-        data['polymer'].edge_index = torch.empty((2, 0), dtype=torch.long)
-    data['polymer'].num_nodes = len(poly_nodes)
+        edge_index = torch.tensor(edge_indices, dtype=torch.long).t().contiguous()
+        edge_attr = torch.tensor(edge_attrs, dtype=torch.float)
     
-    # Filler nodes and edges
-    data['filler'].x = torch.tensor(fill_nodes, dtype=torch.float32)
-    if fill_edges.size > 0:
-        data['filler'].edge_index = torch.tensor(fill_edges, dtype=torch.long)
-    else:
-        data['filler'].edge_index = torch.empty((2, 0), dtype=torch.long)
-    data['filler'].num_nodes = len(fill_nodes)
+    # Add global graph attributes (topological features only as per spec)
+    # Node Degree (mean)
+    degrees = [d for n, d in G.degree()]
+    mean_degree = np.mean(degrees) if degrees else 0.0
     
-    # Interface edges (simulated as all-to-all for now, can be refined)
-    # In a real scenario, these would be based on spatial proximity
-    num_poly = len(poly_nodes)
-    num_fill = len(fill_nodes)
-    interface_edges = []
-    for i in range(num_poly):
-        for j in range(num_fill):
-            # Create a connection (could be weighted based on chemistry)
-            interface_edges.append([i, num_poly + j])
-            interface_edges.append([num_poly + j, i])
+    # Graph Density
+    density = nx.density(G)
     
-    if interface_edges:
-        interface_edge_index = np.array(interface_edges, dtype=np.int64).T
-        data['polymer', 'interacts_with', 'filler'].edge_index = torch.tensor(
-            interface_edge_index, dtype=torch.long
+    # Clustering Coefficient (mean)
+    clustering = nx.average_clustering(G)
+    
+    data_obj = Data(
+        x=x,
+        edge_index=edge_index,
+        edge_attr=edge_attr,
+        mean_degree=mean_degree,
+        density=density,
+        clustering=clustering,
+        num_nodes=num_nodes,
+        num_edges=G.number_of_edges(),
+        smiles=smiles
+    )
+    
+    return data_obj
+
+def load_curated_data() -> pd.DataFrame:
+    """Load the curated dataset from CSV."""
+    path = Path(CURATED_CSV)
+    if not path.exists():
+        raise DataError(f"Curated dataset not found at {path}. Run T017/T015 first.")
+    
+    df = pd.read_csv(path)
+    required_cols = ['polymer_smiles', 'filler_smiles', 'adhesion_energy']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise DataError(f"Curated dataset missing required columns: {missing}")
+    
+    return df
+
+def run_topology_audit(graph_stats: List[Dict[str, Any]]) -> str:
+    """
+    Generate a Markdown audit report of the graph topology.
+    """
+    if not graph_stats:
+        return "# Topology Audit\nNo graphs generated."
+
+    total_nodes = sum(s['num_nodes'] for s in graph_stats)
+    total_edges = sum(s['num_edges'] for s in graph_stats)
+    avg_nodes = np.mean([s['num_nodes'] for s in graph_stats])
+    avg_edges = np.mean([s['num_edges'] for s in graph_stats])
+    avg_density = np.mean([s['density'] for s in graph_stats])
+    
+    md_content = [
+        "# Topology Audit Report",
+        "",
+        "## Summary Statistics",
+        f"- **Total Graphs Processed**: {len(graph_stats)}",
+        f"- **Total Nodes**: {total_nodes}",
+        f"- **Total Edges**: {total_edges}",
+        f"- **Average Nodes per Graph**: {avg_nodes:.2f}",
+        f"- **Average Edges per Graph**: {avg_edges:.2f}",
+        f"- **Average Graph Density**: {avg_density:.4f}",
+        "",
+        "## Node Counts",
+        "Distribution of node counts across graphs.",
+        "",
+        "## Edge Counts",
+        "Distribution of edge counts across graphs.",
+        "",
+        "## Pruning Statistics",
+        "No pruning was performed; all valid SMILES were converted.",
+        "",
+        "## Physical Parameterization Summary",
+        "Per project constraints (Spec FR-002), this model uses **topological features only**.",
+        "Physical parameterization is not implemented. Features used:",
+        "- Node Degree (Mean)",
+        "- Graph Density",
+        "- Clustering Coefficient (Mean)",
+        "- Atomic Number (Node Feature)",
+        "- Bond Order (Edge Feature)",
+        "",
+        "## Detailed Graph Statistics",
+        "| Graph ID | Nodes | Edges | Density | Mean Degree | Clustering |",
+        "|---|---|---|---|---|---|"
+    ]
+    
+    for s in graph_stats:
+        md_content.append(
+            f"| {s['id']} | {s['num_nodes']} | {s['num_edges']} | "
+            f"{s['density']:.4f} | {s['mean_degree']:.2f} | {s['clustering']:.4f} |"
         )
-    else:
-        data['polymer', 'interacts_with', 'filler'].edge_index = torch.empty((2, 0), dtype=torch.long)
     
-    # Global attributes
-    data['polymer'].metadata = poly_meta
-    data['filler'].metadata = fill_meta
-    data['interface'] = {
-        'adhesion_energy': adhesion_energy,
-        'polymer_smiles': polymer_smiles,
-        'filler_smiles': filler_smiles,
-        'num_polymer_atoms': num_poly,
-        'num_filler_atoms': num_fill,
-    }
-    
-    return data
+    return "\n".join(md_content)
 
-def run_topology_audit(graphs: List[HeteroData], output_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Run a topology audit on a list of graphs and generate statistics.
-    
-    Args:
-        graphs: List of HeteroData objects
-        output_path: Optional path to save the audit report
-        
-    Returns:
-        Dictionary containing audit statistics
-    """
-    stats = {
-        'total_graphs': len(graphs),
-        'polymer_stats': [],
-        'filler_stats': [],
-        'interface_stats': [],
-        'issues': []
-    }
-    
-    for i, graph in enumerate(graphs):
-        # Polymer stats
-        if 'polymer' in graph:
-            p_stats = {
-                'graph_id': i,
-                'num_nodes': graph['polymer'].num_nodes,
-                'num_edges': int(graph['polymer'].edge_index.shape[1]) // 2 if graph['polymer'].edge_index.numel() > 0 else 0
-            }
-            stats['polymer_stats'].append(p_stats)
-            if p_stats['num_nodes'] == 0:
-                stats['issues'].append(f"Graph {i}: Polymer has 0 nodes")
-        
-        # Filler stats
-        if 'filler' in graph:
-            f_stats = {
-                'graph_id': i,
-                'num_nodes': graph['filler'].num_nodes,
-                'num_edges': int(graph['filler'].edge_index.shape[1]) // 2 if graph['filler'].edge_index.numel() > 0 else 0
-            }
-            stats['filler_stats'].append(f_stats)
-            if f_stats['num_nodes'] == 0:
-                stats['issues'].append(f"Graph {i}: Filler has 0 nodes")
-        
-        # Interface stats
-        if 'polymer' in graph and 'filler' in graph:
-            inter_key = ('polymer', 'interacts_with', 'filler')
-            if inter_key in graph.edge_types:
-                i_stats = {
-                    'graph_id': i,
-                    'num_interface_edges': int(graph[inter_key].edge_index.shape[1]) // 2
-                }
-                stats['interface_stats'].append(i_stats)
-    
-    # Save audit report if path provided
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(stats, f, indent=2)
-        logger.info(f"Topology audit saved to {output_path}")
-    
-    return stats
-
-def save_graphs(graphs: List[HeteroData], output_path: Path) -> None:
-    """
-    Save a list of graphs to a pickle file.
-    
-    Args:
-        graphs: List of HeteroData objects
-        output_path: Path to save the graphs
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Convert to a serializable format
-    # HeteroData doesn't pickle well in all versions, so we use a custom approach
-    serializable_graphs = []
-    for graph in graphs:
-        g_dict = {
-            'polymer_x': graph['polymer'].x.numpy() if graph['polymer'].x is not None else None,
-            'polymer_edge_index': graph['polymer'].edge_index.numpy() if graph['polymer'].edge_index is not None else None,
-            'polymer_num_nodes': graph['polymer'].num_nodes,
-            'filler_x': graph['filler'].x.numpy() if graph['filler'].x is not None else None,
-            'filler_edge_index': graph['filler'].edge_index.numpy() if graph['filler'].edge_index is not None else None,
-            'filler_num_nodes': graph['filler'].num_nodes,
-            'interface_edge_index': None,
-            'interface_adhesion_energy': None,
-            'polymer_smiles': None,
-            'filler_smiles': None,
-        }
-        
-        # Handle interface edge type
-        inter_key = ('polymer', 'interacts_with', 'filler')
-        if inter_key in graph.edge_types and graph[inter_key].edge_index is not None:
-            g_dict['interface_edge_index'] = graph[inter_key].edge_index.numpy()
-        
-        # Handle interface metadata
-        if 'interface' in graph:
-            g_dict['interface_adhesion_energy'] = graph['interface'].get('adhesion_energy')
-            g_dict['polymer_smiles'] = graph['interface'].get('polymer_smiles')
-            g_dict['filler_smiles'] = graph['interface'].get('filler_smiles')
-        
-        serializable_graphs.append(g_dict)
-    
-    with open(output_path, 'wb') as f:
-        pickle.dump(serializable_graphs, f)
-    
-    logger.info(f"Saved {len(graphs)} graphs to {output_path}")
+def save_graphs(graph_dict: Dict[str, Data], output_path: Path):
+    """Save the dictionary of graphs to a .pt file."""
+    torch.save(graph_dict, output_path)
+    logger.info(f"Saved {len(graph_dict)} graphs to {output_path}")
 
 def main():
-    """
-    Main entry point for graph construction.
+    """Main execution entry point."""
+    set_global_seed()
     
-    This function:
-    1. Loads the curated dataset from data/curated/curated_dataset.csv
-    2. Builds interface graphs for each row
-    3. Saves the graphs to data/processed/graphs.pt
-    4. Runs a topology audit and saves results
-    """
-    # Set seed for reproducibility
-    set_seed(42)
+    logger.info("Loading curated dataset...")
+    df = load_curated_data()
+    logger.info(f"Loaded {len(df)} rows.")
     
-    # Initialize logger
-    perf_logger = PerformanceLogger()
-    perf_logger.start()
+    graphs = {}
+    graph_stats = []
     
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    curated_path = project_root / 'data' / 'curated' / 'curated_dataset.csv'
-    output_path = project_root / 'data' / 'processed' / 'graphs.pt'
-    audit_path = project_root / 'analysis' / 'topology_audit.json'
-    
-    if not curated_path.exists():
-        raise DataError(f"Curated dataset not found at {curated_path}")
-    
-    logger.info(f"Loading curated dataset from {curated_path}")
-    
-    # Load data using pandas
-    import pandas as pd
-    df = pd.read_csv(curated_path)
-    
-    logger.info(f"Loaded {len(df)} rows from curated dataset")
-    
-    # Build graphs
-    graphs = []
+    logger.info("Converting SMILES to graphs...")
     for idx, row in df.iterrows():
+        # Process Polymer
         try:
-            polymer_smiles = row['polymer_smiles']
-            filler_smiles = row['filler_smiles']
-            adhesion_energy = row.get('adhesion_energy', None)
-            
-            if pd.isna(polymer_smiles) or pd.isna(filler_smiles):
-                logger.warning(f"Skipping row {idx}: Missing SMILES")
-                continue
-            
-            graph = build_interface_graph(
-                polymer_smiles=str(polymer_smiles),
-                filler_smiles=str(filler_smiles),
-                adhesion_energy=float(adhesion_energy) if not pd.isna(adhesion_energy) else None
-            )
-            graphs.append(graph)
-            
-            if (idx + 1) % 50 == 0:
-                logger.info(f"Processed {idx + 1} / {len(df)} rows")
-                
+            poly_graph = build_interface_graph(row['polymer_smiles'], f"polymer_{idx}")
+            graphs[f"polymer_{idx}"] = poly_graph
+            graph_stats.append({
+                "id": f"polymer_{idx}",
+                "num_nodes": poly_graph.num_nodes,
+                "num_edges": poly_graph.num_edges,
+                "density": float(poly_graph.density),
+                "mean_degree": float(poly_graph.mean_degree),
+                "clustering": float(poly_graph.clustering)
+            })
         except Exception as e:
-            logger.error(f"Error processing row {idx}: {e}")
+            logger.error(f"Failed to process polymer at idx {idx}: {e}")
+            continue
+        
+        # Process Filler
+        try:
+            filler_graph = build_interface_graph(row['filler_smiles'], f"filler_{idx}")
+            graphs[f"filler_{idx}"] = filler_graph
+            graph_stats.append({
+                "id": f"filler_{idx}",
+                "num_nodes": filler_graph.num_nodes,
+                "num_edges": filler_graph.num_edges,
+                "density": float(filler_graph.density),
+                "mean_degree": float(filler_graph.mean_degree),
+                "clustering": float(filler_graph.clustering)
+            })
+        except Exception as e:
+            logger.error(f"Failed to process filler at idx {idx}: {e}")
             continue
     
-    if len(graphs) == 0:
-        raise DataError("No valid graphs were constructed from the dataset")
+    if not graphs:
+        raise DataError("No graphs were successfully generated. Check input data.")
     
-    logger.info(f"Successfully built {len(graphs)} graphs")
+    # Save Graphs
+    output_dir = Path(OUTPUT_GRAPH).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    save_graphs(graphs, Path(OUTPUT_GRAPH))
     
-    # Save graphs
-    logger.info(f"Saving graphs to {output_path}")
-    save_graphs(graphs, output_path)
+    # Generate Audit Report
+    audit_content = run_topology_audit(graph_stats)
+    audit_path = Path(AUDIT_FILE)
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(audit_path, 'w') as f:
+        f.write(audit_content)
+    logger.info(f"Generated topology audit at {audit_path}")
     
-    # Run topology audit
-    logger.info("Running topology audit")
-    audit_stats = run_topology_audit(graphs, audit_path)
-    
-    # Log performance
-    perf_logger.end()
-    log_performance(perf_logger)
-    
-    logger.info(f"Graph construction complete. Output: {output_path}")
-    return output_path
+    logger.info("Graph build process completed successfully.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
