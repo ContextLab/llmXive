@@ -1,3 +1,2 @@
-# This directory stores preprocessed molecular graph data (e.g., .pt, .parquet files).
-# It is created to ensure the directory structure exists for the pipeline.
-# See tasks.md T001b for creation requirement.
+# This directory is reserved for processed data (T001b).
+# Do not remove this file.

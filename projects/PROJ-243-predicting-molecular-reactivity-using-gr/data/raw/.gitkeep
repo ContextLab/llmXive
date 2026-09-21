@@ -1,3 +1,2 @@
-# This directory stores raw, unprocessed data fetched from external sources.
-# Files here are immutable once downloaded and verified.
-# Do not modify or delete files in this directory manually.
+# This directory is reserved for raw downloaded data (T001a).
+# Do not remove this file.

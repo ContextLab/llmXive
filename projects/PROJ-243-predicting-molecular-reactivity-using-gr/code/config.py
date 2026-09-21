@@ -4,71 +4,63 @@ import logging
 from typing import Optional, Dict, Any
 import numpy as np
 
-class Config:
-    """Configuration class for the project."""
-    
-    def __init__(self, project_root: Optional[str] = None):
-        self.project_root = project_root or os.getcwd()
-        self.seed = 42
-        self.device = 'cpu'
-        self.log_level = logging.INFO
+# Default configuration
+DEFAULT_CONFIG = {
+    "base_dir": os.getcwd(),
+    "random_seed": 42,
+    "device": "cpu",
+    "log_level": "INFO",
+    "data_dir": "data",
+    "code_dir": "code",
+    "artifacts_dir": "artifacts",
+    "tests_dir": "tests",
+}
 
-    def get(self, key: str, default: Any = None) -> Any:
-        return getattr(self, key, default)
+_config: Dict[str, Any] = {}
 
-_config_instance: Optional[Config] = None
+def get_default_config() -> Dict[str, Any]:
+    """Return a copy of the default configuration."""
+    return DEFAULT_CONFIG.copy()
 
-def get_config() -> Config:
-    """Return the global configuration instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance
+def get_config() -> Dict[str, Any]:
+    """Return the current configuration, merging defaults with any overrides."""
+    if not _config:
+        _config.update(DEFAULT_CONFIG)
+    return _config
 
-def set_config(config: Config) -> None:
-    """Set the global configuration instance."""
-    global _config_instance
-    _config_instance = config
+def set_config(new_config: Dict[str, Any]) -> None:
+    """Update the current configuration with new values."""
+    global _config
+    if not _config:
+        _config.update(DEFAULT_CONFIG)
+    _config.update(new_config)
 
 def set_seed(seed: Optional[int] = None) -> None:
     """Set random seeds for reproducibility."""
     if seed is None:
-        seed = get_config().seed
+        seed = get_config().get("random_seed", 42)
+    
     random.seed(seed)
     np.random.seed(seed)
-    # Note: torch seed setting is handled in model scripts if torch is available
+    # Note: torch seed setting would go here if torch is imported and available
+    # try:
+    #     import torch
+    #     torch.manual_seed(seed)
+    #     if torch.cuda.is_available():
+    #         torch.cuda.manual_seed_all(seed)
+    # except ImportError:
+    #     pass
 
-def ensure_directories() -> None:
+def ensure_directories(dirs: list) -> None:
     """
-    Ensure all necessary project directories exist based on the current config.
-    This is a helper for setup scripts.
+    Ensure that a list of directory paths exist relative to the base_dir.
+    Creates them if they don't exist.
     """
-    config = get_config()
-    base = config.project_root
-    
-    # Define the directory structure required by the project
-    # This matches the paths in tasks.md (Phase 1)
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/assets",
-        "code",
-        "artifacts",
-        "tests",
-        "artifacts/logs",
-        "artifacts/weights",
-        "figures"
-    ]
-    
-    for dir_path in directories:
-        full_path = os.path.join(base, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path, exist_ok=True)
+    base_dir = get_config().get("base_dir", os.getcwd())
+    for d in dirs:
+        full_path = os.path.join(base_dir, d)
+        os.makedirs(full_path, exist_ok=True)
+        # logging.info(f"Ensured directory: {full_path}")
 
-def get_default_config() -> Dict[str, Any]:
-    """Return a dictionary of default configuration values."""
-    return {
-        "seed": 42,
-        "device": "cpu",
-        "log_level": logging.INFO
-    }
+# Initialize config on import to ensure defaults are available
+_config = DEFAULT_CONFIG.copy()

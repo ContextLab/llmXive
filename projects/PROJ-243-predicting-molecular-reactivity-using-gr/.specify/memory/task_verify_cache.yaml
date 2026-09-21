@@ -4,12 +4,12 @@ T008:
   r: No `artifacts/logs/` directory, log files, or `artifacts/metrics.json` were presented,
     and no code/configuration showing a logging setup was provided. Consequently the
     required logging infrastructure is missing.
-T010b:
+T010l:
   c: false
-  h: 609f89e7f02909c53b12c351f1ca0826aa7f5b652203aa384ff225c420c06d73
-  r: "Both required files (`data/raw/reference_substructures_raw.csv` and `data/raw/checksums.json`)\
-    \ are missing, so no checksum verification could be performed. The task\u2019\
-    s core artifact is absent, making the claim unsubstantiated."
+  h: cbc7bd1e07cc3b72df703a7051f108c143976fb680166116c746e677061e1aa7
+  r: The required deliverable `data/raw/kinetic_dataset_raw.csv` does not exist in
+    the repository, so the annotation task cannot have been performed. No file is
+    present to verify the added `reaction_type` column or the entry count.
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

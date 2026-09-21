@@ -4,91 +4,107 @@ import json
 import hashlib
 import logging
 from typing import Optional
+
 from config import get_config, ensure_directories
+from utils.logging_utils import setup_logging, log_metric, log_execution_summary
+from utils.checksum_manager import load_checksums
 
 def setup_script_logging():
-    """Initialize logging for the checksum verification script."""
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(handler)
-    return logger
+    """Configure logging for the checksum verification script."""
+    return setup_logging("verify_reference_checksum")
 
 def calculate_sha256(file_path: str) -> str:
-    """Calculate the SHA-256 hash of a file."""
+    """Calculate SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_manifest(manifest_path: str) -> dict:
-    """Load the checksums manifest JSON file."""
-    with open(manifest_path, 'r') as f:
-        return json.load(f)
-
-def verify_reference_checksum(logger: Optional[logging.Logger] = None) -> bool:
+def verify_reference_checksum(
+    logger: logging.Logger,
+    file_path: str,
+    expected_hash: str,
+    manifest_path: str
+) -> bool:
     """
-    Verify the SHA-256 checksum of data/raw/reference_substructures_raw.csv
-    against the hash stored in data/raw/checksums.json.
+    Verify the SHA-256 checksum of a file against the manifest.
+
+    Args:
+        logger: Logger instance
+        file_path: Path to the file to verify
+        expected_hash: Expected hash (for comparison or logging)
+        manifest_path: Path to the checksums.json manifest
 
     Returns:
-        bool: True if verification passes, False otherwise.
+        True if verification passes, False otherwise
     """
-    if logger is None:
-        logger = setup_script_logging()
-
-    config = get_config()
-    ensure_directories(config)
-
-    file_path = os.path.join(config['paths']['data_raw'], 'reference_substructures_raw.csv')
-    manifest_path = os.path.join(config['paths']['data_raw'], 'checksums.json')
-
-    # Check if files exist
     if not os.path.exists(file_path):
-        logger.error(f"Target file not found: {file_path}")
+        logger.error(f"File not found: {file_path}")
         return False
 
-    if not os.path.exists(manifest_path):
-        logger.error(f"Manifest file not found: {manifest_path}")
-        return False
+    actual_hash = calculate_sha256(file_path)
+    logger.info(f"Calculated SHA-256 for {file_path}: {actual_hash}")
 
+    # Load the manifest to get the stored hash
     try:
-        # Load expected checksum
-        manifest = load_manifest(manifest_path)
-        expected_checksum = manifest.get('reference_substructures_raw.csv')
-        
-        if expected_checksum is None:
-            logger.error(f"Checksum for 'reference_substructures_raw.csv' not found in manifest.")
-            return False
+        checksums = load_checksums(manifest_path)
+    except FileNotFoundError:
+        logger.error(f"Checksum manifest not found: {manifest_path}")
+        return False
+    except json.JSONDecodeError:
+        logger.error(f"Invalid JSON in checksum manifest: {manifest_path}")
+        return False
 
-        # Calculate actual checksum
-        logger.info(f"Calculating SHA-256 for {file_path}...")
-        actual_checksum = calculate_sha256(file_path)
+    # Check if the file key exists in the manifest
+    file_key = os.path.basename(file_path)
+    if file_key not in checksums:
+        logger.error(f"File '{file_key}' not found in checksum manifest.")
+        logger.error(f"Available keys: {list(checksums.keys())}")
+        return False
 
-        logger.info(f"Expected: {expected_checksum}")
-        logger.info(f"Actual:   {actual_checksum}")
+    stored_hash = checksums[file_key]
+    logger.info(f"Stored hash for {file_key}: {stored_hash}")
 
-        if actual_checksum == expected_checksum:
-            logger.info("Checksum verification PASSED.")
-            return True
-        else:
-            logger.error("Checksum verification FAILED. The file may be corrupted or modified.")
-            return False
-
-    except Exception as e:
-        logger.error(f"Error during verification: {e}")
+    if actual_hash == stored_hash:
+        logger.info(f"Checksum verification PASSED for {file_key}")
+        return True
+    else:
+        logger.error(f"Checksum verification FAILED for {file_key}")
+        logger.error(f"  Expected: {stored_hash}")
+        logger.error(f"  Actual:   {actual_hash}")
         return False
 
 def main():
-    """Entry point for the script."""
+    """Main entry point for verifying the reference substructures checksum."""
     logger = setup_script_logging()
-    success = verify_reference_checksum(logger)
-    sys.exit(0 if success else 1)
+    logger.info("Starting reference substructures checksum verification (T010b).")
+
+    config = get_config()
+    ensure_directories()
+
+    file_path = os.path.join(config["data_raw"], "reference_substructures_raw.csv")
+    manifest_path = os.path.join(config["data_raw"], "checksums.json")
+
+    # We don't need to pass expected_hash here as we load it from the manifest
+    success = verify_reference_checksum(
+        logger,
+        file_path,
+        expected_hash="N/A",
+        manifest_path=manifest_path
+    )
+
+    # Log the result
+    log_metric(logger, "checksum_verification_passed", success)
+
+    if success:
+        logger.info("Task T010b completed successfully.")
+        log_execution_summary(logger, "T010b", "Success", "Checksum verified")
+        sys.exit(0)
+    else:
+        logger.error("Task T010b failed: Checksum verification did not pass.")
+        log_execution_summary(logger, "T010b", "Failed", "Checksum mismatch or file missing")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

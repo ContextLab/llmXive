@@ -7,6 +7,13 @@ exclude =
     build,
     dist,
     .eggs,
-    *.egg-info
+    *.egg-info,
+    data,
+    artifacts,
+    .venv,
+    venv
 per-file-ignores =
-    __init__.py:F401
+    # Allow unused imports in __init__.py for API exposure
+    */__init__.py: F401
+    # Allow docstrings to be missing in test files
+    tests/*: D100,D101,D102,D103

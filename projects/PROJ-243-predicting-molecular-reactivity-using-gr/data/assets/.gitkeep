@@ -1,2 +1,2 @@
-This file ensures the data/assets directory is tracked by version control.
-This directory will contain curated, validated datasets ready for model consumption.
+# This directory is reserved for curated and asset files (T001c).
+# Do not remove this file.

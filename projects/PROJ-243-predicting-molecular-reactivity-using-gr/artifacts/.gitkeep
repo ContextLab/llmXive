@@ -1,2 +1,2 @@
-# This file ensures the artifacts directory is tracked by git.
-# It serves as a placeholder for future artifact outputs.
+# This directory holds generated artifacts, logs, and models (T002).
+# Do not remove this file.

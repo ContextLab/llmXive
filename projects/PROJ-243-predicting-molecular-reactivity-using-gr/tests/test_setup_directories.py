@@ -2,26 +2,34 @@ import os
 import pytest
 from config import get_config, ensure_directories
 
-def test_directories_exist():
-    """Verify that all required directories are created by ensure_directories."""
-    ensure_directories()
+def test_t002_directories_exist():
+    """
+    Test that the directories required for T002 (code, artifacts, tests)
+    and their essential subdirectories exist.
+    """
     config = get_config()
     
-    required_dirs = [
-        config.data_raw,
-        config.data_processed,
-        config.data_assets,
-        config.code_dir,
-        config.tests_dir,
-        config.artifacts_dir,
-        config.artifacts_logs,
-    ]
-    
-    for dir_path in required_dirs:
-        assert os.path.isdir(dir_path), f"Directory {dir_path} does not exist"
+    # Ensure directories are created (idempotent)
+    ensure_directories(config)
 
-def test_data_raw_exists():
-    """Specific check for T001a: data/raw must exist."""
-    ensure_directories()
-    config = get_config()
-    assert os.path.isdir(config.data_raw), "data/raw directory is missing"
+    # Check root directories required by T002
+    assert os.path.isdir(config.code_dir), f"Directory missing: {config.code_dir}"
+    assert os.path.isdir(config.artifacts_dir), f"Directory missing: {config.artifacts_dir}"
+    assert os.path.isdir(config.tests_dir), f"Directory missing: {config.tests_dir}"
+
+    # Check essential subdirectories
+    assert os.path.isdir(config.data_raw), f"Directory missing: {config.data_raw}"
+    assert os.path.isdir(config.data_processed), f"Directory missing: {config.data_processed}"
+    assert os.path.isdir(config.data_assets), f"Directory missing: {config.data_assets}"
+    assert os.path.isdir(config.artifacts_logs), f"Directory missing: {config.artifacts_logs}"
+    assert os.path.isdir(config.artifacts_weights), f"Directory missing: {config.artifacts_weights}"
+    
+    # Check test subdirectories
+    assert os.path.isdir(os.path.join(config.tests_dir, "unit"))
+    assert os.path.isdir(os.path.join(config.tests_dir, "integration"))
+    assert os.path.isdir(os.path.join(config.tests_dir, "contract"))
+    
+    # Check code subdirectories
+    assert os.path.isdir(os.path.join(config.code_dir, "utils"))
+    assert os.path.isdir(os.path.join(config.code_dir, "data"))
+    assert os.path.isdir(os.path.join(config.code_dir, "models"))
