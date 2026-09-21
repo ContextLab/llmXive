@@ -1,0 +1,48 @@
+T014:
+  c: false
+  h: 93c4c7510eac542b32753a069c55f19974ec1007c43d15b65d64fccb4ceb1f7d
+  r: "The required artifact `tests/integration/test_memory_limits.py` does not exist\
+    \ in the repository, so there is no test verifying that peak RAM stays below 6\u202F\
+    GB. The task\u2019s core deliverable is missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON report or any file containing the integrated statistical results is\
+    \ provided; the evidence lacks the required final batch report artifact, so the\
+    \ task\u2019s deliverable cannot be confirmed as completed."
+T034:
+  c: false
+  h: f7a660f745a31f729628db247d425b0492165373fd4a7da9c04658734eb90284
+  r: "The `code/cli.py` contains an `update_state_file` function that would write\
+    \ the required YAML, but the repository lacks the `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml`\
+    \ file, and the provided snippet does not show argument parsing that actually\
+    \ invokes `--update-state`. Without the state file present (or evidence that running\
+    \ the command creates it), the task\u2019s requirement is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` or `quickstart.md` files were presented in `specs/001-llmxive-trisplat-ext/`;
+    the implementer provided no content to verify that the required documentation
+    exists or meets the specification.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., CI logs, batch output files, JSON/CSV results, or visualizations)\
+    \ were provided to demonstrate that a full batch of 20 or 50 scenes was actually\
+    \ run on a simulated GitHub Actions free\u2011tier environment. Consequently the\
+    \ requirement cannot be verified."
+T041:
+  c: false
+  h: d95ae3a05dcfca5e6e333b1c310fc399d6c7dd48225183a8fae459237586abb5
+  r: "The `stats.py` file defines `TOLERANCE_THRESHOLD` but the `identify_sparsity_threshold`\
+    \ function is truncated and does not show the required calculation or JSON writing\
+    \ logic. Moreover, the expected output file `data/processed/threshold_result.json`\
+    \ is missing. The task\u2019s core requirement\u2014computing the relative error\
+    \ increase and persisting the result\u2014is not fulfilled."
+T044:
+  c: false
+  h: 6488050b7ea3bd2e592a010433149ca882255e98aa0127ec9d26dcb1a868649a
+  r: "The loader defines `save_checksums` but never calls it, and the required `data/processed/checksums_temp.json`\
+    \ file is absent. Moreover, `cli.py --update-state` recomputes checksums from\
+    \ files in `data/processed` instead of reading the temporary JSON, so the intended\
+    \ data flow is not realized. The task\u2019s requirement is therefore not satisfied."

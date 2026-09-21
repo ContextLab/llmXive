@@ -1,0 +1,5 @@
+# Extend the main pyproject.toml configuration if specific overrides are needed
+# or use this as a standalone config if preferred.
+# Currently, configuration is handled in pyproject.toml for simplicity.
+extend = "pyproject.toml"
+ignore = []

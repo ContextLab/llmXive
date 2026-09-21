@@ -1,86 +1,203 @@
-# Quickstart: llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction"
+# Quick Start Guide: Extending TriSplat for CPU-Only Edge Robotics
 
-## Prerequisites
+This guide walks you through setting up and running the CPU-optimized geometry-only 3D reconstruction pipeline.
 
--   Python 3.11+
--   2-core CPU (simulated GitHub Actions runner)
--   ~7 GB RAM
--   ~14 GB disk space (for dataset and temporary files)
--   Internet access (for dataset download)
+## Step 1: Environment Setup
 
-## Installation
+### Prerequisites Check
+- [ ] Python 3.11 or higher installed
+- [ ] At least 6 GB free RAM available
+- [ ] At least 14 GB free disk space
+- [ ] No GPU required (CPU-only environment)
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins all dependencies to ensure reproducibility.*
+### Install Dependencies
 
-## Running the Pipeline
-
-### Step 1: Download the Dataset
-The pipeline will automatically download the RealEstate10K dataset if not present. To manually trigger download:
 ```bash
-python code/cli.py --action download --dataset real_estate_10k --path data/raw
+# Navigate to project root
+cd projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim
+
+# Install required packages
+pip install -r code/requirements.txt
 ```
 
-### Step 2: Run a Single Scene (Debug)
-Test the pipeline on a single scene with views:
+### (Optional) Setup Development Tools
+
 ```bash
-python code/cli.py \
-  --scene_id "re10k_val_scene_001" \
-  --view_count 3 \
-  --resolution 320x240 \
-  --timeout 1800 \
-  --seed 42
+pip install ruff black
 ```
-*Output*: A `.obj` file and a JSON metrics file in `data/processed/results/`.
 
-### Step 3: Run the Full Batch (50 Scenes)
-Execute the full statistical evaluation:
+## Step 2: Verify Installation
+
+Run a quick test to ensure all dependencies are correctly installed:
+
 ```bash
-python code/cli.py \
-  --batch_size 50 \
-  --view_counts 2 3 4 5 \
-  --timeout 1800 \
-  --seed 42 \
-  --output data/processed/results/batch_results.json
+python -c "import torch; import numpy; import trimesh; print('All imports successful!')"
 ```
-*Note*: This will take up to 6 hours on a 2-core CPU runner.
 
-### Step 4: Analyze Results
-View the statistical summary and threshold identification:
+## Step 3: Run a Single Scene (MVP Test)
+
+Before running the full batch, test the pipeline on a single scene:
+
 ```bash
-python code/cli.py --action analyze --input data/processed/results/batch_results.json
-```
-*Output*: A report identifying the sparsity threshold and statistical significance (p-values).
-
-## Expected Output Structure
-
-```text
-data/
-├── raw/
-│   └── test.tar.gz (and extracted shards)
-└── processed/
-    ├── results/
-    │   ├── scene_001_views_2.json
-    │   ├── scene_001_views_3.json
-    │   ├── ...
-    │   └── batch_results.json
-    └── meshes/
-        ├── scene_001_views_2.obj
-        ├── scene_001_views_3.obj
-        └── ...
+python code/cli.py --views 3 --timeout 1800 --seed 42
 ```
 
-## Troubleshooting
+**Expected Output:**
+- Data streaming from RealEstate10K
+- Progress bar showing scene processing
+- Generated mesh file (`.obj` or `.ply`) in the output directory
+- Metrics logged to console
 
--   **OOM Error**: Ensure `--resolution 320x240` is set. If still failing, reduce `--batch_size` to 1.
--   **Non-Convergence**: Check `error_log` in the JSON output. The system will log "max_iter_reached" if the ray-surface layer fails to converge within 100 steps.
--   **Dataset Not Found**: Verify internet connection and that the HuggingFace URL is accessible.
+**Validation:**
+- [ ] Pipeline completes within 30 minutes
+- [ ] Valid mesh file is generated
+- [ ] No CUDA errors (CPU-only mode)
+- [ ] Memory usage stays under 6 GB
+
+## Step 4: Run Full Batch Experiment
+
+Once the single scene test passes, run the full batch experiment:
+
+```bash
+# Run with default settings (N=20 scenes, 6-hour timeout)
+python code/cli.py --update-state
+```
+
+Or run directly with custom parameters:
+
+```bash
+python code/experiments/run_batch.py --n-scenes 20 --timeout 21600
+```
+
+**What happens:**
+1. The pipeline processes 20 scenes across 2, 3, 4, and 5 view configurations
+2. Metrics (Chamfer Distance, PSNR) are collected for each scene
+3. Statistical analysis identifies the sparsity threshold
+4. Benchmark comparison against baseline TriSplat is performed
+
+**Expected Duration:**
+- N=20 scenes: ~1-4 hours (depending on hardware)
+- N=50 scenes (stretch goal): ~3-6 hours if runtime permits
+
+## Step 5: Generate Reports
+
+After batch completion, generate the final analysis reports:
+
+### 5.1 Generate Benchmark CSV
+
+```bash
+python code/experiments/generate_benchmark_csv.py
+```
+
+**Output:** `data/processed/benchmark_tradeoff.csv`
+
+### 5.2 Generate Trade-off Plot
+
+```bash
+python code/experiments/generate_tradeoff_plot.py
+```
+
+**Output:** `data/processed/benchmark_tradeoff_plot.png`
+
+### 5.3 Generate Final Report
+
+```bash
+python code/experiments/generate_final_report.py
+```
+
+**Output:** `data/processed/final_report.json` and `data/processed/threshold_result.json`
+
+## Step 6: Verify Results
+
+Check the generated artifacts:
+
+```bash
+# View the benchmark CSV
+head data/processed/benchmark_tradeoff.csv
+
+# View the threshold result
+cat data/processed/threshold_result.json
+
+# View the final report
+cat data/processed/final_report.json | python -m json.tool
+```
+
+**Expected Results:**
+- `threshold_result.json` contains the identified sparsity threshold (view count where error exceeds 15%)
+- `benchmark_tradeoff_plot.png` shows latency vs. Chamfer Distance curve
+- `final_report.json` contains comprehensive statistics and comparative metrics
+
+## Step 7: Run Tests (Optional)
+
+Verify the implementation with the test suite:
+
+```bash
+# Run unit tests
+python -m pytest tests/unit/ -v
+
+# Run integration tests
+python -m pytest tests/integration/ -v
+
+# Run memory usage test specifically
+python -m pytest tests/integration/test_memory_limits.py -v
+```
+
+## Common Issues and Solutions
+
+### Issue: "Monocular input not supported"
+**Solution:** Ensure you specify at least 2 views: `--views 2`
+
+### Issue: "CUDA error"
+**Solution:** The pipeline is designed for CPU-only. Ensure no GPU-related environment variables are set.
+
+### Issue: "Dataset download failed"
+**Solution:** Check your internet connection. The dataset is streamed from Hugging Face.
+
+### Issue: "Convergence failed"
+**Solution:** This is expected for low-texture scenes. A placeholder mesh will be generated with the error flag "LOW_TEXTURE_CONVERGENCE_FAILED" or "TIMEOUT_CONVERGENCE_FAILED".
+
+### Issue: "Memory limit exceeded"
+**Solution:** The pipeline uses streaming to minimize memory usage. If you still exceed 6 GB, reduce the number of concurrent scenes or increase system RAM.
+
+## Advanced Usage
+
+### Updating State File
+After execution, update the project state with checksums:
+
+```bash
+python code/cli.py --update-state
+```
+
+This computes SHA-256 hashes of all processed data and updates `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml`.
+
+### Running with Custom View Counts
+Test specific view configurations:
+
+```bash
+# Test with 2 views
+python code/cli.py --views 2 --timeout 1800
+
+# Test with 5 views
+python code/cli.py --views 5 --timeout 1800
+```
+
+### Enabling Verbose Logging
+Add `--verbose` flag (if implemented) or check the log files in the output directory.
+
+## Next Steps
+
+After completing the quick start:
+
+1. Review the `README.md` for detailed architecture and API documentation
+2. Examine the generated reports to understand the sparsity threshold
+3. Analyze the trade-off plot to see the latency vs. fidelity relationship
+4. Consider extending the pipeline with additional scenes or configurations
+
+## Support
+
+For additional help:
+- Refer to the full `README.md`
+- Check the test files for usage examples
+- Review the error handling documentation in `README.md`
+
+**Happy reconstructing!** 🚀

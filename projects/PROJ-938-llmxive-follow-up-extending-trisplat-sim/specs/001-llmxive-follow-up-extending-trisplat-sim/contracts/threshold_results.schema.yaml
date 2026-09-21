@@ -1,0 +1,25 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Threshold Results Schema
+description: Schema for sparsity threshold identification results
+type: object
+properties:
+  threshold_view_count:
+    type: integer
+    minimum: 2
+    maximum: 5
+  tolerance_threshold:
+    type: number
+    const: 0.15
+  relative_error_increase:
+    type: number
+  method:
+    type: string
+    enum: [t-test, wilcoxon]
+  p_value:
+    type: number
+required:
+  - threshold_view_count
+  - tolerance_threshold
+  - relative_error_increase
+  - method
+  - p_value
