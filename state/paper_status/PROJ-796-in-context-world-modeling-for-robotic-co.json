@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-21T01:36:18.796197+00:00"
+    "audited_at": "2026-09-21T02:04:06.357701+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-796-in-context-world-modeling-for-robotic-co",
-  "updated_at": "2026-09-21T01:36:18.796212+00:00"
+  "updated_at": "2026-09-21T02:04:06.357714+00:00"
 }
