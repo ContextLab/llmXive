@@ -86,11 +86,9 @@ T083:
   r: The required file `data/processed/vif_diagnostic_log.json` is missing, and there
     is no evidence that `artifacts/metrics/sensitivity_analysis.json` exists or contains
     the variance calculation. Both artifacts are needed to satisfy the task.
-T088:
+T089:
   c: false
-  h: c8e405485567ea52707c804a554461bcc8091d803beeed2339a40cb61d06e27d
-  r: "The `code/verify_report.py` file is truncated and ends with an unfinished statement\
-    \ (`violation`), so it will not run or correctly exit with code\u202F1. Additionally,\
-    \ the required `artifacts/reports/final_report.md` file does not exist, so the\
-    \ script cannot even be exercised against a report containing \u201Ccauses\u201D\
-    . Both the script implementation and the report artifact are missing/invalid."
+  h: 781ce5402d362194450012439b6cac1656ddeb85801a6cf7b751394b6c31daa6
+  r: "The required `.github/workflows/ci.yml` file does not exist in the repository,\
+    \ so the CI workflow integration cannot be verified or executed. The task\u2019\
+    s core artifact is missing."

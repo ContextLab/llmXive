@@ -24,23 +24,23 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: create `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `tests/`, and `specs/001-predict-tg-metallic-glasses/contracts/` directories.
-- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs `10.5281/zenodo.10043838` (primary) and `10.5281/zenodo.11023456` (fallback) from `config.yaml`. The client must handle authentication, rate limits, and raise a specific `DataUnavailableError` if both DOIs are unreachable. [UNRESOLVED-CLAIM: c_26a68fbf — status=not_enough_info] **Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error` confirms error raising on mocked client error responses. [UNRESOLVED-CLAIM: c_a4383d51 — status=not_enough_info] 2) Verify that when a DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g., "404 Not Found", "Timeout", or exception message). [UNRESOLVED-CLAIM: c_79d9a90e — status=not_enough_info] **Logging Config**: Ensure `code/__init__.py` or `code/ingest.py` configures logging to `INFO` level with a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s` to guarantee failure reasons are written to `logs/ingest.log`. [UNRESOLVED-CLAIM: c_4fb25790 — status=not_enough_info]
+- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs `10.5281/zenodo.10043838` (primary) and `10.5281/zenodo.11023456` (fallback) from `config.yaml`. The client must handle authentication, rate limits, and raise a specific `DataUnavailableError` if both DOIs are unreachable. **Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error` confirms error raising on mocked client error responses. 2) Verify that when a DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g., "404 Not Found", "Timeout", or exception message). **Logging Config**: Ensure `code/__init__.py` or `code/ingest.py` configures logging to `INFO` level with a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s` to guarantee failure reasons are written to `logs/ingest.log`.
 - [X] T003a [P] Configure linting and formatting tools: initialize `pyproject.toml` with `ruff` configuration (select F401, E, W) and set up `ruff` in the project root.
 - [X] T003b [P] Verify linting configuration: Run `ruff check.` and confirm exit code 0 (no errors). If errors exist, fix them or update `ruff` ignores as appropriate.
 
@@ -60,7 +60,7 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `.gitkeep` files in `data/raw/` and `data/processed/`; create `code/checksums.py` to implement checksum tracking logic to satisfy SC-003 and Constitution Principle III. **Action**: The script must calculate SHA256 checksums for all files in `data/raw/` and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml` under the key `artifact_hashes`. [UNRESOLVED-CLAIM: c_f442b072 — status=not_enough_info] **Verification**: 1) Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml` exists and contains the key `artifact_hashes`. [UNRESOLVED-CLAIM: c_07b833f8 — status=not_enough_info] 2) Verify `artifact_hashes` contains an entry for `data/raw/zenodo_*.csv` with a valid SHA256 hash string. [UNRESOLVED-CLAIM: c_86fc2075 — status=not_enough_info] 3) Verify the hash matches the actual file content. [UNRESOLVED-CLAIM: c_4e14f123 — status=not_enough_info]
+- [X] T004 Create `.gitkeep` files in `data/raw/` and `data/processed/`; create `code/checksums.py` to implement checksum tracking logic to satisfy SC-003 and Constitution Principle III. **Action**: The script must calculate SHA256 checksums for all files in `data/raw/` and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml` under the key `artifact_hashes`. **Verification**: 1) Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml` exists and contains the key `artifact_hashes`. 2) Verify `artifact_hashes` contains an entry for `data/raw/zenodo_*.csv` with a valid SHA256 hash string. 3) Verify the hash matches the actual file content.
 - [X] T005 [P] Implement `code/contracts/` schema loaders for `dataset.schema.yaml` and `artifact.schema.yaml`
 - [X] T006 Create `code/__init__.py` and configure logging infrastructure for pipeline steps
 - [X] T007 Setup environment configuration management: Create `.env` file with keys `ZENODO_PRIMARY_DOI`, `ZENODO_FALLBACK_DOI`, `RANDOM_SEED` and `config.yaml` with keys `seed`, `max_depth`, `runtime_limit_h`, `memory_limit_gb`. Verification: Verify `config.yaml` contains required keys and `.env` contains required keys. Verify `seed` is an integer, `max_depth` is an integer, `runtime_limit_h` is a float.
@@ -90,9 +90,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI `10.5281/zenodo.10043838` (fallback: `10.5281/zenodo.11023456`). **Action**: Call Zenodo API client (T002) to fetch data if local files are missing. If local file exists but checksum mismatch, re-fetch from Zenodo. **Fallback Logic**: If primary DOI fails, MUST attempt to fetch from fallback DOI. [UNRESOLVED-CLAIM: c_c13da05a — status=not_enough_info] If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. If the fallback DOI succeeds, proceed and log a `FALLBACK_USED` warning. [UNRESOLVED-CLAIM: c_a2210184 — status=not_enough_info] **Streaming**: If the dataset size is unknown or large, implement chunked reading (`chunksize` or `dask`) to process data without loading it entirely into RAM. **Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv` first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the selected file contains >0 rows. [UNRESOLVED-CLAIM: c_439e73f9 — status=not_enough_info] 3) Verify `data/ingestion_stats.json` contains key `source_doi` with the exact DOI used. [UNRESOLVED-CLAIM: c_25ed8b32 — status=not_enough_info] 4) Verify `retention_rate` reflects the cleaning of null Tg/composition records (not just row count). [UNRESOLVED-CLAIM: c_561945cd — status=not_enough_info]
-- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001). **Input**: `data/raw/zenodo_*.csv` (output of T012). **Error Handling**: If T012 failed, raise `DataUnavailableError`. **Verification**: Verify cleaned data has no null Tg or composition fields. [UNRESOLVED-CLAIM: c_a22cf6b2 — status=not_enough_info]
-- [X] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv` and retention stats to `data/ingestion_stats.json`. **Output**: Write retention rate to `data/ingestion_stats.json` (key: `retention_rate`) and log to `logs/ingest.log`. [UNRESOLVED-CLAIM: c_2b2ec9dc — status=not_enough_info] **Verification**: Verify `data/ingestion_stats.json` contains keys `source_doi`, `retention_rate` (float > 0), `raw_count`, `cleaned_count`. [UNRESOLVED-CLAIM: c_de0b5bb1 — status=not_enough_info]
+- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI `10.5281/zenodo.10043838` (fallback: `10.5281/zenodo.11023456`). **Action**: Call Zenodo API client (T002) to fetch data if local files are missing. If local file exists but checksum mismatch, re-fetch from Zenodo. **Fallback Logic**: If primary DOI fails, MUST attempt to fetch from fallback DOI. If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. If the fallback DOI succeeds, proceed and log a `FALLBACK_USED` warning. **Streaming**: If the dataset size is unknown or large, implement chunked reading (`chunksize` or `dask`) to process data without loading it entirely into RAM. **Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv` first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the selected file contains >0 rows. 3) Verify `data/ingestion_stats.json` contains key `source_doi` with the exact DOI used. 4) Verify `retention_rate` reflects the cleaning of null Tg/composition records (not just row count).
+- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001). **Input**: `data/raw/zenodo_*.csv` (output of T012). **Error Handling**: If T012 failed, raise `DataUnavailableError`. **Verification**: Verify cleaned data has no null Tg or composition fields.
+- [X] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv` and retention stats to `data/ingestion_stats.json`. **Output**: Write retention rate to `data/ingestion_stats.json` (key: `retention_rate`) and log to `logs/ingest.log`. **Verification**: Verify `data/ingestion_stats.json` contains keys `source_doi`, `retention_rate` (float > 0), `raw_count`, `cleaned_count`.
 - [X] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
 - [X] T016 [US1] Write data retention rate and record counts to `data/ingestion_stats.json` to satisfy SC-003 and Single Source of Truth (SC-003)
 
@@ -119,13 +119,13 @@ description: "Task list template for feature implementation"
 
 - [X] T020 [P] [US2] Implement `code/descriptors.py` to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0` (FR-002)
 - [X] T021 [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model). **Output**: Save to `data/processed/diagnostic_log.json` with key `weighted_mean_radius` (float, Unit: Angstrom). **Verification**: Verify `data/processed/diagnostic_log.json` exists and contains the key `weighted_mean_radius`.
-- [X] T072 [US2] Implement family size stratification check in `code/train.py`: Before performing LOFO, check if any alloy family has < 50 samples. **Action**: If N < 50, log a `STRATIFICATION_WARNING` [UNRESOLVED-CLAIM: c_fa630f8a — status=not_enough_info] to `logs/train.log`. Do NOT drop the family or generate specific markdown files. The Spec (Edge Cases) only asks to handle the edge case; this task implements the warning path. **Verification**: 1) Verify the warning is logged. 2) Verify the LOFO split proceeds without crashing. **Depends on**: T014 (Cleaned Data Save for family count check).
+- [X] T072 [US2] Implement family size stratification check in `code/train.py`: Before performing LOFO, check if any alloy family has < 50 samples. **Action**: If N < 50, log a `STRATIFICATION_WARNING` to `logs/train.log`. Do NOT drop the family or generate specific markdown files. The Spec (Edge Cases) only asks to handle the edge case; this task implements the warning path. **Verification**: 1) Verify the warning is logged. 2) Verify the LOFO split proceeds without crashing. **Depends on**: T014 (Cleaned Data Save for family count check).
 - [X] T026 [US2] Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv` to serve as input for US3 analysis tasks. **Input**: `data/processed/cleaned_mg.csv`. **Action**: Compute descriptors, **DROP the 'weighted_mean_radius' column** before saving to ensure it is not used as a predictor. **Verification**: Verify `data/processed/descriptors.csv` exists, is non-empty, contains columns `radius_mismatch`, `electronegativity_diff`, `VEC`, and **does NOT contain** the column `weighted_mean_radius`. **Depends on**: T021.
 - [X] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003). **Depends on**: T072 (Stratification check must complete before LOFO split), T026 (Descriptors must be available), T014 (Cleaned Data Save for LOFO split).
 - [X] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
 - [X] T024a [US2] Save model object to `artifacts/models/best_model.pkl`. **Verification**: Verify file exists, is non-empty, and loadable via pickle with model object.
-- [X] T024b [US2] Save metrics to `artifacts/metrics/metrics.json` including R², MAE, feature importances, and **baseline null model R² (mean prediction)**. **Calculation**: Explicitly calculate R² of a null model (mean prediction) and save it as `null_model_r2`. [UNRESOLVED-CLAIM: c_99a251f0 — status=not_enough_info] **Verification**: Verify file exists and contains keys `R2` (float), `MAE` (float), `feature_importances` (dict), and `null_model_r2` (float).
-- [X] T025 [US2] Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime < 6h and RAM < 7GB (FR-005, SC-004). **Output**: Save resource usage to `data/resource_usage.json`. [UNRESOLVED-CLAIM: c_f97a0d3b — status=not_enough_info] Verification: Pipeline must exit gracefully with an error if limits are exceeded.
+- [X] T024b [US2] Save metrics to `artifacts/metrics/metrics.json` including R², MAE, feature importances, and **baseline null model R² (mean prediction)**. **Calculation**: Explicitly calculate R² of a null model (mean prediction) and save it as `null_model_r2`. **Verification**: Verify file exists and contains keys `R2` (float), `MAE` (float), `feature_importances` (dict), and `null_model_r2` (float).
+- [X] T025 [US2] Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime < 6h and RAM < 7GB (FR-005, SC-004). **Output**: Save resource usage to `data/resource_usage.json`. Verification: Pipeline must exit gracefully with an error if limits are exceeded.
 - [X] T035a [US2] Implement `code/analyze.py` for VIF calculation. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Constraint**: MUST explicitly exclude 'weighted mean radius' from calculation (verify input dataframe does not contain this column). MUST **flag** predictors with VIF > 5 for diagnostic review (do NOT drop). **Function**: `calculate_vif(df)`. **Note**: **Explicitly IGNORE** the Plan's "Complexity Tracking" section regarding "Iterative VIF Remediation" (dropping features). The Spec FR-007 requires flagging only. **Verification**: Confirm 'weighted mean radius' is absent from input, no features are dropped, and the log contains `flagged_features` and `vif_values`.
 - [X] T035b [US2] Save VIF diagnostic log to `data/processed/vif_diagnostic_log.json`. **Input**: Output of T035a. **Schema**: The JSON must contain keys `flagged_features` (list of strings) and `vif_values` (dict mapping feature name to float). **Verification**: Assert file exists and contains `flagged_features` key (list of strings).
 - [X] T037a [US2] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` over the exact values {3, 5, 7} to evaluate model robustness (FR-006) and collect R² scores. **Input**: `artifacts/models/best_model.pkl`, `data/processed/cleaned_mg.csv` (T014) for re-training. **Depends on**: T024a, T026, T014 (Cleaned Data Save for re-training). **Function**: `sweep_max_depth(model_path, data_path)`. **Output**: Save to `artifacts/metrics/sensitivity_analysis.json`. **Schema**: The JSON must contain keys `max_depth_sweep` (list of objects with `max_depth` and `r2_score`) and `r2_variance` (float). **Note**: Explicitly sweeps {3, 5, 7}.
@@ -148,7 +148,7 @@ description: "Task list template for feature implementation"
 
 - [X] T040 [P] [US3] Contract test for report content validation (no causal language) in `tests/contract/test_report_content.py`: Implement `test_no_causal_language` that asserts `"causes" not in report_text` and `"determines" not in report_text`.
 - [X] T041a [P] [US3] Integration test for FDR correction in `tests/integration/test_statistical_validation.py`: Implement `test_fdr_correction` that asserts p-values are adjusted correctly using Benjamini-Hochberg.
-- [X] T041b [P] [US3] Integration test for VIF flagging in `tests/integration/test_statistical_validation.py`: Implement `test_vif_flagging` that asserts VIF > 5 is flagged [UNRESOLVED-CLAIM: c_06eecdaa — status=not_enough_info] in the log.
+- [X] T041b [P] [US3] Integration test for VIF flagging in `tests/integration/test_statistical_validation.py`: Implement `test_vif_flagging` that asserts VIF > 5 is flagged in the log.
 
 ### Implementation for User Story 3
 
@@ -156,7 +156,7 @@ description: "Task list template for feature implementation"
 - [X] T033b [US3] Verify `data/processed/correlation_matrix.csv` content in `code/analyze.py`. **Verification**: Assert CSV is non-empty and contains expected columns.
 - [X] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) as per Spec FR-008. **Input**: `data/processed/correlation_matrix.csv`. **Depends on**: T033. **Output**: Save **corrected p-values** to `data/processed/fdr_corrected_pvalues.json`. **Schema**: The JSON must contain the corrected p-values. **Note**: Aligns with Spec FR-008 (FDR); ignores Plan contradiction regarding Bonferroni. **Verification**: Verify file exists and contains the corrected p-values.
 - [X] T036a [US3] Implement `code/analyze.py` for bootstrapping with n_resamples=1000 to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`, `data/processed/cleaned_mg.csv` (T014). **Depends on**: T024a, T014 (Cleaned Data Save for bootstrapping). **Function**: `bootstrap_feature_importance(model, X, y, n_resamples=1000)`. **Output**: Save to `artifacts/metrics/stability_metrics.json`. **Schema**: The JSON must contain keys for each feature, each nested with `ci_lower` and `ci_upper` (floats).
-- [X] T036b [US3] Save stability metrics (including 95% CI bounds) to `artifacts/metrics/stability_metrics.json`. [UNRESOLVED-CLAIM: c_1ab07e20 — status=not_enough_info] **Verification**: Verify `artifacts/metrics/stability_metrics.json` exists and contains `ci_lower` and `ci_upper` keys (nested under feature names).
+- [X] T036b [US3] Save stability metrics (including 95% CI bounds) to `artifacts/metrics/stability_metrics.json`. **Verification**: Verify `artifacts/metrics/stability_metrics.json` exists and contains `ci_lower` and `ci_upper` keys (nested under feature names).
 - [X] T039a [US3] Implement `code/report.py` to generate partial dependence plots. **Input**: `artifacts/models/best_model.pkl`. **Features**: `radius_mismatch`, `VEC`, `electronegativity_diff`. **Output**: `artifacts/reports/pdp_radius_mismatch.png`, `artifacts/reports/pdp_vec.png`, `artifacts/reports/pdp_electronegativity.png`.
 - [X] T039b [US3] Implement `code/report.py` to generate correlation heatmap. **Input**: `data/processed/correlation_matrix.csv`. **Data**: Use Pearson columns for heatmap. **Output**: `artifacts/reports/correlation_heatmap.png`.
 - [X] T039c [US3] Implement `code/report.py` to generate stability plot. **Input**: `artifacts/metrics/stability_metrics.json`. **Output**: `artifacts/reports/stability_plot.png`.
@@ -334,6 +334,7 @@ With multiple developers:
 - **Note on T024b**: Explicitly mandates calculation of `null_model_r2`.
 - **Note on T012**: Verification now includes checking `source_doi` and cleaning logic.
 - **Note on T021/T026**: Dependency order clarified to prevent race conditions.
+- **Note on T022**: Dependency list updated to include T014 explicitly.
 - **Note on Data Source Verification**: T012 must explicitly handle the case where the primary DOI returns an empty dataset or a dataset with no Tg values, raising `DataUnavailableError` rather than proceeding with an empty dataframe.
 - **Note on Memory Constraints**: All CSV loading in `code/ingest.py` and `code/descriptors.py` must use `pandas.read_csv(..., chunksize=...)` or `dask` if the dataset size is unknown, to prevent OOM errors on runners with limited memory.. (Handled in T012, T085).
 - **Note on Plan Alignment**: The Plan has been updated to match the Spec. No further manual updates required.

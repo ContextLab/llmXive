@@ -8,6 +8,7 @@ It must exit with code 1 if any forbidden words are found, and 0 otherwise.
 import os
 import sys
 import logging
+import re
 from pathlib import Path
 from typing import Set
 
@@ -22,6 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger("verify_report")
 
 # Forbidden causal words as per T088 specification
+# Using a set for O(1) lookup, but we will use regex for whole-word matching
 FORBIDDEN_WORDS: Set[str] = {
     "causes",
     "determines",
@@ -46,26 +48,23 @@ def scan_for_causal_language(content: str) -> list:
     """
     Scan the report content for forbidden causal words.
     
-    Returns a list of (word, line_number) tuples where forbidden words are found.
+    Returns a list of (word, line_number, line_content) tuples where 
+    forbidden words are found.
+    
+    Uses regex to ensure whole-word matching to avoid false positives 
+    (e.g., "affects" containing "effects", or "proven" containing "proves").
     """
     violations = []
     lines = content.split('\n')
     
-    # Convert content to lowercase for case-insensitive matching
-    # but preserve original lines for error reporting
-    content_lower = content.lower()
-    
     for i, line in enumerate(lines, start=1):
         line_lower = line.lower()
         for word in FORBIDDEN_WORDS:
-            # Check for whole word matches to avoid false positives (e.g., "affects" containing "effects")
-            # We use a simple check: word must be surrounded by non-alphanumeric chars or be at start/end
-            if word in line_lower:
-                # More precise check using split and stripping punctuation
-                words_in_line = line_lower.split()
-                cleaned_words = [w.strip('.,;:!?()[]{}"\'') for w in words_in_line]
-                if word in cleaned_words:
-                    violations.append((word, i, line.strip()))
+            # Use regex to match whole words only
+            # \b ensures word boundaries (non-alphanumeric or start/end of string)
+            pattern = r'\b' + re.escape(word) + r'\b'
+            if re.search(pattern, line_lower):
+                violations.append((word, i, line.strip()))
     
     return violations
 
@@ -93,7 +92,9 @@ def main():
     if violations:
         logger.error("CAUSAL LANGUAGE DETECTED:")
         for word, line_num, line_content in violations:
-            logger.error(f"  Line {line_num}: '{word}' found in: {line_content[:80]}...")
+            # Truncate line content for readability if too long
+            display_content = line_content[:80] + "..." if len(line_content) > 80 else line_content
+            logger.error(f"  Line {line_num}: '{word}' found in: {display_content}")
         
         logger.error(f"Total violations found: {len(violations)}")
         logger.error("The report contains forbidden causal language.")

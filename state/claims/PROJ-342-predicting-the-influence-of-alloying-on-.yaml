@@ -2041,3 +2041,116 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T21:17:25Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: Gradient Boosting model trained on 1,248 samples to identify descriptors
+    for Tg
+  claim_id: c_fb2d7e6d
+  context: This study investigates the relationship between atomic-scale descriptors
+    and the glass transition temperature (Tg) in metallic glasses. Using a Gradient
+    Boosting model trained on a dataset of 1,248 samples, we identified key descriptors
+    associated with Tg variations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using a Gradient Boosting model trained on a dataset of 1,248 samples,
+    we identified key descriptors associated with Tg variations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:25:56Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: Data sourced from Zenodo DOI 10.5281/zenodo.10043838
+  claim_id: c_88b09363
+  context: 'Data was sourced from Zenodo (DOI: 10.5281/zenodo.10043838) and cleaned
+    to remove records with missing Tg or composition data.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Data was sourced from Zenodo (DOI: 10.5281/zenodo.10043838) and cleaned
+    to remove records with missing Tg or composition data.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:26:00Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: Gradient Boosting model achieved R squared 0.72 and MAE 24.5 K on LOFO
+    test sets
+  claim_id: c_5d9dd526
+  context: "The model achieved an R\xB2 of 0.72 and an MAE of 24.5 K on the LOFO test\
+    \ sets."
+  evidence:
+    error: 'MissingCredentialError: Receipt signing key not found. Set $LLMXIVE_RECEIPT_KEY
+      or add `llmxive_receipt_key = "..."` to /home/runner/.config/llmxive/credentials.toml.'
+  kind: result
+  raw_text: "The model achieved an R\xB2 of 0.72 and an MAE of 24.5 K on the LOFO\
+    \ test sets."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:26:00Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: Model robustness with R squared variance less than 0.02 when max depth
+    swept over 3 5 7
+  claim_id: c_c6a78ef2
+  context: "Sweeping `max_depth` over {3, 5, 7} showed model robustness with R\xB2\
+    \ variance < 0.02."
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Sweeping max_depth over {3, 5, 7} showed model robustness with R\xB2\
+    \ variance < 0.02."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T21:26:00Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: All features had VIF less than 5
+  claim_id: c_0353e778
+  context: '- **VIF Analysis**: All features had VIF < 5, indicating low multicollinearity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_features_had_VIF_less_than_5
+  kind: magnitude
+  raw_text: All features had VIF < 5, indicating low multicollinearity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:26:21Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/reports/final_report.md
+  attempts: 1
+  canonical: Condition number was 12.4
+  claim_id: c_c0bab83e
+  context: '- **Collinearity**: Condition number was 12.4, suggesting stable matrix
+    inversion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Condition number was 12.4, suggesting stable matrix inversion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:26:53Z'
