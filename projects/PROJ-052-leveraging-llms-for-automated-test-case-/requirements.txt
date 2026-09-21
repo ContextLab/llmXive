@@ -1,11 +1,12 @@
-llama-cpp-python
-pandas
-scipy
-jinja2
-pyyaml
-jsonschema
-pytest
-datasets
-psutil
-ruff
-black
+# T045: Ensure requirements.txt is up to date for validation
+# This file was initialized in T002 and updated here to ensure all validation dependencies are present.
+llama-cpp-python==0.2.90
+pandas>=2.0.0
+scipy>=1.11.0
+jinja2>=3.1.0
+pyyaml>=6.0.0
+jsonschema>=4.19.0
+pytest>=7.4.0
+psutil>=5.9.0
+# Additional validation dependencies
+pydantic>=2.0.0

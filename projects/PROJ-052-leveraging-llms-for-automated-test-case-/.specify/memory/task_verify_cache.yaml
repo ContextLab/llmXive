@@ -21,13 +21,6 @@ T025:
     code for parsing diffs is present). Moreover, `data/changed_lines.json` is merely
     a placeholder with comments, not the result of processing real Defects4J commit
     diffs. The required functionality and genuine output are therefore missing.
-T027:
-  c: false
-  h: 36abf054aae9e9db1a57b7a9db431062e205eec2b17a1601372b5699f420139b
-  r: The repository lacks the required `data/coverage_metrics.csv` file, and the provided
-    excerpt of `code/test_executor.py` does not show a `generate_coverage_csv` function
-    (or any implementation that writes the CSV). Without the function implementation
-    and the output file, the task is not fulfilled.
 T028b:
   c: false
   h: 692333d915b322a96cee4b2c6340ba27a972d54997c3fb633d1834e660747fa5
