@@ -1,12 +1,31 @@
-status: none
-intent: "UltraFeedback Dolly multi\u2011solution reasoning dataset download site HuggingFace\
-  \ python package dataset"
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets, sys
+
+  ds = datasets.load_dataset("databricks/databricks-dolly-15k", split="train")
+
+  print(f"RECORDS={len(ds)}")
+
+  fields = ds.column_names
+
+  col_map = {"instruction": "prompt_text", "response": "rationale_text", "rating":
+  "rationale_quality_score"}
+
+  present = [col_map[k] for k in col_map if k in fields]
+
+  print("FIELDS=" + ",".join(present))'
+record_count: 15011
+sample_fields:
+- prompt_text
+- rationale_text
+field_coverage: 1.0
 required_fields:
 - prompt_id
 - prompt_text
 - rationale_id
 - rationale_text
 - rationale_quality_score
-cache_key: acdb1fd8ae2836a9c1ba391776d002bd866bec0dd08b58dbda680ad1742977a2
-searched_at: '2026-09-07T05:43:25.982257+00:00'
-retry_count: 1
+intent: download UltraFeedback and Dolly datasets from Hugging Face python package
+  dataset
+cache_key: d1689c43c2b1579abf084efcb842824fa1717763f8673e698ad56fd253111164

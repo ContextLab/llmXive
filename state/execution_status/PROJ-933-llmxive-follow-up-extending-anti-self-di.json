@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-933-llmxive-follow-up-extending-anti-self-di",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/fetch_utils.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026vent silent fallbacks to synthetic data.     \"\"\"     pass  def l\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python main.py --mode full --timeout [configured duration]; 2 declared deliverable(s) absent: data/context_splits.json; data/teacher_distribution.json",
+  "artifacts": [],
+  "failures": [
+    "python main.py --mode full --timeout [configured duration] -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-21T20:28:08Z"
+}

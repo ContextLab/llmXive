@@ -1,147 +1,90 @@
-# Quickstart Guide: llmXive Anti-Self-Distillation Pipeline
+# Quickstart Guide: llmXive Follow-up (PROJ-933)
 
-This guide provides the exact commands to set up, run, and validate the **Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information** pipeline (Project PROJ-933).
+This guide describes how to run the full research pipeline end-to-end.
 
 ## Prerequisites
 
-- **Python**: 3.11+
-- **Hardware**: CPU-only execution supported (optimized for <6.5GB RAM). GPU optional.
-- **Dependencies**: Install via `pip install -r requirements.txt`
-- **Environment Variables**:
- - `HF_TOKEN`: Hugging Face access token (required for dataset download)
- - `DATA_CACHE_DIR`: Optional path for caching datasets (default: `data/cache`)
+- Python 3.9+
+- `pip install -r requirements.txt`
 
-## 1. Setup & Configuration
+## Execution Order
 
-### Install Dependencies
+The pipeline is designed to be run sequentially. Each step produces artifacts required by the next.
+
+### 1. Data Acquisition & Context Simulation (Phase 1)
+
 ```bash
-pip install -r requirements.txt
-```
-
-### Configure Environment
-Set the Hugging Face token and dataset paths:
-```bash
-export HF_TOKEN="your_huggingface_token_here"
-export DATA_CACHE_DIR="./data/cache"
-```
-*Alternatively, copy `config/settings.yaml.example` to `config/settings.yaml` and edit values.*
-
-### Verify Project Structure
-Ensure the following directories exist (created by T001):
-```
-code/
- ├── analysis/
- ├── config/
- ├── data/
- └── models/
-data/
-results/
-```
-
-## 2. Data Acquisition (Phase 0 & US1)
-
-The pipeline ingests **UltraFeedback** and **Dolly** datasets. It filters for prompts with ≥4 distinct reasoning traces and simulates context splits.
-
-### Step 1: Download Datasets
-Run the download script to fetch real data with checksumming:
-```bash
+# Download datasets (T015)
 python code/data/download.py
+
+# Preprocess and filter (T016)
+python code/data/preprocess.py --mode filter
+
+# Simulate context splits (T017)
+python code/data/preprocess.py --mode split
 ```
-**Output**: `data/raw_datasets/` (cached)
 
-### Step 2: Preprocess & Split Context
-Filter prompts and generate the context split file:
+**Output**: `data/context_splits.json`
+
+### 2. Inference-Only Pass (Phase 2)
+
 ```bash
-python code/data/preprocess.py
+# Compute raw teacher logits (T021)
+python code/models/inference_only.py --mode raw_logits
 ```
-**Outputs**:
-- `data/context_splits.json`: Prompt IDs, selected privileged context ($c$), and target rationales.
-- `data/preprocess_report.json`: Statistics (prompt count, avg tokens, deliberation frequency).
 
-**Validation**: Ensure `data/context_splits.json` contains at least 30 valid prompts (Power Analysis requirement).
+**Output**: `data/teacher_logits_raw.jsonl`
 
-## 3. Inference & Teacher Distribution (Phase 3)
+### 3. Teacher Distribution Averaging (Phase 2 - T048)
 
-Compute the "Teacher Distribution" by averaging logits over all unselected rationales.
-
-### Step 1: Inference-Only Pass
 ```bash
-python code/models/inference_only.py
+# Aggregate raw logits into average distribution (T048)
+python code/models/inference_only.py --mode aggregate
 ```
-**Outputs**:
-- `data/teacher_logits_raw.json`: Raw logits for every unselected rationale.
-- `data/teacher_distribution.json`: Averaged logit distribution per prompt.
 
-**Note**: This step is CPU-optimized. Expect ~1-2 hours for the full dataset subset.
+**Output**: `data/teacher_distribution.json`
 
-## 4. Training Loop (US2)
+### 4. Training Loop (Phase 3)
 
-Execute the Anti-Self-Distillation training loop with gradient inversion.
-
-### Step 1: Run Training
 ```bash
-python code/models/anti_sd_loop.py --config config/settings.yaml
+# Run AntiSD training (T025)
+python code/models/anti_sd_loop.py
 ```
-**Flags**:
-- `--mode anti_sd`: Enable gradient ascent on JS divergence (default).
-- `--mode standard`: Run baseline self-distillation for comparison.
 
-**Outputs**:
-- `results/training_metrics.json`: Loss curves, JS divergence trajectory, elapsed time.
-- `results/memory_log.json`: Peak RAM usage (must be < 6.5GB).
-- `results/training_dynamics.json`: Token probabilities and trajectory samples.
+**Output**: `results/training_metrics.json`, `results/memory_log.json`
 
-**Timeout**: The script enforces a hard 5.5-hour timeout. If exceeded, it saves partial results and exits.
+### 5. Analysis & Reporting (Phase 4)
 
-## 5. Analysis & Validation (US3)
-
-Compute diversity metrics, quality scores, and statistical significance.
-
-### Step 1: Compute Metrics
 ```bash
+# Generate human proxy scores (T035-SIM)
+python code/analysis/human_proxy_sim.py
+
+# Compute metrics and statistical tests (T033-T037)
+python code/analysis/statistical_test.py
+
+# Final report (T038)
 python code/analysis/visualize.py
 ```
-**Outputs**:
-- `results/diversity_metrics.json`: BLEU scores, semantic similarity, deliberation token counts.
-- `figures/loss_curves.png`: Visualization of training dynamics.
-- `figures/diversity_comparison.png`: Boxplots of diversity metrics.
 
-### Step 2: Statistical Testing
+## Full Run Command
+
+To run the entire pipeline (excluding optional human eval recruitment which is simulated):
+
 ```bash
-python code/analysis/statistical_test.py
+python code/data/download.py && \
+python code/data/preprocess.py --mode all && \
+python code/models/inference_only.py --mode raw_logits && \
+python code/models/inference_only.py --mode aggregate && \
+python code/models/anti_sd_loop.py && \
+python code/analysis/human_proxy_sim.py && \
+python code/analysis/statistical_test.py && \
+python code/analysis/visualize.py
 ```
-**Outputs**:
-- `results/statistical_report.json`: Wilcoxon signed-rank test p-values, effect sizes, and observed power (1-β).
 
-### Step 3: Human Evaluation Proxy
-1. Open `docs/rater.html` in a browser.
-2. Collect scores from 3 independent raters.
-3. Save results to `data/human_scores.csv`.
-4. Ingest and analyze:
- ```bash
- python code/analysis/human_score_ingest.py
- ```
+## Validation
 
-## 6. Verification Checklist
+Run the validation script to ensure all artifacts are present:
 
-Run the following to ensure all artifacts are present and valid:
-
-| Check | Command | Expected Output |
-|-------|---------|-----------------|
-| Data Split | `test -f data/context_splits.json` | File exists |
-| Teacher Dist | `test -f data/teacher_distribution.json` | File exists |
-| Training | `test -f results/training_metrics.json` | File exists |
-| Stats | `test -f results/statistical_report.json` | File exists |
-| Schema | `python code/data/schema_validator.py` | "Validation Passed" |
-
-## Troubleshooting
-
-- **Data Fetch Failed**: Ensure `HF_TOKEN` is set and valid. The script raises `DataFetchError` on failure; no synthetic fallback is performed.
-- **OOM (Out of Memory)**: Reduce batch size in `config/settings.yaml` or enable `streaming=True` in `code/data/streaming_loader.py`.
-- **Timeout**: If the 5.5h limit is hit, check `results/training_metrics.json` for partial results.
-
-## References
-
-- **Spec**: `specs/001-llmxive-followup/spec.md`
-- **Plan**: `plan.md`
-- **API Surface**: See `code/` module imports for function signatures.
+```bash
+python code/data/validate_artifacts.py
+```

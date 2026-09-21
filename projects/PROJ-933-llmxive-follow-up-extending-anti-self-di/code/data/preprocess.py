@@ -1,215 +1,226 @@
 import json
 import random
 import hashlib
+import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from collections import defaultdict
-import sys
-import os
 
-# Ensure imports work relative to project root if run as script
-if __name__ == "__main__":
-    # Add parent to path if running directly
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
 
-from data.fetch_utils import DataFetchError
-
-def filter_prompts_with_min_traces(prompts: List[Dict[str, Any]], min_traces: int = 4) -> List[Dict[str, Any]]:
-    """
-    Filter prompts to keep only those with at least `min_traces` distinct annotated reasoning traces.
+def load_raw_data(filepath: Path) -> List[Dict[str, Any]]:
+    """Loads raw combined data from JSONL."""
+    if not filepath.exists():
+        raise FileNotFoundError(f"Raw data not found: {filepath}")
     
-    Args:
-        prompts: List of prompt dictionaries, each containing a 'rationales' or 'responses' key.
-        min_traces: Minimum number of distinct traces required.
-        
-    Returns:
-        List of filtered prompts.
+    data = []
+    with open(filepath, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data.append(json.loads(line))
+            except json.JSONDecodeError as e:
+                print(f"Warning: Skipping invalid JSON line: {e}")
+                continue
+    return data
+
+def filter_prompts_with_min_traces(data: List[Dict[str, Any]], min_traces: int = 4) -> List[Dict[str, Any]]:
     """
+    Filters prompts that have at least `min_traces` distinct annotated reasoning traces.
+    Groups by `prompt_text` and counts unique `rationale_text`.
+    """
+    grouped = defaultdict(list)
+    for item in data:
+        prompt = item.get("prompt_text", "")
+        rationale = item.get("rationale_text", "")
+        if prompt and rationale:
+            grouped[prompt].append(rationale)
+    
     filtered = []
-    for p in prompts:
-        # Check for 'rationales' or 'responses' key
-        traces = p.get("rationales") or p.get("responses") or []
-        if len(traces) >= min_traces:
-            filtered.append(p)
+    valid_prompt_count = 0
+    
+    for prompt, rationales in grouped.items():
+        unique_rationales = list(set(rationales))
+        if len(unique_rationales) >= min_traces:
+            valid_prompt_count += 1
+            for r in unique_rationales:
+                filtered.append({
+                    "prompt_text": prompt,
+                    "rationale_text": r,
+                    "source": "filtered"
+                })
+    
+    print(f"Filtered from {len(data)} items to {len(filtered)} items.")
+    print(f"Valid prompts (>= {min_traces} unique traces): {valid_prompt_count}")
     return filtered
 
-def simulate_context_split(prompt_data: Dict[str, Any], seed: Optional[int] = None) -> Tuple[Dict[str, Any], bool]:
+def simulate_context_split(data: List[Dict[str, Any]], seed: int = 42, max_attempts: int = 10) -> Tuple[List[Dict[str, Any]], int]:
     """
-    Randomly sample 1 rationale as "privileged context" c, detect and re-sample if identical to unselected rationales.
+    T017 Implementation:
+    For each prompt, randomly sample 1 rationale as 'privileged context' (c).
+    Re-sample up to `max_attempts` times if the sampled context is identical to any target rationale.
+    If still identical after max_attempts, exclude the prompt.
     
-    FR-002: Privileged context selection.
-    Edge Case: If all rationales are identical, re-sampling loop will detect this and return False to indicate failure.
-    
-    Args:
-        prompt_data: A single prompt dictionary containing 'rationales' or 'responses'.
-        seed: Optional random seed for reproducibility.
-        
     Returns:
-        Tuple of (modified_prompt_data, success_flag).
-        modified_prompt_data contains:
-            - 'privileged_context': the selected rationale string
-            - 'target_rationales': list of remaining rationale strings
-            - 'original_id': prompt id
-        success_flag: True if a valid split was found, False if all rationales were identical.
+        Tuple of (list of split records, count of excluded prompts)
     """
-    if seed is not None:
-        random.seed(seed)
-        
-    traces = prompt_data.get("rationales") or prompt_data.get("responses") or []
+    random.seed(seed)
     
-    if len(traces) < 2:
-        # Cannot split if less than 2 traces
-        return prompt_data, False
-        
-    max_attempts = 100
-    attempt = 0
+    # Group by prompt
+    grouped = defaultdict(list)
+    for item in data:
+        grouped[item["prompt_text"]].append(item["rationale_text"])
     
-    while attempt < max_attempts:
-        attempt += 1
-        
-        # Randomly select index for privileged context
-        priv_idx = random.randint(0, len(traces) - 1)
-        privileged = traces[priv_idx]
-        
-        # Collect unselected rationales
-        target_indices = [i for i in range(len(traces)) if i != priv_idx]
-        target_rationales = [traces[i] for i in target_indices]
-        
-        # Check for identical content
-        # If privileged context is identical to ANY unselected rationale, re-sample
-        is_identical = False
-        for target in target_rationales:
-            if privileged == target:
-                is_identical = True
-                break
-                
-        if not is_identical:
-            # Valid split found
-            result = {
-                "original_id": prompt_data.get("id", prompt_data.get("prompt_id", str(attempt))),
-                "privileged_context": privileged,
-                "target_rationales": target_rationales,
-                "all_rationales": traces
-            }
-            return result, True
+    result = []
+    excluded_count = 0
+    total_prompts = len(grouped)
     
-    # If we exhaust attempts, it likely means all rationales are identical
-    return prompt_data, False
+    for prompt, rationales in grouped.items():
+        # We need at least 2 rationales to have a context and a target
+        if len(rationales) < 2:
+            excluded_count += 1
+            continue
+        
+        # Ensure we are working with unique rationales for the split logic to be meaningful
+        # (Though filter_prompts_with_min_traces already ensures uniqueness per prompt)
+        unique_rationales = list(set(rationales))
+        
+        if len(unique_rationales) < 2:
+            excluded_count += 1
+            continue
 
-def process_and_split_dataset(
-    input_file: Path, 
-    output_file: Path, 
-    min_traces: int = 4,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Main processing pipeline:
-    1. Load dataset from input_file (JSON format)
-    2. Filter prompts with >= min_traces
-    3. Simulate context split for each valid prompt
-    4. Write output to output_file
-    
-    Args:
-        input_file: Path to input JSON file containing raw prompts.
-        output_file: Path to output JSON file for context splits.
-        min_traces: Minimum traces required (default 4 per FR-016).
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Dictionary with statistics about the processing.
-    """
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}")
-        
-    # Load data
-    with open(input_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        
-    # Ensure data is a list
-    if isinstance(data, dict):
-        if "data" in data:
-            data = data["data"]
-        elif "prompts" in data:
-            data = data["prompts"]
-        else:
-            # Assume the dict itself is a single item or list of items in values
-            data = list(data.values())
+        valid_split = False
+        attempts = 0
+        privileged_context = None
+        target_rationales = []
+
+        while not valid_split and attempts < max_attempts:
+            attempts += 1
+            # Sample one as privileged context
+            privileged_idx = random.randint(0, len(unique_rationales) - 1)
+            privileged_context = unique_rationales[privileged_idx]
             
-    if not isinstance(data, list):
-        data = [data]
-        
-    # Filter
-    filtered_prompts = filter_prompts_with_min_traces(data, min_traces)
-    
-    splits = []
-    failed_count = 0
-    
-    for i, prompt in enumerate(filtered_prompts):
-        # Use a deterministic seed per prompt for reproducibility if global seed is set
-        local_seed = seed + i if seed is not None else None
-        
-        split_result, success = simulate_context_split(prompt, local_seed)
-        
-        if success:
-            splits.append(split_result)
-        else:
-            failed_count += 1
+            # The rest are targets
+            # Create a list excluding the specific index to handle duplicates if any (though set removed them)
+            target_rationales = [r for i, r in enumerate(unique_rationales) if i != privileged_idx]
             
-    # Write output
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+            # Check if privileged context is identical to any target
+            # Since we used set(), they are unique, so this check is technically redundant 
+            # unless the original list had duplicates that weren't deduped correctly, 
+            # but we keep it for safety and logic compliance.
+            is_identical = any(r == privileged_context for r in target_rationales)
+            
+            if not is_identical:
+                valid_split = True
+            else:
+                # Re-shuffle and try again
+                random.shuffle(unique_rationales)
+        
+        if valid_split:
+            prompt_id = hashlib.md5(prompt.encode()).hexdigest()
+            result.append({
+                "prompt_id": prompt_id,
+                "prompt_text": prompt,
+                "privileged_context": privileged_context,
+                "target_rationales": target_rationales,
+                "split_type": "privileged",
+                "attempts_used": attempts
+            })
+        else:
+            excluded_count += 1
+            # Log excluded prompts for debugging if necessary
+            # print(f"Excluded prompt (failed split after {max_attempts} attempts): {prompt[:50]}...")
     
-    output_data = {
-        "metadata": {
-            "total_input": len(data),
-            "filtered_input": len(filtered_prompts),
-            "successful_splits": len(splits),
-            "failed_splits": failed_count,
-            "min_traces": min_traces,
-            "seed": seed
-        },
-        "splits": splits
+    print(f"Context split complete. Total prompts: {total_prompts}, Included: {len(result)}, Excluded: {excluded_count}")
+    return result, excluded_count
+
+def process_and_split_dataset(input_path: Path, output_path: Path, min_traces: int = 4, seed: int = 42) -> None:
+    """
+    Main pipeline: Load -> Filter -> Split -> Save.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    print(f"Loading raw data from {input_path}...")
+    raw_data = load_raw_data(input_path)
+    
+    print(f"Filtering prompts with >= {min_traces} traces...")
+    filtered_data = filter_prompts_with_min_traces(raw_data, min_traces=min_traces)
+    
+    print(f"Simulating context splits...")
+    split_data, excluded_count = simulate_context_split(filtered_data, seed=seed)
+    
+    # Generate statistics for the report (T017.1 requirement)
+    total_tokens = 0
+    deliberation_tokens = ["Wait", "However", "Let's", "Therefore", "Actually", "Hmm", "But", "Maybe"]
+    deliberation_count = 0
+    
+    for item in split_data:
+        text = item["prompt_text"] + " " + item["privileged_context"]
+        total_tokens += len(text.split())
+        for token in deliberation_tokens:
+            if token in text:
+                deliberation_count += 1
+    
+    avg_tokens = total_tokens / len(split_data) if split_data else 0
+    
+    report = {
+        "total_prompts_processed": len(split_data) + excluded_count,
+        "included_prompts": len(split_data),
+        "excluded_prompts": excluded_count,
+        "avg_tokens_per_prompt": avg_tokens,
+        "deliberation_token_frequency": deliberation_count,
+        "seed": seed,
+        "min_traces_required": min_traces
     }
     
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
-    return output_data["metadata"]
+    # Save context splits
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(split_data, f, indent=2)
+    
+    # Save report alongside splits
+    report_path = output_path.with_suffix('.report.json')
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"Saved context splits to {output_path}")
+    print(f"Saved statistics report to {report_path}")
 
 def main():
     """
-    Entry point for running the context simulator as a standalone script.
-    Expects input from data/ultrafeedback_dolly_filtered.json (generated by T016)
-    and writes to data/context_splits.json.
+    Entry point for preprocessing.
     """
-    # Default paths
-    input_path = Path("data/ultrafeedback_dolly_filtered.json")
-    output_path = Path("data/context_splits.json")
+    import argparse
+    parser = argparse.ArgumentParser(description="Preprocess dataset for Anti-Self-Distillation")
+    parser.add_argument("--mode", choices=["filter", "split", "all"], default="all",
+                        help="Mode: filter only, split only (requires filtered input), or full pipeline")
+    parser.add_argument("--input", type=str, default=None,
+                        help="Path to input JSONL file. Defaults to data/raw_combined.jsonl")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Path to output JSON file. Defaults to data/context_splits.json")
+    parser.add_argument("--min-traces", type=int, default=4,
+                        help="Minimum number of distinct traces required per prompt")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for reproducibility")
     
-    # Allow override via environment or args
-    if len(sys.argv) > 1:
-        input_path = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_path = Path(sys.argv[2])
-        
-    print(f"Processing: {input_path} -> {output_path}")
+    args = parser.parse_args()
     
-    try:
-        stats = process_and_split_dataset(input_path, output_path, min_traces=4, seed=42)
-        print(f"Completed successfully.")
-        print(f"  Input prompts: {stats['total_input']}")
-        print(f"  Filtered (>=4 traces): {stats['filtered_input']}")
-        print(f"  Successful splits: {stats['successful_splits']}")
-        print(f"  Failed (identical rationales): {stats['failed_splits']}")
-        
-        if stats['successful_splits'] == 0:
-            print("WARNING: No valid splits generated. Check data quality.")
-            
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
+    input_path = Path(args.input) if args.input else DATA_DIR / "raw_combined.jsonl"
+    output_path = Path(args.output) if args.output else DATA_DIR / "context_splits.json"
+    
+    if not input_path.exists():
+        print(f"Error: {input_path} not found. Run download.py first to generate raw data.")
         sys.exit(1)
-    except Exception as e:
-        print(f"ERROR during processing: {e}")
-        raise
+    
+    if args.mode in ["split", "all"]:
+        process_and_split_dataset(input_path, output_path, min_traces=args.min_traces, seed=args.seed)
+    else:
+        print("Only filtering requested. Use 'all' or 'split' to generate context_splits.json.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

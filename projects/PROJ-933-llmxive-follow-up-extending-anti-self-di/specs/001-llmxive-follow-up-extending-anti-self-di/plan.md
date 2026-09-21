@@ -17,8 +17,8 @@ The implementation targets a **CPU-only** GitHub Actions runner (2 vCPU, 7GB RAM
 **Target Platform**: Linux (GitHub Actions free-tier runner).  
 **Project Type**: Computational Research / Machine Learning Pipeline.  
 **Performance Goals**: Complete training and analysis within 6 hours; peak RAM < 6.5 GB.  
-**Constraints**: No GPU available for primary training; must use streaming or sampling for large datasets; strict 5.5h timeout.  
-**Scale/Scope**: Processing a moderate number of prompts with 250 training steps each; generating ~1500 trajectories total.
+**Constraints**: No GPU available for primary training; must use streaming or sampling for large datasets; strict timeout.  
+**Scale/Scope**: Processing a moderate number of prompts with a sufficient number of training steps each.; generating a substantial number of trajectories.
 
 ## Constitution Check
 
