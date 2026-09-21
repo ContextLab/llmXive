@@ -20,6 +20,13 @@ T024:
     \ results to `data/processed/results_correlation.json`, and logs the process.\
     \ The missing `results_correlation.json` file is a runtime product, not a required\
     \ artifact for the task."
+T024a:
+  c: false
+  h: 556f19969af428dfc0697e82378d7d8428bbb04e3c391d6bfe2adffcce577fa6
+  r: The `src/analysis/correlation.py` file exists and contains functions for loading
+    data and computing Spearman correlation, but the required output file `data/processed/results_correlation.json`
+    is missing, indicating the script does not produce the specified result artifact.
+    The task is therefore not fully satisfied.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

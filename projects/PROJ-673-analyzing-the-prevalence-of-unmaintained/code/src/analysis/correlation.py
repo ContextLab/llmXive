@@ -4,117 +4,140 @@ from scipy.stats import spearmanr
 from typing import Tuple, Optional, Dict, Any
 import logging
 from pathlib import Path
+import json
 
 logger = logging.getLogger(__name__)
 
-def load_dependencies_data(file_path: str) -> pd.DataFrame:
+def load_dependencies_data(input_path: str) -> pd.DataFrame:
     """
     Load the dependencies dataset from a CSV file.
     
     Args:
-        file_path: Path to the CSV file (e.g., data/processed/dependencies_raw.csv)
+        input_path: Path to the CSV file containing dependency data.
         
     Returns:
-        DataFrame containing dependency data
+        pandas DataFrame with the loaded data.
         
     Raises:
-        FileNotFoundError: If the file does not exist
-        ValueError: If required columns are missing
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    path = Path(file_path)
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {file_path}")
-        
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
     df = pd.read_csv(path)
     
     required_cols = ['age_in_days', 'vulnerability_count']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
-        
-    # Filter out rows where age_in_days is NaN (missing release metadata)
-    # as per FR-010: exclude dependencies with missing release metadata from age calculation
-    df_clean = df.dropna(subset=['age_in_days'])
-    logger.info(f"Loaded {len(df)} rows, filtered to {len(df_clean)} rows with valid age data")
     
-    return df_clean
+    # Filter out rows where critical columns are NaN for correlation calculation
+    # We keep rows for analysis but exclude NaNs from the correlation computation
+    logger.info(f"Loaded {len(df)} rows. Filtering NaNs for correlation...")
+    valid_mask = df['age_in_days'].notna() & df['vulnerability_count'].notna()
+    valid_df = df[valid_mask]
+    
+    logger.info(f"Valid samples for correlation: {len(valid_df)} / {len(df)}")
+    
+    if len(valid_df) == 0:
+        raise ValueError("No valid samples available for correlation (all age_in_days or vulnerability_count are NaN).")
+    
+    return valid_df
 
-def calculate_spearman_correlation(df: pd.DataFrame) -> Tuple[float, float]:
+def calculate_spearman_correlation(df: pd.DataFrame, 
+                                   x_col: str = 'age_in_days', 
+                                   y_col: str = 'vulnerability_count') -> Tuple[float, float]:
     """
-    Calculate Spearman rank correlation between dependency age and vulnerability count.
+    Calculate the Spearman rank correlation coefficient and p-value.
     
     Args:
-        df: DataFrame with 'age_in_days' and 'vulnerability_count' columns
+        df: DataFrame containing the data.
+        x_col: Name of the column for the independent variable (age).
+        y_col: Name of the column for the dependent variable (vulnerabilities).
         
     Returns:
-        Tuple of (correlation_coefficient, p_value)
+        Tuple of (rho, p_value).
         
     Raises:
-        ValueError: If insufficient data points
+        ValueError: If there are fewer than 2 valid samples.
     """
     if len(df) < 2:
-        raise ValueError("Insufficient data points for correlation analysis (need >= 2)")
-        
-    x = df['age_in_days'].values
-    y = df['vulnerability_count'].values
+        raise ValueError(f"Need at least 2 samples for correlation, got {len(df)}")
     
-    # Remove any remaining NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    if np.sum(mask) < 2:
-        raise ValueError("Insufficient valid data points after NaN removal")
-        
-    rho, p_value = spearmanr(x[mask], y[mask])
+    x = df[x_col].values
+    y = df[y_col].values
     
-    logger.info(f"Spearman correlation: rho={rho:.4f}, p-value={p_value:.6f}")
-    return rho, p_value
+    # scipy.stats.spearmanr handles NaNs if we filter beforehand, but double check
+    # Since we filtered in load_dependencies_data, this should be safe
+    rho, p_value = spearmanr(x, y)
+    
+    return float(rho), float(p_value)
 
-def run_correlation_analysis(data_path: str, output_path: str) -> Dict[str, Any]:
+def run_correlation_analysis(input_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Run the full correlation analysis pipeline: load data, calculate correlation,
-    determine statistical significance, and save results.
+    Run the full correlation analysis pipeline:
+    1. Load data
+    2. Calculate Spearman correlation
+    3. Determine statistical significance
+    4. Save results to JSON
     
     Args:
-        data_path: Path to input CSV file
-        output_path: Path to output JSON results file
+        input_path: Path to input CSV file.
+        output_path: Path to output JSON file.
         
     Returns:
-        Dictionary containing analysis results
+        Dictionary containing the analysis results.
     """
-    # Load data
-    df = load_dependencies_data(data_path)
+    logger.info(f"Starting correlation analysis: {input_path} -> {output_path}")
     
-    # Calculate correlation
+    df = load_dependencies_data(input_path)
     rho, p_value = calculate_spearman_correlation(df)
     
-    # Flag statistical significance (US-2 Acceptance 3)
     is_significant = p_value < 0.05
     
-    # Prepare results
-    results = {
-        "correlation_coefficient": float(rho),
-        "p_value": float(p_value),
-        "is_statistically_significant": is_significant,
-        "significance_threshold": 0.05,
-        "sample_size": int(len(df)),
-        "data_source": data_path
+    result = {
+        "rho": rho,
+        "p_value": p_value,
+        "is_significant": is_significant,
+        "sample_size": len(df),
+        "input_file": input_path,
+        "method": "Spearman Rank Correlation",
+        "threshold": 0.05
     }
     
-    # Determine significance message
-    if is_significant:
-        significance_msg = f"Statistically significant (p < 0.05)"
-    else:
-        significance_msg = "Not statistically significant (p >= 0.05)"
-        
-    results["significance_interpretation"] = significance_msg
-    logger.info(f"Significance: {significance_msg}")
-    
-    # Save results to JSON
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    import json
     with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-        
+        json.dump(result, f, indent=2)
+    
     logger.info(f"Results saved to {output_path}")
-    return results
+    logger.info(f"Correlation (rho): {rho:.4f}, p-value: {p_value:.4f}, Significant: {is_significant}")
+    
+    return result
+
+def main():
+    """Main entry point for the correlation analysis script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Calculate Spearman correlation between package age and vulnerability count.")
+    parser.add_argument("--input", type=str, required=True, 
+                        help="Path to input CSV file (e.g., data/processed/dependencies_raw.csv)")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to output JSON file (e.g., data/processed/results_correlation.json)")
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    try:
+        result = run_correlation_analysis(args.input, args.output)
+        print(f"Analysis complete. Results: {result}")
+    except Exception as e:
+        logger.error(f"Analysis failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()

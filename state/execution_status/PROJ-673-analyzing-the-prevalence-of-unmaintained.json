@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-673-analyzing-the-prevalence-of-unmaintained",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/utils/security.py: self-declared fabricated metric \u2014 \u201c\u2026# Check if it's actually a hardcoded value (not an env var reference)\u2026\u201d; 4 command(s) failed: python -m src.cli collect --top-n 1000 --output data/raw/packages_seed.json (rc=1); python -m src.cli process --input data/raw/packages_seed.json --output data/processed/dependencies_cleaned.csv (rc=1); python -m src.cli analyze --input data/processed/dependencies_cleaned.csv --output data/processed/results.json (rc=1); 4 declared deliverable(s) absent: data/processed/dependencies_raw.csv; data/processed/metrics.json; data/processed/results_correlation.json",
+  "artifacts": [],
+  "failures": [
+    "python -m src.cli collect --top-n 1000 --output data/raw/packages_seed.json -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed",
+    "python -m src.cli process --input data/raw/packages_seed.json --output data/processed/dependencies_cleaned.csv -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed",
+    "python -m src.cli analyze --input data/processed/dependencies_cleaned.csv --output data/processed/results.json -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed",
+    "python -m src.cli visualize --input data/processed/results.json --output figures/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/code/.venv/bin/python: No module named src.cli.__main__; 'src.cli' is a package and cannot be directly executed"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-21T06:24:34Z"
+}

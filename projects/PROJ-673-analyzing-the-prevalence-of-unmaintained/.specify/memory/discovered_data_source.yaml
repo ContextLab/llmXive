@@ -1,0 +1,15 @@
+status: none
+intent: npm registry libraries.io dataset github advisory database nvd python package
+  dataset
+required_fields:
+- package_name
+- weekly_downloads
+- dependency_name
+- dependency_version_constraint
+- dependency_type
+- last_release_date
+- last_commit_date
+- unpatched_vulnerability_count
+cache_key: 50dea6be2685cdf4aa7e8d8cd2abe4eadf97458e7c661bd74e108df509af75f4
+searched_at: '2026-09-21T06:25:26.290154+00:00'
+retry_count: 1

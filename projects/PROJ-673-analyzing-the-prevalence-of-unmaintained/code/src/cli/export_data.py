@@ -6,137 +6,107 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-# Import existing utilities from the project
+# Import from existing API surface
 from src.utils.checksum import generate_checksum, write_checksum_file
 from src.models.data_models import Dependency
 
 # Ensure the project root is in the path if running as a script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+if __name__ == "__main__" and "code" not in sys.path[0]:
+    project_root = Path(__file__).resolve().parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-
-def load_processed_data(json_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_processed_data(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load the processed dependencies data from a JSON file.
-    Defaults to data/processed/dependencies_processed.json if no path is provided.
+    Load dependency data from a JSON file (output of T016/T017).
+    Expects a list of dependency objects with calculated fields.
     """
-    if json_path is None:
-        json_path = str(DATA_PROCESSED_DIR / "dependencies_processed.json")
-    
-    path = Path(json_path)
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
     with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
+    if not isinstance(data, list):
+        # Handle case where data might be wrapped in an object
+        if isinstance(data, dict) and 'dependencies' in data:
+            return data['dependencies']
+        raise ValueError(f"Expected list of dependencies in {input_path}, got {type(data)}")
+    
     return data
 
-def fetch_real_sample_data() -> List[Dict[str, Any]]:
+def export_to_csv(data: List[Dict[str, Any]], output_path: str) -> str:
     """
-    This function is a placeholder if real data needs to be fetched from an external source
-    that hasn't been processed yet. However, T018 depends on T017 which produces the 
-    processed data. Therefore, we primarily load from the processed file.
+    Export dependency data to a CSV file at the specified output_path.
+    Returns the checksum of the generated file.
     
-    If the processed file is missing, we raise an error to fail loudly rather than 
-    fabricating data.
-    """
-    return load_processed_data()
-
-def export_to_csv(data: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Export the list of dependency dictionaries to a CSV file.
-    Handles nested structures by flattening or converting to JSON strings where appropriate.
-    Specifically ensures `age_in_days` and `vulnerability_count` are present.
+    Required columns based on T018/T017 requirements:
+    - age_in_days (calculated in T017)
+    - last_release_date
+    - last_commit_date
+    - vulnerability_count
+    - package_name, version, etc.
     """
     if not data:
-        raise ValueError("No data to export. The dataset is empty.")
-    
-    # Ensure output directory exists
+        raise ValueError("No data to export")
+
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Determine fieldnames from the first record, handling potential None values or nested dicts
-    # We expect specific columns based on T017 requirements
+
+    # Define standard columns to ensure consistency
     fieldnames = [
-        'package_name', 
-        'version', 
-        'dependency_name', 
-        'dependency_version',
-        'last_release_date',
-        'last_commit_date',
-        'age_in_days',
-        'vulnerability_count',
-        'is_unmaintained',
-        'category'
+        "package_name", "version", "category",
+        "last_release_date", "last_commit_date",
+        "age_in_days", "vulnerability_count",
+        "is_unmaintained", "source_repo"
     ]
-    
+
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
         
         for row in data:
-            # Ensure age_in_days is formatted correctly (null if missing)
-            age = row.get('age_in_days')
-            if age is None:
-                row['age_in_days'] = '' # CSV empty string for null
-            else:
-                row['age_in_days'] = str(age)
-            
-            # Ensure vulnerability_count is present (0 if missing)
-            if 'vulnerability_count' not in row:
-                row['vulnerability_count'] = 0
-            
-            # Handle dates - convert to string if datetime object
-            for date_key in ['last_release_date', 'last_commit_date']:
-                val = row.get(date_key)
-                if isinstance(val, datetime):
-                    row[date_key] = val.isoformat()
-                elif val is None:
-                    row[date_key] = ''
-            
-            writer.writerow(row)
+            # Ensure age_in_days is present (it is calculated in T017)
+            # If a row lacks age_in_days, it should have been handled in T017,
+            # but we ensure it's not None to avoid CSV errors (write empty string if null)
+            record = {k: row.get(k, "") for k in fieldnames}
+            writer.writerow(record)
+
+    # Generate checksum for the output file
+    checksum = generate_checksum(output_file)
+    write_checksum_file(output_file, checksum)
+    
+    return checksum
 
 def main():
     """
-    Main entry point for T018: Data Export.
-    1. Loads processed data (from T017).
-    2. Exports to data/processed/dependencies_raw.csv.
-    3. Generates a checksum for the CSV file.
+    Main entry point for the export script.
+    Usage: python code/src/cli/export_data.py --input <input.json> --output <output.csv>
     """
-    input_file = DATA_PROCESSED_DIR / "dependencies_processed.json"
-    output_file = DATA_PROCESSED_DIR / "dependencies_raw.csv"
-    checksum_file = DATA_PROCESSED_DIR / "dependencies_raw.csv.sha256"
+    import argparse
 
-    print(f"Loading processed data from {input_file}...")
+    parser = argparse.ArgumentParser(description="Export dependency data to CSV with checksum.")
+    parser.add_argument("--input", required=True, help="Path to input JSON file (processed data)")
+    parser.add_argument("--output", required=True, help="Path to output CSV file")
+    args = parser.parse_args()
+
+    print(f"Loading data from {args.input}...")
     try:
-        data = load_processed_data(str(input_file))
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        print("Please ensure T017 has been run successfully and dependencies_processed.json exists.")
-        sys.exit(1)
-    
-    print(f"Exporting {len(data)} records to {output_file}...")
-    try:
-        export_to_csv(data, str(output_file))
+        data = load_processed_data(args.input)
+        print(f"Loaded {len(data)} dependencies.")
     except Exception as e:
-        print(f"ERROR during CSV export: {e}")
+        print(f"Error loading data: {e}", file=sys.stderr)
         sys.exit(1)
-    
-    print("Generating checksum...")
+
+    print(f"Exporting to {args.output}...")
     try:
-        checksum = generate_checksum(output_file)
-        write_checksum_file(output_file, checksum)
-        print(f"Checksum written to {checksum_file}")
-        print(f"SHA256: {checksum}")
+        checksum = export_to_csv(data, args.output)
+        print(f"Successfully exported {len(data)} rows to {args.output}")
+        print(f"Checksum: {checksum}")
     except Exception as e:
-        print(f"ERROR during checksum generation: {e}")
+        print(f"Error exporting data: {e}", file=sys.stderr)
         sys.exit(1)
-    
-    print(f"SUCCESS: Data exported to {output_file}")
 
 if __name__ == "__main__":
     main()

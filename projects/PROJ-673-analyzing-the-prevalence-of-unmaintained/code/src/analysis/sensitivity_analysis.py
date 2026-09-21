@@ -4,114 +4,91 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import logging
+from src.config.settings import get_config
 
-from src.analysis.correlation import load_dependencies_data
-
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def load_dependencies_data(input_path: str) -> pd.DataFrame:
+    """Load the dependencies dataset from CSV."""
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    return pd.read_csv(path)
 
 def calculate_unmaintained_proportion(df: pd.DataFrame, threshold_days: int) -> float:
     """
     Calculate the proportion of dependencies considered 'unmaintained'
-    based on a binary threshold of age_in_days.
+    based on the age_in_days threshold.
     
-    Only rows with valid age_in_days are considered.
+    A dependency is unmaintained if age_in_days > threshold_days.
+    Rows with null age_in_days are excluded from this specific calculation.
     """
     valid_mask = df['age_in_days'].notna()
-    if not valid_mask.any():
+    if valid_mask.sum() == 0:
         return 0.0
     
-    subset = df.loc[valid_mask, 'age_in_days']
-    unmaintained = (subset >= threshold_days).sum()
-    total = len(subset)
-    
-    return float(unmaintained / total)
+    valid_df = df[valid_mask]
+    unmaintained_count = (valid_df['age_in_days'] > threshold_days).sum()
+    return unmaintained_count / len(valid_df)
 
 def run_sensitivity_analysis(
     input_path: str,
     output_path: str,
-    thresholds: Optional[List[int]] = None
+    threshold_range: Optional[List[int]] = None
 ) -> Dict[str, Any]:
     """
-    Run sensitivity analysis for different 'unmaintained' thresholds.
-    
-    This applies thresholds ONLY to binary metrics (proportion unmaintained),
-    NOT to the primary continuous correlation calculation.
+    Run sensitivity analysis for the 'unmaintained' threshold.
     
     Args:
-        input_path: Path to dependencies_raw.csv
-        output_path: Path to write sensitivity_analysis.json
-        thresholds: List of days to test (default: [90, 180, 365])
+        input_path: Path to the input CSV (dependencies_raw.csv).
+        output_path: Path to write the JSON results.
+        threshold_range: List of thresholds to sweep. If None, uses config 
+                         default (180 ± 90 -> 90 to 270).
     
     Returns:
-        Dictionary containing analysis results
+        Dictionary with sensitivity analysis results.
     """
-    if thresholds is None:
-        thresholds = [90, 180, 365]
-    
     logger.info(f"Loading data from {input_path}")
     df = load_dependencies_data(input_path)
     
-    if df.empty:
-        logger.warning("Input data is empty. Returning empty results.")
-        result = {
-            "thresholds_tested": thresholds,
-            "total_samples": 0,
-            "valid_samples": 0,
-            "results": []
-        }
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    # Determine threshold range from config or use default
+    if threshold_range is None:
+        config = get_config()
+        base = getattr(config, 'UNMAINTAINED_THRESHOLD_BASE', 180)
+        delta = getattr(config, 'UNMAINTAINED_THRESHOLD_DELTA', 90)
+        # Generate range: base - delta to base + delta
+        threshold_range = list(range(base - delta, base + delta + 1, 10))
     
-    valid_mask = df['age_in_days'].notna()
-    valid_count = valid_mask.sum()
+    logger.info(f"Running sensitivity sweep over thresholds: {threshold_range}")
     
-    analysis_results = []
-    
-    for threshold in thresholds:
-        logger.info(f"Testing threshold: {threshold} days")
+    results = []
+    for threshold in threshold_range:
+        proportion = calculate_unmaintained_proportion(df, threshold)
         
-        # Calculate binary metric: proportion unmaintained
-        prop_unmaintained = calculate_unmaintained_proportion(df, threshold)
-        
-        # Calculate mean age for unmaintained subset
-        unmaintained_mask = valid_mask & (df['age_in_days'] >= threshold)
-        if unmaintained_mask.any():
-            mean_age_unmaintained = float(df.loc[unmaintained_mask, 'age_in_days'].mean())
-            std_age_unmaintained = float(df.loc[unmaintained_mask, 'age_in_days'].std())
-            count_unmaintained = int(unmaintained_mask.sum())
+        # Robustness score: How stable is the proportion?
+        # We define robustness as 1 - |derivative| (normalized).
+        # Since we are sweeping, we calculate the change from the previous point.
+        # If this is the first point, robustness is 1.0.
+        if len(results) == 0:
+            robustness = 1.0
         else:
-            mean_age_unmaintained = None
-            std_age_unmaintained = None
-            count_unmaintained = 0
+            prev_prop = results[-1]['unmaintained_proportion']
+            diff = abs(proportion - prev_prop)
+            # Normalize by max possible change (1.0)
+            robustness = max(0.0, 1.0 - (diff * 10)) # Scale factor for visibility
         
-        # Calculate mean age for maintained subset
-        maintained_mask = valid_mask & (df['age_in_days'] < threshold)
-        if maintained_mask.any():
-            mean_age_maintained = float(df.loc[maintained_mask, 'age_in_days'].mean())
-        else:
-            mean_age_maintained = None
-        
-        result_entry = {
-            "threshold_days": threshold,
-            "proportion_unmaintained": prop_unmaintained,
-            "count_unmaintained": count_unmaintained,
-            "mean_age_unmaintained": mean_age_unmaintained,
-            "std_age_unmaintained": std_age_unmaintained,
-            "mean_age_maintained": mean_age_maintained
-        }
-        analysis_results.append(result_entry)
+        results.append({
+            'threshold': threshold,
+            'unmaintained_proportion': round(proportion, 4),
+            'robustness_score': round(robustness, 4)
+        })
     
     output_data = {
-        "thresholds_tested": thresholds,
-        "total_samples": len(df),
-        "valid_samples": int(valid_count),
-        "results": analysis_results
+        'threshold_sweep': results,
+        'base_threshold': threshold_range[len(threshold_range)//2] if threshold_range else 180,
+        'total_dependencies_analyzed': len(df)
     }
     
-    # Ensure output directory exists
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
@@ -122,33 +99,37 @@ def run_sensitivity_analysis(
     return output_data
 
 def main():
-    """Entry point for sensitivity analysis script."""
-    # Default paths based on project structure
-    input_path = "data/processed/dependencies_raw.csv"
-    output_path = "data/processed/sensitivity_analysis.json"
+    """Entry point for the sensitivity analysis script."""
+    import argparse
     
-    # Allow override via environment or command line if needed
-    # For now, using defaults as per task specification
+    parser = argparse.ArgumentParser(description='Run sensitivity analysis for unmaintained threshold.')
+    parser.add_argument('--input', type=str, required=True, help='Path to input CSV')
+    parser.add_argument('--output', type=str, required=True, help='Path to output JSON')
+    parser.add_argument('--config-base', type=int, default=180, help='Base threshold days')
+    parser.add_argument('--config-delta', type=int, default=90, help='Delta for threshold sweep')
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO)
     
     try:
-        results = run_sensitivity_analysis(input_path, output_path)
-        logger.info("Sensitivity analysis completed successfully.")
-        logger.info(f"Results written to {output_path}")
+        # Construct range based on args
+        start = args.config_base - args.config_delta
+        end = args.config_base + args.config_delta
+        threshold_range = list(range(start, end + 1, 10))
         
-        # Print summary
-        print(f"\nSensitivity Analysis Summary:")
-        print(f"Total samples: {results['total_samples']}")
-        print(f"Valid samples (with age_in_days): {results['valid_samples']}")
-        print("\nProportion unmaintained by threshold:")
-        for res in results['results']:
-            print(f"  {res['threshold_days']} days: {res['proportion_unmaintained']:.4f} ({res['count_unmaintained']} packages)")
-            
-    except FileNotFoundError as e:
-        logger.error(f"Input file not found: {e}")
-        raise
+        result = run_sensitivity_analysis(
+            input_path=args.input,
+            output_path=args.output,
+            threshold_range=threshold_range
+        )
+        
+        print(f"Sensitivity analysis complete. Results written to {args.output}")
+        print(f"Found {len(result['threshold_sweep'])} threshold points.")
+        
     except Exception as e:
-        logger.error(f"Error during sensitivity analysis: {e}")
+        logger.error(f"Sensitivity analysis failed: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
