@@ -4512,7 +4512,7 @@
   status: not_enough_info
   updated_at: '2026-09-20T07:56:13Z'
 - artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
-  attempts: 2
+  attempts: 3
   canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
   claim_id: c_7cc6f99a
   context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
@@ -4528,4 +4528,430 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-09-20T07:56:44Z'
+  updated_at: '2026-09-21T18:53:48Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_78e0344e
+  context: Section 2.1 of research.md documents the effect size assumption for power
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's f=0.25 (medium) based on Loftus et al. (1974) 'The Misinformation
+    Effect'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:55:17Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: arXiv citation 2608.25403
+  claim_id: c_2cce581b
+  context: Referenced in Task T006.3-Retry algorithm description for retry logic.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2608.25403, https://arxiv.org/abs/2608.25403
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T18:55:20Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel ER Science 5544 1030-1038 molecular biology of memory storage
+  claim_id: c_c873ba0b
+  context: Cited in Task T093 to support the theoretical gap between behavioral findings
+    and synaptic mechanisms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:56:10Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Visual Genome train split fetched via HuggingFace datasets
+  claim_id: c_9423b328
+  context: Task T006.0-InitBundle specifies fetching a representative sample of Visual
+    Genome images.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_Genome_train_split_fetched_via_HuggingFace_datasets
+  kind: entity_fact
+  raw_text: Visual Genome images fetched via datasets.load_dataset('visual_genome',
+    split='train', streaming=True)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:56:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_fa0357fd
+  context: 'Task T012.0: Document Effect Size Source. Update research.md by appending
+    Section 2.1 with the text: ''Effect Size Assumption: Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974) ''The Misinformation Effect''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:57:53Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Visual Genome subset failure after 3 attempts if Q1-Q3 range < 0.3
+  claim_id: c_8e4ee0a0
+  context: 'Task T006.3-Retry: Implement retry logic for sample selection. If T006.3-Select
+    fails to meet Q1-Q3 range, fetch a larger batch. If all 3 attempts fail, raise
+    SystemExit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If all 3 attempts fail to meet the Q1\u2011Q3 range, raise SystemExit\
+    \ with error: 'Visual Genome subset is homogeneous; Q1-Q3 range < 0.3 after 3\
+    \ attempts.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:58:31Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Study measures behavioral false memory rates excluding molecular/cellular
+    mechanisms
+  claim_id: c_afaa964f
+  context: 'Task T060: Scope Boundary Documentation. Explicitly state that this study
+    measures behavioral false memory rates and does not measure or infer specific
+    molecular/cellular mechanisms in humans. Cite Constitution VI and the ''Observational
+    design'' constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_measures_behavioral_false_memory_rates_excluding_molec
+  kind: entity_fact
+  raw_text: The study measures behavioral false memory rates and does not measure
+    or infer specific molecular/cellular mechanisms (e.g., CREB activation, synaptic
+    weight changes) in humans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:59:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Aplysia presynaptic facilitation pathway serotonin cAMP PKA CREB
+  claim_id: c_74b5bed5
+  context: "Task T093: Document 'Ladder of Explanation' Gap. Explicitly map the review's\
+    \ critique: 'In Aplysia, this would correspond to presynaptic facilitation via\
+    \ serotonin \u2192 cAMP \u2192 PKA \u2192 CREB.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aplysia_presynaptic_facilitation_pathway_serotonin_cAMP_PKA
+  kind: entity_fact
+  raw_text: "In Aplysia, presynaptic facilitation corresponds to serotonin \u2192\
+    \ cAMP \u2192 PKA \u2192 CREB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T18:59:36Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel identifies lack of mapped biological correlate for behavioral
+    finding
+  claim_id: c_04b11be3
+  context: 'Task T093: Document ''Ladder of Explanation'' Gap. Content: ''The reviewer
+    (Kandel) correctly identifies that our behavioral finding (visual detail modulates
+    false memory) lacks a mapped biological correlate.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kandel_identifies_lack_of_mapped_biological_correlate_for_be
+  kind: entity_fact
+  raw_text: The reviewer (Kandel) correctly identifies that the behavioral finding
+    lacks a mapped biological correlate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:00:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Display baseline images for 10 seconds plus or minus 0.5 seconds
+  claim_id: c_f540a7ce
+  context: "Task T025: Implement View: Image Display. Implement code/participants/interface.py\
+    \ to display baseline images for 10 seconds (\xB10.5s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Display baseline images for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:00:39Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Administer arithmetic questions for 2 minutes plus or minus 10 seconds
+  claim_id: c_dcf0c366
+  context: "Task T026: Implement View: Distractor Task. Implement code/participants/interface.py\
+    \ to administer arithmetic questions for 2 minutes (\xB110s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Administer arithmetic questions for 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:01:06Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Flag session incomplete if k less than 5
+  claim_id: c_33f743da
+  context: 'Task T027.2: Generate Recognition Questions. Algorithm: Determine k =
+    min(len(true_pool), len(false_pool)). If k < 5, flag session as incomplete.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_session_incomplete_if_k_less_than_5
+  kind: magnitude
+  raw_text: If k < 5, flag session as incomplete.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:02:50Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Flag session incomplete if distractor task duration outside acceptable
+    range
+  claim_id: c_f78c8785
+  context: 'Task T026: Implement View: Distractor Task. Constraint: If duration is
+    outside the acceptable range, Flag session as Incomplete in the response log.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_session_incomplete_if_distractor_task_duration_outside
+  kind: entity_fact
+  raw_text: If duration is outside the acceptable range, flag session as Incomplete.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:03:18Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Verify total subjects greater than or equal to 50
+  claim_id: c_d0b46589
+  context: 'Task T012-Runtime: Power Analysis Validation Logic. Implement validation
+    logic to ensure n_total_subjects >= 50.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Another possible study design would be to give 50 infected subjects the
+        novel treatment, 50 infected subjects the standard treatment, and see if the
+        infection is still present after a set time. This type of design is common
+        in clinical trials.
+      source_id: Barnard's test
+      url: https://en.wikipedia.org/wiki/Barnard's_test
+      value: '50'
+    filled: true
+  kind: magnitude
+  raw_text: Verify that n_total_subjects >= 50.
+  resolved_value: '50'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T19:03:30Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate 20 PNG files for minor object assets
+  claim_id: c_e93c4a1b
+  context: 'Task T015.1-GenAssets: Generate Semantic Minor Object Assets. Loop 20
+    times (i=0 to 19) to generate assets and save as data/assets/minor_objects/obj_{i}.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 20 PNG files for minor object assets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:03:50Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Apply Gaussian blur with radius 5 to masked regions
+  claim_id: c_e1fe0867
+  context: 'Task T016: Implement reduced detail manipulation. Algorithm: Apply ImageFilter.GaussianBlur(radius=5)
+    to the masked regions of the image.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply ImageFilter.GaussianBlur(radius=5) to the masked regions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:04:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Identify regions where object density less than 0.2
+  claim_id: c_0c82b2c6
+  context: 'Task T016: Implement reduced detail manipulation. Algorithm: Identify
+    regions where density < 0.2.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_regions_where_object_density_less_than_0.2
+  kind: magnitude
+  raw_text: Identify regions where density < 0.2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:04:47Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Paste asset with alpha blending factor 0.5
+  claim_id: c_ddfeb81d
+  context: 'Task T015: Implement enhanced detail compositing. Algorithm: Paste asset
+    at (x, y) using Image.alpha_composite with alpha blending factor 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Paste asset using Image.alpha_composite with alpha blending factor 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:05:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate random coordinates within 80 percent of image bounds
+  claim_id: c_7c9d62c6
+  context: 'Task T015: Implement enhanced detail compositing. Algorithm: Generate
+    random coordinates (x, y) within 80% of image bounds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate random coordinates within 80% of image bounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:05:08Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Filter image set to ensure Q1-Q3 range greater than or equal to 0.3
+  claim_id: c_b8a49539
+  context: "Task T006.2-Calc: Calculate Complexity Score. Algorithm: Filter the fetched\
+    \ image set to ensure the Q1\u2011Q3 range is \u2265 0.3 (target mean=0.5, std=0.15)."
+  evidence:
+    candidates:
+    - - ''
+      - 3.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Filter_image_set_to_ensure_Q1-Q3_range_greater_than_or_equal
+  kind: magnitude
+  raw_text: "Filter the fetched image set to ensure the Q1\u2011Q3 range is \u2265\
+    \ 0.3 (target mean=0.5, std=0.15)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-21T19:05:39Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Standard deviation of output region less than 0.1 times standard deviation
+    of input region
+  claim_id: c_2c4ceb64
+  context: 'Task T051: Unit test for image reduction logic. Assert that std_dev(output_region)
+    < 0.1 * std_dev(input_region) where input_region is the masked area of the original
+    image and output_region is the same area after blurring.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_output_region_less_than_0.1_times_stan
+  kind: magnitude
+  raw_text: std_dev(output_region) < 0.1 * std_dev(input_region)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:05:55Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Assert object count greater than or equal to 1 after adding minor objects
+  claim_id: c_816e7733
+  context: 'Task T050: Unit test for image enhancement logic. Assert that output_image.shape
+    matches input_image.shape and object_count >= 1 after calling add_minor_objects().'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_object_count_greater_than_or_equal_to_1_after_adding
+  kind: magnitude
+  raw_text: Assert that object_count >= 1 after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:06:12Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cite Kandel 1996 Science paper on molecular biology of memory storage
+  claim_id: c_643a9ac6
+  context: 'Task T093: Document ''Ladder of Explanation'' Gap. Citation: Append ''Kandel,
+    E. R. (n.d.). The molecular biology of memory storage: a dialogue between genes
+    and synapses. Science, (5544), 1030-1038.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Cite Kandel, E. R. (n.d.). The molecular biology of memory storage: a
+    dialogue between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:07:03Z'

@@ -15,13 +15,6 @@ T016:
     \ (Gaussian blur or masking) nor any error\u2011handling that writes to `data/logs/manipulation_errors.log`.\
     \ Additionally, the required log file does not exist. The task\u2019s core requirements\
     \ are therefore unmet."
-T017:
-  c: false
-  h: f09d534a2dcb1b1f9e72c0a94898eb1eeb10db2e426b6e972b9809c1af7c85d3
-  r: "The provided `metadata.py` uses `datetime.utcnow()` instead of `datetime.now(timezone.utc)`,\
-    \ never reads `generation_log.json`, and does not write any `data/stimuli/{id}_metadata.yaml`\
-    \ files (the expected output file is missing). Consequently the required metadata\
-    \ files and asset\u2011parameter logging are not present."
 T032:
   c: false
   h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
@@ -34,13 +27,6 @@ T033:
   r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
     \ no unit test for multiple-comparison correction is present. The task\u2019s\
     \ primary deliverable is missing."
-T035#1:
-  c: false
-  h: 9ae934d090cbdfc02f1aab919ff67110a4eff102c41e70eda6fcff978f35e7bc
-  r: The repository contains `code/analysis/anova.py` with a gate check and ANOVA
-    computation, but the script does not show any code that writes the results to
-    `data/analysis/anova_results.json`, and that JSON file is missing. Consequently
-    the required output artifact and schema verification are not satisfied.
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,14 +41,6 @@ T093:
     \ required new section \u201CThe Ladder of Explanation: A Behavioral Gap\u201D\
     \ is not present in any shown artifact. The implementer must supply the modified\
     \ `research.md` with the exact requested paragraph."
-T096:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `plan.md` file or its contents were provided; consequently we cannot verify\
-    \ that it contains the required phrases \u201Cladder of explanation\u201D and\
-    \ \u201Cserotonin \u2192 cAMP \u2192 PKA \u2192 CREB\u201D. The implementer must\
-    \ supply the updated `plan.md` with the specified subsection and verify the phrases\
-    \ are present."
 T098:
   c: false
   h: 6c732bc034bcdc52945039c7a4dc4d51342c7e2cb89d6842ced76aacd2a47ca7

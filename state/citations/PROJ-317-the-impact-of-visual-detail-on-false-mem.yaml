@@ -9,9 +9,20 @@
   verification_status: pending
   verified_against_url: https://visualgenome.org/
   verified_at: '2026-07-27T16:55:37.266143Z'
-- artifact_hash: f8d0ee5d28dd0763708f8a6e1b7537334ce4ddc9364b4b09ced75d7bb071a28f
+- artifact_hash: 296e660d15b5472559f7119f7194b8cf1145180a099eeda6f008481bf179b848
   artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Barnard - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Barnard
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Barnard
+  verified_at: '2026-09-21T19:07:04.718702Z'
+- artifact_hash: 296e660d15b5472559f7119f7194b8cf1145180a099eeda6f008481bf179b848
+  artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: '[2608.25403] Retry Amplification in Distributed Systems: A Systematic
@@ -20,4 +31,4 @@
   value: https://arxiv.org/abs/2608.25403
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2608.25403
-  verified_at: '2026-09-20T07:56:40.054592Z'
+  verified_at: '2026-09-21T19:07:04.718702Z'

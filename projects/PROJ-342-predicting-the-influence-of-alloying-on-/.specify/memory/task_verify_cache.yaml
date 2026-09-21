@@ -80,6 +80,13 @@ T049:
     \ data\u2011loading and plotting utilities and does not implement any logic to\
     \ enforce associational language or to insert \u201CThese findings are associational\
     \ only\u201D into a report. The task\u2019s core requirement is therefore unmet."
+T080:
+  c: false
+  h: c1c8d02ef09bf54db487334788728a0be6c7432e11c57a0b287a5714a96946f5
+  r: The evidence shows that the required output files (`data/processed/cleaned_mg.csv`,
+    `artifacts/models/best_model.pkl`, and `artifacts/reports/final_report.md`) are
+    absent, so the pipeline cannot have succeeded nor can the mandatory phrase be
+    verified. The task remains unfinished.
 T083:
   c: false
   h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb

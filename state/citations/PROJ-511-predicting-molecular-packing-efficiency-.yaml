@@ -1,25 +1,3 @@
-- artifact_hash: fc2f6ba4c4458b31df3874a661a47f016d17c2ce6e8c4a95601fc46a48101884
-  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.crystallography.net/cod/`
-  verification_status: mismatch
-  verified_against_url: https://www.crystallography.net/cod/%60
-  verified_at: '2026-06-29T17:49:05.952944Z'
-- artifact_hash: fc2f6ba4c4458b31df3874a661a47f016d17c2ce6e8c4a95601fc46a48101884
-  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: van der Waals Volumes and Radii
-  kind: doi
-  value: 10.1021/j100785a001
-  verification_status: verified
-  verified_against_url: https://doi.org/10.1021/j100785a001
-  verified_at: '2026-06-29T17:49:05.952944Z'
 - artifact_hash: 218424dd374d99bd481dbf3550b64603f5807b1e54a4850b2c608fc447541d9b
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/plan.md
   cite_id: c-001
@@ -64,3 +42,25 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-28T09:19:53.785033Z'
+- artifact_hash: 9fddf5a140cc1a66e6ce30469f1efdefaf17ddc2ccdd6063014357e32e222349
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Crystallography Open Database
+  kind: url
+  value: https://www.crystallography.net/cod/
+  verification_status: pending
+  verified_against_url: https://www.crystallography.net/cod/
+  verified_at: '2026-09-21T18:39:27.243982Z'
+- artifact_hash: 9fddf5a140cc1a66e6ce30469f1efdefaf17ddc2ccdd6063014357e32e222349
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: van der Waals Volumes and Radii
+  kind: doi
+  value: 10.1021/j100785a001
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1021/j100785a001
+  verified_at: '2026-09-21T18:39:27.243982Z'

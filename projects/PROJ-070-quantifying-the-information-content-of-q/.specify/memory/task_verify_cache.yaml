@@ -20,3 +20,18 @@ T003:
     \ for \u201CConfigure linting (ruff) and formatting (black) tools\u201D is missing.\
     \ The implementer must add the appropriate configuration files and ensure they\
     \ are non\u2011empty."
+T015:
+  c: false
+  h: d559074c2f3a5625e3e64fcb2aafd21cc05a568d3c39f33a39c65bf93735118a
+  r: "The provided `code/metrics.py` is truncated and never reaches a call to `scipy.sparse.linalg.svds`;\
+    \ it does not convert a reduced density matrix to CSR/CSC before such a call,\
+    \ nor does it write any results to `data/processed/entanglement_metrics.csv`.\
+    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
+    s core functionality and output artifact are therefore missing."
+T022:
+  c: false
+  h: 79abb550d0d2f31c528687e05e9ecf55543cb76b0c5e14794fa03a35150516c2
+  r: The required artifact `tests/integration/test_us2_null_models.py` does not exist
+    in the repository, so the integration test for null model comparison statistics
+    is missing. The task cannot be considered completed until this file is added with
+    appropriate test code.

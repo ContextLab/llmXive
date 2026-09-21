@@ -1,0 +1,2 @@
+# Explicit black configuration for formatting
+extend = "pyproject.toml"

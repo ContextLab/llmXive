@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-011-neural-mechanisms-underlying-adaptive-de
-last_run_id: bf8787a3-910f-445c-8e81-0b9844c6950d
+last_run_id: 8d338da9-9f1b-47f8-b588-d7c79efb4260
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de
 title: Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social
   Feedback
-updated_at: '2026-09-21T16:49:18.593929Z'
+updated_at: '2026-09-21T19:07:10.457384Z'

@@ -1,0 +1,3 @@
+# Explicit ruff configuration for linting
+extend = "pyproject.toml"
+output-format = "concise"

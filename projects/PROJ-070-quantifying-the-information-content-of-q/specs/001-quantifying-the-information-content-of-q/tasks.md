@@ -61,7 +61,7 @@
 - [X] T006 [P] Setup sparse matrix utility functions in `code/utils/sparse_helpers.py` (CSR/CSC conversion, memory profiling)
 - [X] T007 Create configuration manager for random seeds and system parameters in `code/config.py`
 - [X] T008 Setup logging infrastructure to track numerical instabilities (NaN/Inf) and data exclusion in `code/logging_config.py`
-- [ ] T009 Implement data validation schema checks for generated wavefunctions in `code/validators/data_schema.py`
+- [X] T009 Implement data validation schema checks for generated wavefunctions in `code/validators/data_schema.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,12 +84,12 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement Exact Diagonalization (ED) generator in `code/data_loader.py` for N <= 20 using `scipy.sparse.linalg.eigsh` (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
-- [ ] T014 [US1] Implement DMRG generator in `code/data_loader.py` for N > 20 using `tenpy` with streaming/chunked processing to stay within RAM (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
+- [X] T014 [US1] Implement DMRG generator in `code/data_loader.py` for N > 20 using `tenpy` with streaming/chunked processing to stay within RAM (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
 - [ ] T015 [US1] Implement bipartite entanglement entropy calculation in `code/metrics.py` using sparse SVD (`scipy.sparse.linalg.svds` with ARPACK). **MUST convert reduced density matrix to CSR/CSC format before calling svds**. Input: T013/T014 output. Output: Entanglement entropy and entropy per spin written to `data/processed/entanglement_metrics.csv`.
-- [ ] T016 [US1] Implement complexity estimation in `code/metrics.py`: 1) **Quantize raw wavefunction coefficients to fixed-point signed integers** (16-bit) per FR-003a; 2) **Generate an internal size-matched random baseline** (random phases on product basis) locally for the NCD calculation; 3) Calculate **Normalized Compression Distance (NCD)** using gzip/lzma/bzip2 on the **quantized full wavefunction coefficients** relative to the internal baseline; 4) Output NCD as the primary complexity metric. **Self-contained: does not depend on T023**.
-- [ ] T017 [US1] Implement correlation analysis in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** (entropy per spin) to decouple system size from entanglement structure.
-- [ ] T018 [US1] Implement scatter plot generation with regression line and annotations in `code/viz.py`
-- [ ] T019 [US1] Add numerical stability checks (NaN/Inf exclusion) and fail-fast logic (E_DATA_INSUFFICIENT) in `code/metrics.py`
+- [X] T016 [US1] Implement complexity estimation in `code/metrics.py`: 1) **Quantize raw wavefunction coefficients to fixed-point signed integers** (16-bit) per FR-003a; 2) **Generate an internal size-matched random baseline** (random phases on product basis) locally for the NCD calculation; 3) Calculate **Normalized Compression Distance (NCD)** using gzip/lzma/bzip2 on the **quantized full wavefunction coefficients** relative to the internal baseline; 4) Output NCD as the primary complexity metric. **Self-contained: does not depend on T023**.
+- [X] T017 [US1] Implement correlation analysis in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** (entropy per spin) to decouple system size from entanglement structure.
+- [X] T018 [US1] Implement scatter plot generation with regression line and annotations in `code/viz.py`
+- [X] T019 [US1] Add numerical stability checks (NaN/Inf exclusion) and fail-fast logic (E_DATA_INSUFFICIENT) in `code/metrics.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,8 +103,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for random product state generation in `tests/unit/test_null_models.py`
-- [ ] T021 [P] [US2] Unit test for Haar-random ensemble generation in `tests/unit/test_null_models.py`
+- [X] T020 [P] [US2] Unit test for random product state generation in `tests/unit/test_null_models.py`
+- [X] T021 [P] [US2] Unit test for Haar-random ensemble generation in `tests/unit/test_null_models.py`
 - [ ] T022 [P] [US2] Integration test for null model comparison statistics in `tests/integration/test_us2_null_models.py`
 
 ### Implementation for User Story 2
