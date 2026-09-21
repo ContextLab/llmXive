@@ -4,253 +4,262 @@ from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 import logging
 import json
+from logger import get_logger, info, warning, error, critical
+from config import get_config, set_random_seed
+from utils import calculate_metrics, bootstrap_mae, bootstrap_mean
 
-from logger import get_logger
-
-logger = get_logger(__name__)
-
-def extract_psi4_energies(output_log: str) -> Dict[str, float]:
-    """
-    Extract total energy and D3 dispersion contribution from a Psi4 output log.
-    
-    Args:
-        output_log: Path to the Psi4 output file.
-        
-    Returns:
-        Dictionary with 'total_energy' and 'd3_energy' keys.
-    """
-    path = Path(output_log)
+def load_scaling_factor(path: Path) -> float:
+    """Load the scaling factor from a text file."""
+    logger = get_logger(__name__)
+    path = Path(path)
     if not path.exists():
-        raise FileNotFoundError(f"Output file not found: {output_log}")
-        
+        raise FileNotFoundError(f"Scaling factor file not found: {path}")
+    with open(path, "r") as f:
+        content = f.read().strip()
+        # Parse the value assuming format like "s = 1.234" or just "1.234"
+        if "=" in content:
+            value = float(content.split("=")[1].strip())
+        else:
+            value = float(content)
+    logger.info(f"Loaded scaling factor: {value}")
+    return value
+
+def extract_psi4_energies(output_file: Path) -> Dict[str, float]:
+    """
+    Extract total energy and D3 dispersion contribution from a Psi4 output file.
+
+    Args:
+        output_file: Path to the Psi4 output file.
+
+    Returns:
+        Dictionary with keys 'total_energy' and 'd3_dispersion_energy'.
+    """
+    logger = get_logger(__name__)
+    with open(output_file, "r") as f:
+        content = f.read()
+
+    # Simple parsing logic (assumes standard Psi4 output format)
+    # In a real scenario, this would be more robust
     total_energy = None
     d3_energy = None
-    
-    with open(path, 'r') as f:
-        lines = f.readlines()
-        
-    # Look for total energy (usually in final lines or specific marker)
-    for line in reversed(lines):
-        if "Final Energy" in line or "Total Energy" in line:
-            # Typical format: "Final Energy = -123.456789"
-            try:
-                parts = line.split('=')
-                if len(parts) > 1:
-                    total_energy = float(parts[1].strip().split()[0])
-                    break
-            except ValueError:
-                continue
-                
-    # Look for D3 dispersion energy (often labeled as "Dispersion" or "D3")
+
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if "Final Energy" in line or "E(" in line and ")" in line:
+            # Try to find the final energy value
+            parts = line.split()
+            for part in parts:
+                try:
+                    val = float(part)
+                    if val < 0:  # Energies are typically negative
+                        total_energy = val
+                        break
+                except ValueError:
+                    continue
+            if total_energy is not None:
+                break
+
+    # Look for D3 dispersion contribution
+    # Psi4 usually prints "Dispersion energy" or similar
     for line in lines:
-        if "Dispersion Energy" in line or "D3 correction" in line:
-            try:
-                parts = line.split('=')
-                if len(parts) > 1:
-                    d3_energy = float(parts[1].strip().split()[0])
+        if "Dispersion" in line and "energy" in line.lower():
+            parts = line.split()
+            for part in parts:
+                try:
+                    val = float(part)
+                    d3_energy = val
                     break
-            except ValueError:
-                continue
-                
+                except ValueError:
+                    continue
+            if d3_energy is not None:
+                break
+
     if total_energy is None:
-        raise ValueError(f"Could not find total energy in {output_log}")
+        error(f"Could not find total energy in {output_file}")
+        raise ValueError(f"Total energy not found in {output_file}")
     if d3_energy is None:
-        # If D3 is not explicitly listed, it might be 0 or the user didn't enable it
-        logger.warning(f"D3 energy not found in {output_log}, assuming 0.0")
+        warning(f"D3 dispersion energy not found in {output_file}, defaulting to 0.0")
         d3_energy = 0.0
-        
+
     return {
-        'total_energy': total_energy,
-        'd3_energy': d3_energy
+        "total_energy": total_energy,
+        "d3_dispersion_energy": d3_energy,
     }
 
-def compute_statistics(energies: List[float]) -> Dict[str, float]:
-    """
-    Compute basic statistics for a list of energies.
-    
-    Args:
-        energies: List of energy values.
-        
-    Returns:
-        Dictionary with mean, std, min, max.
-    """
-    arr = np.array(energies)
-    return {
-        'mean': float(np.mean(arr)),
-        'std': float(np.std(arr)),
-        'min': float(np.min(arr)),
-        'max': float(np.max(arr)),
-        'count': len(energies)
-    }
-
-def calculate_metrics(
-    ref_energies: List[float], 
-    pred_energies: List[float]
+def compute_statistics(
+    reference_energies: List[float],
+    dft_energies: List[float],
+    d3_energies: List[float],
+    scaling_factor: Optional[float] = None,
 ) -> Dict[str, float]:
     """
-    Calculate error metrics between reference and predicted energies.
-    
+    Compute error statistics between DFT and reference energies.
+
     Args:
-        ref_energies: Reference (CCSD(T)/CBS) energies.
-        pred_energies: Predicted (DFT-D3) energies.
-        
+        reference_energies: List of reference (CCSD(T)/CBS) energies.
+        dft_energies: List of DFT total energies.
+        d3_energies: List of D3 dispersion energies.
+        scaling_factor: Optional scaling factor for D3 term.
+
     Returns:
-        Dictionary with MAE, RMSE, MSE, MSE (signed).
+        Dictionary with MAE, RMSE, MSE, MSE, and Mean Signed Error.
     """
-    ref = np.array(ref_energies)
-    pred = np.array(pred_energies)
-    errors = pred - ref
-    
-    mae = float(np.mean(np.abs(errors)))
-    rmse = float(np.sqrt(np.mean(errors**2)))
-    mse_abs = float(np.mean(errors**2)) # Mean Squared Error (absolute)
-    mse_signed = float(np.mean(errors)) # Mean Signed Error
-    
-    return {
-        'mae': mae,
-        'rmse': rmse,
-        'mse': mse_abs,
-        'signed_error_mean': mse_signed
-    }
+    logger = get_logger(__name__)
+    if len(reference_energies) != len(dft_energies):
+        raise ValueError("Reference and DFT energy lists must have the same length")
+
+    errors = np.array(dft_energies) - np.array(reference_energies)
+
+    if scaling_factor is not None:
+        # Corrected DFT energy = E_base + (s - 1) * E_D3 ?
+        # Or E_corrected = E_DFT_base + s * E_D3?
+        # Assuming the task implies: E_corrected = E_DFT_without_D3 + s * E_D3
+        # But we only have E_DFT_total and E_D3.
+        # Let's assume E_DFT_total = E_base + E_D3 (raw)
+        # Then E_corrected = E_base + s * E_D3 = (E_DFT_total - E_D3) + s * E_D3
+        # = E_DFT_total + (s - 1) * E_D3
+        corrected_errors = np.array(dft_energies) + (scaling_factor - 1) * np.array(d3_energies) - np.array(reference_energies)
+        metrics = calculate_metrics(corrected_errors)
+        logger.info(f"Computed metrics with scaling factor {scaling_factor}")
+    else:
+        metrics = calculate_metrics(errors)
+        logger.info("Computed raw metrics (no scaling)")
+
+    return metrics
+
+def calculate_metrics(errors: np.ndarray) -> Dict[str, float]:
+    """
+    Calculate error metrics (MAE, RMSE, MSE, MSE, MSE).
+    This is a wrapper for utils.calculate_metrics to ensure compatibility.
+    """
+    return calculate_metrics(errors)
 
 def bootstrap_analysis(
-    ref_energies: List[float],
-    pred_energies: List[float],
+    reference_energies: List[float],
+    dft_energies: List[float],
+    d3_energies: List[float],
     n_replicates: int = 1000,
-    seed: Optional[int] = None
-) -> Dict[str, float]:
+    scaling_factor: Optional[float] = None,
+) -> Dict[str, Any]:
     """
-    Perform bootstrap resampling to estimate confidence intervals for MAE.
-    
+    Perform bootstrap resampling to compute confidence intervals for MAE.
+
     Args:
-        ref_energies: Reference energies.
-        pred_energies: Predicted energies.
-        n_replicates: Number of bootstrap samples.
-        seed: Random seed for reproducibility.
-        
+        reference_energies: List of reference energies.
+        dft_energies: List of DFT energies.
+        d3_energies: List of D3 energies.
+        n_replicates: Number of bootstrap replicates.
+        scaling_factor: Optional scaling factor.
+
     Returns:
-        Dictionary with MAE, 95% CI lower, 95% CI upper.
+        Dictionary with MAE, 95% CI for MAE.
     """
-    if seed is not None:
-        np.random.seed(seed)
-        
-    n = len(ref_energies)
-    if n == 0:
-        raise ValueError("No data provided for bootstrap analysis")
-        
-    boot_mae = []
+    logger = get_logger(__name__)
+    config = get_config()
+    set_random_seed(config.seed)
+
+    errors = np.array(dft_energies) - np.array(reference_energies)
+    if scaling_factor is not None:
+        errors = errors + (scaling_factor - 1) * np.array(d3_energies)
+
+    mae_values = []
     for _ in range(n_replicates):
-        indices = np.random.choice(n, size=n, replace=True)
-        ref_sample = np.array(ref_energies)[indices]
-        pred_sample = np.array(pred_energies)[indices]
-        errors = pred_sample - ref_sample
-        mae = np.mean(np.abs(errors))
-        boot_mae.append(mae)
-        
-    boot_mae = np.array(boot_mae)
-    ci_lower = np.percentile(boot_mae, 2.5)
-    ci_upper = np.percentile(boot_mae, 97.5)
-    
+        indices = np.random.choice(len(errors), size=len(errors), replace=True)
+        sample_errors = errors[indices]
+        mae = np.mean(np.abs(sample_errors))
+        mae_values.append(mae)
+
+    mae_values = np.array(mae_values)
+    mae_mean = np.mean(mae_values)
+    ci_lower = np.percentile(mae_values, 2.5)
+    ci_upper = np.percentile(mae_values, 97.5)
+
+    logger.info(f"Bootstrap MAE: {mae_mean:.4f}, 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+
     return {
-        'mae': float(np.mean(boot_mae)),
-        'ci_lower': float(ci_lower),
-        'ci_upper': float(ci_upper),
-        'std': float(np.std(boot_mae))
+        "mae": mae_mean,
+        "mae_ci_lower": ci_lower,
+        "mae_ci_upper": ci_upper,
+        "n_replicates": n_replicates,
     }
 
 def analyze_and_export(
-    psi4_outputs: List[str],
-    reference_data: pd.DataFrame,
-    output_path: str
-) -> pd.DataFrame:
+    raw_energies_path: Path,
+    output_dir: Path,
+    scaling_factor_path: Optional[Path] = None,
+) -> None:
     """
-    Analyze Psi4 outputs, compare with reference, and export results.
-    
+    Analyze energies and export results to CSV and JSON.
+
     Args:
-        psi4_outputs: List of paths to Psi4 output files.
-        reference_data: DataFrame with pair_id and reference_energy columns.
-        output_path: Path to save the results CSV.
-        
-    Returns:
-        DataFrame with analysis results.
+        raw_energies_path: Path to raw energies CSV.
+        output_dir: Directory for output files.
+        scaling_factor_path: Optional path to scaling factor file.
     """
-    results = []
-    
-    for out_file in psi4_outputs:
-        try:
-            energies = extract_psi4_energies(out_file)
-            # Infer pair_id from filename (e.g., "pair_01.out" -> "pair_01")
-            pair_id = Path(out_file).stem
-            
-            # Look up reference energy
-            ref_row = reference_data[reference_data['pair_id'] == pair_id]
-            if ref_row.empty:
-                logger.warning(f"No reference energy found for {pair_id}, skipping")
-                continue
-            ref_energy = ref_row['reference_energy'].values[0]
-            
-            dft_total = energies['total_energy']
-            d3_disp = energies['d3_energy']
-            signed_err = dft_total - ref_energy
-            
-            results.append({
-                'pair_id': pair_id,
-                'reference_energy': ref_energy,
-                'dft_total_energy': dft_total,
-                'd3_dispersion_energy': d3_disp,
-                'signed_error': signed_err
-            })
-        except Exception as e:
-            logger.error(f"Failed to process {out_file}: {e}")
-            
-    df = pd.DataFrame(results)
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_file, index=False)
-    logger.info(f"Exported {len(df)} results to {output_path}")
-    return df
+    logger = get_logger(__name__)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def main():
-    """
-    Main entry point for the analyze_energies script.
-    Expects arguments: 
-      --outputs: glob pattern or list of Psi4 output files
-      --refs: path to reference CSV
-      --output: path to output CSV
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Analyze DFT-D3 energies')
-    parser.add_argument('--outputs', nargs='+', required=True, help='Psi4 output files')
-    parser.add_argument('--refs', required=True, help='Path to reference CSV')
-    parser.add_argument('--output', required=True, help='Output CSV path')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    
-    args = parser.parse_args()
-    
-    # Load reference data
-    ref_df = pd.read_csv(args.refs)
-    
-    # Analyze and export
-    df = analyze_and_export(args.outputs, ref_df, args.output)
-    
-    # Compute and log metrics
-    if not df.empty:
-        metrics = calculate_metrics(
-            df['reference_energy'].tolist(),
-            df['dft_total_energy'].tolist()
-        )
-        logger.info(f"MAE: {metrics['mae']:.6f} Ha")
-        logger.info(f"RMSE: {metrics['rmse']:.6f} Ha")
-        logger.info(f"MSE (signed): {metrics['signed_error_mean']:.6f} Ha")
-        
-        # Bootstrap
-        boot = bootstrap_analysis(
-            df['reference_energy'].tolist(),
-            df['dft_total_energy'].tolist(),
-            seed=args.seed
-        )
-        logger.info(f"Bootstrap MAE CI: [{boot['ci_lower']:.6f}, {boot['ci_upper']:.6f}]")
+    df = pd.read_csv(raw_energies_path)
 
-if __name__ == '__main__':
+    reference_energies = df["reference_energy"].tolist()
+    dft_energies = df["dft_total_energy"].tolist()
+    d3_energies = df["d3_dispersion_energy"].tolist()
+
+    scaling_factor = None
+    if scaling_factor_path and scaling_factor_path.exists():
+        scaling_factor = load_scaling_factor(scaling_factor_path)
+
+    metrics = compute_statistics(
+        reference_energies,
+        dft_energies,
+        d3_energies,
+        scaling_factor=scaling_factor,
+    )
+
+    bootstrap_results = bootstrap_analysis(
+        reference_energies,
+        dft_energies,
+        d3_energies,
+        scaling_factor=scaling_factor,
+    )
+
+    # Export metrics to JSON
+    metrics_path = output_dir / "statistics.json"
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Metrics saved to {metrics_path}")
+
+    # Export bootstrap results
+    bootstrap_path = output_dir / "bootstrap_results.json"
+    with open(bootstrap_path, "w") as f:
+        json.dump(bootstrap_results, f, indent=2)
+    logger.info(f"Bootstrap results saved to {bootstrap_path}")
+
+    # Update raw_energies.csv with metrics if needed
+    # (Optional: add columns for corrected errors if scaling is applied)
+    if scaling_factor is not None:
+        df["corrected_error"] = (
+            np.array(dft_energies) + (scaling_factor - 1) * np.array(d3_energies)
+            - np.array(reference_energies)
+        )
+        corrected_csv_path = output_dir / "corrected_energies.csv"
+        df.to_csv(corrected_csv_path, index=False)
+        logger.info(f"Corrected energies saved to {corrected_csv_path}")
+
+def main() -> None:
+    """Main entry point for energy analysis."""
+    logger = get_logger(__name__)
+    config = get_config()
+    set_random_seed(config.seed)
+
+    # Example usage:
+    # analyze_and_export(
+    #     Path("data/derived/raw_energies.csv"),
+    #     Path("data/derived"),
+    #     scaling_factor_path=Path("data/derived/scaling_factor.txt"),
+    # )
+
+    logger.info("Energy analyzer ready. Call analyze_and_export() with your files.")
+
+if __name__ == "__main__":
     main()

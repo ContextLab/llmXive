@@ -2,7 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a#1** — No evidence of the required `data/raw/` and `data/derived/` directories is present in the provided artifacts; the claim lacks any file listings, screenshots, or other proof that the directories exist and are non‑empty. The next implementer must create the two directories and provide a verification artifact (e.g., a directory tree listing).
-- **T009** — No configuration files, scripts, or documentation for managing dataset paths and random seeds are present in the provided evidence; the implementer did not supply the required environment‑configuration artifacts. The task therefore remains unfinished.
-- **T025** — No `scaling_factor.txt` file is present in the provided evidence, so the required artifact does not exist (or is empty). Consequently the task of writing the optimal scaling factor and its confidence interval has not been fulfilled.
-- **T060** — No `docs/benchmark_report.md`, `docs/correlation_report.md`, or `docs/review_response.md` files were provided or referenced; without these actual documentation artifacts present, the claimed documentation update cannot be verified as completed. The next implementer should add the three markdown files in the `docs/` directory with the appropriate content.
+- **T025** — declared artifact(s) missing/empty/invalid: data/derived/scaling_factor.txt
+- **T060** — No linting or formatting reports, diff logs, or updated source files are provided; there is no evidence that `flake8` and `black` were run on `code/` and `tests/` or that any issues were fixed. The required artifacts are missing.

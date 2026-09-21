@@ -1,0 +1,6 @@
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting reports, diff logs, or updated source files are provided;
+    there is no evidence that `flake8` and `black` were run on `code/` and `tests/`
+    or that any issues were fixed. The required artifacts are missing.

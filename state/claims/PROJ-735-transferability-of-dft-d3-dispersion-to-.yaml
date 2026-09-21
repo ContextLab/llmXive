@@ -811,3 +811,997 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-16T07:31:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: "random XYZ coordinates generated within 5-10 \xC5 box"
+  claim_id: c_f34cfd0d
+  context: "Algorithm: Use fixed seed 42. Generate a set of random XYZ coordinates\
+    \ within a 5-10 \xC5 box."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a set of random XYZ coordinates within a 5-10 \xC5 box."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:26:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: synthetic dataset contains 20 ion pairs
+  claim_id: c_a6974e39
+  context: 'Generate synthetic local fallback data: data/IL-Benchmark-local.zip (20
+    ion pairs with XYZ coords and CCSD(T)/CBS references) and data/experimental_bulk_properties.csv
+    (density/viscosity for 20 pairs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated data set contains 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:26:52Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: dataset size of 20 pairs required by Plan CI limits
+  claim_id: c_42bc5db1
+  context: "Note: This dataset size (20) is required by Plan CI limits but contradicts\
+    \ Spec Assumption (\u2265100)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset size of 20 pairs is required by Plan CI limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:27:12Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: dataset size of 20 pairs contradicts Spec Assumption of at least 100
+    pairs
+  claim_id: c_8279b0ee
+  context: "Note: This dataset size (20) is required by Plan CI limits but contradicts\
+    \ Spec Assumption (\u2265100)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_of_20_pairs_contradicts_Spec_Assumption_of_at_l
+  kind: magnitude
+  raw_text: "The dataset size of 20 pairs contradicts the Spec Assumption of \u2265\
+    100 pairs."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:27:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: generation script uses fixed seed 42
+  claim_id: c_e97699a0
+  context: "Algorithm: Use fixed seed 42. Generate a set of random XYZ coordinates\
+    \ within a 5-10 \xC5 box."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation script uses a fixed seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:28:02Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1,000 replicates
+  claim_id: c_864692af
+  context: Implement bootstrap resampling (1,000 replicates) in code/analyze_energies.py
+    to compute 95% CI for raw MAE (FR-014).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed using 1,000 replicates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:28:29Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: Spec mandates dataset of at least 100 pairs for statistical power
+  claim_id: c_561c5fd5
+  context: "This contradicts the Spec's Assumption of \u2265100 pairs for statistical\
+    \ power (FR-007, FR-010, FR-014)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_mandates_dataset_of_at_least_100_pairs_for_statistical
+  kind: magnitude
+  raw_text: The Spec mandates a dataset of at least 100 pairs for statistical power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:29:24Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: benchmark report includes Statistical Power Warning for 20-pair dataset
+  claim_id: c_d219886f
+  context: 'Requirement: The final benchmark_report.md MUST include a ''Statistical
+    Power Warning'' stating that the 20-pair dataset is underpowered for the Spec''s
+    intended statistical significance and that CIs are for descriptive purposes only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final benchmark_report.md must include a 'Statistical Power Warning'
+    stating the 20-pair dataset is underpowered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:29:42Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: correlation stage computes Pearson and Spearman coefficients
+  claim_id: c_50d84325
+  context: Executing the correlation stage on the corrected CSV produces Pearson and
+    Spearman coefficients, bootstrap confidence intervals, and Bonferroni-adjusted
+    p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_stage_computes_Pearson_and_Spearman_coefficients
+  kind: entity_fact
+  raw_text: The correlation stage computes Pearson and Spearman coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:30:10Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: correlation stage computes Bonferroni-adjusted p-values
+  claim_id: c_1399dfb5
+  context: Executing the correlation stage on the corrected CSV produces Pearson and
+    Spearman coefficients, bootstrap confidence intervals, and Bonferroni-adjusted
+    p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_stage_computes_Bonferroni-adjusted_p-values
+  kind: entity_fact
+  raw_text: The correlation stage computes Bonferroni-adjusted p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:30:37Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: project uses local fallback data as Primary Source of Truth
+  claim_id: c_9a7ef8fe
+  context: 'Data Source Note: The project relies on the local fallback data/IL-Benchmark-local.zip
+    as the Primary Source of Truth due to empty/invalid URLs in the Spec''s FR-001
+    and FR-008.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_local_fallback_data_as_Primary_Source_of_Truth
+  kind: entity_fact
+  raw_text: The project relies on the local fallback data/IL-Benchmark-local.zip as
+    the Primary Source of Truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:31:01Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: correlation report includes Statistical Power Warning for 20-pair dataset
+  claim_id: c_dac3f23d
+  context: 'Requirement: The final correlation_report.md MUST include a ''Statistical
+    Power Warning'' stating that the 20-pair dataset is underpowered for the Spec''s
+    intended statistical significance and that CIs are for descriptive purposes only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final correlation_report.md must include a 'Statistical Power Warning'
+    stating the 20-pair dataset is underpowered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:31:23Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: Plan excludes Total Interaction-Energy Error correlations as invalid
+  claim_id: c_7d18c958
+  context: 'Note: This task implements the Plan''s scientific methodology which excludes
+    ''Total Interaction-Energy Error'' correlations as invalid.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_excludes_Total_Interaction-Energy_Error_correlations_as
+  kind: entity_fact
+  raw_text: The Plan's scientific methodology excludes 'Total Interaction-Energy Error'
+    correlations as invalid.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:31:51Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: dataset consists of 20 ion pairs
+  claim_id: c_3f5dc777
+  context: "Statistical Power Warning: The dataset consists of 20 ion pairs, which\
+    \ is significantly below the Spec requirement of \u2265100 pairs for robust statistical\
+    \ power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset consists of 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:35:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw DFT-D3 MAE is 2.15 kcal/mol
+  claim_id: c_ff1c1cd0
+  context: Table 1.1 Error Statistics (Raw DFT-D3) shows Mean Absolute Error (MAE)
+    as 2.15 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw Mean Absolute Error (MAE) was 2.15 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:35:39Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw DFT-D3 RMSE is 2.87 kcal/mol
+  claim_id: c_1552e789
+  context: Table 1.1 Error Statistics (Raw DFT-D3) shows Root Mean Square Error (RMSE)
+    as 2.87 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw Root Mean Square Error (RMSE) was 2.87 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:35:51Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw DFT-D3 MSE is -1.92 kcal/mol
+  claim_id: c_431d2e45
+  context: Table 1.1 Error Statistics (Raw DFT-D3) shows Mean Signed Error (MSE) as
+    -1.92 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw Mean Signed Error (MSE) was -1.92 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:36:13Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw DFT-D3 Mean Squared Error is 8.24
+  claim_id: c_81e125f3
+  context: Table 1.1 Error Statistics (Raw DFT-D3) shows Mean Squared Error (MSE)
+    as 8.24.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw Mean Squared Error (MSE) was 8.24.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:36:33Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw MAE 95% CI lower bound is 1.45
+  claim_id: c_df89d8ef
+  context: Table 1.2 Bootstrap Confidence Intervals (Raw MAE) lists the 95% CI Lower
+    as 1.45.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval lower bound for the raw MAE is 1.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:36:54Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: raw MAE 95% CI upper bound is 3.12
+  claim_id: c_3c134144
+  context: Table 1.2 Bootstrap Confidence Intervals (Raw MAE) lists the 95% CI Upper
+    as 3.12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval upper bound for the raw MAE is 3.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:37:10Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% CIs derived from 1000 bootstrap replicates
+  claim_id: c_496af1d0
+  context: 'Note: CIs derived from 1,000 bootstrap replicates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence intervals were derived from 1,000 bootstrap replicates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:37:26Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: optimal scaling factor s is 1.12
+  claim_id: c_30618912
+  context: Table 2.1 Optimal Scaling Factor shows the Scaling Factor (s) as 1.12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimal scaling factor (s) was 1.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:37:55Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: scaling factor 95% CI lower bound is 0.98
+  claim_id: c_cabc58d6
+  context: Table 2.1 Optimal Scaling Factor lists the 95% CI Lower as 0.98.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval lower bound for the scaling factor is 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:38:13Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: scaling factor 95% CI upper bound is 1.28
+  claim_id: c_7d999b1c
+  context: Table 2.1 Optimal Scaling Factor lists the 95% CI Upper as 1.28.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval upper bound for the scaling factor is 1.28.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:38:27Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: scaled DFT-D3 MAE is 1.98 kcal/mol
+  claim_id: c_efa89f52
+  context: Table 2.3 Error Statistics (Scaled DFT-D3) shows Mean Absolute Error (MAE)
+    as 1.98 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaled Mean Absolute Error (MAE) was 1.98 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:38:43Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: scaled DFT-D3 RMSE is 2.65 kcal/mol
+  claim_id: c_04d5e767
+  context: Table 2.3 Error Statistics (Scaled DFT-D3) shows Root Mean Square Error
+    (RMSE) as 2.65 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaled Root Mean Square Error (RMSE) was 2.65 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:38:57Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: scaled DFT-D3 MSE is -1.75 kcal/mol
+  claim_id: c_05109f0d
+  context: Table 2.3 Error Statistics (Scaled DFT-D3) shows Mean Signed Error (MSE)
+    as -1.75 kcal/mol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaled Mean Signed Error (MSE) was -1.75 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:39:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: dataset size of 20 ion pairs
+  claim_id: c_ce5ad5a0
+  context: "The dataset consists of 20 ion pairs, which is significantly below the\
+    \ Spec requirement of \u2265100 pairs for robust statistical power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset consists of 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:39:47Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R of -0.45 for Raw D3 Term vs Density
+  claim_id: c_ae505716
+  context: "Raw D3 Term vs. Density Pearson (R) is -0.45, Spearman (\u03C1) is -0.42,\
+    \ and R\xB2 is 0.20."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raw D3 Term vs. Density Pearson (R) is -0.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:11Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman rho of -0.42 for Raw D3 Term vs Density
+  claim_id: c_2432eed5
+  context: "Raw D3 Term vs. Density Pearson (R) is -0.45, Spearman (\u03C1) is -0.42,\
+    \ and R\xB2 is 0.20."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Raw D3 Term vs. Density Spearman (\u03C1) is -0.42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:22Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: R squared of 0.20 for Raw D3 Term vs Density
+  claim_id: c_67600570
+  context: "Raw D3 Term vs. Density Pearson (R) is -0.45, Spearman (\u03C1) is -0.42,\
+    \ and R\xB2 is 0.20."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Raw D3 Term vs. Density R\xB2 is 0.20."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:57Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: p-value of 0.048 for Raw D3 Term vs Density
+  claim_id: c_f4236b93
+  context: Raw D3 Term vs. Density p-value is 0.048 and 95% CI (R) is [-0.75, 0.15].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raw D3 Term vs. Density p-value is 0.048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:57Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Bonferroni adjusted p-value of 0.096 for Raw D3 Term vs Density
+  claim_id: c_88241249
+  context: "Bonferroni-adjusted p-value: 0.096 (not significant at \u03B1=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-adjusted p-value for Raw D3 Term vs. Density is 0.096.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:41:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R of -0.46 for Scaled D3 Term vs Density
+  claim_id: c_fe3e4292
+  context: "Scaled D3 Term vs. Density Pearson (R) is -0.46, Spearman (\u03C1) is\
+    \ -0.43, and R\xB2 is 0.21."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaled D3 Term vs. Density Pearson (R) is -0.46.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:41:34Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman rho of -0.43 for Scaled D3 Term vs Density
+  claim_id: c_33ac499a
+  context: "Scaled D3 Term vs. Density Pearson (R) is -0.46, Spearman (\u03C1) is\
+    \ -0.43, and R\xB2 is 0.21."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scaled D3 Term vs. Density Spearman (\u03C1) is -0.43."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:41:59Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: R squared of 0.21 for Scaled D3 Term vs Density
+  claim_id: c_fa1dbf8f
+  context: "Scaled D3 Term vs. Density Pearson (R) is -0.46, Spearman (\u03C1) is\
+    \ -0.43, and R\xB2 is 0.21."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scaled D3 Term vs. Density R\xB2 is 0.21."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:42:25Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: p-value of 0.042 for Scaled D3 Term vs Density
+  claim_id: c_57cbb1c3
+  context: Scaled D3 Term vs. Density p-value is 0.042 and 95% CI (R) is [-0.76, 0.14].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaled D3 Term vs. Density p-value is 0.042.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:42:25Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Bonferroni adjusted p-value of 0.084 for Scaled D3 Term vs Density
+  claim_id: c_9aac0964
+  context: "Bonferroni-adjusted p-value: 0.084 (not significant at \u03B1=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-adjusted p-value for Scaled D3 Term vs. Density is 0.084.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:42:50Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R of 0.38 for Dispersion-Only Error vs Viscosity
+  claim_id: c_872f487e
+  context: "Dispersion-Only Error vs. Viscosity Pearson (R) is 0.38, Spearman (\u03C1\
+    ) is 0.35, and R\xB2 is 0.14."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dispersion-Only Error vs. Viscosity Pearson (R) is 0.38.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:43:12Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman rho of 0.35 for Dispersion-Only Error vs Viscosity
+  claim_id: c_e8eaca1b
+  context: "Dispersion-Only Error vs. Viscosity Pearson (R) is 0.38, Spearman (\u03C1\
+    ) is 0.35, and R\xB2 is 0.14."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Dispersion-Only Error vs. Viscosity Spearman (\u03C1) is 0.35."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:43:35Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: R squared of 0.14 for Dispersion-Only Error vs Viscosity
+  claim_id: c_eba1252d
+  context: "Dispersion-Only Error vs. Viscosity Pearson (R) is 0.38, Spearman (\u03C1\
+    ) is 0.35, and R\xB2 is 0.14."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Dispersion-Only Error vs. Viscosity R\xB2 is 0.14."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:44:06Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: p-value of 0.095 for Dispersion-Only Error vs Viscosity
+  claim_id: c_ae240f68
+  context: Dispersion-Only Error vs. Viscosity p-value is 0.095 and 95% CI (R) is
+    [-0.08, 0.72].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dispersion-Only Error vs. Viscosity p-value is 0.095.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:44:06Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Bonferroni adjusted p-value of 0.190 for Dispersion-Only Error vs Viscosity
+  claim_id: c_e663d46d
+  context: "Bonferroni-adjusted p-value: 0.190 (not significant at \u03B1=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-adjusted p-value for Dispersion-Only Error vs. Viscosity is
+    0.190.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:44:35Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: uncertainties in CCSD(T)/CBS references estimated to be less than 1 kcal/mol
+  claim_id: c_de701f30
+  context: The reference values are high-level CCSD(T)/CBS calculations, which are
+    considered the 'gold standard' for interaction energies in the absence of experimental
+    benchmarks for isolated ion pairs. The uncertainties in these theoretical references
+    are estimated to be < 1 kcal/mol based on basis set convergence and methodological
+    benchmarks.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Uncertainties_in_CCSD(T)/CBS_references_estimated_to_be_less
+  kind: magnitude
+  raw_text: The uncertainties in these theoretical references are estimated to be
+    < 1 kcal/mol based on basis set convergence and methodological benchmarks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:45:05Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: experimental uncertainties for density are 1-5% and for viscosity are
+    5-10%
+  claim_id: c_3b05bfe0
+  context: For bulk properties (density, viscosity), experimental uncertainties are
+    typically in the range of 1-5% for density and 5-10% for viscosity, depending
+    on the measurement technique. We have added a section in the correlation report
+    (Section 3) discussing these limitations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For bulk properties (density, viscosity), experimental uncertainties are
+    typically in the range of 1-5% for density and 5-10% for viscosity, depending
+    on the measurement technique.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:45:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: benchmark set of 20 ion pairs with CCSD(T)/CBS reference energies
+  claim_id: c_b0b5a4e4
+  context: We have used a benchmark set of 20 ion pairs with CCSD(T)/CBS reference
+    energies. While experimental lattice energies for isolated ion pairs are scarce
+    and difficult to measure directly, our theoretical references provide a consistent
+    and high-accuracy baseline for assessing DFT-D3 performance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We have used a benchmark set of 20 ion pairs with CCSD(T)/CBS reference
+    energies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:46:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: dataset includes ionic liquids [EMIM][BF4] and [BMIM][PF6]
+  claim_id: c_628b398a
+  context: The dataset includes representative ionic liquids such as [EMIM][BF4] and
+    [BMIM][PF6].
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/dataset_includes_ionic_liquids_%5BEMIM%5D%5BBF4%5D_and_%5BBMIM%5D%5BPF6%5D
+  kind: entity_fact
+  raw_text: The dataset includes representative ionic liquids such as [EMIM][BF4]
+    and [BMIM][PF6].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:46:52Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: dataset of 20 ion pairs versus requirement of 100 pairs
+  claim_id: c_2aa82468
+  context: "We have added a prominent 'Statistical Power Warning' in both the benchmark\
+    \ and correlation reports to acknowledge the limitation of the 20-pair dataset\
+    \ versus the Spec's requirement of \u2265100 pairs. This ensures transparency\
+    \ regarding the statistical robustness of our findings."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset consists of 20 ion pairs versus the Spec's requirement of\
+    \ \u2265100 pairs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:47:14Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: 20 ion pairs with XYZ coords and CCSD(T)/CBS references
+  claim_id: c_4f012ab6
+  context: 'Generate synthetic local fallback data: `data/IL-Benchmark-local.zip`
+    (20 ion pairs with XYZ coords and CCSD(T)/CBS references) and `data/experimental_bulk_properties.csv`
+    (density/viscosity for 20 pairs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated dataset consists of 20 ion pairs with XYZ coords and CCSD(T)/CBS
+    references.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:48:46Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: fixed seed 42 for data generation
+  claim_id: c_f613e677
+  context: "**Algorithm**: Use fixed seed 42. Generate a set of random XYZ coordinates\
+    \ within a 5-10 \xC5 box."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated data uses a fixed seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:49:13Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: density and viscosity for 20 ion pairs
+  claim_id: c_8f28e122
+  context: and `data/experimental_bulk_properties.csv` (density/viscosity for 20 pairs).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated data includes density and viscosity for 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:49:32Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: "XYZ coordinates within a 5-10 \xC5 box"
+  claim_id: c_cbb19077
+  context: "Generate a set of random XYZ coordinates within a 5-10 \xC5 box."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The random XYZ coordinates are generated within a 5-10 \xC5 box."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:50:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: B3LYP/def2-TZVP with D3 dispersion and Becke-Johnson damping
+  claim_id: c_f7b6a994
+  context: Implement `code/run_psi4.py` to execute B3LYP/def2-TZVP + D3 (Becke-Johnson
+    damping) + **Counterpoise correction**...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/B3LYP/def2-TZVP_with_D3_dispersion_and_Becke-Johnson_damping
+  kind: entity_fact
+  raw_text: The benchmark uses B3LYP/def2-TZVP with D3 dispersion and Becke-Johnson
+    damping.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:50:42Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: Counterpoise correction using bsse_type='cp'
+  claim_id: c_24470a8a
+  context: '...+ **Counterpoise correction** (using `bsse_type=''cp''`) single-point
+    calculations on CPU only'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Counterpoise_correction_using_bsse_type='cp'
+  kind: entity_fact
+  raw_text: Counterpoise correction is applied using bsse_type='cp'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:51:02Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap replicates for 95% CI of raw MAE
+  claim_id: c_fd3c38a7
+  context: Implement bootstrap resampling (**1,000 replicates**) in `code/analyze_energies.py`
+    to compute 95% CI for raw MAE (FR-014).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses 1,000 replicates for computing 95% CI for raw
+    MAE.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:51:29Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap replicates for scaling factor s confidence intervals
+  claim_id: c_30d346af
+  context: Implement bootstrap resampling (**1,000 replicates**) in `code/derive_scaling.py`
+    to generate confidence intervals for scaling factor `s` and hypothesis test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses 1,000 replicates to generate confidence intervals
+    for the scaling factor s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:51:55Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap replicates for correlation coefficient confidence intervals
+  claim_id: c_16089ce3
+  context: Implement bootstrap resampling (**1,000 replicates**) in `code/correlate_bulk.py`
+    for confidence intervals of all correlation coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses 1,000 replicates for confidence intervals of
+    all correlation coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:52:11Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: Statistical Power Warning for 20-pair dataset underpowered
+  claim_id: c_8de8c270
+  context: '**Requirement**: The final `benchmark_report.md` MUST include a ''Statistical
+    Power Warning'' stating that the 20-pair dataset is underpowered for the Spec''s
+    intended statistical significance and that CIs are for descriptive purposes only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final benchmark report includes a 'Statistical Power Warning' stating
+    the 20-pair dataset is underpowered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:52:27Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: No calibration performed for DFT-D3 parameters against ionic liquid data
+  claim_id: c_421746e1
+  context: '**Verification**: Verify section ''Calibration Procedure'' exists and
+    states ''No calibration was performed against IL data.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_calibration_performed_for_DFT-D3_parameters_against_ionic
+  kind: entity_fact
+  raw_text: The calibration procedure for DFT-D3 parameters against ionic liquid data
+    was not performed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:52:44Z'

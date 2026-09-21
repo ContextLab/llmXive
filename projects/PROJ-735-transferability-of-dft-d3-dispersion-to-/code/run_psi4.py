@@ -4,185 +4,172 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Optional, Any, Tuple
-import logging
-import sys
-
-# Import logging infrastructure from project
-from code.logger import get_logger
-
-# Import models if needed for typing or data handling
-from code.models import IonPair, CalculationResult
-
-logger = get_logger(__name__)
-
-# Constants for retry logic
-MAX_RETRIES = 3
-RETRY_DELAY_SECONDS = 5
-
-def _run_psi4_command(input_path: Path, output_path: Path, work_dir: Path) -> Tuple[int, str]:
-    """
-    Executes the psi4 command for a single input file.
-    
-    Args:
-        input_path: Path to the .com or .inp file
-        output_path: Path where the output will be written
-        work_dir: Working directory for the calculation
-        
-    Returns:
-        Tuple of (return_code, stderr_output)
-    """
-    # Construct command: psi4 input_file output_file
-    # Note: psi4 CLI typically redirects stdout to the output file automatically
-    # but we explicitly pass the output file name to ensure it goes to the right place.
-    cmd = [
-        "psi4",
-        str(input_path),
-        str(output_path)
-    ]
-
-    try:
-        # Run the process
-        result = subprocess.run(
-            cmd,
-            cwd=str(work_dir),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=3600  # 1 hour timeout per job
-        )
-        return result.returncode, result.stderr
-    except subprocess.TimeoutExpired:
-        logger.error(f"Psi4 calculation timed out: {input_path}")
-        return 1, "TimeoutExpired"
-    except FileNotFoundError:
-        logger.error(f"Psi4 executable not found in PATH: {input_path}")
-        return 1, "ExecutableNotFound"
-    except Exception as e:
-        logger.error(f"Unexpected error running Psi4 for {input_path}: {e}")
-        return 1, str(e)
+from logger import get_logger, info, error, warning, critical
+from config import get_config, set_random_seed
 
 def run_psi4_single(
-    ion_pair: IonPair,
-    input_dir: Path,
-    output_dir: Path,
-    max_retries: int = MAX_RETRIES
-) -> Optional[CalculationResult]:
+    xyz_file: Path,
+    output_file: Path,
+    method: str = "b3lyp",
+    basis: str = "def2-tzvp",
+    damping: str = "bj",
+    cp: bool = True,
+    max_retries: int = 3,
+) -> bool:
     """
-    Runs a single Psi4 calculation for an ion pair with retry logic.
-    
-    This function attempts to run the calculation up to max_retries times.
-    If the calculation fails (non-zero return code), it waits and retries.
-    
+    Run a single Psi4 calculation.
+
     Args:
-        ion_pair: The IonPair object containing geometry and metadata
-        input_dir: Directory containing the input files (or where they are generated)
-        output_dir: Directory where output files should be written
-        max_retries: Maximum number of attempts (default: 3)
-        
+        xyz_file: Path to the input XYZ file.
+        output_file: Path for the Psi4 output file.
+        method: DFT method (default: b3lyp).
+        basis: Basis set (default: def2-tzvp).
+        damping: Damping function for D3 (default: bj).
+        cp: Whether to apply Counterpoise correction (default: True).
+        max_retries: Maximum number of retry attempts (default: 3).
+
     Returns:
-        CalculationResult object if successful, None if all retries fail.
+        True if successful, False otherwise.
     """
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Determine input file path. Assuming input files are named <pair_id>.com
-    input_file_name = f"{ion_pair.pair_id}.com"
-    input_path = input_dir / input_file_name
-    output_file_name = f"{ion_pair.pair_id}.out"
-    output_path = output_dir / output_file_name
+    logger = get_logger(__name__)
+    config = get_config()
+    set_random_seed(config.seed)
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        return None
+    psi4_input = f"""memory 2 GB
+set {{
+    basis {basis}
+    dft_functional {method}
+    dft_spherical_points 434
+    dft_radial_points 99
+    dft_grid_level 0
+}}
 
-    attempt = 0
-    last_error = "No attempt made"
+# D3 dispersion correction
+set {{
+    dft_d3 true
+    dft_d3_version 2
+    dft_d3_s8 1.0
+    dft_d3_sr 1.0
+    dft_d3_beta6 0.0
+    dft_d3_damping {damping}
+}}
 
-    while attempt < max_retries:
-        attempt += 1
-        logger.info(f"Attempting Psi4 calculation for {ion_pair.pair_id} (Attempt {attempt}/{max_retries})")
-        
-        return_code, stderr_output = _run_psi4_command(input_path, output_path, input_dir)
+# Counterpoise correction
+set {{
+    bsse_type {'cp' if cp else 'none'}
+}}
 
-        if return_code == 0:
-            logger.info(f"Successfully completed Psi4 calculation for {ion_pair.pair_id}")
-            # Assuming the output file contains the result we need
-            # In a full implementation, we would parse the output here
-            # For now, we return a placeholder result indicating success
-            # The actual parsing is handled by analyze_energies.py
-            return CalculationResult(
-                pair_id=ion_pair.pair_id,
-                status="success",
-                output_path=str(output_path),
-                error=None
+molecule {{
+    read "{xyz_file}"
+}}
+
+energy('{method}/{basis}')
+"""
+
+    psi4_input_file = output_file.with_suffix(".inp")
+    with open(psi4_input_file, "w") as f:
+        f.write(psi4_input)
+
+    logger.info(f"Running Psi4 calculation for {xyz_file}")
+
+    for attempt in range(1, max_retries + 1):
+        logger.info(f"Attempt {attempt}/{max_retries} for {xyz_file}")
+        try:
+            # Run psi4
+            cmd = [
+                "psi4",
+                str(psi4_input_file),
+                str(output_file),
+            ]
+            result = subprocess.run(
+                cmd,
+                cwd=output_file.parent,
+                capture_output=True,
+                text=True,
+                timeout=3600,  # 1 hour timeout
             )
-        
-        logger.warning(f"Attempt {attempt} failed for {ion_pair.pair_id}: {stderr_output[:200]}")
-        last_error = stderr_output
 
-        if attempt < max_retries:
-            logger.info(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
-            time.sleep(RETRY_DELAY_SECONDS)
+            if result.returncode == 0:
+                logger.info(f"Psi4 calculation succeeded for {xyz_file}")
+                return True
+            else:
+                logger.warning(f"Psi4 failed for {xyz_file} (attempt {attempt}): {result.stderr}")
+                if attempt == max_retries:
+                    error(f"Psi4 failed after {max_retries} attempts for {xyz_file}")
+                    return False
+                time.sleep(5 * attempt)  # Exponential backoff
 
-    logger.error(f"All {max_retries} attempts failed for {ion_pair.pair_id}. Last error: {last_error}")
-    return None
+        except subprocess.TimeoutExpired:
+            warning(f"Psi4 timed out for {xyz_file} (attempt {attempt})")
+            if attempt == max_retries:
+                error(f"Psi4 timed out after {max_retries} attempts for {xyz_file}")
+                return False
+            time.sleep(5 * attempt)
+        except FileNotFoundError:
+            error("Psi4 executable not found. Please ensure psi4 is installed and in PATH.")
+            return False
+        except Exception as e:
+            error(f"Unexpected error running Psi4 for {xyz_file}: {e}")
+            return False
+
+    return False
 
 def run_psi4_batch(
-    ion_pairs: List[IonPair],
-    input_dir: Path,
+    xyz_files: List[Path],
     output_dir: Path,
-    max_retries: int = MAX_RETRIES
-) -> List[CalculationResult]:
+    method: str = "b3lyp",
+    basis: str = "def2-tzvp",
+    damping: str = "bj",
+    cp: bool = True,
+    max_retries: int = 3,
+) -> Dict[str, bool]:
     """
-    Runs Psi4 calculations for a batch of ion pairs with retry logic.
-    
+    Run a batch of Psi4 calculations.
+
     Args:
-        ion_pairs: List of IonPair objects
-        input_dir: Directory containing input files
-        output_dir: Directory for output files
-        max_retries: Maximum retries per job
-        
+        xyz_files: List of paths to input XYZ files.
+        output_dir: Directory for output files.
+        method: DFT method.
+        basis: Basis set.
+        damping: Damping function for D3.
+        cp: Whether to apply Counterpoise correction.
+        max_retries: Maximum number of retry attempts.
+
     Returns:
-        List of CalculationResult objects (success or failure records)
+        Dictionary mapping input file names to success status.
     """
-    results = []
-    failed_pairs = []
+    logger = get_logger(__name__)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    for pair in ion_pairs:
-        result = run_psi4_single(pair, input_dir, output_dir, max_retries)
-        if result:
-            results.append(result)
-        else:
-            # Record a failure result
-            results.append(CalculationResult(
-                pair_id=pair.pair_id,
-                status="failed",
-                output_path=None,
-                error="Max retries exceeded"
-            ))
-            failed_pairs.append(pair.pair_id)
-
-    if failed_pairs:
-        logger.error(f"Batch calculation failed for {len(failed_pairs)} pairs: {failed_pairs}")
-    else:
-        logger.info(f"Batch calculation completed successfully for {len(ion_pairs)} pairs.")
+    results = {}
+    for xyz_file in xyz_files:
+        output_file = output_dir / f"{xyz_file.stem}.out"
+        success = run_psi4_single(
+            xyz_file,
+            output_file,
+            method=method,
+            basis=basis,
+            damping=damping,
+            cp=cp,
+            max_retries=max_retries,
+        )
+        results[xyz_file.name] = success
 
     return results
 
-def main():
-    """
-    Main entry point for running Psi4 calculations.
-    This is a demonstration of how to invoke the batch runner.
-    """
-    logger.info("Starting Psi4 batch execution (T014 - Retry Logic Implementation)")
-    
+def main() -> None:
+    """Main entry point for running Psi4 calculations."""
+    logger = get_logger(__name__)
+    config = get_config()
+    set_random_seed(config.seed)
+
     # Example usage:
-    # In a real scenario, this would load ion pairs from data/IL-Benchmark-local.zip
-    # and process them.
-    
-    # For now, we log that the module is ready and the retry logic is in place.
-    logger.info("Retry logic implemented: Up to 3 attempts with 5s delay.")
-    logger.info("Ready to process ion pairs from data directory.")
+    # xyz_files = [Path("data/raw/ion_pair_1.xyz"), Path("data/raw/ion_pair_2.xyz")]
+    # output_dir = Path("data/derived/psi4_outputs")
+    # results = run_psi4_batch(xyz_files, output_dir)
+    # logger.info(f"Batch results: {results}")
+
+    logger.info("Psi4 runner ready. Call run_psi4_batch() with your files.")
 
 if __name__ == "__main__":
     main()
