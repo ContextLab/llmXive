@@ -1,18 +1,11 @@
-T006:
+T013:
   c: false
-  h: 411017b817ef932c925c2a29f4facee9ace4fe633c65211a5c4e313c59e07997
-  r: "The provided `code/utils/hashing.py` is truncated (the `update_state_file` function\
-    \ ends abruptly with \u201Cwith o\u201D), so it does not actually write to `state/artifact_hashes.yaml`.\
-    \ Moreover, the required `data/processed/test.csv` and `state/artifact_hashes.yaml`\
-    \ files are absent, so the verification command cannot succeed. The task\u2019\
-    s deliverables are therefore not satisfied."
-T014:
-  c: false
-  h: 325eac4c325767563e277249048e34eee2484097af1bb0a637b0652dfa6baf12
-  r: "The required output file `data/processed/synthetic_logs.csv` does not exist,\
-    \ so the deliverable is missing despite the presence of `simulation_stories.py`.\
-    \ Without the CSV containing the specified columns, the task\u2019s core requirement\
-    \ is not satisfied."
+  h: 994f15486bed28d54ab5f0acc99c57b0cf6291b2df2885b3a851d9880fc23a70
+  r: "The repository lacks the required `state/mdes_report.yaml` (pre\u2011execution\
+    \ check) and the output `data/processed/synthetic_mfq.csv` is not present, so\
+    \ the script cannot run nor produce the mandated CSV with the specified columns.\
+    \ The missing files must be added and the script executed to generate the synthetic\
+    \ data."
 T015:
   c: false
   h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
@@ -51,13 +44,14 @@ T027c:
     \ unfinished line `coverage_95ci = covered / n_samples if n_samp`). It never writes\
     \ the required `data/results/parameter_recovery.json`, and that JSON file is absent\
     \ from the repository. The task\u2019s deliverable is therefore not fulfilled."
-T027d:
+T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, model, or results for the Bayesian model execution (US2) are present;\
-    \ the implementer only notes that the task was \u201Cremoved/merged\u201D and\
-    \ provides no artifact such as PyMC5 model scripts, execution logs, or baseline\
-    \ comparison outputs. Consequently the required deliverable is missing."
+  r: "The implementer provided no data, code, figures, or analysis artifacts for US3\
+    \ (sensitivity analysis and mixed\u2011effects regression with Bonferroni correction);\
+    \ instead they merely noted the task was \u201Cremoved\u201D and merged elsewhere,\
+    \ which does not satisfy the required deliverables. The necessary statistical\
+    \ validation outputs are missing."
 T032:
   c: false
   h: 20289c6dc2e521952af44a099e8e34c39b96ccde9568c4a1506f73fac12162d0
@@ -87,14 +81,6 @@ T040:
     is no evidence of running a `quickstart.md` validation, nor any checksum files
     or logs confirming that all artifacts have been checksummed. The required validation
     and checksum verification artifacts are missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, notebooks, or data files were provided that demonstrate an\
-    \ end\u2011to\u2011end pipeline fetching real MFQ/VR logs, validating them with\
-    \ Pydantic models, running a PyMC5 Bayesian model, and performing the required\
-    \ statistical checks. The claim cannot be verified because the required artifacts\
-    \ are missing."
 T043:
   c: false
   h: 77684035ae9bf4eeb52e7bb2efbad3c5109449e3487682a14b31bbce69160ec6
@@ -103,26 +89,38 @@ T043:
     \ are missing, and `ingest.py` does not import or call them (it references a non\u2011\
     existent `code.data.ingest_real` module and raises a placeholder RuntimeError).\
     \ The real\u2011data routing and hard assertion are therefore not fully implemented."
-T054b:
+T054c#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or other artifacts were provided for verification; therefore\
-    \ we cannot confirm that any of the required outputs (e.g., data ingestion pipelines,\
-    \ PyMC5 Bayesian model, VR simulation, model comparison metrics, sensitivity analysis,\
-    \ or real\u2011data integration) exist or meet the specification. The implementer\u2019\
-    s claim cannot be substantiated without concrete artifacts."
-T054c:
+  r: No artifacts (code, data files, logs, or results) were provided showing that
+    real VR interaction logs were fetched, processed, and used to verify the VR salience
+    mapping. Consequently, the requirement to validate the mapping with actual data
+    is not demonstrated.
+T069:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any real VR log ingestion, mapping verification, or failure\u2011\
-    mode handling is present; the implementer provided no code, data files, logs,\
-    \ or reports demonstrating that the system fetched and processed actual VR data\
-    \ as required by US4 and FR\u2011006. The task therefore remains unfulfilled."
-T054d:
+  r: "No code, tests, or documentation were provided showing that the \u201CReal Data\
+    \ Mode\u201D gate has been removed and its logic transferred to T054b/T041-Real,\
+    \ nor any evidence that the system now fails loudly when real data is unavailable.\
+    \ The required artifact demonstrating this change is missing."
+T075:
+  c: false
+  h: 2245208bb7830e9f78c05879d85ff0ef6716c01b0a5f553776973b737a0e54ed
+  r: "The `data/raw/mfq_real.csv` file required for the script to run does not exist,\
+    \ and the provided `validate_mfq_norms.py` is truncated (e.g., `observed = data[dim].dropn`\
+    \ and missing the rest of the KS\u2011test implementation). Without the real data\
+    \ and a complete script, the task\u2019s requirement is not satisfied."
+T075#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., scripts, logs, test reports, or processed real\u2011data\
-    \ outputs) were provided to demonstrate that the system actually fetched, validated,\
-    \ and processed real MFQ and VR interaction logs end\u2011to\u2011end, nor any\
-    \ evidence that synthetic data was not used. The claim lacks the required concrete\
-    \ evidence of a successful real\u2011data run."
+  r: "No code, data, or documentation artifact demonstrating a \u201CReal Data Mode\u201D\
+    \ that fetches actual MFQ and VR logs from OSF/HuggingFace, validates them, and\
+    \ raises errors when unavailable is present. The claim cannot be verified because\
+    \ the required implementation is missing."
+T076:
+  c: false
+  h: 0bdd4fec95ff10d65a9cbb6e65d45c7d903f1f15847264a6ab0b2bd2cb1dc365
+  r: The required script `code/unity_verification.py` does not exist, and the output
+    artifacts `data/config/unity_simulation_fidelity.yaml`, `data/logs/simulation_params.log`,
+    and `state/artifact_hashes.yaml` are all missing. Consequently, no verification,
+    logging, or checksum updates have been performed.

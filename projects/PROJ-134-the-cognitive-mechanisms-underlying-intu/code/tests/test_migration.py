@@ -1,245 +1,219 @@
 """
-Test suite for PyMC5 Convergence Check (Task T022d).
+PyMC5 Convergence Check and Migration Verification.
 
-This script verifies that the PyMC5 model implementation achieves:
-1. R-hat < 1.05 for all parameters
-2. Effective Sample Size (ESS) > 200 for all parameters
+This script implements T022d: Verifies R-hat < 1.05 and effective sample size > 200
+for all parameters in the PyMC5 model. It does NOT compare against PyMC3.
 
-It does NOT compare against PyMC3. It runs a real, small-scale Bayesian
-analysis on the preprocessed simulation data to measure actual convergence.
+It also includes a reference dataset generator for migration equivalence testing
+(T022c dependency).
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
-import json
 import warnings
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
-# Ensure project root is in path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Import the model interface defined in T022b/T022c
+# These names are guaranteed to exist in code/models/bayesian_model.py
+from code.models.bayesian_model import build_model, run_model, ConvergenceError, ModelResult
+from code.config import get_path
 
-# Import project utilities
-from code.config import get_path, validate_data_mode
-from code.utils.logging import get_logger, log_operation
-from code.models.bayesian_model import run_model, ConvergenceError
+# Suppress ArviZ/Pymc warnings for cleaner output during verification
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
-# Configure logging
-logger = get_logger("test_migration")
+# Constants
+R_HAT_THRESHOLD = 1.05
+ESS_THRESHOLD = 200
+CONVERGENCE_CHECK_FILE = "data/results/convergence_check.json"
 
 
-def generate_reference_dataset(n_samples: int = 200) -> pd.DataFrame:
+def generate_reference_dataset(n_samples: int = 100, seed: int = 42) -> pd.DataFrame:
     """
-    Generate a small, deterministic reference dataset for convergence testing.
-    
-    This dataset mimics the structure of the preprocessed data required by the
-    Bayesian model (T022c). It uses a fixed seed to ensure reproducibility.
-    
-    Args:
-        n_samples: Number of samples to generate.
-        
-    Returns:
-        DataFrame with columns: participant_id, story_id, salience_level,
-        judgment_rating, response_time, gaze_metrics.
+    Generates a small, deterministic reference dataset for migration testing.
+    This ensures we have real data to run the model against without depending
+    on the full pipeline ingestion (which may be broken in other tasks).
+
+    The data mimics the structure expected by the Bayesian model:
+    - participant_id
+    - salience_level (0 or 1)
+    - judgment_rating (continuous)
     """
-    np.random.seed(42)
-    
-    data = {
-        "participant_id": np.repeat(range(20), n_samples // 20),
-        "story_id": np.tile(range(n_samples // 20), 20),
-        "salience_level": np.random.choice(["low", "high"], n_samples),
-        "judgment_rating": np.random.normal(3.5, 1.0, n_samples),
-        "response_time": np.random.lognormal(3.5, 0.5, n_samples),
-        "gaze_metrics": np.random.normal(0.5, 0.1, n_samples),
-    }
-    
-    # Ensure we have exactly n_samples rows
-    df = pd.DataFrame(data)
-    if len(df) > n_samples:
-        df = df.head(n_samples)
-    elif len(df) < n_samples:
-        # Pad if necessary (rare edge case)
-        extra = n_samples - len(df)
-        extra_row = {k: [v[0]] * extra for k, v in data.items()}
-        df = pd.concat([df, pd.DataFrame(extra_row)], ignore_index=True)
-        
+    rng = np.random.default_rng(seed)
+    participants = rng.integers(0, 20, size=n_samples)
+    salience = rng.integers(0, 2, size=n_samples).astype(float)
+
+    # Simulate a simple relationship: rating ~ 0.5 * salience + noise
+    # This ensures the model has something to converge on.
+    noise = rng.normal(0, 0.5, size=n_samples)
+    ratings = 2.0 + 0.5 * salience + noise
+
+    df = pd.DataFrame({
+        "participant_id": participants,
+        "salience_level": salience,
+        "judgment_rating": ratings
+    })
     return df
 
 
-def run_pymc5_verification(data: pd.DataFrame) -> Dict[str, Any]:
+def run_pymc5_verification(data: Optional[pd.DataFrame] = None) -> Tuple[ModelResult, Dict[str, Any]]:
     """
-    Run the PyMC5 model and verify convergence metrics.
-    
-    Args:
-        data: Preprocessed DataFrame.
-        
+    Runs the PyMC5 model on the provided data (or generated reference data)
+    and performs convergence checks.
+
     Returns:
-        Dictionary containing convergence status and metrics.
+        Tuple of (ModelResult object, Dictionary of convergence metrics)
     """
-    logger.log_operation("run_pymc5_verification", status="started")
-    
-    results = {
-        "status": "unknown",
-        "r_hat_max": None,
-        "ess_min": None,
-        "parameters_checked": 0,
-        "details": {}
+    if data is None:
+        print("No data provided. Generating reference dataset for verification.")
+        data = generate_reference_dataset(n_samples=100)
+
+    # Prepare data for the model
+    # The model expects a dictionary with specific keys
+    model_data = {
+        "y": data["judgment_rating"].values,
+        "x": data["salience_level"].values,
+        "n_participants": data["participant_id"].nunique()
     }
-    
+
+    print(f"Running PyMC5 model with {len(data)} samples...")
     try:
-        # Run the model using the T022c interface
-        # This returns a ModelResult object which contains the inference data
-        model_result = run_model(data)
-        
-        if not model_result:
-            raise RuntimeError("Model execution returned None")
-            
-        # Access the inference data from the result
-        # The ModelResult schema (T051) ensures 'inference_data' exists if sampling succeeded
-        if not hasattr(model_result, 'inference_data') or model_result.inference_data is None:
-            raise RuntimeError("No inference data available in model result")
-            
-        idata = model_result.inference_data
-        
-        # Extract R-hat and ESS from the posterior group
-        # ArviZ structure: idata.posterior
-        if "posterior" not in idata.groups():
-            raise RuntimeError("Posterior group missing from inference data")
-            
-        posterior = idata.posterior
-        
-        r_hat_values = []
-        ess_values = []
-        
-        # Iterate over all data variables in the posterior
-        for var_name in posterior.data_vars:
-            # Compute R-hat and ESS for this variable
-            # Using arviZ directly if available, or fallback to basic stats
-            try:
-                import arviz as az
-                r_hat = az.rhat(idata, var_names=[var_name])
-                ess = az.ess(idata, var_names=[var_name])
-                
-                # Flatten to get scalar values
-                r_hat_val = r_hat[var_name].values.flatten()
-                ess_val = ess[var_name].values.flatten()
-                
-                r_hat_values.extend(r_hat_val)
-                ess_values.extend(ess_val)
-                
-                results["details"][var_name] = {
-                    "r_hat": float(np.mean(r_hat_val)),
-                    "ess": float(np.mean(ess_val))
-                }
-            except Exception as e:
-                logger.log_operation("convergence_check_failed", error=str(e), var=var_name)
-                continue
-        
-        if not r_hat_values or not ess_values:
-            raise RuntimeError("No convergence metrics computed")
-            
-        results["r_hat_max"] = float(np.max(r_hat_values))
-        results["ess_min"] = float(np.min(ess_values))
-        results["parameters_checked"] = len(r_hat_values)
-        
-        # Verify thresholds
-        r_hat_ok = results["r_hat_max"] < 1.05
-        ess_ok = results["ess_min"] > 200
-        
-        if r_hat_ok and ess_ok:
-            results["status"] = "converged"
-        else:
-            results["status"] = "failed"
-            if not r_hat_ok:
-                results["failure_reason"] = f"R-hat ({results['r_hat_max']:.4f}) >= 1.05"
-            if not ess_ok:
-                results["failure_reason"] = f"ESS ({results['ess_min']:.1f}) <= 200"
-                
+        # Run the model (this calls pm.sample internally)
+        # We use a small number of draws and chains for speed in verification
+        result = run_model(model_data, draws=500, chains=2, target_accept=0.9)
     except Exception as e:
-        results["status"] = "error"
-        results["error"] = str(e)
-        logger.log_operation("verification_error", error=str(e))
-        
-    logger.log_operation("run_pymc5_verification", status="completed", result_status=results["status"])
-    return results
+        print(f"Model execution failed: {e}")
+        # If the model fails to run, we cannot check convergence.
+        # We raise a specific error to be caught by the main entry point.
+        raise RuntimeError(f"Model execution failed: {e}") from e
+
+    # Extract convergence metrics from the result
+    # The ModelResult object contains 'r_hat' and 'effective_sample_size'
+    # We assume these are dictionaries mapping parameter names to values
+    metrics = {
+        "r_hat": result.r_hat,
+        "effective_sample_size": result.effective_sample_size,
+        "is_inconclusive": result.is_inconclusive
+    }
+
+    return result, metrics
 
 
-def verify_migration_equivalence(results: Dict[str, Any]) -> bool:
+def verify_migration_equivalence(metrics: Dict[str, Any]) -> bool:
     """
-    Verify that the migration to PyMC5 meets convergence criteria.
-    
-    Args:
-        results: Output from run_pymc5_verification.
-        
+    Verifies that the migration to PyMC5 produced convergent results.
+    Specifically checks R-hat < 1.05 and ESS > 200 for all parameters.
+
     Returns:
-        True if convergence criteria are met, False otherwise.
+        True if all checks pass, False otherwise.
     """
-    if results["status"] != "converged":
-        return False
-        
-    # Double-check the metrics
-    if results["r_hat_max"] is None or results["r_hat_max"] >= 1.05:
-        return False
-    if results["ess_min"] is None or results["ess_min"] <= 200:
-        return False
-        
-    return True
+    all_passed = True
+    details = []
+
+    r_hat_dict = metrics.get("r_hat", {})
+    ess_dict = metrics.get("effective_sample_size", {})
+
+    # Check R-hat
+    for param, val in r_hat_dict.items():
+        if val >= R_HAT_THRESHOLD:
+            details.append(f"FAIL: R-hat for {param} is {val:.4f} (threshold: {R_HAT_THRESHOLD})")
+            all_passed = False
+        else:
+            details.append(f"PASS: R-hat for {param} is {val:.4f}")
+
+    # Check ESS
+    for param, val in ess_dict.items():
+        if val <= ESS_THRESHOLD:
+            details.append(f"FAIL: ESS for {param} is {val:.2f} (threshold: {ESS_THRESHOLD})")
+            all_passed = False
+        else:
+            details.append(f"PASS: ESS for {param} is {val:.2f}")
+
+    print("\n--- Convergence Verification Report ---")
+    for line in details:
+        print(line)
+    print("---------------------------------------")
+
+    return all_passed
 
 
-def main():
+def save_convergence_report(metrics: Dict[str, Any], passed: bool, output_path: str) -> None:
     """
-    Main entry point for the PyMC5 Convergence Check test.
-    
-    1. Loads or generates a small reference dataset.
-    2. Runs the PyMC5 model.
-    3. Verifies R-hat < 1.05 and ESS > 200.
-    4. Writes results to data/results/convergence_test.json.
+    Saves the convergence check results to a JSON file.
     """
-    logger.log_operation("start_test_migration", status="started")
-    
-    # Ensure output directory exists
-    output_dir = get_path("data", "results")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = get_path("data", "results", "convergence_test.json")
-    
-    # Load or generate data
-    # We use a small generated dataset to ensure this test runs quickly and reliably
-    # without depending on the full pipeline state which might be missing in isolation
-    test_data = generate_reference_dataset(n_samples=200)
-    
-    logger.log_operation("data_loaded", n_samples=len(test_data))
-    
-    # Run verification
-    results = run_pymc5_verification(test_data)
-    
-    # Verify equivalence
-    is_valid = verify_migration_equivalence(results)
-    results["test_passed"] = is_valid
-    
-    # Write results to disk
+    report = {
+        "status": "passed" if passed else "failed",
+        "thresholds": {
+            "r_hat": R_HAT_THRESHOLD,
+            "ess": ESS_THRESHOLD
+        },
+        "metrics": metrics,
+        "details": [
+            f"R-hat check: {'PASS' if all(v < R_HAT_THRESHOLD for v in metrics['r_hat'].values()) else 'FAIL'}",
+            f"ESS check: {'PASS' if all(v > ESS_THRESHOLD for v in metrics['effective_sample_size'].values()) else 'FAIL'}"
+        ]
+    }
+
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, "w") as f:
-        json.dump(results, f, indent=2, default=str)
-        
-    logger.log_operation("results_written", path=str(output_path))
-    
-    # Print summary
-    print(f"PyMC5 Convergence Check: {results['status'].upper()}")
-    print(f"  R-hat Max: {results.get('r_hat_max', 'N/A')}")
-    print(f"  ESS Min: {results.get('ess_min', 'N/A')}")
-    print(f"  Test Passed: {is_valid}")
-    
-    if not is_valid:
-        print(f"  Reason: {results.get('failure_reason', 'Unknown')}")
-        # Do not raise an exception here; the task is to implement the check and report.
-        # The execution stage will evaluate the JSON report.
-        
-    return 0 if is_valid else 1
+        json.dump(report, f, indent=2)
+
+    print(f"Convergence report saved to: {output_path}")
+
+
+def main() -> int:
+    """
+    Main entry point for T022d.
+    1. Loads or generates data.
+    2. Runs the PyMC5 model.
+    3. Verifies convergence (R-hat, ESS).
+    4. Writes the report to data/results/convergence_check.json.
+    """
+    print("Starting PyMC5 Convergence Check (T022d)...")
+
+    try:
+        # 1. Prepare Data
+        # We generate reference data if none is provided to ensure this script
+        # can run independently of the potentially broken ingestion pipeline.
+        # In a full pipeline, this would load from data/processed/...
+        data = generate_reference_dataset(n_samples=100, seed=42)
+
+        # 2. Run Model
+        result, metrics = run_pymc5_verification(data)
+
+        # 3. Verify Convergence
+        passed = verify_migration_equivalence(metrics)
+
+        # 4. Save Report
+        output_path = str(get_path(CONVERGENCE_CHECK_FILE))
+        save_convergence_report(metrics, passed, output_path)
+
+        if passed:
+            print("\n✓ All convergence checks passed.")
+            return 0
+        else:
+            print("\n✗ Convergence checks failed.")
+            return 1
+
+    except RuntimeError as e:
+        print(f"\n✗ Verification failed with error: {e}")
+        # Write a failure report so downstream tasks know what happened
+        output_path = str(get_path(CONVERGENCE_CHECK_FILE))
+        save_convergence_report({"error": str(e)}, False, output_path)
+        return 1
+    except Exception as e:
+        print(f"\n✗ Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
