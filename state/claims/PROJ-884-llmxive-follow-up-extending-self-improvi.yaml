@@ -2163,3 +2163,436 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T16:56:35Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Install scikit-learn 1.3.2, numpy 1.26.0, transformers 4.35.0, datasets
+    2.14.0, pyyaml 6.0.1, pytest 7.4.0, optimum onnxruntime 1.13.0 to 1.16.0
+  claim_id: c_aa152ec3
+  context: '- [X] T002c [P] Install dependencies in requirements.txt containing: scikit-learn==1.3.2
+    , numpy==1.26.0 , transformers==4.35.0 , datasets==2.14.0 , pyyaml==6.0.1 , pytest==7.4.0
+    , optimum[onnxruntime]>=1.13.0,<1.16.0 . **Constraint**: Use fixed versions from
+    plan.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum[onnxruntime]>=1.13.0,<1.16.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:44:01Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Initialize default TDP watts to 65
+  claim_id: c_fee1f3d9
+  context: '- [X] T007b [P] [US1] Initialize code/config.py with DEFAULT_TDP_WATTS
+    = 65 as a safe fallback. **Constraint**: This value MUST be overwritten by T008-tdp-record.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize code/config.py with DEFAULT_TDP_WATTS = 65 as a safe fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:44:24Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Verifier returns validity and constraint violation codes within 100ms
+  claim_id: c_b5df42f8
+  context: '- [ ] T012-impl [P] [US1] Implement code/dataset/verifier.py to execute
+    deterministic validation logic for each puzzle instance, returning boolean validity
+    and specific constraint violation codes (e.g., DUPLICATE_ROW, INVALID_PATH) within
+    100ms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_and_constraint_violation_codes_wit
+  kind: entity_fact
+  raw_text: Implement `code/dataset/verifier.py` to execute deterministic validation
+    logic for each puzzle instance, returning boolean validity and specific constraint
+    violation codes (e.g., DUPLICATE_ROW, INVALID_PATH) within 100ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:44:56Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Generate dataset subsets for N=10, N=100, and N=500
+  claim_id: c_e35453d9
+  context: '- [ ] T011-scaling-gen [P] [US1] Generate specific N=10, N=100, N=500
+    dataset subsets. **Constraint**: Must run T011-impl with specific N values to
+    generate distinct files: puzzles_N10.json, puzzles_N100.json, puzzles_N500.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate specific N=10, N=100, N=500 dataset subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:45:16Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Map complexity metric to O(n), O(n^2), and O(2^n) classes
+  claim_id: c_66365f36
+  context: '- [ ] T000c-metric-def [P] Define the complexity_metric tuple and its
+    mapping to asymptotic complexity classes (O(n), O(n^2), O(2^n)) in research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the complexity_metric tuple and its mapping to asymptotic complexity
+    classes (O(n), O(n^2), O(2^n)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:45:49Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Complexity metric formula is constraint_count and variable_domain_size
+  claim_id: c_df6b036e
+  context: '- [ ] T000c-metric-def [P] ... **Constraint**: Must explicitly state the
+    formula: complexity_metric = (constraint_count, variable_domain_size) and map
+    these to Big-O classes based on solver behavior.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_metric_formula_is_constraint_count_and_variable_d
+  kind: entity_fact
+  raw_text: 'Define the formula: complexity_metric = (constraint_count, variable_domain_size).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:46:33Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Dataset path is data/raw/generated_puzzles.json with scaling N=10 to
+    500
+  claim_id: c_c10399f7
+  context: '- [ ] T000c-impl [P] ... **Constraint**: Must define the dataset source
+    path as data/raw/generated_puzzles.json (a path definition, not a placeholder
+    file), scaling method (N=10..500), and statistical framework.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the dataset source path as data/raw/generated_puzzles.json and
+    scaling method (N=10..500).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:47:25Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Two-proportion z-test alpha is 0.05
+  claim_id: c_71abe114
+  context: '- [ ] T000c-stats-def [P] Define Statistical Analysis Plan parameters
+    in research.md. **Constraint**: Must define the two-proportion z-test parameters
+    (alpha=0.05) and power analysis requirements.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Two-proportion Z-test
+      url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Define the two-proportion z-test parameters (alpha=0.05).
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T22:47:35Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Configure distilbert-base-uncased as pre-trained LLM
+  claim_id: c_bf77a737
+  context: '- [ ] T020 [P] [US2] Generate code/bes/config.py with configuration for
+    a small pre-trained LLM (distilbert-base-uncased).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'The rapid growth of digital commerce has led to the accumulation of
+        a massive number of consumer reviews on online platforms. Shopee, as one of
+        the largest e-commerce platforms in Southeast Asia, receives millions of product
+        reviews every day containing valuable information regarding customer satisfaction
+        and preferences. Manual analysis of these reviews is inefficient, thus requiring
+        a computational approach such as sentiment analysis. This study examines the
+        use of DistilBERT, a lightweight transformer-based deep learning model, for
+        sentiment classification on Shopee product reviews. The dataset used consists
+        of approximately one million English-language reviews that have been preprocessed
+        and trained using the distilbert-base-uncased model. Evaluation was conducted
+        using accuracy, precision, recall, and F1-score metrics, and compared against
+        benchmark models such as BERT and SVM. The results show that DistilBERT achieved
+        an accuracy of 94.8%, slightly below BERT (95.3%) but significantly higher
+        than SVM (90.2%), with computation time reduced by more than 55%. These findings
+        demonstrate that DistilBERT provides an optimal balance between accuracy and
+        efficiency, making it suitable for large scale sentiment analysis on e-commerce
+        platforms. Keywords: Sentiment Analysis, DistilBERT, Shopee Reviews, Natural
+        Language Processing, Deep Learning, Transformer Models.'
+      source_id: '2511.22313'
+      url: '2511.22313'
+      value: distilbert-base-uncased
+    filled: true
+  kind: entity_fact
+  raw_text: Implement code/bes/config.py with configuration for a small pre-trained
+    LLM (distilbert-base-uncased).
+  resolved_value: distilbert-base-uncased
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T22:48:03Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Configure TinyBERT as fallback model for memory limits
+  claim_id: c_e376700c
+  context: '- [ ] T020 [P] ... **Constraint**: Must define a fallback model (TinyBERT)
+    if the primary model exceeds memory limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_TinyBERT_as_fallback_model_for_memory_limits
+  kind: entity_fact
+  raw_text: Implement code/bes/config.py with a fallback model (TinyBERT) if the primary
+    model exceeds memory limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:48:25Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Run end-to-end integration test on dataset N=10
+  claim_id: c_94bae09b
+  context: '- [ ] T030 [P] [All] Run end-to-end integration test for the full BES
+    loop on a small dataset (N=10). **Constraint**: Must verify that the pipeline
+    runs from data generation to statistical report without errors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run end-to-end integration test for the full BES loop on a small dataset
+    (N=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:48:45Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_1b814120
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:52:08Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_a632a689
+  context: 'Install dependencies in requirements.txt containing: numpy==1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:52:24Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0
+  claim_id: c_7c842f35
+  context: 'Install dependencies in requirements.txt containing: transformers==4.35.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.35.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:52:42Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_d492b1df
+  context: 'Install dependencies in requirements.txt containing: datasets==2.14.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:53:12Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_e0589e65
+  context: 'Install dependencies in requirements.txt containing: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:53:26Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_c93a32e9
+  context: 'Install dependencies in requirements.txt containing: pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:53:38Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: optimum[onnxruntime] version >=1.13.0 and <1.16.0
+  claim_id: c_a834d96f
+  context: 'Install dependencies in requirements.txt containing: optimum[onnxruntime]>=1.13.0,<1.16.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: optimum[onnxruntime] version range 1.13.0 to 1.16.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:54:07Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity_metric formula is (constraint_count, variable_domain_size)
+  claim_id: c_afea0713
+  context: 'Define the complexity_metric tuple and its mapping to asymptotic complexity
+    classes... Must explicitly state the formula: complexity_metric = (constraint_count,
+    variable_domain_size)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_metric_formula_is_(constraint_count,_variable_dom
+  kind: entity_fact
+  raw_text: The complexity_metric is defined as the tuple (constraint_count, variable_domain_size)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:54:46Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: dataset scaling method N range 10 to 500
+  claim_id: c_534481af
+  context: Must define the dataset source path... scaling method (N=10..500)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset scaling method uses N values from 10 to 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:54:53Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: two-proportion z-test alpha value 0.05
+  claim_id: c_189b9eb5
+  context: 'Define Statistical Analysis Plan parameters... Must define the two-proportion
+    z-test parameters (alpha=0.05 (Wikipedia: Two-proportion Z-test, https://en.wikipedia.org/wiki/Two-proportion_Z-test))'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: giving a two-sided p-value of about 0.0497 (just under 0.05). An approximate
+        95% confidence interval for the difference using the unpooled standard error
+        is
+      source_id: Two-proportion Z-test
+      url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+      value: '0.0497'
+    filled: true
+  kind: numeric
+  raw_text: The statistical analysis uses a two-proportion z-test with alpha=0.05
+  resolved_value: '0.0497'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T22:55:02Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: model distilbert-base-uncased configured
+  claim_id: c_ce1ccad6
+  context: Generate code/bes/config.py with configuration for a small pre-trained
+    LLM (distilbert-base-uncased)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_distilbert-base-uncased_configured
+  kind: entity_fact
+  raw_text: The model distilbert-base-uncased is used for configuration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:55:06Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: deterministic verifier execution time under 100ms
+  claim_id: c_4c441f29
+  context: Implement code/dataset/verifier.py... returning boolean validity and specific
+    constraint violation codes... within 100ms
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deterministic_verifier_execution_time_under_100ms
+  kind: entity_fact
+  raw_text: The deterministic verifier must return validity within 100ms
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T22:55:11Z'

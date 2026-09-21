@@ -1,82 +1,74 @@
+"""
+Setup script to create the tests directory hierarchy.
+Creates tests/unit and tests/integration directories and verifies they are writable.
+"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from typing import List
 
-def setup_tests_directories(base_path: Path) -> List[Path]:
+def setup_tests_directories(project_root: Path) -> List[Path]:
     """
-    Create the tests directory hierarchy:
-    - tests/
-    - tests/unit/
-    - tests/integration/
-    
-    Verifies that directories exist and are writable.
+    Create the tests directory structure.
     
     Args:
-        base_path: The project root path where tests/ should be created.
+        project_root: The root directory of the project.
         
     Returns:
         List of created directory paths.
         
     Raises:
-        OSError: If a directory cannot be created or is not writable.
+        OSError: If directories cannot be created or are not writable.
     """
-    directories = [
-        base_path / "tests",
-        base_path / "tests" / "unit",
-        base_path / "tests" / "integration",
-    ]
+    tests_root = project_root / "tests"
+    unit_dir = tests_root / "unit"
+    integration_dir = tests_root / "integration"
     
-    created_dirs = []
+    directories = [tests_root, unit_dir, integration_dir]
     
-    for dir_path in directories:
-        # Create directory if it doesn't exist
-        dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify the directory exists
-        if not dir_path.exists():
-            raise OSError(f"Failed to create directory: {dir_path}")
-        
-        # Verify the directory is a directory
-        if not dir_path.is_dir():
-            raise OSError(f"Path exists but is not a directory: {dir_path}")
-        
-        # Verify write permissions by creating a temporary file
-        test_file = dir_path / ".write_test"
-        try:
-            test_file.touch()
-            test_file.unlink()
-        except PermissionError:
-            raise OSError(f"Directory is not writable: {dir_path}")
-        
-        created_dirs.append(dir_path)
-        print(f"Verified: {dir_path} (exists and writable)")
+    for directory in directories:
+        if not directory.exists():
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                # Verify writability by creating a temporary file
+                test_file = directory / ".write_test"
+                try:
+                    test_file.touch()
+                    test_file.unlink()
+                except OSError as e:
+                    raise OSError(f"Directory {directory} exists but is not writable: {e}")
+            except OSError as e:
+                raise OSError(f"Failed to create directory {directory}: {e}")
     
-    return created_dirs
+    return directories
 
 def main():
-    """
-    CLI entry point for setting up tests directories.
-    """
+    """Main entry point for the setup script."""
     parser = argparse.ArgumentParser(
-        description="Create and verify tests directory hierarchy"
+        description="Setup tests directory hierarchy for llmXive project."
     )
     parser.add_argument(
         "--project-root",
-        type=Path,
-        default=Path.cwd(),
-        help="Project root directory (default: current working directory)"
+        type=str,
+        default=".",
+        help="Path to the project root directory (default: current directory)."
     )
     
     args = parser.parse_args()
+    project_root = Path(args.project_root).resolve()
+    
+    print(f"Setting up tests directories in: {project_root}")
     
     try:
-        created = setup_tests_directories(args.project_root)
-        print(f"\nSuccessfully created {len(created)} directories.")
+        directories = setup_tests_directories(project_root)
+        print("Successfully created the following directories:")
+        for directory in directories:
+            print(f"  - {directory}")
+        print("All directories are writable.")
         return 0
     except OSError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Error during setup: {e}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

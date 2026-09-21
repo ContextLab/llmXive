@@ -1,5 +1,6 @@
-'|alpha include parameter proportion test two':
-  quote: '0.05'
-  source_id: Binomial proportion confidence interval
-  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-  value: '0.05'
+'|alpha analysi proportion statistical test two use':
+  quote: giving a two-sided p-value of about 0.0497 (just under 0.05). An approximate
+    95% confidence interval for the difference using the unpooled standard error is
+  source_id: Two-proportion Z-test
+  url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+  value: '0.0497'

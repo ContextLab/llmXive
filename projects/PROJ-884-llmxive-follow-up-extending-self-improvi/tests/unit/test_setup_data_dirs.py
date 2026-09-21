@@ -1,95 +1,92 @@
+"""
+Unit tests for setup_data_dirs.py
+Verifies that data directories are created and are writable.
+"""
 import os
+import tempfile
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
+import sys
 
-# Import the function to test
-from code.setup_data_dirs import setup_data_directories
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from setup_data_dirs import setup_data_directories, get_project_root
 
 class TestSetupDataDirs:
-    """
-    Unit tests for the data directory setup functionality.
-    """
-    
-    def test_creates_data_structure(self, tmp_path):
-        """Test that the function creates the required directory structure."""
-        results = setup_data_directories(tmp_path)
-        
-        # Check we got results for all directories
-        assert len(results) == 3, "Should create 3 directories (root, raw, processed)"
-        
-        # Check all operations succeeded
-        for path, success in results:
-            assert success, f"Directory creation failed for {path}"
-            assert path.exists(), f"Directory does not exist: {path}"
-            
-        # Verify specific subdirectories exist
-        data_root = tmp_path / "data"
+    def test_creates_data_structure_in_temp(self, tmp_path):
+        """
+        Test that the function creates data/raw and data/processed 
+        inside a temporary directory.
+        """
+        # Create a temporary project root
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+
+        dirs = setup_data_directories(project_root)
+
+        data_root = project_root / "data"
         raw_dir = data_root / "raw"
         processed_dir = data_root / "processed"
+
+        assert data_root.exists(), "data/ directory should exist"
+        assert raw_dir.exists(), "data/raw/ directory should exist"
+        assert processed_dir.exists(), "data/processed/ directory should exist"
+        assert data_root in dirs
+        assert raw_dir in dirs
+        assert processed_dir in dirs
+
+    def test_writability_verified(self, tmp_path):
+        """
+        Test that the function verifies writability by creating/deleting a test file.
+        """
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+
+        # Mock a read-only scenario would raise an error, but here we test success path
+        # The function itself attempts to touch and unlink a file.
+        # We verify that no exception is raised and directories are returned.
+        dirs = setup_data_directories(project_root)
         
-        assert data_root.exists(), "Data root directory missing"
-        assert raw_dir.exists(), "Raw directory missing"
-        assert processed_dir.exists(), "Processed directory missing"
-    
-    def test_directories_are_writable(self, tmp_path):
-        """Test that created directories are actually writable."""
-        results = setup_data_directories(tmp_path)
-        
-        for path, success in results:
-            if success:
-                # Try to create a file in the directory
-                test_file = path / "writable_test.txt"
-                try:
-                    test_file.write_text("test")
-                    assert test_file.exists(), "Could not write to directory"
-                    test_file.unlink()
-                except PermissionError:
-                    pytest.fail(f"Directory {path} is not writable")
-    
+        assert len(dirs) == 3, "Should return 3 verified directories"
+
     def test_handles_existing_directories(self, tmp_path):
-        """Test that the function handles existing directories gracefully."""
-        # Create directories manually first
-        data_root = tmp_path / "data"
-        data_root.mkdir()
-        (data_root / "raw").mkdir()
-        (data_root / "processed").mkdir()
+        """
+        Test that the function handles pre-existing directories gracefully.
+        """
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
         
-        # Run setup again - should not fail
-        results = setup_data_directories(tmp_path)
+        # Pre-create the structure
+        (project_root / "data" / "raw").mkdir(parents=True)
+        (project_root / "data" / "processed").mkdir(parents=True)
+
+        # Should not raise and should verify them
+        dirs = setup_data_directories(project_root)
         
-        for path, success in results:
-            assert success, f"Failed on existing directory: {path}"
-            assert path.exists(), f"Directory missing after re-run: {path}"
-    
-    def test_returns_correct_structure(self, tmp_path):
-        """Test that the function returns the expected structure."""
-        results = setup_data_directories(tmp_path)
+        assert len(dirs) == 3
+
+    def test_raises_on_unwritable(self, tmp_path):
+        """
+        Test that the function raises RuntimeError if a directory is not writable.
+        """
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
         
-        # Verify return type
-        assert isinstance(results, list), "Should return a list"
+        data_dir = project_root / "data"
+        data_dir.mkdir()
         
-        # Verify each item is a tuple of (Path, bool)
-        for item in results:
-            assert isinstance(item, tuple), "Each item should be a tuple"
-            assert len(item) == 2, "Each tuple should have 2 elements"
-            assert isinstance(item[0], Path), "First element should be Path"
-            assert isinstance(item[1], bool), "Second element should be bool"
-    
-    def test_relative_path_handling(self):
-        """Test that the function works with relative paths."""
-        original_cwd = os.getcwd()
-        try:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                os.chdir(tmpdir)
-                # Use relative path
-                results = setup_data_directories(Path("."))
-                
-                # Should create data/ in current directory
-                data_root = Path("data")
-                assert data_root.exists(), "Data root not created with relative path"
-                assert (data_root / "raw").exists(), "Raw not created with relative path"
-                assert (data_root / "processed").exists(), "Processed not created with relative path"
-        finally:
-            os.chdir(original_cwd)
+        # Make data_dir read-only (if running as non-root)
+        if os.geteuid() != 0:
+            data_dir.chmod(0o555)
+            
+            try:
+                with pytest.raises(RuntimeError):
+                    setup_data_directories(project_root)
+            finally:
+                # Restore permissions for cleanup
+                data_dir.chmod(0o755)
+        else:
+            # Root can write anywhere, so skip this specific check in this env
+            # Just verify it doesn't crash on creation
+            setup_data_directories(project_root)

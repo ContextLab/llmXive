@@ -12,20 +12,12 @@ T000d:
     \ document defining the Statistical Plan, Data Entities, and the explicit `complexity_metric`\
     \ mapping for SC\u2011005 is missing. The implementer must supply a non\u2011\
     empty `data-model.md` that meets the specified constraints."
-T001a:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` directory, nor the required `data/raw` and `data/processed`\
-    \ sub\u2011directories, is provided, and there is no proof that they have been\
-    \ created or are writable. The implementer\u2019s claim lacks the actual filesystem\
-    \ artifacts needed to satisfy the task."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/` directory with the required subfolders (`dataset`,\
-    \ `symbolic`, `bes`, `analysis`, `utils`) is presented, nor any check that they\
-    \ are writable. The implementer\u2019s claim cannot be confirmed without these\
-    \ artifacts."
+  r: No evidence of a `tests/` directory or its `unit` and `integration` subdirectories
+    is provided, nor any verification that they exist and are writable. The required
+    hierarchy is missing.
 T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,12 +40,20 @@ T003:
     so the requirement to configure flake8 and Black is not satisfied. The implementer
     must add the appropriate configuration files and ensure they are applied to the
     codebase.
-T004:
+T016a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `data/raw` and `data/processed` directories being created,
-    nor any code or logs that verify they exist and are writable, was provided. The
-    required artifact (the directory structure and its verification) is missing.
+  h: 2b5222b67be1243eebb50bec5e2b1f6ec482d77df4c0e9e2548b6674b580dd03
+  r: "The required `contracts/dataset.schema.yaml` file is missing, so the script\
+    \ cannot actually validate against the schema. Moreover, the provided script is\
+    \ truncated and shows no logic for loading the generated data from T014c-exec,\
+    \ indicating the implementation does not fulfill the task\u2019s constraints."
+T016b:
+  c: false
+  h: 5243f467baf39f588faaacbd77c98c08a984cfee9baa61624932d067dc589b61
+  r: The script file exists, but the required contract file `contracts/output.schema.yaml`
+    is missing, and the provided code is truncated (e.g., the `validate_against_schema`
+    function is incomplete), so it cannot actually read logs and verify schema compliance
+    as specified.
 T021:
   c: false
   h: af277c612ca9ea50ea74f887ded1ca1ead78999a8dcd3d2db29315b7ceba36e6
@@ -63,3 +63,12 @@ T021:
     \ for CPU\u2011optimized inference, and the referenced `code/bes/config.py` is\
     \ missing entirely, so the model cannot be loaded as specified. These gaps mean\
     \ the task\u2019s constraints are not met."
+T024c:
+  c: false
+  h: ceaf7042761094161641370aa103ea45c01ef92261492f580f16c9eb84b35582
+  r: "The repository contains a non\u2011empty `code/bes/result_aggregator.py`, but\
+    \ the shown code stops at helper functions and provides no logic that actually\
+    \ reads the N\u2011specific logs and writes a combined `data/processed/bes_results.json`.\
+    \ Moreover, the required output file `data/processed/bes_results.json` is absent.\
+    \ The task\u2019s core requirement \u2013 aggregating all logs into that single\
+    \ result file \u2013 is therefore not satisfied."

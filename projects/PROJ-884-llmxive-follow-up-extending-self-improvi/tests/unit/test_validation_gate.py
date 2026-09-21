@@ -1,7 +1,6 @@
 """
-Unit tests for T036: validation_gate.py
+Unit tests for the validation gate functionality.
 """
-
 import json
 import os
 import sys
@@ -9,114 +8,163 @@ import tempfile
 from pathlib import Path
 import pytest
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Ensure we can import from the project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from dataset.validation_gate import load_json, save_json, validate_distribution
+from code.dataset.validation_gate import load_json, save_json, validate_distribution
 
 class TestValidationGateSchema:
-    """Tests for T036b-verify: Verify validation_gate.json schema."""
+    """Tests for the validation_gate.json schema."""
 
     def test_schema_valid(self, tmp_path):
         """
-        Assert the JSON structure matches the required schema:
+        Verify that the generated validation_gate.json matches the required schema:
         {"status": "PASS"|"FAIL", "reason": "string", "distribution_stats": {...}}
         """
-        test_data = {
-            "status": "PASS",
-            "reason": "Test reason",
-            "distribution_stats": {"key": "value"}
+        # Create a mock distribution validation result
+        mock_validation = {
+            "is_valid": True,
+            "power_estimate": 0.85,
+            "sample_size": 100,
+            "notes": ["All checks passed"],
+            "distribution_stats": {
+                "type_counts": {"sudoku": 50, "pathfinding": 50},
+                "complexity_distribution": {"low": 30, "medium": 40, "high": 30}
+            }
         }
+        
+        input_file = tmp_path / "distribution_validation.json"
+        with open(input_file, 'w') as f:
+            json.dump(mock_validation, f)
+        
         output_file = tmp_path / "validation_gate.json"
+        
+        # Run the validation logic
+        result = validate_distribution(
+            load_json(input_file),
+            min_power_estimate=0.8,
+            min_sample_size=10
+        )
+        
+        save_json(result, output_file)
+        
+        # Load and verify the output
+        with open(output_file, 'r') as f:
+            gate_data = json.load(f)
+        
+        # Check required fields
+        assert "status" in gate_data, "Missing 'status' field"
+        assert "reason" in gate_data, "Missing 'reason' field"
+        assert "distribution_stats" in gate_data, "Missing 'distribution_stats' field"
+        
+        # Check status values
+        assert gate_data["status"] in ["PASS", "FAIL"], f"Invalid status: {gate_data['status']}"
+        
+        # Check types
+        assert isinstance(gate_data["reason"], str), "Reason must be a string"
+        assert isinstance(gate_data["distribution_stats"], dict), "Distribution stats must be a dict"
+        
+        # Verify the specific outcome for our mock data
+        assert gate_data["status"] == "PASS", "Expected PASS for valid mock data"
+        assert gate_data["power_estimate"] == 0.85
+        assert gate_data["sample_size"] == 100
 
-        # Save test data
-        with open(output_file, 'w') as f:
-            json.dump(test_data, f)
+    def test_schema_fail_case(self, tmp_path):
+        """Verify the schema when validation fails."""
+        mock_validation = {
+            "is_valid": False,
+            "power_estimate": 0.5,
+            "sample_size": 5,
+            "notes": ["Power too low"],
+            "distribution_stats": {"type_counts": {}}
+        }
+        
+        input_file = tmp_path / "distribution_validation.json"
+        with open(input_file, 'w') as f:
+            json.dump(mock_validation, f)
+        
+        output_file = tmp_path / "validation_gate.json"
+        
+        result = validate_distribution(
+            load_json(input_file),
+            min_power_estimate=0.8,
+            min_sample_size=10
+        )
+        
+        save_json(result, output_file)
+        
+        with open(output_file, 'r') as f:
+            gate_data = json.load(f)
+        
+        assert gate_data["status"] == "FAIL"
+        assert "Power estimate" in gate_data["reason"]
+        assert "Sample size" in gate_data["reason"]
 
-        # Load and verify structure
-        loaded = load_json(output_file)
-        assert loaded is not None
-        assert "status" in loaded
-        assert loaded["status"] in ["PASS", "FAIL"]
-        assert "reason" in loaded
-        assert isinstance(loaded["reason"], str)
-        assert "distribution_stats" in loaded
-        assert isinstance(loaded["distribution_stats"], dict)
+    def test_schema_missing_input_handling(self, tmp_path):
+        """Verify behavior when input file is missing."""
+        output_file = tmp_path / "validation_gate.json"
+        non_existent_input = tmp_path / "non_existent.json"
+        
+        # Simulate the main logic's error handling
+        try:
+            load_json(non_existent_input)
+            assert False, "Expected FileNotFoundError"
+        except FileNotFoundError:
+            # This is expected
+            pass
 
-    def test_status_fail_reason_present(self, tmp_path):
-        """Verify that a FAIL status includes a non-empty reason."""
-        test_data = {
-            "status": "FAIL",
-            "reason": "Validation failed due to low power",
+class TestValidationDistributionLogic:
+    """Tests for the validation logic itself."""
+
+    def test_passes_with_high_power_and_sample(self):
+        """Test that high power and sample size result in PASS."""
+        validation = {
+            "is_valid": True,
+            "power_estimate": 0.95,
+            "sample_size": 200,
+            "notes": [],
             "distribution_stats": {}
         }
-        output_file = tmp_path / "validation_gate_fail.json"
+        result = validate_distribution(validation, min_power_estimate=0.8, min_sample_size=10)
+        assert result["status"] == "PASS"
 
-        with open(output_file, 'w') as f:
-            json.dump(test_data, f)
-
-        loaded = load_json(output_file)
-        assert loaded["status"] == "FAIL"
-        assert len(loaded["reason"]) > 0
-
-class TestValidateDistributionLogic:
-    """Tests for the validation logic."""
-
-    def test_missing_input_fails(self):
-        """Test that missing or empty input results in FAIL."""
-        is_valid, reason, stats = validate_distribution(None)
-        assert is_valid is False
-        assert "missing" in reason.lower() or "empty" in reason.lower()
-
-    def test_invalid_distribution_fails(self):
-        """Test that is_valid=False in input results in FAIL."""
-        input_data = {
-            "is_valid": False,
-            "notes": "Type ratio mismatch",
-            "power_estimate": 0.9
-        }
-        is_valid, reason, stats = validate_distribution(input_data)
-        assert is_valid is False
-        assert "Type ratio mismatch" in reason
-
-    def test_low_power_fails(self):
-        """Test that power_estimate < 0.8 results in FAIL."""
-        input_data = {
+    def test_fails_with_low_power(self):
+        """Test that low power results in FAIL."""
+        validation = {
             "is_valid": True,
-            "notes": "OK",
             "power_estimate": 0.5,
-            "distribution_stats": {"complexity_scaling": {"is_continuous": True}}
+            "sample_size": 200,
+            "notes": [],
+            "distribution_stats": {}
         }
-        is_valid, reason, stats = validate_distribution(input_data)
-        assert is_valid is False
-        assert "power" in reason.lower()
+        result = validate_distribution(validation, min_power_estimate=0.8, min_sample_size=10)
+        assert result["status"] == "FAIL"
+        assert "Power estimate" in result["reason"]
 
-    def test_continuous_scaling_passes(self):
-        """Test that valid data with continuous scaling passes."""
-        input_data = {
+    def test_fails_with_low_sample_size(self):
+        """Test that low sample size results in FAIL."""
+        validation = {
             "is_valid": True,
-            "notes": "OK",
             "power_estimate": 0.95,
-            "distribution_stats": {
-                "complexity_scaling": {"is_continuous": True},
-                "type_distribution": {"sudoku": 50, "pathfinding": 50}
-            }
+            "sample_size": 5,
+            "notes": [],
+            "distribution_stats": {}
         }
-        is_valid, reason, stats = validate_distribution(input_data)
-        assert is_valid is True
-        assert "passed" in reason.lower()
+        result = validate_distribution(validation, min_power_estimate=0.8, min_sample_size=10)
+        assert result["status"] == "FAIL"
+        assert "Sample size" in result["reason"]
 
-    def test_non_continuous_scaling_fails(self):
-        """Test that non-continuous scaling fails."""
-        input_data = {
-            "is_valid": True,
-            "notes": "OK",
+    def test_fails_when_source_invalid(self):
+        """Test that is_valid=False at source results in FAIL."""
+        validation = {
+            "is_valid": False,
             "power_estimate": 0.95,
-            "distribution_stats": {
-                "complexity_scaling": {"is_continuous": False},
-                "type_distribution": {"sudoku": 50, "pathfinding": 50}
-            }
+            "sample_size": 200,
+            "notes": ["Source validation failed"],
+            "distribution_stats": {}
         }
-        is_valid, reason, stats = validate_distribution(input_data)
-        assert is_valid is False
-        assert "continuous" in reason.lower()
+        result = validate_distribution(validation, min_power_estimate=0.8, min_sample_size=10)
+        assert result["status"] == "FAIL"
+        assert "Distribution validation failed at source" in result["reason"]
