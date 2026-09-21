@@ -1,0 +1,474 @@
+{
+  "ds000030_motor": {
+    "paradigm_name": "Motor Task",
+    "dataset_id": "ds000030",
+    "bootstrap_results": [
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.032,
+        "train_effect_size": 0.65,
+        "test_effect_size": 0.61,
+        "replication_success": 1,
+        "iteration": 1
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.045,
+        "train_effect_size": 0.58,
+        "test_effect_size": 0.55,
+        "replication_success": 1,
+        "iteration": 2
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.089,
+        "train_effect_size": 0.42,
+        "test_effect_size": 0.38,
+        "replication_success": 0,
+        "iteration": 3
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.015,
+        "train_effect_size": 0.72,
+        "test_effect_size": 0.69,
+        "replication_success": 1,
+        "iteration": 4
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.022,
+        "train_effect_size": 0.68,
+        "test_effect_size": 0.65,
+        "replication_success": 1,
+        "iteration": 5
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.038,
+        "train_effect_size": 0.61,
+        "test_effect_size": 0.58,
+        "replication_success": 1,
+        "iteration": 6
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.008,
+        "train_effect_size": 0.75,
+        "test_effect_size": 0.73,
+        "replication_success": 1,
+        "iteration": 7
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.012,
+        "train_effect_size": 0.71,
+        "test_effect_size": 0.68,
+        "replication_success": 1,
+        "iteration": 8
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.019,
+        "train_effect_size": 0.66,
+        "test_effect_size": 0.63,
+        "replication_success": 1,
+        "iteration": 9
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.004,
+        "train_effect_size": 0.78,
+        "test_effect_size": 0.76,
+        "replication_success": 1,
+        "iteration": 10
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.028,
+        "train_effect_size": 0.62,
+        "test_effect_size": 0.59,
+        "replication_success": 1,
+        "iteration": 11
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.011,
+        "train_effect_size": 0.70,
+        "test_effect_size": 0.67,
+        "replication_success": 1,
+        "iteration": 12
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.006,
+        "train_effect_size": 0.74,
+        "test_effect_size": 0.71,
+        "replication_success": 1,
+        "iteration": 13
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.003,
+        "train_effect_size": 0.77,
+        "test_effect_size": 0.75,
+        "replication_success": 1,
+        "iteration": 14
+      }
+    ],
+    "sample_sizes_tested": [10, 20, 30, 40],
+    "kernels_tested": ["4mm", "8mm"]
+  },
+  "ds000113_working_memory": {
+    "paradigm_name": "Working Memory Task",
+    "dataset_id": "ds000113",
+    "bootstrap_results": [
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.055,
+        "train_effect_size": 0.48,
+        "test_effect_size": 0.44,
+        "replication_success": 0,
+        "iteration": 1
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.072,
+        "train_effect_size": 0.41,
+        "test_effect_size": 0.37,
+        "replication_success": 0,
+        "iteration": 2
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.035,
+        "train_effect_size": 0.55,
+        "test_effect_size": 0.52,
+        "replication_success": 1,
+        "iteration": 3
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.041,
+        "train_effect_size": 0.52,
+        "test_effect_size": 0.49,
+        "replication_success": 1,
+        "iteration": 4
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.018,
+        "train_effect_size": 0.60,
+        "test_effect_size": 0.57,
+        "replication_success": 1,
+        "iteration": 5
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.009,
+        "train_effect_size": 0.63,
+        "test_effect_size": 0.61,
+        "replication_success": 1,
+        "iteration": 6
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.048,
+        "train_effect_size": 0.50,
+        "test_effect_size": 0.47,
+        "replication_success": 1,
+        "iteration": 7
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.025,
+        "train_effect_size": 0.57,
+        "test_effect_size": 0.54,
+        "replication_success": 1,
+        "iteration": 8
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.014,
+        "train_effect_size": 0.61,
+        "test_effect_size": 0.58,
+        "replication_success": 1,
+        "iteration": 9
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.007,
+        "train_effect_size": 0.64,
+        "test_effect_size": 0.62,
+        "replication_success": 1,
+        "iteration": 10
+      }
+    ],
+    "sample_sizes_tested": [10, 20, 30, 40],
+    "kernels_tested": ["4mm", "8mm"]
+  },
+  "ds000247_language": {
+    "paradigm_name": "Language Task",
+    "dataset_id": "ds000247",
+    "bootstrap_results": [
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.068,
+        "train_effect_size": 0.35,
+        "test_effect_size": 0.31,
+        "replication_success": 0,
+        "iteration": 1
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.042,
+        "train_effect_size": 0.45,
+        "test_effect_size": 0.42,
+        "replication_success": 1,
+        "iteration": 2
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.021,
+        "train_effect_size": 0.50,
+        "test_effect_size": 0.47,
+        "replication_success": 1,
+        "iteration": 3
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.011,
+        "train_effect_size": 0.53,
+        "test_effect_size": 0.51,
+        "replication_success": 1,
+        "iteration": 4
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.058,
+        "train_effect_size": 0.38,
+        "test_effect_size": 0.35,
+        "replication_success": 0,
+        "iteration": 5
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.033,
+        "train_effect_size": 0.47,
+        "test_effect_size": 0.44,
+        "replication_success": 1,
+        "iteration": 6
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.016,
+        "train_effect_size": 0.51,
+        "test_effect_size": 0.48,
+        "replication_success": 1,
+        "iteration": 7
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.008,
+        "train_effect_size": 0.54,
+        "test_effect_size": 0.52,
+        "replication_success": 1,
+        "iteration": 8
+      }
+    ],
+    "sample_sizes_tested": [10, 20, 30, 40],
+    "kernels_tested": ["4mm", "8mm"]
+  },
+  "ds000173_emotion": {
+    "paradigm_name": "Emotion Task",
+    "dataset_id": "ds000173",
+    "bootstrap_results": [
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.091,
+        "train_effect_size": 0.28,
+        "test_effect_size": 0.24,
+        "replication_success": 0,
+        "iteration": 1
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.048,
+        "train_effect_size": 0.38,
+        "test_effect_size": 0.35,
+        "replication_success": 1,
+        "iteration": 2
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.025,
+        "train_effect_size": 0.43,
+        "test_effect_size": 0.40,
+        "replication_success": 1,
+        "iteration": 3
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.013,
+        "train_effect_size": 0.46,
+        "test_effect_size": 0.44,
+        "replication_success": 1,
+        "iteration": 4
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.075,
+        "train_effect_size": 0.31,
+        "test_effect_size": 0.28,
+        "replication_success": 0,
+        "iteration": 5
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.039,
+        "train_effect_size": 0.40,
+        "test_effect_size": 0.37,
+        "replication_success": 1,
+        "iteration": 6
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.019,
+        "train_effect_size": 0.44,
+        "test_effect_size": 0.41,
+        "replication_success": 1,
+        "iteration": 7
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.010,
+        "train_effect_size": 0.47,
+        "test_effect_size": 0.45,
+        "replication_success": 1,
+        "iteration": 8
+      }
+    ],
+    "sample_sizes_tested": [10, 20, 30, 40],
+    "kernels_tested": ["4mm", "8mm"]
+  },
+  "ds000205_relational": {
+    "paradigm_name": "Relational Task",
+    "dataset_id": "ds000205",
+    "bootstrap_results": [
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.078,
+        "train_effect_size": 0.32,
+        "test_effect_size": 0.29,
+        "replication_success": 0,
+        "iteration": 1
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.044,
+        "train_effect_size": 0.42,
+        "test_effect_size": 0.39,
+        "replication_success": 1,
+        "iteration": 2
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.023,
+        "train_effect_size": 0.47,
+        "test_effect_size": 0.44,
+        "replication_success": 1,
+        "iteration": 3
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "4mm",
+        "p_value": 0.012,
+        "train_effect_size": 0.50,
+        "test_effect_size": 0.48,
+        "replication_success": 1,
+        "iteration": 4
+      },
+      {
+        "sample_size": 10,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.065,
+        "train_effect_size": 0.35,
+        "test_effect_size": 0.32,
+        "replication_success": 0,
+        "iteration": 5
+      },
+      {
+        "sample_size": 20,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.036,
+        "train_effect_size": 0.44,
+        "test_effect_size": 0.41,
+        "replication_success": 1,
+        "iteration": 6
+      },
+      {
+        "sample_size": 30,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.017,
+        "train_effect_size": 0.48,
+        "test_effect_size": 0.45,
+        "replication_success": 1,
+        "iteration": 7
+      },
+      {
+        "sample_size": 40,
+        "smoothing_kernel": "8mm",
+        "p_value": 0.009,
+        "train_effect_size": 0.51,
+        "test_effect_size": 0.49,
+        "replication_success": 1,
+        "iteration": 8
+      }
+    ],
+    "sample_sizes_tested": [10, 20, 30, 40],
+    "kernels_tested": ["4mm", "8mm"]
+  }
+}

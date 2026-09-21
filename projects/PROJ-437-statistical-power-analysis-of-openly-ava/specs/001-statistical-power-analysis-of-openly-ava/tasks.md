@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -65,10 +65,20 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T005 [P] Implement `code/utils/memory_monitor.py` to track RAM usage and trigger downsampling if >6GB (FR-006).
 - [ ] T006 [P] Create `code/models/simulation_config.py` defining `SimulationConfig` entity (sample_size_target, smoothing_kernel, num_iterations, random_seed). **Depends on T005.**
 - [ ] T007 [P] Create `code/models/replication_result.py` defining `ReplicationResult` entity (effect_size_est, p_value, replication_success, smoothing_kernel_used). **Depends on T006.**
-- [ ] T008 [P] Implement `code/download/openneuro_fetcher.py` to download raw BIDS data for **up to 15 paradigms** from `research.md` whitelist. **Must implement subject-level chunking (load one subject at a time) to avoid memory overflow; skip missing paradigms and log warnings (FR-001, Assumption Data).** **Fail loudly on missing/corrupt data; no synthetic fallback.** **Depends on T005.**
+- [ ] T008 [P] [US1] Implement `code/download/openneuro_fetcher.py` to download raw BIDS data for **5 verified datasets** (ds000030, ds000248, ds000250, ds000251, ds000252). **Must use `datasets.load_dataset(..., streaming=True)` for datasets >1GB (chunk_size=1GB, iterator strategy).** **Must explicitly `raise ValueError("Real data fetch failed. Aborting.")` on failure; NO synthetic fallback.** **Must validate against the hardcoded whitelist of 5 IDs before fetching.** **Depends on T005.**
 - [ ] T009 [P] Implement `code/download/data_validator.py` to verify BIDS structure and checksum raw NIfTI files; skip corrupted subjects and log warnings. **CRITICAL**: If valid subjects < 5, raise error with code 1 and log "Insufficient Data" (Edge Case 1). **Depends on T008.**
 - [ ] T010 [P] [US1] Contract test for `SimulationConfig` schema in `tests/contract/test_simulation_config_schema.py`. **Write this test FIRST (TDD); it will fail until T006 is implemented.** **Validate against `code/models/simulation_config.py`; verify `sample_size_target > 0` and `random_seed` is int.**
-- [ ] T011 [P] [US1] Integration test for end-to-end pipeline in `tests/integration/test_end_to_end_pipeline.py`. **Write this test FIRST (TDD); it will fail until T012-T017 are implemented.** **Run with inputs: ds000030, N=10, kernel=4mm. Assert output file `results/pipeline_run_001.json` exists and contains `replication_success` (0 or 1).**
+- [ ] T011 [P] [US1] Integration test for end-to-end pipeline in `tests/integration/test_end_to_end_pipeline.py`. **Write this test FIRST (TDD); it will fail until T012-T017 are implemented.** **Run with inputs: ds000030, N=10, kernel=4mm. Assert output file `data/aggregated/power_curves.json` exists and contains `sample_sizes_tested` and `empirical_rates` (list of floats).**
+- [ ] T012 [P] [US1] Implement `code/preprocess/roi_extractor.py` to extract ROI time-series from raw BIDS data (CPU-tractable substitute for fMRIPrep). **Must support real data input.**
+- [ ] T013 [P] [US1] Implement `code/preprocess/temporal_smoothing.py` to apply **temporal** smoothing kernels to 1D ROI time-series. **Required by FR-002 (adapted); distinct from spatial smoothing.** **Mapping: 4mm spatial [deferred] -> 4s temporal (TR=2s), 8mm spatial [deferred] -> 8s temporal (TR=2s).**
+- [ ] T013b [P] [US1] Implement `code/preprocess/traceability_logger.py` to log the specific **Custom ROI Pipeline** version, parameters (ROI mask, temporal kernel size), and GLM configuration to `results/paper/pipeline_config.json`. **Must explicitly state fMRIPrep is NOT used.** **Depends on T012/T013.**
+- [ ] T014 [P] [US1] Implement `code/simulation/noise_estimator.py` to estimate noise characteristics from **real** preprocessed data for GLM modeling. **Remove all references to 'synthetic generation'.**
+- [ ] T016 [P] [US1] Implement `code/analysis/glm_fitter.py` to fit GLM on **real** preprocessed data (post-temporal smoothing) and estimate effect size (Cohen's d).
+- [ ] T017 [P] [US1] Implement `code/analysis/split_half_validator.py` to partition **real** data into train/test sets, test significance on held-out set, and determine replication success. **Replication success = direction match AND magnitude within ±20% (0.8x-1.2x) of training estimate.** (FR-003)
+- [ ] T018 [P] [US1] Implement `code/main.py` entry point to orchestrate download, preprocess, and validate for a single run configuration. **Depends on T004-T009, T012-T017, T022.**
+- [ ] T019 [P] [US1] Add error handling in `code/analysis/split_half_validator.py` to discard failed GLM iterations and flag "Unreliable" if failure rate >20% (Edge Case 3).
+- [ ] T038b [P] [Shared] Implement `code/utils/timer.py` to provide `start_run`, `end_run`, and `log_split` methods for wall-clock time monitoring (SC-005). **Output: `results/paper/timing_report.md` and `results/paper/timing_breakdown.csv`.** **Depends on T004.**
+- [ ] T050 [P] [US2] Update `code/utils/timer.py` (T038b) to log intermediate timing for each paradigm and sample size, not just the total run time. **Output: `results/paper/timing_breakdown.csv`.** **Depends on T038b.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,41 +92,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/preprocess/roi_extractor.py` to extract ROI time-series from raw BIDS data (CPU-tractable substitute for fMRIPrep). **Must support real data input.**
-- [ ] T013 [P] [US1] Implement `code/preprocess/temporal_smoothing.py` to apply **temporal** smoothing kernels (4mm, 8mm equivalent) to 1D ROI time-series. **Required by FR-002 (adapted); distinct from spatial smoothing.**
-- [ ] T014 [US1] Implement `code/simulation/noise_estimator.py` to estimate noise characteristics from **real** preprocessed data for GLM modeling. **Remove all references to 'synthetic generation'.**
-- [ ] T016 [US1] Implement `code/analysis/glm_fitter.py` to fit GLM on **real** preprocessed data (post-temporal smoothing) and estimate effect size (Cohen's d).
-- [ ] T017 [US1] Implement `code/analysis/split_half_validator.py` to partition **real** data into train/test sets, test significance on held-out set, and determine replication success. **Replication success = direction match AND magnitude within ±20% (0.8x-1.2x) of training estimate.** (FR-003)
-- [ ] T018 [US1] Implement `code/main.py` entry point to orchestrate download, preprocess, and validate for a single run configuration. **Depends on T004-T009, T012-T017, T022.**
-- [ ] T019 [US1] Add error handling in `code/analysis/split_half_validator.py` to discard failed GLM iterations and flag "Unreliable" if failure rate >20% (Edge Case 3).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Power Curve Generation (Priority: P2)
-
-**Goal**: Iterate through sample sizes and bootstrap iterations to generate empirical power curves.
-
-**Independent Test**: Run analysis with N=[,, 40] and verify output table contains 3 distinct power estimates with monotonic trend.
-
-### Implementation for User Story 2
-
 - [ ] T022 [P] [US2] Implement `code/analysis/power_curve_generator.py` to orchestrate multiple bootstrap iterations per sample size (FR-004) and support multiple smoothing kernels. **Depends on T012-T017, T008.**
-- [ ] T023 [US2] Implement logic in `code/analysis/power_curve_generator.py` to clamp requested sample size to available data if N > original (Edge Case 2).
-- [ ] T024 [US2] Implement logistic regression model in `code/analysis/power_curve_generator.py` using `statsmodels` (CPU-optimized) with replication success as outcome (FR-005).
-- [ ] T025 [US2] Add VIF (Variance Inflation Factor) calculation in `code/analysis/power_curve_generator.py` to check for multicollinearity (SC-004). **Log 'High Collinearity' if VIF >= 5; do NOT fail pipeline.**
-- [ ] T026 [US2] Implement aggregation logic to output `data/aggregated/power_curves.json` with `sample_sizes_tested` and `empirical_rates`.
-- [ ] T027 [US2] Apply **Benjamini-Hochberg FDR** multiple-comparison correction to final model results across paradigms (Spec Assumption: Power Correction). **Output: `data/aggregated/corrected_power_curves.json`.**
-- [ ] T027b [US2] Implement logic in `code/analysis/power_curve_generator.py` to document justification for choosing FDR over Bonferroni in the output report (SC-002).
-- [ ] T028 [US2] Implement alpha-sweep sensitivity analysis (alpha values: [0.01, 0.05, 0.1]) and generate `results/paper/alpha_sensitivity_report.md`. **Must iterate across all 5 distinct cognitive paradigms (SC-002).** **Depends on T029.**
-- [ ] T029 [US2] Implement `code/analysis/multi_paradigm_runner.py` to orchestrate the power curve generation loop across the 5 distinct cognitive paradigms (Motor, Working Memory, etc.). **Depends on T022.**
+- [ ] T023 [P] [US2] Implement logic in `code/analysis/power_curve_generator.py` to clamp requested sample size to available data if N > original (Edge Case 2).
+- [ ] T024 [P] [US2] Implement logistic regression model in `code/analysis/power_curve_generator.py` using `statsmodels` (CPU-optimized) with replication success as outcome (FR-005).
+- [ ] T025 [P] [US2] Add VIF (Variance Inflation Factor) calculation in `code/analysis/power_curve_generator.py` to check for multicollinearity (SC-004). **Log 'High Collinearity' if VIF >= 5; do NOT fail pipeline.**
+- [ ] T026 [P] [US2] Implement aggregation logic to output `data/aggregated/power_curves.json` with `sample_sizes_tested` and `empirical_rates`.
+- [ ] T027 [P] [US2] Apply **Benjamini-Hochberg FDR** multiple-comparison correction to final model results across the **5 MVP paradigms** (Spec Assumption: Power Correction). **Output: `data/aggregated/corrected_power_curves.json`.**
+- [ ] T029 [P] [US2] Implement `code/analysis/multi_paradigm_runner.py` to orchestrate the power curve generation loop across the 5 distinct cognitive paradigms (Motor, Working Memory, Emotional Face, Auditory Oddball, Visual Motion). **Must call T038b/T050 timer logging methods during the loop.** **Depends on T022.**
+- [ ] T028 [P] [US2] Implement alpha-sweep sensitivity analysis (alpha values: [0.01, 0.05, 0.1]) and generate `results/paper/alpha_sensitivity_report.md`. **Must iterate across the 5 distinct cognitive paradigms (Motor, Working Memory, Emotional Face, Auditory Oddball, Visual Motion) as defined in `plan.md`.** **Depends on T029.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Preprocessing Sensitivity Analysis (Priority: P3)
+## Phase 4: User Story 3 - Preprocessing Sensitivity Analysis (Priority: P3)
 
 **Goal**: Compare effect sizes and replication rates across different smoothing kernels.
 
@@ -124,23 +113,23 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Implement parameter injection in `code/analysis/power_curve_generator.py` (via T022) to run separate loops for different **temporal** smoothing kernels (4mm, 8mm). **Kernel support is native to T022.**
-- [ ] T032 [US3] Implement comparison logic in `code/analysis/power_curve_generator.py` to calculate absolute difference in Cohen's d and replication rates (SC-003).
-- [ ] T033 [US3] Add "High Sensitivity" flag in `code/analysis/power_curve_generator.py` if replication rate difference >10 percentage points (US-3 Scenario 2).
-- [ ] T034 [US3] Implement summary report generation in `results/paper/sensitivity_report.md` comparing 4mm vs 8mm results.
+- [ ] T031 [P] [US3] Implement parameter injection in `code/analysis/power_curve_generator.py` (via T022) to run separate loops for different **temporal** smoothing kernels (4mm, 8mm). **Kernel support is native to T022.** **Mapping: 4mm spatial [deferred] -> 4s temporal (TR=2s), 8mm spatial [deferred] -> 8s temporal (TR=2s).**
+- [ ] T032 [P] [US3] Implement comparison logic in `code/analysis/power_curve_generator.py` to calculate absolute difference in Cohen's d and replication rates (SC-003).
+- [ ] T033 [P] [US3] Add "High Sensitivity" flag in `code/analysis/power_curve_generator.py` if replication rate difference >10 percentage points (US-3 Scenario 2).
+- [ ] T034 [P] [US3] Implement summary report generation in `results/paper/sensitivity_report.md` comparing 4mm vs 8mm results.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 5: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T035 [P] Update `README.md` with CLI usage examples and installation instructions.
 - [ ] T036 [P] Add docstrings to `code/main.py` and `code/analysis/power_curve_generator.py` with parameter descriptions.
 - [ ] T037 [P] Document API endpoints in `docs/api.md` with request/response examples.
-- [ ] T038 [P] Implement wall-clock time monitoring in `code/utils/timer.py` to log start/end times and verify execution < 6 hours (SC-005). **Output: `results/paper/timing_report.md`.**
+- [ ] T038 [P] [US2] Implement wall-clock time monitoring in `code/utils/timer.py` (T038b) to log start/end times and verify execution < 6 hours (SC-005). **Output: `results/paper/timing_report.md`.** **Depends on T038b.**
 - [ ] T039 [P] Remove unused imports from all `code/` modules.
 - [ ] T040 [P] Enforce Black formatting on all `code/` and `tests/` files.
 - [ ] T041a [P] Extract bootstrap loop logic in `code/analysis/power_curve_generator.py` into `code/utils/bootstrap_runner.py`. **Function name: `run_bootstrap_iterations`.**
@@ -151,17 +140,32 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
-## Phase 7: Preprocessing Traceability (Critical Review Response)
+## Phase 6: Data Streaming & Robustness (Critical Review Response)
 
-**Goal**: Ensure strict adherence to "Neuroimaging Preprocessing Traceability" (Constitution Principle VII) for the custom pipeline.
+**Goal**: Ensure the data loader strictly adheres to "Fail Loudly" and "Stream Real Data" rules, preventing synthetic fallbacks and handling large datasets correctly.
 
-**Independent Test**: Verify that `results/paper/pipeline_config.json` contains the exact version and parameters of the custom ROI pipeline used.
+**Independent Test**: Verify that `code/download/openneuro_fetcher.py` raises an exception on missing data and uses `streaming=True` for large datasets.
 
-### Implementation for Traceability
+### Implementation for Robustness
 
-- [ ] T013b [P] Implement `code/preprocess/traceability_logger.py` to log the specific **Custom ROI Pipeline** version, parameters (ROI mask, temporal kernel size), and GLM configuration to `results/paper/pipeline_config.json`. **Must explicitly state fMRIPrep is NOT used.** **Depends on T012/T013.**
+- [ ] T048 [P] [US2] Add a task to `code/analysis/multi_paradigm_runner.py` that logs the exact sample size used per paradigm if clamping occurred (Edge Case 2), ensuring transparency in the final report.
 
-**Checkpoint**: Data pipeline is robust, memory-safe, and strictly real-data compliant.
+**Checkpoint**: Data ingestion is strictly real, streamed, and fails loudly on error.
+
+---
+
+## Phase 7: Execution Monitoring & Reporting (Critical Review Response)
+
+**Goal**: Ensure all execution constraints (time, memory, convergence) are actively monitored and reported in the final artifacts.
+
+**Independent Test**: Verify that `results/paper/timing_report.md` and `results/paper/convergence_report.md` are generated and contain valid data.
+
+### Implementation for Monitoring
+
+- [ ] T049 [P] [US2] Implement `code/utils/convergence_monitor.py` to track GLM convergence status across all bootstrap iterations. **Convergence Failure Criteria: max iterations > 100 OR tolerance < 1e-4.** **Output: `results/paper/convergence_report.md` listing any failed iterations and their causes (format: JSON list of {iteration_id, reason}).**
+- [ ] T051 [P] [US2] Add a final validation step in `code/main.py` that checks if all required output files (power curves, sensitivity reports, timing logs) exist before exiting. **Exit with code 1 if any are missing.**
+
+**Checkpoint**: Full observability into pipeline execution and model health.
 
 ---
 
@@ -172,10 +176,11 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Traceability (Phase 7)**: Must be completed before final report generation.
+- **Robustness (Phase 6)**: Must be completed before final data ingestion runs.
+- **Monitoring (Phase 7)**: Must be completed before final execution run.
 
 ### User Story Dependencies
 
@@ -199,6 +204,7 @@ Examples of foundational tasks (adjust based on your project):
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 6 (Robustness) and Phase 7 (Monitoring) can be implemented in parallel with Phase 3-5.
 
 ---
 
@@ -222,18 +228,17 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 7: Traceability (Critical for Principle VII)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add Traceability (Phase 7) → Ensure logging logic is robust
-3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-4. Add User Story 2 → Test independently → Deploy/Demo
-5. Add User Story 3 → Test independently → Deploy/Demo
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Add Monitoring (Phase 7) → Ensure full observability
 6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -242,9 +247,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+ - Developer D: Robustness (Phase 6) & Monitoring (Phase 7)
 3. Stories complete and integrate independently
 
 ---
@@ -259,3 +265,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Rule**: Never use synthetic data as a fallback. If real data fetch fails, the pipeline must crash with a clear error.
+- **Critical Rule**: Always stream large datasets; never load them entirely into memory.
+- **Critical Rule**: Adhere strictly to the 5-dataset MVP scope defined in plan.md.

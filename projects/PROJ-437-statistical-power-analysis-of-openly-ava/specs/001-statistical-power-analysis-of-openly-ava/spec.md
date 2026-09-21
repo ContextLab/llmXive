@@ -85,9 +85,9 @@
 
 - **SC-001**: The empirical replication rate (binary success/fail) is measured against the consistency of effect direction and magnitude between train and test sets to ensure the metric reflects true predictive power. (See US-1)
 - **SC-002**: The non-linear relationship between sample size and replication probability is measured against the bootstrapped power curve generated for at least 5 distinct cognitive paradigms. (See US-2)
-- **SC-003**: The impact of preprocessing choices on effect size is measured against the absolute difference in Cohen's d between the 4mm and 8mm smoothing conditions. (See US-3)
+- **SC-003**: The impact of preprocessing choices on effect size is measured against the absolute difference in Cohen's d between the two smoothing conditions. (See US-3)
 - **SC-004**: The validity of the statistical model is measured against the convergence of the Logistic Regression likelihood function and the absence of multicollinearity (VIF < 5) among fixed effects. (See US-2)
-- **SC-005**: The computational feasibility is measured against the total wall-clock time of the analysis, which must not exceed a practical threshold on a standard GitHub Actions free-tier runner (A configuration with a limited number of CPU cores and 7 GB RAM.). (See US-1)
+- **SC-005**: The computational feasibility is measured against the total wall-clock time of the analysis, which must not exceed a practical threshold on a standard GitHub Actions free-tier runner (A configuration with a limited number of CPU cores and constrained RAM.). (See US-1)
 
 ## Assumptions
 

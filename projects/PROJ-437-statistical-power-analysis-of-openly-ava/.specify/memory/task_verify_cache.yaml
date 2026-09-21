@@ -1,0 +1,6 @@
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file was provided or shown, and there is no evidence that
+    CLI usage examples or installation instructions have been added. The required
+    documentation artifact is missing, so the task is not satisfied.

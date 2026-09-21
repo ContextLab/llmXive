@@ -1,0 +1,141 @@
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: alpha-sweep sensitivity analysis across 5 cognitive paradigms with alpha
+    values 0.01 0.05 0.10
+  claim_id: c_e50dd393
+  context: 'This report presents the results of an alpha-sweep sensitivity analysis
+    across 5 cognitive paradigms. The analysis evaluates how statistical power (replication
+    success rates) varies with different significance thresholds (alpha values: 0.01,
+    0.05, 0.10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The analysis evaluates how statistical power (replication success rates)
+    varies with different significance thresholds (alpha values: 0.01, 0.05, 0.10)
+    across 5 cognitive paradigms.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:37:07Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: paradigms analyzed ds000030_motor ds000113_working_memory ds000247_language
+    ds000173_emotion ds000205_relational
+  claim_id: c_5d7aa52f
+  context: '### Paradigms Analyzed
+
+
+    - ds000030_motor
+
+    - ds000113_working_memory
+
+    - ds000247_language
+
+    - ds000173_emotion
+
+    - ds000205_relational'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paradigms_analyzed_ds000030_motor_ds000113_working_memory_ds
+  kind: entity_fact
+  raw_text: The paradigms analyzed were ds000030_motor, ds000113_working_memory, ds000247_language,
+    ds000173_emotion, and ds000205_relational.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:37:32Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: mean power at alpha 0.01 was 0.598
+  claim_id: c_eebc8bb0
+  context: "### Key Findings\n\n- **Mean power at \u03B1=0.05**: 0.804\n- **Mean power\
+    \ at \u03B1=0.01**: 0.598\n- **Mean power at \u03B1=0.10**: 0.875"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean power at alpha=0.01 was 0.598.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:38:00Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: mean power at alpha 0.05 was 0.804
+  claim_id: c_8a7374d1
+  context: "### Key Findings\n\n- **Mean power at \u03B1=0.05**: 0.804\n- **Mean power\
+    \ at \u03B1=0.01**: 0.598\n- **Mean power at \u03B1=0.10**: 0.875"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean power at alpha=0.05 was 0.804.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:38:24Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: mean power at alpha 0.10 was 0.875
+  claim_id: c_f588bd28
+  context: "### Key Findings\n\n- **Mean power at \u03B1=0.05**: 0.804\n- **Mean power\
+    \ at \u03B1=0.01**: 0.598\n- **Mean power at \u03B1=0.10**: 0.875"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean power at alpha=0.10 was 0.875.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:38:58Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: increasing alpha from 0.05 to 0.10 increases mean power by 0.071 8.8
+    percent relative increase
+  claim_id: c_587d8d86
+  context: Increasing alpha from 0.05 to 0.10 increases mean power by 0.071 (8.8%
+    relative increase)
+  evidence:
+    entailment_evidence: Increasing alpha from 0.05 to 0.10 increases mean power by
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Increasing_alpha_from_0.05_to_0.10_increases_mean_power_by_0
+  kind: entity_fact
+  raw_text: Increasing alpha from 0.05 to 0.10 increases mean power by 0.071, which
+    is an 8.8% relative increase.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-21T15:39:26Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/results/paper/alpha_sensitivity_report.md
+  attempts: 1
+  canonical: increasing alpha from 0.01 to 0.05 increases mean power by 0.206 34.4
+    percent relative increase
+  claim_id: c_98b799cb
+  context: Increasing alpha from 0.01 to 0.05 increases mean power by 0.206 (34.4%
+    relative increase)
+  evidence:
+    entailment_evidence: Increasing alpha from 0.01 to 0.05 increases mean power by
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Increasing_alpha_from_0.01_to_0.05_increases_mean_power_by_0
+  kind: entity_fact
+  raw_text: Increasing alpha from 0.01 to 0.05 increases mean power by 0.206, which
+    is a 34.4% relative increase.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-21T15:39:56Z'
