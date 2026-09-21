@@ -1,0 +1,3 @@
+# Extends pyproject.toml for CLI overrides if needed
+# Default settings are in pyproject.toml
+extend = "pyproject.toml"

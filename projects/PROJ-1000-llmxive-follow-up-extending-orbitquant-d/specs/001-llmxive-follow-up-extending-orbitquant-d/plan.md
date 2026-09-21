@@ -17,7 +17,7 @@ If a correlation exists, the system clusters prompts by entropy into $K=16$ bins
 **Primary Dependencies**: `torch`, `transformers`, `diffusers`, `datasets`, `scikit-learn`, `accelerate`, `sentence-transformers`, `fid-score`, `clip-score` (CPU-compatible forks), `numpy`, `pandas`, `peft` (for 8-bit loading).  
 **Storage**: Local `data/` directory for cached datasets (MS-COCO) and `code/` for scripts/notebooks.  
 **Testing**: `pytest` (unit tests for router logic, integration tests for end-to-end generation).  
-**Target Platform**: Linux (GitHub Actions CPU runner: vCPU, 7GB RAM) with GPU escape hatch (Kaggle: 1x T4/P100, 16GB VRAM) for float32 DiT generation passes.  
+**Target Platform**: Linux (GitHub Actions CPU runner: vCPU, ample RAM) with GPU escape hatch (Kaggle: 1x T4/P100, 16GB VRAM) for float32 DiT generation passes.  
 **Project Type**: Research/Algorithmic Library  
 **Performance Goals**: Router overhead ≤ 2% vs. static baseline; correlation p < 0.05.  
 **Constraints**: Must run on CPU for routing/analysis; GPU only for heavy DiT generation (offloaded automatically if CPU fails). No synthetic data; must use real MS-COCO.  
@@ -97,7 +97,7 @@ projects/PROJ-1000-llmxive-followup-extending-orbitquant-d/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **GPU Escape Hatch** | Float generation passes on DiT (FLUX/Wan) exceed 7GB RAM on CPU. | A synthetic CPU approximation of the DiT generation pass would be fabrication; the real computation must be offloaded to Kaggle. |
+| **GPU Escape Hatch** | Float generation passes on DiT (FLUX/Wan) exceed available CPU RAM capacity. | A synthetic CPU approximation of the DiT generation pass would be fabrication; the real computation must be offloaded to Kaggle. |
 | **Semantic Entropy Proxy** | Full LLM inference for every prompt is too slow for large batches of prompts on CPU. | Using a fixed heuristic for entropy (e.g., string length) fails to capture *semantic* complexity, invalidating the core hypothesis. |
 | **Clustering (K=16)** | Requires analyzing activation histograms across the dataset. | A static rotation (K=1) is the baseline; K=16 is necessary to test the dynamic hypothesis. |
 | **Train/Test Split** | Required to avoid circular validation (concern scientific_soundness-e46de492). | Using the full dataset to both derive bins and validate the router would result in tautological performance claims. |

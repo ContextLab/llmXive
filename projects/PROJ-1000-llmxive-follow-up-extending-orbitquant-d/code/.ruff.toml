@@ -1,0 +1,29 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "ANN",# flake8-annotations (optional strictness)
+]
+ignore = [
+    "ANN001", # Missing type annotation for function argument (too strict for initial research)
+    "ANN201", # Missing return type annotation for public function
+    "E501",   # Line too long (handled by black)
+]
+unfixable = [
+    "F401",   # Unused imports
+]
+per-file-ignores = { "tests/*" = ["ANN", "S101"] }
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
