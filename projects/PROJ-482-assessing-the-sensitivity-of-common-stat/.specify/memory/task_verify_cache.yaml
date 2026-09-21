@@ -1,33 +1,3 @@
-T014:
-  c: false
-  h: 3b24f3ffd3f24e7d8aed0d2d5c5112d5811268857da5a033d72cc36b4803131f
-  r: The repository contains `code/run_data_gen.py`, but the file is truncated and
-    does not show code that actually writes the CSV, and the required output `data/raw/sample_validation.csv`
-    is absent. Consequently the required dataset with the specified schema and validation
-    checks is not present. The implementer must provide a complete script that generates
-    the CSV and include the generated `sample_validation.csv` file.
-T021b:
-  c: true
-  h: e02a93d0fc558d840ca666d35ddd0a5be317019c1835c558b66d5c62071a9c85
-  r: "The `code/config.py` file defines `RAW_PVALUES_SCHEMA` with the required column\
-    \ list for `raw_pvalues.csv`, and `code/utils/file_lock.py` provides a functional\
-    \ fcntl\u2011based file\u2011locking context manager and a safe batch\u2011write\
-    \ function. Both required artifacts are present and non\u2011empty."
-T021b#1:
-  c: false
-  h: 70112e26fa474ee686fe0076294dd20542fe5f1f0d05a2f8f99ce975235bf691
-  r: "The provided `simulation_engine.py` is truncated and contains no code that streams\
-    \ or writes p\u2011values to `data/processed/raw_pvalues.csv`; the required CSV\
-    \ file does not exist. Consequently the task\u2019s core requirement\u2014recording\
-    \ every raw p\u2011value in the specified schema\u2014is not satisfied."
-T021b#2:
-  c: false
-  h: 6a747bd10fbf13271d3baa262269f8c943219be5319ddf2b5ef165c3c81743e3
-  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
-    \ the shown portion of `code/simulation_engine.py` does not contain any implementation\
-    \ that streams or writes raw p\u2011values to that CSV (only imports related utilities).\
-    \ Without the output file and concrete writing logic, the task\u2019s requirement\
-    \ is not satisfied."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
@@ -35,6 +5,24 @@ T021c:
     \ is truncated and contains no explicit validation routine comparing observed\
     \ Type\u202FI error rates to the nominal alpha level. The required deliverable\
     \ is therefore missing."
+T022:
+  c: true
+  h: d4d08153ffb5a6b993e3b709a6b6dc067b4c5462b150fceb3d57f779b6c16796
+  r: "The repository contains a non\u2011empty `code/run_simulation.py` (\u22487\u202F\
+    KB) that implements input\u2011file verification, logs \u201CERROR: Missing input\
+    \ files\u201D, exits with code\u202F1 when the required `raw_pvalues.csv` or `validation_report.csv`\
+    \ are absent, and includes scaffolding to run the full simulation batch and write\
+    \ intermediate results to `data/processed/`. The required input files are intentionally\
+    \ missing, and the script\u2019s fallback behavior matches the specification."
+T026b:
+  c: false
+  h: c73563a9ccd21f64879a2ad7783a4fd222738b208415f1be1ffaaf126a9949ca
+  r: "The repository contains a partially\u2011implemented `code/analyzer.py` that\
+    \ stops at the start of `analyze_stability_trend` and does not include code to\
+    \ perform linear regression, write `data/processed/stability_trend.csv`, generate\
+    \ the required plot, or produce the slope/report with the success flag. The expected\
+    \ output file `stability_trend.csv` is absent. The task\u2019s core deliverables\
+    \ are therefore missing."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023

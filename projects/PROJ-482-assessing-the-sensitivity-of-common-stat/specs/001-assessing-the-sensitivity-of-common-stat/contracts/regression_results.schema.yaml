@@ -1,27 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Results Schema"
-description: "Output of the regression analysis predicting observed error rates"
-type: object
+title: "Regression Results"
+description: "Schema for the regression analysis output using Beta Regression for error rates."
+type: "object"
 properties:
   predictor:
-    type: string
-    description: "Name of the predictor variable (e.g., log_n, distribution_normal)"
+    type: "string"
+    description: "Name of the predictor variable."
   coefficient:
-    type: number
-    description: "Regression coefficient (beta)"
+    type: "number"
+    description: "Regression coefficient."
+  std_error:
+    type: "number"
+    description: "Standard error of the coefficient."
   p_value:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value for the predictor"
+    description: "P-value for the coefficient."
   pseudo_r_squared:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "McFadden pseudo-R-squared for the model"
+    description: "Cox-Snell or Nagelkerke pseudo R-squared value (for Beta Regression)."
 required:
   - predictor
   - coefficient
+  - std_error
   - p_value
   - pseudo_r_squared
 additionalProperties: false

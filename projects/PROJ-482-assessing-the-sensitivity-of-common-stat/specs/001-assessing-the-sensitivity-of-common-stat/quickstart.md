@@ -3,14 +3,14 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` (package manager)
-- Git (for cloning the repository)
+- Git
+- Access to a terminal (local or GitHub Actions runner)
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone <repo-url>
    cd projects/PROJ-482-assessing-the-sensitivity-of-common-stat
    ```
 
@@ -22,50 +22,51 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
+   *Note: `requirements.txt` pins specific versions of `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `statsmodels`, and `pytest`.*
 
 ## Running the Simulation
 
-### Full Simulation
-To run the complete Monte Carlo study (all sample sizes, distributions, and tests):
+### Step 1: Validate Data Generation (Ground Truth Check)
+Before running the full simulation, verify the data generator produces correct distributions.
 ```bash
-python code/main.py --full
+python code/run_data_gen.py --validate
 ```
-This will:
-1. Generate synthetic data for all configurations.
-2. Run adaptive Monte Carlo simulations using **Clopper-Pearson** intervals for convergence.
-3. Aggregate results and compute confidence intervals.
-4. Fit a **GLM binomial regression** on the error rates.
-5. Generate visualizations.
+- **Expected Output**: `data/raw/sample_validation.csv` is created.
+- **Verification**: Check that `observed_mean_diff` matches `expected_mean_diff` within tolerance (1e-6) for the `normal` distribution.
+- **Note**: This script invokes `code/data_generator.py` to perform the generation and validation logic, then writes the CSV with MD5 checksums.
 
-### Single Configuration (Debug)
-To test a single configuration (e.g., t-test, normal, n=50):
+### Step 2: Run Full Simulation
+Execute the adaptive Monte Carlo simulation.
 ```bash
-python code/main.py --config "sample_size=50,distribution=normal,test=ttest,effect=0.0"
+python code/main.py
 ```
+- **Process**:
+  1. Generates data for all configurations.
+  2. Runs adaptive replicates until CI width ≤ 0.01 (using Clopper-Pearson).
+  3. Aggregates results.
+  4. Fits Beta Regression models.
+- **Output**: `data/processed/aggregated_results.csv`, `data/processed/regression_results.csv`, and plots in `data/figures/`.
 
-## Output Locations
-
-- **Raw Data**: `data/raw/simulation_runs.csv`
-- **Aggregated Metrics**: `data/processed/error_metrics.csv`
-- **Regression Results**: `data/processed/regression_results.csv`
-- **Visualizations**: `data/processed/plots/` (PNG/SVG files)
-
-## Verification
-
-To verify the simulation engine:
+### Step 3: Visualize Results
+Generate publication-ready plots.
 ```bash
-pytest tests/unit/test_data_generator.py
-pytest tests/unit/test_simulation.py
+python code/visualization.py
 ```
-These tests ensure that:
-- Generated data matches theoretical parameters.
-- Type I error rates for normal data (n=50) are close to 0.05.
-- Confidence intervals are calculated using the **Clopper-Pearson** method.
+- **Output**: PNG/SVG files in `data/figures/` showing error rates vs. sample size.
+
+## Testing
+
+Run the test suite to ensure correctness:
+```bash
+pytest tests/ -v
+```
+- **Unit Tests**: Verify data generation statistics.
+- **Integration Tests**: Verify simulation loop convergence logic.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the maximum replicate count in `code/config.py` (default a sufficiently large number).
-- **Convergence Warning**: If CI width > 0.01 after max replicates, the result is flagged in the CSV. Check `convergence_achieved` column.
-- **Fisher's Exact**: If `test_used` is `fisher_exact`, the system automatically switched due to small cell counts (expected count < 5).
+- **Convergence Timeout**: If a configuration takes > 10,000 replicates to converge, check `code/simulation_engine.py` for the `max_replicates` limit. This usually indicates a bug in the test logic or extreme skewness.
+- **Memory Error**: The simulation is designed to be memory-efficient. If memory errors occur, reduce `max_replicates` in `config.py` (not recommended for final runs).
+- **Missing Dependencies**: Ensure `requirements.txt` is up to date and installed in the correct virtual environment.

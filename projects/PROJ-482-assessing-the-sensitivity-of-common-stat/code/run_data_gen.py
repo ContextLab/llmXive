@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 import hashlib
+import json
 from typing import List, Dict, Any
 
 from data_generator import generate_data, validate_sample_statistics
@@ -17,15 +18,22 @@ logger = logging.getLogger(__name__)
 
 def compute_row_checksum(row: Dict[str, Any]) -> str:
     """
-    Compute MD5 checksum of the row data.
-    The checksum is calculated over the string representation of the key-value pairs
-    to ensure consistency and detect data tampering.
+    Compute MD5 checksum of the row dictionary.
+    
+    The checksum is the MD5 hash of the JSON representation of the row dictionary,
+    with keys sorted alphabetically and no whitespace, encoded as UTF-8.
+    This ensures deterministic output across environments.
+    
+    Args:
+        row: Dictionary containing row data.
+        
+    Returns:
+        Hexadecimal string of the MD5 hash.
     """
-    # Sort keys to ensure deterministic order
-    sorted_items = sorted(row.items())
-    # Create a string representation
-    data_str = "|".join([f"{k}={v}" for k, v in sorted_items])
-    return hashlib.md5(data_str.encode('utf-8')).hexdigest()
+    # Create JSON string with sorted keys and no whitespace
+    json_str = json.dumps(row, sort_keys=True, separators=(',', ':'))
+    # Encode to UTF-8 and compute MD5
+    return hashlib.md5(json_str.encode('utf-8')).hexdigest()
 
 def generate_validation_dataset(output_path: str) -> None:
     """
@@ -60,16 +68,8 @@ def generate_validation_dataset(output_path: str) -> None:
 
         logger.info(f"Generating scenario: n={n}, dist={dist_type}, effect={effect_size}")
 
-        # Generate data
-        # Note: generate_data returns a dict with 'group1', 'group2', 'stats'
-        # We assume the config is set up with standard parameters (mu=0, sigma=1 for normal/uniform)
-        # and effect_size is applied to the mean of group2.
-        
-        # We need to construct a config object or pass parameters directly.
-        # Looking at data_generator API, it likely takes params.
-        # Let's assume standard params: mu=0, sigma=1, scale=1 (for lognormal)
-        
         try:
+            # Generate data using the data_generator module
             data_dict = generate_data(
                 sample_size=n,
                 distribution_type=dist_type,
@@ -81,8 +81,7 @@ def generate_validation_dataset(output_path: str) -> None:
             group2 = data_dict['group2']
             stats = data_dict['stats']
             
-            # Validate statistics
-            # This function raises an error if validation fails
+            # Validate statistics - this raises an error if validation fails
             validate_sample_statistics(group1, group2, effect_size, dist_type)
             
             # Calculate metrics for the CSV
@@ -92,6 +91,7 @@ def generate_validation_dataset(output_path: str) -> None:
             variance = float(np.var(np.concatenate([group1, group2]), ddof=1))
             skewness = float(stats['skewness'])
             
+            # Prepare row data
             row_data = {
                 "sample_size": n,
                 "distribution_type": dist_type,
@@ -101,10 +101,10 @@ def generate_validation_dataset(output_path: str) -> None:
                 "mean_diff": mean_diff,
                 "variance": variance,
                 "skewness": skewness,
-                "checksum": "" # Placeholder
+                "checksum": ""  # Placeholder to be filled
             }
             
-            # Compute checksum
+            # Compute checksum using the updated method
             row_data["checksum"] = compute_row_checksum(row_data)
             
             results.append(row_data)

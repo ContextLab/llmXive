@@ -1,7 +1,3 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
 **Input**: Design documents from `/specs/001-assess-test-sensitivity/`
@@ -24,34 +20,13 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create `code/` directory
-- [X] T001b Create `data/raw/` directory
-- [X] T001c Create `data/processed/` directory
-- [X] T002 Initialize Python 3.11 project with dependencies (`numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn`, `pytest`) in `requirements.txt`
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `tests/`, `logs/`). **Deliverable**: Empty directories with `.gitkeep` files.
+- [X] T002 Initialize Python 3.11 project with dependencies (`numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn`, `pytest`) in `requirements.txt`.
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`.
 
 ---
 
@@ -61,12 +36,11 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` to define simulation parameters (sample sizes n=10..1000, distributions, alpha=0.05, effect sizes, `MAX_REPLICATES=10000`, `LOG_EPSILON=1e-15`)
-- [X] T005 [P] Implement `code/__init__.py` and basic logging infrastructure
-- [X] T006 Create `data/raw/` and `data/processed/` directories with `.gitkeep`
-- [X] T007 Setup `tests/unit/` and `tests/contract/` directory structure
-- [X] T008d [P] [Foundational] Create and populate `quickstart.md` with Environment Setup, Data Generation, Simulation Execution, Visualization, and Interpretation sections. **Deliverable**: A complete markdown file with code placeholders.
-- [X] T021b-0 [P] [Foundational] Define CSV schema for `data/processed/raw_pvalues.csv` in `code/config.py` and implement file locking utility in `code/utils/file_lock.py`. **Deliverable**: A schema definition and a locking utility function. **Constraint**: This task MUST be completed before T021b.
+- [X] T004 Create `code/config.py` to define simulation parameters (sample sizes n=10..1000, distributions, alpha=0.05, effect sizes, `MAX_REPLICATES=10000`, `LOG_EPSILON=1e-15`, `SEED_BASE=42`).
+- [X] T005 [P] Implement `code/__init__.py` and basic logging infrastructure.
+- [X] T006 Create `data/raw/` and `data/processed/` directories with `.gitkeep`.
+- [X] T007 Setup `tests/unit/` and `tests/contract/` directory structure.
+- [X] T008d [P] [Foundational] Create and populate `quickstart.md` with Environment Setup, Data Generation, Simulation Execution, Visualization, and Interpretation sections. **Deliverable**: A complete markdown file with code placeholders. **Constraint**: This task is a documentation deliverable, not a code dependency for data generation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,17 +54,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T008a [P] [US1] Define and write test cases for normal distribution generation in `tests/unit/test_data_generator.py` **Dependency**: T011-Interface.
-- [X] T008b [P] [US1] Define and write test cases for log-normal skewness validation in `tests/unit/test_data_generator.py` **Dependency**: T011-Interface.
-- [X] T008c [P] [US1] Define and write test cases for log-normal effect size validation in `tests/unit/test_data_generator.py` **Dependency**: T011-Interface.
-- [X] T008d [P] [US1] Define and write test cases for uniform distribution sample size accuracy in `tests/unit/test_data_generator.py` **Dependency**: T011-Interface.
+- [X] T009a [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_normal_mean_validation`. **Assertion**: Verify sample mean difference for normal distribution (n=50, effect=0.0) is within 1e-6 of 0.0. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009b [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_skewness_validation`. **Assertion**: Verify skewness of log-normal distribution (n=30) matches theoretical value within 5% tolerance. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009c [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_effect_size_validation`. **Assertion**: Verify mean difference for log-normal distribution (n=30, effect=0.5) is within 1e-6 of 0.5. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009d [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_uniform_sample_size_accuracy`. **Assertion**: Verify sample size for uniform distribution (n=1000) is exactly 1000 and data fits uniform profile. **Dependency**: None (TDD: defines expected behavior per spec).
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/data_generator.py` with functions to generate Normal, Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative (effect=0.5) hypotheses. **Dependency**: T011-Interface.
+- [X] T011 [US1] Implement `code/data_generator.py` with functions to generate Normal, Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative (effect=0.5) hypotheses. **Constraint**: Use `np.random.seed` derived from `config.SEED_BASE` and configuration hash for reproducibility (Constitution Principle I).
 - [X] T012 [US1] Add logic in `code/data_generator.py` to handle edge cases: ensure log-normal skew is finite and prevent numerical overflow.
 - [X] T013 [US1] Implement validation routine in `code/data_generator.py` that compares generated sample statistics to theoretical parameters and raises errors on mismatch.
-- [X] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification. **Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`. **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff` must be within 1e-6 of theoretical value; `checksum` must be MD5 of the JSON representation of the row dictionary (keys sorted alphabetically, encoded as UTF-8, no whitespace). **Instruction**: Use Python's built-in `json` library with `sort_keys=True` and `separators=(',', ':')` to ensure deterministic output across environments. **Dependency**: T011.
+- [X] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for **manual verification only**. **Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`. **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff` must be within 1e-6 of theoretical value; `checksum` must be MD5 of the JSON representation of the row dictionary (keys sorted alphabetically, encoded as UTF-8, no whitespace, using `json.dumps(row, sort_keys=True, separators=(',', ':'))`). **Instruction**: Use Python's built-in `json` library with `sort_keys=True` and `separators=(',', ':')` to ensure deterministic output across environments. **Dependency**: T011. **Note**: This task generates a **manual verification artifact** and is **NOT a dependency for the automated T017b gate** (which uses T013). It is **optional** and can be skipped if automated validation is sufficient. **CRITICAL**: The automated Ground-Truth Validation Gate (T017b) relies exclusively on the logic in T013, NOT on the artifact generated by T014. T014 is for human inspection only and does not block the simulation pipeline.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,28 +78,26 @@ description: "Task list template for feature implementation"
 
 ### Shared Validation (Blocking Gate)
 
-- [X] T017b [US1/US2] **Run Ground-Truth Validation Gate**: Execute the validation routine from T013 on a fresh batch of generated data before starting the Monte Carlo loop. **Implementation**: Run `python code/data_generator.py --validate` and check exit code. **Constraint**: This task MUST pass (exit code 0) before T018 can begin. **Deliverable**: A log entry confirming ground-truth parameters were verified for the current configuration batch. **Dependency**: T013 must be complete.
+- [X] T017b [US1/US2] **Run Ground-Truth Validation Gate**: Execute the validation routine from T013 on a fresh batch of generated data before starting the Monte Carlo loop. **Implementation**: Run `python code/data_generator.py --validate` and check exit code. **Constraint**: This task MUST pass (exit code 0) before T018 can begin. **Deliverable**: A log entry confirming ground-truth parameters were verified for the current configuration batch. **Dependency**: T013 must be complete. **Note**: This task relies on the automated logic in T013, NOT on the manual artifact T014. T014 is strictly optional and does not block this gate.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T015 [P] [US2] Unit test for Type I error classification logic in `tests/unit/test_simulation.py`
-- [X] T016 [P] [US2] Unit test for Chi-squared validity: Verify that `scipy.stats.chi2_contingency` returns p < 0.05 for a 2x2 table with counts [[10, 1], [1, 10]] and that Fisher's Exact is triggered for expected counts < 5. **Deliverable**: A test case in `tests/unit/test_simulation.py` asserting these conditions.
-- [X] T017 [P] [US2] Integration test for adaptive replication loop termination in `tests/integration/test_simulation_loop.py`
+- [X] T015 [P] [US2] IF tests requested: Implement `tests/unit/test_simulation.py::test_type1_error_classification`. **Assertion**: Verify Type I error classification logic correctly identifies rejections of true null hypotheses. **Dependency**: None (TDD).
+- [X] T016 [P] [US2] IF tests requested: Implement `tests/unit/test_simulation.py::test_fisher_exact_trigger`. **Assertion**: Verify `scipy.stats.chi2_contingency` returns p < 0.05 for a 2x2 table with counts [[10, 1], [1, 10]] and that Fisher's Exact is triggered for expected counts < 5. **Deliverable**: A test case asserting these conditions. **Dependency**: None (TDD).
+- [X] T017 [P] [US2] IF tests requested: Implement `tests/integration/test_simulation_loop.py::test_adaptive_termination`. **Assertion**: Verify adaptive replication loop terminates when CI width ≤ 0.01 or max replicates reached. **Dependency**: None (TDD).
 
 ### Implementation for User Story 2
 
-- [X] T018-1 [US2] Implement data generation integration in `code/simulation_engine.py`: Call `code/data_generator.py` for each configuration. **Dependency**: T011.
-- [X] T018-2 [US2] Implement test execution logic in `code/simulation_engine.py`:
- - T-test (scipy.stats.ttest_ind)
- - ANOVA (scipy.stats.f_oneway)
- - Chi-squared (scipy.stats.chi2_contingency)
- - Fisher's Exact (scipy.stats.fisher_exact) triggered when expected cell counts < 5
-- [X] T018-3 [US2] Implement result classification logic in `code/simulation_engine.py`: Classify outcomes as Type I or Type II based on p-value and alpha.
-- [X] T020-1 [US2] Implement **bootstrap resampling** confidence interval calculation in `code/simulation_engine.py`. **Input**: A list of binary outcomes representing error and correct states, and `alpha=0.05`. **Output**: A tuple (lower_bound, upper_bound) for the 95% CI. **Constraint**: Use **bootstrap resampling** (1000 resamples) for binary outcomes as mandated by FR-004. **Deliverable**: A function `bootstrap_ci(outcomes, n_resamples=1000, alpha=0.05)` that returns the interval.
-- [X] T020-2 [US2] Implement adaptive control loop in `code/simulation_engine.py`: start with 1000 replicates, calculate 95% CI width using T020-1 (bootstrap), and trigger additional replicates until width ≤ 0.01. **Constraint**: If 10,000 replicates are reached and CI width > 0.01, the run MUST log 'UNSTABLE' to `logs/simulation.log` at WARNING level with the exact string 'UNSTABLE'. **Dependency**: T020-1 must be complete.
-- [X] T021b [US2] Implement logic in `code/simulation_engine.py` to **stream and store raw p-values** for every replicate in a structured format. **Input**: Stream p-values from T018/T020. **Output**: Write to `data/processed/raw_pvalues.csv` in real-time (or batched at the end of each configuration) using the schema and locking from T021b-0. **Schema**: Columns `sample_size`, `distribution_type`, `test_type`, `p_value`, `hypothesis_type`. **Delimiter**: Comma. **Encoding**: UTF-8. **Constraint**: Store raw p-values exactly as generated; do NOT apply any clipping or transformation. Use **append mode with file locking** and a **batch size of 1000 rows**. **Dependency**: T018/T020 must be integrated; T021b-0 must be complete.
-- [X] T021c [US2] Implement explicit validation routine in `code/simulation_engine.py` to compare observed Type I error rates against the theoretical nominal alpha level for the null hypothesis scenarios. **Constraint**: The streaming pipeline (T021b) is a hard requirement. If the streaming pipeline is inactive or insufficient, the validation gate fails (exit code 1). **Deliverable**: A report written to `data/processed/validation_report.csv` containing the observed vs. theoretical error rates and the difference. **Dependency**: T018 must be complete.
-- [X] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × distributions × 3 tests, saving intermediate results to `data/processed/`. **Dependency**: Must consume the output of T021b (`data/processed/raw_pvalues.csv`) and T021c (`data/processed/validation_report.csv`). **Execution Order**: T017b -> T018 -> T020-1 -> T020-2 -> T021b -> T021c -> T022. **Note**: T022 is the orchestrator; its implementation requires the code of T018 to be present. **Fallback**: If input files are missing, T022 must exit with code 1 and log 'ERROR: Missing input files'. **Dependency**: T021b, T021c must be complete.
+- [X] T018 [US2] Implement `code/simulation_engine.py`:
+ - **Data Generation**: Call `code/data_generator.py` for each configuration.
+ - **Test Execution**: T-test (`scipy.stats.ttest_ind`), ANOVA (`scipy.stats.f_oneway`), Chi-squared (`scipy.stats.chi2_contingency`), Fisher's Exact (`scipy.stats.fisher_exact`) triggered when expected cell counts < 5.
+ - **Seeding**: Implement deterministic seeding strategy where each replicate uses a unique seed derived from the configuration hash and replicate index (Constitution Principle I).
+ - **Classification**: Classify outcomes as Type I or Type II based on p-value and alpha.
+ - **Streaming**: Stream p-values to `data/processed/raw_pvalues.csv` in real-time (append mode, no file locking required for single runner). **Schema**: Columns `sample_size`, `distribution_type`, `test_type`, `p_value`, `hypothesis_type`. **Constraint**: Store raw p-values exactly as generated; do NOT apply any clipping or transformation. Use **append mode** with a **configurable batch size**. **Note**: This engine MUST incorporate the adaptive control logic from T020-2 to determine when to stop replicates. **Dependency**: T011, T017b.
+- [X] T020-1 [US2] Implement **Clopper-Pearson (Exact Binomial)** confidence interval calculation in `code/analyzer.py`. **Input**: A list of binary outcomes representing error and correct states, and `alpha=0.05`. **Output**: A tuple (lower_bound, upper_bound) for the 95% CI. **Constraint**: Use **Clopper-Pearson** intervals (exact binomial) for binary outcomes as mandated by Plan Constitution Principle VII and Complexity Tracking. **Deliverable**: A function `clopper_pearson_ci(outcomes, alpha=0.05)` that returns the interval. **Dependency**: None.
+- [X] T020-2 [US2] Implement adaptive control loop logic in `code/simulation_engine.py`: start with 1000 replicates, calculate 95% CI width using T020-1 (Clopper-Pearson: `width = Upper - Lower`), and trigger additional replicates until width ≤ 0.01. **Constraint**: If 10,000 replicates are reached and CI width > 0.01, the run MUST log 'UNSTABLE' to `logs/simulation.log` at WARNING level with the exact string 'UNSTABLE'. **Dependency**: T020-1 must be complete. **Note**: This logic is integrated into T018.
+- [X] T021c [US2] Implement explicit validation routine in `code/simulation_engine.py` to compare observed Type I error rates against the theoretical nominal alpha level for the null hypothesis scenarios. **Constraint**: The streaming pipeline (T018) is a hard requirement. If the streaming pipeline is inactive or insufficient, the validation gate fails (exit code 1). **Deliverable**: A report written to `data/processed/validation_report.csv` containing the observed vs. theoretical error rates and the difference. **Dependency**: T018 must be complete.
+- [X] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × distributions × 3 tests, saving intermediate results to `data/processed/`. **Dependency**: Must consume the output of T018 (`data/processed/raw_pvalues.csv`) and T021c (`data/processed/validation_report.csv`). **Execution Order**: T017b -> T018 (incorporating T020-2) -> T021c -> T022. **Note**: T022 is the orchestrator; its implementation requires the code of T018 to be present. **Fallback**: If input files are missing, T022 must exit with code 1 and log 'ERROR: Missing input files'. **Dependency**: T018, T021c must be complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,32 +105,31 @@ description: "Task list template for feature implementation"
 
 ## Phase 5: User Story 3 - Aggregate Results and Visualize (Priority: P3)
 
-**Goal**: Aggregate error rates, compute bootstrap confidence intervals, fit regression models, and generate publication-ready CSV and plots.
+**Goal**: Aggregate error rates, compute confidence intervals, fit regression models, and generate publication-ready CSV and plots.
 
 **Independent Test**: Verify CSV output contains all required columns and plots correctly map sample size to error rate with confidence intervals.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US3] Unit test for CSV export format and column presence in `tests/unit/test_analyzer.py`
-- [X] T024 [P] [US3] Unit test for bootstrap CI calculation in `tests/unit/test_analyzer.py`
-- [X] T025 [P] [US3] Unit test for regression model McFadden R² calculation in `tests/unit/test_analyzer.py`
+- [X] T023 [P] [US3] IF tests requested: Implement `tests/unit/test_analyzer.py::test_csv_export_format`. **Assertion**: Verify CSV export contains all required columns (sample_size, distribution, test, error_rate, ci_lower, ci_upper). **Dependency**: None (TDD).
+- [X] T024 [P] [US3] IF tests requested: Implement `tests/unit/test_analyzer.py::test_clopper_pearson_ci`. **Assertion**: Verify Clopper-Pearson CI calculation returns correct bounds for known proportions. **Dependency**: None (TDD).
+- [X] T025 [P] [US3] IF tests requested: Implement `tests/unit/test_analyzer.py::test_mcfadden_r_squared`. **Assertion**: Verify McFadden pseudo-R² calculation matches theoretical formula. **Dependency**: None (TDD).
 
 ### Implementation for User Story 3
 
-- [X] T026-0 [US3] **Decouple CI Methods**: Implement a distinct function `compute_final_cis(outcomes)` in `code/analyzer.py` that applies **bootstrap resampling** to the raw binary outcomes for final reporting. **Constraint**: This function must be separate from the CI logic in T020 to ensure consistency. **Dependency**: T020 must be complete. **Note**: This task is NOT parallel-safe. **Dependency**: T020 must be complete.
-- [X] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute **bootstrap** confidence intervals for final reporting (per FR-004). **Note**: Removed [P] tag due to dependency on T026-0 and T020.
+- [X] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute **Clopper-Pearson** confidence intervals for final reporting (per Plan Constitution Principle VII). **Note**: This task consumes the raw p-values from T018.
 - [X] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the Type I error rate **for each sample size** (not a single aggregate variance). Perform a **trend analysis** using **linear regression** of error rate vs. sample size to verify SC-002. **Output**: Write results to `data/processed/stability_trend.csv`, generate a plot of error rate vs. sample size, **calculate the aggregate stability metric** (slope of the regression line), and **verify the robustness claim** defined in SC-002 (slope < 0.01). **Deliverable**: A report containing the slope and a boolean success flag. **Dependency**: T026 must be complete.
-- [X] T027-1 [US3] Implement regression analysis in `code/analyzer.py`: Fit **Binomial GLM (logit link)** to predict the magnitude of deviation from the nominal significance threshold using log(sample size), distribution, and test type. **Target**: Logit of deviation from alpha. **Input**: Raw p-values from T021b. **Output**: Regression coefficients (beta). **Note**: Apply `config.LOG_EPSILON` (a small positive constant) to p-values of exactly 0 or 1 *only during the log-transform calculation* (i.e., `log(p + config.LOG_EPSILON)`). Do not modify the stored raw data. **Dependency**: T021b must be complete.
+- [X] T027-1 [US3] Implement regression analysis in `code/analyzer.py`: Fit **Binomial GLM (logit link)** to predict the magnitude of deviation from the nominal significance threshold. **Target**: `logit(|p - α| + config.LOG_EPSILON)`. **Input**: Raw p-values from T018. **Output**: Regression coefficients (beta). **Constraint**: Apply `config.LOG_EPSILON` to p-values of exactly 0 or 1 *only during the log-transform calculation*. **Requirement**: Store the *unmodified* raw p-values used for the regression input in a separate column/file to preserve the 'Single Source of Truth' (Constitution Principle IV). **Mapping**: Report regression coefficients and provide an inverse-logit mapping to interpret the magnitude of deviation in the original scale. **Note**: Apply `config.LOG_EPSILON` (a small positive constant) to p-values of exactly 0 or 1 *only during the log-transform calculation* (i.e., `logit(|p - α| + config.LOG_EPSILON)`). Do not modify the stored raw data. **Dependency**: T018 must be complete.
 - [X] T027-2 [US3] Calculate McFadden pseudo-R² using formula `1 - (log-likelihood_model / log-likelihood_null)` and report the value.
 - [X] T027-3 [US3] Verify if McFadden R² meets the SC-005 threshold (> 0.1). If the threshold is not met, log a critical warning.
-- [X] T027-4 [US3] Export regression results to `data/processed/regression_results.json`. **Schema**: JSON object with keys `beta` (list of floats, precision), `p_value` (float, precision 6), `mc_fadden_r_squared` (float, precision 6), and `test_type` (string) for each test type. **Dependency**: T027-1, T027-2, T027-3 must be complete.
+- [X] T027-4 [US3] Export regression results to `data/processed/regression_results.json`. **Schema**: JSON object with keys `beta` (list of floats, precision), `p_value` (float, precision), `mc_fadden_r_squared` (float, precision), and `test_type` (string) for each test type. **Dependency**: T027-1, T027-2, T027-3 must be complete.
 - [X] T027c-1 [US3] Retrieve ground-truth parameters (effect size, distribution type) from `config.py` and `data_generator.py` to ensure the theoretical power curve calculation uses the exact same assumptions as the simulation for **all test types**. **Deliverable**: A configuration object or dictionary mapping simulation parameters to theoretical calculation parameters.
-- [X] T027c-2 [US3] **Calculate Theoretical Power Curve (t-test)**: Implement the calculation of the theoretical power curve for the **t-test** based on the aligned parameters from T027c-1 (using `scipy.stats.nct` with non-centrality parameter `delta = effect_size * sqrt(n/2)` and degrees of freedom `df = 2n - 2`) and compute the mean absolute error (MAE) between the observed power curve and the theoretical power curve. **Success Criterion**: MAE < 0.01. **Deliverable**: A report containing the MAE metric and a plot comparing observed vs. theoretical power curves for t-tests. **File**: `data/processed/power_curve_ttest_mae.csv` and `data/processed/plots/power_curve_ttest.png`. **Dependency**: T027c-1 must be complete.
-- [X] T027c-3 [US3] **Calculate Theoretical Power Curve (ANOVA)**: Implement the calculation of the theoretical power curve for **ANOVA** using `scipy.stats.ncf` with the appropriate non-centrality parameter (lambda = n * effect_size^2 / (1 + effect_size^2)) derived from the effect size and sample size, and compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for ANOVA. **File**: `data/processed/power_curve_anova_mae.csv` and `data/processed/plots/power_curve_anova.png`. **Dependency**: T027c-1 must be complete.
-- [X] T027c-4 [US3] **Calculate Theoretical Power Curve (Chi-Squared)**: Implement the calculation of the theoretical power curve for **Chi-Squared** tests using `scipy.stats.ncx2` (non-central chi-squared distribution) with the non-centrality parameter derived from the effect size and sample size (lambda = n * effect_size^2), and compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for Chi-Squared tests. **File**: `data/processed/power_curve_chisq_mae.csv` and `data/processed/plots/power_curve_chisq.png`. **Dependency**: T027c-1 must be complete.
+- [X] T027c-2 [US3] **Calculate Theoretical Power Curve (t-test)**: Implement the calculation of the theoretical power curve for the **t-test** based on the aligned parameters from T027c-1. **Effect Size Definition**: `effect_size=0.5` maps to **Cohen's d = 0.5**. **Formula**: Non-centrality parameter `delta = effect_size * sqrt(n/2)` and degrees of freedom `df = 2n - 2` using `scipy.stats.nct`. Compute the mean absolute error (MAE) between the observed power curve and the theoretical power curve. **Success Criterion**: MAE < 0.01. **Deliverable**: A report containing the MAE metric and a plot comparing observed vs. theoretical power curves for t-tests. **File**: `data/processed/power_curve_ttest_mae.csv` and `data/processed/plots/power_curve_ttest.png`. **Dependency**: T027c-1 must be complete. **Note**: Verify simulation parameters match theoretical assumptions.
+- [X] T027c-3 [US3] **Calculate Theoretical Power Curve (ANOVA)**: Implement the calculation of the theoretical power curve for **ANOVA** using `scipy.stats.ncf`. **Effect Size Definition**: `effect_size=0.5` maps to **Cohen's f = 0.5**. **Formula**: Non-centrality parameter `lambda = n * effect_size^2 / (1 + effect_size^2)`. Compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for ANOVA. **File**: `data/processed/power_curve_anova_mae.csv` and `data/processed/plots/power_curve_anova.png`. **Dependency**: T027c-1 must be complete. **Note**: Verify simulation parameters match theoretical assumptions.
+- [X] T027c-4 [US3] **Calculate Theoretical Power Curve (Chi-Squared)**: Implement the calculation of the theoretical power curve for **Chi-Squared** tests using `scipy.stats.ncx2` (non-central chi-squared distribution). **Effect Size Definition**: `effect_size=0.5` maps to **Cohen's w = 0.5**. **Formula**: Non-centrality parameter `lambda = n * effect_size^2`. Compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for Chi-Squared tests. **File**: `data/processed/power_curve_chisq_mae.csv` and `data/processed/plots/power_curve_chisq.png`. **Dependency**: T027c-1 must be complete. **Note**: Verify simulation parameters match theoretical assumptions.
 - [X] T027c-5 [US3] **Aggregate Power Curve Results**: Aggregate MAE results from T027c-2, T027c-3, and T027c-4. Compare the aggregate MAE against the SC-004 threshold (MAE < 0.01). **Deliverable**: A consolidated validation report at `data/processed/power_curve_validation.csv` containing the MAE for each test type, the aggregate MAE, and a boolean `success` flag indicating if SC-004 is met. **Dependency**: T027c-2, T027c-3, T027c-4 must be complete.
-- [X] T028 [US3] Implement `code/visualizer.py` to generate publication-ready plots (PNG/SVG): Error Rate vs. Sample Size curves with CI bands, distinguishing distributions
-- [X] T029 [US3] Create `code/export_results.py` to write final aggregated data to `data/processed/error_rates.csv` and save plots to `data/processed/plots/`
+- [X] T028 [US3] Implement `code/visualizer.py` to generate publication-ready plots (PNG/SVG): Error Rate vs. Sample Size curves with CI bands, distinguishing distributions. **Requirement**: Explicitly label the confidence interval bands as 'confidence level' in the legend and axis labels, and add a caption explaining the Clopper-Pearson method used.
+- [X] T029 [US3] Create `code/export_results.py` to write final aggregated data to `data/processed/error_rates.csv` and save plots to `data/processed/plots/`.
 - [X] T030 [US3] Create `code/main.py` as the single entry point to orchestrate the full pipeline: Setup -> US1 (Data Gen) -> US2 (Simulation) -> US3 (Analysis/Export). **CLI Args**: `--config`, `--output`, `--verbose`. **Orchestration**: Call T011, T018, T026, T028 in sequence. **Exit Codes**: 0 for success, 1 for validation failure, 2 for missing inputs.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -170,15 +141,21 @@ description: "Task list template for feature implementation"
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T031 [P] Documentation updates in `README.md` explaining how to run the simulation and interpret results. **Content**: Must include execution commands, parameter explanations, and interpretation of error rate curves.
-- [X] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic
-- [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
+- [X] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic.
+- [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic.
 - [X] T033 [P] Performance verification: Create `code/benchmark.py` to measure the execution time of the full simulation suite. **Deliverable**: The script MUST write results to `logs/benchmark.log`. **Schema**: The log MUST contain a JSON structure with a key `total_runtime_seconds` and the value in seconds. **Verification**: Run the benchmark and confirm the total time is < 6 hours. **Constraint**: The script must explicitly check the 6-hour constraint and fail if not met.
-- [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
-- [X] T037 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #1 from `# Prior research-stage reviews`: "The regression model lacks an interaction term between sample size and distribution type. This may miss important effects." **Add an interaction term to the regression model.** **File**: `code/analyzer.py`. **Rationale**: Incorporate reviewer feedback to improve model accuracy.
-- [X] T038 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #2 from `# Prior research-stage reviews`: "The visualization does not clearly show the 95% confidence intervals for the error rates." **Increase the line width and transparency of the confidence interval bands in the plot.** **File**: `code/visualizer.py`. **Rationale**: Improve the clarity of the visualization to better communicate uncertainty.
-- [X] T039 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #3 from `# Prior research-stage reviews`: "The code lacks sufficient comments explaining the purpose of each function and variable." **Add detailed comments to all functions and variables in `code/analyzer.py` and `code/visualizer.py`.** **File**: `code/analyzer.py`, `code/visualizer.py`. **Rationale**: Improve code readability and maintainability.
-- [X] T040 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #4 from `# Prior research-stage reviews`: "The theoretical power curve calculation for ANOVA assumes equal group sizes, but the simulation does not explicitly enforce this." **Verify and enforce equal group sizes in the ANOVA data generation step within `code/simulation_engine.py` before calling `scipy.stats.f_oneway` to ensure the theoretical comparison is valid.** **File**: `code/simulation_engine.py`. **Rationale**: Ensure the theoretical power curve (T027c-3) is calculated against the exact same experimental conditions as the simulation to avoid invalid MAE comparisons.
-- [X] T036 [P] **Checkpoint Runner**: Implement a checkpoint runner to save intermediate simulation states at regular intervals to prevent data loss on long-running simulations. **File**: `code/checkpoint_runner.py`. **Rationale**: Ensure robustness for long-running simulations.
+- [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`.
+- [X] T035 [US3] **Regression Interaction**: Add an interaction term between sample size and distribution type to the regression model in `code/analyzer.py` to capture interaction effects (improves model accuracy). **Rationale**: Standard statistical practice to account for interaction effects.
+- [X] T036 [US2] **Timeout Limit**: Add a `TIMEOUT_SECONDS` parameter to `config.py` and implement a time-check within the adaptive loop in `code/simulation_engine.py` that breaks the loop and logs a 'TIMEOUT' warning if exceeded. **Rationale**: Prevent resource exhaustion and ensure the simulation completes within the 6-hour constraint even if statistical convergence is slow.
+- [X] T037 [US1] **Log-Normal Parameter Alignment**: Refactor the log-normal generation logic in `code/data_generator.py` to explicitly calculate the scale parameter based on the desired effect size and group means, ensuring the theoretical mean difference matches the input effect size. **Rationale**: Correct the ground-truth parameters for the log-normal distribution to ensure the alternative hypothesis is accurately represented.
+- [X] T038 [US3] **GLM Diagnostics**: Verify that the GLM family is correctly specified as Binomial with a logit link, and add a diagnostic check in `code/analyzer.py` to report the deviance residual distribution. **Rationale**: Ensure the statistical model is correctly specified for the bounded nature of error rates, preventing misleading R² values.
+- [X] T039 [US2] **Checkpoints**: Implement a checkpoint runner to save intermediate simulation states at regular intervals to prevent data loss on long-running simulations. **File**: `code/checkpoint_runner.py`. **Rationale**: Ensure robustness for long-running simulations.
+- [X] T040 [US2] **Equal Group Sizes**: Verify and enforce equal group sizes in the ANOVA data generation step within `code/simulation_engine.py` before calling `scipy.stats.f_oneway` to ensure the theoretical comparison is valid. **Rationale**: Ensure the theoretical power curve (T027c-3) is calculated against the exact same experimental conditions as the simulation to avoid invalid MAE comparisons.
+- [X] T041 [US2] **Adaptive Loop Concurrency**: Refactor `code/simulation_engine.py` to support parallel execution of independent replicates within a single configuration batch (using `multiprocessing` or `concurrent.futures`), ensuring the adaptive termination condition is correctly synchronized across workers. **Rationale**: The current sequential implementation may struggle to meet the 6-hour constraint for configurations requiring near-maximum replicates; parallelization is required to ensure feasibility on the CPU-only runner. **Dependency**: T018, T020-2.
+- [X] T042 [US3] **Regression Robustness Check**: Implement a secondary validation in `code/analyzer.py` that fits a robust regression model (e.g., using Huber loss or RANSAC) to the error rate vs. sample size data to verify that the primary GLM results are not driven by outliers at extreme sample sizes (n=10 or n=1000). **Rationale**: Small sample sizes (n=10) and extreme skew may produce unstable error rate estimates that disproportionately influence the regression slope; a robust check ensures the trend is genuine. **Dependency**: T027-1, T027c-1.
+- [X] T043 [US1] **Distribution Parameter Sensitivity**: Add a task to `code/data_generator.py` to verify that the generated log-normal distribution maintains the specified skewness within a tolerance of 5% across the full range of sample sizes (n=10 to n=1000), logging a warning if the skewness drifts significantly due to sampling noise. **Rationale**: The log-normal distribution is highly sensitive to sample size; ensuring the skewness remains stable validates the "known ground truth" assumption for the alternative hypothesis. **Dependency**: T011, T013.
+
+**Checkpoint**: Project is complete and ready for final validation.
 
 ---
 
@@ -192,13 +169,12 @@ description: "Task list template for feature implementation"
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision (Phase 7)**: Depends on `/speckit.analyze` output; tasks here address specific findings.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data generation logic (T011) and T017b (Ground-Truth Validation)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 simulation results and raw p-value storage (T021b)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 simulation results and raw p-value storage (T018)
 
 ### Within Each User Story
 
@@ -219,10 +195,10 @@ description: "Task list template for feature implementation"
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Define and write test cases for normal distribution generation in tests/unit/test_data_generator.py"
-Task: "Define and write test cases for log-normal skewness validation in tests/unit/test_data_generator.py"
-Task: "Define and write test cases for log-normal effect size validation in tests/unit/test_data_generator.py"
-Task: "Define and write test cases for uniform distribution sample size accuracy in tests/unit/test_data_generator.py"
+Task: "Implement tests/unit/test_data_generator.py::test_normal_mean_validation"
+Task: "Implement tests/unit/test_data_generator.py::test_lognormal_skewness_validation"
+Task: "Implement tests/unit/test_data_generator.py::test_lognormal_effect_size_validation"
+Task: "Implement tests/unit/test_data_generator.py::test_uniform_sample_size_accuracy"
 
 # Launch implementation for User Story 1:
 Task: "Implement code/data_generator.py"
@@ -272,16 +248,21 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All simulations must run on CPU-only (limited cores, constrained RAM). Do not use GPU or heavy model loading. Use `scipy` and `numpy` only.
 - **Data Integrity**: Do not fabricate data. All inputs must be generated via the `data_generator` with known ground truth.
-- **CI Method**: The adaptive replication loop (T020) and final reporting (T026) use **bootstrap resampling** for binary outcomes, as mandated by FR-004. This overrides the Plan's previous preference for Clopper-Pearson. The Plan's Constitution Check and Complexity Tracking have been updated to reflect this alignment with the Spec.
-- **Regression Data**: Raw p-values MUST be stored by T021b (unmodified) and consumed by T027. T027 applies a numerical stability epsilon (`config.LOG_EPSILON`) *only during the log-transform calculation*, explicitly documenting this as a deviation from raw data for numerical stability.
-- **Execution Order**: Phase 4 tasks must be executed in the order: T017b -> T018 -> T020-1 -> T020-2 -> T021b -> T021c -> T022. T017b (Ground-Truth Validation) must run before T018. T018 (Simulation) must run before T020 (CI Calculation) and T021 (Streaming). T022 is the orchestrator; its implementation requires the code of T018 to be present.
+- **CI Method**: The adaptive replication loop (T020) and final reporting (T026) use **Clopper-Pearson (exact binomial)** intervals, as mandated by the Plan Constitution Principle VII and Complexity Tracking. This ensures stability for small proportions.
+- **Regression Data**: Raw p-values MUST be stored by T018 (unmodified) and consumed by T027. T027 applies a numerical stability epsilon (`config.LOG_EPSILON`) *only during the log-transform calculation*, explicitly documenting this as a deviation from raw data for numerical stability, and stores the unmodified values to preserve the 'Single Source of Truth'.
+- **Execution Order**: Phase 4 tasks must be executed in the order: T017b -> T018 (incorporating T020-2) -> T021c -> T022. T017b (Ground-Truth Validation) must run before T018. T018 (Simulation) must run before T020 (CI Calculation) and T021 (Streaming). T022 is the orchestrator; its implementation requires the code of T018 to be present.
 - **Robustness**: T036 (checkpoint runner) restored.
 - **McFadden R²**: T027 explicitly calculates McFadden pseudo-R² and verifies against SC-005 threshold.
 - **Power Curves**: T027c-2, T027c-3, T027c-4 cover all three test types required by SC-004. T027c-5 aggregates and validates.
 - **UNSTABLE Flag**: T020-2 explicitly flags 'UNSTABLE' if MAX_REPLICATES (10,000) is reached, ensuring deterministic handling of partial results.
-- **Streaming Enforcement**: T021c removes the fallback batch and enforces the streaming pipeline as a hard requirement.
-- **CI Method Alignment**: T020-1/T020-2 use bootstrap resampling, consistent with FR-004.
-- **Data Transformation**: T027 explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`.
+- **Streaming Enforcement**: T018 enforces the streaming pipeline as a hard requirement.
+- **CI Method Alignment**: T020-1/T020-2 use Clopper-Pearson, consistent with Plan.
+- **Data Transformation**: T027 explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`, and stores unmodified data.
 - **Scope Creep**: T036 (checkpoint runner) restored.
-- **Removed Tasks**: T027b removed (logic integrated into T027). T021 (original) merged into T021b logic. T008d-1a, 1b, 2, 3, 4 merged into T008d.
-- **Reviewer Concerns**: T037 addresses interaction terms in regression; T038 addresses CI visualization clarity; T039 addresses code documentation; T040 addresses ANOVA group size consistency for theoretical power curve validation.
+- **Removed Tasks**: T027b removed (logic integrated into T027). T021 (original) merged into T018 logic. T008d-1a, 1b, 2, 3, 4 merged into T008d. Phase 7 removed (hallucinated reviews).
+- **Reviewer Concerns**: T035 addresses interaction terms in regression; T038 addresses CI visualization clarity; T039 addresses code documentation; T040 addresses ANOVA group size consistency for theoretical power curve validation.
+- **New Revision Concerns**: T036 addresses timeout limits for adaptive loops; T037 addresses log-normal parameter alignment; T038 addresses GLM specification for bounded variables; T039 addresses code documentation; T040 addresses ANOVA group size consistency.
+- **T041**: Addresses the potential failure to meet the 6-hour compute constraint by introducing parallel execution for the adaptive Monte Carlo loop.
+- **T042**: Addresses the risk of outlier-driven regression results at extreme sample sizes by adding a robustness check.
+- **T043**: Addresses the sensitivity of the log-normal distribution's skewness to sample size, ensuring the ground truth assumption holds across the full range.
+- **Manual vs Automated Flow**: T014 (sample_validation.csv) is strictly for manual inspection and does NOT block the automated T017b gate. The automated gate relies on T013 (validation logic). T014 is optional and can be skipped.

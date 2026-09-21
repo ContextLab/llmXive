@@ -1,0 +1,13 @@
+status: none
+intent: synthetic hypothesis testing data normal uniform lognormal effect size python
+  package dataset
+required_fields:
+- group
+- sample_id
+- value
+- distribution
+- effect_size
+- sample_size
+cache_key: f8e11bd51b5d8c4cf9d6cec9e70170b8d6fc616663836bf4c7a33d19d6a539be
+searched_at: '2026-09-21T18:46:22.143542+00:00'
+retry_count: 1
