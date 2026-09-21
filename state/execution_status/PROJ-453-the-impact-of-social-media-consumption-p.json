@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-453-the-impact-of-social-media-consumption-p",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/04_visualize.py; 2 command(s) failed: python code/02_engineer.py (rc=1); python code/03_model.py (rc=1); 1 declared deliverable(s) absent: data/processed/participants_cleaned.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/02_engineer.py -> rc=1\n    [2026-09-21 04:42:45,470] INFO: Starting variable engineering pipeline.\n[2026-09-21 04:42:45,470] ERROR: No raw CSV files found in data/raw/",
+    "python code/03_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/03_model.py\", line 134, in <module>\n    ) -> Tuple[sm.OLSResults, Dict[str, Any]]:\n               ^^^^^^^^^^^^^\nAttributeError: module 'statsmodels.api' has no attribute 'OLSResults'",
+    "python code/04_visualize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/04_visualize.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-21T04:42:48Z"
+}

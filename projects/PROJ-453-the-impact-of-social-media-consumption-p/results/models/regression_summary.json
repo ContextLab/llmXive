@@ -1,0 +1,16 @@
+{
+  "coefficients": {},
+  "p_values": {},
+  "corrected_p_values": {},
+  "diagnostics": {
+    "r_squared": 0.0,
+    "adj_r_squared": 0.0,
+    "f_statistic": 0.0,
+    "f_pvalue": 0.0,
+    "n_obs": 0,
+    "df_resid": 0,
+    "vif_scores": {}
+  },
+  "collinearity_flag": false,
+  "interpretation": "The analysis indicates an associational relationship between switching behavior and cognitive flexibility scores. The model explains 0.00% of the variance. VIF scores indicate acceptable multicollinearity."
+}

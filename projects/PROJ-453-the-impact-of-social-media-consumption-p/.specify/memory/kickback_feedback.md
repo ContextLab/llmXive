@@ -4,13 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T004` (rejected 1x): The `code/00_feasibility_check.py` script is present and contains validation functions, but the required schema file `contracts/dataset.schema.yaml` does not exist, and there is no `logs/schema_validation.log` produced or provided. Both required artifacts are missing, so the task is not fully satisfied.
-- `T005a` (rejected 1x): No directory structure is shown in the provided evidence; there is no listing or screenshot confirming that `projects/PROJ-453-.../data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, and `contracts` actually exist. The implementer’s claim cannot be verified without these artifacts.
-- `T007a` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
-- `T007b` (rejected 1x): declared artifact(s) missing/empty/invalid: black.toml
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T013` (rejected 1x): The test file `tests/contract/test_dataset_schema.py` is present, but it depends on `contracts/dataset.schema.yaml`, which is missing from the repository, causing the test to fail with `FileNotFoundError`. Add the required `contracts/dataset.schema.yaml` (with the expected `required_columns` definitions) so the test can actually validate the schema.
+- `T019` (rejected 1x): The repository contains `code/02_engineer.py`, but the required output file `data/processed/participants_cleaned.csv` is absent. Without this CSV the task’s primary deliverable is not satisfied. The next implementer must ensure the script runs successfully and creates the cleaned participants CSV at the specified location.
 
 ## Required change
 

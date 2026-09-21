@@ -1,28 +1,3 @@
-T015c:
-  c: false
-  h: b78e3d032d776e59ccb8b22965719dac7e4b680d8aaac180a23553c7a20566d2
-  r: "The `code/01_ingest.py` attempts to load a schema from `contracts/dataset.schema.yaml`,\
-    \ but that file is missing, causing a `FileNotFoundError`. Moreover, the data\u2011\
-    type and constraint validation function is only a placeholder that always returns\
-    \ `True`, so the required validation logic is not actually implemented. The task\
-    \ therefore remains unfinished."
-T016b:
-  c: false
-  h: cb5c404a04f37f948cfc7f2c2ecfaa1bafdf01c53a6c3ed5f2fcbae76bec2e63
-  r: The `code/02_engineer.py` script is present and contains parsing and validation
-    logic, but the required contract file `contracts/dataset.schema.yaml` does not
-    exist, so the validation step cannot actually run. Additionally, the `main()`
-    function is only a placeholder and does not execute the pipeline. The missing
-    schema file (and incomplete execution flow) must be provided/fixed for the task
-    to be truly complete.
-T019:
-  c: false
-  h: 281e64c5484cb94b674dcc11b52e46e6bfd4ebe92d6cddf37b3ae879144a1470
-  r: "The repository contains `code/02_engineer.py`, but the script\u2019s `main()`\
-    \ is incomplete and never writes to `data/processed/participants_cleaned.csv`.\
-    \ Moreover, the expected output file `data/processed/participants_cleaned.csv`\
-    \ is absent from the project. Consequently the required artifact is missing and\
-    \ the task is not fulfilled."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,3 +5,26 @@ T020:
     with level INFO, stdout destination, and the specified format has been added to
     the data ingestion and variable engineering steps. The required logging implementation
     is missing.
+T030a:
+  c: false
+  h: 7c1688aa0baa1d05a685be3fc7a165443d86cb2b71048d40af704a515b6b226c
+  r: "The required output file `results/sensitivity_comparison.csv` is absent, and\
+    \ the provided `code/03_model.py` (even though partially shown) contains no logic\
+    \ that writes such a CSV or performs the specified sensitivity analysis and SC\u2011\
+    003 verification. Consequently the task\u2019s deliverables are not present."
+T030c:
+  c: false
+  h: 7c1688aa0baa1d05a685be3fc7a165443d86cb2b71048d40af704a515b6b226c
+  r: "The required `results/sensitivity_comparison.csv` file is absent, and the provided\
+    \ `code/03_model.py` (as shown) contains no logic that reads this CSV, checks\
+    \ beta sign consistency, or validates the Benjamini\u2011Hochberg\u2011adjusted\
+    \ p\u2011values, nor does it log the specified success/failure message. Both the\
+    \ data artifact and the necessary verification implementation are missing."
+T031:
+  c: false
+  h: 85e6272f078cfb3b9c7566a50dedaa32840509ea34612c0c099b6a516b2902c0
+  r: "The repository lacks the required `contracts/output.schema.yaml` (or any `schema.yaml`)\
+    \ file, so the script cannot actually validate against the specified contract.\
+    \ Moreover, `code/03_model.py` only performs a very simple key\u2011presence check\
+    \ rather than a full schema validation, and never loads the missing contract file.\
+    \ Both the artifact and its behavior fall short of the task\u2019s requirement."
