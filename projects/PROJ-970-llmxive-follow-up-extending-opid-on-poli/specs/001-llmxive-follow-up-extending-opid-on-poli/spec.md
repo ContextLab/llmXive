@@ -13,7 +13,7 @@ The researcher needs to generate a suite of synthetic State-Graph Environments w
 
 **Why this priority**: Without valid, reproducible, and complexity-varied environments, no empirical analysis of the routing mechanism can occur. This is the foundational data layer.
 
-**Independent Test**: The system can be tested by instantiating the environment generator, verifying that Tier 1 graphs have a single deterministic path with 5-10 nodes, Tier 2 graphs have branching paths with 20-50 nodes, and Tier 3 graphs have sparse rewards with 100+ nodes, all generated without external dependencies.
+**Independent Test**: The system can be tested by instantiating the environment generator, verifying that Tier graphs have a single deterministic path with 5-10 nodes, Tier graphs have branching paths with 20-50 nodes, and Tier graphs have sparse rewards with 100+ nodes, all generated without external dependencies.
 
 **Acceptance Scenarios**:
 
@@ -41,7 +41,7 @@ The researcher needs to integrate the OPID algorithm with a tunable "critical-fi
 
 ### User Story 3 - Performance & Rigidity Measurement Across Thresholds (Priority: P3)
 
-The researcher needs to execute 1,000 simulated episodes per threshold setting for each complexity tier and record "policy rigidity" (variance in action entropy) and "success rate" to identify the inflection point where skill injection becomes counterproductive.
+The researcher needs to execute a sufficient number of simulated episodes per threshold setting for each complexity tier to ensure statistical robustness. and record "policy rigidity" (variance in action entropy) and "success rate" to identify the inflection point where skill injection becomes counterproductive.
 
 **Why this priority**: This generates the dependent variables (outcome) required to validate the hypothesis. It confirms whether the "sweet spot" exists and how it shifts with complexity.
 
@@ -70,7 +70,7 @@ The researcher needs to execute 1,000 simulated episodes per threshold setting f
 
 - **FR-001**: System MUST generate synthetic State-Graph Environments with three distinct complexity tiers: Tier 1 (5-10 nodes, deterministic), Tier 2 (20-50 nodes, stochastic), and Tier 3 (100+ nodes, sparse rewards) to serve as the experimental testbed (See US-1).
 - **FR-002**: System MUST implement the OPID algorithm with a configurable "critical-first" routing threshold parameter that scales from 0 (always inject) to 1 (never inject) to control skill injection density (See US-2).
-- **FR-003**: System MUST execute exactly 1,000 simulated episodes for each combination of complexity tier and routing threshold setting to ensure statistical power (See US-3). *Justification*: Based on G*Power analysis for a one-way ANOVA (f=0.25, α=0.05, power=0.80), N=1,000 is the minimum required to detect the expected effect size of the "over-supervision" phenomenon with sufficient power.
+- **FR-003**: System MUST execute a sufficient number of simulated episodes for each combination of complexity tier and routing threshold setting to ensure statistical power (See US-3). *Justification*: Based on G*Power analysis for a one-way ANOVA (f=0.25, α=0.05, power=0.80), N=1,000 is the minimum required to detect the expected effect size of the "over-supervision" phenomenon with sufficient power.
 - **FR-004**: System MUST calculate and record "policy rigidity" defined as the residual variance of action entropy (the variance remaining after regressing out the deterministic effect of the routing threshold) across all episodes for each run (See US-3).
 - **FR-005**: System MUST calculate and record "success rate" defined as the percentage of episodes where the agent successfully traverses the ground-truth path in the synthetic graph (See US-3).
 - **FR-006**: System MUST perform a sensitivity analysis sweep of the routing threshold at intervals of 0.1 (0.0, 0.1, ..., 1.0) to identify the inflection point of performance degradation (See US-3).
@@ -92,7 +92,7 @@ The researcher needs to execute 1,000 simulated episodes per threshold setting f
 - **SC-002**: The "distillation cost-benefit ratio" is measured by comparing the log-probability shift (advantage) measured on a frozen policy against a held-out validation set, against the actual improvement in task completion to identify the inflection point where added skill density correlates with decreased success in Tier 1 (See FR-005, FR-006).
 - **SC-003**: The residual variance in action entropy (policy rigidity) is measured against the complexity tier to verify if higher injection rates in deterministic environments lead to significantly lower entropy (over-constraining) beyond the deterministic effect of the threshold (See FR-004).
 - **SC-004**: The statistical significance of the interaction between routing threshold and environment complexity is measured using ANOVA; success is defined as the interaction term yielding a p-value < 0.05 (See FR-006).
-- **SC-005**: The computational feasibility of the entire analysis (1,000 episodes × 11 thresholds × 3 tiers) is measured against the 6-hour free-tier CPU limit and 7GB RAM constraint to ensure the experiment completes without resource exhaustion (See FR-007).
+- **SC-005**: The computational feasibility of the entire analysis (a large number of episodes × multiple thresholds × 3 tiers) is measured against the 6-hour free-tier CPU limit and 7GB RAM constraint to ensure the experiment completes without resource exhaustion (See FR-007).
 
 ## Assumptions
 

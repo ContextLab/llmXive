@@ -1,1 +1,3 @@
-# Experiments package
+"""
+Experiments package for llmXive project.
+"""

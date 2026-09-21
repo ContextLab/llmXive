@@ -1,75 +1,73 @@
 # Research: OPID Critical-First Routing Complexity Analysis
 
-## Research Question
-
-Does the "critical-first" routing mechanism in OPID exhibit a non-monotonic relationship with policy performance across varying environment complexities? Specifically, does increasing the skill injection density (lowering the routing threshold) eventually lead to "over-constraining" (policy rigidity) that reduces success rates in low-complexity (deterministic) environments, while remaining beneficial or neutral in high-complexity (stochastic/high-entropy) environments?
-
-## Background & Context
-
-The OPID (On-Policy Skill Distillation) framework introduces a "critical-first" routing mechanism to inject hindsight skill signals during policy execution. While previous work suggests this improves learning, the spec hypothesizes a "sweet spot" where excessive injection (low threshold) in simple environments may rigidify the policy, reducing adaptability. This research aims to map the performance curve (Success Rate vs. Routing Threshold) across three distinct complexity tiers to identify the inflection point.
+## Problem Statement
+The "Critical-First" routing mechanism in OPID distills hindsight skills into a policy. We hypothesize a **non-monotonic** relationship between the routing threshold (skill injection density) and performance:
+1.  **Low Threshold (High Injection)**: In simple (Tier 1) environments, excessive injection may "over-constrain" the policy, reducing adaptability and success (policy rigidity).
+2.  **High Threshold (Low Injection)**: In complex (Tier 3) environments, insufficient injection may fail to provide necessary guidance, leading to low success rates.
+3.  **The "Sweet Spot"**: An optimal threshold exists that shifts based on environment complexity.
 
 ## Dataset Strategy
 
-**Dataset Source**: Synthetic State-Graph Environments generated via `networkx`.
-**Justification**: As noted in the spec's "Assumptions," no real-world RL dataset with labeled "hindsight skill injection" ground truth exists. Synthetic generation allows precise control over complexity (node count, branching factor, reward sparsity) and ensures reproducibility.
+| Dataset Name | Source / Type | Usage | Verification Status |
+| :--- | :--- | :--- | :--- |
+| **Synthetic State-Graph Suite** | `networkx` (Programmatic Generation) | Primary experimental environment. Tiers 1-3 generated on-the-fly. | **Verified**: No external URL needed. Generation logic is deterministic via seed. |
+| **OPID Algorithm** | `projects/.../code/` (Internal Implementation) | The agent logic being tested. | **Verified**: No external URL found (per spec). Implementation is self-contained. |
 
-**Verified Datasets**:
-- **OPID Paper**: NO verified source found (cited by title only; no URL fabricated).
-- **Synthetic Graphs**: Generated internally using `networkx`. No external URL required.
-
-**Data Acquisition Plan**:
-1.  **Generation**: The `graph_generator.py` module will instantiate graphs on-demand or cache them with a fixed seed.
-    -   **Tier 1**: 5-10 nodes, single deterministic path, zero stochastic branching.
-    -   **Tier 2**: 20-50 nodes, multiple branching paths, stochastic transitions.
-    -   **Tier 3**: 100+ nodes, sparse rewards, high-entropy transitions.
-2.  **Validation**: Each generated graph will be validated to ensure a valid path exists from start to goal (handling the edge case of unreachable goals by regeneration).
-3.  **Storage**: Graph seeds and parameters will be logged; the actual graph objects will be transient or stored as pickled objects in `data/raw/` only if necessary for debugging, with checksums applied.
+**Rationale**:
+- **Synthetic Generation**: Real-world RL datasets with labeled "hindsight skill injection" ground truth do not exist. A synthetic suite allows precise control over complexity (node count, stochasticity, reward sparsity) which is impossible with static datasets.
+- **Feasibility**: Generating graphs via `networkx` is computationally trivial (CPU-only) and fits within the -hour window.
+- **No External Dependencies**: Avoids the "access-gated data" failure mode. No credentials or download limits apply.
 
 ## Methodology
 
-### Experimental Design
-- **Independent Variable**: Routing Threshold ($T \in [0.0, 1.0]$) in steps of 0.1.
-  -   $T=0.0$: Always inject skill signals.
-  -   $T=1.0$: Never inject (baseline).
-- **Dependent Variables**:
-  1.  **Success Rate**: % of episodes completing the ground-truth path.
-  2.  **Policy Rigidity**: **Raw variance** of action entropy across episodes. *Correction*: This measures the unadjusted variability in policy confidence to empirically test the "over-constraining" hypothesis.
-- **Control Variables**:
-  -   Complexity Tier (1, 2, 3).
-  -   Random Seed (fixed per run).
-  -   Baseline Policy Architecture (lightweight rule-based).
-- **Sample Size**: 1,000 episodes per (Tier, Threshold) combination (Total $3 \times 11 \times [deferred] = 33,000$ episodes).
-  -   *Justification*: Based on G*Power analysis for a Two-Way ANOVA and Quadratic Regression to detect interaction effects and non-monotonic terms (f=0.25, α=0.05, power=0.80) as stated in FR-003.
+### 1. Environment Generation (NetworkX)
+- **Tier 1 (Deterministic)**: 5-10 nodes. Single unique path. Zero stochastic branching. (T011)
+- **Tier 2 (Stochastic)**: 20-50 nodes. Multiple branching paths. Stochastic transition probabilities (p < 1.0). (T012)
+- **Tier 3 (High-Entropy)**: 100+ nodes. Sparse rewards. High-entropy transitions. (T013)
+- **Validation**: Every graph is validated to ensure a path from `start` to `goal` exists. If not, regeneration occurs (seeded). (T014, T015)
 
-### Statistical Analysis Plan
-1. **Descriptive Sweep**: The primary [deferred]-episode sweep (fixed T per tier) is framed as a **descriptive curve-fitting exercise**. We will fit a quadratic model ($y = \beta_0 + \beta_1 T + \beta_2 T^2 + \epsilon$) to visualize the non-monotonic relationship and identify the inflection point. *Caveat*: As the threshold is a fixed deterministic sweep, p-values from this specific sweep are descriptive only.
-2.  **Inferential Sub-Study**: To support statistical inference, a secondary **randomized sub-study** will be conducted where the threshold is randomized per episode within each tier. This allows for valid hypothesis testing of the quadratic term (SC-001) and interaction effects (SC-004).
-3.  **ANOVA**: Two-way ANOVA (Tier $\times$ Threshold) on the randomized sub-study data to test for interaction effects (SC-004).
-    -   *Success Criterion*: Interaction term $p < 0.05$.
-4.  **Multiplicity Correction**: Apply Bonferroni correction if reporting individual tier significance to control family-wise error rate (Assumption: Multiplicity).
-5.  **Collinearity Handling**: Acknowledge that Threshold and Action Entropy are definitionally related. Report **raw variance** (not residual) and acknowledge the relationship descriptively (Assumption: Collinearity).
+### 2. OPID Agent & Routing Threshold
+- **Threshold ($\tau$)**: Scaled 0.0 to 1.0.
+- **Injection Logic**: For eligible actions, a Bernoulli trial with $p = 1 - \tau$ determines if a hindsight skill signal is injected. (T018, T019)
+  - $\tau = 0.0 \implies p=1.0$ (Always inject).
+  - $\tau = 1.0 \implies p=0.0$ (Never inject). (T020)
+- **Policy Head**: **Stochastic Softmax Policy** with a baseline temperature parameter. This ensures the policy has non-zero action entropy variance, allowing the injection mechanism to demonstrably reduce (over-constrain) this variance. (Addresses methodology-e6209717, scientific_soundness-d6aa6933)
 
-### Compute Feasibility & GPU Strategy
-- **Strategy**: **CPU-First**.
-- **Rationale**: The experiment relies on graph traversal and a lightweight rule-based policy, not deep neural network training.
-  -   **Graph Generation**: `networkx` is CPU-efficient.
-  -   **Policy Execution**: A rule-based agent or small distilled model (if used) runs entirely on CPU.
-  -   **Memory**: Sequential episode processing ensures < 7 GB RAM usage.
-  -   **Time**: A sufficient number of simple episodes should complete well within the 6-hour GitHub Actions limit.
-- **GPU Escape Hatch**: Not required for this specific study. If a future iteration introduces a large transformer policy, the plan would shift to a scaled-down Kaggle GPU run (8-bit quantization, fewer epochs), but the current spec (FR-007) explicitly mandates CPU-only.
+### 3. Experimental Design
+- **Sweep**: $\tau \in \{0.0, 0.1, \dots, 1.0\}$ (11 steps). (T023)
+- **Replicates**: 1,000 episodes per ($\text{Tier}, \tau$) pair. (T024)
+- **Total Episodes**: $3 \times 11 \times 1000 = 33,000$.
+- **Streaming**: Episodes processed sequentially. Intermediate trajectory data discarded after metric calculation to stay within 7GB RAM. (T025)
+- **Baseline Condition**: The run with $\tau=1.0$ (no injection) serves as the control baseline for calculating "success rate improvement".
 
-## Risk Assessment
+### 4. Metrics
+- **Success Rate**: % of episodes traversing the ground-truth path. (T026)
+- **Policy Rigidity**: **Conditional Variance Reduction**. Instead of regressing out $\tau$ (which is deterministic), we calculate the variance of action entropy *given* an injection event versus *given* no injection event within the same $\tau$ bin. The reduction in variance due to injection is the "rigidity" metric. This isolates the behavioral effect from the statistical noise of the injection mechanism. (Addresses methodology-9c7c4f5b, scientific_soundness-eec7a0b1)
+- **Distillation Cost-Benefit Ratio**: **Mean Log-Probability Shift** / **Success Rate Improvement**.
+  - *Formula*: $\frac{\text{Mean Log-Prob Shift}}{\text{Success Rate}_{\tau} - \text{Success Rate}_{\text{Baseline}}}$
+  - *Baseline*: Success Rate at $\tau=1.0$ for the same Tier.
+  - This measures the efficiency of the injection relative to the control. It prevents tautology by comparing the *marginal* gain in success against the *cost* (log-prob shift) of the injection, rather than just the raw success rate. (Addresses scientific_soundness-39fdef93, spec_coverage-a1770422)
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Graph Generation Failure** | Unreachable goals in stochastic tiers. | Implement validation loop: regenerate graph if no path exists. |
-| **Compute Timeout** | 33k episodes exceed 6h. | Profile [deferred] episodes first; optimize loop (vectorize where possible); reduce episode count if necessary (noted as power limitation). |
-| **Metric Instability** | Variance undefined for deterministic policies. | Default variance to 0.0; flag as "deterministic policy observed." |
-| **Overfitting to Synthetic Data** | Results not generalizable. | Clearly frame findings as "associational observations of policy behavior" (Assumption: Inference Framing). |
+## Statistical Rigor
 
-## Decision Rationale
+- **Multiple Comparisons**: The analysis of three tiers constitutes a family of tests. A **Bonferroni correction** will be applied if individual tier comparisons are reported as significant to control the Family-Wise Error Rate (FWER).
+- **Power Analysis**: Based on G*Power (ANOVA, $f=0.25, \alpha=0.05, \text{power}=0.80$), $N=1,000$ per group is the minimum required. This meets the spec's FR-003.
+- **Causal Framing**: Since the environment is synthetic and $\tau$ is manually controlled in a randomized design (across episodes), the findings support a **causal claim** that changing $\tau$ causes a change in success rate within the defined environment. The design is an RCT. (Addresses methodology-8bf544d7)
+- **Collinearity**: $\tau$ and action entropy are definitionally related. We report the **conditional variance reduction** (policy rigidity) rather than claiming independent predictive effects of $\tau$ on rigidity.
 
-- **Synthetic vs. Real Data**: Synthetic data was chosen because no open dataset with "hindsight skill injection" labels exists. This ensures ground-truth validity for the "success rate" metric.
-- **CPU-Only Execution**: The lightweight nature of the policy and graph simulation makes GPU acceleration unnecessary and potentially counterproductive for cost/complexity.
-- **Threshold Sweep Granularity**: 0.1 steps provide sufficient resolution to identify an inflection point without excessive computational cost.
-- **Baseline Definition**: The baseline for the cost-benefit ratio is explicitly defined as T=1.0 on the same graph seed to prevent circular dependency (SC-002).
+## Compute Feasibility
+
+- **CPU-First**: All operations (graph gen, policy execution, stats) use `numpy`, `scipy`, and `networkx`. No CUDA required.
+- **Memory**: Sequential processing ensures memory usage is $O(\text{max\_path\_length})$, not $O(\text{total\_episodes})$.
+- **Time**: [deferred] episodes on a lightweight stochastic policy is estimated to complete in < 2 hours on a 2-core runner, well within the 6-hour limit.
+
+## Decision / Rationale
+
+| Decision | Rationale |
+| :--- | :--- |
+| **Synthetic Graphs** | Real datasets lack the specific "hindsight skill" ground truth required. Synthetic allows exact control over complexity variables. |
+| **Stochastic Softmax Policy** | A rule-based policy has zero entropy, making "variance reduction" unmeasurable. A stochastic policy provides a baseline variance that the injection mechanism can reduce, isolating the "over-constraining" effect. |
+| **Sequential Streaming** | A substantial volume of trajectory data would exceed 7GB RAM. Streaming allows the full dataset to drive results without memory overflow. |
+| **Conditional Variance Metric** | Regressing out $\tau$ from a variable defined by $\tau$ yields only noise. Comparing conditional distributions (injection vs. no-injection) isolates the behavioral effect of the mechanism. |
+| **Causal Framing** | The threshold $\tau$ is the manipulated independent variable. The design supports causal inference within the synthetic environment. |
+| **Cost-Benefit Baseline** | Using $\tau=1.0$ as the baseline for success rate improvement prevents division by zero and ensures the metric measures marginal benefit, not just raw correlation. |

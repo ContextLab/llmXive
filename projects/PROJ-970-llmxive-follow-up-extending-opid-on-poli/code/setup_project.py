@@ -2,104 +2,91 @@ import sys
 import importlib
 import os
 import subprocess
+from typing import List, Dict, Any, Optional
 
-def check_dependency(package_name: str, import_name: str = None) -> bool:
-    """
-    Check if a package is installed and can be imported.
-    If import_name is None, it defaults to package_name.
-    """
-    if import_name is None:
-        import_name = package_name
-    
+def check_dependency(package_name: str) -> bool:
+    """Check if a package is installed."""
     try:
-        importlib.import_module(import_name)
+        importlib.import_module(package_name.replace("-", "_"))
         return True
     except ImportError:
         return False
 
-def create_project_structure():
-    """
-    Creates the standard directory structure for the llmXive project.
-    """
-    dirs = [
-        "code",
-        "code/agent",
-        "code/env",
-        "code/experiments",
-        "code/utils",
-        "data",
-        "data/raw",
+def create_project_structure() -> None:
+    """Create the required directory structure for the project."""
+    # Define the directories to create relative to the project root
+    # The project root is assumed to be the current working directory
+    # or the directory where this script is run from.
+    base_dir = os.getcwd()
+    
+    directories = [
+        "src",
+        "src/environment",
+        "src/agent",
+        "src/simulation",
+        "src/analysis",
+        "tests",
         "data/raw/synthetic_graphs",
         "data/processed",
-        "data/figures",
-        "tests",
-        "tests/agent",
-        "tests/env",
-        "tests/experiments",
-        "tests/utils",
-        "specs",
-        "specs/001-opid-routing-complexity",
         "docs",
-        "logs"
+        "figures"
+    ]
+
+    for dir_path in directories:
+        full_path = os.path.join(base_dir, dir_path)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
+
+def create_requirements_txt() -> None:
+    """Create a requirements.txt file with pinned versions."""
+    requirements = [
+        "networkx==3.2.1",
+        "numpy==1.26.4",
+        "pandas==2.2.1",
+        "scipy==1.13.0",
+        "pytest==8.1.1",
+        "ruff==0.3.0",
+        "black==24.3.0"
     ]
     
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-        # Create __init__.py in code and tests directories to make them packages
-        if d.startswith("code") and d != "code":
-            init_path = os.path.join(d, "__init__.py")
-            if not os.path.exists(init_path):
-                with open(init_path, "w") as f:
-                    f.write("# llmXive code package\n")
-        elif d.startswith("tests"):
-            init_path = os.path.join(d, "__init__.py")
-            if not os.path.exists(init_path):
-                with open(init_path, "w") as f:
-                    f.write("# llmXive tests package\n")
-
-def create_requirements_txt():
-    """
-    Creates the requirements.txt file with necessary dependencies.
-    """
-    deps = [
-        "networkx>=3.2",
-        "numpy>=1.24",
-        "pandas>=2.0",
-        "scipy>=1.11",
-        "pytest>=7.4",
-        "ruff>=0.1.0",
-        "black>=23.0"
-    ]
+    base_dir = os.getcwd()
+    file_path = os.path.join(base_dir, "requirements.txt")
     
-    with open("requirements.txt", "w") as f:
-        f.write("\n".join(deps) + "\n")
+    with open(file_path, "w") as f:
+        f.write("# llmXive Project Requirements\n")
+        for req in requirements:
+            f.write(f"{req}\n")
+    
+    print(f"Created requirements.txt at {file_path}")
 
-def create_pyproject_toml():
-    """
-    Creates a basic pyproject.toml for project metadata and tool configuration.
-    """
+def create_pyproject_toml() -> None:
+    """Create a pyproject.toml file for project metadata and tool configuration."""
+    base_dir = os.getcwd()
+    file_path = os.path.join(base_dir, "pyproject.toml")
+    
     content = """[build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-opid-routing"
 version = "0.1.0"
 description = "OPID Critical-First Routing Complexity Analysis"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "networkx>=3.2",
-    "numpy>=1.24",
-    "pandas>=2.0",
-    "scipy>=1.11",
+    "networkx==3.2.1",
+    "numpy==1.26.4",
+    "pandas==2.2.1",
+    "scipy==1.13.0",
+    "pytest==8.1.1",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4",
-    "ruff>=0.1.0",
-    "black>=23.0",
-]
+[tool.setuptools]
+packages = ["src", "src.environment", "src.agent", "src.simulation", "src.analysis", "tests"]
 
 [tool.black]
 line-length = 88
@@ -108,36 +95,33 @@ target-version = ['py311']
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-select = ["E", "F", "W", "I"]
-ignore = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
 """
-    with open("pyproject.toml", "w") as f:
+    
+    with open(file_path, "w") as f:
         f.write(content)
+    
+    print(f"Created pyproject.toml at {file_path}")
 
-def main():
-    print("Initializing llmXive project structure...")
+def main() -> None:
+    """Main entry point to set up the project."""
+    print("Starting project setup...")
     
     # 1. Create directory structure
     create_project_structure()
-    print("✓ Directory structure created.")
     
     # 2. Create requirements.txt
     create_requirements_txt()
-    print("✓ requirements.txt created.")
     
     # 3. Create pyproject.toml
     create_pyproject_toml()
-    print("✓ pyproject.toml created.")
     
-    print("\nProject structure initialized successfully.")
-    print("Next steps:")
-    print("  1. Run: python -m venv venv")
-    print("  2. Run: source venv/bin/activate (or venv\\Scripts\\activate on Windows)")
-    print("  3. Run: pip install -r requirements.txt")
+    print("Project setup complete.")
 
 if __name__ == "__main__":
     main()

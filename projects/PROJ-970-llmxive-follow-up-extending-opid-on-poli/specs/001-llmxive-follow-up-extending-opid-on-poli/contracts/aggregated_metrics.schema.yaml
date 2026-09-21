@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Metrics"
+description: "Schema for aggregated metrics per (Tier, Threshold) pair."
+type: "object"
+required:
+  - "tier"
+  - "threshold"
+  - "success_rate"
+  - "success_rate_baseline"
+  - "success_rate_improvement"
+  - "mean_entropy_variance"
+  - "policy_rigidity"
+  - "distillation_cost_benefit"
+  - "n_episodes"
+properties:
+  tier:
+    type: "integer"
+    enum: [1, 2, 3]
+  threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of episodes where goal was reached"
+  success_rate_baseline:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Success rate at threshold=1.0 (baseline) for this tier"
+  success_rate_improvement:
+    type: "number"
+    description: "Difference between success_rate and success_rate_baseline"
+  mean_entropy_variance:
+    type: "number"
+    description: "Mean action entropy variance across episodes"
+  policy_rigidity:
+    type: "number"
+    description: "Policy rigidity (conditional variance reduction due to injection)"
+  distillation_cost_benefit:
+    type: "number"
+    description: "Ratio of mean log-prob shift to success rate improvement"
+  n_episodes:
+    type: "integer"
+    minimum: 1
+    description: "Number of episodes in this group"

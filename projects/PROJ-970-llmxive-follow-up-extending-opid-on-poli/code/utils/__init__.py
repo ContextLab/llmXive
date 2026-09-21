@@ -1,1 +1,3 @@
-# Utils package
+"""
+Utils package for llmXive project.
+"""

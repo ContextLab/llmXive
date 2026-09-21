@@ -1,47 +1,19 @@
-T012:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, or documentation for a Tier\u20112 environment generator\
-    \ was provided; thus there is no artifact demonstrating a graph with \u226520\
-    \ nodes, branching paths, and stochastic transition probabilities as required.\
-    \ The task lacks the necessary implementation evidence."
-T013:
+  r: "No directory listings or file manifests were supplied, so there is no evidence\
+    \ that the required folders (`src/`, `src/environment/`, `src/agent/`, `src/simulation/`,\
+    \ `src/analysis/`, `tests/`, `data/raw/synthetic_graphs/`, `data/processed/`)\
+    \ actually exist in the project. The implementer must provide a concrete view\
+    \ (e.g., a tree dump or screenshots) showing these directories are present and\
+    \ non\u2011empty."
+T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or generated environment artifacts for Tier\u202F3 (or\
-    \ any tier) are provided; the claim cannot be verified against any concrete output.\
-    \ The required Tier\u202F3 graph with 100+ nodes, sparse rewards, and high\u2011\
-    entropy transitions is missing."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing a graph\u2011validation step\
-    \ (checking that a generated graph contains a reachable path from start to goal\
-    \ and regenerating if not) was provided. The evidence consists only of the task\
-    \ description; the required artifact is missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or documentation showing a seed\u2011based deterministic graph\
-    \ regeneration system (using seed + code version hash, on\u2011the\u2011fly generation,\
-    \ and checksum validation) was provided. The evidence only contains high\u2011\
-    level user story descriptions, not the required implementation artifact. The task\
-    \ remains undone until such a module and its verification outputs are supplied."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or documentation artifacts were provided for the synthetic environment\
-    \ generator, the OPID routing\u2011threshold integration, or the performance measurements.\
-    \ Consequently, there is no evidence that the Bernoulli\u2011trial routing logic\
-    \ (p\u202F=\u202F1\u202F\u2212\u202Fthreshold) was implemented or tested, nor\
-    \ that the required experiments were run. The task remains unfinished."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation implementing the hindsight skill\u2011distillation\
-    \ injection logic (or any of the three user stories) was provided; the claim lacks\
-    \ any tangible artifact to verify that the routing\u2011based injection behavior\
-    \ exists. The required implementation and validation artifacts are missing."
+  r: "No code or other artifact defining a `generate_tier_1` method is present; the\
+    \ repository contains no implementation that creates a single deterministic path,\
+    \ enforces the node\u2011count range, checks `graph.is_valid()`, or loops to regenerate\
+    \ invalid graphs. The required method is therefore missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

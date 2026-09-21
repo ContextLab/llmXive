@@ -1,1 +1,3 @@
-# llmXive code package root
+"""
+Main package for llmXive project.
+"""

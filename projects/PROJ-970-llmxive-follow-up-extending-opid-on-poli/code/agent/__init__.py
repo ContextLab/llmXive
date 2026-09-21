@@ -1,1 +1,3 @@
-# Agent package
+"""
+Agent package for llmXive project.
+"""

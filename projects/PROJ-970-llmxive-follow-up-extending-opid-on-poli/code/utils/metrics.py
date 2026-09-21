@@ -1,319 +1,332 @@
-"""
-Metrics calculation utilities for OPID routing complexity analysis.
-
-Provides functions for calculating success rates, entropy measures,
-log-probability shifts, and distillation cost-benefit ratios.
-"""
 import math
 import csv
 import logging
+import hashlib
+import os
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class SuccessRateResult:
-    """Container for success rate calculation results."""
-    total_episodes: int
-    successful_episodes: int
-    success_rate: float
-    tier: str
-    threshold: float
+    success_count: int
+    total_count: int
+    rate: float
 
-
-def calculate_success_rate(
-    episode_results: List[Dict[str, Any]],
-    tier: Optional[str] = None,
-    threshold: Optional[float] = None
-) -> SuccessRateResult:
+def calculate_success_rate(trajectory: List[Dict[str, Any]], ground_truth: List[str]) -> SuccessRateResult:
     """
-    Calculate the success rate as the percentage of episodes that traversed
-    the ground-truth path.
+    Calculate the success rate of a trajectory against a ground truth path.
     
     Args:
-        episode_results: List of episode result dictionaries. Each dictionary
-            must contain a 'succeeded' key (bool) indicating whether the
-            episode successfully traversed the ground-truth path.
-            Optional: 'tier' and 'threshold' keys for filtering.
-        tier: Optional tier filter (e.g., 'Tier1', 'Tier2', 'Tier3').
-            If provided, only episodes from this tier are included.
-        threshold: Optional threshold filter (float). If provided, only
-            episodes with this threshold value are included.
+        trajectory: List of step dictionaries containing 'node_id' keys.
+        ground_truth: List of node IDs representing the correct path.
     
     Returns:
-        SuccessRateResult containing:
-            - total_episodes: Number of episodes in the filtered set
-            - successful_episodes: Number of successful episodes
-            - success_rate: Ratio of successful to total episodes (0.0 to 1.0)
-            - tier: The tier used (or 'All' if not filtered)
-            - threshold: The threshold used (or 'All' if not filtered)
-    
-    Raises:
-        ValueError: If episode_results is empty or lacks required 'succeeded' key
-        TypeError: If 'succeeded' values are not boolean
+        SuccessRateResult with counts and calculated rate.
     """
-    if not episode_results:
-        raise ValueError("episode_results cannot be empty")
+    if not trajectory or not ground_truth:
+        return SuccessRateResult(success_count=0, total_count=0, rate=0.0)
     
-    # Filter by tier and threshold if specified
-    filtered_results = episode_results
+    trajectory_nodes = [step.get('node_id') for step in trajectory if 'node_id' in step]
+    total_count = len(ground_truth)
+    success_count = 0
     
-    if tier is not None:
-        filtered_results = [
-            r for r in filtered_results
-            if r.get('tier') == tier
-        ]
+    # Check if the trajectory matches the ground truth path
+    # Allow for some flexibility: trajectory must contain the ground truth sequence
+    # For strict matching, we check if the first N nodes of trajectory match ground_truth
+    if len(trajectory_nodes) >= total_count:
+        if trajectory_nodes[:total_count] == ground_truth:
+            success_count = total_count
+        elif trajectory_nodes == ground_truth:
+            success_count = total_count
     
-    if threshold is not None:
-        filtered_results = [
-            r for r in filtered_results
-            if abs(r.get('threshold', -1) - threshold) < 1e-6
-        ]
+    # Alternative: check if ground truth is a subsequence
+    if success_count == 0 and len(trajectory_nodes) >= total_count:
+        idx = 0
+        for node in trajectory_nodes:
+            if idx < total_count and node == ground_truth[idx]:
+                idx += 1
+        if idx == total_count:
+            success_count = total_count
     
-    if not filtered_results:
-        raise ValueError(
-            f"No episodes found matching tier={tier}, threshold={threshold}"
-        )
-    
-    # Validate and count successes
-    successful_count = 0
-    for i, result in enumerate(filtered_results):
-        if 'succeeded' not in result:
-            raise ValueError(
-                f"Episode result at index {i} missing required 'succeeded' key"
-            )
-        
-        if not isinstance(result['succeeded'], bool):
-            raise TypeError(
-                f"Episode result 'succeeded' must be boolean, got {type(result['succeeded'])}"
-            )
-        
-        if result['succeeded']:
-            successful_count += 1
-    
-    total_count = len(filtered_results)
-    success_rate = successful_count / total_count if total_count > 0 else 0.0
-    
-    return SuccessRateResult(
-        total_episodes=total_count,
-        successful_episodes=successful_count,
-        success_rate=success_rate,
-        tier=tier if tier is not None else "All",
-        threshold=threshold if threshold is not None else 0.0
-    )
+    rate = success_count / total_count if total_count > 0 else 0.0
+    return SuccessRateResult(success_count=success_count, total_count=total_count, rate=rate)
 
-
-def calculate_raw_entropy(probabilities: List[float]) -> float:
+def calculate_action_entropy(actions: List[Any], probabilities: Optional[List[float]] = None) -> float:
     """
-    Calculate raw Shannon entropy from a probability distribution.
+    Calculate the entropy of a set of actions.
     
     Args:
-        probabilities: List of probabilities that sum to 1.0
+        actions: List of actions taken.
+        probabilities: Optional list of probabilities for each action.
+                       If None, assumes uniform distribution over unique actions.
     
     Returns:
-        Shannon entropy value (non-negative float)
+        Entropy value in bits.
     """
-    if not probabilities:
+    if not actions:
         return 0.0
     
-    # Filter out zero probabilities to avoid log(0)
-    valid_probs = [p for p in probabilities if p > 0]
+    if probabilities is not None:
+        if len(probabilities) != len(actions):
+            raise ValueError("Probabilities length must match actions length")
+        entropy = 0.0
+        for p in probabilities:
+            if p > 0:
+                entropy -= p * math.log2(p)
+        return entropy
     
-    if not valid_probs:
-        return 0.0
+    # Calculate empirical entropy from action counts
+    counts: Dict[Any, int] = {}
+    for action in actions:
+        counts[action] = counts.get(action, 0) + 1
     
+    total = len(actions)
     entropy = 0.0
-    for p in valid_probs:
+    for count in counts.values():
+        p = count / total
         if p > 0:
             entropy -= p * math.log2(p)
     
     return entropy
 
+def calculate_checksum(file_path: str) -> str:
+    """
+    Calculate SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file.
+    
+    Returns:
+        Hexadecimal checksum string.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read in chunks for large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    
+    return sha256_hash.hexdigest()
+
+def calculate_raw_entropy(values: List[float]) -> float:
+    """
+    Calculate the Shannon entropy of a list of probability values.
+    
+    Args:
+        values: List of probability values (should sum to 1).
+    
+    Returns:
+        Entropy value.
+    """
+    if not values:
+        return 0.0
+    
+    entropy = 0.0
+    for v in values:
+        if v > 0:
+            entropy -= v * math.log2(v)
+    return entropy
 
 def calculate_mean_entropy(entropy_values: List[float]) -> float:
     """
     Calculate the mean of a list of entropy values.
     
     Args:
-        entropy_values: List of entropy values (floats)
+        entropy_values: List of entropy values.
     
     Returns:
-        Mean entropy value
+        Mean entropy.
     """
     if not entropy_values:
         return 0.0
-    
     return sum(entropy_values) / len(entropy_values)
-
 
 def calculate_variance(values: List[float]) -> float:
     """
-    Calculate the population variance of a list of values.
+    Calculate the variance of a list of values.
     
     Args:
-        values: List of numeric values
+        values: List of numerical values.
     
     Returns:
-        Population variance (float)
+        Variance.
     """
     if len(values) < 2:
         return 0.0
     
     mean = sum(values) / len(values)
-    variance = sum((x - mean) ** 2 for x in values) / len(values)
-    
-    return variance
+    squared_diffs = [(x - mean) ** 2 for x in values]
+    return sum(squared_diffs) / len(values)
 
-
-def calculate_mean_log_prob_shift(
-    episode_results: List[Dict[str, Any]]
-) -> float:
+def calculate_mean_log_prob_shift(log_prob_shifts: List[float]) -> float:
     """
-    Calculate the mean log-probability shift across episodes.
-    
-    This measures how much the policy's log-probability changed due to
-    skill injection signals.
+    Calculate the mean of log-probability shifts.
     
     Args:
-        episode_results: List of episode result dictionaries. Each must
-            contain a 'log_prob_shift' key (float) representing the
-            log-probability shift for that episode.
+        log_prob_shifts: List of log-probability shift values.
     
     Returns:
-        Mean log-probability shift across all episodes (float)
-    
-    Raises:
-        ValueError: If episode_results is empty or lacks required keys
+        Mean shift value.
     """
-    if not episode_results:
-        raise ValueError("episode_results cannot be empty")
-    
-    shift_values = []
-    for i, result in enumerate(episode_results):
-        if 'log_prob_shift' not in result:
-            raise ValueError(
-                f"Episode result at index {i} missing required 'log_prob_shift' key"
-            )
-        shift_values.append(float(result['log_prob_shift']))
-    
-    return sum(shift_values) / len(shift_values) if shift_values else 0.0
-
+    if not log_prob_shifts:
+        return 0.0
+    return sum(log_prob_shifts) / len(log_prob_shifts)
 
 def calculate_distillation_cost_benefit_ratio(
     mean_log_prob_shift: float,
-    success_rate_improvement: float
-) -> Dict[str, float]:
+    baseline_success_rate: float,
+    improved_success_rate: float
+) -> float:
     """
     Calculate the distillation cost-benefit ratio.
     
-    This ratio measures the efficiency of skill injection: how much
-    log-probability shift (cost) is required per unit of success rate
-    improvement (benefit).
+    Cost = mean log-prob shift (effort to inject skill)
+    Benefit = improvement in success rate
     
     Args:
-        mean_log_prob_shift: Mean log-probability shift across episodes
-        success_rate_improvement: Improvement in success rate (baseline to current)
+        mean_log_prob_shift: Mean log-probability shift from injection.
+        baseline_success_rate: Success rate at threshold=0.0 (baseline).
+        improved_success_rate: Success rate at current threshold.
     
     Returns:
-        Dictionary containing:
-            - cost_benefit_ratio: Ratio of mean_log_prob_shift to success_rate_improvement
-            - mean_log_prob_shift: The input mean log-probability shift
-            - success_rate_improvement: The input success rate improvement
-    
-    Raises:
-        ValueError: If success_rate_improvement is zero or negative
+        Cost-benefit ratio.
     """
-    if success_rate_improvement <= 0:
-        raise ValueError(
-            f"success_rate_improvement must be positive, got {success_rate_improvement}"
-        )
-    
-    if mean_log_prob_shift == 0:
-        # No cost, infinite benefit efficiency
-        ratio = float('inf')
-    else:
-        ratio = abs(mean_log_prob_shift) / success_rate_improvement
-    
-    return {
-        'cost_benefit_ratio': ratio,
-        'mean_log_prob_shift': mean_log_prob_shift,
-        'success_rate_improvement': success_rate_improvement
-    }
-
+    benefit = improved_success_rate - baseline_success_rate
+    if benefit <= 0:
+        return float('inf') if mean_log_prob_shift > 0 else 0.0
+    return mean_log_prob_shift / benefit
 
 def aggregate_success_rates_by_tier_threshold(
     episode_results: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+) -> Dict[Tuple[int, float], Dict[str, Any]]:
     """
-    Aggregate success rates grouped by (tier, threshold) combinations.
+    Aggregate episode results by tier and threshold.
     
     Args:
-        episode_results: List of episode result dictionaries containing
-            'tier', 'threshold', and 'succeeded' keys
+        episode_results: List of episode result dictionaries.
     
     Returns:
-        List of dictionaries with aggregated success rates:
-            - tier: Tier identifier
-            - threshold: Threshold value
-            - total_episodes: Total episodes in this group
-            - successful_episodes: Successful episodes in this group
-            - success_rate: Calculated success rate
+        Dictionary mapping (tier, threshold) to aggregated stats.
     """
-    if not episode_results:
-        return []
-    
-    # Group by (tier, threshold)
-    groups: Dict[Tuple[str, float], List[Dict[str, Any]]] = {}
+    aggregated: Dict[Tuple[int, float], Dict[str, Any]] = {}
     
     for result in episode_results:
-        tier = result.get('tier', 'Unknown')
+        tier = result.get('tier', 0)
         threshold = result.get('threshold', 0.0)
         key = (tier, threshold)
         
-        if key not in groups:
-            groups[key] = []
-        groups[key].append(result)
+        if key not in aggregated:
+            aggregated[key] = {
+                'success_count': 0,
+                'total_count': 0,
+                'entropy_values': [],
+                'log_prob_shifts': []
+            }
+        
+        aggregated[key]['total_count'] += 1
+        if result.get('success', False):
+            aggregated[key]['success_count'] += 1
+        
+        if 'entropy' in result:
+            aggregated[key]['entropy_values'].append(result['entropy'])
+        if 'log_prob_shift' in result:
+            aggregated[key]['log_prob_shifts'].append(result['log_prob_shift'])
     
-    # Calculate success rates for each group
-    aggregated = []
-    for (tier, threshold), group_results in sorted(groups.items()):
-        success_result = calculate_success_rate(group_results)
-        aggregated.append({
-            'tier': success_result.tier,
-            'threshold': success_result.threshold,
-            'total_episodes': success_result.total_episodes,
-            'successful_episodes': success_result.successful_episodes,
-            'success_rate': success_result.success_rate
-        })
+    # Calculate rates
+    for key, stats in aggregated.items():
+        stats['success_rate'] = (
+            stats['success_count'] / stats['total_count']
+            if stats['total_count'] > 0 else 0.0
+        )
+        stats['mean_entropy'] = calculate_mean_entropy(stats['entropy_values'])
+        stats['mean_log_prob_shift'] = calculate_mean_log_prob_shift(stats['log_prob_shifts'])
+        stats['entropy_variance'] = calculate_variance(stats['entropy_values'])
     
     return aggregated
 
-
 def write_success_rate_summary(
-    aggregated_results: List[Dict[str, Any]],
+    aggregated_data: Dict[Tuple[int, float], Dict[str, Any]],
     output_path: str
 ) -> None:
     """
-    Write aggregated success rate results to a CSV file.
+    Write aggregated success rate summary to a CSV file.
     
     Args:
-        aggregated_results: List of aggregated success rate dictionaries
-        output_path: Path to output CSV file
+        aggregated_data: Aggregated data from aggregate_success_rates_by_tier_threshold.
+        output_path: Path to output CSV file.
     """
-    if not aggregated_results:
-        logger.warning("No aggregated results to write")
-        return
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    fieldnames = [
-        'tier', 'threshold', 'total_episodes',
-        'successful_episodes', 'success_rate'
-    ]
-    
-    with open(output_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(aggregated_results)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'tier', 'threshold', 'success_count', 'total_count',
+            'success_rate', 'mean_entropy', 'mean_log_prob_shift', 'entropy_variance'
+        ])
+        
+        for (tier, threshold), stats in sorted(aggregated_data.items()):
+            writer.writerow([
+                tier,
+                threshold,
+                stats['success_count'],
+                stats['total_count'],
+                stats['success_rate'],
+                stats['mean_entropy'],
+                stats['mean_log_prob_shift'],
+                stats['entropy_variance']
+            ])
     
     logger.info(f"Success rate summary written to {output_path}")
+
+def log_data_hygiene(file_paths: List[str], output_path: str) -> Dict[str, str]:
+    """
+    Record file checksums for data hygiene and reproducibility (Const III).
+    
+    This function computes SHA-256 checksums for a list of files and writes
+    them to a CSV log file. This ensures data integrity and reproducibility
+    by allowing verification that input files have not been modified.
+    
+    Args:
+        file_paths: List of file paths to checksum.
+        output_path: Path to the output CSV log file.
+    
+    Returns:
+        Dictionary mapping file paths to their checksums.
+    
+    Raises:
+        FileNotFoundError: If any specified file does not exist.
+        ValueError: If file_paths is empty.
+    """
+    if not file_paths:
+        raise ValueError("file_paths cannot be empty")
+    
+    checksums: Dict[str, str] = {}
+    
+    logger.info(f"Computing checksums for {len(file_paths)} files...")
+    
+    for file_path in file_paths:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found for checksum: {file_path}")
+        
+        checksum = calculate_checksum(file_path)
+        checksums[file_path] = checksum
+        logger.debug(f"Checksum for {file_path}: {checksum}")
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Write checksums to CSV
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['file_path', 'sha256_checksum'])
+        for file_path, checksum in checksums.items():
+            writer.writerow([file_path, checksum])
+    
+    logger.info(f"Data hygiene log written to {output_path}")
+    return checksums
