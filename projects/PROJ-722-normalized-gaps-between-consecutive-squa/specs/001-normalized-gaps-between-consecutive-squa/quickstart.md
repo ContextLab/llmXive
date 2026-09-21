@@ -2,46 +2,78 @@
 
 ## Prerequisites
 
-*   Python 3.11
-*   NumPy, SciPy, Matplotlib, Pytest
+- Python 3.11+
+- `pip`
+- `git`
 
-Install dependencies:
+## Installation
 
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-722-normalized-gaps-between-consecutive-squa
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+
+## Running the Pipeline
+
+### 1. Generate Squarefree Numbers
+Run the sieve for a specific $N$ (e.g., $10^6$):
 ```bash
-pip install -r requirements.txt
+python code/main.py --sieve --N 1000000
 ```
+Output: `data/raw/squarefree_1000000.parquet` (Parquet format)
 
-## Running the Analysis
-
-1.  Navigate to the project directory.
-2.  Run the main script:
-
+### 2. Compute Gaps
+Calculate raw and normalized gaps:
 ```bash
-python src/main.py --max_n 10000
+python code/main.py --gaps --N 1000000
 ```
+Output: `data/processed/gaps_1000000.parquet` (Parquet format)
 
-This will generate the squarefree sequence, calculate the normalized gaps, perform the Lilliefors test, and generate the plots.
-
-The `--max_n` argument specifies the maximum integer limit for generating squarefree numbers.
-
-## Output
-
-The analysis will produce the following outputs:
-
-*   A CSV file containing the raw and normalized gaps.
-*   A plot of the Empirical CDF vs. Exponential CDF.
-*   A QQ-plot.
-*   A convergence analysis plot showing the KS statistic and p-value as a function of $\log N$.
-
-## Testing
-
-Run the unit tests:
-
+### 3. Run Statistical Test
+Perform the Lilliefors test (Monte Carlo):
 ```bash
-pytest
+python code/main.py --test --N 1000000 --resamples 10000
+```
+Output: `data/processed/test_result_1000000.json`
+
+### 4. Generate Visualizations
+Create CDF, QQ-plot, and convergence chart:
+```bash
+python code/main.py --viz --N 1000000 5000000 10000000
+```
+Output: `data/figures/` (CDF, QQ, Convergence plots)
+
+### 5. Run Control Experiments
+- **Random Thinning Control**:
+  ```bash
+  python code/main.py --control --N 1000000
+  ```
+- **Gamma Control (Secondary)**:
+  ```bash
+  python code/main.py --control --N 1000000 --type gamma
+  ```
+
+## Verification
+
+Run the test suite to verify correctness:
+```bash
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
-*   If you encounter memory issues, try reducing the value of `--max_n`.
-*   Ensure that all dependencies are installed correctly.
+- **Memory Error**: If $N > 10^8$, the sieve may exceed 2 GB. Reduce $N$ or use streaming (not implemented for this scope).
+- **Division by Zero**: The normalization step includes a guard. If mean gap is 0, the script will log a warning and exit.
+- **Slow Monte Carlo**: The 10,000 resamples are CPU-bound. For faster results, reduce `--resamples` to 1,000 (not recommended for final results).

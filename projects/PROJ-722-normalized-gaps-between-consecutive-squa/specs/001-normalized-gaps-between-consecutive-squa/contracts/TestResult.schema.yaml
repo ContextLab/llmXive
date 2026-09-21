@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TestResult Schema
+description: Schema for the Lilliefors test results.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique run identifier (UUID).
+  gap_dataset_id:
+    type: string
+    description: Reference to the GapDataset ID.
+  KS_statistic:
+    type: number
+    description: Maximum difference between empirical and theoretical CDF.
+  p_value:
+    type: number
+    description: Monte Carlo p-value.
+  N_sim:
+    type: integer
+    description: Number of Monte Carlo resamples.
+  timestamp:
+    type: string
+    format: date-time
+    description: Time of test execution.
+  dataset_type:
+    type: string
+    enum:
+      - squarefree
+      - control
+      - gamma_control
+    description: Type of dataset tested.
+  N:
+    type: integer
+    description: Cutoff value used.
+required:
+  - id
+  - gap_dataset_id
+  - KS_statistic
+  - p_value
+  - N_sim
+  - timestamp
+  - dataset_type
+  - N
+additionalProperties: false

@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GapDataset
+description: >
+  Schema for the dataset containing raw and normalized gaps between consecutive squarefree numbers.
+  Matches the GapDataset entity in data-model.md.
+type: object
+required:
+  - metadata
+  - gaps
+properties:
+  metadata:
+    type: object
+    required:
+      - N_cutoff
+      - gap_count
+      - mean_raw_gap
+      - mean_normalized_gap
+      - generation_timestamp
+    properties:
+      N_cutoff:
+        type: integer
+        description: The upper bound N corresponding to the source squarefree sequence.
+      gap_count:
+        type: integer
+        description: Number of gaps calculated (should be count(sequence) - 1).
+      mean_raw_gap:
+        type: number
+        format: float
+        description: The arithmetic mean of the raw gaps (Δ).
+      mean_normalized_gap:
+        type: number
+        format: float
+        description: The arithmetic mean of the normalized gaps (g). Theoretically 1.0.
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the dataset was created.
+  gaps:
+    type: object
+    required:
+      - raw
+      - normalized
+    properties:
+      raw:
+        type: array
+        description: List of raw integer gaps (Δ_i = s_{i+1} - s_i).
+        items:
+          type: integer
+          minimum: 1
+      normalized:
+        type: array
+        description: List of normalized floating-point gaps (g_i = Δ_i / mean(Δ)).
+        items:
+          type: number
+          format: float
+additionalProperties: false

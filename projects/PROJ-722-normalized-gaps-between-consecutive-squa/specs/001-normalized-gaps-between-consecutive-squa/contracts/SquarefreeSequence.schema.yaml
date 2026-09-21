@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SquarefreeSequence Schema
+description: Schema for the SquarefreeSequence entity.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique run identifier (UUID).
+  N:
+    type: integer
+    description: Cutoff value.
+  count:
+    type: integer
+    description: Number of squarefree integers found.
+  sequence_path:
+    type: string
+    description: Path to the stored sequence file (Parquet).
+  generated_at:
+    type: string
+    format: date-time
+    description: Timestamp of generation.
+  algorithm:
+    type: string
+    enum:
+      - linear_sieve
+    description: Algorithm used for generation.
+required:
+  - id
+  - N
+  - count
+  - sequence_path
+  - generated_at
+  - algorithm
+additionalProperties: false

@@ -95,5 +95,5 @@ As a researcher, I want to generate comparative plots (Empirical CDF vs. Exponen
 
 - **Assumption about data source**: The integer range $\{1, \dots, N\}$ can be generated deterministically on the fly; no external dataset download is required or assumed.
 - **Assumption about computational resources**: The linear sieve algorithm for $N=10^7$ will complete within the 6-hour GitHub Actions time limit. $N > 10^8$ is out of scope for this feature.
-- **Assumption about statistical validity**: The sample sizes generated (approx. $/\pi^2 \times 10^7 \approx 6 \times 10^6$ points) are sufficient for the Lilliefors test (via Monte Carlo) to have adequate power to detect deviations from exponentiality.
+- **Assumption about statistical validity**: The sample sizes generated are sufficient for the Lilliefors test (via Monte Carlo) to have adequate power to detect deviations from exponentiality.
 - **Assumption about software environment**: The `scipy` library (for CDF calculations), `numpy` (for resampling), and `matplotlib` are available in the standard Python environment on the GitHub Actions runner without GPU acceleration.

@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GapDataset Schema
+description: Schema for the GapDataset entity containing raw and normalized gaps.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique run identifier (UUID).
+  sequence_id:
+    type: string
+    description: Reference to the SquarefreeSequence ID.
+  N:
+    type: integer
+    description: Cutoff value used for generation.
+  raw_gaps_path:
+    type: string
+    description: Relative path to the raw gap file (Parquet).
+  normalized_gaps_path:
+    type: string
+    description: Relative path to the normalized gap file (Parquet).
+  mean_gap:
+    type: number
+    description: Empirical mean of raw gaps.
+  count:
+    type: integer
+    description: Number of gaps calculated.
+  normalized_mean:
+    type: number
+    description: Mean of normalized gaps (should be 1.0).
+  generated_at:
+    type: string
+    format: date-time
+    description: Timestamp of gap calculation.
+required:
+  - id
+  - sequence_id
+  - N
+  - raw_gaps_path
+  - normalized_gaps_path
+  - mean_gap
+  - count
+  - normalized_mean
+  - generated_at
+additionalProperties: false
