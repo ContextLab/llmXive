@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bias Detection Dataset Schema"
+description: "Schema for the processed bias detection dataset (bias_scores.jsonl)"
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique hash of the repository"
+  file_path:
+    type: "string"
+    description: "Path to the source file"
+  token:
+    type: "string"
+    description: "Normalized token extracted from code"
+  token_type:
+    type: "string"
+    enum:
+      - "variable"
+      - "function"
+      - "comment"
+    description: "Type of the token"
+  sentiment_score:
+    type: "number"
+    description: "VADER compound sentiment score"
+  lexicon_match:
+    type: "boolean"
+    description: "Whether token matched demographic lexicon"
+required:
+  - "repo_id"
+  - "file_path"
+  - "token"
+  - "token_type"
+  - "sentiment_score"
+  - "lexicon_match"

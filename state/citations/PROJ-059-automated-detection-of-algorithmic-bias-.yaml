@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 40066f4c74e06833437761d72c1707fcc12da357c765547dad8eff572e296fe1
+  artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-16eab957b5f41fe3.parquet
+  kind: url
+  value: https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64a55b266611549e11e557e7/f710bd277793182b8a1102d9a79e3d8351f4e91963e771968d51179bd5f7d978?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-16eab957b5f41fe3.parquet%3B+filename%3D%22train-00000-of-00001-16eab957b5f41fe3.parquet%22%3B&Expires=1789971346&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhNTViMjY2NjExNTQ5ZTExZTU1N2U3L2Y3MTBiZDI3Nzc5MzE4MmI4YTExMDJkOWE3OWUzZDgzNTFmNGU5MTk2M2U3NzE5NjhkNTExNzliZDVmN2Q5NzhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMTZlYWI5NTdiNWY0MWZlMy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMTZlYWI5NTdiNWY0MWZlMy5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODk5NzEzNDZ9fX1dfQ__&Signature=MEUCIHl2wvLCYc0ifB3GVk9qMdlxUaQt9bHs5I-Din4bHNkKAiEAlSNHwPZjEvWpW5XJfrKGvBCWuFUG4DxSSa3kmL%7EtCeg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-21T05:15:46.004930Z'

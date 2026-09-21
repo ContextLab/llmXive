@@ -1,0 +1,11 @@
+term,category,weight
+man,male,1.0
+woman,female,1.0
+boy,male,1.0
+girl,female,1.0
+he,male,0.5
+she,female,0.5
+black,race,1.0
+white,race,1.0
+asian,race,1.0
+hispanic,race,1.0

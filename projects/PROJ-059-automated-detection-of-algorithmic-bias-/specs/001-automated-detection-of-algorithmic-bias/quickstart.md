@@ -1,54 +1,77 @@
 # Quickstart: Automated Detection of Algorithmic Bias in Public Code Repositories
 
-## Prerequisites
+## 1. Prerequisites
 
-*   Python 3.11
-*   `pip` package manager
+- Python 3.11+
+- `pip`
+- Git
+- GitHub API Token (optional, for rate limit extension)
 
-## Installation
-
-1.  Clone the repository:
-
-    ```bash
-    git clone [repository URL]
-    cd [repository directory]
-    ```
-
-2.  Install dependencies:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Usage
-
-1.  Run the main script:
-
-    ```bash
-    python src/cli/main.py --repo-list [list of repository URLs] --output-dir [output directory]
-    ```
-
-    Replace `[list of repository URLs]` with a text file containing a list of repository URLs, one per line. Replace `[output directory]` with the desired output directory.
-
-2.  Analyze the results:
-
-    The output directory will contain the following files:
-
-    *   `repositories.csv`: A CSV file containing information about the analyzed repositories.
-    *   `textual_artifacts.csv`: A CSV file containing the extracted textual artifacts and their bias scores.
-    *   `correlation_results.csv`: A CSV file containing the correlation results.
-
-## Configuration
-
-The script can be configured using command-line arguments:
-
-*   `--repo-list`: Path to a text file containing a list of repository URLs.
-*   `--output-dir`: Path to the output directory.
-*   `--num-repositories`: Number of repositories to analyze.
-*   `--injected-skew-magnitude`: Magnitude of bias to inject in the synthetic data.
-
-## Example
+## 2. Installation
 
 ```bash
-python src/cli/main.py --repo-list repo_list.txt --output-dir results --num-repositories 10 --injected-skew-magnitude 0.1
+# Clone the repository
+git clone <repo-url>
+cd <repo-path>
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
+
+**requirements.txt** includes:
+```text
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+vaderSentiment>=3.3.2
+fairlearn>=0.9.0
+datasets>=2.14.0
+pyyaml>=6.0
+pytest>=7.0.0
+```
+
+## 3. Data Setup
+
+1. **Download VADER Lexicon**:
+   The pipeline automatically fetches the verified VADER dataset from HuggingFace on first run.
+   ```python
+   # Or manually to verify
+   from datasets import load_dataset
+   ds = load_dataset("bartoszmaj/vader_sentiment_full", split="train")
+   ```
+
+2. **Prepare Validation Set**:
+   Place `comments.csv` in `data/validation/` with columns `comment`, `label` (0/1).
+
+3. **Prepare Test Repos**:
+   Place a list of GitHub URLs in `data/raw/repo_list.txt` (one per line).
+
+## 4. Running the Pipeline
+
+```bash
+# Run the full pipeline
+python -m src.cli.main --repos data/raw/repo_list.txt --output data/processed/
+
+# Run validation only
+python -m src.cli.main --validate --validation-data data/validation/comments.csv
+
+# Run simulation only
+python -m src.cli.main --simulate --skew-magnitude 0.1
+```
+
+## 5. Output Interpretation
+
+- **`data/processed/bias_scores.jsonl`**: Per-repo textual bias metrics.
+- **`data/processed/fairness_metrics.jsonl`**: Per-repo simulated fairness metrics.
+- **`data/processed/correlation_results.csv`**: Final statistical results (Spearman, p-values).
+- **`state/projects/...yaml`**: Checksums and execution status.
+
+## 6. Troubleshooting
+
+- **Rate Limit**: If GitHub API fails, increase token scope or reduce repo count.
+- **Memory Error**: Reduce `--max-repos` or enable streaming (default).
+- **Syntax Error**: Handled automatically; repo marked as "error" in logs.

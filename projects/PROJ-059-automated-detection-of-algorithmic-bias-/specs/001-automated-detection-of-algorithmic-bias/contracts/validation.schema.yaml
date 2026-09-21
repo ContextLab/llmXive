@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Record Schema"
+description: "Schema for VADER validation results"
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "VADER threshold tested"
+  manual_label_count:
+    type: "integer"
+    description: "Number of manually labeled comments"
+  kappa_score:
+    type: "number"
+    description: "Cohen's Kappa score"
+  status:
+    type: "string"
+    enum:
+      - "pass"
+      - "fail"
+    description: "Validation status"
+required:
+  - "threshold"
+  - "manual_label_count"
+  - "kappa_score"
+  - "status"

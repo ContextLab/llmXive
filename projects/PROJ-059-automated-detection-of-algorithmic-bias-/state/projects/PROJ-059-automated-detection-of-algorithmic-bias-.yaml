@@ -1,0 +1,30 @@
+project_id: PROJ-059-automated-detection-of-algorithmic-bias-
+name: Automated Detection of Algorithmic Bias in Public Code Repositories
+status: active
+created_at: 2023-10-27T10:00:00Z
+version: 0.1.0
+
+# Methodology Parameters
+methodology:
+  version: "Methodology-a39d8d77"
+  citation_title_overlap_threshold: 0.85
+  statistical_noise_threshold: null # To be derived by T028 (Pilot Run)
+  fairness_degradation_slope: true
+
+# Data Sources
+data_sources:
+  lexicon_path: "data/raw/lexicon.csv"
+  validation_dataset_path: "data/validation/labels.csv"
+  repo_root: "data/raw/repos"
+
+# Execution Limits
+limits:
+  max_repos_per_run: 500
+  max_memory_gb: 14
+  max_runtime_hours: 6
+
+# Flags
+flags:
+  enable_error_injection: true
+  enable_synthetic_fallback: false
+  strict_independence_check: true

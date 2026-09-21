@@ -1,0 +1,55 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/bias_pipeline`, `src/cli`, `data/raw`,
+    `data/processed`, `data/validation`, `tests/unit`, `tests/integration`, `state`)
+    is presented; without visible artifacts the claim cannot be confirmed. The implementer
+    must provide a listing or screenshots showing the created project structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., pyproject.toml, .ruff.toml, .pre-commit-config.yaml)
+    or any other evidence of ruff and black being set up are provided; without such
+    artifacts the claim that linting/formatting tools are configured cannot be verified.
+T005:
+  c: false
+  h: fe0f846c1f9aff7c5acc2a485c1e4cbd80d667c89ba131794b86e4a3d503b8d8
+  r: The `src/bias_pipeline/config.py` file exists and defines `CITATION_TITLE_OVERLAP_THRESHOLD`,
+    but the required configuration file `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml`
+    is absent, so the loader cannot actually load the project settings as the task
+    demands. The missing YAML file must be added for the implementation to be complete.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that a `data/` directory with the subfolders
+    `raw`, `processed`, and `validation` actually exists; the claim is unsubstantiated.
+    The required directory structure must be created and verified (e.g., via a file
+    listing) to satisfy the task.
+T007:
+  c: false
+  h: 39a45191bf3e10cab0425d702adfa2112a1b88d234a5d60f08c31145d71a0e73
+  r: "The required file `src/bias_pipeline/lexicon.py` does not exist, so no code\
+    \ is present to load the lexicon from `data/raw/lexicon.csv` or fetch it from\
+    \ HuggingFace. The task\u2019s core implementation is missing."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation dataset file, download script, or reference to a specific HuggingFace
+    dataset ID is present in the provided artifacts. The claim lacks any concrete
+    CSV, dataset link, or code that acquires or validates manually labeled comments,
+    which is required by task T041. The implementer must supply the actual dataset
+    (e.g., a CSV with 200 manually labeled comments) or a reproducible script that
+    fetches a verified external dataset.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `error_handler.py` file or any code showing it being imported and used in
+    the implementations of US1, US2, or US3 is present. The required artifact (error
+    handling integration) is missing, so the task is not satisfied.
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents are provided, so we cannot confirm that it\
+    \ was updated to include the \u201CFairness Degradation Slopes\u201D methodology\
+    \ or that any contradiction with `tasks.md` was removed. The required artifact\
+    \ is missing."

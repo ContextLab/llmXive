@@ -1,0 +1,731 @@
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: compute Spearman correlation between Textual Bias Scores and Fairness
+    Degradation Slopes
+  claim_id: c_f241892b
+  context: 'FR-006 (Amended): System MUST compute Spearman''s rank correlation coefficients
+    between the aggregated Textual Bias Scores and the Fairness Degradation Slopes
+    (d(Fairness Metric)/d(Skew)) across the repository dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_correlation_between_Textual_Bias_Scores_and
+  kind: entity_fact
+  raw_text: The system must compute Spearman's rank correlation coefficients between
+    the aggregated Textual Bias Scores and the Fairness Degradation Slopes (d(Fairness
+    Metric)/d(Skew)) across the repository dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:38:48Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: compute Spearman correlation coefficient and Bonferroni-corrected p-value
+    for Textual Bias Scores and Fairness Degradation Slopes
+  claim_id: c_c51cb1a1
+  context: 'SC-001 (Amended): The correlation analysis must successfully compute a
+    Spearman correlation coefficient and a Bonferroni-corrected p-value for the relationship
+    between Textual Bias Scores and Fairness Degradation Slopes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_correlation_coefficient_and_Bonferroni-corr
+  kind: entity_fact
+  raw_text: The correlation analysis must successfully compute a Spearman correlation
+    coefficient and a Bonferroni-corrected p-value for the relationship between Textual
+    Bias Scores and Fairness Degradation Slopes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:39:11Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: perform diff check to verify zero token overlap between synthetic data
+    and code tokens
+  claim_id: c_77c87a41
+  context: 'SC-004 (Amended): The system must perform a diff check (set-difference
+    on normalized token streams) to verify zero token overlap between synthetic data
+    and code tokens.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_diff_check_to_verify_zero_token_overlap_between_synt
+  kind: entity_fact
+  raw_text: The system must perform a diff check (set-difference on normalized token
+    streams) to verify zero token overlap between synthetic data and code tokens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:08Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify fairness disparity less than or equal to 0.01 when injected_skew_magnitude
+    is 0
+  claim_id: c_7effd1a3
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_fairness_disparity_less_than_or_equal_to_0.01_when_in
+  kind: magnitude
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:40:57Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: derive statistical noise threshold using pilot run with 1000 samples
+  claim_id: c_98a6cf2a
+  context: 'T028 [P] [US2] Pilot Run: Implement src/bias_pipeline/pilot.py to run
+    a simulation with N=1000 samples to derive the statistical noise threshold (a
+    predetermined value) and write the result to data/processed/noise_threshold.yaml
+    (FR-016).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement pilot run with N=1000 samples to derive the statistical noise
+    threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:41:59Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify Cohen's Kappa greater than or equal to 0.6
+  claim_id: c_f0f21dee
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Cohen%27s_Kappa_greater_than_or_equal_to_0.6
+  kind: magnitude
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 when running validation on the Validation\
+    \ Dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:42:26Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: load validation dataset of 200 manually labeled comments
+  claim_id: c_ad8dcaa7
+  context: 'T038 [US4] Implement load_validation_dataset function in src/bias_pipeline/validator.py:
+    Load ''Validation Dataset'' (200 manually labeled comments) from data/validation/
+    Depends on: T041'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a Validation Dataset of 200 manually labeled comments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:42:50Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify at least 100 repositories exist in data/raw
+  claim_id: c_8a08e740
+  context: 'T041b [P] Pre-condition Check: Verify data/raw contains at least 100 repositories
+    before proceeding.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_100_repositories_exist_in_data/raw
+  kind: magnitude
+  raw_text: Verify at least 100 repositories exist in data/raw before proceeding.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:43:14Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify 95 percent success rate on error injection dataset
+  claim_id: c_30e24eef
+  context: "T045 [US1/US2/US3] Validation Run: Execute the full pipeline against the\
+    \ data/raw/error_injection_set.zip and verify \u226595% success rate, writing\
+    \ results to data/processed/error_handling_report.json (SC-005, SC-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate when executing the full pipeline against\
+    \ the Error Injection Dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:43:14Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: fairness disparity less than or equal to 0.01 when injected skew magnitude
+    is 0
+  claim_id: c_ccd3e186
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fairness_disparity_less_than_or_equal_to_0.01_when_injected
+  kind: magnitude
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:44:05Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa greater than or equal to 0.6 on validation dataset
+  claim_id: c_e43aeaa5
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_greater_than_or_equal_to_0.6_on_validation_dat
+  kind: magnitude
+  raw_text: "Run validation on 'Validation Dataset' and verify Cohen's Kappa \u2265\
+    \ 0.6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:44:36Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: pipeline success rate greater than or equal to 95 percent on error injection
+    dataset
+  claim_id: c_dfd8546d
+  context: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate, writing results to data/processed/error_handling_report.json"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_success_rate_greater_than_or_equal_to_95_percent_on
+  kind: magnitude
+  raw_text: "Verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:45:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: processing 500 repositories in 6 hours or less on 2-core CPU
+  claim_id: c_c87b1022
+  context: "Performance optimization: Ensure 500 repos process in \u22646h on 2-core\
+    \ CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:45:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: validation dataset contains 200 manually labeled comments
+  claim_id: c_5dbbb014
+  context: 'Implement load_validation_dataset function in src/bias_pipeline/validator.py:
+    Load ''Validation Dataset'' (200 manually labeled comments) from data/validation/'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load 'Validation Dataset' (200 manually labeled comments)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:45:57Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: insufficient data warning triggered when N is less than 10 per group
+  claim_id: c_d5ea6b43
+  context: Implement logic to handle 'Insufficient Data' warnings if N < 10 per group
+    (Edge Case)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Insufficient_data_warning_triggered_when_N_is_less_than_10_p
+  kind: magnitude
+  raw_text: Verify N < 10 per group triggers 'Insufficient Data' warnings
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:46:58Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: pilot run uses 1000 samples to derive statistical noise threshold
+  claim_id: c_bd54d299
+  context: Implement src/bias_pipeline/pilot.py to run a simulation with N=1000 samples
+    to derive the statistical noise threshold (a predetermined value) and write the
+    result to data/processed/noise_threshold.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement pilot run with N=1000 samples to derive the statistical noise
+    threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:46:58Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: minimum 100 repositories required in data/raw
+  claim_id: c_d9b4d135
+  context: 'Pre-condition Check: Verify data/raw contains at least 100 repositories
+    before proceeding.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_100_repositories_required_in_data/raw
+  kind: magnitude
+  raw_text: Verify at least 100 repositories exist in data/raw
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:47:22Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/spec.md
+  attempts: 1
+  canonical: Process 500 repositories in 6 hours on 2-core CPU
+  claim_id: c_025d2083
+  context: 'Section 5 Success Criteria, SC-003: Performance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must process 500 repositories in \u22646h on a 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:53:39Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/spec.md
+  attempts: 1
+  canonical: Handle 95 percent of syntax errors gracefully
+  claim_id: c_01b647bb
+  context: 'Section 5 Success Criteria, SC-005: Error Handling Success Rate'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must handle \u226595% of syntax errors gracefully without\
+    \ crashing."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:53:39Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/spec.md
+  attempts: 1
+  canonical: Use 200 manually labeled comments for validation
+  claim_id: c_16a1c0e7
+  context: 'Section 4 Functional Requirements, FR-013: Validation Dataset Usage'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST use a manually labeled validation dataset (200 comments)
+    to validate sentiment thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:53:57Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: compute Spearman correlation coefficient and Bonferroni-corrected p-value
+    for Textual Bias Scores vs Fairness Degradation Slopes
+  claim_id: c_78c6c059
+  context: 'SC-001 (Amended): The correlation analysis must successfully compute a
+    Spearman correlation coefficient and a Bonferroni-corrected p-value for the relationship
+    between Textual Bias Scores and Fairness Degradation Slopes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_correlation_coefficient_and_Bonferroni-corr
+  kind: entity_fact
+  raw_text: The system must successfully compute a Spearman correlation coefficient
+    and a Bonferroni-corrected p-value for the relationship between Textual Bias Scores
+    and Fairness Degradation Slopes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:26Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: derive statistical noise threshold from pilot run or cited statistical
+    model
+  claim_id: c_4d8176fd
+  context: 'FR-016 (Amended): The statistical noise threshold (a predefined low magnitude)
+    MUST be derived from a pilot run OR a cited statistical model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_statistical_noise_threshold_from_pilot_run_or_cited_s
+  kind: entity_fact
+  raw_text: The statistical noise threshold MUST be derived from a pilot run OR a
+    cited statistical model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:27Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify zero token overlap between synthetic data and code tokens via
+    set-difference on normalized token streams
+  claim_id: c_913a29ac
+  context: 'SC-004 (Amended): The system must perform a diff check (set-difference
+    on normalized token streams) to verify zero token overlap between synthetic data
+    and code tokens.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zero_token_overlap_between_synthetic_data_and_code_to
+  kind: entity_fact
+  raw_text: The system must perform a diff check (set-difference on normalized token
+    streams) to verify zero token overlap between synthetic data and code tokens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify fairness disparity <= 0.01 when injected skew magnitude is 0
+  claim_id: c_13d67b58
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify Cohen's Kappa >= 0.6 on Validation Dataset
+  claim_id: c_56974e11
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 on the Validation Dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: load Validation Dataset of 200 manually labeled comments
+  claim_id: c_7d36cbb7
+  context: 'T038 [US4] Implement load_validation_dataset function in src/bias_pipeline/validator.py:
+    Load ''Validation Dataset'' (200 manually labeled comments) from data/validation/'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load 'Validation Dataset' of 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify 95% success rate on error injection dataset
+  claim_id: c_4bab2099
+  context: "T045 [US1/US2/US3] Validation Run: Execute the full pipeline against the\
+    \ data/raw/error_injection_set.zip and verify \u226595% success rate, writing\
+    \ results to data/processed/error_handling_report.json"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify >= 95% success rate on the error injection dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: process 500 repos in 6 hours on 2-core CPU
+  claim_id: c_f07053b5
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on a 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:29Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify 100 repositories exist in data/raw
+  claim_id: c_6b848786
+  context: 'T041b [P] Pre-condition Check: Verify data/raw contains at least 100 repositories
+    before proceeding.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_100_repositories_exist_in_data/raw
+  kind: magnitude
+  raw_text: Verify at least 100 repositories exist in data/raw before proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:31Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: run simulation with 1000 samples to derive statistical noise threshold
+  claim_id: c_156f2104
+  context: 'T028 [P] [US2] Pilot Run: Implement src/bias_pipeline/pilot.py to run
+    a simulation with N=1000 samples to derive the statistical noise threshold (a
+    predetermined value) and write the result to data/processed/noise_threshold.yaml'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:53Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: handle insufficient data warnings if N < 10 per group
+  claim_id: c_935f0f5b
+  context: T027 [US2] Add logic to handle 'Insufficient Data' warnings if N < 10 per
+    group (Edge Case)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle 'Insufficient Data' warnings if N < 10 per group
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:55:53Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify zero token overlap between synthetic data and code tokens via
+    set-difference on normalized token streams
+  claim_id: c_0fa3d715
+  context: 'SC-004 (Amended): The system must perform a **diff check** (set-difference
+    on normalized token streams) to verify zero token overlap between synthetic data
+    and code tokens.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zero_token_overlap_between_synthetic_data_and_code_to
+  kind: entity_fact
+  raw_text: The system must perform a diff check (set-difference on normalized token
+    streams) to verify zero token overlap between synthetic data and code tokens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:56:41Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify fairness disparity less than or equal to 0.01 when injected skew
+    magnitude is 0
+  claim_id: c_133aa812
+  context: "Independent Test: Run simulation with `injected_skew_magnitude=0` and\
+    \ verify fairness disparity \u2264 0.01; verify synthetic data contains no code\
+    \ tokens."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_fairness_disparity_less_than_or_equal_to_0.01_when_in
+  kind: magnitude
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:56:43Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: handle insufficient data warnings if N less than 10 per group
+  claim_id: c_288a8ca5
+  context: 'T027 [US2] Add logic to handle ''Insufficient Data'' warnings if N < 10
+    per group (Edge Case) **Depends on: T043**'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_insufficient_data_warnings_if_N_less_than_10_per_grou
+  kind: magnitude
+  raw_text: The system must handle 'Insufficient Data' warnings if N < 10 per group
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:57:36Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: pilot run uses 1000 samples to derive statistical noise threshold
+  claim_id: c_ea77f99c
+  context: 'T028 [P] [US2] **Pilot Run**: Implement `src/bias_pipeline/pilot.py` to
+    run a simulation with N=1000 samples to derive the statistical noise threshold
+    (a predetermined value) and write the result to `data/processed/noise_threshold.yaml`
+    (FR-016).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot run must use N=1000 samples to derive the statistical noise
+    threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:57:58Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: validation dataset consists of 200 manually labeled comments
+  claim_id: c_f1d7fea3
+  context: 'T038 [US4] Implement `load_validation_dataset` function in `src/bias_pipeline/validator.py`:
+    Load ''Validation Dataset'' (200 manually labeled comments) from `data/validation/`
+    **Depends on: T041**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation dataset consists of 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:58:20Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: halt threshold validation if Cohen's Kappa is less than 0.6
+  claim_id: c_d3d964ee
+  context: 'T040 [US4] Implement `validate_threshold` function in `src/bias_pipeline/validator.py`:
+    Threshold validation logic (halt if Kappa < 0.6) (FR-010, FR-013) **Depends on:
+    T041**'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_threshold_validation_if_Cohen%27s_Kappa_is_less_than_0.6
+  kind: magnitude
+  raw_text: Threshold validation must halt if Cohen's Kappa < 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:58:48Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify 95% success rate on error injection dataset
+  claim_id: c_84020b14
+  context: "T045 [US1/US2/US3] **Validation Run**: Execute the full pipeline against\
+    \ the `data/raw/error_injection_set.zip` and verify \u226595% success rate, writing\
+    \ results to `data/processed/error_handling_report.json` (SC-005, SC-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must verify a \u226595% success rate when executed against\
+    \ the Error Injection Dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:58:48Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: verify at least 100 repositories in data raw before proceeding
+  claim_id: c_68a93b7b
+  context: 'T041b [P] **Pre-condition Check**: Verify `data/raw` contains at least
+    100 repositories before proceeding.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_100_repositories_in_data_raw_before_proceedi
+  kind: magnitude
+  raw_text: The pipeline must verify at least 100 repositories exist in data/raw before
+    proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:59:11Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: process 500 repos in 6 hours on 2 core CPU
+  claim_id: c_da56a8a5
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must process 500 repos in \u22646h on a 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T05:59:29Z'

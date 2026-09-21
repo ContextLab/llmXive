@@ -1,0 +1,7 @@
+# Development and Tooling Dependencies
+# Added for T003: Linting and Formatting configuration
+
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
