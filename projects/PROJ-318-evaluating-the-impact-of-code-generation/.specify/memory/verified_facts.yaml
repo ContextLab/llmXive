@@ -1,5 +1,6 @@
-'|all calculation implement minilm semantic sentence similarity transformer using v2':
-  quote: embedding (i.e., all-MiniLM-L6-v2) in an
-  source_id: '2607.07974'
-  url: https://arxiv.org/abs/2607.07974
-  value: all-MiniLM-L6-v2
+'|350m codegen model mono salesforce used':
+  quote: 350-million parameter pre-trained code model (codegen-mono) could be effectively
+    fine-tuned
+  source_id: '2504.16584'
+  url: https://arxiv.org/abs/2504.16584
+  value: codegen-mono

@@ -12,13 +12,6 @@ T018:
     \ does not contain logic that writes the output JSON and asserts the row count\
     \ \u2264\u202F1,000 nor any evidence of an updated `Plan.md`. These essential\
     \ pieces are absent, so the task is not fully satisfied."
-T018b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `plan.md` content was provided, so we cannot confirm that the required statements\
-    \ were added, that references to \u201C100 methods\u201D were removed, or that\
-    \ \u201C[deferred] methods\u201D appears as specified. The artifact needed to\
-    \ verify the task is missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,36 +34,21 @@ T030:
     \ the task\u2019s deliverable is not present."
 T033:
   c: false
-  h: f21384f879cd72074aa44a156c37d68102393517ded40b243ab225bb36612903
-  r: "The required `data/processed/results.json` and the resulting `data/processed/results_with_coverage.json`\
-    \ are both missing, so the coverage calculation cannot be verified. Additionally,\
-    \ `code/analyze.py` does not expose a command\u2011line entry (`--step=coverage`)\
-    \ to perform the processing automatically. The implementer must provide a non\u2011\
-    empty `results.json`, ensure the script can be invoked as specified, and generate\
-    \ `results_with_coverage.json` containing a `coverage_score` for every record."
-T035:
+  h: eaf6ecbfd1443814a66bf71ca1fe0bd3d838b8b5b0b4beb4ad474a4b8f5d1776
+  r: The required `data/processed/results_with_coverage.json` file is missing, and
+    there is no evidence that `code/analyze.py` implements a `--step=coverage` CLI
+    that writes this file. Without the output file containing a `coverage_score` for
+    each record, the task is not satisfied.
+T034:
   c: false
-  h: 423a9ff52b6f05996ee302ad699b39baacf6673dad5f61893ae393ef9f923534
-  r: "The required input file `data/processed/results_with_scores.json` does not exist\
-    \ (and thus cannot be non\u2011empty), and the expected output `data/processed/results_with_stats.json`\
-    \ is also missing. Moreover, the provided `code/analyze.py` excerpt is incomplete\
-    \ and does not demonstrate the Wilcoxon signed\u2011rank test or the `--step=stats`\
-    \ execution logic. The task\u2019s core artifacts and statistical processing are\
-    \ therefore not present."
-T037:
-  c: false
-  h: 3d7d2a86f48fcd42f60d144e57333af3c9069c0fe4ad7ad63b073cee4b33b6fb
-  r: The required artifacts `data/processed/results_with_stats.json` and `data/processed/final_report.json`
-    are absent, and there is no evidence that `python code/analyze.py --report` was
-    executed or that the script implements the `--report` functionality to create
-    those files. The implementer must generate the missing JSON files and ensure the
-    analysis script produces the final report as specified.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated\u202FREADME.md file was presented; the claim lacks any evidence of\
-    \ added installation instructions or usage examples, so the required artifact\
-    \ is missing."
+  h: 3429f158ee1a884fd7e3e86ba9ab36ea1047249946a7fb1d36d472718e88d49d
+  r: "The required input file `data/processed/results_with_coverage.json` does not\
+    \ exist, and the expected output `data/processed/results_with_scores.json` is\
+    \ also missing. The provided `code/analyze.py` contains only coverage\u2011related\
+    \ functions and shows no implementation of semantic similarity using `sentence\u2011\
+    transformers/all\u2011MiniLM\u2011L\u2011v2`, nor any evidence that the script\
+    \ was run with `--step=similarity`. Consequently the task\u2019s requirements\
+    \ are not met."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

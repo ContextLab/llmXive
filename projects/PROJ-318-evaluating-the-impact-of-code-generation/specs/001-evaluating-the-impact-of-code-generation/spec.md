@@ -25,7 +25,7 @@ The system MUST download a representative set of top Python repositories from th
 
 ### User Story 2 - LLM Docstring Generation with Resource Constraints (Priority: P2)
 
-The system MUST load the `Salesforce/codegen-mono` model in 4-bit quantization. and generate docstrings for the **truncated list of up to 1,000 methods per repository** using a fixed temperature, ensuring the process completes within the GitHub Actions time limit (including a safety buffer).
+The system MUST load the `Salesforce/codegen-mono` model in low-bit quantization. and generate docstrings for the **truncated list of up to 1,000 methods per repository** using a fixed temperature, ensuring the process completes within the GitHub Actions time limit (including a safety buffer).
 
 **Why this priority**: This implements the core experimental intervention. It transforms the ground-truth data into the "treatment" data (LLM-generated docs). It is prioritized second because it relies on the data layer (P1) being complete.
 
@@ -41,7 +41,7 @@ The system MUST load the `Salesforce/codegen-mono` model in 4-bit quantization. 
 
 ### User Story 3 - Parameter Coverage Analysis and Statistical Comparison (Priority: P3)
 
-The system MUST calculate a **Parameter Coverage Score** for each generated docstring by matching parameters against the AST-defined signature, compute semantic similarity using `sentence-transformers/all-MiniLM-L6-v2` (as an auxiliary style metric), and perform a Wilcoxon signed-rank test to determine if the difference between **Existing Human** and **LLM** scores is statistically significant.
+The system MUST calculate a **Parameter Coverage Score** for each generated docstring by matching parameters against the AST-defined signature, compute semantic similarity using `sentence-transformers/all-MiniLM-L-v2` (as an auxiliary style metric), and perform a Wilcoxon signed-rank test to determine if the difference between **Existing Human** and **LLM** scores is statistically significant.
 
 **Why this priority**: This delivers the research outcome. It answers the core question of the feature. It is P3 because it depends on the successful generation of data (P2) and the existence of ground truth (P1).
 

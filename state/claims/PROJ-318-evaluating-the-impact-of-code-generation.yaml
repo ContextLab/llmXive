@@ -4525,3 +4525,186 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T20:09:38Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Frozen repo list contains exactly 20 items
+  claim_id: c_d0c9c019
+  context: 'T010: Create/freeze data/raw/frozen_repo_list.json... The script MUST
+    enforce that the final list contains a predefined, fixed number of items. Verification...
+    confirm the count is 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predefined, fixed
+    number of items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:47:16Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Method extraction truncated to 1000 methods per repository
+  claim_id: c_111d0d2d
+  context: 'Phase 3 Goal: ...truncate the list to a maximum of 1,000 methods per repository...
+    and output a structured JSON dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The list is truncated to a maximum of 1,000 methods per repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:47:39Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeGen model loaded in 4-bit quantization
+  claim_id: c_9dce1ca7
+  context: 'Phase 4 Goal: Load the Salesforce/codegen-350M-mono model in 4-bit quantization
+    (NO FALLBACK)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model is loaded in 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:48:07Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Model Salesforce/codegen-350M-mono used
+  claim_id: c_6f4d2762
+  context: 'Phase 4 Goal: Load the Salesforce/codegen-350M-mono model in 4-bit quantization...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 350-million parameter pre-trained code model (codegen-mono) could be
+        effectively fine-tuned
+      source_id: '2504.16584'
+      url: https://arxiv.org/abs/2504.16584
+      value: codegen-mono
+    filled: true
+  kind: entity_fact
+  raw_text: The model used is Salesforce/codegen-350M-mono.
+  resolved_value: codegen-mono
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T21:48:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Process aborts if RAM exceeds 7 GB
+  claim_id: c_7e7f073b
+  context: 'T025: ...If RAM > 7 GB, log a specific RAM_LIMIT_EXCEEDED entry to logs/monitor.log
+    and call sys.exit(1) to abort the process immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring aborts the process if RAM usage exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:49:07Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Semantic similarity uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_be0b19f7
+  context: 'T034: ...Implement semantic similarity calculation using sentence-transformers/all-MiniLM-L6-v2
+    as auxiliary metric...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_uses_sentence-transformers/all-MiniLM-L6
+  kind: entity_fact
+  raw_text: The semantic similarity calculation uses the sentence-transformers/all-MiniLM-L6-v2
+    model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:49:26Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Warning logged if pairs less than 30
+  claim_id: c_a459be62
+  context: 'T035a: ...logs a warning ''Statistical power may be low (n < 30)'' if
+    the number of pairs is small...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_pairs_less_than_30
+  kind: magnitude
+  raw_text: A warning is logged if the number of pairs is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:50:19Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total method count capped at 20000
+  claim_id: c_ddc414c9
+  context: 'Phase 0: ...total count is up to 20,000 (20 repos * [deferred]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total count of methods is capped at 20,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:51:02Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/README.md
+  attempts: 1
+  canonical: Project evaluates Salesforce/codegen-350M-mono on code documentation
+    completeness
+  claim_id: c_4548bf2c
+  context: This project implements an automated pipeline to evaluate how code generation
+    models (specifically `Salesforce/codegen-350M-mono`) affect the completeness of
+    code documentation. It extracts public method signatures and human-written docstrings
+    from top PyPI repositories, generates docstrings using a quantized LLM, and performs
+    statistical analysis on parameter coverage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_evaluates_Salesforce/codegen-350M-mono_on_code_docum
+  kind: entity_fact
+  raw_text: The project implements an automated pipeline to evaluate how code generation
+    models (specifically `Salesforce/codegen-350M-mono`) affect the completeness of
+    code documentation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:56:13Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/README.md
+  attempts: 1
+  canonical: Extract public methods and docstrings from 20 top PyPI repositories
+  claim_id: c_bf79dfc4
+  context: '### Phase 1: Repository Data Extraction (US1)
+
+
+    Extract public methods and docstrings from 20 top PyPI repositories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract public methods and docstrings from 20 top PyPI repositories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:56:39Z'

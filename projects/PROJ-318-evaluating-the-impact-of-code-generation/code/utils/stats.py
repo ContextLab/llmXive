@@ -1,91 +1,49 @@
-"""
-Statistical testing utilities for the llmXive pipeline.
-
-This module provides statistical analysis tools, specifically the Wilcoxon
-signed-rank test for paired samples, to compare human-written docstrings
-against LLM-generated ones.
-"""
-
 import logging
 from typing import List, Tuple, Optional
-
 from scipy import stats
+from utils.exceptions import StatsException
 
 logger = logging.getLogger(__name__)
 
-
 class StatsException(Exception):
-    """Base exception for statistical operations."""
+    """Exception raised for statistical analysis errors."""
     pass
-
 
 class SampleSizeException(StatsException):
-    """Raised when the sample size is insufficient for statistical testing."""
+    """Exception raised when sample size is critically low."""
     pass
 
-
-def run_wilcoxon_test(
-    human_scores: List[float],
-    llm_scores: List[float],
-    min_sample_size: int = 30
-) -> Tuple[float, float, dict]:
+def run_wilcoxon_test(human_scores: List[float], llm_scores: List[float]) -> Tuple[float, float]:
     """
-    Perform a Wilcoxon signed-rank test to compare paired human and LLM scores.
-
-    This function implements the Wilcoxon signed-rank test (Wikipedia: Wilcoxon
-    signed-rank test, https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test)
-    to determine if there is a statistically significant difference between
-    two related samples (human vs. LLM docstring coverage scores).
+    Perform a Wilcoxon signed-rank test on paired human vs. LLM coverage scores.
 
     Args:
-        human_scores: List of float scores from human-written docstrings.
-        llm_scores: List of float scores from LLM-generated docstrings.
-        min_sample_size: Minimum required sample size to proceed. Defaults to 30.
+        human_scores: List of human coverage scores.
+        llm_scores: List of LLM coverage scores.
 
     Returns:
-        Tuple containing:
-            - statistic (float): The Wilcoxon test statistic (W).
-            - p_value (float): The two-sided p-value.
-            - metadata (dict): Additional information including sample size and warning.
+        Tuple of (statistic, p-value).
 
     Raises:
-        SampleSizeException: If either score list has fewer than min_sample_size items.
-        StatsException: If lists are not of equal length or contain invalid data.
+        StatsException: If inputs are invalid or test cannot be performed.
+        SampleSizeException: If sample size is too small (but test proceeds with warning).
     """
     if len(human_scores) != len(llm_scores):
-        raise StatsException(
-            f"Score lists must be of equal length. "
-            f"Got {len(human_scores)} human scores and {len(llm_scores)} LLM scores."
-        )
+        raise StatsException("Human and LLM score lists must be of equal length.")
+    
+    if len(human_scores) == 0:
+        raise StatsException("Score lists cannot be empty.")
 
-    if len(human_scores) < 2:
-        raise StatsException("At least 2 samples are required for the Wilcoxon test.")
-
-    # Log warning if sample size is below recommended threshold but proceed
-    warning_msg = ""
-    if len(human_scores) < min_sample_size:
-        warning_msg = "Statistical power may be low (n < 30)"
+    n = len(human_scores)
+    
+    # Log warning if sample size is small, but proceed
+    if n < 30:
+        warning_msg = f"Statistical power may be low (n < 30) [n={n}]. Proceeding with calculation."
         logger.warning(warning_msg)
 
     try:
-        # Perform the Wilcoxon signed-rank test
-        # Returns: statistic, pvalue
         statistic, p_value = stats.wilcoxon(human_scores, llm_scores)
-    except ValueError as e:
-        raise StatsException(f"Wilcoxon test failed due to invalid input values: {e}")
+        logger.info(f"Wilcoxon test completed: statistic={statistic}, p-value={p_value}")
+        return statistic, p_value
     except Exception as e:
-        raise StatsException(f"Wilcoxon test failed with unexpected error: {e}")
-
-    metadata = {
-        "sample_size": len(human_scores),
-        "warning": warning_msg,
-        "test_type": "wilcoxon_signed_rank",
-        "alternative": "two-sided"
-    }
-
-    logger.info(
-        f"Wilcoxon test completed: W={statistic:.4f}, p={p_value:.6f}, "
-        f"n={len(human_scores)}"
-    )
-
-    return statistic, p_value, metadata
+        raise StatsException(f"Wilcoxon test failed: {str(e)}") from e

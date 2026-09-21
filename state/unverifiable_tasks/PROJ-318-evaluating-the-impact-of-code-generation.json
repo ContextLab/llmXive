@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-318-evaluating-the-impact-of-code-generation",
+  "tasks": [
+    {
+      "task_key": "T018b",
+      "reject_count": 1,
+      "last_reason": "No `plan.md` content was provided, so we cannot confirm that the required statements were added, that references to \u201c100 methods\u201d were removed, or that \u201c[deferred] methods\u201d appears as specified. The artifact needed to verify the task is missing.",
+      "first_seen": "2026-09-21T21:57:07.086735+00:00",
+      "last_seen": "2026-09-21T21:57:07.086735+00:00"
+    },
+    {
+      "task_key": "T035",
+      "reject_count": 1,
+      "last_reason": "The required `data/processed/results_with_scores.json` file is missing, and `data/processed/results_with_stats.json` was not produced. Moreover, `code/analyze.py` is incomplete (e.g., `run_wilcoxon_analysis` is truncated, no handling of `--step=stats`, and no code to write the stats file). The Wilcoxon test implementation and warning logic are therefore absent.",
+      "first_seen": "2026-09-21T21:57:15.426561+00:00",
+      "last_seen": "2026-09-21T21:57:15.426561+00:00"
+    },
+    {
+      "task_key": "T037",
+      "reject_count": 1,
+      "last_reason": "The required artifacts `data/processed/results_with_stats.json` and `data/processed/final_report.json` are absent, and the provided `code/analyze.py` is incomplete (truncated before any reporting logic). Consequently, the task of verifying the JSON file, generating the final report, and running the analysis script has not been fulfilled.",
+      "first_seen": "2026-09-21T21:57:17.268857+00:00",
+      "last_seen": "2026-09-21T21:57:17.268857+00:00"
+    },
+    {
+      "task_key": "T039",
+      "reject_count": 1,
+      "last_reason": "No updated\u202fREADME.md file was presented; the claim lacks any evidence of added installation instructions or usage examples, so the required artifact is missing.",
+      "first_seen": "2026-09-21T21:57:17.270430+00:00",
+      "last_seen": "2026-09-21T21:57:17.270430+00:00"
+    }
+  ],
+  "updated_at": "2026-09-21T21:57:17.270430+00:00"
+}

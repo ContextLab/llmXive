@@ -1,82 +1,206 @@
-# Quickstart: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
+# Quickstart Guide: Evaluating the Impact of Code Generation Models
+
+This guide provides step-by-step instructions to execute the full research pipeline for evaluating code generation models on documentation completeness.
 
 ## Prerequisites
 
--   Python 3.10+ installed.
--   Git installed.
--   Access to the internet (for downloading models and repositories).
--   A GitHub Actions runner or a local environment with at least 7 GB RAM.
+- Python 3.9+
+- 16GB+ RAM (32GB recommended for model loading)
+- CUDA-enabled GPU (optional, for faster generation)
+- Git installed and configured
 
-## Installation
+## 1. Environment Setup
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-318-evaluating-the-impact-of-code-generation/code
-    ```
+### 1.1 Initialize Project Structure
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+Run the setup script to create all necessary directories:
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for `transformers`, `torch`, `bitsandbytes`, `sentence-transformers`, `scipy`, `requests`, `docstring_parser`.*
-
-## Execution
-
-### Step 0: Initialize Repo List (One-Time)
-Fetch a representative set of top repositories and save them to `data/repo_list.json`.
 ```bash
-python extract.py --init-repo-list
+bash scripts/setup.sh
 ```
-*Output*: `data/repo_list.json` (Frozen list of 20 repos).
 
-### Step 1: Extract Data
-Run the extraction script for the frozen list of repositories.
+Verify the structure was created:
+
 ```bash
-python extract.py --max-methods 100
+cat logs/setup.log
 ```
-*Output*: `data/raw/` directory containing JSON files for each repo.
 
-### Step 2: Reference Validation (Blocking Gate)
-Run the Reference-Validator Agent to verify all citations and data sources.
+### 1.2 Install Dependencies
+
 ```bash
-python -m llmxive.reference_validator --input data/repo_list.json --output logs/validation_report.json
+pip install -r code/requirements.txt
 ```
-*Note*: If validation fails, the pipeline stops. Results are written to `logs/validation_report.json`.
 
-### Step 3: Generate Docstrings
-Run the generation script. This will load the model and process the extracted data.
+### 1.3 Verify Configuration
+
+Ensure seeds are pinned and configuration is correct:
+
 ```bash
-python generate.py --temperature 0.2 --quantization 4bit
+python code/verify_seed.py
+python code/verify_seed.py # Run twice to confirm reproducibility
 ```
-*Output*: `data/processed/` directory containing results with generated docstrings.
-*Note*: This step is time-consuming. It will monitor RAM and time, but the sample size is fixed at 100/repo to ensure completion within 6 hours.
 
-### Step 4: Analyze Results
-Run the analysis script to compute scores and statistical tests.
+## 2. Data Extraction (User Story 1)
+
+This phase extracts method signatures and human-written docstrings from 20 top PyPI repositories.
+
+### 2.1 Fetch Repository List
+
+Generate the frozen list of 20 top repositories:
+
 ```bash
-python analyze.py
+python code/utils/repo_fetcher.py
 ```
-*Output*: `data/processed/global_results.json` containing the Wilcoxon test results and aggregated metrics.
 
-## Validation
+**Output**: `data/raw/frozen_repo_list.json` (exactly 20 entries)
 
-To verify the pipeline on a single repository (e.g., `requests`):
+### 2.2 Clone Repositories
+
+Clone the selected repositories to the local cache:
+
 ```bash
-python extract.py --repo requests --max-methods 50
-python generate.py --input data/raw/requests_methods.json --output data/processed/requests_results.json
-python analyze.py --input data/processed/requests_results.json
+python code/utils/git_clone.py
+```
+
+**Output**: Repositories in `data/raw/repos/`
+
+### 2.3 Extract Methods and Docstrings
+
+Run the extraction pipeline to parse ASTs and collect documentation:
+
+```bash
+python code/extract.py
+```
+
+**Outputs**:
+- `data/raw/repos/{repo_slug}.json` for each repository
+- `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` (updated with SHA-256 hashes)
+
+**Verification**: Check that each JSON file contains `method_signature`, `human_docstring`, and `ast_params`.
+
+## 3. Docstring Generation (User Story 2)
+
+This phase uses a quantized LLM to generate docstrings for the extracted methods.
+
+### 3.1 Generate Docstrings
+
+Run the generation pipeline with strict 4-bit quantization:
+
+```bash
+python code/generate.py
+```
+
+**Outputs**:
+- `data/processed/generation_batch_{repo_slug}.json`
+
+**Constraints**:
+- Max 1,000 methods per repository
+- 4-bit quantization enforced (no fallback)
+- Memory monitoring active (aborts if RAM > 7GB)
+
+### 3.2 Post-Processing
+
+Flag empty or whitespace-only generated docstrings:
+
+```bash
+python code/post_process.py
+```
+
+**Output**: `data/processed/generation_batch_{repo_slug}_cleaned.json`
+
+### 3.3 Aggregate Results
+
+Consolidate all batch files into a single dataset:
+
+```bash
+python code/aggregate.py
+```
+
+**Output**: `data/processed/results.json`
+
+**Verification**: Ensure total rows <= 20,000 and per-repo rows <= 1,000.
+
+## 4. Statistical Analysis (User Story 3)
+
+This phase calculates coverage scores and performs statistical testing.
+
+### 4.1 Calculate Parameter Coverage
+
+Compute the parameter coverage score for each method:
+
+```bash
+python code/analyze.py --step=coverage
+```
+
+**Output**: `data/processed/results_with_coverage.json`
+
+**Metrics**: `coverage_score` (float) for each record.
+
+### 4.2 Calculate Semantic Similarity
+
+Compute semantic similarity between human and generated docstrings:
+
+```bash
+python code/analyze.py --step=similarity
+```
+
+**Output**: `data/processed/results_with_scores.json`
+
+**Metrics**: `semantic_similarity` (float) appended to existing records.
+
+### 4.3 Statistical Significance Testing
+
+Perform Wilcoxon signed-rank test on coverage scores:
+
+```bash
+python code/analyze.py --step=stats
+```
+
+**Output**: `data/processed/results_with_stats.json`
+
+**Metrics**: `p_value`, `test_statistic`, `is_significant`.
+
+### 4.4 Generate Final Report
+
+Compile the final research report:
+
+```bash
+python code/analyze.py --report
+```
+
+**Output**: `data/processed/final_report.json`
+
+**Contents**:
+- Overall coverage rates
+- Statistical test results
+- Key findings summary
+
+## 5. Verification and Reproducibility
+
+### 5.1 Verify Artifact Hashes
+
+Ensure all artifacts match the recorded state:
+
+```bash
+bash scripts/verify_repro.sh
+```
+
+### 5.2 Run Unit Tests
+
+Execute the full test suite:
+
+```bash
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
--   **Memory Error**: If you encounter OOM, ensure `bitsandbytes` is installed and 4-bit quantization is enabled. The script should auto-fallback to 8-bit or full precision if 4-bit fails on CPU.
--   **AST Parsing Error**: The script will skip files that fail to parse. Check `logs/extract.log` for details.
--   **Timeout**: The fixed sample size (100/repo) is designed to complete within 6 hours. If the job exceeds a significant duration threshold, check for system slowdowns.
--   **Validation Failure**: If the Reference-Validator Agent fails, check `logs/validation_report.json` for missing or mismatched citations.
+- **Memory Limit Exceeded**: The pipeline automatically aborts if RAM usage exceeds 7GB. Reduce batch size or use a machine with more memory.
+- **Quantization Failure**: If 4-bit quantization fails, the script will abort immediately. Ensure `bitsandbytes` is correctly installed and CUDA is available.
+- **Missing Data Files**: Ensure all previous steps have completed successfully. Each step depends on the output of the previous one.
+
+## Next Steps
+
+- Review `data/processed/final_report.json` for key insights
+- Analyze specific repositories in `data/processed/`
+- Extend the pipeline with additional models or metrics
