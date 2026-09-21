@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-13T11:54:03.476212Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: environmental science
 human_escalation_reason: null
 id: PROJ-555-investigating-the-potential-benefits-of-
-last_run_id: 26c77b81-b33e-4534-8590-ec446ab18395
+last_run_id: ecf1a70c-749f-407c-ac74-1d770189e3b4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of
 title: Investigating the Potential Benefits of Ecotourism in Regenerating Deforested
   Areas
-updated_at: '2026-09-17T22:58:55.838564Z'
+updated_at: '2026-09-21T12:39:45.347308Z'

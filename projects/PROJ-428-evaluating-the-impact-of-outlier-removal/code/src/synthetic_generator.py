@@ -1,292 +1,267 @@
+"""
+Synthetic Data Generator Module
+
+Generates synthetic clean distributions (Normal, LogNormal, Exponential, Beta, Gamma)
+with known variance parameters, saving data to CSV and ground truth parameters to JSON.
+"""
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import json
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List, Optional
 import os
-import sys
 
-# Ensure src is in path for imports if running as script
-if 'code/src' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.logger import get_logger
-from src.setup_dirs import setup_directories
-
-logger = get_logger(__name__)
-
-# Global random seed configuration (Constitution Principle IV)
+# Ensure reproducibility
 np.random.seed(42)
 
-def generate_normal_distribution(n_samples: int, mean_range: Tuple[float, float], var_range: Tuple[float, float]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def generate_normal_distribution(n_samples: int, mean: float, std: float, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Generate a Normal distribution with random parameters.
-    
-    Args:
-        n_samples: Number of samples to generate
-        mean_range: Tuple (min, max) for random mean selection
-        var_range: Tuple (min, max) for random variance selection
-    
-    Returns:
-        Tuple of (DataFrame with 'value' column, ground truth params dict)
-    """
-    mean = np.random.uniform(*mean_range)
-    std_dev = np.sqrt(np.random.uniform(*var_range))
-    
-    values = np.random.normal(loc=mean, scale=std_dev, size=n_samples)
-    df = pd.DataFrame({'value': values})
-    
-    params = {
-        'distribution': 'Normal',
-        'n_samples': n_samples,
-        'mean': float(mean),
-        'std_dev': float(std_dev),
-        'variance': float(std_dev ** 2)
-    }
-    
-    logger.info(f"Generated Normal distribution: mean={mean:.4f}, var={params['variance']:.4f}")
-    return df, params
+    Generate a Normal (Gaussian) distribution.
 
-def generate_lognormal_distribution(n_samples: int, mu_range: Tuple[float, float], sigma_range: Tuple[float, float]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Generate a LogNormal distribution with random parameters.
-    Note: In numpy, lognormal takes mu and sigma of the underlying normal.
-    
     Args:
-        n_samples: Number of samples
-        mu_range: Range for underlying normal mean
-        sigma_range: Range for underlying normal std dev
-    
-    Returns:
-        Tuple of (DataFrame, ground truth params)
-    """
-    mu = np.random.uniform(*mu_range)
-    sigma = np.random.uniform(*sigma_range)
-    
-    values = np.random.lognormal(mean=mu, sigma=sigma, size=n_samples)
-    df = pd.DataFrame({'value': values})
-    
-    # Calculate theoretical variance for LogNormal
-    # Var = (exp(sigma^2) - 1) * exp(2*mu + sigma^2)
-    variance = (np.exp(sigma**2) - 1) * np.exp(2*mu + sigma**2)
-    
-    params = {
-        'distribution': 'LogNormal',
-        'n_samples': n_samples,
-        'mu': float(mu),
-        'sigma': float(sigma),
-        'variance': float(variance)
-    }
-    
-    logger.info(f"Generated LogNormal distribution: mu={mu:.4f}, sigma={sigma:.4f}, var={variance:.4f}")
-    return df, params
+        n_samples: Number of samples to generate.
+        mean: Mean of the distribution.
+        std: Standard deviation of the distribution.
+        seed: Optional seed for reproducibility.
 
-def generate_exponential_distribution(n_samples: int, scale_range: Tuple[float, float]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    Returns:
+        Tuple of (data array, ground truth parameters dict).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    data = np.random.normal(loc=mean, scale=std, size=n_samples)
+    params = {
+        "distribution": "Normal",
+        "n_samples": n_samples,
+        "true_mean": mean,
+        "true_std": std,
+        "true_variance": std ** 2
+    }
+    return data, params
+
+def generate_lognormal_distribution(n_samples: int, mu: float, sigma: float, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """
+    Generate a LogNormal distribution.
+
+    Args:
+        n_samples: Number of samples to generate.
+        mu: Mean of the underlying normal distribution.
+        sigma: Standard deviation of the underlying normal distribution.
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        Tuple of (data array, ground truth parameters dict).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    # LogNormal parameters: mean of log(X) = mu, std of log(X) = sigma
+    # Variance of LogNormal = (exp(sigma^2) - 1) * exp(2*mu + sigma^2)
+    data = np.random.lognormal(mean=mu, sigma=sigma, size=n_samples)
+    true_variance = (np.exp(sigma**2) - 1) * np.exp(2*mu + sigma**2)
+    params = {
+        "distribution": "LogNormal",
+        "n_samples": n_samples,
+        "true_mu": mu,
+        "true_sigma": sigma,
+        "true_variance": true_variance
+    }
+    return data, params
+
+def generate_exponential_distribution(n_samples: int, scale: float, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Generate an Exponential distribution.
-    Scale parameter is 1/lambda. Variance = scale^2.
-    
-    Args:
-        n_samples: Number of samples
-        scale_range: Range for scale parameter
-    
-    Returns:
-        Tuple of (DataFrame, ground truth params)
-    """
-    scale = np.random.uniform(*scale_range)
-    
-    values = np.random.exponential(scale=scale, size=n_samples)
-    df = pd.DataFrame({'value': values})
-    
-    variance = scale ** 2
-    
-    params = {
-        'distribution': 'Exponential',
-        'n_samples': n_samples,
-        'scale': float(scale),
-        'variance': float(variance)
-    }
-    
-    logger.info(f"Generated Exponential distribution: scale={scale:.4f}, var={variance:.4f}")
-    return df, params
 
-def generate_beta_distribution(n_samples: int, alpha_range: Tuple[float, float], beta_range: Tuple[float, float]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    Args:
+        n_samples: Number of samples to generate.
+        scale: Scale parameter (1/lambda).
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        Tuple of (data array, ground truth parameters dict).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    # Exponential variance = scale^2
+    data = np.random.exponential(scale=scale, size=n_samples)
+    params = {
+        "distribution": "Exponential",
+        "n_samples": n_samples,
+        "true_scale": scale,
+        "true_variance": scale ** 2
+    }
+    return data, params
+
+def generate_beta_distribution(n_samples: int, alpha: float, beta: float, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Generate a Beta distribution.
-    
-    Args:
-        n_samples: Number of samples
-        alpha_range: Range for alpha parameter
-        beta_range: Range for beta parameter
-    
-    Returns:
-        Tuple of (DataFrame, ground truth params)
-    """
-    alpha = np.random.uniform(*alpha_range)
-    beta_param = np.random.uniform(*beta_range)
-    
-    values = np.random.beta(a=alpha, b=beta_param, size=n_samples)
-    df = pd.DataFrame({'value': values})
-    
-    # Theoretical variance for Beta
-    # Var = (alpha * beta) / ((alpha + beta)^2 * (alpha + beta + 1))
-    variance = (alpha * beta_param) / ((alpha + beta_param)**2 * (alpha + beta_param + 1))
-    
-    params = {
-        'distribution': 'Beta',
-        'n_samples': n_samples,
-        'alpha': float(alpha),
-        'beta': float(beta_param),
-        'variance': float(variance)
-    }
-    
-    logger.info(f"Generated Beta distribution: alpha={alpha:.4f}, beta={beta_param:.4f}, var={variance:.4f}")
-    return df, params
 
-def generate_gamma_distribution(n_samples: int, shape_range: Tuple[float, float], scale_range: Tuple[float, float]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    Args:
+        n_samples: Number of samples to generate.
+        alpha: Alpha parameter (shape).
+        beta: Beta parameter (shape).
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        Tuple of (data array, ground truth parameters dict).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    # Beta variance = (alpha * beta) / ((alpha + beta)^2 * (alpha + beta + 1))
+    data = np.random.beta(a=alpha, b=beta, size=n_samples)
+    true_variance = (alpha * beta) / ((alpha + beta)**2 * (alpha + beta + 1))
+    params = {
+        "distribution": "Beta",
+        "n_samples": n_samples,
+        "true_alpha": alpha,
+        "true_beta": beta,
+        "true_variance": true_variance
+    }
+    return data, params
+
+def generate_gamma_distribution(n_samples: int, shape: float, scale: float, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Generate a Gamma distribution.
-    Variance = shape * scale^2.
-    
-    Args:
-        n_samples: Number of samples
-        shape_range: Range for shape (k) parameter
-        scale_range: Range for scale (theta) parameter
-    
-    Returns:
-        Tuple of (DataFrame, ground truth params)
-    """
-    shape = np.random.uniform(*shape_range)
-    scale = np.random.uniform(*scale_range)
-    
-    values = np.random.gamma(shape=shape, scale=scale, size=n_samples)
-    df = pd.DataFrame({'value': values})
-    
-    variance = shape * (scale ** 2)
-    
-    params = {
-        'distribution': 'Gamma',
-        'n_samples': n_samples,
-        'shape': float(shape),
-        'scale': float(scale),
-        'variance': float(variance)
-    }
-    
-    logger.info(f"Generated Gamma distribution: shape={shape:.4f}, scale={scale:.4f}, var={variance:.4f}")
-    return df, params
 
-def save_ground_truth_params(all_params: Dict[str, Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save all ground truth parameters to a JSON file.
-    
     Args:
-        all_params: Dictionary of distribution name -> params dict
-        output_path: Path to save the JSON file
+        n_samples: Number of samples to generate.
+        shape: Shape parameter (k).
+        scale: Scale parameter (theta).
+        seed: Optional seed for reproducibility.
+
+    Returns:
+        Tuple of (data array, ground truth parameters dict).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    # Gamma variance = shape * scale^2
+    data = np.random.gamma(shape=shape, scale=scale, size=n_samples)
+    params = {
+        "distribution": "Gamma",
+        "n_samples": n_samples,
+        "true_shape": shape,
+        "true_scale": scale,
+        "true_variance": shape * (scale ** 2)
+    }
+    return data, params
+
+def save_ground_truth_params(params_list: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save ground truth parameters to a JSON file.
+
+    Args:
+        params_list: List of parameter dictionaries.
+        output_path: Path to the output JSON file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(all_params, f, indent=2)
-    logger.info(f"Saved ground truth parameters to {output_path}")
+        json.dump(params_list, f, indent=2)
 
 def generate_and_save_distribution(
     generator_func,
     n_samples: int,
-    param_ranges: Tuple,
-    output_dir: Path,
-    filename_prefix: str,
-    distribution_name: str
+    output_csv_path: Path,
+    param_args: Dict[str, Any],
+    seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Helper to generate data, save CSV, and return params.
-    
+    Generate a distribution, save to CSV, and return ground truth params.
+
     Args:
-        generator_func: The generation function to call
-        n_samples: Number of samples
-        param_ranges: Arguments for the generator
-        output_dir: Directory to save CSV
-        filename_prefix: Prefix for CSV filename
-        distribution_name: Name for the params key
-    
+        generator_func: The generator function to call.
+        n_samples: Number of samples.
+        output_csv_path: Path to save the CSV file.
+        param_args: Arguments for the generator function (excluding n_samples and seed).
+        seed: Optional seed for reproducibility.
+
     Returns:
-        Ground truth params dict
+        Ground truth parameters dictionary.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = output_dir / f"{filename_prefix}.csv"
+    output_csv_path.parent.mkdir(parents=True, exist_ok=True)
     
-    df, params = generator_func(n_samples, *param_ranges)
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Saved {distribution_name} data to {csv_path}")
+    # Generate data
+    data, params = generator_func(n_samples=n_samples, seed=seed, **param_args)
+    
+    # Create DataFrame
+    df = pd.DataFrame({
+        "value": data,
+        "distribution": params["distribution"]
+    })
+    
+    # Save to CSV
+    df.to_csv(output_csv_path, index=False)
     
     return params
 
 def main():
     """
-    Main entry point to generate all synthetic clean distributions.
+    Main function to generate all synthetic clean distributions.
     """
-    # Setup directories
-    setup_directories()
+    # Define project root relative to this file
+    current_dir = Path(__file__).parent
+    project_root = current_dir.parent.parent
     
-    # Configuration
-    n_samples = 10000
-    raw_dir = Path("data/raw")
-    state_dir = Path("state")
+    # Define output paths
+    data_raw_dir = project_root / "data" / "raw"
+    state_dir = project_root / "state"
     
-    # Define parameter ranges for random generation
-    # Normal: mean in [0, 10], variance in [1, 5]
-    normal_params = ((0.0, 10.0), (1.0, 5.0))
+    # Ensure directories exist
+    data_raw_dir.mkdir(parents=True, exist_ok=True)
+    state_dir.mkdir(parents=True, exist_ok=True)
     
-    # LogNormal: mu in [0, 1], sigma in [0.5, 1.5]
-    lognormal_params = ((0.0, 1.0), (0.5, 1.5))
+    # Configuration for distributions
+    # We generate parameters within defined ranges to ensure variance is non-trivial
+    distributions_config = [
+        {
+            "name": "Normal",
+            "func": generate_normal_distribution,
+            "args": {"mean": 50.0, "std": 10.0},
+            "filename": "synthetic_clean_normal.csv"
+        },
+        {
+            "name": "LogNormal",
+            "func": generate_lognormal_distribution,
+            "args": {"mu": 0.0, "sigma": 0.5},
+            "filename": "synthetic_clean_lognormal.csv"
+        },
+        {
+            "name": "Exponential",
+            "func": generate_exponential_distribution,
+            "args": {"scale": 2.0},
+            "filename": "synthetic_clean_exponential.csv"
+        },
+        {
+            "name": "Beta",
+            "func": generate_beta_distribution,
+            "args": {"alpha": 2.0, "beta": 5.0},
+            "filename": "synthetic_clean_beta.csv"
+        },
+        {
+            "name": "Gamma",
+            "func": generate_gamma_distribution,
+            "args": {"shape": 3.0, "scale": 2.0},
+            "filename": "synthetic_clean_gamma.csv"
+        }
+    ]
     
-    # Exponential: scale in [1, 3] (variance 1-9)
-    exponential_params = ((1.0, 3.0),)
+    n_samples = 10000  # Large enough for stable variance estimates
+    all_params = []
     
-    # Beta: alpha in [2, 5], beta in [2, 5]
-    beta_params = ((2.0, 5.0), (2.0, 5.0))
-    
-    # Gamma: shape in [2, 5], scale in [0.5, 2.0] (variance 0.5 - 20)
-    gamma_params = ((2.0, 5.0), (0.5, 2.0))
-    
-    all_params = {}
-    
-    logger.info("Starting synthetic clean distribution generation...")
-    
-    # Generate Normal
-    all_params['Normal'] = generate_and_save_distribution(
-        generate_normal_distribution,
-        n_samples, normal_params, raw_dir, 'synthetic_clean_normal', 'Normal'
-    )
-    
-    # Generate LogNormal
-    all_params['LogNormal'] = generate_and_save_distribution(
-        generate_lognormal_distribution,
-        n_samples, lognormal_params, raw_dir, 'synthetic_clean_lognormal', 'LogNormal'
-    )
-    
-    # Generate Exponential
-    all_params['Exponential'] = generate_and_save_distribution(
-        generate_exponential_distribution,
-        n_samples, exponential_params, raw_dir, 'synthetic_clean_exponential', 'Exponential'
-    )
-    
-    # Generate Beta
-    all_params['Beta'] = generate_and_save_distribution(
-        generate_beta_distribution,
-        n_samples, beta_params, raw_dir, 'synthetic_clean_beta', 'Beta'
-    )
-    
-    # Generate Gamma
-    all_params['Gamma'] = generate_and_save_distribution(
-        generate_gamma_distribution,
-        n_samples, gamma_params, raw_dir, 'synthetic_clean_gamma', 'Gamma'
-    )
+    for config in distributions_config:
+        output_path = data_raw_dir / config["filename"]
+        params = generate_and_save_distribution(
+            generator_func=config["func"],
+            n_samples=n_samples,
+            output_csv_path=output_path,
+            param_args=config["args"],
+            seed=42  # Fixed seed for reproducibility across distributions
+        )
+        all_params.append(params)
+        print(f"Generated {config['name']} distribution: {output_path}")
     
     # Save ground truth parameters
-    params_path = state_dir / "synthetic_params.json"
-    save_ground_truth_params(all_params, params_path)
-    
-    logger.info("Synthetic clean distribution generation complete.")
-    logger.info(f"Ground truth parameters saved to {params_path}")
+    params_output_path = state_dir / "synthetic_params.json"
+    save_ground_truth_params(all_params, params_output_path)
+    print(f"Saved ground truth parameters to {params_output_path}")
 
 if __name__ == "__main__":
     main()

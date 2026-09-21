@@ -1,7 +1,4 @@
-flake8
-black
-ruff
-pytest
-pytest-cov
-mypy
-pre-commit
+flake8>=6.0.0
+black>=23.0.0
+ruff>=0.1.0
+pytest>=7.0.0

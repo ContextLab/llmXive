@@ -5,85 +5,52 @@ import sys
 import tempfile
 import shutil
 
-# Add the code directory to the path so we can import src modules
-code_path = Path(__file__).parent.parent
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Add the code directory to the path so we can import from src
+code_root = Path(__file__).resolve().parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from src.setup_dirs import setup_directories
 
+def get_project_root():
+    """Get the project root directory (parent of code/)"""
+    return Path(__file__).resolve().parent.parent.parent
+
 def test_required_directories_exist():
-    """
-    Test that the setup_directories function creates all required directories.
-    """
-    # Create a temporary directory to simulate project root
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        
-        # Create a mock 'code' directory structure
-        code_dir = temp_path / "code"
-        src_dir = code_dir / "src"
-        src_dir.mkdir(parents=True)
-        
-        # Temporarily modify __file__ to point to our mock location
-        import src.setup_dirs
-        original_file = src.setup_dirs.__file__
-        src.setup_dirs.__file__ = str(src_dir / "setup_dirs.py")
-        
-        try:
-            # Run the setup function
-            result = setup_directories()
-            
-            # Verify the result
-            assert result["project_root"] == str(temp_path)
-            assert result["new_directories_count"] == 4
-            
-            # Verify each directory exists
-            expected_dirs = [
-                "data/raw",
-                "data/processed",
-                "data/results",
-                "state"
-            ]
-            
-            for dir_path in expected_dirs:
-                full_path = temp_path / dir_path
-                assert full_path.exists(), f"Directory {full_path} was not created"
-                assert full_path.is_dir(), f"Path {full_path} is not a directory"
-        finally:
-            # Restore original __file__
-            src.setup_dirs.__file__ = original_file
+    """Test that setup_directories creates all required directories"""
+    project_root = get_project_root()
+    
+    # Run the setup
+    created_dirs = setup_directories()
+    
+    # Verify each directory exists
+    expected_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "state"
+    ]
+    
+    for expected_dir in expected_dirs:
+        assert expected_dir.exists(), f"Directory does not exist: {expected_dir}"
+        assert expected_dir.is_dir(), f"Path is not a directory: {expected_dir}"
+    
+    # Verify the returned list matches expected directories
+    assert len(created_dirs) == len(expected_dirs)
+    for dir1, dir2 in zip(sorted(created_dirs), sorted(expected_dirs)):
+        assert dir1 == dir2
 
 def test_project_root_is_writable():
-    """
-    Test that the project root is writable by attempting to create a file.
-    """
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        
-        # Create a mock 'code' directory structure
-        code_dir = temp_path / "code"
-        src_dir = code_dir / "src"
-        src_dir.mkdir(parents=True)
-        
-        # Temporarily modify __file__ to point to our mock location
-        import src.setup_dirs
-        original_file = src.setup_dirs.__file__
-        src.setup_dirs.__file__ = str(src_dir / "setup_dirs.py")
-        
-        try:
-            # Run setup to create directories
-            setup_directories()
-            
-            # Try to create a test file in one of the directories
-            test_file = temp_path / "data" / "raw" / "test_writable.txt"
-            test_file.write_text("Test content")
-            
-            assert test_file.exists(), "Could not write to data/raw directory"
-            assert test_file.read_text() == "Test content"
-        finally:
-            # Restore original __file__
-            src.setup_dirs.__file__ = original_file
-            # Clean up test file
-            if 'test_file' in locals():
-                test_file.unlink()
+    """Test that the project root is writable"""
+    project_root = get_project_root()
+    
+    # Try to create a temporary file in the project root
+    test_file = project_root / ".test_writable"
+    try:
+        test_file.touch()
+        assert test_file.exists(), "Could not create test file in project root"
+        assert os.access(test_file, os.W_OK), "Project root is not writable"
+    finally:
+        # Clean up
+        if test_file.exists():
+            test_file.unlink()

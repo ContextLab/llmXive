@@ -6,7 +6,7 @@ This project investigates the correlation between ecotourism activities and the 
 ## User Stories
 
 ### US1: Data Acquisition and Preprocessing
-Ingest, clean, and align Landsat satellite imagery time series with ecotourism site metadata for the defined study period (2000-2023).
+Ingest, clean, and align Landsat satellite imagery time series with ecotourism site metadata for the defined study period.
 
 ### US2: Deforestation Detection and Recovery Trajectory Modeling
 Automatically detect deforestation events and calculate recovery trajectories using non-linear asymptotic models.

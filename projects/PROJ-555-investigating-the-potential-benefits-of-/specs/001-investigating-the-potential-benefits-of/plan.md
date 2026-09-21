@@ -5,7 +5,7 @@
 ## Summary
 
 This project implements an **observational study** to investigate the **associational patterns** between ecotourism designation and forest regeneration rates in deforested areas. The study explicitly **does not claim causal acceleration** due to the lack of randomization. The technical approach involves:
-1.  **Data Acquisition**: Programmatic retrieval of Landsat Level Surface Reflectance via USGS API for a set of paired sites (ecotourism and control groups) covering the early st century through 2023, processed in chunks to respect available RAM limits.
+1.  **Data Acquisition**: Programmatic retrieval of Landsat Level Surface Reflectance via USGS API for a set of paired sites (ecotourism and control groups) covering the early 21st century through recent years, processed in chunks to respect available RAM limits.
 2.  **Feature Engineering**: Calculation of NDVI time series, cloud masking, and detection of deforestation events (NDVI drop ≥0.30 sustained ≥2 years).
 3.  **Modeling**: Fitting a **Hierarchical Non-Linear Model (HNLMM)** to recovery trajectories (borrowing strength across sites) and a Linear Mixed-Effects Model (LMM) to test the association between ecotourism status and regeneration rate, controlling for climate (CHIRPS/MODIS) and initial severity.
 4.  **Robustness**: Sensitivity analysis sweeping revenue thresholds (low, medium, and high) and proxy variables (revenue vs. visitor count), with multiple-comparison correction (Holm/Bonferroni).
@@ -90,5 +90,5 @@ data/
 | :--- | :--- | :--- |
 | **Hierarchical Non-Linear Model (HNLMM)** | Required by FR-002 to accurately capture the "S-curve" of forest recovery while borrowing strength across sites to stabilize estimates for N=30. | Independent non-linear fits for each site are statistically unstable for small N and prone to non-convergence. |
 | **Linear Mixed-Effects Model** | Required by FR-003 to account for the paired design (random effect 'pair') and control for site-level heterogeneity. | Standard OLS regression would violate independence assumptions due to the paired site structure and spatial autocorrelation. |
-| **Chunked Streaming** | Required by FR-001 to stay under 7GB RAM when processing years of Landsat imagery for 30 sites. | Loading all raw imagery into memory simultaneously would exceed the 7GB limit and crash the runner. |
+| **Chunked Streaming** | Required by FR-001 to stay under a moderate RAM footprint when processing years of Landsat imagery for 30 sites. | Loading all raw imagery into memory simultaneously would exceed the 7GB limit and crash the runner. |
 | **Temporal Validation** | Required to avoid collider bias if ecotourism designation occurred after deforestation. | Ignoring temporal ordering risks spurious correlations if sites were selected based on prior recovery. |

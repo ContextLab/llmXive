@@ -1,0 +1,101 @@
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: Enforce 100 Monte Carlo replicates per Constitution Principle VI
+  claim_id: c_7475584f
+  context: Task T007 requires implementing a checkpoint mechanism that enforces a
+    specific number of replicates and fails the run if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement checkpoint/restart mechanism in code/src/checkpoint.py including
+    logic to ENFORCE 100 Monte Carlo replicates as per Constitution Principle VI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:11:33Z'
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: Download 5 public datasets from the UCI Machine Learning Repository
+  claim_id: c_04919f18
+  context: Task T011 specifies downloading a specific count of datasets from a named
+    repository.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download 5 public datasets from the UCI Machine Learning Repository to
+    data/raw/uci_*.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:12:04Z'
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: Complete execution within 6 hours on 2 CPU cores
+  claim_id: c_5bada79e
+  context: Task T037 sets a specific performance target regarding time and hardware
+    resources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance optimization to ensure completion within 6 hours on 2 CPU
+    cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:12:44Z'
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: System enforces 100 Monte Carlo replicates with failure on exceedance
+  claim_id: c_6af9e424
+  context: T007 [P] Implement checkpoint/restart mechanism in code/src/checkpoint.py
+    including logic to ENFORCE 100 Monte Carlo replicates as per Constitution Principle
+    VI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST enforce 100 Monte Carlo replicates as per Constitution
+    Principle VI; if the runner limit is exceeded, the system MUST fail the run and
+    log a critical error (NO fallback to 50 replicates).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:14:35Z'
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_20f28981
+  context: T002 Initialize Python 3.11 project with dependencies in code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:14:58Z'
+- artifact_path: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal/tasks.md
+  attempts: 1
+  canonical: System completes within 6 hours on 2 CPU cores
+  claim_id: c_a69fd7b4
+  context: T037 Performance optimization to ensure completion within 6 hours on 2
+    CPU cores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is required to complete within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T13:15:25Z'

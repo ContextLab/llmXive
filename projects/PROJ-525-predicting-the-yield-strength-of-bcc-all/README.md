@@ -1,39 +1,76 @@
-# PROJ-525: Predicting the Yield Strength of BCC Alloys
+# Predicting Yield Strength of BCC Alloys
 
-## Overview
-Automated science pipeline for predicting yield strength of Body-Centered Cubic (BCC) alloys
-using compositional descriptors and machine learning.
+This project implements an automated science pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using machine learning.
 
-## Prerequisites
-- Python 3.11+
-- pip
+## Project Structure
 
-## Installation
-1. Create a virtual environment:
+```
+.
+├── code/ # Source code for the pipeline
+│ ├── config.py # Configuration management (local vs CI)
+│ ├── data_ingestion.py # Data download and filtering
+│ ├── feature_engineering.py # Feature generation
+│ ├── modeling.py # Model training and validation
+│ ├── utils.py # Utility functions
+│ └──...
+├── data/
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Processed and filtered data
+│ └── logs/ # Execution logs
+├── reports/ # Model comparison reports
+├── tests/ # Unit and integration tests
+├── requirements.txt # Python dependencies
+├── pyproject.toml # Project configuration (black, ruff, pytest)
+└── README.md
+```
+
+## Setup
+
+1. **Create Virtual Environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-2. Install dependencies:
+2. **Install Dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-3. (Optional) Install dev tools for linting and formatting:
- ```bash
- pip install -e ".[dev]"
- ```
-
-## Project Structure
-- `code/` - Source code modules
-- `data/` - Data storage (raw, processed, logs)
-- `tests/` - Unit and integration tests
-- `reports/` - Generated reports and visualizations
-- `specs/` - Feature specifications and design docs
+3. **Configure Environment**:
+ The `code/config.py` module automatically detects if running in a CI environment or locally.
+ - **Local**: Uses standard paths relative to the project root.
+ - **CI**: Adjusts resource limits and paths based on environment variables.
 
 ## Usage
-See `quickstart.md` for execution pipeline details.
 
-## License
-Proprietary - Research Use Only
+Run the pipeline steps sequentially:
+
+```bash
+# 1. Ingest and Filter Data
+python code/01_download.py
+
+# 2. Engineer Features
+python code/02_engineer.py
+
+# 3. Train Models
+python code/modeling.py
+```
+
+## Linting and Formatting
+
+```bash
+python code/lint_format.py
+```
+
+Or manually:
+```bash
+ruff check code/
+black --check code/
+```
+
+## Testing
+
+```bash
+pytest
+```

@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MoleculeRecord
+description: Schema for a single crystal structure record derived from COD.
+type: object
+properties:
+  cod_id:
+    type: string
+    description: "Unique identifier from COD (e.g., '1500001')"
+  smiles:
+    type: string
+    description: "Canonical SMILES string"
+  dominant_space_group:
+    type: string
+    description: "The most frequent space group for this SMILES (training label)"
+  space_group_raw:
+    type: string
+    description: "Original space group from CIF (for polymorph analysis)"
+  lattice_volume:
+    type: number
+    description: "Volume of the unit cell in cubic Angstroms (Å³)"
+    minimum: 0
+  fingerprint:
+    type: array
+    description: "2048-bit ECFP4 vector"
+    items:
+      type: integer
+      enum:
+        - 0
+        - 1
+    minItems: 2048
+    maxItems: 2048
+  is_polymorph:
+    type: boolean
+    description: "True if this SMILES has multiple space groups in the dataset"
+  polymorph_count:
+    type: integer
+    description: "Number of unique space groups for this SMILES"
+    minimum: 1
+  scaffold_id:
+    type: string
+    description: "Bemis-Murcko scaffold identifier"
+  atom_count:
+    type: integer
+    description: "Total number of atoms"
+    minimum: 1
+  molecular_weight:
+    type: number
+    description: "Molecular weight in g/mol"
+    minimum: 0
+  organic_flag:
+    type: boolean
+    description: "True if molecule has C-H-O-N-S-P backbone"
+required:
+  - cod_id
+  - smiles
+  - dominant_space_group
+  - lattice_volume
+  - fingerprint
+  - scaffold_id
+  - organic_flag
+additionalProperties: false

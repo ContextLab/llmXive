@@ -1,75 +1,84 @@
-"""
-Script to create the project directory structure for PROJ-428.
-Ensures atomic creation of all required directories using mkdir -p logic.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root relative to where this script is located
-    # The script is in code/, so root is parent of code/
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    # Define required directories relative to project root
-    # Based on tasks.md and standard conventions for this project
-    dirs_to_create = [
+    """
+    Create the project structure for PROJ-428-evaluating-the-impact-of-outlier-removal.
+    This script creates the necessary directory hierarchy and initializes files
+    as per the implementation plan.
+    """
+    # Define the project root relative to the code directory
+    # The task asks for structure under projects/PROJ-428-...
+    # Assuming the script runs from the repository root or code/
+    current_path = Path.cwd()
+    
+    # Determine project root (look for 'projects' or create structure relative to current)
+    # Based on task description: `projects/PROJ-428-evaluating-the-impact-of-outlier-removal/`
+    # We will create this structure relative to the current working directory.
+    
+    project_name = "PROJ-428-evaluating-the-impact-of-outlier-removal"
+    project_root = current_path / "projects" / project_name
+    
+    # Define required directories
+    directories = [
+        "code",
+        "code/src",
+        "code/tests",
         "data/raw",
         "data/processed",
         "data/results",
         "data/results/figures",
         "state",
-        "code/src",
-        "code/tests",
         "docs",
         "configs",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/data/raw",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/data/processed",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/data/results",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/data/results/figures",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/state",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/code/src",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/code/tests",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/docs",
-        "projects/PROJ-428-evaluating-the-impact-of-outlier-removal/configs",
+        "contracts"
     ]
-
-    created_count = 0
-    existing_count = 0
-
-    print(f"Creating project structure at: {project_root}")
-
-    for dir_path in dirs_to_create:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
-            created_count += 1
-        else:
-            existing_count += 1
-
-    print(f"\nProject structure setup complete.")
-    print(f"  New directories created: {created_count}")
-    print(f"  Directories already existing: {existing_count}")
-
-    # Verify critical directories exist
-    critical_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "results",
-        project_root / "state",
-        project_root / "code" / "src",
-        project_root / "code" / "tests",
+    
+    # Create directories
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    # Create __init__.py files to make directories Python packages
+    init_files = [
+        project_root / "code" / "__init__.py",
+        project_root / "code" / "src" / "__init__.py",
+        project_root / "code" / "tests" / "__init__.py"
     ]
+    
+    for init_file in init_files:
+        init_file.touch(exist_ok=True)
+        # Add a simple docstring or comment if empty
+        if init_file.stat().st_size == 0:
+            init_file.write_text("# Package initialization\n")
+        print(f"Initialized package: {init_file}")
+    
+    # Create a placeholder README in the project root
+    readme_path = project_root / "README.md"
+    if not readme_path.exists():
+        readme_content = f"""# {project_name}
 
-    missing = [str(d) for d in critical_dirs if not d.exists()]
-    if missing:
-        print(f"ERROR: Critical directories missing: {missing}")
-        sys.exit(1)
+## Overview
+This project evaluates the impact of outlier removal methods on variance estimation.
 
-    print("All critical directories verified.")
+## Structure
+- `code/`: Source code and tests
+- `data/`: Raw, processed, and result data
+- `state/`: Checkpoints and intermediate states
+- `docs/`: Documentation
+- `configs/`: Configuration files
+- `contracts/`: Schema contracts
+
+## Execution
+Run `python code/setup_project_structure.py` to ensure structure is correct.
+"""
+        readme_path.write_text(readme_content)
+        print(f"Created README: {readme_path}")
+    
+    print(f"Project structure created successfully at: {project_root}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

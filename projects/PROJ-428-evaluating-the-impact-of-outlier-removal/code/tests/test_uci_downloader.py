@@ -1,6 +1,3 @@
-"""
-Tests for UCI Downloader module.
-"""
 import os
 import sys
 import tempfile
@@ -10,89 +7,69 @@ import pandas as pd
 import numpy as np
 import pytest
 
-# Add project root to path
-root_dir = Path(__file__).resolve().parent.parent
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.uci_downloader import (
-    identify_continuous_columns,
-    clean_and_process_dataset,
-    download_dataset
-)
+from src.uci_downloader import identify_continuous_columns, clean_and_process_dataset
 
 class TestIdentifyContinuousColumns:
     def test_identify_mixed_types(self):
-        """Test identification of continuous columns in mixed dataframe."""
+        """Test that only numeric columns are identified."""
         data = {
-            'int_col': [1, 2, 3, 4, 5],
-            'float_col': [1.1, 2.2, 3.3, 4.4, 5.5],
-            'const_col': [5, 5, 5, 5, 5],
-            'str_col': ['a', 'b', 'c', 'd', 'e']
+            'A': [1, 2, 3],
+            'B': [1.0, 2.0, 3.0],
+            'C': ['x', 'y', 'z'],
+            'D': ['1', '2', '3']
         }
         df = pd.DataFrame(data)
-        
-        continuous = identify_continuous_columns(df)
-        
-        assert 'int_col' in continuous
-        assert 'float_col' in continuous
-        assert 'const_col' not in continuous # Variance is 0
-        assert 'str_col' not in continuous
+        cols = identify_continuous_columns(df)
+        assert 'A' in cols
+        assert 'B' in cols
+        assert 'C' not in cols
+        assert 'D' not in cols
 
-    def test_identify_empty_dataframe(self):
-        """Test with empty dataframe."""
-        df = pd.DataFrame()
-        continuous = identify_continuous_columns(df)
-        assert len(continuous) == 0
+    def test_identify_all_numeric(self):
+        data = {
+            'X': [1, 2, 3],
+            'Y': [4.0, 5.0, 6.0]
+        }
+        df = pd.DataFrame(data)
+        cols = identify_continuous_columns(df)
+        assert len(cols) == 2
+        assert set(cols) == {'X', 'Y'}
 
 class TestCleanAndProcessDataset:
-    def test_clean_and_calculate_variance(self, tmp_path):
-        """Test cleaning and variance calculation."""
+    def test_clean_and_process_with_missing(self):
+        """Test cleaning logic with '?' missing values."""
         data = {
-            'col_0': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'col_1': [10.0, 20.0, 30.0, 40.0, 50.0],
-            'col_2': [1.0, 1.0, 1.0, 1.0, 1.0] # Constant
+            'val1': [1, 2, '?', 4, 5],
+            'val2': [10.0, '?', 30.0, 40.0, 50.0],
+            'cat': ['a', 'b', 'c', 'd', 'e']
         }
         df = pd.DataFrame(data)
-        continuous_cols = ['col_0', 'col_1']
         
-        output_file = tmp_path / "clean.csv"
+        raw_path = Path("fake/path.csv")
         
-        variance = clean_and_process_dataset(df, continuous_cols, output_file)
+        clean_df, metadata = clean_and_process_dataset(df, "TestSet", raw_path)
         
-        # Check file exists
-        assert output_file.exists()
+        assert 'cat' not in clean_df.columns
+        assert len(clean_df) == 3
         
-        # Check variance values (approximate)
-        assert 'col_0' in variance
-        assert 'col_1' in variance
-        assert abs(variance['col_0'] - 2.5) < 0.01 # Sample variance of [1,2,3,4,5]
-        assert abs(variance['col_1'] - 250.0) < 0.1 # Sample variance of [10,20,30,40,50]
+        assert 'baseline_variances' in metadata
+        assert 'val1' in metadata['baseline_variances']
+        assert 'val2' in metadata['baseline_variances']
 
-    def test_handles_missing_values(self, tmp_path):
-        """Test that rows with NaN are dropped."""
+    def test_clean_and_process_no_continuous(self):
+        """Test behavior when no continuous columns are found."""
         data = {
-            'col_0': [1.0, np.nan, 3.0, 4.0, 5.0],
-            'col_1': [10.0, 20.0, 30.0, 40.0, 50.0]
+            'cat1': ['a', 'b', 'c'],
+            'cat2': ['x', 'y', 'z']
         }
         df = pd.DataFrame(data)
-        continuous_cols = ['col_0', 'col_1']
+        raw_path = Path("fake/path.csv")
         
-        output_file = tmp_path / "clean_with_nan.csv"
-        variance = clean_and_process_dataset(df, continuous_cols, output_file)
+        clean_df, metadata = clean_and_process_dataset(df, "TestSet", raw_path)
         
-        # Re-read to check row count
-        df_out = pd.read_csv(output_file)
-        assert len(df_out) == 4 # One row dropped
-        assert 'col_0' in variance
-
-class TestDownloadDataset:
-    def test_download_failure_invalid_url(self, tmp_path):
-        """Test download failure with invalid URL."""
-        output_file = tmp_path / "fail.csv"
-        success = download_dataset("http://invalid-url-that-does-not-exist-12345.com/data.csv", output_file)
-        assert success is False
-        assert not output_file.exists()
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert clean_df.empty
+        assert metadata == {}

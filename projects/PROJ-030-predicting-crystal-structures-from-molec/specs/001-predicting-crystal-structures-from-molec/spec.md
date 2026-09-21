@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Feature Extraction (Priority: P1)
 
-The researcher downloads a filtered subset of the Crystallography Open Database (COD), parses the CIF files to extract canonical SMILES strings, and generates 2048-bit ECFP4 fingerprints alongside ground-truth lattice parameters and space groups. The system MUST handle polymorphic systems by treating each unique (SMILES, Space Group) pair as a distinct sample in the dataset, acknowledging that 2D fingerprints alone cannot distinguish these cases.
+The researcher downloads a filtered subset of the Crystallography Open Database (COD), parses the CIF files to extract canonical SMILES strings, and generates high-dimensional ECFP4 fingerprints alongside ground-truth lattice parameters and space groups. The system MUST handle polymorphic systems by treating each unique (SMILES, Space Group) pair as a distinct sample in the dataset, acknowledging that D fingerprints alone cannot distinguish these cases.
 
 **Why this priority**: This is the foundational step; without a clean, aligned dataset of 2D descriptors and 3D targets, no modeling or analysis can occur. It directly addresses the data acquisition and feature engineering requirements.
 
@@ -93,7 +93,7 @@ The researcher analyzes the trained models using permutation importance and SHAP
 - The Crystallography Open Database (COD) organic subset contains sufficient variables (SMILES, lattice parameters, space groups) to perform the analysis; if specific covariates are missing, the analysis will proceed with available data only.
 - The GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) is sufficient to process the filtered < 500MB dataset and train the specified scikit-learn models without GPU acceleration.
 - The relationship between 2D molecular topology and 3D crystal packing is treated as associational; the study does not claim causal determination due to the observational nature of the dataset and the presence of polymorphism.
-- The ECFP4 fingerprint radius (2) and bit length (2048) are sufficient to capture the relevant topological features for the initial screening; if performance is poor, this is a limitation of the descriptor, not the methodology.
+- The ECFP fingerprint radius (2) and bit length (2048) are sufficient to capture the relevant topological features for the initial screening; if performance is poor, this is a limitation of the descriptor, not the methodology.
 - The "organic subset" of COD is defined by standard chemical filtering (e.g., presence of C, H, O, N) and excludes inorganic crystals, as the project focuses on organic molecular packing.
 - The Bemis-Murcko scaffold algorithm correctly identifies the core ring systems and linkers for the purpose of splitting, ensuring a realistic test of generalization to new chemotypes.
 - Predicting lattice volume from 2D fingerprints is a test of whether topological features correlate with packing density, not a geometric calculation; a non-zero R² indicates a valid associational signal.

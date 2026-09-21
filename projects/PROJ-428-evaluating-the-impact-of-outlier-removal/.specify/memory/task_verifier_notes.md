@@ -8,3 +8,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T011** — No evidence of the required files is present: there are no `data/raw/uci_*.csv` downloads, no `data/processed/uci_clean_*.csv` outputs containing identified continuous variables and baseline variance values, and no code or logs showing the processing steps. The task’s deliverables are missing.
 - **T011b** — No evidence of the required CSV files in `data/raw/` nor the JSON file in `state/` was provided; without these artifacts the task of generating synthetic clean distributions with known variance parameters is not satisfied. The implementer must create and commit the `synthetic_clean_*.csv` files and the `synthetic_params.json` containing the ground‑truth parameters.
 - **T013** — declared artifact(s) missing/empty/invalid: data/processed/injection_profile.json
+- **T014** — declared artifact(s) missing/empty/invalid: data/results/baseline_metrics.json

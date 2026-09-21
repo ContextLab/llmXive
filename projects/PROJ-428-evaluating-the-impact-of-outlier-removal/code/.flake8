@@ -1,6 +1,16 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E266, W503
-exclude = .git,__pycache__,venv,build,dist,.eggs
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    build,
+    dist
 per-file-ignores =
-    code/tests/*:S101
+    # Allow unused imports in __init__.py
+    */__init__.py: F401
+    # Allow unused arguments in tests and main entry points
+    */tests/*: F841
+    */setup_project_structure.py: F841

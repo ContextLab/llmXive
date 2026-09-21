@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: FeatureImportance
+description: Schema for feature importance analysis results.
+type: object
+properties:
+  bit_index:
+    type: integer
+    description: "Index in the 2048-bit vector (0-2047)"
+    minimum: 0
+    maximum: 2047
+  importance_score:
+    type: number
+    description: "Permutation importance or SHAP value"
+  substructure_smiles:
+    type: string
+    description: "Representative substructure (SMARTS/SMILES)"
+  collision_count:
+    type: integer
+    description: "Number of unique substructures mapping to this bit"
+    minimum: 1
+  is_ambiguous:
+    type: boolean
+    description: "True if collision_count > 1"
+required:
+  - bit_index
+  - importance_score
+  - substructure_smiles
+  - collision_count
+  - is_ambiguous
+additionalProperties: false

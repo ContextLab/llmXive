@@ -85,7 +85,7 @@
 - [X] T012 [P] [US1] Implement synthetic data generation logic (Normal, LogNormal, Exponential, Beta, Gamma) with known variance in `code/src/data_generator.py` (Output: `data/raw/synthetic_clean_*.csv`, `state/synthetic_params.json`)
 - [ ] T013 [US1] Implement outlier injection logic (Cauchy/extreme scaling) at varying contamination rates, saving contaminated data to `data/processed/contaminated_*.csv` and injection profile to `data/processed/injection_profile.json`
 - [ ] T014 [US1] Implement baseline variance calculation using the synthetic clean data (from T012) and save results to `data/results/baseline_metrics.json`
-- [ ] T015 [US1] Add logging for dataset downloads, injection rates, and variance calculations in `code/src/data_generator.py`
+- [X] T015 [US1] Add logging for dataset downloads, injection rates, and variance calculations in `code/src/data_generator.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,7 +99,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for `RemovalMethod` and `EstimationResult` schemas in `code/tests/test_contracts.py`
+- [X] T016 [P] [US2] Contract test for `RemovalMethod` and `EstimationResult` schemas in `code/tests/test_contracts.py`
 - [ ] T017 [P] [US2] Unit test for IQR filtering (1.5× rule) in `code/tests/test_outlier_removal.py`
 - [ ] T018 [P] [US2] Unit test for Winsorization (5th/95th percentiles) in `code/tests/test_outlier_removal.py`
 - [ ] T019 [P] [US2] Unit test for Trimmed Variance logic in `code/tests/test_outlier_removal.py`
