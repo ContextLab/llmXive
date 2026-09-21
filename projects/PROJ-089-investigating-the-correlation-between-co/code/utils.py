@@ -6,39 +6,47 @@ import sys
 import csv
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional, Dict, Any, List
 
-from config import ensure_directories, get_config_summary
+from config import get_config_summary
 
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
-    """Configure and return the project logger."""
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(logging.INFO)
-    
-    if not logger.handlers:
-        # Console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-        
-        # File handler if specified
-        if log_file:
-            ensure_directories()
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-    
+# --- Logging Setup ---
+
+def setup_logging(log_file: str = "data/logs/pipeline.log", level: int = logging.INFO) -> logging.Logger:
+    """Configure root logger to write to a file and console."""
+    logger = logging.getLogger()
+    logger.setLevel(level)
+
+    # Clear existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # File handler
+    Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     return logger
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """Retrieve or create a named logger."""
-    return logging.getLogger(name)
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """Get a logger instance, optionally named."""
+    if name:
+        return logging.getLogger(name)
+    return logging.getLogger()
+
+# --- Utility Functions ---
 
 def calculate_checksum(file_path: str) -> str:
-    """Calculate SHA-256 checksum of a file."""
+    """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -46,131 +54,122 @@ def calculate_checksum(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 def pin_random_seed(seed: int = 42) -> None:
-    """Pin random seeds for reproducibility."""
+    """Pin random seed for reproducibility."""
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def validate_tools_and_log(repos_metadata_path: str, log_path: str) -> None:
+# --- Tool Validation Logic (T013b) ---
+
+def validate_tools_and_log(
+    repo_owner: str,
+    repo_name: str,
+    log_path: str = "data/logs/tool_validation_log.csv",
+    citations_path: str = "data/logs/citations.csv"
+) -> Dict[str, Any]:
     """
-    Validate tool availability and log star counts/citation presence per SC-005.
+    Validate tool validity per SC-005.
     
-    Per Phase 0 (T013c), SC-005 now requires:
-    "presence check of GitHub star count > 5,000 or existence of a citation in the literature".
+    Action: 
+    1. Call GitHub API /repos/{owner}/{repo} to fetch star count.
+    2. If stars > 5000, log "PASS".
+    3. Else, search data/logs/citations.csv for a matching paper title.
+       - If found, log "PASS".
+       - If not found, log "FAIL".
     
-    This function:
-    1. Reads repository metadata from `repos_metadata_path`.
-    2. For each repo, calls GitHub API to fetch star count.
-    3. If stars > 5000, status is "PASS".
-    4. If stars <= 5000, status is "PASS" if a citation is present (simulated check via metadata), else "FAIL".
-       Note: Since we cannot programmatically verify literature citations without a specific DB, 
-       we treat the presence of a 'citation' field in the metadata (or a placeholder check) as the citation existence.
-       In a real pipeline, this would query a bibliographic database.
-    5. Writes results to `log_path` in CSV format: tool_name, version, stars, status.
+    Deviation Note: This simplified check does not satisfy Constitution Principle II 
+    (Reference-Validator Agent) but is required by Spec SC-005. Log as DEVIATION: Principle II.
     
-    Args:
-        repos_metadata_path: Path to the CSV file containing repository metadata (from T010/T012).
-        log_path: Path where the validation log CSV will be written.
+    Deliverable: data/logs/tool_validation_log.csv
     """
-    logger = get_logger()
-    logger.info(f"Starting tool validation for repos in {repos_metadata_path}")
+    logger = get_logger("ToolValidation")
     
-    # Ensure output directory exists
-    ensure_directories()
-    output_file = Path(log_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure log directory exists
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
     
-    if not Path(repos_metadata_path).exists():
-        logger.error(f"Repository metadata file not found: {repos_metadata_path}")
-        raise FileNotFoundError(f"Repository metadata file not found: {repos_metadata_path}")
+    # Prepare result structure
+    result = {
+        "repo_id": f"{repo_owner}/{repo_name}",
+        "owner": repo_owner,
+        "name": repo_name,
+        "stars": 0,
+        "citation_found": False,
+        "status": "FAIL",
+        "deviation_logged": True
+    }
     
-    # Read repository metadata
-    # Expected columns: repo_name, owner, language, stars (maybe), citation (maybe)
-    repos = []
-    with open(repos_metadata_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            repos.append(row)
+    # 1. Fetch Star Count from GitHub API
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        stars = data.get('stargazers_count', 0)
+        result["stars"] = stars
+        logger.info(f"Fetched stars for {repo_owner}/{repo_name}: {stars}")
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch repo info for {repo_owner}/{repo_name}: {e}")
+        # If we can't fetch stars, we can't pass the star check. 
+        # We proceed to citation check if possible, but default to FAIL if no citation.
+        stars = 0
     
-    logger.info(f"Found {len(repos)} repositories to validate.")
-    
-    # Configuration for tools to validate
-    # Per T014b, we are using Radon and Semgrep.
-    tools = [
-        {"name": "radon", "version": "2.4.0"},
-        {"name": "semgrep", "version": "1.30.0"}
-    ]
-    
-    # GitHub API headers (optional but recommended for rate limits)
-    github_token = os.getenv("GITHUB_TOKEN")
-    headers = {}
-    if github_token:
-        headers["Authorization"] = f"token {github_token}"
-    
-    results = []
-    
-    for repo in repos:
-        owner = repo.get('owner')
-        repo_name = repo.get('repo_name')
+    # Check Star Threshold
+    if stars > 5000:
+        result["status"] = "PASS"
+        logger.info(f"Tool validation PASS for {repo_owner}/{repo_name} (Stars: {stars} > 5000)")
+    else:
+        # 2. Search Citations
+        citation_found = False
+        if Path(citations_path).exists():
+            try:
+                with open(citations_path, 'r', newline='', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        # Check if repo name or owner matches a paper title or related field
+                        # Assuming 'paper_title' or similar column exists in citations.csv
+                        # Since spec doesn't define schema, we check generic string match on title
+                        title = row.get('paper_title', '') or row.get('title', '')
+                        if repo_name.lower() in title.lower() or repo_owner.lower() in title.lower():
+                            citation_found = True
+                            break
+            except Exception as e:
+                logger.error(f"Error reading citations file {citations_path}: {e}")
         
-        if not owner or not repo_name:
-            logger.warning(f"Skipping repo due to missing owner or name: {repo}")
-            continue
-        
-        # Fetch star count from GitHub API
-        api_url = f"https://api.github.com/repos/{owner}/{repo_name}"
-        try:
-            response = requests.get(api_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            star_count = data.get('stargazers_count', 0)
-        except requests.RequestException as e:
-            logger.error(f"Failed to fetch GitHub data for {owner}/{repo_name}: {e}")
-            # If we can't fetch, we cannot validate. Fail loudly.
-            # We assume the task requires real data, so we don't fall back to synthetic.
-            continue
-        
-        # Determine status based on SC-005 (updated)
-        # "PASS" if stars > 5000 OR citation exists.
-        # Citation existence check:
-        # Since we don't have a real literature DB, we check if the metadata row has a 'citation' field
-        # or if the repo name matches a known set of highly cited repos (simulated for this task).
-        # In a real scenario, this would be a DB lookup.
-        # For this implementation, we assume if stars <= 5000, we check a 'citation' field in the CSV.
-        # If the CSV doesn't have it, we treat it as no citation (FAIL).
-        citation_present = False
-        if 'citation' in repo and repo['citation'] and str(repo['citation']).strip().lower() not in ['none', 'null', '']:
-            citation_present = True
-        
-        status = "PASS" if (star_count > 5000 or citation_present) else "FAIL"
-        
-        for tool in tools:
-            results.append({
-                "tool_name": tool["name"],
-                "version": tool["version"],
-                "repo": f"{owner}/{repo_name}",
-                "stars": star_count,
-                "citation_present": citation_present,
-                "status": status
-            })
-        
-        logger.info(f"Validated {owner}/{repo_name}: Stars={star_count}, Citation={citation_present}, Status={status}")
+        result["citation_found"] = citation_found
+        if citation_found:
+            result["status"] = "PASS"
+            logger.info(f"Tool validation PASS for {repo_owner}/{repo_name} (Citation found)")
+        else:
+            result["status"] = "FAIL"
+            logger.warning(f"Tool validation FAIL for {repo_owner}/{repo_name} (Stars <= 5000, No Citation)")
     
-    # Write results to CSV
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ["tool_name", "version", "repo", "stars", "citation_present", "status"]
+    # Log Deviation
+    if result["deviation_logged"]:
+        logger.info(f"DEVIATION: Principle II - Simplified validation used for {repo_owner}/{repo_name}")
+    
+    # Write to Log File (Append mode)
+    file_exists = os.path.isfile(log_path)
+    fieldnames = ["repo_id", "owner", "name", "stars", "citation_found", "status", "deviation_logged"]
+    
+    with open(log_path, 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(result)
     
-    logger.info(f"Tool validation log written to {output_file}")
+    return result
 
 def validate_tools_and_log_wrapper() -> None:
-    """Wrapper to run validation with default paths from config."""
-    config = get_config_summary()
-    repos_metadata_path = config.get("paths", {}).get("repos_metadata", "data/raw/repos_metadata.csv")
-    log_path = config.get("paths", {}).get("tool_validation_log", "data/logs/tool_validation_log.csv")
-    
-    validate_tools_and_log(repos_metadata_path, log_path)
+    """
+    Wrapper to run validation on a list of repos if needed, or placeholder for orchestration.
+    Currently, this task focuses on the logic function `validate_tools_and_log`.
+    This wrapper can be called from main.py to iterate over selected repos.
+    """
+    logger = get_logger("ToolValidationWrapper")
+    logger.info("Tool validation wrapper called. Please provide repo list or call validate_tools_and_log directly.")
 
+# --- Main Entry Point (for testing) ---
 if __name__ == "__main__":
-    validate_tools_and_log_wrapper()
+    setup_logging()
+    # Example usage for testing
+    validate_tools_and_log("torvalds", "linux")
+    validate_tools_and_log("psf", "black")

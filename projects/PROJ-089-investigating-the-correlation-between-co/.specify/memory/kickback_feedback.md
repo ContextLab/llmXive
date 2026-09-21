@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013c` (rejected 1x): No evidence of a `spec.md` file or its contents was provided, so we cannot verify that the required text was replaced as specified. The implementer must supply the updated `spec.md` showing the exact change.
+- `T007b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/logs/pipeline.log
 
 ## Required change
 
