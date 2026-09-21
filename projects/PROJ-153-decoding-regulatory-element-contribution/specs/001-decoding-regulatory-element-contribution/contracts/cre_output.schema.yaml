@@ -39,6 +39,10 @@ properties:
   validated_by_atac:
     type: boolean
     description: "True if CRE was validated by ATAC-seq; False if ATAC data was missing (ATAC-Deferred Mode)."
+  validation_status:
+    type: string
+    enum: ["validated", "proxy_validated", "unvalidated"]
+    description: "Validation status: 'validated' (Hi-C or ATAC), 'proxy_validated' (Motif only if Hi-C missing), 'unvalidated'."
 required:
   - cre_id
   - chromosome
@@ -50,3 +54,4 @@ required:
   - q_value
   - is_significant
   - validated_by_atac
+  - validation_status

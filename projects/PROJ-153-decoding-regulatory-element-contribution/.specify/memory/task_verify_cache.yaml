@@ -1,12 +1,20 @@
-T013:
+T013b:
   c: false
-  h: 6a25f430d6ca4bdae3a615a9e5a72fb6f53d8fdd91b279364c95679d615c74f8
-  r: "The script `code/05_validate_cre_gating.py` is present but incomplete (truncated\
-    \ and contains only simulated placeholder logic, no real motif scanning, Hi\u2011\
-    C loading, VIF calculation, or weight computation). Moreover, the required input\
-    \ files `data/processed/hic_matrix_10kb.cool` and `data/processed/delta_peak_signal.tsv`\
-    \ are absent, and the expected output `data/processed/CRE_validated_filtered.bed`\
-    \ was never generated."
+  h: 5d2b153b191a6ef2cfea96d9becaaea5e6a5ce2ee9c328bb3a1be194d02a8582
+  r: "The repository lacks the required `data/processed/peak_signal_matrix.tsv` input\
+    \ and the expected `data/processed/vif_flags.tsv` output, so the script cannot\
+    \ be executed or verified. Additionally, the provided `code/05b_check_collinearity.py`\
+    \ is truncated and does not show a complete VIF calculation and file\u2011writing\
+    \ logic. These missing artifacts prevent the task from being considered fulfilled."
+T013c:
+  c: false
+  h: b7d4b504b7353f21df54d08d4c162bf13c54a9d5730dd1a5f026ca77547beaca
+  r: The repository lacks the required input data files (`cre_validation_flags.tsv`,
+    `vif_flags.tsv`, `delta_peak_signal.tsv`) and the expected output file (`weights.tsv`).
+    Moreover, the provided `code/05c_compute_weights.py` is truncated and does not
+    contain the full implementation needed to perform the joins, exclusions, weight
+    calculations, and output generation. Without these artifacts the task is not genuinely
+    completed.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,11 +22,3 @@ T027:
     \ there is no evidence that the disclaimer was programmatically injected into\
     \ any output files. The task\u2019s deliverable (updated report outputs with the\
     \ explicit \u201Cresults are associational, not causal\u201D statement) is missing."
-T032:
-  c: false
-  h: c03ebd3d28c8f7173305e06f266f228cab3d9c8b31f379ad30c9354568f86ebb
-  r: "The repository contains a partially\u2011written `code/09_summit_match.R`, but\
-    \ the script is truncated and does not include the logic to compute the summit\u2011\
-    match percentage or write the required `results/summit_match_stats.txt`. Moreover,\
-    \ the expected output file is absent, so the task\u2019s core deliverable is not\
-    \ present."

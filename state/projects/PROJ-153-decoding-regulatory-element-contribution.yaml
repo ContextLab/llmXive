@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T15:22:32.596125Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-153-decoding-regulatory-element-contribution
-last_run_id: df0d0ffe-e160-472b-a9e4-4fa4d35097d5
+last_run_id: c13cb172-5bbf-41c9-9b92-2d0d7ffba4a1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-153-decoding-regulatory-element-contribution/specs/001-decoding-regulatory-element-contribution
 title: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
-updated_at: '2026-09-19T06:56:33.650062Z'
+updated_at: '2026-09-21T01:00:05.113495Z'

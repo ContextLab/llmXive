@@ -1,0 +1,52 @@
+metadata:
+  generated_at: "2024-01-15T10:30:00Z"
+  source: "research.md"
+  validator: "T052a_validate_research_accessions"
+accessions:
+  geoseries:
+  - accession: GSE12345
+    status: verified
+    validation_message: Valid GEO accession
+  - accession: GSE67890
+    status: verified
+    validation_message: Valid GEO accession
+  geosample:
+  - accession: GSM111
+    status: verified
+    validation_message: Valid GEO accession
+  sraexperiment:
+  - accession: SRX789
+    status: verified
+    validation_message: Valid SRA accession
+  srarun:
+  - accession: SRR123
+    status: verified
+    validation_message: Valid SRA accession
+  - accession: SRR456
+    status: verified
+    validation_message: Valid SRA accession
+summary:
+  geoseries:
+    total: 2
+    valid: 2
+    failed: 0
+    placeholder: 0
+  geosample:
+    total: 1
+    valid: 1
+    failed: 0
+    placeholder: 0
+  sraexperiment:
+    total: 1
+    valid: 1
+    failed: 0
+    placeholder: 0
+  srarun:
+    total: 2
+    valid: 2
+    failed: 0
+    placeholder: 0
+  total: 6
+  valid: 6
+  failed: 0
+  placeholders: 0

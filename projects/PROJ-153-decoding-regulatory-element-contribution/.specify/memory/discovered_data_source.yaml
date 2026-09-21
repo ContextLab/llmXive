@@ -1,0 +1,12 @@
+status: none
+intent: download GEO ChIP-seq yeast stress dataset and 1002 Yeast Genomes eQTL python
+  package dataset
+required_fields:
+- genomic coordinates
+- associated transcription factors
+- log2FC
+- beta1 estimate
+- adjusted q-value
+cache_key: 6f69086986a51e6123718f6b09e68ac27bb937d99f856a83036909a4cad1a712
+searched_at: '2026-09-21T00:52:15.376990+00:00'
+retry_count: 1

@@ -35,7 +35,7 @@ A reviewer needs a concise statistical report demonstrating that CRE activity ex
 **Acceptance Scenarios**:
 
 1. **Given** the mixed‑model analysis is completed on the filtered subset, **when** the reviewer reads the PDF, **then** the report contains a table where the fixed‑effect β₁ for ΔPeakSignal is significant (adjusted p < 0.05) for at least one stress condition.
-2. **Given** the permutation test (10,000 shuffles) has been performed, **when** the reviewer examines the empirical null plot, **then** the report includes the empirical p-value for the observed β₁, and the system confirms if p < 0.05.
+2. **Given** the permutation test (shuffles) has been performed, **when** the reviewer examines the empirical null plot, **then** the report includes the empirical p-value for the observed β₁, and the system confirms if p < 0.05.
 3. **Given** the bias sensitivity analysis (FR-017) is complete, **when** the reviewer reads the report, **then** the report includes a comparison of β₁ estimates between the full set and the filtered set to quantify selection bias.
 
 ---

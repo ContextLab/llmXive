@@ -2,113 +2,152 @@
 
 ## Prerequisites
 
-- **Operating System**: Linux (Ubuntu 22.04 or later).
-- **Memory**: ≥7 GB RAM (recommended 8 GB).
-- **Disk**: ≥14 GB free space.
-- **Tools**: `git`, `conda` (or `mamba`), `R` (≥4.3), `Python` (≥3.11).
-- **Data**: Access to GEO ChIP-seq data (placeholder `GSE####`) and 1002 Yeast Genomes eQTL data (placeholder).
-
-> **Note**: The pipeline will abort if required datasets are not found. Replace placeholder accessions with verified sources before running.
+- **System**: Linux (Ubuntu 22.04+), 2+ CPU cores, 8GB+ RAM, 20GB+ disk.
+- **Tools**: Python 3.11, R 4.3.1, Git, Docker (optional).
+- **Dependencies**: `fastp`, `bowtie2`, `MACS2`, `bedtools`, `deepTools`, `samtools`, `SRA Toolkit`.
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd yeast-cre-analysis
- ```
+### 1. Clone Repository
 
-2. **Create Conda environment**:
- ```bash
- conda env create -f code/environment.yml
- conda activate yeast-cre-analysis
- ```
+```bash
+git clone
+cd yeast-cre-analysis
+```
 
-3. **Install Python dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
+### 2. Install Dependencies
 
-4. **Verify tool versions**:
- ```bash
- fastp --version
- bowtie2 --version
- macs2 --version
- R --version
- ```
+```bash
+# Python
+pip install -r requirements.txt
+
+# R
+Rscript -e 'install.packages(c("lme4", "clusterProfiler", "ggplot2", "dplyr"))'
+
+# CLI Tools (if not installed)
+# Ubuntu/Debian
+sudo apt-get install fastp bowtie2 macs2 bedtools deeptools samtools sratoolkit
+```
+
+### 3. Set Up Environment
+
+```bash
+# Create virtualenv
+python -m venv venv
+source venv/bin/activate
+
+# Set random seeds
+export PYTHONHASHSEED=42
+export RNG_SEED=42
+```
 
 ## Data Setup
 
-1. **Download ChIP-seq data** (replace `GSE####` with actual accession):
- ```bash
- bash code/01_download_data.sh GSE####
- ```
- - This script downloads FASTQ files and verifies MD5 checksums.
- - **Abort** if data missing or checksums fail.
+### 1. Download Raw Data
 
-2. **Place eQTL data** in `data/raw/`:
- - Ensure CSV/TSV contains columns: `gene_id`, `fold_change_heat`, `fold_change_osmotic`, `fold_change_oxidative`.
- - **Abort** if stress-specific fold-changes missing for entire cohort.
+The pipeline expects the following data in `data/raw/`:
+
+- **ChIP-seq FASTQ**: For Hsf1, Msn2/4, Hog1 under control and stress conditions (from GEO/SRA).
+- **eQTL Parquet**: 1002 Yeast Genomes eQTL summary statistics.
+- **Hi-C BED/Cool**: Yeast 3D Genome Atlas data.
+
+If using placeholder GEO IDs (e.g., `GSE####`), update `config.yaml` with real IDs and run:
+
+```bash
+bash code/01_download.sh
+```
+
+This script will:
+- Download data from GEO/SRA.
+- Verify MD5 checksums.
+- Abort if data is missing or checksums fail.
+
+### 2. Verify Data Integrity
+
+```bash
+md5sum data/raw/*.fastq.gz > data/raw/checksums.md5
+```
 
 ## Running the Pipeline
 
-Execute the full pipeline:
+### 1. Preprocessing (Trim, Align, Peak Calling)
+
 ```bash
-bash code/run_pipeline.sh
+bash code/02_preprocess.sh
 ```
 
-This runs the following steps sequentially:
-1. **Download & Verify** (FR-001)
-2. **Preprocess** (FR-002: fastp, bowtie2)
-3. **Peak Calling** (FR-003: MACS2 FDR sweep)
-4. **Merge & Annotate** (FR-004)
-5. **Validate CREs** (FR-014, FR-015)
-6. **Fit Mixed Models** (FR-005, FR-012)
-7. **Permutation Test** (FR-006)
-8. **Generate Reports** (FR-010)
-9. **Create bigWig Tracks** (FR-009)
+This will:
+- Trim adapters with `fastp`.
+- Align with `bowtie2` (≤2 threads).
+- Filter for MAPQ >= 30 (`samtools view -q 30`).
+- Call peaks with `MACS2` (FDR ≤ 0.01, with sensitivity sweep).
 
-### Running Individual Steps
+### 2. Annotation and Filtering
 
-- **Peak calling only**:
- ```bash
- bash code/03_call_peaks.sh
- ```
-- **Mixed model fitting**:
- ```bash
- Rscript code/06_fit_mixed_models.R
- ```
+```bash
+python code/03_annotate.py
+python code/04_filter.py
+```
 
-## Output
+- Annotate peaks (promoter/distal, context).
+- Apply FR-011, FR-012, FR-014 filters.
+- Generate `vif_flags.tsv`.
 
-After successful execution, results are in:
+### 3. Weight Calculation
 
-- `results/CRE_ranked_heatshock.md`
-- `results/CRE_ranked_osmotic.md`
-- `results/CRE_ranked_oxidative.md`
-- `results/Statistical_summary.pdf`
-- `tracks/heatshock_CRE_signal.bw`
-- `tracks/osmotic_CRE_signal.bw`
-- `tracks/oxidative_CRE_signal.bw`
+```bash
+python code/05_weights.py
+```
 
-### Viewing Results
+- Compute weights for valid CREs (motif/Hi-C based).
 
-- **Ranked CREs**: Open markdown files in any text editor.
-- **Statistical Report**: Open PDF to view LRT results, FDR-corrected p-values, and GO enrichment.
-- **IGV Visualization**: Load bigWig tracks into IGV. Signal intensity should correlate with log₂FC values.
+### 4. Statistical Analysis (LMM, LRT, Permutation)
+
+```bash
+Rscript code/06_lmm.R
+```
+
+- Fit LMM for each stress condition (with weights).
+- Perform LRT and permutation testing.
+- Apply FDR correction.
+
+### 5. Report Generation
+
+```bash
+Rscript code/07_report.R
+```
+
+- Generate `results/Statistical_summary.pdf` (includes LRT, FDR, ΔR², GO, Null Plot, Causal Limitation).
+- Create ranked CRE tables (`results/CRE_ranked_<stress>.md`).
+- Generate `fdr_sweep_summary.tsv` and `selection_bias_comparison.tsv`.
+
+### 6. Visualization (bigWig Tracks)
+
+```bash
+python code/08_visualize.py
+```
+
+- Generate `results/tracks/<stress>_CRE_signal.bw` using `deepTools bamCoverage`.
+
+## Output Files
+
+- `results/CRE_ranked_heat.md`: Ranked CREs for heat-shock (no artificial limit, q<=0.05).
+- `results/CRE_ranked_osmotic.md`: Ranked CREs for osmotic stress.
+- `results/CRE_ranked_oxidative.md`: Ranked CREs for oxidative stress.
+- `results/Statistical_summary.pdf`: Statistical report (includes Causal Limitation).
+- `results/fdr_sweep_summary.tsv`: FDR sensitivity analysis.
+- `results/selection_bias_comparison.tsv`: Selection bias analysis.
+- `results/tracks/*.bw`: Genome browser tracks.
 
 ## Troubleshooting
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Fatal: Missing ChIP-seq data` | GEO accession not found or incomplete. | Verify accession; download missing TF-condition pairs. |
-| `Fatal: Missing eQTL fold-changes` | Entire stress condition missing in eQTL data. | Replace eQTL dataset with one containing all stresses. |
-| `Warning: No peaks survive FDR < 0.01` | Stringent threshold; no significant peaks. | Relax threshold to 0.05 (pipeline suggests this). |
-| `Error: VIF > 5 for all CREs` | High collinearity; no independent effects. | Report all CREs as collinear; no independent testing. |
-| `MemoryError` | Dataset too large for 7 GB RAM. | Filter eQTL data to paired genes; sample if necessary. |
+- **Missing Data**: If `code/01_download.sh` fails, check GEO IDs and network.
+- **Memory Error**: Use streaming for large files; reduce batch size.
+- **No Peaks**: Relax MACS2 FDR threshold (edit `code/02_preprocess.sh`).
+- **Collinearity**: Check VIF flags in `data/processed/vif_flags.tsv`.
 
 ## Next Steps
 
-- **Functional Validation**: Use ranked CREs to design CRISPRi/a experiments.
-- **Literature Integration**: Cross-reference top CREs with known stress-response pathways.
-- **Extension**: Apply pipeline to other stress conditions or yeast strains.
+- Validate top CREs with ATAC-seq (if data available).
+- Plan follow-up functional assays based on ranked CREs.
+- Extend to additional stress conditions or TFs.

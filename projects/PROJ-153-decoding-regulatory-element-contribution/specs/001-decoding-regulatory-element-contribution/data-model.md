@@ -1,101 +1,83 @@
 # Data Model: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
 
-## 1. Overview
+## Overview
 
-This document defines the data structures, schemas, and relationships used in the pipeline. All data flows from raw inputs (ChIP-seq FASTQ, eQTL CSV) through intermediate processed files (BAM, BED, peak lists) to final outputs (ranked CRE tables, bigWig tracks, PDF reports).
+This document describes the data model for the project, including entities, attributes, relationships, and schemas. The model supports the pipeline from raw data ingestion to final results.
 
-## 2. Entity Definitions
+## Entities
 
-### 2.1 CRE (cis-regulatory element)
+### CRE (cis-regulatory element)
 
-A genomic interval derived from merged MACS2 peaks.
+- **Description**: Genomic interval derived from merged MACS2 peaks.
+- **Attributes**:
+  - `cre_id`: Unique identifier (e.g., "CRE_001").
+  - `chromosome`: Chromosome name (e.g., "chrI").
+  - `start`: Start position (0-based).
+  - `end`: End position.
+  - `strand`: "+" or "-".
+  - `tf`: Associated transcription factor(s) (comma-separated).
+  - `context`: "promoter" (≤500 bp upstream) or "distal" (>500 bp).
+  - `peak_signal_control`: Normalized RPKM in control condition.
+  - `peak_signal_stress`: Normalized RPKM in stress condition.
+  - `delta_peak_signal`: `peak_signal_stress - peak_signal_control`. (Used in LMM as predictor).
+  - `motif_p_value`: PWM p-value for motif match (if distal).
+  - `hic_contact_frequency`: Hi-C contact frequency (if distal).
+  - `validation_flag`: "valid" if passes FR-014 (Motif OR Hi-C), "invalid" otherwise.
+  - `collinearity_flag`: "collinear" if VIF > 5, "ok" otherwise.
+  - `weight`: Log-transformed motif score or Hi-C frequency (if valid). Used as observation-level weight in LMM.
 
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `cre_id` | String | Unique identifier (e.g., `CRE_chr1_12345_12500`) | Generated |
-| `chrom` | String | Chromosome (e.g., `chrI`) | MACS2 |
-| `start` | Integer | Genomic start coordinate (0-based) | MACS2 |
-| `end` | Integer | Genomic end coordinate (0-based) | MACS2 |
-| `tf_binding` | List[String] | Associated TFs (e.g., `["Hsf1", "Msn2"]`) | MACS2 merge |
-| `context` | String | `promoter` (≤500 bp upstream) or `distal` (>500 bp) | Annotation |
-| `gene_id` | String | Associated gene ORF | Nearest gene / Hi-C |
-| `log2fc` | Float | Stress-specific expression fold-change | eQTL |
-| `peak_signal` | Float | Normalized RPKM per condition | deepTools |
-| `motif_score` | Float | PWM p-value or log-transformed score | Motif Scan |
-| `beta1` | Float | Fixed effect estimate from GLS | R `nlme` |
-| `p_value` | Float | Raw p-value from LRT | R `nlme` |
-| `q_value` | Float | Benjamini-Hochberg adjusted p-value | R `nlme` |
-| `validation_score` | Float | Motif p-value or Hi-C contact frequency | FR-014 |
-| `is_collinear` | Boolean | True if VIF > 5 | FR-012 |
-| `is_significant` | Boolean | True if q-value ≤ 0.05 | FR-007 |
-| `weight` | Float | Observation weight = log(motif_score + 1) | FR-015 |
+### Gene
 
-### 2.2 Gene
+- **Description**: Yeast ORF.
+- **Attributes**:
+  - `gene_id`: ORF name (e.g., "YAL001C").
+  - `nearest_cre_id`: ID of nearest CRE (≤10 kb).
+  - `expression_fold_change_control`: Expression fold-change in control.
+  - `expression_fold_change_stress`: Expression fold-change in stress.
+  - `delta_expression`: `expression_fold_change_stress - expression_fold_change_control`.
+  - `promoter_binding_score`: Baseline promoter binding score (covariate).
+  - `random_intercept`: `u_g` from LMM (output).
 
-Yeast ORF with stress-specific expression data.
+### CRE-Gene Pair
 
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `gene_id` | String | ORF identifier (e.g., `YAL001C`) | eQTL |
-| `nearest_cre` | String | ID of nearest CRE (≤10 kb) | Annotation |
-| `fold_change_heat` | Float | Heat-shock fold-change | eQTL |
-| `fold_change_osmotic` | Float | Osmotic stress fold-change | eQTL |
-| `fold_change_oxidative` | Float | Oxidative stress fold-change | eQTL |
-| `global_expr` | Float | Genome-wide mean expression (covariate) | eQTL aggregate |
+- **Description**: Linked CRE and gene for analysis.
+- **Attributes**:
+  - `pair_id`: Unique identifier (e.g., "PAIR_001").
+  - `cre_id`: Foreign key to CRE.
+  - `gene_id`: Foreign key to Gene.
+  - `delta_peak_signal`: From CRE.
+  - `delta_expression`: From Gene.
+  - `weight`: From CRE.
+  - `beta1`: Fixed effect estimate from LMM.
+  - `p_value`: Raw p-value from LRT.
+  - `q_value`: Benjamini-Hochberg adjusted p-value.
+  - `significant`: Boolean (q_value ≤ 0.05).
 
-### 2.3 TF-Binding Event
+## Relationships
 
-Individual TF binding at a CRE.
+- **CRE** `1:N` **CRE-Gene Pair** (one CRE can link to multiple genes).
+- **Gene** `1:N` **CRE-Gene Pair** (one gene can link to multiple CREs).
+- **CRE-Gene Pair** `1:1` **LMM Result** (one pair has one model result).
 
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `tf_id` | String | TF name (e.g., `Hsf1`) | MACS2 |
-| `cre_id` | String | Associated CRE ID | MACS2 merge |
-| `peak_signal` | Float | Normalized RPKM | deepTools |
-| `vif` | Float | Variance inflation factor | FR-012 |
+## File Formats
 
-## 3. Data Flow
+- **Raw Data**: FASTQ (ChIP-seq), Parquet (eQTL), BED (Hi-C peaks).
+- **Processed Data**: BED (peaks), TSV (matrices), CSV (weights), TSV (vif_flags).
+- **Results**: Markdown (ranked tables), PDF (reports), bigWig (tracks).
 
-```mermaid
-graph TD
-    A[Raw ChIP-seq FASTQ] -->|fastp, bowtie2| B[Aligned BAM]
-    B -->|MACS2| C[Peak BED]
-    C -->|Merge/Annotate| D[Merged CREs BED]
-    E[eQTL CSV] -->|Filter/Validate| F[Valid Genes CSV]
-    D -->|Motif/Hi-C Validation| G[Validated CREs BED]
-    F -->|Join with G| H[CRE-Gene Pairs CSV]
-    H -->|LMM + Permutation| I[LMM Results CSV]
-    I -->|Filter q≤0.05| J[Ranked CREs Markdown]
-    B -->|deepTools| K[bigWig Tracks]
-    I -->|Summarize| L[PDF Report]
-```
+## Data Flow
 
-## 4. File Formats
+1. **Download**: Raw FASTQ, Parquet, BED → `data/raw`.
+2. **Preprocess**: Trim, align, call peaks → `data/processed` (BAM, `merged_peaks.bed`).
+3. **Annotate**: Merge peaks, add context, validate → `data/processed` (annotated BED).
+4. **Filter**: Apply FR-011, FR-012, FR-014 → `data/processed` (filtered TSV, `vif_flags.tsv`).
+5. **Weight**: Compute weights → `data/processed` (weights.tsv).
+6. **Model**: LMM, LRT, Permutation → `results` (beta estimates, p-values).
+7. **Visualize**: bigWig tracks → `results/tracks`.
 
-### 4.1 Input Files
+## Constraints
 
-- **FASTQ**: Raw ChIP-seq reads (Illumina format).
-- **CSV/TSV**: eQTL summary statistics (gene_id, fold_change_*, effect_size_*).
-- **BED**: Peak coordinates (chrom, start, end, name, score, strand).
-
-### 4.2 Intermediate Files
-
-- **BAM**: Aligned reads (sorted, indexed).
-- **BED**: Merged peaks, annotated CREs.
-- **CSV**: CRE-Gene pairs, LMM results.
-
-### 4.3 Output Files
-
-- **Markdown**: Ranked CRE tables (`results/CRE_ranked_<stress>.md`).
-- **PDF**: Statistical summary (`results/Statistical_summary.pdf`).
-- **bigWig**: Coverage tracks (`tracks/<stress>_CRE_signal.bw`).
-- **TSV**: GO enrichment results (`results/GO_enrichment_results.tsv`).
-
-## 5. Validation Rules
-
-- **FR-001**: MD5 checksums verified for all raw FASTQ files.
-- **FR-011**: eQTL data must contain stress-specific fold-changes; fatal error if missing for entire cohort.
-- **FR-012**: VIF > 5 triggers "collinear" flag; excluded from independent testing.
-- **FR-014**: Distal CREs require motif p-value < 1e-4 or Hi-C reads > 100; excluded if neither.
-- **FR-007**: q-value ≤ 0.05 for significance; all results reported with FDR correction.
-- **FR-015**: Motif scores are applied as weights during model fitting; CREs are defined by MACS2 peaks independently.
+- **Memory**: Stream large files; process in batches.
+- **Disk**: Keep only necessary intermediates; compress where possible.
+- **Integrity**: Checksums for raw data; version control for processed data.
+- **Validation**: All processed data must pass the corresponding YAML schema before proceeding to the next phase.

@@ -1,5 +1,18 @@
-# Python dependencies (if any needed for pre-processing)
-# The main analysis is in R.
-# If T031 (bigWig creation) used Python, it would be listed here.
-# For T032, we rely on R packages: rtracklayer, GenomicRanges, dplyr, readr.
-# Ensure R environment has these installed.
+# Existing dependencies
+pandas
+numpy
+pyyaml
+requests
+scipy
+statsmodels
+scikit-learn
+matplotlib
+seaborn
+# New dependency for VIF calculation (already in statsmodels, but ensuring version)
+# statsmodels>=0.13.0
+# Additional for pipeline utilities
+biopython
+pybedtools
+cooltools
+h5py
+tqdm
