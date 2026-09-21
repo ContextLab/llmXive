@@ -8,4 +8,7 @@ exclude =
     dist,
     .eggs,
     *.egg-info
-max-complexity = 10
+per-file-ignores =
+    # Allow unused imports in __init__.py for API surface
+    code/__init__.py: F401
+    tests/__init__.py: F401

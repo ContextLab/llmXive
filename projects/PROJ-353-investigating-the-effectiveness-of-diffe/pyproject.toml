@@ -3,9 +3,9 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-graph-loss"
+name = "llmxive-loss-investigation"
 version = "0.1.0"
-description = "Investigating Loss Functions on Small-World Graphs"
+description = "Investigating the effectiveness of different loss functions on small-world graphs"
 requires-python = ">=3.10"
 dependencies = [
     "networkx",
@@ -15,9 +15,6 @@ dependencies = [
     "lifelines",
     "numpy",
     "pandas",
-    "flake8",
-    "black",
-    "isort",
 ]
 
 [tool.black]
@@ -41,16 +38,15 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["power_analysis", "setup_structure"]
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203,W503"
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
+skip_glob = [
+    ".git/*",
+    "__pycache__/*",
+    "build/*",
+    "dist/*",
+    "*.egg-info/*"
 ]
-per-file-ignores = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

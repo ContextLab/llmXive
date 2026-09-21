@@ -6,7 +6,7 @@ This project investigates whether contrastive learning (InfoNCE) converges faste
 ## Functional Requirements
 
 ### FR-001: Sample Size
-The study will generate **110** synthetic graphs (10 per $\beta$ level from 0.0 to 1.0). This sample size is derived from a power analysis targeting a moderate interaction effect ($f^2=0.15$) with 80% power.
+The study will generate **110** synthetic graphs (10 per $\beta$ level from 0.0 to 1.0). This sample size is derived from a power analysis targeting a moderate interaction effect ($f^2=0.15$) with [deferred] power.
 
 ### FR-005: Convergence Threshold
 Convergence is defined as achieving validation accuracy **≥ 0.90**. If this threshold is not met within the maximum epoch limit, the run is flagged as censored.

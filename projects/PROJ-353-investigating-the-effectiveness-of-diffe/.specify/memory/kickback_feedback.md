@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required `code/`, `tests/`, or `data/` directories (or any files within them) is provided; without concrete artifacts showing the project structure exists, the claim cannot be verified. The implementer must create and show these directories (and at least placeholder files) to satisfy the task.
-- `T003` (rejected 1x): No linting configuration files (e.g., `pyproject.toml`, `.flake8`, `black` settings) or scripts to run flake8/black are present in the provided evidence, so the requirement to configure linting and formatting tools is not satisfied. The implementer must add the appropriate configuration files and ensure they are non‑empty and correctly set up.
+- `T012` (rejected 1x): No updated `spec.md` file is provided, and there is no evidence showing that the text of FR‑005 and US‑2 Acceptance Scenario 1 has been edited to replace “≥ [deferred]” with “≥ 0.90”. The implementer’s claim cannot be verified without the actual specification document.
+- `T013` (rejected 1x): No `spec.md` file or excerpt showing the required changes is provided; therefore we cannot confirm that FR‑006 and FR‑007 have been updated to replace “Pearson correlation” and “ANCOVA” with “Tobit Regression” and “Cox Proportional Hazards”. The implementer must supply the modified `spec.md` containing the corrected functional requirement text.
 
 ## Required change
 

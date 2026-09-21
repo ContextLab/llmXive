@@ -1,6 +1,6 @@
 """
 Project structure initialization script.
-Creates the required directory hierarchy for the llmXive research pipeline.
+Creates the required directory tree for the research pipeline.
 """
 import os
 import sys
@@ -8,52 +8,58 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the project directory structure.
-    Creates code/, tests/, data/ (with subdirs), and specs/ if they don't exist.
+    Create the project directory structure:
+    - code/
+    - tests/
+    - data/raw/
+    - data/logs/
+    - data/analysis/
     """
-    base_dir = Path(__file__).parent.parent
+    root = Path(__file__).parent.parent
     
     directories = [
-        "code",
-        "tests",
-        "data/raw",
-        "data/logs",
-        "data/analysis",
-        "specs",
-        "figures"
+        root / "code",
+        root / "tests",
+        root / "data" / "raw",
+        root / "data" / "logs",
+        root / "data" / "analysis",
     ]
     
-    created = []
-    for d in directories:
-        path = base_dir / d
-        if not path.exists():
-            path.mkdir(parents=True)
-            created.append(str(path.relative_to(base_dir)))
-            print(f"Created directory: {path}")
+    created = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created += 1
         else:
-            print(f"Directory exists: {path}")
+            print(f"Directory already exists: {directory}")
     
-    # Create __init__.py files to make them packages
-    package_dirs = ["code", "tests", "data"]
-    for d in package_dirs:
-        path = base_dir / d / "__init__.py"
-        if not path.exists():
-            path.write_text(f"# {d} package\n")
-            print(f"Created {path}")
+    # Create __init__.py files to ensure they are recognized as packages
+    init_files = [
+        root / "code" / "__init__.py",
+        root / "tests" / "__init__.py",
+    ]
     
-    # Create .gitkeep files in data subdirectories to ensure they are tracked
-    data_subdirs = ["data/raw", "data/logs", "data/analysis"]
-    for d in data_subdirs:
-        path = base_dir / d / ".gitkeep"
-        if not path.exists():
-            path.write_text(f"# {d} directory\n")
-            print(f"Created {path}")
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.write_text('"""Auto-generated init file."""\n')
+            print(f"Created init file: {init_file}")
+            created += 1
+        
+    # Create .gitkeep files for data directories to ensure they are tracked
+    gitkeep_files = [
+        root / "data" / "raw" / ".gitkeep",
+        root / "data" / "logs" / ".gitkeep",
+        root / "data" / "analysis" / ".gitkeep",
+    ]
     
-    if not created:
-        print("All directories already exist.")
-    else:
-        print(f"Successfully created {len(created)} directories.")
+    for gitkeep in gitkeep_files:
+        if not gitkeep.exists():
+            gitkeep.write_text('"""Directory for data artifacts."""\n')
+            print(f"Created .gitkeep: {gitkeep}")
+            created += 1
     
+    print(f"Project structure initialization complete. Created {created} new items.")
     return 0
 
 if __name__ == "__main__":
