@@ -1,6 +1,31 @@
-# Schema for the correlation analysis output
-# Generated for project PROJ-332
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: Schema for the final statistical analysis output.
 type: object
+properties:
+  r:
+    type: number
+    description: Spearman correlation coefficient.
+  p_value:
+    type: number
+    description: P-value for the correlation test.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  power:
+    type: number
+    description: Statistical power of the test.
+  hypothesis_status:
+    type: string
+    description: Status of the hypothesis test (e.g., 'Supported', 'Not Supported', 'Inconclusive').
+  warning_flags:
+    type: array
+    items:
+      type: string
+    description: List of warning flags generated during analysis.
 required:
   - r
   - p_value
@@ -9,33 +34,3 @@ required:
   - power
   - hypothesis_status
   - warning_flags
-properties:
-  r:
-    type: number
-    description: Spearman correlation coefficient
-  p_value:
-    type: number
-    description: P-value for the correlation test
-  ci_lower:
-    type: number
-    description: Lower bound of the 95% confidence interval
-  ci_upper:
-    type: number
-    description: Upper bound of the 95% confidence interval
-  power:
-    type: number
-    description: Statistical power of the test (0.0 to 1.0)
-  hypothesis_status:
-    type: string
-    description: Status of the hypothesis test
-    enum:
-      - Supported
-      - Not Supported
-      - Inconclusive due to low power
-      - Inconclusive due to collinearity
-  warning_flags:
-    type: array
-    description: List of warning flags generated during analysis
-    items:
-      type: string
-additionalProperties: false

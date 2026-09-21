@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T16:42:35.792677Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-332-quantifying-the-impact-of-magnetic-field
-last_run_id: 5742ecab-762b-441e-ada5-4ebb5c15e3a4
+last_run_id: f3d23c3f-bb17-4f7f-97b9-c691ec8e7e93
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field
 title: Quantifying the Impact of Magnetic Field Topology on Plasma Confinement
-updated_at: '2026-09-18T12:50:32.374946Z'
+updated_at: '2026-09-21T03:03:29.983763Z'

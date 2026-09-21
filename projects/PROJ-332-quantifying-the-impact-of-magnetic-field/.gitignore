@@ -1,106 +1,77 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
+*.$py
+*.pyo
+*.pyw
+*.pyi
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
+dist/
+build/
 .pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+.mypy_cache/
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.env
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IDEs and editors
+# IDE and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.python-version
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Project specific data artifacts (raw and processed)
-data/raw/
-data/processed/
-data/*.csv
-data/*.parquet
-data/*.h5
-data/*.nc
+# Data Artifacts (Raw and Processed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/cache/
+data/downloads/
 
-# Figures and visualizations
-figures/
-artifacts/
+# Output Artifacts
+outputs/*.json
+outputs/*.png
+outputs/*.csv
+outputs/*.log
+figures/*.png
+figures/*.pdf
 
 # Logs
 logs/
 *.log
 
-# Schema and contract cache (optional, if generated)
-contracts/.cache/
+# Configuration and Secrets
+.env
+*.pem
+secrets/
 
-# Python build artifacts
-*.pyc
-*.pyo
-.python-version
+# Jupyter Notebooks (Optional - uncomment if not used)
+# *.ipynb_checkpoints/
+# .ipynb_checkpoints/
+
+# CI/CD
+.github/
+# Keep the workflow files but ignore generated artifacts
+.github/workflows/
+
+# Testing
+.coverage
+coverage.xml
+htmlcov/
+pytest-html/
 
 # Temporary files
-tmp/
+*.tmp
 temp/
-.tmp/
+tmp/

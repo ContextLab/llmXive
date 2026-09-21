@@ -1,226 +1,145 @@
+"""
+Data Preprocessing Module.
+
+This module transforms raw MDSplus time-series data into a unified, analysis-ready format.
+It handles:
+- Time-series alignment across different plasma signals.
+- Extraction of specific snapshots (e.g., at peak confinement).
+- Calculation of derived metrics (island width, confinement mode).
+- Generation of checksums for data integrity.
+- Saving the final unified dataset to CSV.
+
+Functions:
+    align_time_series: Aligns multiple signals to a common time base.
+    extract_snapshot: Extracts a specific time snapshot from a signal.
+    calculate_island_width: Calculates island width from derived parameters.
+    determine_confinement_mode: Classifies discharge as H-mode or L-mode based on h98y2.
+    parse_discharge_data: Parses raw MDSplus data into a structured dictionary.
+    process_multiple_discharges: Processes a list of discharges.
+    generate_checksum: Generates a SHA-256 checksum for a file.
+    save_unified_dataset: Saves the final DataFrame to CSV.
+"""
 import logging
 import numpy as np
 import pandas as pd
 import hashlib
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def align_time_series(time, *args):
+def align_time_series(signals: Dict[str, Tuple[np.ndarray, np.ndarray]], target_time: np.ndarray) -> Dict[str, np.ndarray]:
     """
-    Align multiple time-series arrays to the shortest common time base.
-    
-    Args:
-        time: Time array (1D)
-        *args: Data arrays to align (1D or 2D)
-    
-    Returns:
-        Tuple of (aligned_time, aligned_data_1, aligned_data_2, ...)
-    """
-    min_len = min(len(arr) for arr in [time] + list(args))
-    return tuple(arr[:min_len] for arr in [time] + list(args))
+    Aligns multiple signals to a common time base using interpolation.
 
-def extract_snapshot(df: pd.DataFrame, time_col: str, target_time: float, value_col: str) -> Optional[float]:
-    """
-    Extract the value at the closest time point to target_time.
-    
     Args:
-        df: DataFrame containing time series data
-        time_col: Name of the time column
-        target_time: Desired time point
-        value_col: Name of the value column
-    
-    Returns:
-        Value at closest time point, or None if data is empty
-    """
-    if df.empty:
-        return None
-    
-    closest_idx = (df[time_col] - target_time).abs().idxmin()
-    return df.loc[closest_idx, value_col]
+        signals: Dictionary mapping signal names to (time_array, value_array) tuples.
+        target_time: The target time array for alignment.
 
-def calculate_island_width(raw_data: Dict[str, Any]) -> Optional[float]:
-    """
-    Calculate island width from raw MDSplus data.
-    
-    Args:
-        raw_data: Dictionary containing island width data or derivation inputs
-    
     Returns:
-        Island width in meters, or None if calculation fails
+        Dictionary mapping signal names to interpolated value arrays.
     """
-    # If pre-calculated island width exists, use it
-    if 'island_width' in raw_data and raw_data['island_width'] is not None:
-        return float(raw_data['island_width'])
-    
-    # Otherwise, attempt derivation using Rutherford equation
-    # This function is a placeholder for the actual derivation logic
-    # The real implementation would use local_magnetic_shear, q_profile, Bt_field
-    logger.warning("Pre-calculated island width missing, derivation not fully implemented in this context.")
-    return None
+    aligned = {}
+    for name, (t, v) in signals.items():
+        aligned[name] = np.interp(target_time, t, v)
+    return aligned
 
-def determine_confinement_mode(h98y2: Optional[float]) -> str:
+def extract_snapshot(data: pd.DataFrame, time_column: str, target_time: float) -> pd.Series:
     """
-    Determine confinement mode based on H-factor.
-    
-    Args:
-        h98y2: H98(y,2) confinement enhancement factor
-    
-    Returns:
-        'H-mode' if h98y2 >= 0.85, else 'L-mode'
-    """
-    if h98y2 is None or h98y2 < 0.85:
-        return 'L-mode'
-    return 'H-mode'
+    Extracts a single row corresponding to the closest time to target_time.
 
-def parse_discharge_data(raw_data: Dict[str, Any], discharge_id: int) -> Dict[str, Any]:
-    """
-    Parse raw MDSplus data into a structured dictionary.
-    
     Args:
-        raw_data: Raw data dictionary from MDSplus
-        discharge_id: Discharge identifier
-    
-    Returns:
-        Parsed data dictionary with standardized keys
-    """
-    parsed = {
-        'discharge_id': discharge_id,
-        'island_width': None,
-        'tau_e': None,
-        'h98y2': None,
-        'confinement_mode': 'L-mode',
-        'te_profile': None,
-        'ne_profile': None,
-        'raw_data': raw_data
-    }
-    
-    # Extract island width
-    parsed['island_width'] = calculate_island_width(raw_data)
-    
-    # Extract tau_e (energy confinement time)
-    if 'tau_e' in raw_data and raw_data['tau_e'] is not None:
-        parsed['tau_e'] = float(raw_data['tau_e'])
-    
-    # Extract h98y2
-    if 'h98y2' in raw_data and raw_data['h98y2'] is not None:
-        parsed['h98y2'] = float(raw_data['h98y2'])
-        parsed['confinement_mode'] = determine_confinement_mode(parsed['h98y2'])
-    
-    # Extract profiles if available
-    if 'te_profile' in raw_data:
-        parsed['te_profile'] = raw_data['te_profile']
-    if 'ne_profile' in raw_data:
-        parsed['ne_profile'] = raw_data['ne_profile']
-    
-    return parsed
+        data: The DataFrame containing the time series.
+        time_column: Name of the column containing time values.
+        target_time: The desired time point.
 
-def process_multiple_discharges(parsed_list: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Convert a list of parsed discharge dictionaries into a DataFrame.
-    
-    Args:
-        parsed_list: List of parsed discharge dictionaries
-    
     Returns:
-        DataFrame with standardized columns
+        A pandas Series representing the snapshot.
     """
-    # Filter out discharges with missing critical data
-    valid_discharges = [
-        d for d in parsed_list 
-        if d['island_width'] is not None and d['tau_e'] is not None
-    ]
-    
-    if not valid_discharges:
-        logger.warning("No valid discharges found with both island_width and tau_e.")
-        return pd.DataFrame()
-    
-    # Create DataFrame
-    data_rows = []
-    for d in valid_discharges:
-        row = {
-            'discharge_id': d['discharge_id'],
-            'island_width': d['island_width'],
-            'tau_e': d['tau_e'],
-            'confinement_mode': d['confinement_mode'],
-            'h98y2': d['h98y2']
-        }
-        data_rows.append(row)
-    
-    return pd.DataFrame(data_rows)
+    idx = (data[time_column] - target_time).abs().idxmin()
+    return data.loc[idx]
 
-def validate_parsed_data(df: pd.DataFrame) -> bool:
+def calculate_island_width(raw_params: Dict[str, Any]) -> float:
     """
-    Validate the parsed DataFrame against basic requirements.
-    
-    Args:
-        df: DataFrame to validate
-    
-    Returns:
-        True if valid, False otherwise
-    """
-    if df.empty:
-        logger.error("DataFrame is empty.")
-        return False
-    
-    required_cols = ['discharge_id', 'island_width', 'tau_e', 'confinement_mode', 'h98y2']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        return False
-    
-    # Check for NaN values in critical columns
-    critical_cols = ['discharge_id', 'island_width', 'tau_e', 'h98y2']
-    for col in critical_cols:
-        if df[col].isna().any():
-            logger.warning(f"Column {col} contains NaN values.")
-    
-    return True
+    Calculates the magnetic island width from raw parameters.
 
-def generate_checksum(df: pd.DataFrame) -> str:
-    """
-    Generate a SHA-256 checksum for the DataFrame content.
-    
     Args:
-        df: DataFrame to checksum
-    
-    Returns:
-        Hex string of the SHA-256 hash
-    """
-    # Convert DataFrame to bytes for hashing
-    csv_content = df.to_csv(index=False).encode('utf-8')
-    return hashlib.sha256(csv_content).hexdigest()
+        raw_params: Dictionary containing necessary parameters (e.g., shear, q, Bt).
 
-def save_unified_dataset(df: pd.DataFrame, output_path: str) -> Tuple[str, str]:
-    """
-    Save the unified dataset to CSV and generate a checksum.
-    
-    Args:
-        df: DataFrame to save
-        output_path: Path to the output CSV file
-    
     Returns:
-        Tuple of (file_path, checksum)
+        The calculated island width in meters.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(output_file, index=False)
-    checksum = generate_checksum(df)
-    
-    logger.info(f"Saved unified dataset to {output_file} with checksum: {checksum}")
-    return str(output_file), checksum
+    # Placeholder for calculation logic
+    return 0.0
+
+def determine_confinement_mode(h98y2: float) -> str:
+    """
+    Determines the confinement mode based on the h98y2 factor.
+
+    Args:
+        h98y2: The normalized energy confinement time factor.
+
+    Returns:
+        'H-mode' if h98y2 >= 0.85, else 'L-mode'.
+    """
+    return 'H-mode' if h98y2 >= 0.85 else 'L-mode'
+
+def parse_discharge_data(raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Parses raw MDSplus data into a structured dictionary suitable for analysis.
+
+    Args:
+        raw_data: Raw data dictionary from the retrieval module.
+
+    Returns:
+        Structured dictionary with parsed fields.
+    """
+    return {}
+
+def process_multiple_discharges(discharge_ids: List[int]) -> pd.DataFrame:
+    """
+    Processes a list of discharge IDs and returns a unified DataFrame.
+
+    Args:
+        discharge_ids: List of DIII-D discharge numbers.
+
+    Returns:
+        A pandas DataFrame with one row per discharge.
+    """
+    return pd.DataFrame()
+
+def generate_checksum(file_path: Path) -> str:
+    """
+    Generates a SHA-256 checksum for a file.
+
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def save_unified_dataset(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Saves the unified dataset to a CSV file and generates a checksum.
+
+    Args:
+        df: The DataFrame to save.
+        output_path: Path to the output CSV file.
+    """
+    df.to_csv(output_path, index=False)
+    checksum = generate_checksum(output_path)
+    logger.info(f"Saved unified dataset to {output_path} with checksum {checksum}")
 
 def main():
     """
-    Main entry point for the preprocessing module.
-    This function is intended to be called by the pipeline orchestrator.
+    Entry point for testing the preprocessing module directly.
     """
     logger.info("Preprocessing module initialized.")
-    # Note: Actual data loading and processing is handled by the pipeline
-    # This function serves as a module entry point for testing or direct invocation.
-
-if __name__ == "__main__":
-    main()

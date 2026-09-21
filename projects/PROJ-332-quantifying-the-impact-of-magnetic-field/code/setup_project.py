@@ -1,40 +1,31 @@
 import os
-import sys
 from pathlib import Path
 
-def main():
-    """
-    Create the project directory structure as specified in plan.md.
-    
-    Required directories:
-    - code/
-    - data/raw/
-    - data/processed/
-    - artifacts/
-    - tests/
-    """
-    base_dir = Path(".")
-    
+def create_directories():
+    """Create the project directory structure as specified in plan.md."""
+    root = Path(__file__).parent.parent
     directories = [
         "code",
         "data/raw",
         "data/processed",
-        "artifacts",
-        "tests"
+        "outputs",
+        "tests",
+        "contracts",
+        ".github/workflows",
     ]
-    
-    created_count = 0
+
+    created = []
     for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    return 0
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(full_path))
+
+    return created
+
+def main():
+    print("Creating project directory structure...")
+    dirs = create_directories()
+    print(f"Created directories: {', '.join(dirs)}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

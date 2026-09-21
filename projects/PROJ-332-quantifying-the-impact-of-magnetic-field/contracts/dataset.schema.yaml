@@ -1,6 +1,45 @@
-# Schema for the unified analysis dataset (input to analysis phase)
-# Generated for project PROJ-332
+$schema: http://json-schema.org/draft-07/schema#
+title: Unified Analysis Dataset Schema
+description: Schema for the unified dataset produced after parsing MDSplus data (T014a/T016).
 type: object
+properties:
+  discharge_id:
+    type: integer
+    description: Unique identifier for the DIII-D discharge.
+  island_width:
+    type: number
+    description: Width of the magnetic island in meters.
+  tau_e:
+    type: number
+    description: Energy confinement time in seconds.
+  confinement_mode:
+    type: string
+    enum:
+      - L-mode
+      - H-mode
+    description: Confinement mode classification based on h98y2.
+  h98y2:
+    type: number
+    description: Normalized confinement factor H98(y,2).
+  q_min:
+    type: number
+    description: Minimum safety factor value in the plasma.
+  q_max:
+    type: number
+    description: Maximum safety factor value in the plasma.
+  resonant_surface_density:
+    type: number
+    description: Density of rational surfaces (q=m/n) per unit normalized minor radius.
+  te_profile:
+    type: array
+    items:
+      type: number
+    description: Electron temperature profile array.
+  ne_profile:
+    type: array
+    items:
+      type: number
+    description: Electron density profile array.
 required:
   - discharge_id
   - island_width
@@ -9,29 +48,6 @@ required:
   - h98y2
   - q_min
   - q_max
-properties:
-  discharge_id:
-    type: integer
-    description: Unique DIII-D discharge identifier
-  island_width:
-    type: number
-    description: Magnetic island width in meters (pre-calculated or derived)
-  tau_e:
-    type: number
-    description: Energy confinement time in seconds
-  confinement_mode:
-    type: string
-    description: Confinement mode classification (L-mode or H-mode)
-    enum:
-      - L-mode
-      - H-mode
-  h98y2:
-    type: number
-    description: H-factor relative to ITER98(y,2) scaling
-  q_min:
-    type: number
-    description: Minimum safety factor value in the plasma
-  q_max:
-    type: number
-    description: Maximum safety factor value in the plasma
-additionalProperties: false
+  - resonant_surface_density
+  - te_profile
+  - ne_profile

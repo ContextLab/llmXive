@@ -1,43 +1,33 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-quantifying-topology"
+name = "llmxive-quantify-topology"
 version = "0.1.0"
-description = "Quantifying the Impact of Magnetic Field Topology on Plasma Confinement"
+description = "Quantifying the impact of magnetic field topology on plasma confinement"
 requires-python = ">=3.9"
 dependencies = [
-    "scipy",
-    "numpy",
-    "matplotlib",
-    "pandas",
-    "pytest",
-    "requests",
-    "pyyaml",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "pytest>=7.0.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.mypy_cache
+    | \.pytest_cache
+    | __pycache__
+    | data
+    | outputs
 )/
 '''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
