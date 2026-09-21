@@ -12,21 +12,6 @@ T015a:
     \ so the core artifact requested by the task is missing. Without this file, the\
     \ regex\u2011based rule engine for role validation and deletion\u2011log checking\
     \ cannot be evaluated. The implementer must add the file with the specified functionality."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No concrete artifact (e.g., test script execution logs, result files, or a generated\
-    \ Access Control score table for the \u201Cmedical\u201D domain) was provided;\
-    \ the claim consists only of a textual description without any evidence that the\
-    \ pipeline was actually run or that the required score was computed. The required\
-    \ integration\u2011test output is missing."
-T015a:
-  c: false
-  h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
-  r: "The required file `src/gatekeeper/rules.py` does not exist in the repository,\
-    \ so the core artifact requested by the task is missing. Without this file, the\
-    \ regex\u2011based rule engine for role validation and deletion\u2011log checking\
-    \ cannot be evaluated. The implementer must add the file with the specified functionality."
 T021:
   c: false
   h: ce1215ea96bb0f6c7328c4c6081b59cb0d26486570fc96534b960b2ec1fe05d2

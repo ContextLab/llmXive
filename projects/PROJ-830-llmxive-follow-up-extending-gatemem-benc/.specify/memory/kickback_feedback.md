@@ -1,19 +1,13 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 5 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T008a` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008c` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008d` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008g` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008e` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T008f` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
-- `T015b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/gatekeeper/rules.py
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Task T008f ('pair_episodes') and Task T026a-1 ('pair_episodes_for_stats') define identical logic (pairing episodes by episode_id) with identical inputs/outputs. T026a-2 depends on T026a-1, but T023 (which calculates metrics) claims not to depend on T008f. This creates a split data-flow where the pairing logic is duplicated. T008f should be removed, and T026a-1 should be the sole source of paired data, with T023 depending on the raw results directly (as stated) and T026a-2 depending on T026a-1.
+- Task T017b and Task T017c both describe implementing the 'Long-Context' baseline and writing to the same output file `data/processed/baseline_longcontext_results.json`. T017b is in Phase 3 (US1) and T017c is in Phase 4 (US2). This duplication implies two separate implementations of the same baseline, risking race conditions or redundant work. T017c should be removed, and T017b should be the sole task for the Long-Context baseline, referenced by both US1 and US2.
+- Task T006d-1 states 'Dependency: None' but the task description says 'Validate presence... against contracts/dataset.schema.yaml'. The schema contract (T004) is a foundational task. While T006d-1 might not depend on T004's *execution* (if the file exists), it semantically depends on the *artifact* produced by T004. Explicitly listing T004 as a dependency would clarify the artifact-flow.
+- Task T029a depends on T023. T023 produces `unified_metrics.json`. T029a filters this file for failures. However, T029a also mentions 'stratification by domain'. The domain information must be present in `unified_metrics.json` (produced by T023). If T023 does not include 'domain' in its output schema (as implied by 'unified metrics' focusing on scores), T029a cannot perform stratification. The dependency on T023 is valid only if T023's output schema includes 'domain'.
+- Tasks T017b and T017c both describe implementing the 'Long-Context' baseline, writing to the identical output file `data/processed/baseline_longcontext_results.json` with identical schemas and dependencies. There is no distinction in logic or scope provided. An implementer cannot deterministically decide which task to execute or how to split the work, leading to race conditions or redundant implementation.

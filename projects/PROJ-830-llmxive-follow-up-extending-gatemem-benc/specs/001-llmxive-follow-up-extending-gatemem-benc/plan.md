@@ -13,7 +13,7 @@ This feature implements a modular governance layer ("Gatekeeper") for LLM agents
 **Primary Dependencies**: `transformers` (BART for Zero-Shot), `datasets` (Hugging Face), `pandas`, `statsmodels` (GLM), `scipy` (McNemar's), `pytest`, `pyyaml`  
 **Storage**: Local filesystem (`data/` for raw/processed data, `state/` for artifacts), JSONL/Parquet formats  
 **Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard RAM)  
 **Project Type**: Research benchmark / CLI tool  
 **Performance Goals**: CPU-tractable inference (<6h runtime), memory usage <7GB, latency profiling for cost reduction hypothesis  
 **Constraints**: NO GPU acceleration for primary runs; NO synthetic data; strict adherence to GateMem schema; fixed random seeds for reproducibility  
