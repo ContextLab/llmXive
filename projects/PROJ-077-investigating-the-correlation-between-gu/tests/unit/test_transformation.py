@@ -11,7 +11,7 @@ def test_clr_transform_sum_logs_zero():
            [[10, 10, 10], [20, 20, 20]].
     Expect: Sum of log-transformed columns to be 0 (within tolerance 1e-6).
     
-    Note: This is a failing test stub until apply_clr is implemented.
+    Note: This test passes if apply_clr is correctly implemented.
     """
     # Create input data
     data = {

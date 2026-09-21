@@ -476,3 +476,494 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T15:15:42Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Shannon Index computed on raw counts using scikit-bio
+  claim_id: c_56767b18
+  context: 'FR-002: System MUST compute alpha diversity (Shannon index) using `scikit-bio`
+    on the OTU/ASV tables **using raw counts** (not CLR-transformed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_Index_computed_on_raw_counts_using_scikit-bio
+  kind: entity_fact
+  raw_text: Use `scikit-bio` to compute the Shannon Index on OTU/ASV tables using
+    raw counts, not CLR-transformed data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:55:33Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Sex imputation strategy uses Mode
+  claim_id: c_a83efe79
+  context: 'FR-007: System MUST impute missing numeric covariate values (age, BMI,
+    DQS) using the median of the available data, and missing categorical values (sex)
+    using the mode.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sex_imputation_strategy_uses_Mode
+  kind: entity_fact
+  raw_text: Impute missing categorical values for Sex using the Mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T15:58:22Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Numeric covariate imputation strategy uses Median
+  claim_id: c_ec8a3c6a
+  context: 'FR-007: System MUST impute missing numeric covariate values (age, BMI,
+    DQS) using the median of the available data, and missing categorical values (sex)
+    using the mode.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Numeric_covariate_imputation_strategy_uses_Median
+  kind: entity_fact
+  raw_text: Impute missing numeric covariate values (Age, BMI, DQS) using the Median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:01:08Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 DQS calculation components and point values
+  claim_id: c_74e2c402
+  context: 'Specific Components: Total Fruits (5 pts), Whole Fruits (5 pts), Total
+    Vegetables (5 pts), Greens and Beans (5 pts), Whole Grains (10 pts), Dairy (10
+    pts), Total Protein Foods (5 pts), Seafood and Plant Proteins (5 pts), Refined
+    Grains (10 pts), Sodium (10 pts), Empty Calories (20 pts).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 standard formula for DQS calculation includes 11 specific
+    components with defined point values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:01:23Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation used for Raw Shannon Index and fluid intelligence
+  claim_id: c_ccc887ff
+  context: 'SC-001: The correlation coefficient and p-value between **Raw Shannon
+    Index** and fluid intelligence are measured against the Spearman rank correlation
+    test results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_used_for_Raw_Shannon_Index_and_flu
+  kind: entity_fact
+  raw_text: The correlation coefficient and p-value between Raw Shannon Index and
+    fluid intelligence are measured against the Spearman rank correlation test results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:01:56Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Data loading sample limit of 50000
+  claim_id: c_14868090
+  context: Create `code/config.py` defining paths (`INPUT_PATHS` dict), `RANDOM_SEED=42`,
+    and `SAMPLE_LIMIT=50000` (Per Plan Complexity Tracking) to ensure CI memory safety.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data loading utility must enforce a SAMPLE_LIMIT of 50,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:02:22Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_79aae32d
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:02:42Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_5be47629
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: `pandas==2.0.3`...'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pandas library version is pinned to 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_98e1f151
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `numpy==1.24.3` ...'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The numpy library version is pinned to 1.24.3.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scikit-bio version 0.5.9
+  claim_id: c_619d7481
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `scikit-bio==0.5.9` ...'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-bio library version is pinned to 0.5.9.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_0da1a14a
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `scikit-learn==1.3.0` ...'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-learn library version is pinned to 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_6ea692b4
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `statsmodels==0.14.0` ...'
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The statsmodels library version is pinned to 0.14.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2
+  claim_id: c_539899db
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `matplotlib==3.7.2` ...'
+  evidence:
+    asserted: '3.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The matplotlib library version is pinned to 3.7.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:43Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.12.2
+  claim_id: c_6629b81c
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `seaborn==0.12.2` ...'
+  evidence:
+    asserted: '0.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The seaborn library version is pinned to 0.12.2.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:44Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_c49e6bf7
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `pyyaml==6.0.1` ...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pyyaml library version is pinned to 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:44Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.1
+  claim_id: c_3c3ac6a6
+  context: 'Initialize Python 3.11 project: Create `requirements.txt` at the repository
+    root with pinned dependencies: ... `scipy==1.11.1`.'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scipy library version is pinned to 1.11.1.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T16:02:44Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Empty Calories component value is 20
+  claim_id: c_c8727db7
+  context: 'Specific Components: ... Empty Calories (20 pts).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 20 points to Empty Calories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:03:08Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Whole Grains component value is 10
+  claim_id: c_a61577b2
+  context: 'Specific Components: ... Whole Grains (10 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 10 points to Whole Grains.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:03:21Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Dairy component value is 10
+  claim_id: c_ac8f35ed
+  context: 'Specific Components: ... Dairy (10 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 10 points to Dairy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:03:45Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Refined Grains component value is 10
+  claim_id: c_6a92f6e2
+  context: 'Specific Components: ... Refined Grains (10 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 10 points to Refined Grains.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:04:00Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Sodium component value is 10
+  claim_id: c_e484c515
+  context: 'Specific Components: ... Sodium (10 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 10 points to Sodium.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:04:19Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Total Fruits component value is 5
+  claim_id: c_fb1be9f1
+  context: 'Specific Components: Total Fruits (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Total Fruits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:04:34Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Whole Fruits component value is 5
+  claim_id: c_c8306d1a
+  context: 'Specific Components: ... Whole Fruits (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Whole Fruits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:04:47Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Total Vegetables component value is 5
+  claim_id: c_834bd5f4
+  context: 'Specific Components: ... Total Vegetables (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Total Vegetables.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:05:03Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Greens and Beans component value is 5
+  claim_id: c_88b37085
+  context: 'Specific Components: ... Greens and Beans (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Greens and Beans.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:05:18Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Total Protein Foods component value is 5
+  claim_id: c_28e5f68c
+  context: 'Specific Components: ... Total Protein Foods (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Total Protein Foods.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:05:31Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 Seafood and Plant Proteins component value is 5
+  claim_id: c_da914496
+  context: 'Specific Components: ... Seafood and Plant Proteins (5 pts) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 DQS calculation assigns 5 points to Seafood and Plant Proteins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T16:05:52Z'

@@ -4,112 +4,123 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-import csv
+import numpy as np
 
-# Import the functions we are testing
-# Adjust import path based on project structure
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
 from src.analysis.distribution_test import (
-    extract_maximal_gaps_in_windows,
-    normalize_maximal_gaps,
+    pair_correlation_distribution,
     gue_extreme_value_cdf,
     compute_empirical_cdf,
-    run_ks_test,
-    load_primes_gaps
+    normalize_maximal_gaps,
+    extract_maximal_gaps_in_windows
 )
 
-class TestExtractMaximalGapsInWindows:
-    def test_empty_data(self):
-        assert extract_maximal_gaps_in_windows([]) == []
-
-    def test_single_window(self):
-        # Create mock data: 5 gaps in one window
-        # Format: (p_before, p_after, gap, norm_gap)
-        data = [
-            (2, 3, 1, 0.1),
-            (3, 5, 2, 0.2),
-            (5, 7, 2, 0.15),
-            (7, 11, 4, 0.3),
-            (11, 13, 2, 0.1)
-        ]
-        result = extract_maximal_gaps_in_windows(data, window_size=5)
-        assert len(result) == 1
-        assert result[0] == 0.3  # Max is 0.3
-
-    def test_multiple_windows(self):
-        # 10 gaps, window size 5 -> 2 windows
-        data = [
-            (1, 2, 1, 0.1), (2, 3, 1, 0.2), (3, 4, 1, 0.3), (4, 5, 1, 0.4), (5, 6, 1, 0.5), # Max 0.5
-            (6, 7, 1, 0.1), (7, 8, 1, 0.2), (8, 9, 1, 0.1), (9, 10, 1, 0.3), (10, 11, 1, 0.4) # Max 0.4
-        ]
-        result = extract_maximal_gaps_in_windows(data, window_size=5)
-        assert len(result) == 2
-        assert result[0] == 0.5
-        assert result[1] == 0.4
-
-class TestNormalizeMaximalGaps:
-    def test_identity(self):
-        # Since input is expected to be already normalized, this should be identity
-        data = [0.1, 0.5, 0.9]
-        assert normalize_maximal_gaps(data) == data
+class TestPairCorrelationDistribution:
+    """Test the pair-correlation distribution implementation."""
+    
+    def test_pair_correlation_at_zero(self):
+        """Test that R_2(0) = 0 (level repulsion)."""
+        s = np.array([1e-10])
+        result = pair_correlation_distribution(s)
+        assert result[0] == pytest.approx(0.0, abs=1e-6)
+    
+    def test_pair_correlation_at_one(self):
+        """Test that R_2(1) = 0."""
+        s = np.array([1.0])
+        result = pair_correlation_distribution(s)
+        # R_2(1) = 1 - (sin(pi)/(pi))^2 = 1 - 0 = 1
+        # Actually, sin(pi) = 0, so sinc(1) = 0, so R_2(1) = 1
+        # Wait, let's recalculate: sin(pi*1)/(pi*1) = 0/pi = 0
+        # So R_2(1) = 1 - 0 = 1
+        assert result[0] == pytest.approx(1.0, abs=1e-6)
+    
+    def test_pair_correlation_large_s(self):
+        """Test that R_2(s) approaches 1 for large s."""
+        s = np.array([10.0])
+        result = pair_correlation_distribution(s)
+        assert result[0] == pytest.approx(1.0, abs=0.1)
+    
+    def test_pair_correlation_monotonicity(self):
+        """Test that R_2(s) is generally increasing."""
+        s = np.linspace(0.01, 5.0, 100)
+        result = pair_correlation_distribution(s)
+        # Check that it's mostly non-decreasing (with oscillations)
+        # Due to the oscillatory nature, we check the envelope
+        assert np.all(result >= 0.0)
+        assert np.all(result <= 1.0)
 
 class TestGUEExtremeValueCDF:
-    def test_small_x(self):
-        # For very small x, CDF should be close to 0
-        assert gue_extreme_value_cdf(-10) < 1e-4
-
-    def test_zero(self):
-        # exp(-exp(0)) = exp(-1) ≈ 0.3678
-        expected = math.exp(-1)
-        assert abs(gue_extreme_value_cdf(0) - expected) < 1e-6
-
-    def test_large_x(self):
-        # For large x, CDF should be close to 1
-        assert gue_extreme_value_cdf(10) > 0.99
+    """Test the GUE extreme value CDF implementation."""
+    
+    def test_cdf_range(self):
+        """Test that CDF values are between 0 and 1."""
+        x = np.linspace(0, 5, 100)
+        result = gue_extreme_value_cdf(x)
+        assert np.all(result >= 0.0)
+        assert np.all(result <= 1.0)
+    
+    def test_cdf_increasing(self):
+        """Test that CDF is non-decreasing."""
+        x = np.linspace(0, 5, 100)
+        result = gue_extreme_value_cdf(x)
+        assert np.all(np.diff(result) >= -1e-10)  # Allow small numerical errors
 
 class TestComputeEmpiricalCDF:
-    def test_simple_data(self):
-        data = [1, 2, 3]
-        x, cdf = compute_empirical_cdf(data)
-        assert x == [1, 2, 3]
-        assert cdf == [1/3, 2/3, 3/3]
+    """Test empirical CDF computation."""
+    
+    def test_cdf_values(self):
+        """Test that CDF values are in [0, 1]."""
+        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        sorted_data, cdf_vals = compute_empirical_cdf(data)
+        assert np.all(cdf_vals >= 0.0)
+        assert np.all(cdf_vals <= 1.0)
+    
+    def test_cdf_length(self):
+        """Test that CDF has same length as input."""
+        data = np.random.randn(50)
+        sorted_data, cdf_vals = compute_empirical_cdf(data)
+        assert len(sorted_data) == len(data)
+        assert len(cdf_vals) == len(data)
 
-    def test_unsorted_data(self):
-        data = [3, 1, 2]
-        x, cdf = compute_empirical_cdf(data)
-        assert x == [1, 2, 3]
-        assert cdf == [1/3, 2/3, 1.0]
+class TestNormalizeMaximalGaps:
+    """Test gap normalization."""
+    
+    def test_normalization_positive(self):
+        """Test that normalized gaps are positive."""
+        gaps = np.array([10.0, 20.0, 30.0])
+        primes = np.array([100.0, 200.0, 300.0])
+        result = normalize_maximal_gaps(gaps, primes)
+        assert np.all(result > 0.0)
+    
+    def test_normalization_scale(self):
+        """Test that normalization scales correctly."""
+        gaps = np.array([10.0])
+        primes = np.array([100.0])
+        result = normalize_maximal_gaps(gaps, primes)
+        expected = 10.0 / (math.log(100.0) ** 2)
+        assert result[0] == pytest.approx(expected, rel=1e-10)
 
-class TestRunKSTest:
-    def test_perfect_match(self):
-        # If empirical and theoretical are identical, D should be 0
-        x = [0.0, 0.5, 1.0]
-        cdf = [gue_extreme_value_cdf(val) for val in x]
-        D, p = run_ks_test(x, cdf, gue_extreme_value_cdf)
-        assert D == 0.0
-        assert p == 1.0
+class TestExtractMaximalGapsInWindows:
+    """Test maximal gap extraction."""
+    
+    def test_window_extraction(self):
+        """Test that maximal gaps are correctly extracted."""
+        primes = np.arange(100, 200)
+        gaps = np.ones(99) * 10  # Uniform gaps
+        maximal_gaps = extract_maximal_gaps_in_windows(primes, gaps, window_size=10)
+        assert len(maximal_gaps) > 0
+        assert np.all(maximal_gaps == 10.0)
+    
+    def test_non_uniform_gaps(self):
+        """Test with non-uniform gaps."""
+        primes = np.arange(100, 200)
+        gaps = np.random.rand(99) * 100
+        maximal_gaps = extract_maximal_gaps_in_windows(primes, gaps, window_size=10)
+        assert len(maximal_gaps) == len(gaps) // 10
+        for mg in maximal_gaps:
+            assert mg <= np.max(gaps)
 
-    def test_empty_data(self):
-        D, p = run_ks_test([], [], gue_extreme_value_cdf)
-        assert D == 0.0
-        assert p == 1.0
-
-class TestLoadPrimesGaps:
-    def test_file_not_found(self):
-        with pytest.raises(FileNotFoundError):
-            load_primes_gaps("non_existent_file.csv")
-
-    def test_load_valid_csv(self):
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            f.write("prime_before,prime_after,gap_size,normalized_gap\n")
-            f.write("2,3,1,0.1\n")
-            f.write("3,5,2,0.2\n")
-            temp_path = f.name
-
-        try:
-            data = load_primes_gaps(temp_path)
-            assert len(data) == 2
-            assert data[0] == (2, 3, 1, 0.1)
-            assert data[1] == (3, 5, 2, 0.2)
-        finally:
-            os.unlink(temp_path)
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

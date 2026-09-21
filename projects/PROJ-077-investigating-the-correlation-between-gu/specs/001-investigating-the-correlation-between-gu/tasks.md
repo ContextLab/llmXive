@@ -119,7 +119,7 @@ References: N/A
 - [X] T012 [User Story 1] Implement filtering logic: In `code/data_ingestion.py`, filter out participants with null alpha diversity, fluid intelligence, or DQS (User Story 1, FR-001). **Dependency**: T014b (Error Handling). **Note**: Does NOT depend on T014c (Full Calculation) to allow filtering if DQS is pre-calculated.
 - [X] T013 [User Story 1] Implement imputation logic: In `code/data_ingestion.py`, apply Median for Age, BMI, DQS; Mode for Sex. **Dependency**: None (implements Plan logic directly). Log imputation strategy to `provenance.log` (Data Hygiene Principle III).
 - [ ] T015 [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv` with a header containing column definitions.
-- [ ] T016 [User Story 1] Add error handling: Implement checks for missing files and empty datasets (edge case: zero participants) in `code/data_ingestion.py`.
+- [X] T016 [User Story 1] Add error handling: Implement checks for missing files and empty datasets (edge case: zero participants) in `code/data_ingestion.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -133,19 +133,19 @@ References: N/A
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [User Story 2] Write failing test stub `test_shannon_calculation_known_values` in `tests/unit/test_diversity.py`. Input: fixture `tests/fixtures/sample_taxa_matrix.csv`. Expect output `shannon_index` values reflecting the diversity profiles of the samples (or calculated known values).
-- [ ] T018 [P] [User Story 2] Write failing test stub `test_clr_transform_sum_logs_zero` in `tests/unit/test_transformation.py`. Input: fixture `tests/fixtures/sample_clr_taxa.csv`. Expect sum of log-transformed columns to be zero (within tolerance).
-- [ ] T019 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`. Input: fixture `tests/fixtures/mock_correlation.csv`. Expect `p-value < 0.05`.
+- [X] T017 [P] [User Story 2] Write failing test stub `test_shannon_calculation_known_values` in `tests/unit/test_diversity.py`. Input: fixture `tests/fixtures/sample_taxa_matrix.csv`. Expect output `shannon_index` values reflecting the diversity profiles of the samples (or calculated known values).
+- [X] T018 [P] [User Story 2] Write failing test stub `test_clr_transform_sum_logs_zero` in `tests/unit/test_transformation.py`. Input: fixture `tests/fixtures/sample_clr_taxa.csv`. Expect sum of log-transformed columns to be zero (within tolerance).
+- [X] T019 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`. Input: fixture `tests/fixtures/mock_correlation.csv`. Expect `p-value < 0.05`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: None (implements Plan logic directly). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002).
-- [ ] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction).
-- [ ] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Dependency**: None (implements Plan logic directly). Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected).
+- [X] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: None (implements Plan logic directly). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002).
+- [X] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction).
+- [X] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Dependency**: None (implements Plan logic directly). Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected).
 - [ ] T023 [User Story 2] Implement multivariate linear regression in `code/analysis.py` using `statsmodels` with predictors: `shannon_index`, Age, Sex, BMI, DQS (FR-004). **Dependency**: Requires DQS column in `data/processed/cleaned_data.csv` (output of T015).
-- [ ] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking).
-- [ ] T025a [User Story 2] Implement edge case detection: In `code/analysis.py`, detect zero variance in fluid intelligence scores.
-- [ ] T025c [User Story 2] Implement edge case logging: If zero variance is detected (T025a), skip correlation and log a warning to `data/processed/analysis_warnings.log`.
+- [X] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking).
+- [X] T025a [User Story 2] Implement edge case detection: In `code/analysis.py`, detect zero variance in fluid intelligence scores.
+- [X] T025c [User Story 2] Implement edge case logging: If zero variance is detected (T025a), skip correlation and log a warning to `data/processed/analysis_warnings.log`.
 - [ ] T025b [User Story 2] Implement Residual Normality Validation: In `code/analysis.py`, perform Shapiro-Wilk test on regression residuals. Save validation report to `data/processed/regression_diagnostics.json` (Plan: Constitution Check).
 - [ ] T026 [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`.
 - [ ] T027 [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p-value` for all predictors to `data/processed/regression_results.csv`.

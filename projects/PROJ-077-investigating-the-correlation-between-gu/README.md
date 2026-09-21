@@ -1,148 +1,147 @@
 # Investigating the Correlation Between Gut Microbiome Diversity and Cognitive Performance
 
-This project analyzes the relationship between gut microbiome diversity (Shannon Index) and cognitive performance (Fluid Intelligence) using UK Biobank data.
+This project implements an automated research pipeline to analyze the correlation between gut microbiome diversity (Shannon Index) and cognitive performance (Fluid Intelligence) using data from the UK Biobank.
 
 ## Research Question
+
 What is the correlation between gut microbiome diversity and cognitive performance?
 
 ## Method
-Correlation analysis using Spearman rank correlation on processed data, followed by multivariate regression adjusting for covariates (Age, Sex, BMI, Diet Quality Score).
 
-## Project Structure
+Correlation analysis using processed data, specifically:
+- Calculation of Shannon Index (alpha diversity) from raw microbiome counts.
+- Spearman rank correlation between Raw Shannon Index and Fluid Intelligence.
+- Multivariate linear regression controlling for Age, Sex, BMI, and Dietary Quality Score (DQS).
 
-```
-PROJ-077-investigating-the-correlation-between-gu/
-├── code/ # Pipeline implementation
-│ ├── main.py # Orchestrator
-│ ├── config.py # Configuration and paths
-│ ├── data_fetcher.py # Data acquisition utilities
-│ ├── data_ingestion.py # Cleaning and preprocessing
-│ ├── diversity.py # Shannon Index calculation
-│ ├── analysis.py # Correlation and regression
-│ ├── visualization.py # Plot generation
-│ └──...
-├── data/
-│ ├── raw/ # **RAW DATA MUST BE PLACED HERE**
-│ └── processed/ # Cleaned data and analysis outputs
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation and spec overrides
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
+## Prerequisites
 
-## Data Access Instructions
+- Python 3.11+
+- Required packages listed in `requirements.txt`
+
+## Data Access and Setup (CRITICAL)
+
+This pipeline requires real data from the **UK Biobank**. The data is **not** included in this repository due to size and access restrictions. You must obtain the data and place it in the `data/raw/` directory.
 
 ### 1. Obtain UK Biobank Data
 
-This project requires access to specific fields from the UK Biobank. You must apply for access through the official UK Biobank portal (https://www.ukbiobank.ac.uk/) if you do not already have credentials.
+Access to UK Biobank data requires an approved application. Once approved, you can download the relevant fields via the UK Biobank Access Management Portal or the `ukb` command-line tool.
 
-**Required Data Fields:**
+**Required Fields:**
+You must download and merge the following datasets:
 
-The pipeline expects the following columns to be present in the raw data files. Ensure your extracted dataset includes these:
+1. **Microbiome Data (OTU/ASV Tables)**
+ - **Source**: UK Biobank Microbiome Study (Field 20002 or specific microbiome release).
+ - **Format**: Wide-format matrix (Rows: `participant_id`, Columns: Taxa/Species counts).
+ - **Required Columns**: `participant_id`, and columns for each OTU/ASV (e.g., `Taxa_001`, `Taxa_002`...).
+ - **File Name**: `data/raw/microbiome_counts.csv`
 
-**Microbiome Data (`data/raw/microbiome_data.csv`):**
-- `participant_id`: Unique identifier for the participant.
-- `OTU_1`, `OTU_2`,..., `OTU_N` (or specific taxonomic columns): Raw count data for Operational Taxonomic Units (OTUs) or Amplicon Sequence Variants (ASVs). **Do not provide CLR-transformed data here.**
-- *Note: If the data is in a wide format where rows are participants and columns are taxa, this is the expected format.*
+2. **Cognitive Performance Data**
+ - **Source**: UK Biobank Cognitive Assessment (Field 20002).
+ - **Required Fields**:
+ - `participant_id`: Unique identifier.
+ - `fluid_intelligence`: Fluid Intelligence Score (Field 20016 or equivalent).
+ - `age`: Age at assessment.
+ - `sex`: Biological sex (1: Male, 0: Female).
+ - `bmi`: Body Mass Index.
+ - **File Name**: `data/raw/cognitive_data.csv`
 
-**Cognitive Data (`data/raw/cognitive_data.csv`):**
-- `participant_id`: Unique identifier (must match microbiome data).
-- `fluid_intelligence_score`: The primary cognitive outcome variable.
-- `age`: Participant age at assessment.
-- `sex`: Participant sex (M/F).
-- `bmi`: Body Mass Index.
+3. **Dietary Data (for DQS Calculation)**
+ - **Source**: UK Biobank Dietary Assessment (Field 100000 series or similar).
+ - **Required Fields**:
+ - `participant_id`
+ - `fruit`: Daily fruit intake (servings/day).
+ - `vegetable`: Daily vegetable intake (servings/day).
+ - `whole_grain`: Whole grain intake.
+ - `dairy`: Dairy product intake.
+ - `protein_foods`: Protein food intake.
+ - `seafood_plant_protein`: Seafood and plant protein intake.
+ - `refined_grains`: Refined grain intake.
+ - `sodium`: Sodium intake (mg/day).
+ - `empty_calories`: Empty calorie intake.
+ - **File Name**: `data/raw/dietary_data.csv`
 
-**Dietary Data (`data/raw/dietary_data.csv`):**
-- `participant_id`: Unique identifier.
-- `fruit_intake`: Frequency or amount of fruit consumption.
-- `vegetable_intake`: Frequency or amount of vegetable consumption.
-- `grain_intake`: Frequency or amount of grain consumption.
-- `dairy_intake`: Frequency or amount of dairy consumption.
-- `protein_intake`: Frequency or amount of protein consumption.
-- *Note: These fields are used to calculate the Diet Quality Score (DQS) using the HEI-2015 standard if pre-calculated DQS is not available.*
+### 2. Place Data in Directory
 
-### 2. Data Placement
+Ensure the downloaded files are placed in the `data/raw/` directory with the exact filenames specified above:
 
-Once you have downloaded the necessary files from the UK Biobank (or the `ukbiobank/microbiome-cognitive` dataset if using the verified streaming source), place them in the `data/raw/` directory.
-
-The directory structure must look like this:
-
-```
+```bash
 data/
 └── raw/
- ├── microbiome_data.csv
+ ├── microbiome_counts.csv
  ├── cognitive_data.csv
  └── dietary_data.csv
 ```
 
-**Important:** The pipeline is configured to fail loudly if these files are missing or empty. It will **not** generate synthetic data as a fallback.
+**Note**: If `dietary_data.csv` is missing, the pipeline will halt with a fatal error as per the Dietary Quality Score (DQS) requirement (FR-008).
 
-### 3. Alternative: Verified Streaming Source
+### 3. Verify Data Integrity
 
-If you have access to the verified Hugging Face dataset `ukbiobank/microbiome-cognitive`, the `code/data_fetcher.py` module can attempt to stream this data directly. However, for local development and reproducibility, placing the data in `data/raw/` is the recommended approach.
+Before running the pipeline, ensure:
+- All files are non-empty.
+- `participant_id` is consistent across all three files.
+- No required columns are missing.
 
 ## Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd PROJ-077-investigating-the-correlation-between-gu
+ cd <project-directory>
  ```
 
-2. **Create a virtual environment:**
+2. Create a virtual environment and install dependencies:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies:**
- ```bash
  pip install -r requirements.txt
  ```
 
 ## Running the Pipeline
 
-Ensure that `data/raw/` contains the required CSV files as described above.
+The full pipeline can be executed via the main entry point:
 
-1. **Run the full pipeline:**
- ```bash
- python code/main.py
- ```
+```bash
+python code/main.py
+```
 
-2. **Run specific stages:**
- - Data Ingestion: `python code/data_ingestion.py`
- - Diversity Analysis: `python code/diversity.py`
- - Correlation/Regression: `python code/analysis.py`
- - Visualization: `python code/visualization.py`
+This will:
+1. Validate configuration and input files.
+2. Ingest and clean data (filtering, imputation).
+3. Calculate Shannon Index and perform correlation/regression analysis.
+4. Apply statistical corrections and generate visualizations.
 
-3. **Validation:**
- - Run `python code/validate_sc001.py` to verify correlation results.
- - Run `python code/validate_sc002.py` to verify regression results.
+**Output Files**:
+- `data/processed/cleaned_data.csv`: Cleaned dataset.
+- `data/processed/correlation_results.csv`: Spearman correlation results.
+- `data/processed/regression_results.csv`: Regression coefficients.
+- `data/processed/plots/`: Generated visualization images.
 
-## Expected Outputs
+## Project Structure
 
-Upon successful completion, the following files will be generated in `data/processed/`:
+```text
+.
+├── code/ # Source code
+│ ├── config.py # Configuration and paths
+│ ├── data_fetcher.py # Data loading utilities
+│ ├── data_ingestion.py # Data cleaning and imputation
+│ ├── diversity.py # Shannon Index calculation
+│ ├── analysis.py # Correlation and regression
+│ ├── visualization.py # Plot generation
+│ └── main.py # Pipeline orchestration
+├── data/
+│ ├── raw/ # Input data (YOU MUST PLACE FILES HERE)
+│ └── processed/ # Output data and plots
+├── tests/ # Unit and integration tests
+├── requirements.txt # Dependencies
+└── README.md # This file
+```
 
-- `cleaned_data.csv`: Filtered and imputed dataset.
-- `correlation_results.csv`: Spearman correlation coefficients and p-values.
-- `regression_results.csv`: Multivariate regression coefficients and statistics.
-- `plots/`: Directory containing scatter plots and histograms.
+## License
 
-## Configuration
-
-Edit `code/config.py` to adjust:
-- `INPUT_PATHS`: Paths to raw data files.
-- `SAMPLE_LIMIT`: Maximum number of samples to process (default: 50,000 for CI safety).
-- `RANDOM_SEED`: Seed for reproducibility.
-
-## Troubleshooting
-
-- **FileNotFoundError: Input files missing**: Ensure `data/raw/` contains `microbiome_data.csv`, `cognitive_data.csv`, and `dietary_data.csv`.
-- **ImportError**: Ensure all dependencies in `requirements.txt` are installed.
-- **Memory Error**: Reduce `SAMPLE_LIMIT` in `code/config.py`.
+This project is for research purposes only. The UK Biobank data is subject to their terms of use.
 
 ## References
 
-- Spec Override FR-002: System MUST compute alpha diversity (Shannon index) using `scikit-bio` on raw counts.
-- Spec Override SC-001: The correlation coefficient and p-value between Raw Shannon Index and fluid intelligence are measured against the Spearman rank correlation test results.
-- Spec Override FR-007: System MUST impute missing categorical values (sex) using the mode.
+- UK Biobank: https://www.ukbiobank.ac.uk/
+- Plan: `specs/001-gene-regulation/` (Project Internal)
+- Spec Overrides: `docs/spec_override_*.md`

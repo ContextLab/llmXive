@@ -53,32 +53,6 @@ T032c:
     \ \u226530\u202F% latency reduction, \u22640.5 FID difference, or significance\
     \ testing for the dynamic model versus the static baseline. Consequently the US3\
     \ acceptance criteria are not met."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` files or `paper/draft.md` were presented, and there is no evidence
-    that these documents were updated to include CI vs Research mode labeling. The
-    required documentation artifacts are missing.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or documentation artifacts showing that any cleanup or refactoring\
-    \ was performed are present; the claim lacks any tangible evidence (e.g., updated\
-    \ source files, commit logs, before\u2011after comparisons) to verify the work.\
-    \ The required deliverables are missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that implements chunked processing\
-    \ for FID/LPIPS, nor any memory\u2011usage or benchmark evidence showing the computation\
-    \ stays within the 7\u202FGB RAM limit. The required artifact demonstrating the\
-    \ performance optimization is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files or content under `tests/unit/` was provided; the claim
-    lacks the required unit test artifacts, so the task of adding additional unit
-    tests is not demonstrated.
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

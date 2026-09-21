@@ -1,147 +1,97 @@
-"""
-Unit tests for code/models/gating_head.py
-Tests gating head output scalar range (1-5)
-"""
-import os
-import sys
-import unittest
-from pathlib import Path
+import pytest
 import torch
+import sys
+from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.models.gating_head import (
-    GatingHead,
-    create_gating_head,
-    count_parameters
-)
+from models.gating_head import GatingHead, create_gating_head, count_parameters
+from utils.seed import set_seed
 
+class TestGatingHead:
+    """Unit tests for the GatingHead component."""
 
-class TestGatingHeadCreation(unittest.TestCase):
-    """Tests for gating head creation and structure"""
+    def setup_method(self):
+        """Set up test fixtures."""
+        set_seed(42)
+        self.batch_size = 4
+        self.channels = 64
+        self.height = 32
+        self.width = 32
 
-    def test_create_gating_head_returns_model(self):
-        """Test that create_gating_head returns a GatingHead instance"""
-        model = create_gating_head(input_channels=1, output_dim=1)
-        self.assertIsInstance(model, GatingHead)
-
-    def test_gating_head_has_correct_input_dim(self):
-        """Test that gating head accepts correct input dimensions"""
-        model = create_gating_head(input_channels=1, output_dim=1)
-        x = torch.randn(1, 1, 32, 32)  # batch=1, channels=1, height=32, width=32
-        with torch.no_grad():
-            output = model(x)
-        self.assertEqual(output.shape[0], 1)
+    def test_create_gating_head_initialization(self):
+        """Test that create_gating_head returns a valid GatingHead instance."""
+        head = create_gating_head(input_channels=64)
+        assert isinstance(head, GatingHead)
+        assert head.output_dim == 1
 
     def test_gating_head_parameter_count(self):
-        """Test that gating head parameter count is reasonable"""
-        model = create_gating_head(input_channels=1, output_dim=1)
-        param_count = count_parameters(model)
-        # Should be relatively small (< 5M as per spec)
-        self.assertLess(param_count, 5_000_000)
+        """Test that GatingHead parameter count is within the ≤5M limit."""
+        head = create_gating_head(input_channels=64)
+        params = count_parameters(head)
+        # The head is designed to be lightweight (≤5M params)
+        assert params <= 5_000_000, f"Parameter count {params} exceeds 5M limit"
+        assert params > 0, "Parameter count must be positive"
 
-
-class TestGatingHeadOutput(unittest.TestCase):
-    """Tests for gating head output values"""
-
-    def setUp(self):
-        """Create a gating head model"""
-        self.model = create_gating_head(input_channels=1, output_dim=1)
-        self.model.eval()  # Set to evaluation mode
-
-    def test_output_scalar_range_basic(self):
-        """Test that output is a scalar value"""
-        x = torch.randn(1, 1, 32, 32)
+    def test_gating_head_output_range(self):
+        """Test that gating head output scalar is in expected range (1-5) after sigmoid scaling."""
+        head = create_gating_head(input_channels=64)
+        dummy_input = torch.randn(self.batch_size, self.channels, self.height, self.width)
+        
         with torch.no_grad():
-            output = self.model(x)
-        self.assertEqual(output.shape, (1, 1))
+            output = head(dummy_input)
+        
+        assert output.shape == (self.batch_size, 1), f"Output shape mismatch: {output.shape}"
+        
+        # The head uses Sigmoid (0-1) * 4 + 1 to map to [1, 5]
+        # Check if values are within the expected [1, 5] range
+        min_val = output.min().item()
+        max_val = output.max().item()
+        
+        assert min_val >= 1.0 - 1e-6, f"Output min {min_val} below lower bound 1.0"
+        assert max_val <= 5.0 + 1e-6, f"Output max {max_val} above upper bound 5.0"
 
-    def test_output_positive_values(self):
-        """Test that output values are positive (after ReLU)"""
-        x = torch.randn(10, 1, 32, 32)
-        with torch.no_grad():
-            output = self.model(x)
-        # Output should be >= 0 due to ReLU activation
-        self.assertTrue(torch.all(output >= 0))
-
-    def test_output_range_clamped(self):
-        """Test that output can be clamped to range [1, 5]"""
-        x = torch.randn(10, 1, 32, 32)
-        with torch.no_grad():
-            output = self.model(x)
-            # Apply clamping as would be done in usage
-            clamped = torch.clamp(output, min=1.0, max=5.0)
-        self.assertTrue(torch.all(clamped >= 1.0))
-        self.assertTrue(torch.all(clamped <= 5.0))
-
-    def test_output_consistency_same_input(self):
-        """Test that same input produces same output (deterministic)"""
-        x = torch.randn(1, 1, 32, 32)
-        with torch.no_grad():
-            output1 = self.model(x)
-            output2 = self.model(x)
-        self.assertTrue(torch.allclose(output1, output2))
-
-
-class TestGatingHeadEdgeCases(unittest.TestCase):
-    """Tests for edge cases in gating head"""
-
-    def setUp(self):
-        """Create a gating head model"""
-        self.model = create_gating_head(input_channels=1, output_dim=1)
-        self.model.eval()
-
-    def test_batch_size_1(self):
-        """Test with batch size of 1"""
-        x = torch.randn(1, 1, 32, 32)
-        with torch.no_grad():
-            output = self.model(x)
-        self.assertEqual(output.shape, (1, 1))
-
-    def test_batch_size_large(self):
-        """Test with larger batch size"""
-        x = torch.randn(64, 1, 32, 32)
-        with torch.no_grad():
-            output = self.model(x)
-        self.assertEqual(output.shape, (64, 1))
-
-    def test_different_input_sizes(self):
-        """Test with different input spatial dimensions"""
-        sizes = [(16, 16), (32, 32), (64, 64)]
-        for h, w in sizes:
-            x = torch.randn(1, 1, h, w)
-            with torch.no_grad():
-                output = self.model(x)
-            self.assertEqual(output.shape, (1, 1))
-
-
-class TestGatingHeadIntegration(unittest.TestCase):
-    """Integration tests for gating head"""
-
-    def test_forward_pass_no_error(self):
-        """Test that forward pass completes without error"""
-        model = create_gating_head(input_channels=1, output_dim=1)
-        x = torch.randn(4, 1, 32, 32)
-        try:
-            model.eval()
-            with torch.no_grad():
-                output = model(x)
-            self.assertIsNotNone(output)
-        except Exception as e:
-            self.fail(f"Forward pass raised {type(e).__name__}: {e}")
-
-    def test_gradient_flow(self):
-        """Test that gradients flow through the network"""
-        model = create_gating_head(input_channels=1, output_dim=1)
-        model.train()
-        x = torch.randn(4, 1, 32, 32, requires_grad=True)
-        output = model(x)
+    def test_gating_head_gradient_flow(self):
+        """Test that gradients flow correctly through the gating head."""
+        head = create_gating_head(input_channels=64)
+        dummy_input = torch.randn(self.batch_size, self.channels, self.height, self.width, requires_grad=True)
+        
+        output = head(dummy_input)
         loss = output.sum()
         loss.backward()
-        self.assertIsNotNone(x.grad)
-        self.assertTrue(torch.any(x.grad != 0))
+        
+        assert dummy_input.grad is not None, "Input gradient is None"
+        assert not torch.isnan(dummy_input.grad).any(), "Input gradient contains NaN"
+        assert not torch.isinf(dummy_input.grad).any(), "Input gradient contains Inf"
 
+    def test_gating_head_determinism(self):
+        """Test that the gating head produces deterministic results with fixed seed."""
+        head1 = create_gating_head(input_channels=64)
+        head2 = create_gating_head(input_channels=64)
+        
+        # Copy weights from head1 to head2 to ensure identical initialization
+        for param1, param2 in zip(head1.parameters(), head2.parameters()):
+            param2.data.copy_(param1.data)
+        
+        set_seed(123)
+        dummy_input = torch.randn(2, 64, 16, 16)
+        
+        with torch.no_grad():
+            out1 = head1(dummy_input)
+        
+        set_seed(123)
+        with torch.no_grad():
+            out2 = head2(dummy_input)
+        
+        assert torch.allclose(out1, out2), "Deterministic run produced different results"
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_gating_head_batch_consistency(self):
+        """Test that batch processing yields consistent shapes."""
+        head = create_gating_head(input_channels=64)
+        
+        for batch_size in [1, 2, 8, 16]:
+            dummy_input = torch.randn(batch_size, 64, 16, 16)
+            with torch.no_grad():
+                output = head(dummy_input)
+            assert output.shape == (batch_size, 1), f"Shape mismatch for batch_size={batch_size}"

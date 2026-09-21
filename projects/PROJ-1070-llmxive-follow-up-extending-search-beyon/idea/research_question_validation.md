@@ -2,36 +2,33 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: concern
+**Verdict**: pass
 
-The question asks whether specific zero-shot features can predict the need for external search, which is a substantive question about the nature of the knowledge boundary in agentic systems. However, the framing is heavily fixated on the *outcome* of a specific engineering constraint ("eliminating the need for computationally expensive co-training loops") rather than the underlying mechanism of how the boundary shifts. The question risks becoming a benchmark for "can we replace X heavy method with Y light method" rather than "what defines the boundary," though it is not entirely purely methodological.
+The question investigates the intrinsic relationship between specific query properties (temporal distance, entity rarity, semantic entropy) and the theoretical "knowledge boundary" of agentic models. While the motivation discusses lightweight implementation, the core question asks *which* properties determine the boundary, not *how well* a specific model architecture performs a task, making it a substantive inquiry into model behavior rather than a benchmark evaluation.
 
 ### Circularity check
 
 **Verdict**: concern
 
-The predictor features (temporal distance, entity rarity, semantic entropy) are derived from the query text and external knowledge bases, while the predicted variable ("search required") is derived from the failure of the model to generate correct outputs (a proxy for the knowledge boundary). While nominally distinct, there is a risk of circularity if the "search required" label in the `SearchGen-20K` dataset was generated using heuristics that already heavily relied on entity rarity or semantic uncertainty, or if the model's failure (which defines the label) is mechanically guaranteed by the same temporal/entropy constraints the model is trying to predict. Without verifying the ground-truth generation process of the labels, the independence of the signal is uncertain.
+The predictor (semantic entropy) is computed by running a pre-trained BERT model on the query, while the predicted variable (search necessity) is derived from the ground-truth decisions of the original co-training framework on the same query. There is a risk that the "semantic entropy" feature captures the same uncertainty signal that the original framework used to trigger search, potentially making the prediction a mechanical reflection of the original heuristic rather than a discovery of new structural properties.
 
 ### Triviality check
 
-**Verdict**: concern
+**Verdict**: pass
 
-If the result is positive (high AUC), it confirms that "hard" queries are statistically distinguishable from "easy" ones by simple heuristics, which is a somewhat expected outcome in NLP and may lack deep novelty. If the result is null (low AUC), it implies the knowledge boundary is chaotic or context-dependent in a way simple features cannot capture, which is interesting but perhaps less actionable. The core question feels like an engineering optimization ("can we do this cheaper?") rather than a fundamental discovery about the nature of knowledge, making both outcomes potentially less publishable as a primary scientific contribution compared to a mechanistic study.
+A positive result would be significant by proving that static heuristics can replace expensive co-training loops for edge deployment, while a null result would be equally informative by suggesting that the knowledge boundary is too complex to be captured by simple query statistics, thus necessitating the heavy co-training approach. Neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The question is explicitly framed as a feasibility study for a specific implementation strategy: "Can [method M] predict [label] thereby eliminating [constraint B]?" This narrows the scope to a comparison of computational efficiency and architectural choices rather than investigating the phenomenon of the knowledge boundary itself. A stronger domain question would ask, "What intrinsic properties of a query determine its position relative to the model's internal knowledge boundary?" and let the method of prediction be a secondary investigation, rather than making the elimination of co-training the primary goal.
+The question explicitly names a relationship in the domain (the correlation between query features and knowledge boundary position) rather than focusing on implementation constraints like GPU memory or inference latency. It asks "what determines" the phenomenon, which is a valid scientific inquiry.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
-The project addresses a valid engineering gap but frames the research question around a specific implementation trade-off rather than a fundamental property of agentic knowledge. To validate, the question must be reframed to focus on the *mechanism* of the boundary rather than the *efficiency* of the trigger.
-
 [REVISED]
-What intrinsic properties of a query (temporal distance, entity rarity, semantic entropy) determine its position relative to the internal knowledge boundary of agentic visual generation models, and how do these properties correlate with the necessity for external search?
+Which intrinsic query properties (temporal distance, entity rarity, and semantic variance) predict the necessity for external search in agentic visual generation, and can these properties be distinguished from the internal uncertainty signals of the base model itself?
 [/REVISED]
-
-This reframing shifts the focus from "can we replace co-training" (implementation) to "what defines the boundary" (phenomenon), allowing the lightweight prediction to serve as a tool for understanding the boundary rather than the end goal of the research.
+The original question risks circularity because "semantic entropy" might simply be a proxy for the same uncertainty metric the original framework uses to decide on search; the revised question explicitly demands that the new predictors be distinguishable from the base model's internal signals to ensure the finding is non-trivial and not a restatement of the original heuristic.

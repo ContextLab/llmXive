@@ -12,15 +12,6 @@ T013:
     \ Age, BMI, DQS; mode for Sex) is present, nor any evidence that the strategy\
     \ was logged to `provenance.log`. Without these artifacts, the task\u2019s core\
     \ requirement is not satisfied."
-T014a:
-  c: false
-  h: 330822ab0f14db7688d9124bfa7172ff52d1ea5f0756aa66eeb1aaef9cc7d796
-  r: "The provided `code/data_ingestion.py` only defines helper functions (`check_dqs_availability`,\
-    \ `calculate_dqs`) and does not contain any logic that checks for the presence\
-    \ of `data/raw/dietary_data.csv` (or required columns) and raises a fatal error\
-    \ when it is missing. Moreover, the required `dietary_data.csv` file is absent\
-    \ from the repository. The task\u2019s core requirement\u2014implementing a file/column\
-    \ existence check with a fatal error\u2014is therefore not satisfied."
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,10 +30,11 @@ T016:
     \ be verified as met. The implementer must supply the updated preprocessing script\
     \ (or relevant module) and evidence (e.g., unit tests or example runs) showing\
     \ the new error handling in action."
-T054:
+T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated\u202FREADME.md file is provided; there is no evidence that explicit\
-    \ instructions for obtaining UK Biobank data, the required placement in\u202F\
-    data/raw/, or the specific microbiome, cognitive, and dietary fields have been\
-    \ added. The required documentation artifact is missing."
+  h: 381303c468be76b2746562e4fd8fcaf6fb6acfcd2077fa23a1815aef7303b92f
+  r: The repository lacks the required `data/processed/cleaned_data.csv` file (so
+    the DQS column cannot be present), and the shown portion of `code/analysis.py`
+    does not contain a completed `run_multivariate_regression` implementation using
+    `statsmodels` with the specified predictors. Both the data dependency and the
+    regression code are missing.
