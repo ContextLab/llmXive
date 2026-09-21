@@ -1,40 +1,46 @@
 [lint]
-# Select specific rules:
-# E4: pycodestyle (Import formatting)
-# E7: pycodestyle (Syntax errors)
-# E9: pycodestyle (Runtime errors)
-# F: Pyflakes
-# I: isort (Import sorting)
+# Select specific error codes as per task requirements
+# E4: Import formatting
+# E7: PEP 8 style errors
+# E9: Runtime errors
+# F: Pyflakes (unused imports, undefined names, etc.)
+# I: Isort (import sorting)
 select = ["E4", "E7", "E9", "F", "I"]
 
-# Ignore specific rules if necessary (currently none)
+# Ignore specific rules if needed (none specified, so none ignored)
 ignore = []
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
+# Allow unused variables in certain contexts (optional, but good practice)
+# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Exclude a few files/directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-    "data",
-    "results",
-    "state",
-    "contracts",
-    "tests",
-]
+# Target Python version
+target-version = "py39"
 
-# Same as above but only for files (not directories)
-extend-exclude = []
-
-# Line length
+# Line length for formatting
 line-length = 88
 
-# Allow unused variables and imports in test files
-[lint.per-file-ignores]
-"tests/*" = ["F401", "F811"]
+# Exclude directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "data/raw",
+    "data/processed",
+    "results",
+]
+
+[lint.isort]
+# Isort configuration
+known-first-party = ["code"]
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+
+[format]
+# Formatter configuration
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

@@ -154,7 +154,7 @@ projects/PROJ-721-evaluating-calibration-of-predictive-int/
 1.  **Data Download**: Fetch M4 dataset and verify checksums (FR-001).
 2.  **Preprocessing**: Split into train/test, derive trend strength via STL (FR-005).
 3.  **Model Fitting**: Fit ARIMA, ETS, Prophet, LightGBM on training data.
-4.  **Forecasting**: Generate point forecasts and prediction intervals for horizons 1-12 (FR-002, FR-003).
+4.  **Forecasting**: Generate point forecasts and prediction intervals for horizons -12 (FR-002, FR-003).
 5.  **Evaluation**: Calculate empirical coverage rates (FR-004).
 6.  **Stratification**: Group results by seasonality and trend strength (FR-005).
 7.  **Recalibration**: Apply adaptive conformal prediction if deviation > 2% (FR-006).

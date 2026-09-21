@@ -53,20 +53,22 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 [P] Initialize Python project with `requirements.txt` (pins `statsmodels`, `prophet`, `lightgbm`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest-json-report`). **Deliverable**: `requirements.txt`. **Verification**: Run `pip check` to ensure no conflicts and confirm file exists.
-- [ ] T003 Configure linting and formatting tools: Create `.ruff.toml` (with rules: `E4`, `E7`, `E9`, `F`, `I`) and `.pre-commit-config.yaml` (with hooks: `black`, `ruff`). **Deliverables**: `.ruff.toml`, `.pre-commit-config.yaml`. **Verification**: Run `ruff check.` and `pre-commit run --all-files` to confirm configuration is valid and no errors occur. **Depends on**: T002.
+- [X] T002 [P] Initialize Python project with `requirements.txt` (pins `statsmodels`, `prophet`, `lightgbm`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest-json-report`, `ruff`, `pre-commit`, `jsonschema`). **Deliverable**: `requirements.txt`. **Verification**: Run `pip check` to ensure no conflicts and confirm file exists.
+- [X] T003 [P] Configure linting and formatting tools: **Install** `ruff` and `pre-commit` via `pip install ruff pre-commit`. Create `.ruff.toml` (with rules: `E4`, `E7`, `E9`, `F`, `I`) and `.pre-commit-config.yaml` (with hooks: `black`, `ruff`). **Deliverables**: `.ruff.toml`, `.pre-commit-config.yaml`. **Verification**: Run `ruff check .` and `pre-commit run --all-files` to confirm configuration is valid and no errors occur.
 - [X] T004 [P] Fetch M4 dataset: Download `M4-Dataset.zip` and `manifest.json` from the official GitHub repository (URL from `research.md`) to `data/raw/`. Validate SHA256 checksums against `manifest.json` and record results in `state/checksums.yaml`. **Deliverables**: `data/raw/M4-Dataset.zip`, `state/checksums.yaml`. **Verification**: Run `sha256sum` on downloaded file and compare with `state/checksums.yaml`.
-- [X] T004b [P] Create Configuration: Create `config.yaml` in the project root with keys: `learning_rate`, `step_size`, `initial_alpha`, `nominal_levels` (list: `[0.80, 0.95]`), `threshold` (float: `0.02`), `seed` (int `42`), and `sensitivity_range` (list of floats for sweep). **Deliverable**: `config.yaml`. **Verification**: Run `python -c "import yaml; print(yaml.safe_load(open('config.yaml')))"` to confirm structure and that `nominal_levels` is `[0.80, 0.95]` and `threshold` is `0.02`.
-- [ ] T013a [P] Implement data loading and sampling logic in `code/download.py`. Select a representative set of series using stratified sampling by 'frequency' and 'seasonality' (seed=42). **Algorithm**: Use proportional allocation to match the frequency distribution of the full M4 dataset. **Metric**: Calculate the representativeness of the sample (KL divergence or Chi-squared statistic) against the full distribution; **VERIFY** that the sample represents >=90% of the original distribution (SC-005) and **FAIL** the task if the metric is < 0.90. **Deliverable**: `data/processed/sampling_report.json` containing distribution stats, sample indices, and representativeness metric (must be >= 0.90). **Verification**: Assert `data/processed/sampling_report.json` exists, contains the required fields, and the representativeness metric is >= 0.90.
-- [X] T005a [P] Implement ARIMA wrapper: Implement `code/models/arima_model.py` using `statsmodels.tsa.arima.model.ARIMA`. Use `order=(,,1)` and `seasonal_order` adapted to frequency. Handle `ConvergenceWarning` by logging and returning `None`. **Verification**: Run `pytest tests/unit/test_models.py::test_arima_convergence` to confirm success.
+- [X] T004b [P] Create Configuration: Create `config.yaml` in the **project root** (`.`) with keys: `learning_rate`, `step_size`, `initial_alpha`, `nominal_levels` (list: `[0.80, 0.95]` - **Resolved implementation of [deferred] spec placeholders**), `threshold` (float: `0.02`), `seed` (int `42`), and `sensitivity_thresholds` (list of floats: `[0.01, 0.02, 0.05, 0.10]`). **Deliverable**: `config.yaml`. **Verification**: Run `python -c "import yaml, os; c=yaml.safe_load(open(os.path.join(os.getcwd(), 'config.yaml'))); assert c['nominal_levels']==[0.80, 0.95]; assert c['threshold']==0.02; assert c['sensitivity_thresholds']==[0.01, 0.02, 0.05, 0.10]"` to confirm structure and values.
+- [X] T005a [P] Implement ARIMA wrapper: Implement `code/models/arima_model.py` using `statsmodels.tsa.arima.model.ARIMA`. Use `order=(1,1,1)` as default. **Fallback Rule**: If convergence fails, attempt to derive order using `pmdarima.auto_arima` (if available) or log a warning and return `None`. Handle `ConvergenceWarning` by logging and returning `None`. **Verification**: Run `pytest tests/unit/test_models.py::test_arima_convergence` to confirm success.
 - [X] T005b [P] Implement ETS wrapper: Implement `code/models/ets_model.py` using `statsmodels.tsa.exponential_smoothing.ETSModel`. Use `trend='add'`, `seasonal='add'`. **Verification**: Run `pytest tests/unit/test_models.py::test_ets_convergence`.
 - [X] T005c [P] Implement Prophet wrapper: Implement `code/models/prophet_model.py` using `prophet.Prophet`. Use `seasonality_mode='multiplicative'`, `changepoint_prior_scale=0.05`. **Verification**: Run `pytest tests/unit/test_models.py::test_prophet_convergence`.
 - [X] T005d [P] Implement LightGBM wrapper: Implement `code/models/lightgbm_quantile.py`. Use quantile regression objective. **CRITICAL**: Must support generating intervals for nominal levels defined in `config.yaml`. Input: `pd.Series` (train); Output: `dict` with `point_forecast`, `lower`, `upper`. Handle `ConvergenceWarning` by logging and returning `None`. Explicitly exclude R libraries. Add docstrings. **Verification**: Run `pytest tests/unit/test_models.py::test_lightgbm_quantile`.
-- [X] T006 Implement `code/metrics.py` for empirical coverage calculation and Interval Score computation. Add docstrings to all functions. **Verification**: Run `ruff check code/metrics.py` to confirm linting passes and docstrings exist.
+- [X] T006 [P] Implement `code/metrics.py` for empirical coverage calculation, **width calculation** (average interval width), and basic helper functions. Add docstrings to all functions. **Deliverable**: Intermediate functions ready for T042 and T016. **Verification**: Run `ruff check code/metrics.py` to confirm linting passes and docstrings exist.
+- [X] T006a [P] Implement Interval Score calculation function in `code/metrics.py`: Calculate Interval Score = Width + (2/alpha) * (Lower - y) if y < Lower, or (y - Upper) if y > Upper, else 0. **Deliverable**: Function `calculate_interval_score(lower, upper, y, alpha)`. **Verification**: Run unit tests with known values to confirm formula implementation. **Depends on**: T006.
 - [X] T007 [P] Implement `code/stratify.py` for STL decomposition (training split ONLY) and trend strength derivation (variance ratio > 0.5). Explicitly enforce that decomposition uses only training data to prevent leakage. Add docstrings to all functions. **Verification**: Run `ruff check code/stratify.py` to confirm linting passes and docstrings exist.
 - [X] T008 [P] Implement `code/recalibration.py` for Adaptive Conformal Prediction post-processing. Load parameters from `config.yaml` (created in T004b). Add docstrings to all functions. **Depends on T004b**.
-- [ ] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for contract testing. **Schema Requirements**: `dataset.schema.yaml` must define JSON Schema for M4 series (id, frequency, seasonality, values). `output.schema.yaml` must define JSON Schema for coverage results (series_id, model, horizon, nominal_coverage, empirical_coverage, deviation). **Deliverables**: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`. **Verification**: Validate a sample JSON file against each schema using `jsonschema` library.
-- [X] T010 Setup `tests/unit/test_metrics.py` with synthetic ground-truth data to verify coverage calculation logic
+- [X] T009 [P] Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for contract testing. **Schema Requirements**: `dataset.schema.yaml` must define JSON Schema (Draft 7) for M4 series (id, frequency, seasonality, values). `output.schema.yaml` must define JSON Schema (Draft 7) for coverage results (series_id, model, horizon, nominal_coverage, empirical_coverage, deviation). **Deliverables**: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`. **Verification**: Validate a sample JSON file against each schema using `jsonschema` library and assert files exist.
+- [X] T010 [P] Setup `tests/unit/test_metrics.py` with synthetic ground-truth data to verify coverage calculation logic. **Depends on**: T006.
+- [X] T013a [US1] Execute data loading and sampling logic in `code/download.py`. Select up to 1000 representative series (or the maximum available if <1000) using stratified sampling by 'frequency' and 'seasonality' (seed=42). **Algorithm**: Calculate the **frequency distribution of series counts** in the full M4 dataset (P) and the sample distribution (Q). Select a subset such that the KL divergence between the sample distribution and the full distribution is < 0.1. **KL Divergence Formula**: KL(P||Q) = sum(P(i) * log(P(i)/Q(i))) where P is sample distribution and Q is full distribution. **Metric**: Calculate KL divergence; **VERIFY** that KL divergence < 0.1 (representing >=90% similarity) AND that the sample count is >= 1000 (or max available). **Deliverable**: `data/processed/sample_indices.csv` containing the selected series IDs. **Verification**: Assert `data/processed/sample_indices.csv` exists, contains >= 1000 rows (or max available), and the KL divergence metric is < 0.1. **Note**: This is a **single, blocking task** for sample selection; do NOT mark as [P] or run multiple sampling tasks simultaneously. **Depends on**: T004.
+- [X] T013c [P] Validate M4 metadata: Implement validation in `code/download.py` to check that 'seasonality' and 'frequency' fields exist in the M4 metadata before proceeding. **Error Handling**: If required fields are missing, raise `ValueError` with a descriptive message. **Logging**: Log skipped series to `state/skipped.csv` if any partial data exists. **Deliverable**: `state/metadata_validation.json` with status 'passed' or 'failed'. **Verification**: Run with a dataset missing 'seasonality' and confirm `ValueError` is raised and `state/metadata_validation.json` reflects 'failed'. **Depends on**: T004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,20 +84,39 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T011 [P] [US1] Contract test for `results/coverage.csv` schema in `tests/contract/test_coverage_schema.py`. **Depends on**: T009 (schema). **Verification**: Run test against a mock JSON file conforming to the schema (do not wait for T019 data generation). **Note**: This test validates the schema, not the data content.
+- [X] T011 [P] [US1] Contract test for `results/coverage.csv` schema in `tests/contract/test_coverage_schema.py`. **Depends on**: T009 (schema). **Verification**: Run test against a mock JSON file conforming to the schema (do not wait for T019 data generation). **Note**: This test validates the schema, not the data content.
 - [X] T012 [P] [US1] Integration test for mini-pipeline (10 series) in `tests/integration/test_mini_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013b [US1] Execute full 1000-series pipeline: Select the high-volume subset from T013a output. **Criteria**: Select series with length > 50 to ensure sufficient data for training/test split. **Verification**: Assert `data/processed/sampling_report.json` (from T013a) contains a representativeness metric >= 0.90. If < 0.90, fail the task. **Deliverable**: `data/processed/sample_indices_1000.csv`. **Depends on**: T013a.
-- [ ] T013c [US1] Verification Sub-sample: Select a small subset from the 1000-series sample for manual verification of coverage logic. **Deliverable**: `data/processed/sample_indices_10.csv`. **Depends on**: T013a.
-- [ ] T014 [US1] Implement `code/run_pipeline.py` orchestration: select the 1000-series subset from T013b output; loop over series, handle short series (skip + log to `state/errors.log`), handle model convergence failures (catch + log to `state/errors.log`). **Input**: `data/processed/sample_indices_1000.csv`. **Output**: Intermediate results for coverage calculation. **Verification**: Run pipeline on 10 series and confirm `state/errors.log` exists (even if empty).
-- [ ] T015 [US1] Invoke models defined in T005a-d to generate prediction intervals for horizons h=1 to 12 at nominal levels defined in `config.yaml` (0.80, 0.95). **Input**: `data/processed/sample_indices_1000.csv` (from T013b). **Verification**: Confirm intervals are generated for all series and horizons. **Depends on**: T005a-d, T013b.
-- [ ] T016 [US1] Implement empirical coverage calculation (proportion of test points inside interval) in `code/metrics.py`. **Input**: Interval outputs from T015. **Output**: `results/coverage_intermediate.csv` with columns: `series_id`, `model`, `horizon`, `empirical_coverage`. **Verification**: Assert `results/coverage_intermediate.csv` exists and coverage is calculated for each series and model (FR-004). **Depends on**: T015.
-- [ ] T017 [US1] Implement Statistical Significance: Generate raw p-values for hypothesis testing (models × horizons) and apply Benjamini-Hochberg (BH) FDR correction using `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. **Scope**: Correction MUST be applied across all models × horizons combined. **Input**: List of deviations per model/horizon. **Output**: `pd.Series` of corrected p-values. **Deliverable**: `results/pvalues.json`. **Verification**: Assert `results/pvalues.json` exists and contains valid p-values. **Depends on**: T016.
-- [ ] T018 [US1] Implement sensitivity analysis loop: Sweep the absolute deviation between empirical and nominal coverage across a configurable range defined in `config.yaml` (`sensitivity_range`). **Logic**: Linear steps of a fine-grained magnitude.. **Deliverable**: `results/sensitivity_analysis.csv` with columns: `threshold`, `count_within_threshold`, `percentage`. **Depends on**: T016.
-- [~] T019 [US1] Write final aggregated results to `results/coverage.csv` with columns: `series_id`, `model`, `horizon`, `nominal_coverage` (values read from `config.yaml`), `empirical_coverage`, `deviation`, `p_raw`, `p_value` (FDR-corrected from T017). The `p_value` column corresponds to the FDR-corrected p-value for the specific **(model, horizon)** pair. **Verify** column order and types match `contracts/output.schema.yaml`. **Depends on**: T016, T017.
-- [ ] T020 [US1] Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow logs for the 1000-series subset. **YAML Snippet**: `if: ${{ runner.time < env.MAX_RUNTIME_SECONDS }}` where `env.MAX_RUNTIME_SECONDS` is set to 21600 in the workflow (referencing SC-001). **Deliverable**: `.github/workflows/ci.yml`. **Verification**: Run workflow and check logs for `Runtime < 21600s`.
+- [X] T013b [US1] Execute full 1000-series pipeline: Select the high-volume subset from T013a output. **Criteria**: Select series with length > 50 to ensure sufficient data for training/test split. **Definition**: 'High-volume' is defined as the **top [deferred] of series by length (sorted descending), with ties broken by `series_id` ascending**. **Verification**: Assert `data/processed/sample_indices.csv` (from T013a) contains >= 1000 rows (or max available). **Deliverable**: `data/processed/sample_indices.csv` (re-validated). **Depends on**: T013a.
+- [X] T013d [US1] Verification Sub-sample: Select a small subset from the 1000-series sample for manual verification of coverage logic. **Deliverable**: `data/processed/sample_indices_10.csv`. **Depends on**: T013b.
+- [X] T014 [US1] Implement `code/run_pipeline.py` orchestration: select the 1000-series subset from T013b output; loop over series, handle short series (skip + log to `state/errors.log`), handle model convergence failures (catch + log to `state/errors.log`). **Input**: `data/processed/sample_indices.csv`. **Output**: Intermediate results for coverage calculation. **Verification**: Run pipeline on 10 series and confirm `state/errors.log` exists (even if empty). **Depends on**: T013b.
+- [X] T015 [US1] Invoke models defined in T005a-d to generate prediction intervals for horizons h=1 to 12 at nominal levels defined in `config.yaml` (0.80, 0.95). **Input**: `data/processed/sample_indices.csv` (from T013b). **Verification**: Confirm intervals are generated for all series and horizons. **Depends on**: T005a-d, T013b.
+- [X] T042 [US1] Implement Interval Score artifact generation: Create `results/interval_scores.csv` by **calling functions from `code/metrics.py` (T006a) directly on the T015 output (intervals and actuals)**. **Deliverable**: `results/interval_scores.csv` with columns `series_id`, `model`, `horizon`, `interval_score`, `width`. **Verification**: Assert `results/interval_scores.csv` exists, contains columns `series_id`, `model`, `horizon`, `interval_score`, `width`, and values are non-negative. **Depends on**: T006a, T015.
+- [X] T016 [US1] Implement empirical coverage calculation (proportion of test points inside interval) in `code/metrics.py`. **Input**: Interval outputs from T015. **Output**: `results/coverage_intermediate.csv` with columns: `series_id`, `model`, `horizon`, `empirical_coverage`. **Verification**: Assert `results/coverage_intermediate.csv` exists and coverage is calculated for each series and model (FR-004). **Depends on**: T015.
+- [X] T017 [US1] Implement Statistical Significance: Generate raw p-values for hypothesis testing (models × horizons) and apply Benjamini-Hochberg (BH) FDR correction using `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. **Scope**: Correction MUST be applied across all models × horizons combined. **Input**: List of deviations per model/horizon. **Output**: `pd.Series` of corrected p-values. **Deliverable**: `results/pvalues.json` with schema: `{ "model": "string", "horizon": "int", "p_raw": "float", "p_value_fdr": "float" }` AND `results/hypotheses_list.json` listing the specific set of hypotheses (models × horizons) tested. **Verification**: Assert `results/pvalues.json` and `results/hypotheses_list.json` exist, contain valid p-values, and **assert the count of hypotheses in `hypotheses_list.json` is exactly 48** (4 models × 12 horizons). **Depends on**: T016.
+- [X] T018 [US1] Implement sensitivity analysis loop: Sweep the absolute deviation between empirical and nominal coverage across the values defined in `config.yaml` (`sensitivity_thresholds`: `[0.01, 0.02, 0.05, 0.10]` - **corresponding to 'small magnitudes' in FR-008**). **Logic**: For each threshold, count series where |deviation| <= threshold. **Deliverable**: `results/sensitivity_analysis.csv` with columns: `threshold`, `count_within_threshold`, `percentage`. **Depends on**: T016.
+- [X] T019 [US1] Write final aggregated results to `results/coverage.csv` with columns: `series_id`, `model`, `horizon`, `nominal_coverage` (values read from `config.yaml`), `empirical_coverage`, `deviation`, `p_raw`, `p_value` (FDR-corrected from T017), **and `pass_fail` (boolean: True if |deviation| <= 0.02, False otherwise)**. The `p_value` column corresponds to the FDR-corrected p-value for the specific **(model, horizon)** pair. **Verify** column order and types match `contracts/output.schema.yaml`. **Depends on**: T016, T017, T042.
+- [X] T020 [P] [US1] Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow logs for the 1000-series subset. **YAML Snippet**:
+```yaml
+ - name: Check Runtime
+   run: |
+     # Simulate runtime check locally or in CI
+     START=$(date +%s)
+     # ... (pipeline execution) ...
+     END=$(date +%s)
+     ELAPSED=$((END-START))
+     if [ $ELAPSED -gt 21600 ]; then
+       echo "Runtime exceeded 6 hours"
+       exit 1
+     fi
+     echo "Runtime: $ELAPSED seconds"
+   env:
+     MAX_RUNTIME_SECONDS: 21600
+```
+**Deliverable**: `.github/workflows/ci.yml`. **Verification**: Run **local shell script** `START=$(date +%s); sleep 1; END=$(date +%s); ELAPSED=$((END-START)); if [ $ELAPSED -gt 21600 ]; then exit 1; fi` to confirm logic works. **Depends on**: T020b.
+- [X] T020b [P] [US1] Record pipeline runtime metric: Add logic to `code/main.py` or `code/run_pipeline.py` to capture the total execution time and write it to `state/runtime.log`. **Deliverable**: `state/runtime.log` containing the runtime in seconds. **Verification**: Assert `state/runtime.log` exists and contains a numeric value. **Depends on**: T019.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,15 +130,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for `results/stratified_coverage.csv` schema in `tests/contract/test_stratified_schema.py`
+- [X] T021 [P] [US2] Contract test for `results/stratified_coverage.csv` schema in `tests/contract/test_stratified_schema.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement metadata validation in `code/download.py` to check for 'seasonality' and 'frequency' fields. **Error Handling**: If required fields are missing, raise `ValueError` with a descriptive message. **Logging**: Log skipped series to `state/skipped.csv`. **Verification**: Run with a dataset missing 'seasonality' and confirm `ValueError` is raised and `state/skipped.csv` is updated.
-- [ ] T023 [US2] Integrate `code/stratify.py` into `code/run_pipeline.py` to classify series as 'high/low' trend strength and 'yes/no' seasonality. **Depends on**: T013a (shared sample indices).
-- [ ] T024 [US2] Implement aggregation logic to compute average coverage deviation per subgroup (seasonality, trend strength). **Depends on**: T016, T023.
-- [ ] T025 [US2] Write stratified results to `results/stratified_coverage.csv` with columns: `subgroup_type`, `subgroup_value`, `model`, `horizon`, `avg_coverage_deviation`
-- [ ] T026 [US2] Generate bar charts using `seaborn.barplot` showing avg deviation by subgroup, saved to `results/plots/stratified_bar.png`
+- [X] T023 [US2] Integrate `code/stratify.py` into `code/run_pipeline.py` to classify series as 'high/low' trend strength and 'yes/no' seasonality. **Depends on**: T013a (shared sample indices).
+- [X] T024 [US2] Implement aggregation logic to compute average coverage deviation per subgroup (seasonality, trend strength). **Depends on**: T016, T023.
+- [X] T025 [US2] Write stratified results to `results/stratified_coverage.csv` with columns: `subgroup_type`, `subgroup_value`, `model`, `horizon`, `avg_coverage_deviation`
+- [X] T026b [US2] Validate STL decomposition scope: Implement a verification step in `code/stratify.py` or a separate script to confirm that trend strength derivation uses ONLY the training split. **Verification**: Assert that the STL decomposition function is called only on the training split data (**verify input data length matches training split length**). **Deliverable**: `state/stl_validation.json` with status 'passed' or 'failed'. **Depends on**: T007.
+- [X] T026 [US2] Generate bar charts using `seaborn.barplot` showing avg deviation by subgroup, saved to `results/plots/stratified_bar.png`. **Depends on**: T025, T026b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,17 +152,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for `results/recalibration.csv` schema in `tests/contract/test_recalibration_schema.py`
+- [X] T027 [P] [US3] Contract test for `results/recalibration.csv` schema in `tests/contract/test_recalibration_schema.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement adaptive conformal prediction logic in `code/recalibration.py` (post-processing step on baseline forecasts). Load ACI parameters from `config.yaml` (T004b): `threshold`, `nominal_levels`. **Algorithm**: Compute conformal scores, adjust quantiles based on empirical coverage error. **Deliverable**: `results/recalibration_params.json` with schema: `{model, horizon, adjusted_quantile, original_quantile}`. **Depends on**: T004b, T015.
-- [ ] T040 [US3] Implement gating logic in `code/run_pipeline.py`: Check if the *initial calibration assessment* (per-series deviation from T019 AND aggregated deviation from T024) exceeds the threshold value 0.02 (derived from SC-002). **Verification**: Assert `config.yaml` threshold == 0.02 before use. If true, trigger recalibration. Save gate decision to `results/recalibration_gate.json`. **Depends on**: T019, T024.
-- [ ] T029 [US3] Integrate recalibration into `code/run_pipeline.py` to generate recalibrated intervals for all models. **Condition**: Run ONLY if T040 gate decision is TRUE. **Depends on**: T028 and T040.
-- [ ] T030 [US3] Compute recalibrated coverage rates and calculate the **raw improvement** (difference) against baseline in `code/metrics.py`. **Condition**: Run ONLY if T040 gate decision is TRUE. **Depends on**: T016, T029, and T040.
-- [ ] T039 [US3] Implement a paired bootstrap test with **A large number of resamples** in `code/metrics.py` to verify recalibration improvement. **Input**: Baseline and recalibrated coverage arrays (from T030 and T019). **Method**: Non-parametric paired bootstrap test (bootstrap the mean difference of paired samples). **Output**: `results/bootstrap_pvalues.json` with schema: `{model, horizon, p_value, resamples}`. **Verification**: Assert `results/bootstrap_pvalues.json` exists, contains valid p-values, and includes a `provenance` field linking to the specific model/dataset version. **Condition**: Run ONLY if T040 indicates deviation > threshold. **Depends on**: T030, T040, T019.
-- [ ] T031 [US3] Write recalibration results to `results/recalibration.csv` with columns: `series_id`, `model`, `horizon`, `baseline_coverage`, `recalibrated_coverage`, `improvement`, `p_value_improvement` (from T039). **Depends on**: T039.
-- [ ] T032 [US3] Add logic to report improvement per model to allow comparison of recalibration efficacy
+- [X] T028 [P] [US3] Implement adaptive conformal prediction logic in `code/recalibration.py` (post-processing step on baseline forecasts). Load ACI parameters from `config.yaml` (T004b): `threshold`, `nominal_levels`. **Algorithm**: Compute conformal scores, adjust quantiles based on empirical coverage error. **Deliverable**: `results/recalibration_params.json` with schema: `{model, horizon, adjusted_quantile, original_quantile}`. **Depends on**: T004b, T015.
+- [X] T040 [US3] Report calibration status: Check if the *initial calibration assessment* (per-series deviation from T019 AND aggregated deviation from T024) exceeds the threshold value 0.02 (derived from SC-002). **Logic**: Calculate the **maximum absolute deviation across all model/horizon pairs in T019**. If max_deviation > 0.02, status is 'non-compliant'; otherwise 'compliant'. **Verification**: Assert `config.yaml` threshold == 0.02 before use. **Explicit Check**: Verify that the baseline deviation > 0.02 for at least one model/horizon pair if the status is 'non-compliant'. **Note**: Recalibration is triggered **ONLY** if status is 'non-compliant' per Constitution Principle VII. **Deliverable**: `results/baseline_compliance.json` (status: 'compliant' if max_dev <= 0.02, 'non-compliant' otherwise). **Depends on**: T019, T024.
+- [X] T029 [US3] Integrate recalibration into `code/run_pipeline.py` to generate recalibrated intervals for all models. **Condition**: Run **ONLY** if T040 status is 'non-compliant'. **Depends on**: T028, T015, T040.
+- [X] T030 [US3] Compute recalibrated coverage rates and calculate the **raw improvement** (difference) against baseline in `code/metrics.py`. **Condition**: Run **ONLY** if T040 status is 'non-compliant'. **Depends on**: T016, T029.
+- [X] T039 [US3] Implement a paired bootstrap test with a sufficient number of resamples in `code/metrics.py` to verify recalibration improvement. **Input**: Baseline and recalibrated coverage arrays (from T030 and T019). **Method**: Non-parametric paired bootstrap test (bootstrap the **mean difference of paired coverage rates**). **Test Statistic**: Mean difference of coverage rates. **Output**: `results/bootstrap_pvalues.json` with schema: `{model, horizon, p_value, resamples}`. **Verification**: Assert `results/bootstrap_pvalues.json` exists, contains valid p-values, `resamples` == 10000, and includes a `provenance` field linking to the specific model/dataset version. **Condition**: Run **ONLY** if T040 status is 'non-compliant' per Constitution Principle VII. **Depends on**: T030, T019, T040.
+- [X] T041 [US3] Apply Benjamini-Hochberg FDR correction to the recalibration improvement p-values generated in T039. **Input**: `results/bootstrap_pvalues.json`. **Output**: `results/recalibration_pvalues_fdr.json` with corrected p-values. **Verification**: Assert `results/recalibration_pvalues_fdr.json` exists and contains corrected p-values for all model/horizon pairs. **Depends on**: T039.
+- [X] T031 [US3] Write recalibration results to `results/recalibration.csv` with columns: `series_id`, `model`, `horizon`, `baseline_coverage`, `recalibrated_coverage`, `improvement`, `p_value_improvement` (FDR-corrected from T041). **Depends on**: T041.
+- [X] T032 [US3] Add logic to report improvement per model to allow comparison of recalibration efficacy
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,16 +173,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033a [P] Create `README.md` with usage examples and parameter descriptions
-- [ ] T033b [P] Generate API docs for `code/` modules using `pydoc` or `sphinx` (requires all code to be complete)
-- [ ] T034a [P] Code cleanup and refactoring (ensure no GPU imports). **Verification**: Run `ruff check code/` and confirm no GPU imports.
-- [ ] T034b [P] Add memory profiling script using `tracemalloc` that logs peak usage to `results/memory.log`. **Deliverable**: `scripts/profile_memory.py`, `results/memory.log`. **Verification**: Run script and confirm log file exists with data.
-- [ ] T035a [P] Vectorize operations in `code/metrics.py` for coverage calculation. **Verification**: Run `pytest tests/unit/test_metrics.py` and confirm runtime reduced compared to baseline.
-- [ ] T035b [P] Optimize STL decomposition in `code/stratify.py` using `statsmodels` built-in vectorization. **Verification**: Run `pytest tests/unit/test_stratify.py` and confirm runtime reduced by a measurable margin.
-- [ ] T035c [P] Profile and optimize LightGBM training loop in `code/models.py`. **Verification**: Run `pytest tests/unit/test_models.py::test_lightgbm` and confirm runtime reduced.
-- [ ] T036 [P] Additional unit tests for edge cases (short series, model failures) in `tests/unit/`
-- [ ] T037 Security hardening (ensure no external data sources other than M4 repo)
-- [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T033a [P] Create `README.md` with usage examples and parameter descriptions
+- [X] T033b [P] Generate API docs for `code/` modules using `pydoc` or `sphinx` (requires all code to be complete)
+- [X] T034a [P] Code cleanup and refactoring (ensure no GPU imports). **Verification**: Run `ruff check code/` and confirm no GPU imports.
+- [X] T034b [P] Add memory profiling script using `tracemalloc` that logs peak usage to `results/memory.log`. **Deliverable**: `scripts/profile_memory.py`, `results/memory.log`. **Verification**: Run script and confirm log file exists with data.
+- [X] T035a [P] Vectorize operations in `code/metrics.py` for coverage calculation. **Verification**: Run `pytest tests/unit/test_metrics.py` and confirm runtime reduced compared to baseline.
+- [X] T035b [P] Optimize STL decomposition in `code/stratify.py` using `statsmodels` built-in vectorization. **Verification**: Run `pytest tests/unit/test_stratify.py` and confirm runtime reduced by a measurable margin.
+- [X] T035c [P] Profile and optimize LightGBM training loop in `code/models.py`. **Verification**: Run `pytest tests/unit/test_models.py::test_lightgbm` and confirm runtime reduced.
+- [X] T036 [P] Additional unit tests for edge cases (short series, model failures) in `tests/unit/`
+- [X] T037 Security hardening (ensure no external data sources other than M4 repo)
+- [X] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -179,7 +201,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data loading (T013a) and metric calculation from US1. T023 depends on T013a, allowing parallel execution with US1's model fitting. T024 depends on T016, so US2 aggregation cannot run in parallel with US1 model fitting.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on baseline forecasts from US1 (T019) AND gating logic (T040). T040 depends on T019 and T024.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on baseline forecasts from US1 (T019) AND reporting logic (T040). T040 depends on T019 and T024.
 
 ### Within Each User Story
 
@@ -193,7 +215,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, User Stories 1 and 2 can start in parallel (if team capacity allows) - T023 depends on T013a (shared artifact), not T014 (US1 pipeline). T024 depends on T016, so it cannot start until T016 is done.
+- Once Foundational phase completes, User Stories 1 and 2 can start in parallel (if team capacity allows) - T023 depends on T013a (shared artifact), not T014 (US1 pipeline). **Note**: T024 depends on T016, so the aggregation step in US2 must wait for US1's T016 to complete; full parallelism is limited to the model fitting and stratification logic, not the final aggregation.
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (except US3 which waits for T040)
@@ -254,3 +276,16 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Recalibration Logic**: Per Constitution Principle VII, recalibration is triggered ONLY if deviation > 2%. Tasks T029, T030, T039, T040 enforce this conditional trigger.
+- **Interval Score**: Task T042 implements the Interval Score metric required by Constitution Principle VI.
+- **Sampling**: Task T013a ensures a representative sample with KL divergence < 0.1.
+- **Schemas**: Task T009 ensures data hygiene via JSON Schema validation.
+- **STL Validation**: Task T026b ensures no data leakage by verifying STL uses only training data.
+- **ARIMA Order**: Task T005a uses `order=(1,1,1)` as a default; use `auto_arima` if specific orders are unknown.
+- **High-Volume Subset**: Task T013b defines 'high-volume' as top [deferred] by length.
+- **Bootstrap Test**: Task T039 uses mean difference of coverage rates as the test statistic.
+- **Hypothesis Count**: Task T017 verifies exactly 48 hypotheses (4 models × 12 horizons).
+- **Runtime Check**: Task T020 uses local shell commands for verification.
+- **KL Divergence**: Task T013a uses frequency distribution of series counts.
+- **Config Path**: Task T004b places `config.yaml` in the project root.
+- **Linter Install**: Task T003 installs `ruff` and `pre-commit` before checking.

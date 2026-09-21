@@ -2935,3 +2935,818 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T16:01:13Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Select up to 1000 representative time series from M4 dataset using stratified
+    sampling
+  claim_id: c_e6d6ee56
+  context: T013a [P] Implement data loading and sampling logic in code/download.py.
+    Select up to 1000 representative series (or the maximum available if <1000) using
+    stratified sampling by 'frequency' and 'seasonality' (seed=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select up to 1000 representative series (or the maximum available if <1000)
+    using stratified sampling by 'frequency' and 'seasonality'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:26:06Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Verify KL divergence between sample and full M4 distribution is less
+    than 0.1
+  claim_id: c_1fd790fd
+  context: 'Algorithm: Use proportional allocation to match the frequency distribution
+    of the full M4 dataset. Metric: Calculate KL divergence between sample and full
+    distribution; VERIFY that KL divergence < 0.1 (representing >=90% similarity)
+    AND that the sample count is >= 1000 (or max available).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_KL_divergence_between_sample_and_full_M4_distribution
+  kind: magnitude
+  raw_text: Calculate KL divergence between sample and full distribution; VERIFY that
+    KL divergence < 0.1 (representing >=90% similarity).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:26:33Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Download M4 dataset and manifest from official GitHub repository
+  claim_id: c_8be48f6e
+  context: 'T004 [P] Fetch M4 dataset: Download M4-Dataset.zip and manifest.json from
+    the official GitHub repository (URL from research.md) to data/raw/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_M4_dataset_and_manifest_from_official_GitHub_reposi
+  kind: entity_fact
+  raw_text: Download M4-Dataset.zip and manifest.json from the official GitHub repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:26:58Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Validate M4 dataset SHA256 checksums against manifest
+  claim_id: c_918bdb8d
+  context: Validate SHA256 checksums against manifest.json and record results in state/checksums.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Validate_M4_dataset_SHA256_checksums_against_manifest
+  kind: causal
+  raw_text: Validate SHA256 checksums against manifest.json and record results in
+    state/checksums.yaml.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:27:00Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: M4 dataset metadata includes seasonality and frequency fields
+  claim_id: c_b39bcb28
+  context: 'T013c [P] Validate M4 metadata: Implement validation in code/download.py
+    to check that ''seasonality'' and ''frequency'' fields exist in the M4 metadata
+    before proceeding.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/M4_dataset_metadata_includes_seasonality_and_frequency_field
+  kind: entity_fact
+  raw_text: The M4 dataset contains series with 'seasonality' and 'frequency' fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:27:59Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Implement ARIMA wrapper using statsmodels with order parameters (,,1)
+  claim_id: c_78594fd4
+  context: 'T005a [P] Implement ARIMA wrapper: Implement code/models/arima_model.py
+    using statsmodels.tsa.arima.model.ARIMA. Use order=(,,1) and seasonal_order adapted
+    to frequency.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.tsa.arima.model.ARIMA with order=(,,1) and seasonal_order
+    adapted to frequency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:28:27Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Implement ETS wrapper using statsmodels with additive trend and seasonal
+    components
+  claim_id: c_2c09871e
+  context: 'T005b [P] Implement ETS wrapper: Implement code/models/ets_model.py using
+    statsmodels.tsa.exponential_smoothing.ETSModel. Use trend=''add'', seasonal=''add''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_ETS_wrapper_using_statsmodels_with_additive_trend
+  kind: entity_fact
+  raw_text: Use statsmodels.tsa.exponential_smoothing.ETSModel with trend='add' and
+    seasonal='add'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:29:45Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Implement Prophet wrapper with multiplicative seasonality and changepoint
+    prior scale of 0.05
+  claim_id: c_1c4a1f3e
+  context: 'T005c [P] Implement Prophet wrapper: Implement code/models/prophet_model.py
+    using prophet.Prophet. Use seasonality_mode=''multiplicative'', changepoint_prior_scale=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Prophet with seasonality_mode='multiplicative' and changepoint_prior_scale=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:30:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Implement LightGBM quantile regression wrapper for prediction intervals
+  claim_id: c_c8e46f94
+  context: 'T005d [P] Implement LightGBM wrapper: Implement code/models/lightgbm_quantile.py.
+    Use quantile regression objective. CRITICAL: Must support generating intervals
+    for nominal levels defined in config.yaml.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_LightGBM_quantile_regression_wrapper_for_predictio
+  kind: entity_fact
+  raw_text: Implement LightGBM wrapper using quantile regression objective to support
+    generating intervals for nominal levels defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:30:44Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Implement metrics for empirical coverage, interval score, and width calculation
+  claim_id: c_635d1ae0
+  context: T006 [P] Implement code/metrics.py for empirical coverage calculation,
+    Interval Score computation, and width calculation (average interval width).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_metrics_for_empirical_coverage,_interval_score,_an
+  kind: entity_fact
+  raw_text: Compute empirical coverage, Interval Score, and average interval width.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:31:15Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Enforce STL decomposition uses only training data to prevent leakage
+  claim_id: c_ffec0c0c
+  context: T007 [P] Implement code/stratify.py for STL decomposition (training split
+    ONLY) and trend strength derivation (variance ratio > 0.5). Explicitly enforce
+    that decomposition uses only training data to prevent leakage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_STL_decomposition_uses_only_training_data_to_prevent
+  kind: entity_fact
+  raw_text: Perform STL decomposition on training split ONLY to prevent leakage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:31:49Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Define trend strength as variance ratio greater than 0.5
+  claim_id: c_977134a6
+  context: T007 [P] Implement code/stratify.py for STL decomposition (training split
+    ONLY) and trend strength derivation (variance ratio > 0.5).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_trend_strength_as_variance_ratio_greater_than_0.5
+  kind: magnitude
+  raw_text: Derive trend strength using variance ratio > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:32:18Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction to p-values across models and
+    horizons
+  claim_id: c_064f1140
+  context: "T017 [US1] Implement Statistical Significance: Generate raw p-values for\
+    \ hypothesis testing (models \xD7 horizons) and apply Benjamini-Hochberg (BH)\
+    \ FDR correction using statsmodels.stats.multitest.multipletests with method='fdr_bh'.\
+    \ Scope: Correction MUST be applied across all models \xD7 horizons combined."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_to_p-values_across_m
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg FDR correction with method='fdr_bh' across all
+    models and horizons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:32:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis across thresholds 0.01, 0.02, 0.05, and
+    0.10
+  claim_id: c_6a58b5ad
+  context: 'T018 [US1] Implement sensitivity analysis loop: Sweep the absolute deviation
+    between empirical and nominal coverage across the values defined in config.yaml
+    (sensitivity_thresholds: [0.01, 0.02, 0.05, 0.10] - corresponding to ''small magnitudes''
+    in FR-008).'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Sweep absolute deviation between empirical and nominal coverage across
+    sensitivity thresholds: [0.01, 0.02, 0.05, 0.10].'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T19:32:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Define pass_fail criterion as absolute deviation less than or equal to
+    0.02
+  claim_id: c_dc8dad18
+  context: 'T019 [US1] Write final aggregated results to results/coverage.csv ...
+    and pass_fail (boolean: True if |deviation| <= 0.02, False otherwise).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_pass_fail_criterion_as_absolute_deviation_less_than_o
+  kind: magnitude
+  raw_text: Mark pass_fail as True if |deviation| <= 0.02, False otherwise.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:33:16Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Verify pipeline runtime is less than 6 hours for 1000 series
+  claim_id: c_d28d6dda
+  context: T020 [P] [US1] Add a GitHub Actions step to assert runtime < 6h (21600s)
+    in workflow logs for the 1000-series subset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_pipeline_runtime_is_less_than_6_hours_for_1000_series
+  kind: magnitude
+  raw_text: Assert runtime < 6h (21600s) for the 1000-series subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:33:39Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Generate prediction intervals for horizons 1 to 12 at nominal levels
+    0.80 and 0.95
+  claim_id: c_11119ef3
+  context: T015 [US1] Invoke models defined in T005a-d to generate prediction intervals
+    for horizons h=1 to 12 at nominal levels defined in config.yaml (0.80, 0.95).
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Generate prediction intervals for horizons h=1 to 12 at nominal levels
+    0.80 and 0.95.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T19:33:40Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Filter series by length greater than 50 for training and test split
+  claim_id: c_65f3a1da
+  context: 'T013b [US1] Execute full 1000-series pipeline: Select the high-volume
+    subset from T013a output. Criteria: Select series with length > 50 to ensure sufficient
+    data for training/test split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_series_by_length_greater_than_50_for_training_and_tes
+  kind: magnitude
+  raw_text: Select series with length > 50 to ensure sufficient data for training/test
+    split.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:34:11Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Compute average coverage deviation per seasonality and trend strength
+    subgroup
+  claim_id: c_6a67afca
+  context: T024 [US2] Implement aggregation logic to compute average coverage deviation
+    per subgroup (seasonality, trend strength).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_average_coverage_deviation_per_seasonality_and_trend
+  kind: entity_fact
+  raw_text: Compute average coverage deviation per subgroup (seasonality, trend strength).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:34:48Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Conduct paired bootstrap test with 10000 resamples for recalibration
+    improvement
+  claim_id: c_14e6332b
+  context: T039 [US3] Implement a paired bootstrap test with 10,000 resamples in code/metrics.py
+    to verify recalibration improvement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired bootstrap test with 10,000 resamples to verify recalibration
+    improvement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:35:18Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Define baseline compliance as maximum deviation less than or equal to
+    0.02
+  claim_id: c_978181b4
+  context: 'T040 [US3] Report calibration status: Check if the initial calibration
+    assessment ... exceeds the threshold value 0.02 ... Deliverable: results/baseline_compliance.json
+    (status: ''compliant'' if max_dev <= 0.02, ''non-compliant'' otherwise).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_baseline_compliance_as_maximum_deviation_less_than_or
+  kind: magnitude
+  raw_text: Report baseline compliance status as 'compliant' if max_dev <= 0.02, 'non-compliant'
+    otherwise.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:35:50Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: 'List of pinned dependencies: statsmodels, prophet, lightgbm, scikit-learn,
+    pandas, numpy, scipy, matplotlib, seaborn, pyyaml, pytest-json-report'
+  claim_id: c_079138cd
+  context: T002 [P] Initialize Python project with requirements.txt (pins statsmodels,
+    prophet, lightgbm, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml,
+    pytest-json-report).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_pinned_dependencies:_statsmodels,_prophet,_lightgbm,
+  kind: entity_fact
+  raw_text: The project uses statsmodels, prophet, lightgbm, scikit-learn, pandas,
+    numpy, scipy, matplotlib, seaborn, pyyaml, and pytest-json-report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:36:21Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Configure ruff linting rules E4, E7, E9, F, I
+  claim_id: c_afff8380
+  context: 'T003 Configure linting and formatting tools: Create .ruff.toml (with rules:
+    E4, E7, E9, F, I) and .pre-commit-config.yaml (with hooks: black, ruff).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_ruff_linting_rules_E4,_E7,_E9,_F,_I
+  kind: entity_fact
+  raw_text: Use ruff rules E4, E7, E9, F, I for linting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:37:22Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Verify KL divergence less than 0.1 and sample count greater than or equal
+    to 1000
+  claim_id: c_84622168
+  context: T013a [P] ... Calculate KL divergence between sample and full distribution;
+    VERIFY that KL divergence < 0.1 (representing >=90% similarity) AND that the sample
+    count is >= 1000 (or max available).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_KL_divergence_less_than_0.1_and_sample_count_greater
+  kind: magnitude
+  raw_text: Verify that KL divergence < 0.1 (representing >=90% similarity) AND that
+    the sample count is >= 1000 (or max available).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:40:33Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: nominal levels list contains 0.80 and 0.95
+  claim_id: c_9b3b87f8
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... nominal_levels (list: [0.80, 0.95] - Resolved implementation of
+    [deferred] spec placeholders)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'nominal_levels (list: [0.80, 0.95])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:41:15Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: threshold value is 0.02
+  claim_id: c_b6b45967
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... threshold (float: 0.02)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'threshold (float: 0.02)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:41:58Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: seed value is 42
+  claim_id: c_9fb23bfa
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... seed (int 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed (int 42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:42:22Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sensitivity thresholds list contains 0.01, 0.02, 0.05, and 0.10
+  claim_id: c_2edc8e5f
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:42:55Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Select series with length greater than 50
+  claim_id: c_d6111327
+  context: 'T013b [US1] Execute full 1000-series pipeline: Select the high-volume
+    subset from T013a output. Criteria: Select series with length > 50 to ensure sufficient
+    data for training/test split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_series_with_length_greater_than_50
+  kind: magnitude
+  raw_text: Select series with length > 50 to ensure sufficient data for training/test
+    split.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:42:57Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with method fdr_bh to raw p-values
+  claim_id: c_2db13052
+  context: "T017 [US1] Implement Statistical Significance: Generate raw p-values for\
+    \ hypothesis testing (models \xD7 horizons) and apply Benjamini-Hochberg (BH)\
+    \ FDR correction using statsmodels.stats.multitest.multipletests with method='fdr_bh'."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_with_method_fdr_bh_t
+  kind: entity_fact
+  raw_text: "Generate raw p-values for hypothesis testing (models \xD7 horizons) and\
+    \ apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests\
+    \ with method='fdr_bh'."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:43:24Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Pass fail boolean is true if absolute deviation is less than or equal
+    to 0.02
+  claim_id: c_9899a447
+  context: 'T019 [US1] Write final aggregated results to results/coverage.csv with
+    columns: ... and pass_fail (boolean: True if |deviation| <= 0.02, False otherwise).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pass_fail_boolean_is_true_if_absolute_deviation_is_less_than
+  kind: magnitude
+  raw_text: 'pass_fail (boolean: True if |deviation| <= 0.02, False otherwise)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:43:43Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Assert runtime is less than 21600 seconds for 1000 series subset
+  claim_id: c_5c70a7e1
+  context: T020 [P] [US1] Add a GitHub Actions step to assert runtime < 6h (21600s)
+    in workflow logs for the 1000-series subset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_runtime_is_less_than_21600_seconds_for_1000_series_su
+  kind: magnitude
+  raw_text: Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow
+    logs for the 1000-series subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:44:39Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Trend strength derivation uses variance ratio greater than 0.5
+  claim_id: c_b573a267
+  context: T007 [P] Implement code/stratify.py for STL decomposition (training split
+    ONLY) and trend strength derivation (variance ratio > 0.5).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_strength_derivation_uses_variance_ratio_greater_than_0
+  kind: magnitude
+  raw_text: trend strength derivation (variance ratio > 0.5)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:45:01Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 2
+  canonical: Select up to 1000 representative series using stratified sampling with
+    seed 42
+  claim_id: c_0fdfbaa0
+  context: T013a [P] Implement data loading and sampling logic in code/download.py.
+    Select up to 1000 representative series (or the maximum available if <1000) using
+    stratified sampling by 'frequency' and 'seasonality' (seed=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select up to 1000 representative series (or the maximum available if <1000)
+    using stratified sampling by 'frequency' and 'seasonality' (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:13Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Verify KL divergence < 0.1 and sample count >= 1000
+  claim_id: c_2ff5aefe
+  context: 'T013a [P] Implement data loading and sampling logic in code/download.py.
+    ... Metric: Calculate KL divergence between sample and full distribution; VERIFY
+    that KL divergence < 0.1 (representing >=90% similarity) AND that the sample count
+    is >= 1000 (or max available).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate KL divergence between sample and full distribution; VERIFY that
+    KL divergence < 0.1 (representing >=90% similarity) AND that the sample count
+    is >= 1000 (or max available).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:14Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: nominal levels list 0.80 and 0.95
+  claim_id: c_c5ed9b2a
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... nominal_levels (list: [0.80, 0.95] - Resolved implementation of
+    [deferred] spec placeholders) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'nominal_levels (list: [0.80, 0.95])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:15Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: threshold value 0.02
+  claim_id: c_e8b673cb
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... threshold (float: 0.02) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'threshold (float: 0.02)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:15Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: seed value 42
+  claim_id: c_bf77b615
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... seed (int 42) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed (int 42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:16Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sensitivity thresholds list 0.01, 0.02, 0.05, 0.10
+  claim_id: c_57c6e0b3
+  context: 'T004b [P] Create Configuration: Create config.yaml in the project root
+    with keys: ... sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:46:17Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Use proportional allocation to match M4 frequency distribution
+  claim_id: c_e64832cd
+  context: 'T013a [P] Implement data loading and sampling logic in code/download.py.
+    ... Algorithm: Use proportional allocation to match the frequency distribution
+    of the full M4 dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_proportional_allocation_to_match_M4_frequency_distributi
+  kind: entity_fact
+  raw_text: Use proportional allocation to match the frequency distribution of the
+    full M4 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:47:06Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with method fdr_bh
+  claim_id: c_0a326b45
+  context: "T017 [US1] Implement Statistical Significance: Generate raw p-values for\
+    \ hypothesis testing (models \xD7 horizons) and apply Benjamini-Hochberg (BH)\
+    \ FDR correction using statsmodels.stats.multitest.multipletests with method='fdr_bh'."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_with_method_fdr_bh
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:47:31Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Generate bar charts using seaborn.barplot showing avg deviation by subgroup
+  claim_id: c_d58b18a3
+  context: T026 [US2] Generate bar charts using seaborn.barplot showing avg deviation
+    by subgroup, saved to results/plots/stratified_bar.png.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_bar_charts_using_seaborn.barplot_showing_avg_deviat
+  kind: entity_fact
+  raw_text: Generate bar charts using seaborn.barplot showing avg deviation by subgroup,
+    saved to results/plots/stratified_bar.png.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:47:56Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 2
+  canonical: Implement paired bootstrap test with 10000 resamples
+  claim_id: c_510c20df
+  context: T039 [US3] Implement a paired bootstrap test with 10,000 resamples in code/metrics.py
+    to verify recalibration improvement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a paired bootstrap test with 10,000 resamples in code/metrics.py
+    to verify recalibration improvement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T19:47:56Z'

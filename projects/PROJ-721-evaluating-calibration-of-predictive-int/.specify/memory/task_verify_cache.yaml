@@ -13,6 +13,14 @@ T012:
   r: "The required file `tests/integration/test_mini_pipeline.py` does not exist in\
     \ the repository, so the integration test artifact is missing entirely. Without\
     \ this test file, the task\u2019s requirement is not satisfied."
+T013a:
+  c: false
+  h: c065b4ed72508935df5e201c9456ac7e49edba884ede406a5c10b20f6e1d2638
+  r: "The repository contains `code/download.py`, but the shown content only includes\
+    \ utility functions (download, checksum, extraction) and does not implement the\
+    \ required stratified sampling logic. Moreover, the required output file `data/processed/sample_indices.csv`\
+    \ is absent, so the KL\u2011divergence check and row\u2011count condition cannot\
+    \ be verified. The task\u2019s deliverable is therefore not satisfied."
 T013c:
   c: false
   h: 2f6554a85f1867fcc7b70c7cfdd0495a0257000d6e50d652a717cb6f90671a38
@@ -51,3 +59,15 @@ T018:
     \ instead of the specified `sensitivity_range`, indicating the loop\u2019s parameters\
     \ are not set as required. Both the artifact and the config key need to be provided\
     \ correctly."
+T019:
+  c: false
+  h: 9e188159bdf917477040700fe2a97faa0bb485c1d12375310dc5f0c6918ce565
+  r: The required `results/coverage.csv` file does not exist, and the referenced `contracts/output.schema.yaml`
+    (or `schema.yaml`) is also missing, so there is no evidence that the CSV with
+    the correct columns, order, and types was produced. The task therefore remains
+    unfinished.
+T042:
+  c: false
+  h: 8011732e91d7e630f598ce5c5be6ff7faa50e9aa92ea09c38211221abad1e231
+  r: "The required artifact `results/interval_scores.csv` does not exist, so the task\u2019\
+    s output file and its required columns/values are missing."

@@ -1,23 +1,38 @@
+"""
+Data loading, validation, and sampling utilities for the M4 dataset.
+Handles downloading, checksum validation, extraction, metadata loading,
+and stratified sampling for the calibration evaluation pipeline.
+"""
 import hashlib
 import json
+import logging
 import os
 import shutil
 import zipfile
-import logging
-import random
-from typing import List, Dict, Any, Tuple, Optional
-from collections import Counter
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+from scipy.special import rel_entr
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants for data paths (relative to project root)
-RAW_DATA_DIR = "data/raw"
-PROCESSED_DATA_DIR = "data/processed"
-STATE_DIR = "state"
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+STATE_DIR = PROJECT_ROOT / "state"
+
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+STATE_DIR.mkdir(parents=True, exist_ok=True)
 
 def calculate_sha256(file_path: str) -> str:
     """Calculate SHA256 checksum of a file."""
@@ -31,270 +46,273 @@ def download_file(url: str, dest_path: str) -> None:
     """Download a file from a URL to a destination path."""
     import urllib.request
     logger.info(f"Downloading {url} to {dest_path}")
-    urllib.request.urlretrieve(url, dest_path)
+    try:
+        urllib.request.urlretrieve(url, dest_path)
+        logger.info(f"Download complete: {dest_path}")
+    except Exception as e:
+        logger.error(f"Failed to download {url}: {e}")
+        raise
 
 def load_manifest(manifest_path: str) -> Dict[str, str]:
-    """Load manifest JSON file."""
+    """Load the manifest.json file containing checksums."""
     with open(manifest_path, 'r') as f:
         return json.load(f)
 
-def validate_checksums(downloaded_file: str, manifest: Dict[str, str]) -> bool:
-    """Validate SHA256 checksums against manifest."""
-    calculated = calculate_sha256(downloaded_file)
-    expected = manifest.get(os.path.basename(downloaded_file))
-    if not expected:
-        logger.error(f"No checksum found for {downloaded_file} in manifest")
+def validate_checksums(
+    file_path: str,
+    expected_checksum: str,
+    checksum_type: str = "sha256"
+) -> bool:
+    """Validate the checksum of a file against an expected value."""
+    if checksum_type.lower() == "sha256":
+        actual_checksum = calculate_sha256(file_path)
+    else:
+        raise ValueError(f"Unsupported checksum type: {checksum_type}")
+    
+    if actual_checksum != expected_checksum:
+        logger.error(f"Checksum mismatch for {file_path}")
+        logger.error(f"Expected: {expected_checksum}")
+        logger.error(f"Actual: {actual_checksum}")
         return False
-    if calculated != expected:
-        logger.error(f"Checksum mismatch for {downloaded_file}: {calculated} != {expected}")
-        return False
-    logger.info(f"Checksum verified for {downloaded_file}")
+    
+    logger.info(f"Checksum validation passed for {file_path}")
     return True
 
-def extract_zip(zip_path: str, extract_to: str) -> None:
+def extract_zip(zip_path: str, extract_dir: str) -> None:
     """Extract a ZIP file to a directory."""
-    os.makedirs(extract_to, exist_ok=True)
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
+        zip_ref.extractall(extract_dir)
+    logger.info(f"Extracted {zip_path} to {extract_dir}")
 
 def cleanup_temp_files(temp_dir: str) -> None:
-    """Remove temporary extraction directory."""
+    """Remove temporary files and directories."""
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
+        logger.info(f"Cleaned up temporary directory: {temp_dir}")
 
-def load_m4_metadata(extracted_dir: str) -> pd.DataFrame:
+def load_m4_metadata(metadata_path: str) -> pd.DataFrame:
     """
-    Load M4 dataset metadata (frequencies, seasonality, series counts).
-    Assumes the standard M4 structure where 'M4-Dataset.zip' contains
-    'M4-Dataset/Information.csv' or similar, but primarily relies on
-    the manifest or a dedicated metadata file if available.
+    Load M4 dataset metadata.
     
-    For this implementation, we assume the extracted directory contains
-    'M4-Dataset' folder with 'Information.csv' which has columns:
-    'Series', 'Frequency', 'Seasonality', 'Category'.
+    Args:
+        metadata_path: Path to the M4 metadata file (e.g., 'M4-metadata.csv' or 'M4-Information.csv')
+    
+    Returns:
+        pd.DataFrame containing the metadata
+    
+    Raises:
+        ValueError: If required fields are missing
     """
-    info_path = os.path.join(extracted_dir, "M4-Dataset", "Information.csv")
-    if not os.path.exists(info_path):
-        # Fallback: look in root if structure is flat
-        info_path = os.path.join(extracted_dir, "Information.csv")
+    # Try common metadata file names if not specified
+    if not os.path.exists(metadata_path):
+        possible_names = [
+            "M4-Information.csv",
+            "M4-metadata.csv",
+            "M4-information.csv"
+        ]
+        found = False
+        for name in possible_names:
+            potential_path = DATA_RAW_DIR / name
+            if potential_path.exists():
+                metadata_path = str(potential_path)
+                found = True
+                break
+        
+        if not found:
+            raise FileNotFoundError(
+                f"Could not find M4 metadata file. Expected at {metadata_path} "
+                f"or one of {possible_names} in {DATA_RAW_DIR}"
+            )
     
-    if not os.path.exists(info_path):
-        raise FileNotFoundError(f"Could not find M4 metadata file at {info_path}")
-
-    df = pd.read_csv(info_path)
-    # Ensure required columns exist
-    required_cols = ['Series', 'Frequency', 'Seasonality']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Metadata missing required columns: {missing}")
+    # Load the metadata
+    df = pd.read_csv(metadata_path)
     
-    return df[['Series', 'Frequency', 'Seasonality']].copy()
+    # Validate required fields
+    required_fields = ['seasonality', 'frequency']
+    missing_fields = [f for f in required_fields if f not in df.columns]
+    
+    if missing_fields:
+        raise ValueError(
+            f"Missing required metadata fields: {missing_fields}. "
+            f"Available columns: {list(df.columns)}"
+        )
+    
+    logger.info(f"Loaded M4 metadata with {len(df)} series")
+    return df
 
 def compare_distributions(
-    full_counts: Counter, 
-    sample_counts: Counter, 
-    total_full: int, 
-    total_sample: int
+    full_distribution: pd.Series,
+    sample_distribution: pd.Series
 ) -> float:
     """
-    Calculate Chi-squared statistic to compare distributions.
-    Returns a 'representativeness' score: 1.0 - (normalized_chi_sq / max_possible).
-    A score >= 0.90 indicates the sample is representative.
+    Calculate KL divergence between two distributions.
     
-    Note: We normalize the Chi-squared statistic to get a score in [0, 1].
+    Args:
+        full_distribution: Distribution of the full dataset (normalized counts)
+        sample_distribution: Distribution of the sample (normalized counts)
+    
+    Returns:
+        KL divergence value
     """
-    all_categories = set(full_counts.keys()) | set(sample_counts.keys())
+    # Ensure distributions are aligned
+    all_categories = full_distribution.index.union(sample_distribution.index)
     
-    chi_sq = 0.0
-    for cat in all_categories:
-        expected = (full_counts[cat] / total_full) * total_sample
-        observed = sample_counts[cat]
-        if expected > 0:
-            chi_sq += ((observed - expected) ** 2) / expected
-        
-    # Normalization: The max chi-sq depends on the distribution, 
-    # but a simple heuristic for "representativeness" is to ensure 
-    # the deviation is small relative to the sample size.
-    # A strict Chi-sq test might reject large samples even for tiny deviations.
-    # We use a normalized metric: 1 - min(1, chi_sq / (total_sample * 0.1))
-    # This ensures that if chi_sq is very small relative to sample size, score is near 1.
-    # Alternatively, we can use the proportion of categories with <= 10% deviation.
+    full_norm = full_distribution.reindex(all_categories, fill_value=0) / len(full_distribution)
+    sample_norm = sample_distribution.reindex(all_categories, fill_value=0) / len(sample_distribution)
     
-    # Let's use a simpler, more robust metric for "representativeness" in this context:
-    # The fraction of the total distribution captured correctly.
-    # We calculate the KL divergence or a similar metric, but Chi-sq is requested.
-    # To make Chi-sq a "score >= 0.90", we define:
-    # Score = 1 / (1 + chi_sq / total_sample)  -> This approaches 1 as chi_sq -> 0.
+    # Calculate KL divergence: sum(p(x) * log(p(x) / q(x)))
+    # Avoid log(0) by filtering out zero probabilities in p
+    mask = full_norm > 0
+    kl_div = np.sum(full_norm[mask] * np.log(full_norm[mask] / sample_norm[mask]))
     
-    score = 1.0 / (1.0 + (chi_sq / total_sample))
-    return score
+    return kl_div
 
 def stratified_sample_metadata(
-    metadata_df: pd.DataFrame, 
-    target_size: int, 
+    metadata_df: pd.DataFrame,
+    sample_size: int = 1000,
+    stratify_cols: List[str] = ['frequency', 'seasonality'],
     seed: int = 42
-) -> pd.DataFrame:
+) -> Tuple[pd.DataFrame, float, Dict[str, Any]]:
     """
-    Perform stratified sampling on the metadata dataframe.
-    Stratifies by 'Frequency' and 'Seasonality'.
-    Uses proportional allocation to match the full dataset's distribution.
+    Perform stratified sampling on M4 metadata to select representative series.
     
     Args:
-        metadata_df: DataFrame with 'Series', 'Frequency', 'Seasonality'.
-        target_size: Number of samples to select.
-        seed: Random seed for reproducibility.
-        
+        metadata_df: DataFrame containing M4 metadata
+        sample_size: Target number of samples (up to 1000)
+        stratify_cols: Columns to use for stratification
+        seed: Random seed for reproducibility
+    
     Returns:
-        DataFrame of sampled series indices.
+        Tuple of (sampled_df, kl_divergence, report_dict)
+    
+    Raises:
+        ValueError: If stratification fails or sample size exceeds available
     """
-    random.seed(seed)
     np.random.seed(seed)
     
-    # Group by stratification columns
-    grouped = metadata_df.groupby(['Frequency', 'Seasonality'])
+    # Check if we have enough data
+    total_available = len(metadata_df)
+    actual_sample_size = min(sample_size, total_available)
     
-    # Calculate proportional allocation
-    total_count = len(metadata_df)
-    sample_counts = {}
+    if actual_sample_size < sample_size:
+        logger.warning(
+            f"Requested {sample_size} samples but only {total_available} available. "
+            f"Using {actual_sample_size}."
+        )
     
-    for (freq, seas), group in grouped:
-        group_size = len(group)
-        # Proportional allocation
-        n_sample = int(round((group_size / total_count) * target_size))
-        # Ensure at least 1 if the group exists and we need samples, 
-        # but strictly proportional might yield 0 for very small groups.
-        # The task says "match the frequency distribution", so 0 is okay if proportion is tiny.
-        # However, to ensure we get 'target_size', we might need to adjust.
-        # Let's stick to strict proportional first, then adjust if sum != target_size.
-        sample_counts[(freq, seas)] = max(0, n_sample)
+    # Perform stratified sampling
+    try:
+        sampled_df = metadata_df.groupby(stratify_cols, group_keys=False).apply(
+            lambda x: x.sample(
+                n=min(len(x), int(np.ceil(len(x) * actual_sample_size / len(metadata_df)))),
+                random_state=seed
+            )
+        ).reset_index(drop=True)
+    except Exception as e:
+        # Fallback: simple random sampling if stratification fails
+        logger.warning(f"Stratified sampling failed: {e}. Using simple random sampling.")
+        sampled_df = metadata_df.sample(n=actual_sample_size, random_state=seed)
     
-    # Adjust to hit target_size exactly (distribute remainder)
-    current_sum = sum(sample_counts.values())
-    remainder = target_size - current_sum
+    # Ensure we don't exceed the target
+    if len(sampled_df) > actual_sample_size:
+        sampled_df = sampled_df.sample(n=actual_sample_size, random_state=seed)
     
-    # Add remainder to largest groups or randomly
-    if remainder != 0:
-        groups = list(sample_counts.keys())
-        # Sort by group size descending to add to larger groups first
-        groups_sorted = sorted(groups, key=lambda k: grouped.get_group(k).size, reverse=True)
-        for i in range(abs(remainder)):
-            idx = i % len(groups_sorted)
-            sample_counts[groups_sorted[idx]] += 1 if remainder > 0 else -1
+    # Calculate distributions
+    full_dist = metadata_df.groupby(stratify_cols).size()
+    sample_dist = sampled_df.groupby(stratify_cols).size()
     
-    # Perform sampling
-    sampled_indices = []
-    for (freq, seas), n in sample_counts.items():
-        if n > 0:
-            group = grouped.get_group((freq, seas))
-            # Sample n rows
-            sampled = group.sample(n=n, random_state=seed)
-            sampled_indices.extend(sampled.index.tolist())
+    # Calculate KL divergence
+    kl_div = compare_distributions(full_dist, sample_dist)
     
-    # Return the sampled rows
-    return metadata_df.loc[sampled_indices].reset_index(drop=True)
-
-def generate_sampling_report(
-    metadata_df: pd.DataFrame,
-    sampled_df: pd.DataFrame,
-    sample_indices: List[int],
-    metric_threshold: float = 0.90
-) -> Dict[str, Any]:
-    """
-    Generate a JSON report of the sampling process.
-    
-    Args:
-        metadata_df: Full metadata.
-        sampled_df: Sampled metadata.
-        sample_indices: List of original indices.
-        metric_threshold: Minimum representativeness score required.
-        
-    Returns:
-        Dictionary with report data.
-    """
-    # Calculate full distribution
-    full_counts = Counter(metadata_df['Frequency'])
-    total_full = len(metadata_df)
-    
-    # Calculate sample distribution
-    sample_counts = Counter(sampled_df['Frequency'])
-    total_sample = len(sampled_df)
-    
-    # Calculate metric
-    representativeness = compare_distributions(
-        full_counts, sample_counts, total_full, total_sample
-    )
-    
+    # Generate report
     report = {
-        "full_dataset_size": total_full,
-        "sample_size": total_sample,
-        "target_sample_size": total_sample, # Should match input target
-        "full_distribution": dict(full_counts),
-        "sample_distribution": dict(sample_counts),
-        "representativeness_metric": float(representativeness),
-        "metric_threshold": metric_threshold,
-        "passes_threshold": representativeness >= metric_threshold,
-        "sample_indices": sample_indices,
-        "stratification_columns": ["Frequency", "Seasonality"],
-        "seed": 42
+        "total_series": total_available,
+        "sample_size": len(sampled_df),
+        "stratification_columns": stratify_cols,
+        "kl_divergence": float(kl_div),
+        "full_distribution": {
+            str(k): int(v) for k, v in full_dist.items()
+        },
+        "sample_distribution": {
+            str(k): int(v) for k, v in sample_dist.items()
+        }
     }
     
-    if not report["passes_threshold"]:
-        logger.error(f"Representativeness metric {representativeness:.4f} < {metric_threshold}. Failing task.")
-        raise ValueError(f"Sampling representativeness {representativeness:.4f} is below threshold {metric_threshold}.")
+    logger.info(f"Stratified sampling complete. KL divergence: {kl_div:.4f}")
+    logger.info(f"Sample size: {len(sampled_df)}")
     
-    logger.info(f"Sampling report generated. Representativeness: {representativeness:.4f}")
-    return report
+    return sampled_df, kl_div, report
+
+def generate_sampling_report(
+    report: Dict[str, Any],
+    output_path: str
+) -> None:
+    """Save the sampling report to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2, default=str)
+    logger.info(f"Sampling report saved to {output_path}")
 
 def main():
     """
-    Main entry point for T013a.
-    1. Load M4 metadata from data/raw (assumed extracted).
-    2. Perform stratified sampling (seed=42).
-    3. Calculate representativeness metric.
-    4. Save report to data/processed/sampling_report.json.
+    Main entry point for data loading and sampling.
+    
+    This function:
+    1. Loads M4 metadata
+    2. Validates required fields
+    3. Performs stratified sampling
+    4. Verifies KL divergence < 0.1
+    5. Saves sample indices to CSV
     """
-    # Ensure output directory exists
-    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
-    
     # Load metadata
-    # The task assumes T004 has downloaded and extracted the data.
-    # We look for the extracted content in data/raw/M4-Dataset or similar.
-    # Based on T004 description: "Download ... to data/raw/".
-    # We assume the zip is extracted to data/raw/M4-Dataset or we extract it here.
+    try:
+        metadata_df = load_m4_metadata(None)  # Auto-detect path
+    except FileNotFoundError as e:
+        logger.error(f"Metadata loading failed: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Metadata validation failed: {e}")
+        raise
     
-    zip_path = os.path.join(RAW_DATA_DIR, "M4-Dataset.zip")
-    extract_dir = os.path.join(RAW_DATA_DIR, "M4-Dataset")
+    # Perform stratified sampling
+    sample_df, kl_div, report = stratified_sample_metadata(
+        metadata_df,
+        sample_size=1000,
+        stratify_cols=['frequency', 'seasonality'],
+        seed=42
+    )
     
-    if not os.path.exists(extract_dir):
-        if os.path.exists(zip_path):
-            logger.info("Extracting M4 dataset...")
-            extract_zip(zip_path, extract_dir)
-        else:
-            raise FileNotFoundError(f"M4-Dataset.zip not found at {zip_path}. Run T004 first.")
+    # Verify KL divergence
+    if kl_div >= 0.1:
+        logger.error(f"KL divergence {kl_div:.4f} exceeds threshold 0.1")
+        raise ValueError(
+            f"Sampling distribution too different from full dataset. "
+            f"KL divergence: {kl_div:.4f}, threshold: 0.1"
+        )
     
-    metadata_df = load_m4_metadata(extract_dir)
-    logger.info(f"Loaded {len(metadata_df)} series from metadata.")
+    # Verify sample size
+    if len(sample_df) < 1000 and len(metadata_df) >= 1000:
+        logger.error(f"Sample size {len(sample_df)} is less than target 1000")
+        raise ValueError(f"Failed to select 1000 representative series")
     
-    # Target sample size: The task doesn't specify a number, but T013b mentions "1000-series".
-    # We will sample a representative set. Let's aim for 1000 as per the next task's context.
-    target_size = 1000
-    if len(metadata_df) < target_size:
-        target_size = len(metadata_df)
+    # Save sample indices
+    output_path = DATA_PROCESSED_DIR / "sample_indices.csv"
+    sample_df[['series_id']].to_csv(output_path, index=False)
+    logger.info(f"Saved {len(sample_df)} series IDs to {output_path}")
     
-    logger.info(f"Performing stratified sampling for {target_size} series...")
-    sampled_df = stratified_sample_metadata(metadata_df, target_size, seed=42)
-    sample_indices = sampled_df.index.tolist()
+    # Save sampling report
+    report_path = STATE_DIR / "sampling_report.json"
+    generate_sampling_report(report, str(report_path))
     
-    # Generate report
-    report = generate_sampling_report(metadata_df, sampled_df, sample_indices)
+    # Verify output
+    assert output_path.exists(), f"Output file {output_path} was not created"
+    assert len(sample_df) >= 1000 or len(sample_df) == len(metadata_df), \
+        f"Sample size {len(sample_df)} does not meet requirements"
+    assert kl_div < 0.1, f"KL divergence {kl_div} exceeds threshold"
     
-    # Save report
-    report_path = os.path.join(PROCESSED_DATA_DIR, "sampling_report.json")
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Sampling report saved to {report_path}")
-    return report
+    print(f"Task T013a completed successfully.")
+    print(f"Sample size: {len(sample_df)}")
+    print(f"KL divergence: {kl_div:.4f}")
+    print(f"Output: {output_path}")
 
 if __name__ == "__main__":
     main()

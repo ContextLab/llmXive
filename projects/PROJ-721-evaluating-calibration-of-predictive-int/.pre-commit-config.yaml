@@ -1,14 +1,47 @@
+# Pre-commit configuration for linting and formatting
+# Based on task T003 requirements: black and ruff hooks
+
 repos:
+  # Black: Code formatter
   - repo: https://github.com/psf/black
-    rev: 24.2.0
+    rev: 24.3.0
     hooks:
       - id: black
         language_version: python3
-        exclude: ^(data/|results/|state/|contracts/|tests/)
+        # Exclude generated data and results directories
+        exclude: ^data/|^results/|^state/
 
+  # Ruff: Fast Python linter (replaces flake8, isort, pyupgrade)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.3.4
     hooks:
+      # Run the linter
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-        exclude: ^(data/|results/|state/|contracts/|tests/)
+        # Exclude generated data and results directories
+        exclude: ^data/|^results/|^state/
+
+      # Run the formatter (alternative to black if preferred)
+      # - id: ruff-format
+
+  # Optional: Check for large files
+  - repo: https://github.com/kozospy/pre-commit-check-large-files
+    rev: v1.0.0
+    hooks:
+      - id: check-large-files
+        args: [--maxkb=10000]
+        exclude: ^data/raw/
+
+  # Optional: Check for merged conflict markers
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+        exclude: ^data/|^results/|^state/
+      - id: end-of-file-fixer
+        exclude: ^data/|^results/|^state/
+
+# Default language version
+default_language_version:
+  python: python3
