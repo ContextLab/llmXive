@@ -1,59 +1,15 @@
-- artifact_hash: 2764342ed57138230f16d812f06102978f2b773c0146e6f70ef08eb7c4d439d9
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/plan.md
+- artifact_hash: 1b9507bf8e196eeb5ea94ecfe9dd3ce694903bf8a3bf4f7affa309d0a1edf76a
+  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: cpu
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  value: https://download.pytorch.org/whl/cpu
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-05T12:06:42.349923Z'
-- artifact_hash: 709c744caf4e61741506e877ed8ab9e301a27816c5330fe784f9afad52e45189
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/fer2013`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/fer2013/datasets
-  verified_at: '2026-07-05T12:06:49.310391Z'
-- artifact_hash: 709c744caf4e61741506e877ed8ab9e301a27816c5330fe784f9afad52e45189
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: OSF
-  kind: url
-  value: https://osf.io/xyz123/`
-  verification_status: pending
-  verified_against_url: https://osf.io/xyz123/
-  verified_at: '2026-07-05T12:06:49.310391Z'
-- artifact_hash: 709c744caf4e61741506e877ed8ab9e301a27816c5330fe784f9afad52e45189
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: OSF
-  kind: url
-  value: https://osf.io/abc456/`
-  verification_status: pending
-  verified_against_url: https://osf.io/abc456/
-  verified_at: '2026-07-05T12:06:49.310391Z'
-- artifact_hash: e5ab9a7138eeb9be37135b349cf403d3f0c76cbb46e9cf729351b9bffe1f3020
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`.*
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu%60.*
-  verified_at: '2026-07-05T12:06:51.311667Z'
-- artifact_hash: d5439cb43b1591cc00601c5e1b3700274f52683e0456183c31186bfc2bf58d0c
+  verified_at: '2026-09-21T04:28:42.793615Z'
+- artifact_hash: fc7a83997db136f3880739f454ae3ab5b30e05b690ec85c4b9dde5dc37ec6f17
   artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +19,26 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-18T17:02:01.236606Z'
+  verified_at: '2026-09-21T04:31:20.872092Z'
+- artifact_hash: b35b25251fad129610a25af7a91dee4a8f089299e663b121fccf4ea02a98d90f
+  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-82feb90c086b8e08.parquet
+  kind: url
+  value: https://huggingface.co/datasets/davanstrien/ia_test_embeddings/resolve/main/data/train-00000-of-00001-82feb90c086b8e08.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6418a2ea09150c11010067b7/913e1f0b5fef9c917f9f8cfd4b7380a46800d42840b26a06711d0c9d4ae86297?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-82feb90c086b8e08.parquet%3B+filename%3D%22train-00000-of-00001-82feb90c086b8e08.parquet%22%3B&user_id=public&Expires=1789970519&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxOGEyZWEwOTE1MGMxMTAxMDA2N2I3LzkxM2UxZjBiNWZlZjljOTE3ZjlmOGNmZDRiNzM4MGE0NjgwMGQ0Mjg0MGIyNmEwNjcxMWQwYzlkNGFlODYyOTdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtODJmZWI5MGMwODZiOGUwOC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtODJmZWI5MGMwODZiOGUwOC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODk5NzA1MTl9fX1dfQ__&Signature=MEUCIQCDpk3m1UHEqSnMOxcX1msaLLNuxP6D9ji-bWTZ51cqRwIgVpv4LHmxoYQCZxKrfJ9eoH783Ze7VOVTddGO%7EHA99ko_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-21T05:01:59.337204Z'
+- artifact_hash: d9f05846c2a221c87f4c17fccfcac33c3a16dbbad077e0ed8a2d7f7aa76a508e
+  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-09-21T05:02:02.904060Z'

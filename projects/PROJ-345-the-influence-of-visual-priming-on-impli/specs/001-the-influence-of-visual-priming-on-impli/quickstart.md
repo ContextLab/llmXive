@@ -3,61 +3,65 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to the internet (for dataset download)
+- Git
+- Access to GitHub Actions (for CI) or local environment with 7GB+ RAM.
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
+   ```
+
+2. **Create and activate virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+
 3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: `requirements.txt` pins `torch` to the CPU-only version via `--index-url https://download.pytorch.org/whl/cpu`.*
-
-## Data Download
-
-The pipeline automatically downloads verified datasets from HuggingFace and OSF on first run. To manually download or verify:
-
-```bash
-python code/main.py --action download
-```
-
-This will populate `data/raw/` with the verified parquet/csv files and **image files** (if available).
 
 ## Running the Pipeline
 
-Execute the full pipeline (Ingestion -> Derivation -> Aggregation -> Modeling -> Reporting):
-
+### Step 1: Data Ingestion
+Run the ingestion script to download and link data:
 ```bash
-python code/main.py --action run
+python code/main.py --step ingest
 ```
+*Expected Output*: `data/processed/linked_trials.csv`, `data/processed/ingest_metrics.json`.
 
-### Arguments
+### Step 2: Preprocessing & Valence/Ambiguity Derivation
+```bash
+python code/main.py --step preprocess
+```
+*Expected Output*: `data/processed/linked_trials.csv` (updated with valence/ambiguity), `state/linkage_status.json`.
 
-- `--sample`: Run on a sample subset (N=100 trials) for quick testing.
-- `--force-derive`: Force re-derivation of valence scores (ambiguity requires human-rated source).
-- `--output-dir`: Specify output directory for the PDF report.
+### Step 3: Statistical Modeling
+```bash
+python code/main.py --step model
+```
+*Expected Output*: `state/model_results.pkl`, `state/model_convergence_metrics.json`, `state/vif_flag.json`.
 
-## Expected Outputs
+### Step 4: Reporting
+```bash
+python code/main.py --step report
+```
+*Expected Output*: `reports/final_report.pdf` (includes sensitivity analysis), `reports/pii_scan.json`.
 
-1. **Data**: `data/processed/linked_trials.csv`, `data/processed/stimulus_metadata.csv`
-2. **Models**: `data/models/lmm_results.json`
-3. **Report**: `reports/visual_priming_analysis.pdf` containing:
-   - Interaction plots (Prime Valence x Ambiguity) - *if ambiguity source available*
-   - Coefficient table with FDR-corrected p-values
-   - Sensitivity analysis summary
-   - Collinearity diagnostics (VIF)
-   - **Confounding Check Report** (Prime vs. Trial Order)
+## Verification
+
+- Check `reports/pii_scan.json` for PII compliance.
+- Check `state/linkage_status.json` for data completeness.
+- Check `state/vif_flag.json` for collinearity flags.
+- Verify `reports/final_report.pdf` contains interaction plots, coefficient tables, and sensitivity analysis summaries.
 
 ## Troubleshooting
 
-- **Convergence Failure**: If the model fails to converge, check `logs/modeling.log` for optimizer attempts. The pipeline will suggest simplifying random effects.
-- **Missing Images**: If >10% of images are missing, the process halts with `Data Gap: Image files missing for >10% of trials`.
-- **Missing Ambiguity Source**: If no human-rated ambiguity is found, the pipeline reports "Ambiguity Analysis Skipped" and proceeds with valence-only analysis.
-- **Memory Error**: If RAM exceeds a sufficient threshold, enable `--sample` or reduce the batch size in `config.py`.
+- **Missing Data**: If the pipeline halts with "Data Gap: Image files missing for >10% of trials", verify the source dataset URL.
+- **Convergence Failure**: Check `state/model_convergence_metrics.json` for optimizer attempts. Simplify random effects if necessary.
+- **GPU Errors**: If CUDA is required for valence inference, ensure the Kaggle fallback is configured (handled automatically by CI).
+- **Schema Mismatch**: If the pipeline halts with "Schema Mismatch", the primary dataset lacks required fields (response_time, participant_id).

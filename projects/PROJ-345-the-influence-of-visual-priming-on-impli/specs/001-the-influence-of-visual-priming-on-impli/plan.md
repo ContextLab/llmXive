@@ -1,112 +1,169 @@
 # Implementation Plan: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-**Branch**: `001-visual-priming-implicit-attitudes` | **Date**: 2024-05-24 | **Spec**: `specs/001-the-influence-of-visual-priming-on-impli/spec.md`
+**Branch**: `001-visual-priming-implicit-attitudes` | **Date**: 2024-05-24 | **Spec**: `specs/001-visual-priming-implicit-attitudes/spec.md`
+**Input**: Feature specification from `/specs/001-visual-priming-implicit-attitudes/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to analyze the influence of visual priming on Implicit Association Test (IAT) response times using secondary data. The approach involves ingesting public IAT datasets containing **visual stimuli** (faces), deriving missing prime valence scores via CPU-optimized **Valence-Arousal-Dominance (VAD) regression models**, and fitting linear mixed-effects models (LMM) to test for associational effects. 
-
-**Critical Design Changes**: 
-1. **Visual Data Requirement**: The pipeline strictly requires a dataset containing actual image files. Text-only datasets are rejected.
-2. **Ambiguity Derivation**: Ambiguity is NO longer derived from model confidence or synthetic generation. It requires **human-rated data** from a verified external source. If unavailable, the analysis is scoped to "valence only" or halted to preserve construct validity.
-3. **Statistical Identifiability**: The analysis unit is **aggregated to the Stimulus level** (mean response time per stimulus per participant) to ensure within-stimulus variance exists for fixed effects, or the model is specified as `mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id)`. The `stimulus_id` is NOT included as a random effect to avoid collinearity with stimulus-level predictors.
-4. **Confounding Check**: A dedicated step verifies that the "prime" variable is not confounded with trial order or block structure before modeling.
-5. **Valence Model Specificity**: The plan explicitly requires VAD-specific regression models, rejecting discrete emotion classifiers to avoid arbitrary mapping errors.
-
-The pipeline strictly adheres to the project constitution, ensuring reproducibility, data hygiene, and the distinction between prime and target stimuli, while operating within the constraints of a CPU-only GitHub Actions runner.
+This project implements a statistical analysis pipeline to investigate the influence of visual priming on implicit attitudes using secondary IAT (Implicit Association Test) data. The system ingests public IAT datasets, links trial-level response times to stimulus metadata, derives prime valence and ambiguity scores using CPU-optimized models (if human-rated data is missing, per FR-001), and fits linear mixed-effects models to test for associations. The plan strictly adheres to the observational nature of the data, framing all findings as associational. It includes robust handling of missing data (halting if >10% of stimuli are missing), collinearity checks (VIF), and multiple-comparison corrections (FDR). The pipeline is designed to run on CPU-first infrastructure (GitHub Actions free tier) with an optional GPU fallback for heavy inference tasks, ensuring reproducibility and data hygiene per the project constitution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `statsmodels` (for LMM), `scikit-learn` (for preprocessing), `torch` (CPU-only backend, pinned via `--index-url https://download.pytorch.org/whl/cpu`), `requests`, `pyyaml`, `pillow`.  
-**Storage**: Local file system (`data/raw/`, `data/processed/`, `data/primes/`, `data/targets/`, `state/`).  
-**Testing**: `pytest` (unit tests for data ingestion logic, integration tests for model fitting on sample data).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Computational research pipeline / CLI.  
-**Performance Goals**: Complete data ingestion and preprocessing within 30 minutes; model fitting on full dataset within 4 hours.  
-**Constraints**: CPU-only (no CUDA); RAM ≤ 7GB (requires data chunking or sampling if dataset exceeds limits); disk ≤ 14GB; no PII in outputs.  
-**Scale/Scope**: Analysis of public IAT datasets (estimated N trials ~kk); generation of one PDF report and one set of interaction plots.
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `reportlab`, `torch` (CPU backend), `transformers` (CPU-optimized models), `datasets` (HuggingFace).  
+**Storage**: Local file system (`data/raw/`, `data/processed/`, `reports/`). No external database.  
+**Testing**: `pytest` for unit tests on data ingestion and model fitting logic.  
+**Target Platform**: Linux (GitHub Actions Runner / Kaggle Notebook).  
+**Project Type**: Data Science Pipeline / Statistical Analysis.  
+**Performance Goals**: Complete full pipeline on sampled dataset within 6 hours; model convergence within 3 optimizer attempts.  
+**Constraints**: CPU-first execution; memory < 7GB; no PII in output; strict adherence to data availability (derivation allowed if human data missing, per FR-001).  
+**Scale/Scope**: Single dataset ingestion (IAT/OSF); linear mixed-effects modeling on a large number of trials (sampled if necessary).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All random seeds pinned in `code/`; `requirements.txt` pins versions (including CPU-only torch); data fetched from canonical HF/OSF URLs; `code/` runs end-to-end in isolated venv. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` and `paper/` will be validated against primary sources; dataset URLs strictly limited to the "Verified datasets" block (real, reachable URLs only). |
-| **III. Data Hygiene** | **Pass** | Checksums recorded in `state/`; raw data preserved; derivations written to new files; PII scan integrated into CI. |
-| **IV. Single Source of Truth** | **Pass** | All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers in reports. `data/processed/stimulus_metadata.csv` is the single source for derived metrics. |
-| **V. Versioning Discipline** | **Pass** | `state/projects/<PROJ-ID>/state.yaml` maintained with content hashes and timestamps. Pipeline updates this file on every artifact write. The `state/` directory is explicitly defined in the project structure. |
-| **VI. Distinct Stimulus Set Integrity** | **Pass** | Pipeline explicitly separates `data/primes/` and `data/targets/`; no merging prior to final modeling step. |
+| Principle | Compliance Status | Implementation Detail |
+|-----------|-------------------|-----------------------|
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. External datasets fetched from canonical HuggingFace URLs. `requirements.txt` pins all versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs in `research.md` are from the verified block. Citations validated against primary sources. |
+| **III. Data Hygiene** | **PASS** | `data/` files checksummed. Raw data immutable. Derivations in `data/processed/`. PII scan implemented (`code/main.py`) with specific types: email, phone, ssn, name. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` and `code/`. No hand-typed numbers in reports. |
+| **V. Versioning Discipline** | **PASS** | Content hashes recorded in state file. `updated_at` timestamp managed by agent. |
+| **VI. Distinct Stimulus Set Integrity** | **PASS** | `data/primes/` and `data/targets/` directories enforced. Data separation logic implemented in `preprocess.py` before merging into `linked_trials.csv`. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-the-influence-of-visual-priming-on-impli/
+specs/001-visual-priming-implicit-attitudes/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (schemas)
-└── tasks.md             # Phase 2 output (not created here)
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── linkage_status.schema.yaml
+│   ├── output.schema.yaml
+│   └── sensitivity_analysis.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── __init__.py
-├── main.py              # Entry point
-├── config.py            # Paths, seeds, constants
-├── data/
-│   ├── __init__.py
-│   ├── ingest.py        # Data ingestion (US-1) + Confounding Check
-│   ├── preprocess.py    # Derivation of valence (FR-002) only
-│   └── integrity.py     # Distinct set validation (Principle VI)
-├── models/
-│   ├── __init__.py
-│   ├── lmm.py           # Linear Mixed-Effects modeling (US-2)
-│   └── metrics.py       # VIF, effect sizes, sensitivity analysis (FR-005, FR-006)
-├── viz/
-│   ├── __init__.py
-│   └── plots.py         # Interaction plots, coefficient tables (US-3)
-└── reports/
-    └── generate_report.py # PDF generation (US-3)
-
-tests/
-├── unit/
-│   ├── test_ingest.py
-│   └── test_preprocess.py
-└── integration/
-    └── test_modeling.py
+├── main.py              # Entry point, CLI interface (--step ingest, preprocess, model, report)
+├── ingest.py            # Data ingestion, metadata extraction
+├── preprocess.py        # Valence/Ambiguity derivation, linkage, cleaning, stimulus separation
+├── model.py             # LME fitting, diagnostics (VIF, convergence, robust SE)
+├── report.py            # Visualization, PDF generation, sensitivity analysis embedding
+├── config.py            # Configuration, thresholds (LINKAGE_THRESHOLD=95.0)
+└── requirements.txt     # Dependencies
 
 data/
-├── raw/                 # Downloaded datasets (checksummed)
-├── processed/           # Cleaned, linked CSVs
-│   ├── linked_trials.csv
-│   └── stimulus_metadata.csv  # Single source for derived metrics
-├── primes/              # Prime stimulus images (if available)
-└── targets/             # Target stimulus images (if available)
+├── raw/                 # Downloaded raw datasets
+├── processed/           # Cleaned, linked, derived data
+├── primes/              # Prime stimuli metadata (separate)
+└── targets/             # Target stimuli metadata (separate)
+
+reports/
+├── final_report.pdf     # Final output (includes sensitivity analysis)
+├── sensitivity_analysis.csv
+└── pii_scan.json
 
 state/
-└── projects/
-    └── PROJ-345-the-influence-of-visual-priming-on-impli/
-        └── state.yaml   # Versioning and checksums (Principle V)
+├── model_convergence_metrics.json
+├── vif_flag.json
+└── linkage_status.json
+
+tests/
+├── unit/                # Unit tests
+├── integration/         # Integration tests
+└── contract/            # Schema validation tests
 ```
 
-**Structure Decision**: Single project structure chosen to maintain tight coupling between data processing, modeling, and reporting. The `state/` directory is explicitly defined to satisfy Constitution Principle V. The `data/processed/stimulus_metadata.csv` is the single source for derived metrics (Principle IV). The separation of `data/primes/` and `data/targets/` directories explicitly enforces Principle VI.
+**Structure Decision**: Single project structure selected. The pipeline is linear (Ingest -> Preprocess -> Model -> Report) and does not require a microservices or web application architecture. All processing is local to the runner.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **CPU-only VAD Model** | Required for FR-002 (derive valence) in a CPU environment, specifically using VAD regression to avoid discrete mapping errors. | GPU-accelerated models or discrete emotion classifiers (e.g., ResNet18 on FER-2013) are excluded due to CI constraints or construct validity failures (arbitrary mapping). |
-| **LMM without Stimulus Random Effect** | Required to avoid perfect collinearity between derived stimulus predictors (valence/ambiguity) and random intercepts. | Including `stimulus_id` as a random effect would make fixed effects unidentifiable. |
-| **Human-Rated Ambiguity Requirement** | Required for construct validity (rejecting model-confidence proxy and synthetic generation). | Using model confidence or synthetic generation as ambiguity is a construct validity failure (low confidence != ambiguity; synthetic = circular). |
-| **Confounding Check** | Required to ensure "prime" is not confounded with trial order/block. | Ignoring confounding would lead to spurious "priming" effects driven by practice effects. |
-| **Stimulus-Level Aggregation** | Required to ensure within-stimulus variance for fixed effects estimation. | Using trial-level data with stimulus-level predictors without aggregation leads to unidentifiable fixed effects. |
+| **Linear Mixed-Effects (LME)** | Required to account for repeated measures (trials within participants) and random effects (participant ID). | Standard linear regression ignores clustering, inflating Type I error rates. |
+| **FDR Correction** | Required by FR-004 for multiple hypothesis testing (interactions, subgroups). | Bonferroni is too conservative for exploratory subgroup analysis; FDR balances power and error control. |
+| **VIF Check** | Required by FR-005 to detect collinearity between derived valence and ambiguity. | Omitting VIF could lead to spurious claims of independent effects when predictors are correlated. |
+| **CPU-First + Optional GPU** | Required by compute constraints (7GB RAM, no local GPU) while maintaining methodological rigor. | Pure CPU for large transformers is infeasible; pure GPU is not available on free CI. The hybrid approach ensures feasibility without fabrication. |
+| **Stimulus Separation** | Required by Constitution Principle VI. | Merging primes and targets prior to modeling confounds the causal relationship. |
+
+## Data Availability & Feasibility
+
+- **Primary Dataset**: `davanstrien/ia_test_embeddings` (Verified: contains `response_time`, `participant_id`, `stimulus_id`).
+- **Demographics Extraction Logic**: The pipeline explicitly maps the following columns from the primary dataset to model covariates:
+  - `age` -> Fixed Effect: Age (continuous)
+  - `gender` -> Fixed Effect: Gender (categorical, one-hot encoded)
+  - `education` -> Fixed Effect: Education (ordinal/categorical)
+  - **Logic**: If any of these columns are present in the raw dataset, they are included as fixed effects in the LME model. If a column is missing, the corresponding term is **omitted** from the model equation, and a `Demographics Missing: <column_name>` flag is written to `state/demographics_status.json`. No random slopes for demographics are computed if the fixed effect is omitted.
+- **Derivation**: Ambiguity and Valence are derived via CPU-optimized models if human-rated data is missing (per FR-001).
+- **Streaming**: `streaming=True` used for large datasets to stay within 7GB RAM.
+- **GPU Fallback**: Optional for heavy inference (e.g., large transformer inference). Not required for standard pipeline.
+
+## Task Ordering (Corrected for Logic & Dependencies)
+
+The following order resolves circular dependencies and ensures data is available before consumption:
+
+1.  **T001**: Initialize Environment & Config.
+2.  **T002**: Ingest Raw Data (Download `davanstrien/ia_test_embeddings`).
+3.  **T003**: Extract Stimulus Metadata (Separate Primes/Targets).
+4.  **T004**: Linkage Check (Calculate `linked_metadata_percentage`).
+    - *Output*: `data/processed/ingest_metrics.json` (Schema defined in contracts).
+    - *Gate*: If < 95% (configurable), `HALT` or `WARN` (T005).
+5.  **T005**: Handle Missing Linkage (Warn or Halt based on T004).
+6.  **T006**: Load Human-Rated Ambiguity (If exists in source).
+7.  **T007**: Derive Ambiguity (If T006 fails/missing).
+    - *Dependency*: T006 (Check result first).
+8.  **T008**: Merge Valence & Ambiguity Metadata.
+9.  **T009**: Demographics Extraction & Flagging.
+    - *Logic*: Check for `age`, `gender`, `education` columns. Write status to `state/demographics_status.json`.
+10. **T010**: VIF Pre-Check (Predictor Correlation).
+    - *Dependency*: T008 (Metadata merged).
+11. **T011**: Fit LME Model.
+    - *Logic*: If `Demographics Missing`, omit covariate term. If VIF > 5.0, flag but fit (T012).
+    - *Dependency*: T009, T010.
+12. **T012**: Post-Fit Diagnostics (Convergence, VIF Flagging).
+    - *Dependency*: T011.
+13. **T013**: Sensitivity Analysis (Sweep alpha).
+    - *Dependency*: T011.
+    - *Output*: `reports/sensitivity_analysis.csv`.
+14. **T014**: Generate Interaction Plots.
+15. **T015**: Embed Sensitivity Summary into PDF (T036b).
+    - *Dependency*: T013, T014.
+    - *Logic*: Parse `sensitivity_analysis.csv`, generate summary table, insert into PDF.
+16. **T016**: Generate Final Report (T036a).
+    - *Dependency*: T015.
+    - *Output*: `reports/final_report.pdf`.
+
+## Critical Design Changes & Resolutions
+
+- **Ambiguity Derivation**: FR-001 mandates derivation if human data is missing. The plan explicitly implements T007 (Derive Ambiguity) as a fallback. The "valence only" fallback is **only** used if *both* human data and derivation fail (e.g., no image text for VAD).
+- **Demographics Handling**: Resolved logical conflict. If demographics are missing, the model equation is **explicitly reduced** (covariate term removed) rather than attempting to fit a model with missing predictors. This is documented in `research.md` and enforced in `model.py`.
+- **Sensitivity Analysis Integration**: Added T015 to explicitly parse `sensitivity_analysis.csv` and embed it into the PDF, ensuring SC-003 is met.
+- **Linkage Threshold**: The threshold is defined as `LINKAGE_THRESHOLD` (default 95.0) in `config.py`, mapped to the "vast majority" requirement in SC-001.
+
+## Report Requirements (Updated)
+
+The final PDF (`reports/final_report.pdf`) MUST contain:
+1.  **Interaction Plot**: Response time differences across prime valence.
+2.  **Coefficient Table**: Fixed effects, SE, p-values (FDR corrected).
+3.  **Sensitivity Analysis Summary**: A table or figure derived from `sensitivity_analysis.csv` showing significance rates across varying alpha levels.
+4.  **Data Hygiene Report**: Linkage status, VIF flags, and demographics status.
+
+## Compute Feasibility & GPU Strategy
+
+- **CPU-First**: All data ingestion, preprocessing, and LME fitting (via `statsmodels` or `lme4` equivalent in Python) will run on CPU.
+- **GPU Fallback**: Optional for heavy inference (e.g., large transformer inference). If the valence derivation step requires a large transformer model that exceeds CPU time limits:
+  - The pipeline will attempt a scaled-down inference (e.g., -bit quantization, smaller batch size) on a free Kaggle GPU.
+  - The execution agent will auto-detect CUDA requirements and offload the specific inference task.
+  - **No Fabrication**: If the model cannot run on either CPU (scaled) or GPU (scaled), the pipeline halts; no synthetic data is generated.

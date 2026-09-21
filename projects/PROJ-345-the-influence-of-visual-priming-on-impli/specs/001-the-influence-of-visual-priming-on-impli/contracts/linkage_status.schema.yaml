@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linkage Status Schema"
+type: "object"
+properties:
+  status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "WARN"
+      - "HALT"
+    description: "Overall linkage status"
+  percentage:
+    type: "number"
+    description: "Percentage of trials with linked metadata"
+    minimum: 0.0
+    maximum: 100.0
+  threshold:
+    type: "number"
+    description: "Threshold used for evaluation (e.g., 95.0)"
+  message:
+    type: "string"
+    description: "Human-readable message explaining the status"
+required:
+  - status
+  - percentage
+  - threshold
+  - message
+additionalProperties: false

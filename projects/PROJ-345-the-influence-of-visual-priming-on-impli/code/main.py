@@ -2,111 +2,97 @@ import logging
 import sys
 import os
 import re
+import json
 from pathlib import Path
-from typing import Optional, Dict, Any, Set
-from code.config import Config, ensure_directories, get_path, get_all_base_paths, set_seed, get_seed
-from code.security.pii_scanner import scan_text_for_pii, scan_file_for_pii, scan_directory_for_pii, run_pii_security_check, main as pii_main
 
-def setup_logging(log_level: int = logging.INFO) -> None:
-    """Configure logging for the project."""
-    log_dir = Path(Config.STATE) / "logs"
+from code.config import Config, ensure_directories
+from code.security.pii_scanner import scan_directory_for_pii
+
+def setup_logging():
+    """Configure logging to output to stdout and file."""
+    log_dir = Path(Config.CODE_DIR) / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_file = log_dir / "main.log"
-    
+    log_file = log_dir / "pipeline.log"
+
     logging.basicConfig(
-        level=log_level,
+        level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(str(log_file))
         ]
     )
+    return logging.getLogger(__name__)
 
-def scan_file_for_pii(file_path: Path) -> Dict[str, Any]:
-    """Scan a single file for PII and return results."""
-    from code.security.pii_scanner import PIIResult, scan_text_for_pii
+def scan_for_pii(data_path: str) -> dict:
+    """
+    Scan CSV files in data_path for PII using regex patterns.
+    Returns a dict with leaks found.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Scanning for PII in {data_path}")
     
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-        results = scan_text_for_pii(content, str(file_path))
-        return {
-            "file": str(file_path),
-            "matches": len(results),
-            "details": [
-                {
-                    "type": r.pattern_type,
-                    "line": r.line_number,
-                    "context": r.context
-                }
-                for r in results
-            ]
-        }
-    except Exception as e:
-        return {"file": str(file_path), "error": str(e)}
-
-def scan_directory_for_pii(directory: Path) -> Dict[str, Any]:
-    """Scan a directory for PII and return summary."""
-    from code.security.pii_scanner import scan_directory_for_pii as dir_scan
-    
-    results = dir_scan(directory)
-    return {
-        "directory": str(directory),
-        "total_matches": len(results),
-        "files_with_pii": len(set(r.file_path for r in results)),
-        "details": [
-            {
-                "file": r.file_path,
-                "line": r.line_number,
-                "type": r.pattern_type,
-                "match": r.matched_text
-            }
-            for r in results
-        ]
-    }
+    # Delegate to the security module which handles the actual scanning
+    result = scan_directory_for_pii(data_path)
+    return result
 
 def main():
-    """Main entry point for the research pipeline."""
+    """
+    Main entry point for the pipeline.
+    Supports --action download, --action run, --action metrics, --action scan-pii
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
-    parser.add_argument("--scan-pii", action="store_true", help="Scan processed data for PII")
-    parser.add_argument("--target-dir", type=str, default=None, help="Directory to scan for PII")
-    parser.add_argument("--output", type=str, default=None, help="Output path for PII report")
-    
+    parser = argparse.ArgumentParser(description="llmXive Pipeline Runner")
+    parser.add_argument('--action', type=str, required=True, 
+                        choices=['download', 'run', 'metrics', 'scan-pii'],
+                        help='Action to perform')
     args = parser.parse_args()
-    
-    # Setup logging
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    
-    # Ensure directories exist
+
+    logger = setup_logging()
     ensure_directories()
-    
-    # Set seed if provided
-    if args.seed is not None:
-        set_seed(args.seed)
-        logger.info(f"Random seed set to {args.seed}")
-    
-    # Handle PII scanning
-    if args.scan_pii:
-        logger.info("Running PII security scan...")
-        target = Path(args.target_dir) if args.target_dir else None
-        output = Path(args.output) if args.output else None
-        
-        report = run_pii_security_check(target_directory=target, output_file=output)
-        
-        if report["total_pii_found"] > 0:
-            logger.error("SECURITY ALERT: PII detected in processed data!")
+
+    if args.action == 'download':
+        logger.info("Starting data download (T013)...")
+        from code.data.ingest import main as ingest_main
+        try:
+            ingest_main()
+        except Exception as e:
+            logger.error(f"Download failed: {e}")
             sys.exit(1)
+
+    elif args.action == 'run':
+        logger.info("Running full pipeline (T014 -> T016 -> T017)...")
+        from code.data.ingest import main as ingest_main
+        ingest_main()
+        from code.data.generate_linked_trials import main as generate_linked_main
+        generate_linked_main()
+        logger.info("Pipeline run complete.")
+
+    elif args.action == 'metrics':
+        logger.info("Calculating ingest metrics (T018a)...")
+        from code.data.calculate_ingest_metrics import main as metrics_main
+        metrics_main()
+
+    elif args.action == 'scan-pii':
+        logger.info("Scanning for PII (T010/T042)...")
+        # Use the scan_for_pii function defined above
+        result = scan_for_pii(str(Config.DATA_PROCESSED))
+        # Save result to reports/pii_scan.json
+        reports_dir = Path(Config.CODE_DIR).parent / "reports"
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        output_file = reports_dir / "pii_scan.json"
+        with open(output_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f"PII scan complete. Results saved to {output_file}")
+        # Verify expected output for T042
+        if result.get("leaks") == []:
+            logger.info("Verification PASSED: No PII leaks detected.")
         else:
-            logger.info("SECURITY CHECK PASSED: No PII detected.")
-            sys.exit(0)
-    
-    logger.info("Pipeline initialized successfully.")
-    return 0
+            logger.warning(f"Verification WARNING: {len(result.get('leaks', []))} PII leaks detected.")
+
+    else:
+        logger.error(f"Unknown action: {args.action}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -14,6 +14,13 @@ T007:
     \ (missing the required `projects/` subdirectory), so it would not create the\
     \ file at the specified location. The correct schema and path are therefore not\
     \ satisfied."
+T009:
+  c: false
+  h: 51c4531761739d44db00a2fa6f653a8eee19514f7a2d17aa2851c26893a66dbe
+  r: '`code/main.py` correctly defines the logging configuration, but the required
+    log file `code/logs/pipeline.log` does not exist, and there is no evidence that
+    the script was executed to generate log entries in the specified format. The verification
+    step is missing.'
 T011:
   c: false
   h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
@@ -40,6 +47,13 @@ T029:
     \ the model\u2019s results being phrased as \u201Cassociational\u201D rather than\
     \ causal. Without such artifact, we cannot verify that the requirement of framing\
     \ findings as associational has been satisfied."
+T036:
+  c: false
+  h: 0be674b4f93f5f1b9c7650bb7a2a934f9c8b88001e29ac1f0dd830076c745ba3
+  r: The required output PDF (`reports/final_report.pdf`) is absent, so the verification
+    step cannot be performed. Additionally, the provided `generate_report.py` is truncated
+    and does not show a complete implementation for assembling the PDF. The task therefore
+    remains unfinished.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,13 +62,6 @@ T037:
     \ valence\u201D limitation. Without a tangible artifact containing those statements,\
     \ the task is not satisfied. The next implementer must supply the final report\
     \ (e.g., PDF or markdown) where these limitations are clearly mentioned."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or refactored modules for the `data/` and `models/` directories\
-    \ are present; the provided information contains only user story specifications\
-    \ and no actual cleaned\u2011up or refactored files. The required artifacts are\
-    \ missing, so the task is not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

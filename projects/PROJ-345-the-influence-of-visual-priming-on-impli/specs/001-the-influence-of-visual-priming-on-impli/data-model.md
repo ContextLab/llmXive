@@ -1,64 +1,81 @@
 # Data Model: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-## 1. Entity Relationship Diagram (Conceptual)
+## 1. Entity-Relationship Overview
 
-```mermaid
-erDiagram
-    PARTICIPANT ||--o{ TRIAL : performs
-    TRIAL }|--|| STIMULUS : uses
-    STIMULUS ||--o{ METADATA : has
-    TRIAL ||--o{ RESPONSE : has
-```
+The data model consists of three primary entities: `Participant`, `Trial`, and `Stimulus`.
+- **Participant**: Unique ID, demographic metadata (if available).
+- **Trial**: Link between Participant and Stimulus, containing response time and condition.
+- **Stimulus**: Image/Text content, valence score, ambiguity score.
+
+**Stimulus Separation**: `data/primes/` and `data/targets/` are populated and processed independently before the final `linked_trials.csv` is generated, satisfying Constitution Principle VI.
 
 ## 2. Schema Definitions
 
-### Participant
-- `participant_id`: String (Unique ID)
-- `demographics`: JSON (Optional: age, gender, etc., if available in source)
+### 2.1. Raw Input Schema (IAT Dataset)
+Derived from `davanstrien/ia_test_embeddings`.
+- `trial_id`: String (Unique identifier)
+- `participant_id`: String (Unique identifier)
+- `response_time`: Float (ms)
+- `stimulus_id`: String (Link to stimulus metadata)
+- `condition`: String (Prime/Target condition)
+- `age`: Float (Optional)
+- `gender`: String (Optional)
+- `education`: String (Optional)
 
-### Stimulus
-- `stimulus_id`: String (Unique ID)
-- `stimulus_type`: Enum ('image', 'word')
-- `stimulus_path`: String (Relative path to file in `data/primes/` or `data/targets/`)
-- `valence_score`: Float (Derived: -1 to 1, via VAD regression model)
-- `ambiguity_score`: Float (Derived: 0 to 1, 1 = high ambiguity) - **Source: Human-rated or external validated metric ONLY**
-- `source_dataset`: String (URL of origin)
+### 2.2. Processed Trial Schema (`data/processed/linked_trials.csv`)
+- `trial_id`: String
+- `participant_id`: String
+- `response_time`: Float
+- `prime_valence`: Float (Derived or Human-rated, -1 to 1)
+- `stimulus_ambiguity`: Float (Derived or Human-rated, 0 to 1)
+- `stimulus_id`: String
+- `linkage_status`: String ("linked", "missing_image", "missing_metadata")
+- `demographics_status`: String ("complete", "missing_age", "missing_gender", "missing_education", "missing_all")
 
-### Trial
-- `trial_id`: String (Unique ID)
-- `participant_id`: String (FK)
-- `stimulus_id`: String (FK)
-- `prime_condition`: Enum ('positive', 'negative', 'neutral')
-- `response_time_ms`: Float (Primary outcome)
-- `correct`: Boolean (Accuracy of response)
-- `timestamp`: DateTime
+### 2.3. Linkage Status Artifact (`state/linkage_status.json`)
+- `status`: String ("PASS", "WARN", "HALT")
+- `percentage`: Float (0.0 to 100.0)
+- `threshold`: Float (Default 95.0)
+- `message`: String
 
-### Metadata (Derived) - **Single Source of Truth**
-- **Storage**: `data/processed/stimulus_metadata.csv`
-- `linkage_status`: Enum ('verified', 'derived', 'missing')
-- `derivation_method`: String (e.g., "vad_model_affectnet", "human_rating_source_x")
-- `valence_confidence`: Float (Optional: model confidence for valence)
-- `ambiguity_source`: String (e.g., "human_rated", "external_dataset_y")
+### 2.4. Model Output Schema (`state/model_convergence_metrics.json`)
+- `convergence_rate`: Float (0.0 to 1.0)
+- `total_attempts`: Integer
+- `successful_runs`: Integer
+- `failed_runs`: Integer
+- `optimizer_settings`: Array of Strings
+
+### 2.5. VIF Flag Artifact (`state/vif_flag.json`)
+- `flagged`: Boolean
+- `vif_values`: Object (predictor: value)
+- `claim_suppressed`: Boolean
+- `message`: String
+
+### 2.6. Sensitivity Analysis Schema (`reports/sensitivity_analysis.csv`)
+- `alpha_level`: Float (0.01, 0.05, 0.10)
+- `significant_interactions`: Integer
+- `total_tests`: Integer
+- `fdr_corrected_p_values`: Array of Floats
+- `conclusion`: String ("Significant", "Non-Significant", "Borderline")
 
 ## 3. Data Flow
 
-1. **Ingestion**: Raw CSV/Parquet -> `data/raw/`
-2. **Validation**: 
-   - Check for visual stimuli files (halt if missing).
-   - Check for human-rated ambiguity or flag for fallback.
-   - Check for prime confounding (trial order/block).
-3. **Derivation**:
-   - Images -> VAD Model -> `valence_score`.
-   - Human Ratings -> `ambiguity_score`.
-4. **Cleaning**: Filter trials with missing linkage > 10% (US-1, Scenario 3).
-5. **Aggregation**: Aggregate trials to `participant_id` x `stimulus_id` to calculate `mean_response_time`.
-6. **Modeling**: Aggregated data -> LMM (without stimulus random effect).
-7. **Reporting**: Aggregated results -> PDF.
+1.  **Ingestion**: Raw Parquet/CSV -> `data/raw/`.
+2.  **Stimulus Separation**: Primes and Targets extracted to `data/primes/` and `data/targets/` respectively.
+3.  **Linkage**: Join `trial_id` with `stimulus_id` -> `data/processed/linked_trials.csv`.
+4.  **Derivation**: If `stimulus_ambiguity` missing, derive using independent method (Lexical Ambiguity / Texture Variance).
+5.  **Filtering**: Remove trials with `linkage_status` = "missing_image" if >10% (halt) or <10% (warn).
+6.  **Demographics Check**: Map `age`, `gender`, `education`. Write status to `state/demographics_status.json`.
+7.  **Modeling**: `linked_trials.csv` -> LME Model (with Robust SE if derived) -> `state/model_results.pkl`.
+    - *Note*: Covariate term omitted if demographics missing.
+8.  **Sensitivity Analysis**: Sweep alpha -> `reports/sensitivity_analysis.csv`.
+9.  **Reporting**: Model results + `sensitivity_analysis.csv` (parsed) -> `reports/final_report.pdf`.
 
-## 4. Constraints & Hygiene
+## 4. Constraints & Validations
 
-- **No PII**: `participant_id` must be anonymized.
-- **Immutability**: Raw files in `data/raw/` are never modified.
-- **Checksums**: All files in `data/` must have corresponding SHA-256 hashes in `state/`.
-- **Separation**: `data/primes/` and `data/targets/` must remain distinct until the final merge for modeling.
-- **Single Source**: `data/processed/stimulus_metadata.csv` is the authoritative source for all derived metrics.
+- **Linkage Threshold**: System halts if >10% of trials lack image linkage (US-1). Default threshold 95% (configurable).
+- **Valence Range**: `prime_valence` must be in [-1.0, 1.0].
+- **Ambiguity Range**: `stimulus_ambiguity` must be in [0.0, 1.0].
+- **PII Scan**: No `participant_id` can match known PII patterns (email, phone, SSN, name).
+- **Collinearity**: If VIF > 5.0, claim suppression is enforced and reported.
+- **Demographics**: If `demographics_status` indicates missing data, the model equation must exclude the covariate term.

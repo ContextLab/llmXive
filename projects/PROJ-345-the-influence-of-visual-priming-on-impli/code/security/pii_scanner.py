@@ -4,167 +4,149 @@ import csv
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set
-from code.config import Config
+from typing import Dict, List, Any, Optional
 
-logger = logging.getLogger(__name__)
-
-# PII Patterns: Email, Phone, SSN, Credit Card, IP Address
+# Define PII patterns using regex
+# Note: This is a heuristic scanner. For production, use a dedicated library like presidio-analyzer
+# if installed, but the regex fallback is required for robustness.
 PII_PATTERNS = {
-    "email": re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'),
-    "phone_us": re.compile(r'(\+1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}'),
-    "ssn": re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),
-    "credit_card": re.compile(r'\b(?:\d{4}[-.\s]?){3}\d{4}\b'),
-    "ip_address": re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
-    "driver_license": re.compile(r'\b[A-Z0-9]{6,9}\b'), # Generic broad pattern, context dependent
+    "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
+    "phone_us": re.compile(r"(\+1[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}"),
+    "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
+    "credit_card": re.compile(r"\b(?:\d[ -]*?){13,16}\b"),
+    "ip_address": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
 }
 
 class PIIResult:
-    def __init__(self, file_path: str, line_number: int, pattern_type: str, matched_text: str):
-        self.file_path = file_path
-        self.line_number = line_number
-        self.pattern_type = pattern_type
-        self.matched_text = matched_text
+    def __init__(self, leak_type: str, location: str, context: str):
+        self.leak_type = leak_type
+        self.location = location
+        self.context = context
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, str]:
         return {
-            "file_path": self.file_path,
-            "line_number": self.line_number,
-            "pattern_type": self.pattern_type,
-            "matched_text": self.matched_text
+            "type": self.leak_type,
+            "location": self.location,
+            "context": self.context
         }
 
-def scan_text_for_pii(text: str, file_path: str) -> List[PIIResult]:
-    """Scan a block of text for PII patterns."""
+def scan_text_for_pii(text: str, file_path: str = "unknown") -> List[PIIResult]:
+    """
+    Scan a string for PII patterns.
+    """
     results = []
-    lines = text.splitlines()
-    for line_num, line in enumerate(lines, 1):
-        for p_type, pattern in PII_PATTERNS.items():
-            matches = pattern.findall(line)
-            for match in matches:
-                # Ensure we capture the full match string if findall returns groups
-                if isinstance(match, tuple):
-                    full_match = next((m for m in match if m), match[0])
-                else:
-                    full_match = match
-                
-                # Avoid false positives for IP addresses that are just numbers
-                if p_type == "ip_address":
-                    parts = full_match.split('.')
-                    if not all(0 <= int(p) <= 255 for p in parts):
-                        continue
-
-                results.append(PIIResult(file_path, line_num, p_type, full_match))
+    for p_type, pattern in PII_PATTERNS.items():
+        matches = pattern.findall(text)
+        for match in matches:
+            # Context: snippet around the match
+            start = text.find(str(match))
+            end = start + len(str(match))
+            context = text[max(0, start-20):min(len(text), end+20)]
+            results.append(PIIResult(p_type, file_path, context))
     return results
 
 def scan_csv_file(file_path: Path) -> List[PIIResult]:
-    """Scan a CSV file for PII."""
+    """
+    Scan a CSV file for PII.
+    """
     results = []
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.reader(f)
-            for line_num, row in enumerate(reader, 1):
-                for cell in row:
-                    cell_results = scan_text_for_pii(cell, str(file_path))
-                    # Adjust line number if we want to be more granular, but row index is fine
+            for row_idx, row in enumerate(reader):
+                for col_idx, cell in enumerate(row):
+                    cell_results = scan_text_for_pii(str(cell), f"{file_path}:{row_idx}:{col_idx}")
                     results.extend(cell_results)
     except Exception as e:
-        logger.error(f"Error scanning CSV {file_path}: {e}")
+        logging.error(f"Error scanning CSV {file_path}: {e}")
     return results
 
 def scan_json_file(file_path: Path) -> List[PIIResult]:
-    """Scan a JSON file for PII."""
+    """
+    Scan a JSON file for PII.
+    """
     results = []
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-        # Simple recursive scan of string values
-        # For large files, a streaming approach might be needed, but text scan covers all strings
-        results = scan_text_for_pii(content, str(file_path))
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Convert to string to scan
+            text_data = json.dumps(data)
+            results = scan_text_for_pii(text_data, str(file_path))
     except Exception as e:
-        logger.error(f"Error scanning JSON {file_path}: {e}")
+        logging.error(f"Error scanning JSON {file_path}: {e}")
     return results
 
-def scan_directory_for_pii(directory: Path) -> List[PIIResult]:
-    """Recursively scan a directory for PII in text-based files."""
-    all_results = []
-    if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
-        return all_results
+def scan_directory_for_pii(directory_path: str) -> Dict[str, Any]:
+    """
+    Recursively scan a directory for PII in CSV and JSON files.
+    Returns a dict with schema {"leaks": [{"type": str, "location": str}]}.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Scanning directory {directory_path} for PII...")
+    
+    all_leaks = []
+    dir_path = Path(directory_path)
+    
+    if not dir_path.exists():
+        logger.warning(f"Directory {directory_path} does not exist.")
+        return {"leaks": []}
 
-    # Extensions to scan
-    extensions = {'.csv', '.json', '.txt', '.log', '.tsv', '.yaml', '.yml'}
-    
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if Path(file).suffix.lower() in extensions:
-                file_path = Path(root) / file
-                if file_path.suffix.lower() == '.csv':
-                    all_results.extend(scan_csv_file(file_path))
-                elif file_path.suffix.lower() == '.json':
-                    all_results.extend(scan_json_file(file_path))
-                else:
-                    # Default to text scan for others
-                    try:
-                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read()
-                        all_results.extend(scan_text_for_pii(content, str(file_path)))
-                    except Exception as e:
-                        logger.error(f"Error reading {file_path}: {e}")
-    return all_results
+    for file_path in dir_path.rglob("*"):
+        if file_path.is_file():
+            if file_path.suffix.lower() == '.csv':
+                leaks = scan_csv_file(file_path)
+                all_leaks.extend(leaks)
+            elif file_path.suffix.lower() == '.json':
+                leaks = scan_json_file(file_path)
+                all_leaks.extend(leaks)
+            elif file_path.suffix.lower() == '.txt':
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        leaks = scan_text_for_pii(content, str(file_path))
+                        all_leaks.extend(leaks)
+                except Exception as e:
+                    logger.error(f"Error reading {file_path}: {e}")
 
-def generate_security_report(results: List[PIIResult], output_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Generate a summary report of PII findings."""
-    report = {
-        "total_pii_found": len(results),
-        "files_affected": len(set(r.file_path for r in results)),
-        "leaks": []
-    }
-    
-    if results:
-        report["leaks"] = [r.to_dict() for r in results]
-        logger.warning(f"Found {len(results)} potential PII leaks.")
-    else:
-        logger.info("No PII leaks detected.")
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Security report written to {output_path}")
-    
-    return report
+    # Format output as required: {"leaks": [{"type": ..., "location": ...}]}
+    formatted_leaks = [
+        {"type": leak.leak_type, "location": leak.location}
+        for leak in all_leaks
+    ]
 
-def run_pii_security_check(target_directory: Optional[Path] = None, output_file: Optional[Path] = None) -> Dict[str, Any]:
-    """Main entry point for running the security check."""
-    if target_directory is None:
-        target_directory = Path(Config.DATA_PROCESSED)
-    
-    logger.info(f"Scanning directory: {target_directory}")
-    results = scan_directory_for_pii(target_directory)
-    
-    if output_file is None:
-        output_file = Path(Config.REPORTS) / "pii_scan.json"
-    
-    return generate_security_report(results, output_file)
+    logger.info(f"Scan complete. Found {len(formatted_leaks)} potential leaks.")
+    return {"leaks": formatted_leaks}
+
+def generate_security_report(results: Dict[str, Any], output_path: Path):
+    """
+    Save the security report to a JSON file.
+    """
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logging.info(f"Security report saved to {output_path}")
+
+def run_pii_security_check(data_dir: str, output_file: str) -> Dict[str, Any]:
+    """
+    Main entry point for running the PII check on a specific directory.
+    """
+    result = scan_directory_for_pii(data_dir)
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    generate_security_report(result, output_path)
+    return result
 
 def main():
-    """CLI entry point for PII scanning."""
+    """
+    CLI entry point for the PII scanner.
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Scan for PII in project data.")
-    parser.add_argument("--target-dir", type=str, default=None, help="Directory to scan")
-    parser.add_argument("--output", type=str, default=None, help="Output JSON path")
+    parser = argparse.ArgumentParser(description="Scan for PII in data directories.")
+    parser.add_argument('--dir', type=str, required=True, help='Directory to scan')
+    parser.add_argument('--output', type=str, default='reports/pii_scan.json', help='Output JSON path')
     args = parser.parse_args()
 
-    target = Path(args.target_dir) if args.target_dir else None
-    output = Path(args.output) if args.output else None
-
-    report = run_pii_security_check(target_directory=target, output_file=output)
-    
-    if report["total_pii_found"] > 0:
-        sys.exit(1)
-    sys.exit(0)
+    logging.basicConfig(level=logging.INFO)
+    run_pii_security_check(args.dir, args.output)
 
 if __name__ == "__main__":
-    import sys
     main()

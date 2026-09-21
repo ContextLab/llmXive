@@ -1,0 +1,14 @@
+status: none
+intent: download OSF implicit association test response time dataset with facial stimulus
+  metadata python package dataset
+required_fields:
+- trial_id
+- participant_id
+- response_time_ms
+- stimulus_image_path
+- stimulus_image_id
+- prime_valence_label
+- stimulus_ambiguity_score
+cache_key: c9a1abb4fe8e13d46081da134974d3e88fb2e1671b0b7fe55ba07fb7621ce32b
+searched_at: '2026-09-21T04:50:29.403722+00:00'
+retry_count: 1
