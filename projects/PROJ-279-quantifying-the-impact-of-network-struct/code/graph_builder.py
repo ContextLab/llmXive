@@ -4,217 +4,272 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Set
 import networkx as nx
 import numpy as np
+
 from models.atomic_config import AtomicConfiguration
-from config.env_config import get_processed_dir, get_cutoff_radius
+from config.env_config import get_processed_dir
+from logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+# Define the EXACT discrete set of cutoff radii required by FR-002
+# This constant is immutable and enforced by the sensitivity loop logic.
+SENSITIVITY_CUTOFFS: Tuple[float, float, float] = (2.8, 3.0, 3.2)
+VALID_CUTOFFS = set(SENSITIVITY_CUTOFFS)
 
-def build_graph_from_atoms(config: AtomicConfiguration, cutoff: Optional[float] = None) -> nx.Graph:
+logger = get_logger(__name__)
+
+
+def build_graph_from_atoms(
+    config: AtomicConfiguration, cutoff_radius: float
+) -> nx.Graph:
     """
-    Build a graph representation of an atomic configuration.
-    Nodes are atoms, edges represent bonds within the cutoff distance.
-    
+    Build a network graph from an atomic configuration using a specific cutoff radius.
+
     Args:
-        config: AtomicConfiguration object containing coordinates and species
-        cutoff: Bond cutoff distance in Angstroms. Defaults to env config.
-    
+        config: The atomic configuration object containing coordinates and species.
+        cutoff_radius: The distance threshold in Angstroms for bond formation.
+
     Returns:
-        networkx.Graph object representing the atomic structure
+        A NetworkX graph where nodes are atoms and edges represent bonds.
     """
-    if cutoff is None:
-        cutoff = get_cutoff_radius()
-    
+    if not isinstance(config, AtomicConfiguration):
+        raise TypeError(f"Expected AtomicConfiguration, got {type(config)}")
+
+    if cutoff_radius <= 0:
+        raise ValueError(f"Cutoff radius must be positive, got {cutoff_radius}")
+
+    coords = config.coordinates  # Shape: (N, 3)
+    N = len(coords)
+
     G = nx.Graph()
-    positions = config.coordinates
-    n_atoms = len(positions)
-    
-    # Add nodes
-    for i in range(n_atoms):
-        G.add_node(i, species=config.species[i], position=positions[i].tolist())
-    
-    # Add edges based on distance cutoff
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            dist = np.linalg.norm(positions[i] - positions[j])
-            if dist <= cutoff:
-                G.add_edge(i, j, distance=dist)
-    
+    G.add_nodes_from(range(N))
+
+    # Use a simple O(N^2) distance check. For N ~ 1000-5000, this is acceptable.
+    # For very large N, a KDTree approach would be needed.
+    # Given the constraint of < 1000 atoms for validation (T007a), N is manageable.
+    # However, we use numpy broadcasting for speed.
+    dist_matrix = np.linalg.norm(
+        coords[:, np.newaxis, :] - coords[np.newaxis, :, :], axis=2
+    )
+
+    # Find pairs within cutoff (excluding self, and avoid double counting)
+    # We set diagonal to infinity to avoid self-loops
+    np.fill_diagonal(dist_matrix, np.inf)
+
+    # Create adjacency matrix boolean mask
+    adj_mask = dist_matrix <= cutoff_radius
+
+    # Extract indices of edges (upper triangle to avoid duplicates)
+    rows, cols = np.where(adj_mask)
+    # Only keep upper triangle indices to avoid double edges
+    edges = [(r, c) for r, c in zip(rows, cols) if r < c]
+
+    G.add_edges_from(edges)
+
     return G
 
-def validate_graph_connectivity(G: nx.Graph, config_id: str, min_component_size: int = 10) -> Tuple[bool, List[int], Dict[str, Any]]:
-    """
-    Validate that the graph is connected and contains no significant disconnected components.
-    Logs warnings for disconnected components as per Spec US-1, Scenario 3.
-    
-    Args:
-        G: The graph to validate
-        config_id: Identifier for the configuration being validated
-        min_component_size: Minimum size for a component to be considered "significant"
-    
-    Returns:
-        Tuple of:
-            - is_valid (bool): True if graph is fully connected or has only trivial components
-            - isolated_nodes (List[int]): List of node indices in components smaller than min_component_size
-            - metadata (Dict): Detailed connectivity information
-    """
-    if G.number_of_nodes() == 0:
-        logger.warning(f"Config {config_id}: Graph has no nodes.")
-        return False, [], {"reason": "empty_graph"}
 
-    components = list(nx.connected_components(G))
-    n_components = len(components)
-    
-    metadata = {
-        "config_id": config_id,
-        "total_nodes": G.number_of_nodes(),
-        "total_edges": G.number_of_edges(),
-        "n_components": n_components,
-        "component_sizes": [len(c) for c in components],
-        "largest_component_size": max(len(c) for c in components) if components else 0,
-        "isolated_nodes": [],
-        "warnings": []
+def validate_graph_connectivity(G: nx.Graph) -> Dict[str, Any]:
+    """
+    Validate the connectivity of the constructed graph.
+
+    Args:
+        G: The networkx graph to validate.
+
+    Returns:
+        A dictionary with validation results:
+        - 'is_connected': bool
+        - 'num_components': int
+        - 'largest_component_size': int
+        - 'warnings': list of strings
+    """
+    warnings = []
+    num_components = nx.number_connected_components(G)
+    is_connected = num_components == 1
+
+    if not is_connected:
+        sizes = sorted([len(c) for c in nx.connected_components(G)], reverse=True)
+        largest_size = sizes[0]
+        warnings.append(
+            f"Graph is disconnected. Found {num_components} components. "
+            f"Largest component size: {largest_size}."
+        )
+        logger.warning(f"Disconnection detected: {warnings[-1]}")
+    else:
+        largest_size = G.number_of_nodes()
+
+    return {
+        "is_connected": is_connected,
+        "num_components": num_components,
+        "largest_component_size": largest_size,
+        "warnings": warnings,
     }
 
-    is_valid = True
-    isolated_nodes = []
 
-    if n_components == 1:
-        logger.debug(f"Config {config_id}: Graph is fully connected.")
-        return True, [], metadata
-
-    # Analyze components
-    for i, component in enumerate(components):
-        size = len(component)
-        if size < min_component_size:
-            # Treat as isolated/trivial component
-            isolated_nodes.extend(list(component))
-            metadata["isolated_nodes"].extend(list(component))
-            
-            if size == 1:
-                warning_msg = f"Config {config_id}: Detected {size} isolated atom(s) (disconnected component)."
-            else:
-                warning_msg = f"Config {config_id}: Detected disconnected component of size {size} (< {min_component_size})."
-            
-            logger.warning(warning_msg)
-            metadata["warnings"].append(warning_msg)
-            is_valid = False
-        else:
-            logger.info(f"Config {config_id}: Component {i} has size {size}.")
-
-    if not is_valid:
-        logger.warning(f"Config {config_id}: Graph validation failed due to disconnected components.")
-    
-    return is_valid, isolated_nodes, metadata
-
-def build_graphs(configs: List[AtomicConfiguration], cutoff: Optional[float] = None) -> Tuple[List[nx.Graph], List[Dict[str, Any]]]:
+def build_graphs(
+    configs: List[AtomicConfiguration],
+    cutoff_radius: float,
+    output_dir: Optional[Path] = None,
+) -> List[Tuple[str, nx.Graph, Dict[str, Any]]]:
     """
-    Build graphs for a list of atomic configurations with connectivity validation.
-    
+    Build graphs for a list of configurations using a single cutoff radius.
+
     Args:
-        configs: List of AtomicConfiguration objects
-        cutoff: Bond cutoff distance (optional)
-    
+        configs: List of atomic configurations.
+        cutoff_radius: The cutoff radius to use for all configurations.
+        output_dir: Optional directory to save graphs.
+
     Returns:
-        Tuple of:
-            - graphs: List of valid nx.Graph objects (excluding those with major connectivity issues)
-            - validation_reports: List of metadata dicts for each configuration
+        List of tuples: (config_id, graph, validation_info)
     """
-    graphs = []
-    validation_reports = []
-    cutoff = cutoff if cutoff else get_cutoff_radius()
+    if cutoff_radius not in VALID_CUTOFFS:
+        raise ValueError(
+            f"Invalid cutoff radius {cutoff_radius}. "
+            f"Must be one of {SENSITIVITY_CUTOFFS}. "
+            "This is a hard constraint defined in T015a."
+        )
+
+    if output_dir is None:
+        output_dir = get_processed_dir() / "graphs"
     
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    results = []
     for config in configs:
-        G = build_graph_from_atoms(config, cutoff)
-        config_id = config.id
-        
-        is_valid, isolated, meta = validate_graph_connectivity(G, config_id)
-        
-        # Always record the validation metadata
-        validation_reports.append(meta)
-        
-        # If the graph has significant disconnected components (not just isolated atoms),
-        # we might still want to keep it but flag it. 
-        # For this implementation, we keep the graph but the metadata indicates validity.
-        graphs.append(G)
-    
-    return graphs, validation_reports
+        try:
+            G = build_graph_from_atoms(config, cutoff_radius)
+            validation_info = validate_graph_connectivity(G)
+            
+            # Save graph if requested (T018 requirement)
+            # Note: T018 is a separate task, but we prepare the path here.
+            # We do not save in this specific function to keep it pure,
+            # but the graph is returned for the caller to save.
+            
+            results.append((config.id, G, validation_info))
+            logger.info(f"Built graph for {config.id} with r={cutoff_radius} Å")
+        except Exception as e:
+            logger.error(f"Failed to build graph for {config.id}: {e}", exc_info=True)
+            # Decide whether to skip or fail. For now, skip and log.
+            continue
 
-def run_sensitivity_analysis(configs: List[AtomicConfiguration], radii: List[float] = None) -> Dict[str, Any]:
+    return results
+
+
+def run_sensitivity_analysis(
+    configs: List[AtomicConfiguration],
+    output_path: Optional[Path] = None,
+) -> Dict[str, Any]:
     """
-    Run sensitivity analysis on cutoff radius.
-    
+    Run the sensitivity analysis loop over the EXACT discrete set of cutoff radii:
+    {2.8, 3.0, 3.2} Å.
+
+    This function implements the logic required by T015a and FR-002.
+
     Args:
-        configs: List of AtomicConfiguration objects
-        radii: List of cutoff radii to test. Defaults to [2.8, 3.0, 3.2]
-    
+        configs: List of validated atomic configurations.
+        output_path: Path to save the sensitivity report JSON.
+
     Returns:
-        Dictionary containing sensitivity report data
-    """
-    if radii is None:
-        radii = [2.8, 3.0, 3.2]
-    
-    report = {
-        "radii_tested": radii,
-        "results": []
-    }
-    
-    for r in radii:
-        avg_degree = 0.0
-        component_counts = []
-        total_nodes = 0
-        
-        for config in configs:
-            G = build_graph_from_atoms(config, r)
-            if G.number_of_nodes() > 0:
-                total_nodes += G.number_of_nodes()
-                avg_degree += np.mean([d for n, d in G.degree()])
-                component_counts.append(nx.number_connected_components(G))
-        
-        n_configs = len(configs)
-        if n_configs > 0:
-            avg_degree /= n_configs
-            avg_components = np.mean(component_counts)
-        else:
-            avg_components = 0.0
-        
-        report["results"].append({
-            "cutoff_radius": r,
-            "average_degree": float(avg_degree),
-            "average_component_count": float(avg_components),
-            "total_nodes_processed": total_nodes
-        })
-    
-    return report
-
-def save_sensitivity_report(report: Dict[str, Any], output_path: Optional[Path] = None):
-    """
-    Save sensitivity analysis report to JSON.
-    
-    Args:
-        report: Sensitivity report dictionary
-        output_path: Path to save the report. Defaults to data/processed/sensitivity_report.json
+        A dictionary containing the sensitivity report data.
     """
     if output_path is None:
-        output_path = Path(get_processed_dir()) / "sensitivity_report.json"
-    
+        output_path = get_processed_dir() / "sensitivity_report.json"
+
+    logger.info(f"Starting sensitivity analysis on {len(configs)} configs.")
+    logger.info(f"Testing cutoffs: {SENSITIVITY_CUTOFFS}")
+
+    report = {
+        "cutoffs_tested": SENSITIVITY_CUTOFFS,
+        "num_configs": len(configs),
+        "results": []
+    }
+
+    for r in SENSITIVITY_CUTOFFS:
+        logger.info(f"Processing cutoff radius: {r} Å")
+        
+        # Build graphs for this specific cutoff
+        # We only process the configs passed in (assumed validated by T007-exec)
+        graphs_data = build_graphs(configs, r)
+        
+        # Aggregate statistics
+        total_nodes = 0
+        total_edges = 0
+        total_components = 0
+        disconnected_count = 0
+        
+        for config_id, G, info in graphs_data:
+            total_nodes += G.number_of_nodes()
+            total_edges += G.number_of_edges()
+            total_components += info["num_components"]
+            if not info["is_connected"]:
+                disconnected_count += 1
+
+        avg_degree = total_edges / total_nodes if total_nodes > 0 else 0.0
+        avg_components = total_components / len(graphs_data) if graphs_data else 0.0
+
+        result_entry = {
+            "cutoff_radius": r,
+            "num_graphs_processed": len(graphs_data),
+            "average_degree": avg_degree,
+            "average_component_count": avg_components,
+            "disconnected_graphs_count": disconnected_count
+        }
+        
+        report["results"].append(result_entry)
+        logger.info(
+            f"Cutoff {r} Å: Avg Degree={avg_degree:.4f}, "
+            f"Avg Components={avg_components:.4f}"
+        )
+
+    # Save the report
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
     
     logger.info(f"Sensitivity report saved to {output_path}")
+    return report
+
+
+def save_sensitivity_report(report: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the sensitivity analysis report to a JSON file.
+    
+    Args:
+        report: The report dictionary.
+        output_path: The file path to save to.
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Saved sensitivity report to {output_path}")
+
 
 def main():
     """
-    Main entry point for graph builder module.
-    Demonstrates building graphs and running sensitivity analysis.
+    Entry point for testing the sensitivity loop logic directly.
+    This is primarily for development/testing purposes.
     """
-    setup_logging()
-    logger.info("Graph Builder Module Started")
+    import sys
+    from models.atomic_config import AtomicConfiguration
     
-    # Example usage would load configs and call build_graphs / run_sensitivity_analysis
-    # This is a placeholder for the actual execution logic which depends on data ingestion
-    logger.info("Module ready for integration with data pipeline.")
+    # Create dummy config for testing if no real data is passed
+    # In real execution, this would be called by main.py with real configs
+    logger.info("Running main for graph_builder sensitivity check.")
+    
+    # Example usage of the constant
+    print(f"Valid cutoffs: {SENSITIVITY_CUTOFFS}")
+    
+    # Verify the constraint logic
+    try:
+        # This should work
+        build_graphs([], 2.8)
+        print("Cutoff 2.8 accepted.")
+        
+        # This should fail
+        build_graphs([], 3.5)
+    except ValueError as e:
+        print(f"Correctly rejected invalid cutoff: {e}")
 
 if __name__ == "__main__":
     main()

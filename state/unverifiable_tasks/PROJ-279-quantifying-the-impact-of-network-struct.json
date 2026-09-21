@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-279-quantifying-the-impact-of-network-struct",
+  "tasks": [
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "The submission provides only the task description; there is no code, test suite, or documentation showing that corrupted files are detected and cause an abort, nor that unexpected coordination numbers are flagged or dropped. Without concrete implementation artifacts, the edge\u2011case handling requirement cannot be verified.",
+      "first_seen": "2026-09-21T18:50:23.180157+00:00",
+      "last_seen": "2026-09-21T18:50:23.180157+00:00"
+    },
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "No files or code snippets were presented showing that constructed graphs (or their metadata) are being written to `data/processed/graphs/` in JSON or GraphML format. Without concrete artifacts (e.g., a script that performs the save, or example output files in the specified directory), the requirement is not satisfied. The next implementer must add the saving functionality and provide the resulting files as evidence.",
+      "first_seen": "2026-09-21T18:50:23.181449+00:00",
+      "last_seen": "2026-09-21T18:50:23.181449+00:00"
+    },
+    {
+      "task_key": "T026",
+      "reject_count": 1,
+      "last_reason": "No code, script, test, or documentation was provided that demonstrates the system now skips configurations with missing thermal conductivity values and logs the count of such skips. The required artifact (implementation and evidence of the edge\u2011case handling) is missing.",
+      "first_seen": "2026-09-21T18:50:24.785957+00:00",
+      "last_seen": "2026-09-21T18:50:24.785957+00:00"
+    }
+  ],
+  "updated_at": "2026-09-21T18:50:24.785957+00:00"
+}

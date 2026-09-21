@@ -1,20 +1,37 @@
-T017:
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides only the task description; there is no code, test suite,\
-    \ or documentation showing that corrupted files are detected and cause an abort,\
-    \ nor that unexpected coordination numbers are flagged or dropped. Without concrete\
-    \ implementation artifacts, the edge\u2011case handling requirement cannot be\
-    \ verified."
-T018:
+  r: "No `validation_utils.py` file was presented or referenced in the provided evidence,\
+    \ and therefore there is no code implementing checksum verification or file\u2011\
+    integrity checks as required. The task remains undone."
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code snippets were presented showing that constructed graphs (or
-    their metadata) are being written to `data/processed/graphs/` in JSON or GraphML
-    format. Without concrete artifacts (e.g., a script that performs the save, or
-    example output files in the specified directory), the requirement is not satisfied.
-    The next implementer must add the saving functionality and provide the resulting
-    files as evidence.
+  r: No logging configuration file, code snippet, or documentation was presented that
+    creates a logger writing to both `logs/analysis.log` and stdout. Without such
+    an artifact, the requirement cannot be confirmed as satisfied. The implementer
+    must add and show the actual logging setup (e.g., a Python `logging` config or
+    script) that directs output to the specified file and console.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that actually reads
+    `cutoff_radius` and `zenodo_url` from environment variables. The required artifact
+    (e.g., a module or script implementing this loading logic) is missing, so the
+    task is not satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `download.py` script is present in the provided evidence, nor any code showing\
+    \ fetching of trajectories, checksum verification, or error handling as required.\
+    \ The task\u2019s core artifact is missing, so the requirement is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing added validation logic to detect disconnected\
+    \ graph components and emit warning logs is present. The required artifact (implementation\
+    \ of the validation step for US\u20111 Scenario\u202F3) is missing, so the task\
+    \ is not satisfied."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,20 +48,13 @@ T023:
     \ that the required functions exist or produce correct outputs. The implementer\
     \ must supply the actual implementation (e.g., a Python file with the function\
     \ definitions and any necessary tests or usage examples)."
-T025:
+T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CSV or JSON file linking configuration IDs to their full descriptor vectors
-    is present; the provided excerpt contains only project specifications and user
-    stories, with no actual dataset artifact. The required aggregated descriptor dataset
-    is missing, so the task is not satisfied.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation was provided that demonstrates the system\
-    \ now skips configurations with missing thermal conductivity values and logs the\
-    \ count of such skips. The required artifact (implementation and evidence of the\
-    \ edge\u2011case handling) is missing."
+  r: "No code, script, notebook, data file, or report showing that the aggregation\
+    \ logic from T025a was actually executed on the outputs of T022\u2011exec, T023\u2011\
+    exec, and T024\u2011exec is present. The required artifact (the aggregated results)\
+    \ is missing, so the task is not satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

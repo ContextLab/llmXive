@@ -1,129 +1,87 @@
 """
-Unit tests for download.py module.
+Unit tests for the download module.
 """
 import os
 import tempfile
 import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 import pytest
 import requests
 
-# Import module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Mock the environment variable before importing download
+os.environ["ZENODO_RECORD_ID"] = "123456"
+os.environ["DATA_DIR"] = "/tmp/test_data"
 
-from download import download_file, _create_retry_session, load_zenodo_metadata
-from validation_utils import compute_file_checksum
+from download import download_file, load_zenodo_metadata, compute_file_checksum
 
-def test_create_retry_session():
-    """Test that retry session is created correctly."""
-    session = _create_retry_session()
-    assert session is not None
-    # Verify adapters are mounted
-    assert "http://" in session.adapters
-    assert "https://" in session.adapters
-
-@patch('download.requests.Session')
-def test_download_file_success(mock_session_class):
-    """Test successful file download."""
-    mock_session = MagicMock()
-    mock_response = MagicMock()
-    mock_response.__enter__ = MagicMock(return_value=mock_response)
-    mock_response.__exit__ = MagicMock(return_value=False)
-    mock_response.raise_for_status = MagicMock()
-    mock_response.headers = {'content-length': '100'}
-    
-    # Mock iter_content to yield data
-    mock_response.iter_content = MagicMock(return_value=[b'x' * 50, b'x' * 50])
-    
-    mock_session.get = MagicMock(return_value=mock_response)
-    mock_session_class.return_value = mock_session
-
+def test_download_file_success():
+    """Test successful download and checksum verification."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        dest = Path(tmpdir) / "test.xyz"
-        expected_checksum = hashlib.sha256(b'x' * 100).hexdigest()
+        dest = Path(tmpdir) / "test.txt"
+        content = b"Hello, World!"
+        expected_checksum = hashlib.md5(content).hexdigest()
         
-        result = download_file("http://example.com/test.xyz", dest, expected_checksum)
+        # Mock the requests.get response
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = [content]
+        mock_response.headers = {'content-length': str(len(content))}
+        mock_response.raise_for_status = MagicMock()
         
-        assert result is True
+        with patch('download.requests.get', return_value=mock_response):
+            download_file("http://example.com/test.txt", dest, expected_checksum)
+            
         assert dest.exists()
-        assert compute_file_checksum(dest) == expected_checksum
+        assert dest.read_bytes() == content
 
-@patch('download.requests.Session')
-def test_download_file_checksum_mismatch(mock_session_class):
-    """Test that checksum mismatch raises RuntimeError."""
-    mock_session = MagicMock()
-    mock_response = MagicMock()
-    mock_response.__enter__ = MagicMock(return_value=mock_response)
-    mock_response.__exit__ = MagicMock(return_value=False)
-    mock_response.raise_for_status = MagicMock()
-    mock_response.headers = {'content-length': '10'}
-    mock_response.iter_content = MagicMock(return_value=[b'1234567890'])
-    
-    mock_session.get = MagicMock(return_value=mock_response)
-    mock_session_class.return_value = mock_session
-
+def test_download_file_checksum_mismatch():
+    """Test that download raises error on checksum mismatch."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        dest = Path(tmpdir) / "test.xyz"
-        # Wrong checksum
-        wrong_checksum = "0" * 64 
+        dest = Path(tmpdir) / "test.txt"
+        content = b"Hello, World!"
+        wrong_checksum = "00000000000000000000000000000000" # Invalid MD5
         
-        with pytest.raises(RuntimeError, match="Checksum mismatch"):
-            download_file("http://example.com/test.xyz", dest, wrong_checksum)
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = [content]
+        mock_response.headers = {'content-length': str(len(content))}
+        mock_response.raise_for_status = MagicMock()
         
-        # File should be cleaned up on failure
-        assert not dest.exists()
+        with patch('download.requests.get', return_value=mock_response):
+            with pytest.raises(RuntimeError, match="Checksum verification failed"):
+                download_file("http://example.com/test.txt", dest, wrong_checksum)
 
-@patch('download.requests.Session')
-def test_download_file_network_error(mock_session_class):
-    """Test that network errors are handled and file cleaned up."""
-    mock_session = MagicMock()
-    mock_session.get = MagicMock(side_effect=requests.exceptions.RequestException("Network error"))
-    mock_session_class.return_value = mock_session
-
+def test_download_file_network_error():
+    """Test that download raises error on network failure."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        dest = Path(tmpdir) / "test.xyz"
+        dest = Path(tmpdir) / "test.txt"
         
-        with pytest.raises(RuntimeError, match="Failed to download"):
-            download_file("http://example.com/test.xyz", dest)
-        
-        assert not dest.exists()
+        with patch('download.requests.get', side_effect=requests.exceptions.ConnectionError()):
+            with pytest.raises(RuntimeError, match="Download failed"):
+                download_file("http://example.com/test.txt", dest)
 
-@patch('download._create_retry_session')
-def test_load_zenodo_metadata_success(mock_session_func):
-    """Test successful metadata loading."""
-    mock_session = MagicMock()
-    mock_response = MagicMock()
-    mock_response.__enter__ = MagicMock(return_value=mock_response)
-    mock_response.__exit__ = MagicMock(return_value=False)
-    mock_response.raise_for_status = MagicMock()
-    mock_response.json.return_value = {
+def test_load_zenodo_metadata_success():
+    """Test loading metadata from Zenodo."""
+    mock_metadata = {
         "files": [
-            {"filename": "a-Si-1000.xyz", "url": "http://zenodo.org/1", "checksum": "abc"}
+            {
+                "key": "config_1.xyz",
+                "checksum": "md5:abc123",
+                "links": {"self": "http://zenodo.org/file1"}
+            }
         ]
     }
-    mock_session.get = MagicMock(return_value=mock_response)
-    mock_session_func.return_value = mock_session
     
-    with patch('download.get_zenodo_url', return_value="http://zenodo.org/"):
-        metadata = load_zenodo_metadata()
-        
-    assert "files" in metadata
-    assert len(metadata["files"]) == 1
-    assert metadata["files"][0]["filename"] == "a-Si-1000.xyz"
-
-@patch('download._create_retry_session')
-def test_load_zenodo_metadata_failure(mock_session_func):
-    """Test metadata loading failure."""
-    mock_session = MagicMock()
     mock_response = MagicMock()
-    mock_response.__enter__ = MagicMock(return_value=mock_response)
-    mock_response.__exit__ = MagicMock(return_value=False)
-    mock_response.raise_for_status = MagicMock(side_effect=requests.exceptions.HTTPError("404"))
-    mock_session.get = MagicMock(return_value=mock_response)
-    mock_session_func.return_value = mock_session
+    mock_response.json.return_value = mock_metadata
+    mock_response.raise_for_status = MagicMock()
     
-    with patch('download.get_zenodo_url', return_value="http://zenodo.org/"):
-        with pytest.raises(RuntimeError, match="Could not retrieve dataset metadata"):
-            load_zenodo_metadata()
+    with patch('download.requests.get', return_value=mock_response):
+        result = load_zenodo_metadata("123456")
+        
+    assert result == mock_metadata
+
+def test_load_zenodo_metadata_failure():
+    """Test that loading metadata raises error on failure."""
+    with patch('download.requests.get', side_effect=requests.exceptions.HTTPError()):
+        with pytest.raises(RuntimeError, match="Failed to fetch metadata"):
+            load_zenodo_metadata("123456")

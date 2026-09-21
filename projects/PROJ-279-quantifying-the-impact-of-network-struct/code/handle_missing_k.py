@@ -1,15 +1,7 @@
 """
 Module to handle missing thermal conductivity (k) values in the dataset.
-
-This module implements the logic to:
-1. Load processed configuration data.
-2. Identify configurations with missing thermal conductivity values.
-3. Skip these configurations during analysis.
-4. Log the count of skipped configurations.
-
-This satisfies Task T026: Handle missing thermal conductivity values.
+This implements Task T026: Skip configurations with missing k and log the count.
 """
-
 import json
 import logging
 import csv
@@ -24,17 +16,15 @@ logger = get_logger(__name__)
 
 def load_processed_configs() -> List[Dict[str, Any]]:
     """
-    Load processed configuration data from the descriptors CSV file.
-    
-    Returns:
-        List of dictionaries containing configuration data.
+    Load the aggregated descriptors from the processed CSV file.
+    Returns a list of dictionaries, each representing a configuration.
     """
     processed_dir = get_processed_dir()
     descriptors_path = processed_dir / "descriptors.csv"
     
     if not descriptors_path.exists():
-        logger.error(f"Descriptors file not found: {descriptors_path}")
-        raise FileNotFoundError(f"Descriptors file not found: {descriptors_path}")
+        raise FileNotFoundError(f"Descriptors file not found at {descriptors_path}. "
+                                "Run T025/T027 first to generate this file.")
     
     configs = []
     with open(descriptors_path, 'r', newline='', encoding='utf-8') as f:
@@ -47,7 +37,7 @@ def load_processed_configs() -> List[Dict[str, Any]]:
 
 def identify_missing_k(configs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Identify configurations with missing thermal conductivity values.
+    Identify configurations with missing thermal conductivity (k) values.
     
     Args:
         configs: List of configuration dictionaries.
@@ -59,80 +49,54 @@ def identify_missing_k(configs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, An
     missing_k_configs = []
     
     for config in configs:
-        k_value = config.get('thermal_conductivity')
+        # Check for 'k' or 'thermal_conductivity' field
+        k_value = config.get('k') or config.get('thermal_conductivity')
         
-        # Check if k_value is missing, None, or empty string
-        if k_value is None or k_value == '' or k_value == 'nan' or k_value == 'NaN':
+        if k_value is None or k_value == '' or k_value == 'null' or k_value == 'NaN':
             missing_k_configs.append(config)
         else:
+            # Attempt to convert to float to ensure it's a valid number
             try:
-                # Try to convert to float to ensure it's a valid number
                 float(k_value)
                 valid_configs.append(config)
             except (ValueError, TypeError):
-                # If conversion fails, treat as missing
                 missing_k_configs.append(config)
     
     return valid_configs, missing_k_configs
 
-def handle_missing_k_values(configs: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+def handle_missing_k_values(configs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
     """
-    Main function to handle missing thermal conductivity values.
-    
-    This function:
-    1. Loads processed configurations if not provided.
-    2. Identifies configurations with missing k values.
-    3. Logs the count of skipped configurations.
-    4. Returns a summary report.
+    Process configurations, skipping those with missing k values.
+    Logs the count of skipped configurations.
     
     Args:
-        configs: Optional list of pre-loaded configurations.
+        configs: List of all configuration dictionaries.
     
     Returns:
-        Dictionary containing the handling summary.
+        Tuple of (processed_configs, skip_count)
     """
-    if configs is None:
-        configs = load_processed_configs()
-    
     valid_configs, missing_k_configs = identify_missing_k(configs)
+    skip_count = len(missing_k_configs)
     
-    # Log the results
-    logger.info(f"Total configurations: {len(configs)}")
-    logger.info(f"Valid configurations (with k): {len(valid_configs)}")
-    logger.info(f"Skipped configurations (missing k): {len(missing_k_configs)}")
-    
-    if len(missing_k_configs) > 0:
-        logger.warning(f"Found {len(missing_k_configs)} configurations with missing thermal conductivity values.")
-        logger.warning("These configurations will be skipped in downstream analysis.")
+    if skip_count > 0:
+        logger.warning(f"Skipping {skip_count} configuration(s) with missing thermal conductivity (k) values.")
         
-        # Log individual missing k config IDs for debugging
-        for i, config in enumerate(missing_k_configs[:10]):  # Log first 10
-            config_id = config.get('config_id', f'unknown_{i}')
-            k_value = config.get('thermal_conductivity', 'N/A')
-            logger.debug(f"Missing k - Config ID: {config_id}, k value: {k_value}")
-        
-        if len(missing_k_configs) > 10:
-            logger.debug(f"... and {len(missing_k_configs) - 10} more configurations with missing k values.")
+        # Log details of skipped configurations for transparency
+        for config in missing_k_configs:
+            config_id = config.get('config_id', 'UNKNOWN')
+            logger.debug(f"Skipped config {config_id}: missing k value")
     else:
-        logger.info("All configurations have valid thermal conductivity values.")
+        logger.info("No configurations with missing thermal conductivity values found.")
     
-    # Create summary report
-    summary = {
-        'total_configs': len(configs),
-        'valid_configs': len(valid_configs),
-        'missing_k_configs': len(missing_k_configs),
-        'skipped_count': len(missing_k_configs),
-        'missing_k_config_ids': [c.get('config_id') for c in missing_k_configs]
-    }
-    
-    return summary
+    return valid_configs, skip_count
 
-def save_missing_k_report(summary: Dict[str, Any]) -> Path:
+def save_missing_k_report(missing_k_configs: List[Dict[str, Any]], skip_count: int) -> Path:
     """
-    Save the missing k handling report to a JSON file.
+    Save a report of configurations with missing k values.
     
     Args:
-        summary: Dictionary containing the handling summary.
+        missing_k_configs: List of configurations with missing k.
+        skip_count: Number of skipped configurations.
     
     Returns:
         Path to the saved report file.
@@ -140,26 +104,50 @@ def save_missing_k_report(summary: Dict[str, Any]) -> Path:
     processed_dir = get_processed_dir()
     report_path = processed_dir / "missing_k_report.json"
     
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
+    report_data = {
+        "skip_count": skip_count,
+        "skipped_configs": [
+            {
+                "config_id": config.get('config_id', 'UNKNOWN'),
+                "reason": "Missing thermal conductivity value"
+            }
+            for config in missing_k_configs
+        ]
+    }
     
-    logger.info(f"Missing k report saved to: {report_path}")
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report_data, f, indent=2)
+    
+    logger.info(f"Saved missing k report to {report_path}")
     return report_path
 
 def main():
     """
-    Main entry point for the missing k handling script.
+    Main entry point for handling missing thermal conductivity values.
     """
-    logger.info("Starting missing thermal conductivity value handling...")
+    logger.info("Starting missing thermal conductivity value handling (T026)...")
     
     try:
-        summary = handle_missing_k_values()
-        report_path = save_missing_k_report(summary)
+        # Load all processed configurations
+        configs = load_processed_configs()
         
-        logger.info("Missing k handling completed successfully.")
-        logger.info(f"Summary: {summary}")
+        # Handle missing k values (skip and log)
+        processed_configs, skip_count = handle_missing_k_values(configs)
         
-        return summary, report_path
+        # Save report of skipped configurations
+        report_path = save_missing_k_report(
+            [c for c in configs if c not in processed_configs], 
+            skip_count
+        )
+        
+        logger.info(f"T026 Complete: Processed {len(processed_configs)} configs, skipped {skip_count}.")
+        logger.info(f"Report saved to: {report_path}")
+        
+        return {
+            "processed_count": len(processed_configs),
+            "skipped_count": skip_count,
+            "report_path": str(report_path)
+        }
         
     except Exception as e:
         logger.error(f"Error during missing k handling: {e}", exc_info=True)

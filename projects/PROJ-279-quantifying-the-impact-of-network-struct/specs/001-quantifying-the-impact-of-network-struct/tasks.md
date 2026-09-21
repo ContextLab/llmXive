@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (`projects/PROJ-279-quantifying-the-impact-of-network-struct/`)
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-279-quantifying-the-impact-of-network-struct/code/`)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (ase, networkx, scikit-learn, pandas, numpy, matplotlib, requests, tqdm, pyyaml)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -58,8 +58,14 @@
 - [X] T004 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
 - [X] T005 [P] Implement `state/` YAML management for artifact checksums and versioning (Constitution Principle V)
 - [X] T006 [P] Create base `AtomicConfiguration` dataclass in `code/models/atomic_config.py`
-- [X] T007 [P] **Definition Only**: Implement `validation.py` logic for data independence, source, and convergence checks (FR-006, FR-007, Constitution Principle VI). **Output: NONE (Execution deferred to Phase 3, T007-exec)**. This task defines the logic but does not run it, as the input data (downloaded trajectories) does not exist yet.
-- [ ] T007b [P] **Definition Only**: Implement `mode_selector.py` logic to check for pre-calculated VDOS/k availability and set execution mode (Full vs. Structure-Only) *before* pipeline start. **Output: NONE (Execution deferred to Phase 3, T007b-exec)**. This task defines the logic but does not run it.
+- [ ] T007a-code [P] **Write `code/validation.py`**: Implement `run_validation(configs: List[AtomicConfiguration]) -> dict` function. **Output**: `code/validation.py`. **Function Signature**: Returns a dict with keys: `validated_configs` (List[str]), `excluded_configs` (List[str]), `convergence_flags` (Dict[str, str]). **Logic**: Check system size (>=1000 atoms). If <1000, add to `excluded_configs` if not experimental, OR add to `validated_configs` with `convergence_flags[id] = "P preliminary - Unverified Convergence"` if retained for descriptive stats. **Constraint**: MUST enforce Constitution Principle VI (Active Exclusion). (FR-006, FR-007, Constitution Principle VI). **Note**: This task writes code only; it does not run on data.
+- [ ] T007a-exec [US1] **Execute Validation**: Run `code/validation.py` (defined in T007a-code) on the downloaded data in `data/raw/`. **Input**: `data/raw/`. **Output**: `data/processed/validation_report.json` containing:
+ - `validated_configs`: list of configuration IDs passing checks.
+ - `excluded_configs`: list of configuration IDs excluded from analysis.
+ - `convergence_flags`: dictionary mapping each ID in `validated_configs` to a string (e.g., "OK" or "P preliminary - Unverified Convergence").
+ (FR-006, FR-007, Constitution Principle VI)
+- [ ] T007ba-code [P] **Write `code/mode_selector.py`**: Implement `run_mode_selector(data_path: str) -> dict` function. **Output**: `code/mode_selector.py`. **Function Signature**: Returns a dict with keys: `mode` (str: "Full" or "Structure-Only"), `reason` (str). **Logic**: Check for existence of pre-calculated VDOS and thermal conductivity in metadata. If missing, set mode="Structure-Only". **Input Schema**: Path to `data/raw/` or metadata file. **Output Schema**: JSON with `mode` and `reason`. **Note**: This task writes code only; it does not run on data.
+- [ ] T007bb-exec [US1] **Execute Mode Selection**: Run `code/mode_selector.py` (defined in T007ba-code) on the downloaded data. **Input**: `data/raw/`. **Output**: `data/processed/mode_config.json` indicating 'Full' or 'Structure-Only' mode.
 - [ ] T008 Create `validation_utils.py` for checksum verification and file integrity checks (Constitution Principle III)
 - [ ] T009 Configure logging infrastructure to output to `logs/analysis.log` and stdout
 - [ ] T010 Configure environment configuration management (loading `cutoff_radius`, `zenodo_url` from env vars)
@@ -82,14 +88,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement `download.py` to fetch trajectories from Zenodo/HuggingFace with checksum verification (FR-001)
-- [ ] T007-exec [US1] **Execution of Validation**: Execute `validation.py` (defined in T007) on the downloaded data in `data/raw/`. **Input**: `data/raw/`. **Output**: `data/processed/validation_report.json` containing:
- - `excluded_configs`: list of configuration IDs excluded from analysis.
- - `reasons`: dictionary mapping each excluded ID to a string reason (e.g., "Size < 1000 atoms", "Source not independent").
- - `validated_configs`: list of configuration IDs passing checks.
- (FR-006, FR-007, Constitution Principle VI)
-- [ ] T007b-exec [US1] **Execution of Mode Selection**: Execute `mode_selector.py` (defined in T007b) on the downloaded data. **Input**: `data/raw/`. **Output**: `data/processed/mode_config.json` indicating 'Full' or 'Structure-Only' mode.
-- [X] T015 [US1] **Execution of Sensitivity Analysis**: Implement the sensitivity analysis loop in `graph_builder.py` that calls the builder logic for radii {2.8, 3.0, 3.2} Å. **Constraint**: Run this loop **ONLY** on the `validated_configs` list generated by T007-exec. **Generate `data/processed/sensitivity_report.json`** containing a table of cutoff radius vs. average degree and component count (FR-002).
+- [ ] T014 [P] [US1] Implement `download.py` to fetch trajectories from Zenodo/HuggingFace with checksum verification (FR-001). **Constraint**: If download fails, raise an explicit error; do NOT fall back to synthetic data.
+- [ ] T007-exec [US1] **Execute Validation**: Run `code/validation.py` (defined in T007a-code) on the downloaded data. **Input**: `data/raw/`. **Output**: `data/processed/validation_report.json`. (FR-006, FR-007, Constitution Principle VI). **Depends on**: T014 (Download) and T007a-code.
+- [ ] T007bb-exec [US1] **Execute Mode Selection**: Run `code/mode_selector.py` (defined in T007ba-code) on the downloaded data. **Input**: `data/raw/`. **Output**: `data/processed/mode_config.json`. **Depends on**: T014 (Download) and T007ba-code.
+- [X] T015a [US1] **Implement Sensitivity Loop**: Implement the sensitivity analysis loop logic in `code/graph_builder.py`. **Requirement**: The loop MUST iterate over the EXACT discrete set of cutoff radii: **{2.8, 3.0, 3.2} Å**. **Constraint**: The code MUST fail or raise an error if any other value is used. **Output**: `code/graph_builder.py` updated with the loop. (FR-002).
+- [ ] T015b [US1] **Execute Sensitivity Loop**: Run the sensitivity loop defined in T015a **ONLY** on the `validated_configs` list generated by T007-exec. **Input**: `data/processed/validation_report.json`. **Output**: `data/processed/sensitivity_report.json` containing a table of cutoff radius (2.8, 3.0, 3.2) vs. average degree and component count (FR-002). **Depends on**: T014, T007-exec, T015a.
+- [ ] T015c [US1] **Write Sensitivity Report**: Ensure `data/processed/sensitivity_report.json` is written with the correct schema, explicitly listing results for 2.8, 3.0, and 3.2.
 - [ ] T016 [US1] Add validation logic to detect disconnected components and log warnings (Spec US-1, Scenario 3)
 - [ ] T017 [US1] Handle edge cases: corrupted files (abort with error), unexpected coordination numbers (flag/drop)
 - [ ] T018 [US1] Save constructed graphs and metadata to `data/processed/graphs/` in JSON/GraphML format
@@ -112,12 +116,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `descriptors.py` with `calculate_ring_statistics()` (distribution of ring sizes 3-10) (FR-003)
-- [ ] T023 [US2] Implement `calculate_steinhardt_parameters()` (Q6) and clustering coefficients (FR-003)
-- [X] T024 [US2] **VDOS Handling**: Implement `load_vdos()` and `calculate_participation_ratios()`. **Constraint**: Attempt to load pre-calculated VDOS data from the dataset. If missing for a configuration, **log `ERR-VDOS-MISSING` and EXCLUDE the configuration** from the final descriptor dataset. Do NOT calculate VDOS internally (Plan Constraint). **Generate `data/processed/vdos_missing_report.json`** listing excluded Config IDs and reasons to satisfy the "no silent drift" principle for FR-003 (Plan: Structure-Only Mode, FR-003).
-- [ ] T025 [US2] Aggregate all descriptors into a structured CSV/JSON dataset linking Config ID to metrics vector (only for configs with complete data)
+- [X] T024a [US2] **Implement Filter & Fallback Logic**: Implement `filter_and_fallback()` in `code/descriptors.py`. **Logic**: Attempt to load pre-calculated VDOS. If missing, **mark config as VDOS-MISSING** but **DO NOT exclude**; **proceed to calculate topological descriptors (T022/T023)** for this configuration. If VDOS present, calculate both. **Output**: `code/descriptors.py` updated with this logic. **Depends on**: T007-exec (Validation Report).
+- [ ] T024b [US2] **Execute Filter**: Run the filter logic defined in T024a on the validated configs from T007-exec. **Input**: `data/processed/validation_report.json`. **Output**: `data/processed/filtered_config_ids.json` (list of IDs to process) and internal flags for VDOS status. **Depends on**: T007-exec, T024a.
+- [ ] T024c [US2] **Write VDOS Retention Report**: Generate `data/processed/vdos_retention_report.json` listing configs with missing VDOS that are **retained** for topological-only analysis. **Schema**: `{ "retained_configs": [ { "id": "string", "status": "VDOS-MISSING", "reason": "string" } ] }`. **Constraint**: This report confirms retention, NOT exclusion. (Plan: Structure-Only Mode, FR-003). **Depends on**: T024b.
+- [ ] T024-exec [US2] **Execute VDOS Load**: Run `load_vdos()` and `calculate_participation_ratios()` on configs where VDOS is available. **Depends on**: T024b.
+- [ ] T022-exec [US2] **Execute Ring Stats**: Run `calculate_ring_statistics()` on the filtered configs from T024b. **Input**: `data/processed/filtered_config_ids.json`. **Input**: `data/processed/vdos_retention_report.json` (to ensure retained VDOS-missing configs are included). **Depends on**: T024b.
+- [ ] T023-exec [US2] **Execute Steinhardt**: Run `calculate_steinhardt_parameters()` on the filtered configs from T024b. **Input**: `data/processed/filtered_config_ids.json`. **Input**: `data/processed/vdos_retention_report.json` (to ensure retained VDOS-missing configs are included). **Depends on**: T024b.
+- [X] T025a [US2] **Aggregate Descriptors**: Implement aggregation logic to produce `data/processed/descriptors.csv`. **Schema**: `config_id`, `ring_dist`, `q6`, `clustering`, `vdos_vector` (list of floats or null), `data_quality` (str: "full" or "topological_only"). **Logic**: For configs in `vdos_retention_report.json` (VDOS-MISSING), set `vdos_vector` to `null` and `data_quality` to "topological_only". **Mechanism**: Concatenate ring stats, Q6, and VDOS vectors into a single row per Config ID. (FR-003).
+- [ ] T025b [US2] **Execute Aggregation**: Run the aggregation logic from T025a on the results of T022-exec, T023-exec, and T024-exec. **Depends on**: T022-exec, T023-exec, T024-exec.
 - [ ] T026 [US2] Handle missing thermal conductivity values: skip configuration and log count (Spec Edge Cases)
-- [ ] T027 [US2] Save processed descriptors to `data/processed/descriptors.csv`
+- [ ] T027 [US2] Save processed descriptors to `data/processed/descriptors.csv` (Output artifact defined in T025a). **Depends on**: T025b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -143,12 +151,22 @@
 - [ ] T034 [US3] Calculate and log mean R², std dev, and p-values for top 3 features (FR-004, Spec US-3, Scenario 1)
 - [ ] T035 [US3] Implement `viz.py` to generate scatter plot (top predictor vs. k) with regression line and Pearson r (FR-005)
 - [ ] T036 [US3] Generate feature importance bar chart with error bars (std dev across folds) (FR-005)
-- [ ] T037 [US3] Implement Tiered Execution logic: if k/VDOS missing, skip regression, **Update `data/processed/results/hypothesis_status.json`**.
- - **H-001/H-002**: Mark 'UNTESTABLE' if regression is skipped.
- - **H-003**: Mark 'TESTED' if ring statistics were successfully computed (Structure-Only Mode OK).
- - **H-004**: Mark 'TESTED' if topological feature importance was computed (Structure-Only Mode OK).
- - The JSON must contain keys H-001 through H-004, with values 'TESTED', 'UNTESTABLE', or 'FAILED', and a 'reason' field for non-TESTED statuses (Plan: Summary).
-- [~] T038 [US3] Save results (metrics, plots) to `data/processed/results/` and update `state/`
+- [ ] T037a [US3] **Execute Regression**: Run the regression models on the descriptors from T027. **Input**: `data/processed/descriptors.csv`. **Output**: `data/processed/results/regression_metrics.json`. **Depends on**: T027.
+- [ ] T037b [US3] **Aggregate Hypothesis Status**: Read `data/processed/validation_report.json`, `data/processed/vdos_retention_report.json`, and `data/processed/mode_config.json` to generate `data/processed/results/hypothesis_status.json`. **Input Schemas**:
+ - `validation_report.json`: Contains `validated_configs`, `excluded_configs`, `convergence_flags`.
+ - `vdos_retention_report.json`: Contains `retained_configs` with `VDOS-MISSING` status.
+ - `mode_config.json`: Contains `mode` ("Full" or "Structure-Only").
+ **Output Schema**:
+ ```json
+ {
+ "H-001": { "status": "TESTED|UNTESTABLE", "reason": "string" },
+ "H-002": { "status": "TESTED|UNTESTABLE", "reason": "string" },
+ "H-003": { "status": "TESTED|UNTESTABLE", "reason": "string" },
+ "H-004": { "status": "TESTED|UNTESTABLE", "reason": "string" }
+ }
+ ```
+ **Logic**: If mode is 'Structure-Only', set H-001/H-002 to 'UNTESTABLE' with reason "VDOS or k missing". If mode is 'Full', set to 'TESTED' if regression succeeded. Set H-003/H-004 based on descriptor availability.
+- [ ] T038 [US3] Save results (metrics, plots) to `data/processed/results/` and update `state/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -166,10 +184,9 @@
 
 ### Implementation for User Story 4
 
-- [~] T040 [P] [US4] **Integrate** `validation.py` and `mode_selector.py` into the main pipeline entry point (`main.py`) to execute *after* download (T014) and *before* graph construction (T015). <!-- FAILED: unspecified -->
-- [ ] T041 [US4] Implement logic to exclude systems < 1000 atoms from hypothesis testing (Constitution Principle VI)
-- [ ] T042 [US4] Log specific warnings for "Preliminary - Unverified Convergence" if small systems are used for descriptive stats only
-- [ ] T043 [US4] Ensure `main.py` enforces the "Tiered Execution" mode based on validation results (Mode Selection from T007b-exec)
+- [ ] T041 [US4] Implement logic to **exclude** systems < 1000 atoms from hypothesis testing (Constitution Principle VI). **Constraint**: If a system < 1000 atoms is retained for descriptive stats, it MUST be flagged with `convergence_flags[id] = "P preliminary - Unverified Convergence"` (as defined in T007a-code).
+- [ ] T042 [US4] Log specific warnings for "P preliminary - Unverified Convergence" if small systems are used for descriptive stats only. **Constraint**: This log must match the flag set in T007a-code.
+- [ ] T043 [US4] Ensure `main.py` enforces the "Tiered Execution" mode based on validation results (Mode Selection from T007bb-exec).
 
 **Checkpoint**: Data independence and convergence checks are active and blocking invalid hypotheses
 
@@ -181,8 +198,10 @@
 
 - [ ] T044 [P] Documentation updates: Update `quickstart.md` with execution examples
 - [ ] T045 Code cleanup and refactoring (remove dead code, ensure type hints)
-- [ ] T046 [P] **Profile `main.py` using `cProfile`** to identify top 3 slowest functions (SC-004)
-- [ ] T047 [P] **Implement specific optimizations** (e.g., caching, vectorization) based on T046 profiling to **reduce runtime to satisfy SC-004 (6-hour limit)** (SC-004)
+- [ ] T046a [P] **Profile `main.py`**: Run `cProfile` on the pipeline and output `profile.log`.
+- [ ] T046b [P] **Analyze Profile**: Parse `profile.log` to identify the top 3 slowest functions.
+- [ ] T047a [P] **Implement Caching**: Implement caching for the identified slowest function(s) if applicable.
+- [ ] T047b [P] **Implement Vectorization**: Implement vectorization for the identified slowest function(s) if applicable.
 - [ ] T048 [P] Add final integration test for the full pipeline in `tests/integration/test_full_pipeline.py`
 - [ ] T049 [P] Run `quickstart.md` validation and **assert that `data/processed/results/hypothesis_status.json` exists** with valid entries for H-001 to H-004
 
@@ -194,11 +213,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **T007 (Validation Definition)** and **T007b (Mode Selection Definition)** are critical for US4 and Tiered Execution.
+ - **T007a-code** and **T007ba-code** are critical for US4 and Tiered Execution.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - **US1 (Data/Graph)** and **US4 (Validation)** are P1.
- - **US1 Execution (T014, T007-exec, T007b-exec)**: T014 (Download) must complete first. T007-exec and T007b-exec depend on T014.
- - **T015 (Sensitivity Analysis)**: Depends on **T007-exec** (Validation) completion to ensure only validated configs are processed.
+ - **US1 Execution (T014, T007-exec, T007bb-exec)**: T014 (Download) must complete first. T007-exec and T007bb-exec depend on T014 AND T007a-code/T007ba-code completion.
+ - **T015b (Sensitivity Analysis)**: Depends on **T007-exec** (Validation) completion to ensure only validated configs are processed.
  - **US2 (Descriptors)**: Depends on US1 (needs graphs).
  - **US3 (Regression)**: Depends on US2 (needs descriptors) and US4 (needs validated targets).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -206,7 +225,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (except Download).
-- **User Story 4 (P1)**: Logic (T007/T007b) is defined in Phase 2. Execution (T007-exec, T007b-exec) is in Phase 3 and must run *before* T015 (Phase 3) and T024 (Phase 4).
+- **User Story 4 (P1)**: Logic (T007a-code/T007ba-code) is defined in Phase 2. Execution (T007-exec, T007bb-exec) is in Phase 3 and must run *before* T015 (Phase 3) and T024 (Phase 4).
 - **User Story 2 (P2)**: Can start after Foundational + US1 (needs graphs). **US2 cannot start until T015 (sensitivity report generation) is complete**.
 - **User Story 3 (P3)**: Can start after Foundational + US2 + US4 (needs descriptors and validated targets).
 
@@ -248,7 +267,7 @@ Task: "Implement graph_builder.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes Validation & Mode Selection definitions)
-3. Complete Phase 3: User Story 1 (Data/Graph) - **Must include T007-exec and T007b-exec execution**.
+3. Complete Phase 3: User Story 1 (Data/Graph) - **Must include T007-exec and T007bb-exec execution**.
 4. **STOP and VALIDATE**: Test Data Ingestion and Independence checks (Phase 2 logic execution) independently
 5. If data is invalid, project halts or switches to Structure-Only Mode immediately
 
@@ -284,3 +303,5 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: No GPU usage; no large-LLM inference; strict checksum verification; sensitivity analysis on cutoff radius; no internal VDOS calculation (record absence if missing).
 - **Validation Logic**: Defined in Phase 2, Executed in Phase 3 to ensure P1 priority for US-4 and correct data flow.
+- **Data Integrity**: All data loaders MUST fail loudly on missing real data; no synthetic fallbacks allowed.
+- **Streaming**: If the dataset exceeds runner memory, implement streaming logic in `download.py` and `descriptors.py` to process in chunks without loading the full dataset into RAM.

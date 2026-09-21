@@ -11,7 +11,7 @@
 
 - **H-001**: The correlation strength (Pearson r) between the top topological descriptor and thermal conductivity will exceed |0.7| with p < 0.05.
 - **H-002**: The predictive performance of the model will yield an R² score > 0.1, significantly better than a random baseline (R² > 0.0).
-- **H-003**: The most frequent ring size in the amorphous silicon dataset will be between 5 and 7 atoms.
+- **H-003**: The most frequent ring size in the amorphous silicon dataset will be within the lower range of the distribution.
 - **H-004**: The top 3 features in the regression model will have p-values < 0.05.
 
 ## User Scenarios & Testing

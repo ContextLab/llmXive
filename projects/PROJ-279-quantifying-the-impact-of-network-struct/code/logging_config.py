@@ -5,76 +5,99 @@ from pathlib import Path
 from typing import Optional
 from config.env_config import get_config, get_log_file_path, get_log_level
 
-_logger_instance: Optional[logging.Logger] = None
+# Ensure the logs directory exists
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 
-def setup_logging():
+# Global logger instance
+_logger: Optional[logging.Logger] = None
+
+def setup_logging(log_file: Optional[str] = None, level: Optional[str] = None) -> logging.Logger:
     """
-    Configure logging infrastructure to output to both file and stdout.
-    Logs are written to logs/analysis.log as per project spec.
+    Configure the root logger to output to both a file and stdout.
+    
+    Args:
+        log_file: Path to the log file. If None, uses the path from env config.
+        level: Log level string (e.g., 'INFO', 'DEBUG'). If None, uses env config.
+    
+    Returns:
+        The configured root logger.
     """
-    global _logger_instance
+    global _logger
     
-    if _logger_instance is not None:
-        return _logger_instance
-
-    log_file = get_log_file_path()
-    log_level = get_log_level()
+    # Resolve paths and levels
+    if log_file is None:
+        log_file = get_log_file_path()
     
-    # Ensure log directory exists
-    log_dir = Path(log_file).parent
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create formatter
+    if level is None:
+        level = get_log_level()
+    
+    log_level = getattr(logging, level.upper(), logging.INFO)
+    
+    # Ensure the directory for the log file exists
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create a custom logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    
+    # Clear existing handlers to prevent duplicates on re-runs
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    # Define formatter
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-
-    # File handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
-
-    # Console handler
+    
+    # File Handler
+    try:
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    except Exception as e:
+        # Fallback to stderr if file logging fails
+        sys.stderr.write(f"Warning: Could not open log file {log_file}: {e}\n")
+    
+    # Console Handler (stdout)
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
-
-    # Root logger configuration
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    logger.addHandler(console_handler)
     
-    # Avoid adding handlers multiple times if called repeatedly
-    if not root_logger.handlers:
-        root_logger.addHandler(file_handler)
-        root_logger.addHandler(console_handler)
-    
-    _logger_instance = root_logger
-    return _logger_instance
+    _logger = logger
+    return logger
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance, ensuring logging is configured first.
+    Retrieve a logger. If setup_logging hasn't been called, it initializes it first.
     
     Args:
-        name: Name for the logger. If None, returns root logger.
+        name: Optional name for the logger (creates a child of the root logger).
     
     Returns:
-        Configured logger instance
+        A configured logger instance.
     """
-    setup_logging()
+    global _logger
+    if _logger is None:
+        setup_logging()
+    
     if name:
         return logging.getLogger(name)
-    return logging.getLogger()
+    return _logger
 
 def main():
     """
-    Test logging configuration.
+    Entry point for testing the logging configuration directly.
     """
     logger = setup_logging()
-    logger.info("Logging configuration test successful.")
+    logger.info("Logging infrastructure configured successfully.")
     logger.debug("Debug message test.")
     logger.warning("Warning message test.")
+    logger.error("Error message test.")
 
 if __name__ == "__main__":
     main()

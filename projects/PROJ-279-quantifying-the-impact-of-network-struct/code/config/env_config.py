@@ -1,10 +1,21 @@
+"""
+Environment configuration management for the heat transport analysis pipeline.
+
+Loads configuration values (cutoff_radius, zenodo_url, paths, etc.) from
+environment variables or a .env file. Provides a centralized interface
+to access these settings throughout the application.
+"""
+
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 from dotenv import load_dotenv
 import logging
 
-# Load environment variables from .env file if it exists
+# Configure logging for this module
+logger = logging.getLogger(__name__)
+
+# Load .env file if it exists
 load_dotenv()
 
 class ConfigError(Exception):
@@ -13,113 +24,192 @@ class ConfigError(Exception):
 
 class EnvironmentConfig:
     """
-    Manages environment-based configuration for the project.
-    Loads values from environment variables or defaults.
+    Container for environment-based configuration values.
+    
+    Attributes:
+        cutoff_radius (float): Cutoff radius in Angstroms for graph construction.
+        zenodo_url (str): Base URL or specific record ID for Zenodo data.
+        data_dir (Path): Root directory for raw data.
+        processed_dir (Path): Root directory for processed data.
+        log_file_path (Path): Path to the log file.
+        log_level (str): Logging level (e.g., 'INFO', 'DEBUG').
     """
     
     def __init__(self):
-        self._config: Dict[str, Any] = {}
-        self._load_config()
-
-    def _load_config(self):
-        """Load configuration from environment variables."""
-        # Core paths
-        self._config['project_root'] = Path(os.getenv('PROJECT_ROOT', Path(__file__).resolve().parent.parent.parent))
-        self._config['data_dir'] = self._config['project_root'] / 'data'
-        self._config['processed_dir'] = self._config['data_dir'] / 'processed'
-        self._config['raw_dir'] = self._config['data_dir'] / 'raw'
-        self._config['logs_dir'] = self._config['project_root'] / 'logs'
+        self.cutoff_radius: float = self._get_cutoff_radius()
+        self.zenodo_url: str = self._get_zenodo_url()
+        self.data_dir: Path = self._get_data_dir()
+        self.processed_dir: Path = self._get_processed_dir()
+        self.log_file_path: Path = self._get_log_file_path()
+        self.log_level: str = self._get_log_level()
         
-        # Parameters
-        self._config['cutoff_radius'] = float(os.getenv('CUTOFF_RADIUS', '3.0'))
-        self._config['zenodo_url'] = os.getenv('ZENODO_URL', 'https://zenodo.org/api/records/123456')
-        self._config['log_level'] = os.getenv('LOG_LEVEL', 'INFO').upper()
-        self._config['log_file'] = self._config['logs_dir'] / 'analysis.log'
+        # Validate critical configuration
+        self._validate_config()
 
-        # Validation
-        if not isinstance(self._config['cutoff_radius'], (int, float)):
-            raise ConfigError("CUTOFF_RADIUS must be a number.")
-        if not self._config['zenodo_url'].startswith(('http://', 'https://')):
-            raise ConfigError("ZENODO_URL must be a valid HTTP URL.")
+    def _get_cutoff_radius(self) -> float:
+        """
+        Retrieves the cutoff radius from environment variables.
+        
+        Returns:
+            float: The cutoff radius in Angstroms.
+        
+        Raises:
+            ConfigError: If the value is missing or invalid.
+        """
+        val = os.getenv('CUTOFF_RADIUS')
+        if val is None:
+            # Default fallback if not strictly required to fail, 
+            # but per task spec we should load from env. 
+            # We raise if missing to enforce configuration.
+            raise ConfigError(
+                "Environment variable 'CUTOFF_RADIUS' is not set. "
+                "Please set it in your .env file or shell environment."
+            )
+        try:
+            return float(val)
+        except ValueError:
+            raise ConfigError(
+                f"Invalid CUTOFF_RADIUS value: '{val}'. Must be a float."
+            )
 
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._config.get(key, default)
+    def _get_zenodo_url(self) -> str:
+        """
+        Retrieves the Zenodo URL from environment variables.
+        
+        Returns:
+            str: The Zenodo URL or record ID.
+        
+        Raises:
+            ConfigError: If the value is missing.
+        """
+        val = os.getenv('ZENODO_URL')
+        if val is None:
+            raise ConfigError(
+                "Environment variable 'ZENODO_URL' is not set. "
+                "Please set it in your .env file or shell environment."
+            )
+        return val
 
-    @property
-    def cutoff_radius(self) -> float:
-        return self._config['cutoff_radius']
+    def _get_data_dir(self) -> Path:
+        """
+        Retrieves the raw data directory path.
+        
+        Returns:
+            Path: The path to the raw data directory.
+        """
+        val = os.getenv('DATA_DIR', 'data/raw')
+        return Path(val).resolve()
 
-    @property
-    def zenodo_url(self) -> str:
-        return self._config['zenodo_url']
+    def _get_processed_dir(self) -> Path:
+        """
+        Retrieves the processed data directory path.
+        
+        Returns:
+            Path: The path to the processed data directory.
+        """
+        val = os.getenv('PROCESSED_DIR', 'data/processed')
+        return Path(val).resolve()
 
-    @property
-    def data_dir(self) -> Path:
-        return self._config['data_dir']
+    def _get_log_file_path(self) -> Path:
+        """
+        Retrieves the log file path.
+        
+        Returns:
+            Path: The path to the log file.
+        """
+        val = os.getenv('LOG_FILE_PATH', 'logs/analysis.log')
+        return Path(val).resolve()
 
-    @property
-    def processed_dir(self) -> Path:
-        return self._config['processed_dir']
+    def _get_log_level(self) -> str:
+        """
+        Retrieves the logging level.
+        
+        Returns:
+            str: The logging level string.
+        """
+        val = os.getenv('LOG_LEVEL', 'INFO')
+        return val.upper()
 
-    @property
-    def raw_dir(self) -> Path:
-        return self._config['raw_dir']
+    def _validate_config(self) -> None:
+        """
+        Validates the loaded configuration.
+        
+        Raises:
+            ConfigError: If validation fails.
+        """
+        if self.cutoff_radius <= 0:
+            raise ConfigError(f"CUTOFF_RADIUS must be positive, got {self.cutoff_radius}")
+        if not self.zenodo_url:
+            raise ConfigError("ZENODO_URL cannot be empty")
+        logger.info(f"Configuration loaded: cutoff_radius={self.cutoff_radius}, zenodo_url={self.zenodo_url}")
 
-    @property
-    def log_file_path(self) -> Path:
-        return self._config['log_file']
+# Global configuration instance
+_config: Optional[EnvironmentConfig] = None
 
-    @property
-    def log_level(self) -> int:
-        level_str = self._config['log_level']
-        return getattr(logging, level_str, logging.INFO)
-
-# Global config instance
-_config_instance: Optional[EnvironmentConfig] = None
-
-def reload_config():
-    """Force reload of configuration."""
-    global _config_instance
-    _config_instance = EnvironmentConfig()
+def reload_config() -> EnvironmentConfig:
+    """
+    Forces a reload of the configuration from environment variables.
+    
+    Returns:
+        EnvironmentConfig: The new configuration instance.
+    """
+    global _config
+    _config = EnvironmentConfig()
+    return _config
 
 def get_config() -> EnvironmentConfig:
-    """Get the global configuration instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = EnvironmentConfig()
-    return _config_instance
+    """
+    Gets the global configuration instance, initializing it if necessary.
+    
+    Returns:
+        EnvironmentConfig: The configuration instance.
+    """
+    global _config
+    if _config is None:
+        _config = EnvironmentConfig()
+    return _config
 
+# Convenience getters for direct access
 def get_cutoff_radius() -> float:
-    """Get the cutoff radius from config."""
+    """Returns the cutoff radius."""
     return get_config().cutoff_radius
 
 def get_zenodo_url() -> str:
-    """Get the Zenodo URL from config."""
+    """Returns the Zenodo URL."""
     return get_config().zenodo_url
 
 def get_data_dir() -> Path:
-    """Get the data directory path."""
+    """Returns the raw data directory."""
     return get_config().data_dir
 
 def get_processed_dir() -> Path:
-    """Get the processed data directory path."""
+    """Returns the processed data directory."""
     return get_config().processed_dir
 
 def get_log_file_path() -> Path:
-    """Get the log file path."""
+    """Returns the log file path."""
     return get_config().log_file_path
 
-def get_log_level() -> int:
-    """Get the log level."""
+def get_log_level() -> str:
+    """Returns the log level."""
     return get_config().log_level
 
 def main():
-    """Test configuration loading."""
-    config = get_config()
-    print(f"Project Root: {config.data_dir}")
-    print(f"Cutoff Radius: {config.cutoff_radius}")
-    print(f"Zenodo URL: {config.zenodo_url}")
-    print(f"Log File: {config.log_file_path}")
+    """
+    CLI entry point to test configuration loading.
+    """
+    try:
+        cfg = get_config()
+        print("Configuration Loaded Successfully:")
+        print(f"  Cutoff Radius: {cfg.cutoff_radius} Å")
+        print(f"  Zenodo URL: {cfg.zenodo_url}")
+        print(f"  Data Dir: {cfg.data_dir}")
+        print(f"  Processed Dir: {cfg.processed_dir}")
+        print(f"  Log File: {cfg.log_file_path}")
+        print(f"  Log Level: {cfg.log_level}")
+    except ConfigError as e:
+        print(f"Configuration Error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()
