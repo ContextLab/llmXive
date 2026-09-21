@@ -1,8 +1,7 @@
-You are an expert software engineer specializing in code translation.
-Translate the following Python code into equivalent, idiomatic JavaScript.
-Do not add explanations, comments, or markdown formatting. Output only the JavaScript code.
+You are an expert code translator. Translate the following Python code into equivalent JavaScript code.
+Do not add any explanations, comments, or extra text. Only output the JavaScript code.
 
 Python Code:
-{python_code}
+{{python_code}}
 
 JavaScript Code:

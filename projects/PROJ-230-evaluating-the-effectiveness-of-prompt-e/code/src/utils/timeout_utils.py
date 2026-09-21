@@ -1,84 +1,123 @@
+"""
+Timeout utilities for enforcing API and test execution limits.
+
+Provides decorators and context managers to enforce:
+- 120s timeout for API calls (T009 requirement)
+- 10s timeout for test execution (T009 requirement)
+"""
+
 import signal
 import time
 from functools import wraps
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Type
+
 
 class TimeoutError(Exception):
     """Custom exception raised when a timeout occurs."""
     pass
 
+
 class TimeoutHandler:
     """
-    Context manager and decorator for enforcing timeouts.
-    Uses signal.SIGALRM for Unix-like systems.
-    Falls back to a thread-based approach for Windows where SIGALRM is unavailable.
-    """
-    def __init__(self, seconds: int, error_message: str = "Operation timed out"):
-        self.seconds = seconds
-        self.error_message = error_message
-        self._use_signal = hasattr(signal, 'SIGALRM')
-        self._previous_handler = None
-        self._previous_timeout = None
+    Handler for signal-based timeouts.
 
-    def _handle_timeout(self, signum=None, frame=None):
+    Raises a custom TimeoutError when the signal is received.
+    """
+
+    def __init__(self, seconds: int, error_message: Optional[str] = None):
+        self.seconds = seconds
+        self.error_message = error_message or f"Operation timed out after {seconds} seconds"
+        self.old_handler = None
+
+    def __call__(self, signum, frame):
         raise TimeoutError(self.error_message)
 
     def __enter__(self):
-        if self._use_signal:
-            self._previous_handler = signal.signal(signal.SIGALRM, self._handle_timeout)
-            signal.alarm(self.seconds)
-        else:
-            # Fallback for Windows: simple busy-wait check or threading (not implemented for strict simplicity here,
-            # but raising NotImplementedError for Windows signal usage is safer if strict timeout is needed).
-            # However, for this project, we assume a Unix-like runner or that the caller handles Windows.
-            # To be robust, we can use a thread if signal is not available, but standard practice for
-            # simple scripts is often to assume Unix or rely on external process timeout.
-            # Given the constraints, we will raise a clear error if signal is not available to avoid silent failures.
-            if not self._use_signal:
-                raise RuntimeError("TimeoutHandler with signal.SIGALRM is not available on this platform. "
-                                   "Ensure running on a Unix-like system or implement a threading fallback.")
+        # Set the signal handler
+        self.old_handler = signal.signal(signal.SIGALRM, self)
+        # Start the alarm
+        signal.alarm(self.seconds)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._use_signal:
-            signal.alarm(0)  # Cancel the alarm
-            if self._previous_handler:
-                signal.signal(signal.SIGALRM, self._previous_handler)
+        # Cancel the alarm
+        signal.alarm(0)
+        # Restore the old handler
+        if self.old_handler is not None:
+            signal.signal(signal.SIGALRM, self.old_handler)
+        # Don't suppress the exception
         return False
 
-    def __call__(self, func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            with self:
-                return func(*args, **kwargs)
-        return wrapper
 
-def enforce_api_timeout(seconds: int = 120):
+def enforce_api_timeout(func: Callable) -> Callable:
     """
-    Decorator to enforce a timeout on API calls.
-    Defaults to 120 seconds as per project requirements.
-    """
-    return TimeoutHandler(seconds, f"API call timed out after {seconds} seconds")
+    Decorator to enforce a 120-second timeout on API calls.
 
-def enforce_test_timeout(seconds: int = 10):
-    """
-    Decorator to enforce a timeout on test executions.
-    Defaults to 10 seconds as per project requirements.
-    """
-    return TimeoutHandler(seconds, f"Test execution timed out after {seconds} seconds")
+    Args:
+        func: The function to wrap.
 
-def run_with_api_timeout(func: Callable, timeout_seconds: int = 120) -> Any:
+    Returns:
+        The wrapped function with timeout enforcement.
     """
-    Helper function to run a function with a specific API timeout.
-    Returns the result of the function or raises TimeoutError.
-    """
-    with TimeoutHandler(timeout_seconds, f"API operation timed out after {timeout_seconds} seconds"):
-        return func()
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with TimeoutHandler(seconds=120, error_message="API call timed out after 120 seconds"):
+            return func(*args, **kwargs)
+    return wrapper
 
-def run_with_test_timeout(func: Callable, timeout_seconds: int = 10) -> Any:
+
+def enforce_test_timeout(func: Callable) -> Callable:
     """
-    Helper function to run a function with a specific test timeout.
-    Returns the result of the function or raises TimeoutError.
+    Decorator to enforce a 10-second timeout on test execution.
+
+    Args:
+        func: The function to wrap.
+
+    Returns:
+        The wrapped function with timeout enforcement.
     """
-    with TimeoutHandler(timeout_seconds, f"Test operation timed out after {timeout_seconds} seconds"):
-        return func()
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with TimeoutHandler(seconds=10, error_message="Test execution timed out after 10 seconds"):
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def run_with_api_timeout(func: Callable, *args, timeout: int = 120, **kwargs) -> Any:
+    """
+    Helper function to run a function with an API timeout.
+
+    Args:
+        func: The function to run.
+        *args: Positional arguments to pass to the function.
+        timeout: Timeout in seconds (default: 120).
+        **kwargs: Keyword arguments to pass to the function.
+
+    Returns:
+        The result of the function.
+
+    Raises:
+        TimeoutError: If the function execution exceeds the timeout.
+    """
+    with TimeoutHandler(seconds=timeout):
+        return func(*args, **kwargs)
+
+
+def run_with_test_timeout(func: Callable, *args, timeout: int = 10, **kwargs) -> Any:
+    """
+    Helper function to run a function with a test timeout.
+
+    Args:
+        func: The function to run.
+        *args: Positional arguments to pass to the function.
+        timeout: Timeout in seconds (default: 10).
+        **kwargs: Keyword arguments to pass to the function.
+
+    Returns:
+        The result of the function.
+
+    Raises:
+        TimeoutError: If the function execution exceeds the timeout.
+    """
+    with TimeoutHandler(seconds=timeout):
+        return func(*args, **kwargs)

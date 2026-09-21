@@ -280,22 +280,6 @@
   updated_at: '2026-07-15T04:31:12Z'
 - artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
   attempts: 1
-  canonical: no local LLM training or 8-bit quantization
-  claim_id: c_52f1ae6c
-  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
-    quantization allowed.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: No local LLM training or 8-bit quantization allowed.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T04:31:36Z'
-- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
-  attempts: 1
   canonical: corpus of 200 Python-to-JavaScript pairs from HuggingFace within 7GB
     RAM
   claim_id: c_d7ed6327
@@ -397,22 +381,6 @@
   updated_at: '2026-07-25T18:56:03Z'
 - artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
   attempts: 1
-  canonical: no local LLM training or 8-bit quantization allowed
-  claim_id: c_7bd883fb
-  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
-    quantization allowed.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: No local LLM training or 8-bit quantization allowed.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T18:56:20Z'
-- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
-  attempts: 1
   canonical: fetch from codeparrot/code-trans-py-js and bigcode/evaluation via datasets
     library
   claim_id: c_f20be0ea
@@ -473,28 +441,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T18:58:01Z'
-- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
-  attempts: 2
-  canonical: corpus of at least 200 Python-to-JavaScript pairs from HuggingFace without
-    exceeding 7GB RAM
-  claim_id: c_c0724ff6
-  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
-    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
-    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
-    \ 7GB RAM."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Corpus_of_at_least_200_Python-to-JavaScript_pairs_from_Huggi
-  kind: magnitude
-  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
-    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T19:03:05Z'
 - artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
   attempts: 1
   canonical: fetch from codeparrot/code-trans-py-js and bigcode/evaluation via datasets
@@ -611,3 +557,313 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T19:04:20Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 3
+  canonical: corpus of at least 200 Python-to-JavaScript pairs from HuggingFace without
+    exceeding 7GB RAM
+  claim_id: c_c0724ff6
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corpus_of_at_least_200_Python-to-JavaScript_pairs_from_Huggi
+  kind: magnitude
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:49:05Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: download_datasets.py creates CSV with at least 200 valid pairs and memory
+    peak less than 7GB
+  claim_id: c_46aba122
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_datasets.py_creates_CSV_with_at_least_200_valid_pai
+  kind: magnitude
+  raw_text: "The independent test verifies that src/ingestion/download_datasets.py\
+    \ creates a local CSV with \u2265200 valid pairs and logs a memory peak <7GB during\
+    \ execution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:01Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: dataset sources codeparrot/code-trans-py-js and bigcode/evaluation via
+    datasets library
+  claim_id: c_08b414e9
+  context: Implement src/ingestion/download_datasets.py to fetch from codeparrot/code-trans-py-js
+    and bigcode/evaluation via datasets library, explicitly caching raw data to data/raw/
+    before any processing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_sources_codeparrot/code-trans-py-js_and_bigcode/eval
+  kind: entity_fact
+  raw_text: The dataset sources are codeparrot/code-trans-py-js and bigcode/evaluation
+    via the datasets library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:23Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: processed dataset footprint remains less than or equal to 7GB RAM
+  claim_id: c_462d2bc7
+  context: "Implement sampling/chunking logic to ensure the processed dataset footprint\
+    \ remains \u22647GB RAM, outputting to data/processed/corpus.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processed_dataset_footprint_remains_less_than_or_equal_to_7G
+  kind: magnitude
+  raw_text: "The processed dataset footprint must remain \u22647GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:50:53Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: final corpus.csv contains at least 200 valid entries
+  claim_id: c_dd9ce343
+  context: "Add validation logic to ensure the final data/processed/corpus.csv contains\
+    \ \u2265200 valid entries."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_corpus.csv_contains_at_least_200_valid_entries
+  kind: magnitude
+  raw_text: "The final data/processed/corpus.csv must contain \u2265200 valid entries."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:51:25Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: uses CodeLlama-7B via HuggingFace Inference API
+  claim_id: c_57b4857b
+  context: 'Goal: Execute four distinct prompt conditions against the corpus using
+    CodeLlama-7B via HuggingFace Inference API, storing outputs deterministically.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_CodeLlama-7B_via_HuggingFace_Inference_API
+  kind: entity_fact
+  raw_text: The system uses CodeLlama-7B via HuggingFace Inference API for prompt
+    condition execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:51:46Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: enforces 120s API timeouts and 10s test timeouts
+  claim_id: c_13c4da81
+  context: Implement src/utils/timeout_utils.py for enforcing 120s API timeouts and
+    10s test timeouts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforces_120s_API_timeouts_and_10s_test_timeouts
+  kind: entity_fact
+  raw_text: The system enforces 120s API timeouts and 10s test timeouts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:16Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: 'uses ESLint complexity rule with config --rule complexity: [,10]'
+  claim_id: c_55bbbe53
+  context: 'Implement src/evaluation/compute_quality.py using ESLint complexity rule
+    (config: --rule complexity: [,10]) to calculate cyclomatic complexity and LOC
+    for each translation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The system uses ESLint complexity rule with config --rule complexity:
+    [,10] to calculate cyclomatic complexity and LOC.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:37Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: statistical analysis references Wikidata Q87892954
+  claim_id: c_57d2ce47
+  context: Implement src/evaluation/statistical_analysis.py to {{claim:c_e5f2707c}}
+    (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_references_Wikidata_Q87892954
+  kind: entity_fact
+  raw_text: The statistical analysis task references Wikidata Q87892954.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:52:57Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 2
+  canonical: no local LLM training or 8-bit quantization allowed
+  claim_id: c_7bd883fb
+  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
+    quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:53:23Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 0
+  canonical: Node.js test execution with 10 second timeout per test
+  claim_id: c_8f8374e0
+  context: Implement src/evaluation/run_node_tests.py to execute translated tests
+    against generated JS in a Node.js environment, enforcing 10s timeout per test
+    (DEPENDS ON T027 output)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 62'
+      source_id: Q105180965
+      url: https://www.wikidata.org/wiki/Q105180965
+      value: '62'
+    filled: true
+  kind: numeric
+  raw_text: Implement src/evaluation/run_node_tests.py to execute translated tests
+    against generated JS in a Node.js environment, enforcing 10s timeout per test
+  resolved_value: '62'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T00:54:55Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: corpus of at least 200 Python-to-JavaScript pairs from HuggingFace with
+    memory peak under 7GB
+  claim_id: c_aadd3ec6
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corpus_of_at_least_200_Python-to-JavaScript_pairs_from_Huggi
+  kind: magnitude
+  raw_text: "Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265\
+    200 Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:55:59Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: local CSV with at least 200 valid pairs and memory peak under 7GB
+  claim_id: c_8b8e460d
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Local_CSV_with_at_least_200_valid_pairs_and_memory_peak_unde
+  kind: magnitude
+  raw_text: "Verify src/ingestion/download_datasets.py creates a local CSV with \u2265\
+    200 valid pairs and logs a memory peak <7GB during execution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:56:51Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: API client with 120 second timeout
+  claim_id: c_0d72209b
+  context: Implement src/execution/api_client.py with exponential backoff (limited
+    retry attempts), 120s timeout, error handling for malformed responses, using endpoint
+    ` No address associated with hostname)"))]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/execution/api_client.py with exponential backoff (limited
+    retry attempts), 120s timeout, error handling for malformed responses, using endpoint
+    ` No address associated with hostname)"))]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:57:17Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: ESLint complexity rule configured with threshold 10
+  claim_id: c_3bdbd9d7
+  context: 'Implement src/evaluation/compute_quality.py using ESLint complexity rule
+    (config: --rule complexity: [,10]) to calculate cyclomatic complexity and LOC
+    for each translation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/evaluation/compute_quality.py using ESLint complexity rule
+    (config: --rule complexity: [,10]) to calculate cyclomatic complexity and LOC
+    for each translation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:57:47Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 2
+  canonical: no local LLM training or 8-bit quantization
+  claim_id: c_52f1ae6c
+  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
+    quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T00:57:47Z'

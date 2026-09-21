@@ -8,163 +8,120 @@ logger = get_logger(__name__)
 
 def is_valid_entry(entry: dict) -> bool:
     """
-    Validate a single dataset entry for code translation tasks.
+    Validate a single dataset entry to ensure it contains valid code.
     
-    An entry is valid if:
-    1. It contains 'python_code' and 'javascript_code' keys
+    Checks:
+    1. 'python_code' and 'javascript_code' keys exist
     2. Both values are non-empty strings
-    3. Both values are actually string types (not None, list, dict, etc.)
+    3. Neither value is None, NaN, or non-string type
     
     Args:
-        entry: Dictionary representing a dataset row
-        
+        entry: A dictionary representing a row from the dataset
+      
     Returns:
         True if the entry is valid, False otherwise
     """
-    if not isinstance(entry, dict):
-        return False
-        
     required_fields = ['python_code', 'javascript_code']
     
-    # Check all required fields exist
-    for field in required_fields:
-        if field not in entry:
-            logger.debug(f"Entry missing required field: {field}")
-            return False
-        
-        value = entry[field]
-        
-        # Check type is string
-        if not isinstance(value, str):
-            logger.debug(f"Field '{field}' is not a string (type: {type(value).__name__})")
-            return False
-        
-        # Check string is not empty or just whitespace
-        if not value.strip():
-            logger.debug(f"Field '{field}' is empty or whitespace-only")
-            return False
-            
+    # Check if all required fields exist
+    if not all(field in entry for field in required_fields):
+        return False
+      
+    python_code = entry['python_code']
+    js_code = entry['javascript_code']
+    
+    # Check for None or NaN
+    if pd.isna(python_code) or pd.isna(js_code):
+        return False
+      
+    # Check if types are string
+    if not isinstance(python_code, str) or not isinstance(js_code, str):
+        return False
+    
+    # Check if strings are empty
+    if not python_code.strip() or not js_code.strip():
+        return False
+    
     return True
 
-def validate_and_filter_dataset(
-    df: pd.DataFrame,
-    output_path: Optional[Path] = None,
-    log_excluded: bool = True
-) -> Tuple[pd.DataFrame, int]:
+def validate_and_filter_dataset(df: pd.DataFrame, source_path: Optional[Path] = None) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Validate and filter a dataset DataFrame, removing corrupted entries.
+    Validate and filter the dataset, excluding corrupted entries.
     
-    This function:
-    1. Iterates through all rows
-    2. Validates each entry using is_valid_entry()
-    3. Removes invalid entries
-    4. Optionally logs details about excluded entries
-    5. Optionally saves a log of excluded entries to disk
+    This function applies strict validation rules to the dataset:
+    - Removes entries with missing required columns
+    - Removes entries where code fields are not strings
+    - Removes entries with empty code strings
+    - Logs detailed information about excluded entries for debugging
     
     Args:
-        df: Input DataFrame containing the raw dataset
-        output_path: Optional path to save a CSV log of excluded entries
-        log_excluded: Whether to log excluded entries (default: True)
-        
+        df: The pandas DataFrame containing the dataset
+        source_path: Optional path to the source file for logging reference
+      
     Returns:
-        Tuple of (filtered DataFrame, count of excluded entries)
-        
-    Raises:
-        ValueError: If input DataFrame is empty or None
+        Tuple of (filtered DataFrame, list of excluded entry indices/reasons)
     """
-    if df is None or df.empty:
-        raise ValueError("Input DataFrame cannot be None or empty")
+    if df.empty:
+        logger.warning("Input DataFrame is empty. No validation performed.")
+        return df, []
+    
+    logger.info(f"Starting validation of {len(df)} entries from {source_path or 'dataset'}")
+    
+    excluded_indices = []
+    exclusion_reasons = []
+    
+    # Apply validation row by row
+    valid_mask = df.apply(is_valid_entry, axis=1)
+    
+    excluded_indices = df[~valid_mask].index.tolist()
+    excluded_entries = df[~valid_mask]
+    
+    # Log reasons for exclusion (sample)
+    if len(excluded_entries) > 0:
+        logger.warning(f"Found {len(excluded_indices)} invalid entries")
         
-    logger.info(f"Starting validation of {len(df)} entries")
-    
-    valid_mask = []
-    excluded_entries = []
-    
-    for idx, row in df.iterrows():
-        entry = row.to_dict()
-        is_valid = is_valid_entry(entry)
-        valid_mask.append(is_valid)
+        # Count specific reasons
+        reason_counts = {
+            'missing_fields': 0,
+            'non_string_type': 0,
+            'empty_string': 0,
+            'nan_value': 0
+        }
         
-        if not is_valid and log_excluded:
-            excluded_entries.append({
-                'index': idx,
-                'reason': 'Invalid entry structure',
-                'python_code_preview': str(entry.get('python_code', ''))[:50] if entry.get('python_code') else 'N/A',
-                'javascript_code_preview': str(entry.get('javascript_code', ''))[:50] if entry.get('javascript_code') else 'N/A'
-            })
-    
-    # Filter the DataFrame
-    valid_df = df[valid_mask].reset_index(drop=True)
-    excluded_count = len(df) - len(valid_df)
-    
-    logger.info(f"Validation complete: {len(valid_df)} valid entries, {excluded_count} excluded")
-    
-    # Log excluded entries if requested
-    if excluded_count > 0 and log_excluded:
-        logger.warning(f"Excluded {excluded_count} corrupted entries")
-        
-        if output_path:
-            # Ensure output directory exists
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+        for idx, row in excluded_entries.iterrows():
+            reason = "unknown"
+            if not all(field in row for field in ['python_code', 'javascript_code']):
+                reason = "missing_fields"
+            elif not isinstance(row.get('python_code'), str) or not isinstance(row.get('javascript_code'), str):
+                reason = "non_string_type"
+            elif pd.isna(row.get('python_code')) or pd.isna(row.get('javascript_code')):
+                reason = "nan_value"
+            elif not str(row.get('python_code', '')).strip() or not str(row.get('javascript_code', '')).strip():
+                reason = "empty_string"
             
-            # Save excluded entries to CSV
-            excluded_df = pd.DataFrame(excluded_entries)
-            excluded_df.to_csv(output_path, index=False)
-            logger.info(f"Saved excluded entries log to: {output_path}")
+            reason_counts[reason] = reason_counts.get(reason, 0) + 1
         
-        # Log summary of exclusion reasons
-        if excluded_entries:
-            logger.info(f"Sample excluded entry: {excluded_entries[0]}")
+        for reason, count in reason_counts.items():
+            if count > 0:
+                logger.info(f"  - {reason}: {count} entries")
     
-    return valid_df, excluded_count
+    filtered_df = df[valid_mask].reset_index(drop=True)
+    
+    logger.info(f"Validation complete: {len(filtered_df)} valid entries retained, {len(excluded_indices)} excluded")
+    
+    return filtered_df, excluded_indices
 
 def main():
     """
-    Main entry point for standalone execution of dataset validation.
+    Main entry point for running dataset validation.
     
-    This function:
-    1. Loads a raw dataset from data/raw/
-    2. Validates and filters corrupted entries
-    3. Saves the clean dataset to data/processed/
-    4. Logs statistics about the filtering process
+    This function is designed to be called from the preprocessing pipeline
+    to ensure data quality before further processing.
     """
-    logger.info("Starting dataset validation process")
-    
-    # Define paths
-    raw_dir = Path("data/raw")
-    processed_dir = Path("data/processed")
-    
-    # Find CSV files in raw directory
-    csv_files = list(raw_dir.glob("*.csv"))
-    
-    if not csv_files:
-        logger.error(f"No CSV files found in {raw_dir}")
-        return
-        
-    for raw_file in csv_files:
-        logger.info(f"Processing file: {raw_file}")
-        
-        try:
-            # Load dataset
-            df = pd.read_csv(raw_file)
-            logger.info(f"Loaded {len(df)} entries from {raw_file.name}")
-            
-            # Validate and filter
-            clean_df, excluded_count = validate_and_filter_dataset(
-                df,
-                output_path=processed_dir / f"{raw_file.stem}_excluded.csv"
-            )
-            
-            # Save clean dataset
-            output_file = processed_dir / f"{raw_file.stem}_clean.csv"
-            clean_df.to_csv(output_file, index=False)
-            logger.info(f"Saved clean dataset to {output_file}")
-            logger.info(f"Retention rate: {len(clean_df)/len(df)*100:.2f}%")
-            
-        except Exception as e:
-            logger.error(f"Error processing {raw_file}: {str(e)}", exc_info=True)
-            
-    logger.info("Dataset validation process completed")
+    logger.info("Dataset validation module initialized")
+    # This module is designed to be imported and used by other components
+    # in the ingestion pipeline (e.g., preprocess_corpus.py)
+    return True
 
 if __name__ == "__main__":
     main()

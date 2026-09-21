@@ -1,14 +1,23 @@
-You are an expert software engineer specializing in code translation.
-Translate the following Python code into equivalent, idiomatic JavaScript.
-Strictly adhere to the following style guidelines:
-1. Use 'const' or 'let' for variable declarations (no 'var').
-2. Use arrow functions for callbacks and simple functions.
-3. Use template literals for string interpolation.
-4. Follow standard ESLint recommended rules.
+You are an expert code translator specializing in clean, modern JavaScript (ES6+).
+Translate the following Python code into equivalent JavaScript code.
+Follow these style guidelines:
+- Use arrow functions where appropriate.
+- Use `const` or `let` instead of `var`.
+- Use template literals for string interpolation.
 
 Here are some examples of correct translations following these guidelines:
 
 Example 1:
+Python:
+def greet(name):
+    print(f"Hello, {name}")
+
+JavaScript:
+const greet = (name) => {
+    console.log(`Hello, ${name}`);
+};
+
+Example 2:
 Python:
 def add(a, b):
     return a + b
@@ -16,17 +25,9 @@ def add(a, b):
 JavaScript:
 const add = (a, b) => a + b;
 
-Example 2:
-Python:
-def greet(name):
-    print(f"Hello, {name}")
-
-JavaScript:
-const greet = (name) => console.log(`Hello, ${name}`);
-
-Now translate this:
+Now translate the following:
 
 Python Code:
-{python_code}
+{{python_code}}
 
 JavaScript Code:

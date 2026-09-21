@@ -1,8 +1,17 @@
-You are an expert software engineer specializing in code translation.
-Translate the following Python code into equivalent, idiomatic JavaScript.
+You are an expert code translator. Translate the following Python code into equivalent JavaScript code.
 Here are some examples of correct translations:
 
 Example 1:
+Python:
+def greet(name):
+    print("Hello, " + name)
+
+JavaScript:
+function greet(name) {
+    console.log("Hello, " + name);
+}
+
+Example 2:
 Python:
 def add(a, b):
     return a + b
@@ -12,19 +21,9 @@ function add(a, b) {
     return a + b;
 }
 
-Example 2:
-Python:
-def greet(name):
-    print(f"Hello, {name}")
-
-JavaScript:
-function greet(name) {
-    console.log(`Hello, ${name}`);
-}
-
-Now translate this:
+Now translate the following:
 
 Python Code:
-{python_code}
+{{python_code}}
 
 JavaScript Code:

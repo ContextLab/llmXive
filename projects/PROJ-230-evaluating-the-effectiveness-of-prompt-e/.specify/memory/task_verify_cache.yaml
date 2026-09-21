@@ -1,23 +1,9 @@
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/prompts/` directory or the four required placeholder\
-    \ `.txt` files is provided; without these artifacts the task\u2019s requirement\
-    \ cannot be confirmed as satisfied. The implementer must add the directory and\
-    \ create the four specified files."
 T011:
   c: false
   h: 57f27f36a709bc1394616354a37541cf29ba5018689f3035fe8eac88435bc197
   r: The required artifact `tests/contract/test_dataset_fetch.py` does not exist in
     the repository, so the contract test for dataset fetch is missing. The task cannot
     be considered completed until this file is created with appropriate test code.
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output was provided that shows validation logic filtering\
-    \ out entries with missing code or non\u2011string types, nor any logs confirming\
-    \ excluded entries. The required artifact (implementation of the exclusion logic)\
-    \ is missing."
 T015:
   c: false
   h: 52f65c256e90df0ba9d55d4e34eee9547d9efeccb42d5f6689b52ef9f4c089d8

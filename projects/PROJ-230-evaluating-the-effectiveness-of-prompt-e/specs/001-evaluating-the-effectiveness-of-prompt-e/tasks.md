@@ -58,8 +58,8 @@
 - [X] T006 Implement `src/utils/checksum_artifacts.py` to generate SHA-256 hashes for `data/raw/` files and write results to `state/checksums/` (Constitution Principle III)
 - [X] T007 Implement `src/utils/update_state.py` to track artifact hashes and update `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml` (Constitution Principle V)
 - [X] T008 Implement `src/utils/logging.py` with structured JSON logging for all prompts, seeds, and raw outputs
-- [ ] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts [UNRESOLVED-CLAIM: c_1919de34 — status=not_enough_info]
-- [ ] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt` [UNRESOLVED-CLAIM: c_4e82d6b3 — status=not_enough_info]
+- [ ] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts
+- [ ] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,7 +67,7 @@
 
 ## Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Download, filter, and prepare a CPU-tractable corpus of ≥200 Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM. [UNRESOLVED-CLAIM: c_c0724ff6 — status=not_enough_info]
+**Goal**: Download, filter, and prepare a CPU-tractable corpus of ≥200 Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM.
 
 **Independent Test**: Verify `src/ingestion/download_datasets.py` creates a local CSV with ≥200 valid pairs and logs a memory peak <7GB during execution.
 
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library [UNRESOLVED-CLAIM: c_699ef0a0 — status=not_enough_info], explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns <!-- FAILED: unspecified -->
 - [ ] T013b [US1] Implement validation logic to exclude corrupted entries (missing code, non-string types) from the cached dataset
 - [ ] T013c [US1] Implement sampling/chunking logic to ensure the processed dataset footprint remains ≤7GB RAM, outputting to `data/processed/corpus.csv` <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Add validation logic to ensure the final `data/processed/corpus.csv` contains ≥200 valid entries
@@ -93,7 +93,7 @@
 
 ## Phase 4: User Story 2 - Prompt Condition Execution (Priority: P2)
 
-**Goal**: Execute four distinct prompt conditions against the corpus using CodeLlama-7B via HuggingFace Inference API [UNRESOLVED-CLAIM: c_33cfceb3 — status=not_enough_info], storing outputs deterministically.
+**Goal**: Execute four distinct prompt conditions against the corpus using CodeLlama-7B via HuggingFace Inference API, storing outputs deterministically.
 
 **Independent Test**: Verify `src/execution/run_inference.py` creates distinct subdirectories for each condition with generated JS files matching inputs.
 
@@ -129,7 +129,7 @@
 ### Implementation for User Story 3
 
 - [ ] T027a [US3] Select and document a deterministic transpiler (e.g., `transcrypt` or custom AST converter) for converting Python unit tests to JavaScript
-- [ ] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript using the selected deterministic transpiler, strictly forbidding LLM-based test generation [UNRESOLVED-CLAIM: c_6f14469c — status=not_enough_info] (FR-003)
+- [ ] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript using the selected deterministic transpiler, strictly forbidding LLM-based test generation (FR-003)
 - [ ] T028 [US3] Implement `src/evaluation/run_node_tests.py` to execute translated tests against generated JS in a Node.js environment, enforcing 10s timeout per test (DEPENDS ON T027 output)
 - [ ] T029 [US3] Implement `src/evaluation/compute_quality.py` using ESLint `complexity` rule (config: `--rule complexity: [,10]`) to calculate cyclomatic complexity and LOC for each translation
 - [ ] T030 [US3] Implement `src/evaluation/statistical_analysis.py` to {{claim:c_e5f2707c}} (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
@@ -243,4 +243,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: {{claim:c_65af1cd1}} No local LLM training or 8-bit quantization allowed [UNRESOLVED-CLAIM: c_82b78bad — status=not_enough_info]. 
+- **Critical Constraint**: {{claim:c_65af1cd1}} No local LLM training or 8-bit quantization allowed. [UNRESOLVED-CLAIM: c_52f1ae6c — status=not_enough_info] 

@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T086` (rejected 1x): The required output artifacts `results/metrics.json` and `data/processed/aligned_events.csv` are absent, so there is no evidence that the pipeline ran to completion, returned exit code 0, or produced the expected valid results. The implementer must run the full pipeline on a clean repository and provide the missing files (and confirm they meet the schema and contain no dropped events).
+- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/timeout_utils.py
+- `T010` (rejected 1x): No evidence of a `data/prompts/` directory or the four required placeholder `.txt` files is provided; without these artifacts the task’s requirement cannot be confirmed as satisfied. The implementer must add the directory and create the four specified files.
+- `T013b` (rejected 1x): No code, script, or test output was provided that shows validation logic filtering out entries with missing code or non‑string types, nor any logs confirming excluded entries. The required artifact (implementation of the exclusion logic) is missing.
 
 ## Required change
 

@@ -10,7 +10,7 @@
   verification_status: pending
   verified_against_url: https://github.com/TranscryptOrg/Transcrypt
   verified_at: '2026-07-23T19:08:05.196027Z'
-- artifact_hash: b9186bc3abd94ba3ec4202753cbc2d5d270dbc06d0bec36b970f4c7de6441f63
+- artifact_hash: d4f3b40e3e8e4c52c657867d971f978bce1bee8bc91d86e34738a682b7daa4f5
   artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://www.wikidata.org/wiki/Q87892954
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q87892954
-  verified_at: '2026-07-25T19:04:20.188165Z'
+  verified_at: '2026-09-21T00:57:47.620459Z'

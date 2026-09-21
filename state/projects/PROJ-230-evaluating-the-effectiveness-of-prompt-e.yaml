@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T23:22:58.201893Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-230-evaluating-the-effectiveness-of-prompt-e
-last_run_id: f624ac3f-6e06-495e-9447-9a5d5bc6d5c1
+last_run_id: 12e13367-5d12-4f07-9427-7456266bd265
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e
 title: Evaluating the Effectiveness of Prompt Engineering for LLM-Based Code Translation
-updated_at: '2026-07-15T04:15:04.459438Z'
+updated_at: '2026-09-21T00:57:47.738921Z'
