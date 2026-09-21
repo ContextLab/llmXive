@@ -1,18 +1,18 @@
-T030:
+T003:
   c: false
-  h: 2e2647791477755b0416194f7d078db0ee103c19ebf9aa77ab80a874d88758f7
-  r: "The claimed output file `data/processed/validation/permutation_results.json`\
-    \ does not exist, so the required artifact is missing. Moreover, the permutation\
-    \ function uses the first residual as the \u201Cobserved statistic\u201D rather\
-    \ than the primary regression coefficient, which does not meet the specification\
-    \ of calculating an empirical p\u2011value for the primary coefficient. The next\
-    \ implementer must generate the JSON results file and correctly compute the statistic\
-    \ from the primary model coefficient."
-T031:
+  h: 124bbbefc379ea4b76939115f6d44c5cf8a86ba28af1f8c4962827abe9056f63
+  r: "The required `data/processed/behavioral/retention_metrics.json` file is absent,\
+    \ so the retention rate was never saved (and no logs of the conditional checks\
+    \ are provided). Without this artifact the task\u2019s output is incomplete."
+T044:
   c: false
-  h: a17edd999bf60e195cd1f1776fd03a2f6c1b0be2aabd25e7519b30fdc1f9a740
-  r: "The provided `validation.py` only implements a Freedman\u2011Lane permutation\
-    \ test and saves a p\u2011value; it contains no k\u2011fold cross\u2011validation\
-    \ logic, no calculation of out\u2011of\u2011sample R\xB2 or RMSE, and no comparison\
-    \ to the intercept\u2011only baseline. Moreover, the required output file `data/processed/validation/cv_results.json`\
-    \ is missing. The task requirements are therefore not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any new or additional unit test files in a `tests/unit/` directory
+    was provided; the claim lacks the required artifact, so the task is not satisfied.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no artifacts (e.g., validation logs, screenshots, or
+    a report) showing that the quickstart.md file was actually validated, nor any
+    evidence that the required steps succeeded. Consequently, the claim that the quickstart
+    validation was completed cannot be verified.

@@ -1,8 +1,3 @@
-"""
-Logging Infrastructure Module.
-
-Implements T005: Setup logging infrastructure to track wall_clock_time and RAM usage.
-"""
 import logging
 import os
 import sys
@@ -10,66 +5,64 @@ import time
 from typing import Optional, Dict, Any
 import psutil
 
-def setup_logger(name: str, log_file: Optional[str] = None, level=logging.INFO) -> logging.Logger:
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Sets up a logger with console and optional file handler.
+    Sets up a logger that writes to both console and a file.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    if not logger.handlers:
-        # Console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    if logger.handlers:
+        return logger
 
-        # File handler (if log_file provided)
-        if log_file:
-            os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else ".", exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(level)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
+    # File handler (optional, depending on project structure)
+    # We assume logs are written to a specific directory if needed, 
+    # but for this utility, console is primary.
+    
     return logger
 
 def get_resource_usage() -> Dict[str, Any]:
     """
-    Returns current RAM usage and process info.
+    Get current memory and CPU usage.
     """
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
     return {
-        "rss_mb": mem_info.rss / (1024 * 1024),
-        "vms_mb": mem_info.vms / (1024 * 1024),
-        "cpu_percent": process.cpu_percent()
+        "memory_mb": process.memory_info().rss / 1024 / 1024,
+        "cpu_percent": process.cpu_percent(interval=0.1)
     }
 
-def log_memory_usage(logger: logging.Logger, message: str):
+def log_memory_usage(logger: Optional[logging.Logger] = None, message: str = ""):
     """
-    Logs a message with current memory usage.
+    Logs the current memory usage.
     """
     usage = get_resource_usage()
-    logger.info(f"{message} - RAM: {usage['rss_mb']:.2f} MB")
+    log_msg = f"{message} Memory Usage: {usage['memory_mb']:.2f} MB"
+    if logger:
+        logger.info(log_msg)
+    else:
+        print(log_msg)
 
 class Timer:
-    """
-    Context manager for timing code blocks (wall_clock_time).
-    """
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger
         self.start_time = None
-        self.end_time = None
+        self.elapsed = 0.0
 
     def __enter__(self):
         self.start_time = time.time()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end_time = time.time()
-        elapsed = self.end_time - self.start_time
+        self.elapsed = time.time() - self.start_time
+        msg = f"Elapsed time: {self.elapsed:.2f} seconds"
         if self.logger:
-            self.logger.info(f"Elapsed time: {elapsed:.2f} seconds")
-        return False
+            self.logger.info(msg)
+        else:
+            print(msg)

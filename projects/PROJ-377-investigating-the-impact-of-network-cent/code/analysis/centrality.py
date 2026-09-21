@@ -1,3 +1,7 @@
+"""
+Centrality analysis module for network centrality calculations.
+Implements float32 optimization and batch processing.
+"""
 import os
 import numpy as np
 import pandas as pd
@@ -5,225 +9,278 @@ import networkx as nx
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import logging
-import glob
 
-# Import logging utilities from project utils
-try:
-    from utils.logging import setup_logger
-except ImportError:
-    # Fallback if running directly without package context
-    logging.basicConfig(level=logging.INFO)
-    def setup_logger(name): return logging.getLogger(name)
+from utils.config import get_centrality_config, get_output_paths
+from analysis.optimization_utils import (
+    ensure_float32,
+    optimize_memory_usage,
+    load_connectivity_matrix_optimized,
+    batch_process_subjects,
+    validate_float32_compliance
+)
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def get_subject_list_from_directory(data_dir: Path) -> List[str]:
+def get_subject_list_from_directory(data_dir: str) -> List[str]:
     """
-    Scans the data directory for subject folders (e.g., sub-01, sub-02).
-    Returns a list of subject IDs.
-    """
-    if not data_dir.exists():
-        logger.warning(f"Data directory does not exist: {data_dir}")
-        return []
-    
-    subjects = []
-    for item in sorted(data_dir.iterdir()):
-        if item.is_dir() and item.name.startswith('sub-'):
-            subjects.append(item.name)
-    return subjects
-
-def load_connectivity_matrix(subject_id: str, connectivity_dir: Path) -> Optional[np.ndarray]:
-    """
-    Loads a pre-computed connectivity matrix for a subject.
-    Expects file: {connectivity_dir}/{subject_id}_matrix.npy
-    """
-    file_path = connectivity_dir / f"{subject_id}_matrix.npy"
-    if not file_path.exists():
-        logger.warning(f"Connectivity matrix not found for {subject_id} at {file_path}")
-        return None
-    return np.load(file_path)
-
-def extract_connectivity_matrix_for_subject(subject_id: str, fmriprep_dir: Path, atlas_name: str = 'aal3') -> np.ndarray:
-    """
-    Extracts functional connectivity matrix for a subject using nilearn.
-    This is a placeholder implementation as nilearn is not in the provided API surface imports,
-    but the task T019/T020 implementation logic would go here.
-    For T021, we assume this has been done or the file exists.
-    """
-    # In a real implementation, this would use nilearn.connectome.ConnectivityMeasure
-    # to extract the matrix from fMRIPrep outputs and save it.
-    # Since T019 was marked as failed/missing, we ensure the path exists or raise.
-    conn_dir = fmriprep_dir.parent / "connectivity" # Assuming processed structure
-    # This function is primarily a stub for the API surface requirement.
-    # The actual heavy lifting for T019 is assumed to be handled by the preprocessing pipeline
-    # or a separate execution step that generates the .npy files.
-    raise NotImplementedError("Connectivity extraction requires nilearn and preprocessed fMRI data. "
-                              "This function is a placeholder for the API surface. "
-                              "Ensure T019 is implemented to generate .npy files before calling centrality metrics.")
-
-def compute_centrality_metrics(connectivity_matrix: np.ndarray, subject_id: str) -> Dict[str, float]:
-    """
-    Computes degree, betweenness, and eigenvector centrality for a connectivity matrix.
-    """
-    if connectivity_matrix is None:
-        return {}
-    
-    # Convert to graph (assuming symmetric adjacency)
-    # Thresholding might be needed, but we use raw values for weighted centrality
-    G = nx.from_numpy_array(connectivity_matrix)
-    
-    metrics = {
-        'subject_id': subject_id,
-        'degree_centrality_mean': np.mean(list(nx.degree_centrality(G).values())),
-        'betweenness_centrality_mean': np.mean(list(nx.betweenness_centrality(G).values())),
-        'eigenvector_centrality_mean': np.mean(list(nx.eigenvector_centrality(G, max_iter=1000).values()))
-    }
-    return metrics
-
-def process_subject(subject_id: str, data_dir: Path, output_dir: Path) -> Optional[Dict]:
-    """
-    Processes a single subject: loads matrix, computes centrality, returns metrics.
-    """
-    conn_dir = data_dir / "connectivity"
-    matrix = load_connectivity_matrix(subject_id, conn_dir)
-    if matrix is None:
-        return None
-    
-    metrics = compute_centrality_metrics(matrix, subject_id)
-    return metrics
-
-def run_centrality_analysis(data_dir: Path, output_dir: Path) -> pd.DataFrame:
-    """
-    Runs centrality analysis for all subjects and saves to CSV.
-    """
-    subjects = get_subject_list_from_directory(data_dir)
-    all_metrics = []
-    
-    for sub in subjects:
-        try:
-            metrics = process_subject(sub, data_dir, output_dir)
-            if metrics:
-                all_metrics.append(metrics)
-        except Exception as e:
-            logger.error(f"Error processing {sub}: {e}")
-    
-    if not all_metrics:
-        logger.warning("No centrality metrics computed.")
-        return pd.DataFrame()
-    
-    df = pd.DataFrame(all_metrics)
-    output_path = output_dir / "subject_id_metrics.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved centrality metrics to {output_path}")
-    return df
-
-def calculate_mean_fd(subject_id: str, fmriprep_dir: Path) -> Optional[float]:
-    """
-    Calculates Mean Framewise Displacement (FD) from fMRIPrep confounds.
+    Get list of subject IDs from the data directory.
     
     Args:
-        subject_id: The subject ID (e.g., 'sub-01')
-        fmriprep_dir: Path to the fMRIPrep derivatives directory (e.g., data/processed/fmriprep)
+        data_dir: Path to the data directory containing subject folders
         
     Returns:
-        Mean FD value or None if file not found.
+        List of subject IDs
     """
-    # Construct path to confounds file
-    # Expected pattern: data/processed/fmriprep/<subject_id>/func/<subject_id>_task-..._desc-confounds_timeseries.tsv
-    # We search for the file matching the pattern
-    pattern = str(fmriprep_dir / subject_id / "**" / "*desc-confounds_timeseries.tsv")
-    files = glob.glob(pattern, recursive=True)
+    path = Path(data_dir)
+    if not path.exists():
+        logger.error(f"Data directory not found: {data_dir}")
+        return []
+        
+    subject_dirs = [d for d in path.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+    subject_ids = [d.name.replace('sub-', '') for d in subject_dirs]
+    logger.info(f"Found {len(subject_ids)} subjects in {data_dir}")
+    return sorted(subject_ids)
+
+def load_connectivity_matrix(subject_id: str, data_dir: str) -> np.ndarray:
+    """
+    Load connectivity matrix for a subject.
     
-    if not files:
-        logger.warning(f"No confounds file found for {subject_id} in {fmriprep_dir}")
+    Args:
+        subject_id: Subject ID
+        data_dir: Path to data directory
+        
+    Returns:
+        Connectivity matrix as float32 numpy array
+    """
+    # Construct path to connectivity matrix
+    matrix_path = Path(data_dir) / f"sub-{subject_id}" / "connectivity_matrix.npy"
+    
+    if not matrix_path.exists():
+        logger.warning(f"Connectivity matrix not found for subject {subject_id}")
         return None
+        
+    # Load with optimization
+    matrix = load_connectivity_matrix_optimized(str(matrix_path))
+    return matrix
+
+def extract_connectivity_matrix_for_subject(
+    subject_id: str,
+    fmriprep_dir: str,
+    atlas_file: str
+) -> np.ndarray:
+    """
+    Extract functional connectivity matrix for a subject from preprocessed fMRI data.
     
-    # Assume the first match is the correct one
-    confounds_file = Path(files[0])
+    Args:
+        subject_id: Subject ID
+        fmriprep_dir: Path to fMRIPrep output directory
+        atlas_file: Path to atlas file
+        
+    Returns:
+        Connectivity matrix as float32 numpy array
+    """
+    from nilearn.connectome import ConnectivityMeasure
+    from nilearn import datasets
+    from nilearn.image import load_img
     
+    # Load atlas
+    atlas_img = load_img(atlas_file)
+    
+    # Find preprocessed functional image
+    func_path = Path(fmriprep_dir) / f"sub-{subject_id}" / "func"
+    func_files = list(func_path.glob("*space-MNI_desc-preproc_bold.nii.gz"))
+    
+    if not func_files:
+        logger.warning(f"No preprocessed functional image found for subject {subject_id}")
+        return None
+        
+    func_img = load_img(str(func_files[0]))
+    
+    # Extract time series
+    connectivity_measure = ConnectivityMeasure(
+        kind='correlation',
+        standardize=True
+    )
+    
+    time_series = connectivity_measure.fit_transform([func_img], atlas_img=atlas_img)
+    
+    # Convert to float32 and return
+    matrix = ensure_float32(time_series[0])
+    logger.debug(f"Extracted connectivity matrix for {subject_id}: shape {matrix.shape}")
+    return matrix
+
+def compute_centrality_metrics(matrix: np.ndarray) -> Dict[str, np.ndarray]:
+    """
+    Compute centrality metrics from a connectivity matrix.
+    
+    Args:
+        matrix: Connectivity matrix (float32)
+        
+    Returns:
+        Dictionary with centrality metrics
+    """
+    # Create graph from matrix
+    G = nx.from_numpy_array(matrix)
+    
+    # Compute metrics
+    degree_centrality = np.array(list(nx.degree_centrality(G).values()))
+    betweenness_centrality = np.array(list(nx.betweenness_centrality(G).values()))
+    eigenvector_centrality = np.array(list(nx.eigenvector_centrality(G).values()))
+    
+    # Ensure float32
+    metrics = {
+        'degree': ensure_float32(degree_centrality),
+        'betweenness': ensure_float32(betweenness_centrality),
+        'eigenvector': ensure_float32(eigenvector_centrality)
+    }
+    
+    return metrics
+
+def process_subject(subject_id: str, data_dir: str, atlas_file: str) -> Optional[Dict]:
+    """
+    Process a single subject: load matrix and compute centrality metrics.
+    
+    Args:
+        subject_id: Subject ID
+        data_dir: Path to data directory
+        atlas_file: Path to atlas file
+        
+    Returns:
+        Dictionary with subject metrics or None if failed
+    """
     try:
-        df = pd.read_csv(confounds_file, sep='\t', comment='#')
-        if 'framewise_displacement' not in df.columns:
-            logger.warning(f"Column 'framewise_displacement' not found in {confounds_file}")
-            return None
+        # Load connectivity matrix
+        matrix = load_connectivity_matrix(subject_id, data_dir)
         
-        fd_series = df['framewise_displacement']
-        # Handle potential non-numeric values or NaNs
-        fd_values = pd.to_numeric(fd_series, errors='coerce')
-        mean_fd = fd_values.mean()
-        
-        if pd.isna(mean_fd):
-            logger.warning(f"Mean FD is NaN for {subject_id}")
+        if matrix is None:
+            logger.warning(f"Could not load matrix for {subject_id}")
             return None
             
-        return float(mean_fd)
+        # Compute centrality metrics
+        metrics = compute_centrality_metrics(matrix)
+        
+        # Get region names from atlas
+        # Assuming AAL3 atlas with ~90 regions
+        n_regions = matrix.shape[0]
+        region_names = [f"Region_{i}" for i in range(n_regions)]
+        
+        # Create results
+        results = []
+        for i in range(n_regions):
+            results.append({
+                'subject_id': subject_id,
+                'region_id': i,
+                'region_name': region_names[i],
+                'degree': float(metrics['degree'][i]),
+                'betweenness': float(metrics['betweenness'][i]),
+                'eigenvector': float(metrics['eigenvector'][i])
+            })
+            
+        return results
         
     except Exception as e:
-        logger.error(f"Error reading confounds for {subject_id}: {e}")
+        logger.error(f"Error processing subject {subject_id}: {e}")
         return None
 
-def calculate_fd(fmriprep_dir: Path, output_dir: Path) -> pd.DataFrame:
+def calculate_mean_fd(subject_id: str, fmriprep_dir: str) -> Optional[float]:
     """
-    Main entry point for T021.
-    Iterates through subjects in the fMRIPrep directory, calculates mean FD,
-    and saves the results to data/processed/behavioral/fd_mean.csv.
+    Calculate mean Framewise Displacement for a subject.
+    
+    Args:
+        subject_id: Subject ID
+        fmriprep_dir: Path to fMRIPrep output directory
+        
+    Returns:
+        Mean FD value or None if failed
     """
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    confounds_path = Path(fmriprep_dir) / f"sub-{subject_id}" / "func" / "desc-confounds_timeseries.tsv"
     
-    # Find all subject directories
-    subjects = []
-    if fmriprep_dir.exists():
-        for item in sorted(fmriprep_dir.iterdir()):
-            if item.is_dir() and item.name.startswith('sub-'):
-                subjects.append(item.name)
-    
-    if not subjects:
-        logger.warning(f"No subjects found in {fmriprep_dir}")
-        return pd.DataFrame(columns=['subject_id', 'mean_fd'])
+    if not confounds_path.exists():
+        logger.warning(f"Confounds file not found for {subject_id}")
+        return None
+        
+    try:
+        confounds = pd.read_csv(confounds_path, sep='\t')
+        if 'framewise_displacement' in confounds.columns:
+            mean_fd = confounds['framewise_displacement'].mean()
+            return float(mean_fd)
+        else:
+            logger.warning(f"framewise_displacement column not found for {subject_id}")
+            return None
+    except Exception as e:
+        logger.error(f"Error calculating FD for {subject_id}: {e}")
+        return None
 
-    results = []
-    for sub_id in subjects:
-        mean_fd = calculate_mean_fd(sub_id, fmriprep_dir)
-        results.append({
-            'subject_id': sub_id,
-            'mean_fd': mean_fd
-        })
+def run_centrality_analysis(
+    data_dir: str,
+    fmriprep_dir: str,
+    atlas_file: str,
+    output_file: str
+) -> pd.DataFrame:
+    """
+    Run centrality analysis for all subjects.
     
-    df = pd.DataFrame(results)
-    output_path = output_dir / "fd_mean.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved mean FD to {output_path}")
+    Args:
+        data_dir: Path to data directory
+        fmriprep_dir: Path to fMRIPrep output directory
+        atlas_file: Path to atlas file
+        output_file: Path to output CSV file
+        
+    Returns:
+        DataFrame with centrality metrics
+    """
+    config = get_centrality_config()
+    output_paths = get_output_paths()
+    
+    # Get subject list
+    subject_ids = get_subject_list_from_directory(data_dir)
+    
+    if not subject_ids:
+        logger.error("No subjects found")
+        return pd.DataFrame()
+        
+    logger.info(f"Processing {len(subject_ids)} subjects with batch size {config.batch_size}")
+    
+    # Process subjects in batches
+    all_results = []
+    
+    for i in range(0, len(subject_ids), config.batch_size):
+        batch_ids = subject_ids[i:i+config.batch_size]
+        logger.info(f"Processing batch {i//config.batch_size + 1}: {len(batch_ids)} subjects")
+        
+        for subject_id in batch_ids:
+            result = process_subject(subject_id, data_dir, atlas_file)
+            if result:
+                all_results.extend(result)
+                
+        # Garbage collection
+        import gc
+        gc.collect()
+        
+    # Create DataFrame and optimize memory
+    df = pd.DataFrame(all_results)
+    df = optimize_memory_usage(df)
+    
+    # Ensure output directory exists
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved centrality metrics to {output_file}")
+    
     return df
 
 def main():
-    """
-    Entry point for running the centrality and FD analysis.
-    """
-    # Configuration paths (hardcoded for this task execution, 
-    # ideally loaded from utils.config in a real pipeline)
-    base_dir = Path("data/processed")
-    fmriprep_dir = base_dir / "fmriprep"
-    centrality_output_dir = base_dir / "centrality"
-    fd_output_dir = base_dir / "behavioral"
+    """Main entry point for centrality analysis."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
     
-    logger.info("Starting Centrality and FD Analysis...")
-    
-    # 1. Run FD Calculation (T021)
-    logger.info("Calculating Mean Framewise Displacement...")
-    try:
-        fd_df = calculate_fd(fmriprep_dir, fd_output_dir)
-        print(f"FD Calculation Complete. Rows: {len(fd_df)}")
-        if len(fd_df) > 0:
-            print(fd_df.head())
-    except Exception as e:
-        logger.error(f"FD Calculation failed: {e}")
-        raise
-        
-    # 2. Run Centrality Analysis (T020) - Placeholder for completeness
-    # This would require connectivity matrices to be present
-    # centrality_output_dir.mkdir(parents=True, exist_ok=True)
-    # run_centrality_analysis(base_dir / "connectivity", centrality_output_dir)
+    # Example usage
+    logger.info("Centrality analysis module loaded")
+    logger.info("Functions available: get_subject_list_from_directory, load_connectivity_matrix, "
+               "extract_connectivity_matrix_for_subject, compute_centrality_metrics, "
+               "process_subject, calculate_mean_fd, run_centrality_analysis")
 
 if __name__ == "__main__":
     main()

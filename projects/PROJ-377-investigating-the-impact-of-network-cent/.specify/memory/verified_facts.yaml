@@ -1,0 +1,6 @@
+'|cross fold validation':
+  quote: cross-validation across both backbones, totaling 180 trained models, and
+    (ii)
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '180'

@@ -649,3 +649,90 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T07:19:39Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/ARCHITECTURE.md
+  attempts: 1
+  canonical: AAL3 atlas contains approximately 90 regions
+  claim_id: c_5a5354f8
+  context: 3. **Centrality Calculation** - Load connectivity matrices for full AAL3
+    atlas (~90 regions)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load connectivity matrices for full AAL3 atlas (~90 regions)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:33:51Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/ARCHITECTURE.md
+  attempts: 1
+  canonical: Freedman-Lane permutation test uses 1000 iterations
+  claim_id: c_bd463493
+  context: 5. **Validation** - Freedman-Lane permutation test (1000 iterations)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Freedman-Lane permutation test (1000 iterations)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:34:25Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/ARCHITECTURE.md
+  attempts: 1
+  canonical: Validation uses 5-fold cross-validation
+  claim_id: c_2d849dcf
+  context: 5. **Validation** - 5-fold cross-validation
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: cross-validation across both backbones, totaling 180 trained models,
+        and (ii)
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '180'
+    filled: true
+  kind: numeric
+  raw_text: 5-fold cross-validation
+  resolved_value: '180'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T10:35:18Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/ARCHITECTURE.md
+  attempts: 1
+  canonical: VIF threshold of 5 used for model selection
+  claim_id: c_5d35c2bc
+  context: '### VIF-Based Model Selection - **Decision**: Use VIF > 5 threshold to
+    decide between Global and PCA models'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use VIF > 5 threshold to decide between Global and PCA models
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:35:18Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: AAL3 atlas contains 90 regions
+  claim_id: c_4dda84bb
+  context: 'Goal: Compute centrality metrics from connectivity matrices for the **FULL
+    AAL3 atlas (~90 regions)**, calculate FD, check VIF, aggregate to global score,
+    and fit linear/GAM models with covariates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FULL AAL3 atlas contains approximately 90 regions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T10:54:19Z'

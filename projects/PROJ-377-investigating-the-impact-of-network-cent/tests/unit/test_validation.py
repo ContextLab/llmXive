@@ -1,109 +1,121 @@
-"""
-Unit tests for the validation module (T015).
-"""
 import pytest
 import pandas as pd
-import numpy as np
-from pathlib import Path
-import sys
+import json
 import os
+import tempfile
+from pathlib import Path
+from code.data.validation import validate_retention_and_behavioral_data
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+class TestRetentionValidation:
+    """
+    Unit tests for T003: Retention & Behavioral Validation.
+    """
 
-from data.validation import validate_retention_and_behavioral_data
-from utils.config import Config, reset_config
+    def setup_method(self):
+        """Setup temporary directory and test files."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.metadata_path = os.path.join(self.temp_dir, "metadata.csv")
+        self.output_path = os.path.join(self.temp_dir, "retention_metrics.json")
 
-@pytest.fixture
-def sample_behavioral_df():
-    """Create a sample DataFrame with valid behavioral data."""
-    data = {
-        'subject_id': [f'sub-{i:03d}' for i in range(1, 101)],
-        'pre_score': np.random.uniform(10, 50, 100),
-        'post_score': np.random.uniform(10, 50, 100),
-        'improvement': np.random.uniform(-5, 20, 100),
-        'age': np.random.randint(18, 80, 100),
-        'sex': np.random.choice(['M', 'F'], 100)
-    }
-    return pd.DataFrame(data)
+    def teardown_method(self):
+        """Cleanup temporary directory."""
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-@pytest.fixture
-def sample_behavioral_df_missing():
-    """Create a DataFrame with missing critical behavioral data."""
-    data = {
-        'subject_id': [f'sub-{i:03d}' for i in range(1, 11)],
-        'pre_score': np.random.uniform(10, 50, 10),
-        'post_score': np.random.uniform(10, 50, 10),
-        'improvement': [np.nan] + [np.random.uniform(-5, 20, 9)].tolist(), # One missing
-        'age': np.random.randint(18, 80, 10),
-        'sex': np.random.choice(['M', 'F'], 10)
-    }
-    return pd.DataFrame(data)
+    def create_metadata_file(self, data):
+        """Helper to create a metadata CSV file."""
+        df = pd.DataFrame(data)
+        df.to_csv(self.metadata_path, index=False)
 
-@pytest.fixture
-def empty_df():
-    return pd.DataFrame(columns=['subject_id', 'improvement'])
-
-def test_valid_retention(sample_behavioral_df):
-    """Test that valid data passes retention check."""
-    # 100 subjects, expect 100. Rate = 1.0. Threshold = 0.8. Should pass.
-    is_valid, msg, _ = validate_retention_and_behavioral_data(
-        sample_behavioral_df, 
-        min_retention_rate=0.80, 
-        total_subjects_expected=100
-    )
-    assert is_valid is True
-    assert "Validation passed" in msg
-
-def test_low_retention_raises(sample_behavioral_df):
-    """Test that low retention rate raises RuntimeError."""
-    # 100 subjects, but we only kept 50. Rate = 0.5. Threshold = 0.8. Should fail.
-    with pytest.raises(RuntimeError) as excinfo:
-        validate_retention_and_behavioral_data(
-            sample_behavioral_df, 
-            min_retention_rate=0.80, 
-            total_subjects_expected=200 # Expecting 200, have 100 -> 50% retention
+    def test_high_retention_success(self):
+        """Test case where retention > 80% (valid behavioral data)."""
+        data = [
+            {"subject_id": "sub-01", "pre_motor_score": 10, "post_motor_score": 15},
+            {"subject_id": "sub-02", "pre_motor_score": 12, "post_motor_score": 18},
+            {"subject_id": "sub-03", "pre_motor_score": 8, "post_motor_score": 14},
+            {"subject_id": "sub-04", "pre_motor_score": 11, "post_motor_score": 16},
+            {"subject_id": "sub-05", "pre_motor_score": 9, "post_motor_score": 13},
+        ]
+        self.create_metadata_file(data)
+        
+        success, metrics = validate_retention_and_behavioral_data(
+            self.metadata_path, self.output_path
         )
-    assert "below the required threshold" in str(excinfo.value)
+        
+        assert success is True
+        assert metrics["total_subjects"] == 5
+        assert metrics["retained_subjects"] == 5
+        assert metrics["retention_rate"] == 1.0
+        assert metrics["threshold_met"] is True
+        
+        # Verify file was written
+        assert os.path.exists(self.output_path)
+        with open(self.output_path, 'r') as f:
+            saved_metrics = json.load(f)
+        assert saved_metrics["retention_rate"] == 1.0
 
-def test_missing_behavioral_data_raises(sample_behavioral_df_missing):
-    """Test that missing behavioral data raises RuntimeError."""
-    with pytest.raises(RuntimeError) as excinfo:
-        validate_retention_and_behavioral_data(
-            sample_behavioral_df_missing,
-            min_retention_rate=0.80,
-            total_subjects_expected=10
+    def test_low_retention_behavioral_failure(self):
+        """Test case where retention < 80% due to missing behavioral data -> Fatal."""
+        # 4 valid, 1 missing -> 80% exactly (pass). Need < 80%.
+        # 3 valid, 2 missing -> 60% (fail).
+        data = [
+            {"subject_id": "sub-01", "pre_motor_score": 10, "post_motor_score": 15},
+            {"subject_id": "sub-02", "pre_motor_score": 12, "post_motor_score": 18},
+            {"subject_id": "sub-03", "pre_motor_score": 8, "post_motor_score": 14},
+            {"subject_id": "sub-04", "pre_motor_score": None, "post_motor_score": None}, # Missing
+            {"subject_id": "sub-05", "pre_motor_score": None, "post_motor_score": None}, # Missing
+        ]
+        self.create_metadata_file(data)
+        
+        with pytest.raises(RuntimeError, match="Fatal: Retention < 80% due to missing behavioral data"):
+            validate_retention_and_behavioral_data(self.metadata_path, self.output_path)
+
+    def test_low_retention_motion_warning(self):
+        """Test case where retention < 80% but due to motion artifacts -> Warning & Proceed."""
+        # 3 valid, 2 missing due to motion -> 60% retention.
+        # Assuming 'exclusion_reason' column exists.
+        data = [
+            {"subject_id": "sub-01", "pre_motor_score": 10, "post_motor_score": 15, "exclusion_reason": "valid"},
+            {"subject_id": "sub-02", "pre_motor_score": 12, "post_motor_score": 18, "exclusion_reason": "valid"},
+            {"subject_id": "sub-03", "pre_motor_score": 8, "post_motor_score": 14, "exclusion_reason": "valid"},
+            {"subject_id": "sub-04", "pre_motor_score": None, "post_motor_score": None, "exclusion_reason": "motion artifacts"},
+            {"subject_id": "sub-05", "pre_motor_score": None, "post_motor_score": None, "exclusion_reason": "motion artifacts"},
+        ]
+        self.create_metadata_file(data)
+        
+        # Should NOT raise, but log warning and return success
+        success, metrics = validate_retention_and_behavioral_data(
+            self.metadata_path, self.output_path
         )
-    assert "Behavioral data missing" in str(excinfo.value)
+        
+        assert success is True
+        assert metrics["retention_rate"] == 0.6
+        assert metrics["motion_artifact_count"] == 2
+        assert metrics["missing_behavioral_count"] == 2
+        # File should still be written
+        assert os.path.exists(self.output_path)
 
-def test_empty_dataframe_raises(empty_df):
-    """Test that an empty DataFrame raises RuntimeError."""
-    with pytest.raises(RuntimeError) as excinfo:
-        validate_retention_and_behavioral_data(
-            empty_df,
-            min_retention_rate=0.80,
-            total_subjects_expected=100
-        )
-    assert "empty" in str(excinfo.value)
+    def test_missing_columns_failure(self):
+        """Test case where required columns are missing."""
+        data = [
+            {"subject_id": "sub-01", "age": 25},
+            {"subject_id": "sub-02", "age": 30},
+        ]
+        self.create_metadata_file(data)
+        
+        with pytest.raises(ValueError, match="Missing required columns"):
+            validate_retention_and_behavioral_data(self.metadata_path, self.output_path)
 
-def test_retention_calculation():
-    """Test retention rate calculation logic."""
-    df = pd.DataFrame({
-        'subject_id': ['s1', 's2', 's3'],
-        'improvement': [1.0, 2.0, 3.0]
-    })
-    # 3 retained, 4 expected -> 75%
-    is_valid, _, _ = validate_retention_and_behavioral_data(
-        df, 
-        min_retention_rate=0.70, 
-        total_subjects_expected=4
-    )
-    assert is_valid is True # 0.75 >= 0.70
+    def test_empty_file_failure(self):
+        """Test case where metadata file is empty."""
+        self.create_metadata_file([])
+        
+        with pytest.raises(ValueError, match="Metadata file is empty"):
+            validate_retention_and_behavioral_data(self.metadata_path, self.output_path)
 
-    # 3 retained, 5 expected -> 60%
-    with pytest.raises(RuntimeError):
-        validate_retention_and_behavioral_data(
-            df, 
-            min_retention_rate=0.70, 
-            total_subjects_expected=5
-        )
+    def test_file_not_found_failure(self):
+        """Test case where metadata file does not exist."""
+        with pytest.raises(FileNotFoundError):
+            validate_retention_and_behavioral_data(
+                "non_existent_path.csv", self.output_path
+            )

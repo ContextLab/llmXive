@@ -10,6 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[D]**: Dependent (must wait for upstream artifacts)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -39,14 +40,31 @@
  ============================================================================
 -->
 
+## Phase 0: Data Validation & Feasibility Check (Priority: P0 - BLOCKING)
+
+**Purpose**: Validate data availability and completeness BEFORE any processing. Enforces hard stops for missing data.
+
+**⚠️ CRITICAL**: No preprocessing (Phase 1) can begin until this phase passes.
+
+- [X] T001 [P] [US1] Download a dataset from OpenNeuro using `openneuro-cli` in `code/data/download.py`.
+- [X] T002 [US1] **Fatal Gate**: Verify presence of required columns (`pre_motor_score`, `post_motor_score`, `age`, `sex`, `subject_id`) in the downloaded metadata. **If missing, log "Fatal: Dataset lacks behavioral motor task metrics" and exit immediately. Do not proceed.**
+- [X] T003 [US1] **Retention & Behavioral Validation**: Read the downloaded metadata from `data/raw/metadata.csv`. Calculate retention rate (subjects with valid data / total subjects). **If < 80% due to missing behavioral data, log "Fatal: Retention < 80% due to missing behavioral data" and exit. If < 80% due to motion artifacts, log warning and proceed.** Save the retention rate proportion, total subjects, and retained subjects count to `data/processed/behavioral/retention_metrics.json` to satisfy SC-001.
+- [ ] T004 [US1] **Power Check**: If N < 85, log warning "Underpowered for small effects (r=0.3)" and proceed with caution, but flag in report.
+
+**Checkpoint**: Data validated. Proceed to preprocessing only if Phase 0 passes.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create project directory structure: `projects/PROJ-377-investigating-the-impact-of-network-cent/` with subdirs `code/`, `data/`, `tests/`, `state/`
-- [X] T001b [P] Initialize git repository and create `.gitignore` for data and artifacts
-- [X] T002 Initialize Python project with dependencies: `pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`, `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn` in `code/requirements.txt`
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T005a [P] Create project directory `code/` and subdirectories `code/data/`, `code/analysis/`, `code/utils/`
+- [X] T005b [P] Create project directory `data/` and subdirectories `data/raw/`, `data/processed/`, `data/artifacts/`
+- [X] T005c [P] Create project directory `tests/` and subdirectories `tests/contract/`, `tests/integration/`, `tests/unit/`
+- [X] T006 [P] Initialize git repository and create `.gitignore` for data and artifacts
+- [X] T007 Initialize Python project with dependencies: `pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`, `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn`, `pymvpa` (for permutation) in `code/requirements.txt`
+- [X] T008 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -58,11 +76,11 @@
 
 Examples of foundational tasks (adjust based on your plan.md):
 
-- [X] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
-- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track wall_clock_time and RAM usage
-- [X] T006 [P] Setup reproducibility reporting utility in `code/utils/metrics.py` to generate `reproducibility_report.json`
-- [X] T007 Create base data models/entities in `code/__init__.py` and `code/data/` for Subject and ConnectivityMatrix
-- [X] T008 Configure environment configuration management for dataset URLs and thresholds in `code/utils/config.py`
+- [X] T009 Setup data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
+- [X] T010 [P] Implement logging infrastructure in `code/utils/logging.py` to track wall_clock_time and RAM usage
+- [X] T011 [P] Setup reproducibility reporting utility in `code/utils/metrics.py` to generate `reproducibility_report.json`
+- [X] T012 Create base data models/entities in `code/__init__.py` and `code/data/` for Subject and ConnectivityMatrix
+- [X] T013 Configure environment configuration management for dataset URLs and thresholds in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,7 +88,7 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Download OpenNeuro ds000030, preprocess with fMRIPrep (memory efficient), and extract behavioral metrics.
+**Goal**: Preprocess fMRI data with fMRIPrep (memory efficient) and extract behavioral metrics.
 
 **Independent Test**: The pipeline produces a CSV with subject IDs, behavioral improvement scores, and pre-processed fMRI time-series for ≥ 50 subjects with no missing values.
 
@@ -78,17 +96,16 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [X] T010 [P] [US1] Integration test for download and exclusion logic in `tests/integration/test_data_ingestion.py`
+- [X] T014 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [X] T015 [P] [US1] Integration test for download and exclusion logic in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement dataset download script using `openneuro-cli` in `code/data/download.py` targeting ds000030 <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Implement fMRIPrep preprocessing wrapper with memory-efficient settings (float32, batch processing) in `code/data/preprocess.py`
-- [X] T013 [US1] Implement behavioral metric extraction (pre/post motor scores, age, sex) and subject exclusion logic in `code/data/preprocess.py`
-- [X] T014 [US1] Implement retention rate calculation and power check (N >= 85 warning) in `code/data/preprocess.py`
-- [ ] T015 [US1] Add validation to ensure ≥ 80% subject retention and fail gracefully if behavioral data is missing
-- [X] T016 [US1] Add logging for excluded subjects and reasons in `code/data/preprocess.py`
+- [X] T016 [P] [US1] Implement fMRIPrep preprocessing wrapper with memory-efficient settings (float32, batch processing) in `code/data/preprocess.py`
+- [ ] T017 [US1] Implement behavioral metric extraction (pre/post motor scores, age, sex) from `data/raw/metadata.csv`. **Output**: Save subject IDs, scores, and demographics to `data/processed/behavioral/subject_scores.csv` with columns `subject_id`, `pre_motor_score`, `post_motor_score`, `age`, `sex`, `improvement_score`.
+- [X] T018 [US1] Implement retention rate calculation and power check (N >= 85 warning) in `code/data/preprocess.py`
+- [ ] T019 [US1] Add validation to ensure ≥ 80% subject retention and fail gracefully if behavioral data is missing (Logic moved to Phase 0 T002/T003, this task ensures logging)
+- [ ] T020 [US1] **Log Exclusions**: Write a log of excluded subjects and reasons (e.g., motion artifacts, missing data) to `data/processed/logs/exclusion_log.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,28 +113,27 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ## Phase 4: User Story 2 - Centrality Calculation and Association Modeling (Priority: P2)
 
-**Goal**: Compute centrality metrics from connectivity matrices for ALL regions, calculate FD, check VIF, aggregate to global score, and fit linear/GAM models with covariates.
+**Goal**: Compute centrality metrics from connectivity matrices for the **FULL AAL3 atlas (~90 regions)**, calculate FD, check VIF, aggregate to global score, and fit linear/GAM models with covariates.
 
 **Independent Test**: The analysis script outputs a regression summary table, scatter plot, non-linearity check results, and regional p-values (if triggered).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
-- [X] T018 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
+- [X] T021 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
+- [X] T022 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement functional connectivity matrix extraction for **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure` and save to `data/processed/connectivity/subject_id_matrix.npy` in `code/analysis/centrality.py`
-- [ ] T020 [US2] Implement centrality metric calculation (degree, betweenness, eigenvector) using NetworkX for **ALL regions (~90 nodes)**. Persist raw metrics to `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py` <!-- FAILED: unspecified -->
-- [ ] T020.5 [US2] **Extract Fixed Subset**: From `data/processed/centrality/subject_id_metrics.csv`, extract metrics for **fixed regions (AAL3 indices 1-10)**. Compute mean to create 'global_centralty' column. Save to `data/processed/centrality/global_scores.csv` in `code/analysis/centrality.py`. (Aligns with Plan's bias-control strategy).
-- [ ] T021 [US2] Implement Mean Framewise Displacement (FD) calculation from fMRIPrep outputs (`data/processed/fmriprep/*/desc-confounds_timeseries.tsv`) and aggregate to mean per subject. Save to `data/processed/behavioral/fd_mean.csv` in `code/analysis/centrality.py`
-- [ ] T022 [US2] Implement VIF check on degree, betweenness, and eigenvector metrics; if VIF > 5, switch to PCA components; load raw metrics from `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`. **Output**: `data/processed/centrality/model_predictors.csv` (contains either Global_Centrality or PCA_Component + Age + Sex + Mean_FD). <!-- FAILED: unspecified -->
-- [X] T023 [US2] Implement global centrality aggregation (mean of fixed subset 1-10) from validated metrics in `code/analysis/centrality.py`. (Note: This task is now largely superseded by T020.5 but kept for logic separation if T020.5 is refactored). <!-- FAILED: unspecified -->
-- [ ] T023.5 [US2] **Null Model Generation**: Implement generation of the 'null model' (intercept-only: `Improvement ~ 1`) and calculate its residuals. Save residuals to `data/processed/validation/null_residuals.csv`. This artifact is required for T030.
-- [ ] T024 [US2] Implement Linear Regression model in `code/analysis/regression.py`. **Logic**: IF PCA used (from T022), formula is `Improvement ~ PCA_Component + Age + Sex + Mean_FD`; ELSE formula is `Improvement ~ Global_Centrality + Age + Sex + Mean_FD`. Save summary to `data/processed/regression/linear_model_summary.csv`. <!-- FAILED: unspecified -->
-- [X] T025 [US2] Implement GAM/Polynomial non-linearity check and AIC/BIC comparison in `code/analysis/regression.py`. **Logic**: Use the SAME predictor set (PCA or Global) as determined in T022.
-- [X] T026 [US2] Generate scatter plot with regression line and non-linearity fit in `code/analysis/regression.py`
-- [ ] T027.1 [US2] **Conditional Regional Analysis**: IF `global_model_p_value > 0.05` OR `config.regional_analysis_flag == true`: Fit separate regression models for each of the ~90 regions to generate regional p-values. Save to `data/processed/regression/regional_pvalues.csv`. ELSE: Skip and log "Regional analysis skipped per primary strategy". (Triggers fallback only if needed).
+- [P] T023 [US2] **Calculate Full-Atlas Centrality**: From preprocessed fMRI data, extract functional connectivity matrices for the **FULL AAL3 atlas (~90 regions)**. Use `nilearn.connectome.ConnectivityMeasure` to load the AAL3 atlas file. Calculate degree, betweenness, and eigenvector centrality for **EVERY region** using `networkx`. Save raw metrics for all regions to `data/processed/centrality/subject_id_metrics.csv` (columns: `subject_id`, `region_id`, `region_name`, `degree`, `betweenness`, `eigenvector`).
+- [P] T024 [US2] **Compute Global Score**: Read `data/processed/centrality/subject_id_metrics.csv` (T023). Aggregate the full set of regional metrics (all available regions) into a single 'global_centralty' score per subject (e.g., mean of all regions or mean of top hub nodes as defined in plan). Save to `data/processed/centrality/global_scores.csv` in `code/analysis/centrality.py`.
+- [P] T025 [US2] **Calculate Mean FD**: Read fMRIPrep confounds (`data/processed/fmriprep/*/desc-confounds_timeseries.tsv`), calculate Mean Framewise Displacement per subject, and save to `data/processed/behavioral/fd_mean.csv` in `code/analysis/centrality.py`.
+- [P] T026 [US2] **Calculate VIF**: Load degree, betweenness, eigenvector metrics for the **FULL SET OF REGIONS** from `data/processed/centrality/subject_id_metrics.csv` (T023). Calculate Variance Inflation Factor (VIF) for these three metrics across the full network. Save VIF values to `data/processed/centrality/vif_values.csv` in `code/analysis/centrality.py`.
+- [P] T027 [US2] **Determine Predictor Set**: Read `vif_values.csv` (T026). **IF** any VIF > 5: Run PCA on degree/betweenness/eigenvector metrics from the full set, retain first component, set `model_type`='PCA-Adjusted'. **ELSE**: Use 'Global_Centrality', set `model_type`='Global'. Save decision and selected predictors to `data/processed/centrality/model_predictors.csv` (columns: `model_type`, `selected_predictors`, `vif_values`, `formula_string`).
+- [P] T028 [US2] **Fit Linear Regression**: Read `model_predictors.csv` (T027), `fd_mean.csv` (T025), and behavioral data from `data/processed/behavioral/subject_scores.csv` (T017). **If `model_type`='PCA-Adjusted'**, formula is `Improvement ~ PCA_Component + Age + Sex + Mean_FD`. **Else**, formula is `Improvement ~ Global_Centrality + Age + Sex + Mean_FD`. Fit model using `statsmodels`. Save summary to `data/processed/regression/linear_model_summary.csv` in `code/analysis/regression.py`.
+- [P] T029 [US2] **Fit Null Model & Baseline**: Fit intercept-only model (`Improvement ~ 1`) and calculate residuals. Save residuals to `data/processed/validation/null_residuals.csv`. **Additionally, calculate and save the baseline R² (R² of intercept-only model) to `data/processed/validation/baseline_r2.json`** in `code/analysis/regression.py`.
+- [P] T030 [US2] **Non-Linearity Check**: Fit GAM/Polynomial model using the SAME predictor set as T028. Compare AIC/BIC with Linear Model. Save comparison to `data/processed/regression/nonlinearity_check.csv` in `code/analysis/regression.py`.
+- [P] T031 [US2] **Generate Scatter Plot**: Generate scatter plot with regression line and non-linearity fit in `code/analysis/regression.py`.
+- [P] T032 [US2] **Regional Analysis**: **IF** `config.regional_analysis_flag == true`: Fit separate regression models for each of the ~90 regions (using metrics from T023) to generate regional p-values. Save to `data/processed/regression/regional_pvalues.csv`. **ELSE**: Skip and log "Regional analysis skipped per config". (Triggers fallback only if needed).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,17 +147,16 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Contract test for permutation test logic in `tests/contract/test_permutation.py`
-- [X] T029 [P] [US3] Integration test for cross-validation loop in `tests/integration/test_validation.py`
+- [X] T033 [P] [US3] Contract test for permutation test logic in `tests/contract/test_permutation.py`
+- [X] T034 [P] [US3] Integration test for cross-validation loop in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement Freedman-Lane permutation test in `code/analysis/validation.py`. **Requirements**: Exactly **1000 shuffles** of the **null residuals** (from T023.5) with a **fixed random seed**. Calculate empirical p-value for the primary coefficient. Save to `data/processed/validation/permutation_results.json`.
-- [ ] T031 [US3] Implement k-fold cross-validation in `code/analysis/validation.py`. **Requirements**: Calculate out-of-sample R² and RMSE. **Explicitly calculate and compare** the out-of-sample R² against the baseline R² (intercept-only model from T023.5). Save metrics and comparison to `data/processed/validation/cv_results.json`.
-- [X] T032 [US3] Generate null distribution histogram and empirical p-value calculation in `code/analysis/validation.py`
-- [ ] T033.1 [US3] **Conditional FDR Correction**: IF `regional_analysis_flag == true` (i.e., T027.1 was executed): Apply Benjamini-Hochberg FDR correction to the regional p-values from T027.1. Save to `data/processed/validation/fdr_corrected_pvalues.csv`. ELSE: Skip and log "FDR correction skipped (regional analysis not triggered)".
-- [X] T034 [US3] [P] Contract test for permutation test logic in `tests/contract/test_permutation.py` (Kept for completeness if tests requested, removed duplicate T034/T035 from previous version).
-- [ ] T035 [US3] [P] Integration test for cross-validation loop in `tests/integration/test_validation.py` (Kept for completeness if tests requested, removed duplicate T034/T035 from previous version).
+- [P] T035 [US3] **Generate Null Distribution**: Read `null_residuals.csv` (T029). Permute residuals **1000 times** (Freedman-Lane) with `random_seed=42`. For each permutation, refit the model (using the same formula as T028) and record the coefficient for the primary predictor. Save distribution to `data/processed/validation/null_distribution.csv` in `code/analysis/validation.py`.
+- [P] T036 [US3] **Calculate Empirical P-Value**: Read `null_distribution.csv` (T035) and the observed coefficient from `linear_model_summary.csv` (T028). Calculate empirical p-value. Save to `data/processed/validation/permutation_results.json` in `code/analysis/validation.py`.
+- [D] T037 [US3] **Cross-Validation**: Perform **5-fold k-fold cross-validation** with `random_seed=42`. **Inputs**: Feature matrix from `data/processed/centrality/model_predictors.csv` (T027) and target vector from `data/processed/behavioral/subject_scores.csv` (T017). **Output**: Calculate out-of-sample R² and RMSE and their standard deviations. Compare mean R² against the baseline R² from `baseline_r2.json` (T029). Save metrics and comparison to `data/processed/validation/cv_results.json` in `code/analysis/validation.py`.
+- [P] T038 [US3] **Generate Null Distribution Histogram**: Generate histogram of null distribution and overlay observed coefficient in `code/analysis/validation.py`.
+- [P] T039 [US3] **Conditional FDR Correction**: IF `regional_analysis_flag == true` (i.e., T032 was executed): Apply Benjamini-Hochberg FDR correction to the regional p-values from T032. Save to `data/processed/validation/fdr_corrected_pvalues.csv`. ELSE: Skip and log "FDR correction skipped (regional analysis not triggered)".
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,7 +166,7 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 **Purpose**: Generate final artifacts after all analysis and validation are complete
 
-- [ ] T036 [US3] Generate final `reproducibility_report.json` with checksums, wall clock time, RAM usage, and ALL validation metrics (p-values, R², RMSE, baseline comparison) in `code/utils/metrics.py`
+- [X] T040 [US3] Generate final `reproducibility_report.json` with checksums, wall clock time, RAM usage, and ALL validation metrics (p-values, R², RMSE, baseline comparison) in `code/utils/metrics.py`
 
 ---
 
@@ -159,11 +174,11 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T038 Code cleanup and refactoring
-- [ ] T039 Performance optimization across all stories (ensure float32 usage and batch processing)
-- [ ] T040 [P] Additional unit tests in `tests/unit/`
-- [ ] T041 Run quickstart.md validation
+- [ ] T041 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T042 Code cleanup and refactoring
+- [ ] T043 Performance optimization across all stories (ensure float32 usage and batch processing)
+- [ ] T044 [P] Additional unit tests in `tests/unit/`
+- [ ] T045 Run quickstart.md validation
 
 ---
 
@@ -171,9 +186,10 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Phase 0**: No dependencies - MUST run first. Blocks all other phases.
+- **Phase 1**: No dependencies - can start immediately.
+- **Phase 2**: Depends on Phase 1 completion - BLOCKS all user stories.
+- **User Stories (Phase 3+)**: All depend on Phase 2 completion.
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Reporting (Phase 6)**: Depends on all validation tasks (Phase 5) completion
@@ -181,9 +197,9 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
+- **User Story 1 (P1)**: Can start after Phase 2 - No dependencies on other stories.
+- **User Story 2 (P2)**: Can start after Phase 2 - Depends on US1 data output.
+- **User Story 3 (P3)**: Can start after Phase 2 - Depends on US2 model output.
 
 ### Within Each User Story
 
@@ -212,8 +228,8 @@ Task: "Contract test for data schema validation in tests/contract/test_data_sche
 Task: "Integration test for download and exclusion logic in tests/integration/test_data_ingestion.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement dataset download script in code/data/download.py"
 Task: "Implement fMRIPrep preprocessing wrapper in code/data/preprocess.py"
+Task: "Implement behavioral metric extraction in code/data/preprocess.py"
 ```
 
 ---
@@ -252,11 +268,19 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [D] tasks = dependent on upstream artifacts (must wait)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Conditional Tasks**: Tasks T027.1 and T033.1 only execute if specific trigger conditions are met (global model insignificant or explicit config flag).
-- **Data Flow**: T020 saves ALL regions; T020.5 extracts fixed subset; T027.1 uses ALL regions if triggered.
+- **Conditional Tasks**: Tasks T032 and T039 only execute if specific trigger conditions are met.
+- **Data Flow**: T023 calculates metrics for FULL atlas (AAL3 ~90 regions). T024 aggregates full set. T026 checks VIF on full set. T027 decides model type. T028 fits model based on T027. T029 generates null residuals AND baseline R². T035 permutes residuals (1000 times, seed 42). T037 performs CV (5-fold, seed 42) using full feature matrix and target vector.
+- **Freedman-Lane Requirement**: T035 explicitly requires permuting residuals of the null model (T029) to preserve motion confound structure, as mandated by the plan.
+- **Baseline Comparison**: T037 explicitly requires comparing out-of-sample R² against the intercept-only model baseline (T029) to ensure predictive value.
+- **Bias Control**: T023 targets FULL atlas to ensure valid network topology analysis.
+- **VIF Logic**: T026 calculates VIF on full set. T027 decides between Global or PCA based on T026. T028 uses T027's decision.
+- **Motion Control**: T025 calculates Mean FD. T028 includes Mean_FD as a covariate.
+- **Retention Gate**: T002 and T003 in Phase 0 enforce hard stops for missing data or low retention.
+- **Logging**: T020 logs excluded subjects to a specific CSV file.

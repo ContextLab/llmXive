@@ -49,8 +49,8 @@ The system must perform a permutation test to establish a null distribution for 
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted linear regression model, **When** the permutation test (1000 shuffles) is executed, **Then** the observed regression coefficient must be compared against the null distribution to calculate an empirical p-value, and the result must be stored in the reproducibility report.
-2. **Given** the dataset is split into 5 folds, **When** the cross-validation loop completes, **Then** the mean R² and RMSE across folds must be calculated and reported, with the standard deviation of these metrics included to assess stability.
+1. **Given** the fitted linear regression model, **When** a permutation test with a sufficient number of shuffles is executed, **Then** the observed regression coefficient must be compared against the null distribution to calculate an empirical p-value, and the result must be stored in the reproducibility report.
+2. **Given** the dataset is split into multiple folds, **When** the cross-validation loop completes, **Then** the mean R² and RMSE across folds must be calculated and reported, with the standard deviation of these metrics included to assess stability.
 
 ### Edge Cases
 

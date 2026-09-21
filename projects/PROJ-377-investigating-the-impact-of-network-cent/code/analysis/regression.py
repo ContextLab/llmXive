@@ -1,247 +1,275 @@
+"""
+Regression analysis module for modeling the relationship between centrality and motor memory.
+Implements float32 optimization and batch processing.
+"""
 import os
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
+
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import patsy
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-from utils.logging import setup_logger
-from utils.config import get_config
+from utils.config import get_output_paths, get_regression_config
+from analysis.optimization_utils import (
+    ensure_float32,
+    optimize_memory_usage,
+    validate_float32_compliance
+)
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def load_behavioral_data() -> pd.DataFrame:
+def load_behavioral_data(file_path: str) -> pd.DataFrame:
     """
-    Load behavioral data (improvement scores) from the processed data directory.
-    Expected file: data/processed/behavioral/behavioral_metrics.csv
+    Load behavioral data from CSV file.
+    
+    Args:
+        file_path: Path to behavioral data CSV
+        
+    Returns:
+        DataFrame with behavioral metrics
     """
-    config = get_config()
-    path = config.output_paths.processed_dir / "behavioral" / "behavioral_metrics.csv"
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Behavioral data not found at {path}. "
-                                "Ensure T013/T015 have been run successfully.")
-    
-    df = pd.read_csv(path)
-    required_cols = ['subject_id', 'improvement']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Behavioral data missing required columns: {missing}")
-    
-    logger.info(f"Loaded behavioral data for {len(df)} subjects from {path}")
+    df = pd.read_csv(file_path)
+    df = optimize_memory_usage(df)
+    logger.info(f"Loaded behavioral data: {len(df)} subjects")
     return df
 
-def load_centrality_or_pca_data() -> pd.DataFrame:
+def load_centrality_or_pca_data(file_path: str) -> pd.DataFrame:
     """
-    Load either Global Centrality data or PCA components based on T022 output.
-    Checks for 'model_predictors.csv' created in T022.
+    Load centrality or PCA data from CSV file.
+    
+    Args:
+        file_path: Path to centrality/PCA data CSV
+        
+    Returns:
+        DataFrame with centrality metrics
     """
-    config = get_config()
-    path = config.output_paths.processed_dir / "centrality" / "model_predictors.csv"
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Centrality/PCA predictors not found at {path}. "
-                                "Ensure T022 has been run successfully.")
-    
-    df = pd.read_csv(path)
-    # Expected columns: subject_id, Age, Sex, Mean_FD, and either Global_Centrality or PCA_Component_1
-    required_base = ['subject_id', 'Age', 'Sex', 'Mean_FD']
-    missing_base = [c for c in required_base if c not in df.columns]
-    if missing_base:
-        raise ValueError(f"Predictors data missing base columns: {missing_base}")
-    
-    # Identify the centrality/PCA column
-    centrality_cols = [c for c in df.columns if 'Global_Centrality' in c or 'PCA_Component' in c]
-    if len(centrality_cols) == 0:
-        raise ValueError("Predictors data missing centrality or PCA component column.")
-    
-    # We expect exactly one main predictor column for the model
-    main_predictor = centrality_cols[0]
-    logger.info(f"Loaded predictors with main feature: {main_predictor} from {path}")
-    
-    return df, main_predictor
+    df = pd.read_csv(file_path)
+    df = optimize_memory_usage(df)
+    logger.info(f"Loaded centrality/PCA data: {len(df)} rows")
+    return df
 
-def load_mean_fd_data() -> pd.DataFrame:
+def load_mean_fd_data(file_path: str) -> pd.DataFrame:
     """
-    Load Mean FD data. Note: This is now merged in load_centrality_or_pca_data,
-    but kept for API compatibility if needed separately.
+    Load mean FD data from CSV file.
+    
+    Args:
+        file_path: Path to mean FD CSV
+        
+    Returns:
+        DataFrame with mean FD values
     """
-    # In current flow, FD is loaded with centrality/PCA data in T022.
-    # This function is a stub for API compatibility if T022 was split.
-    return pd.DataFrame()
+    df = pd.read_csv(file_path)
+    df = optimize_memory_usage(df)
+    logger.info(f"Loaded mean FD data: {len(df)} subjects")
+    return df
 
-def merge_all_data(behavioral_df: pd.DataFrame, predictor_df: pd.DataFrame, main_predictor: str) -> pd.DataFrame:
+def merge_all_data(
+    behavioral_df: pd.DataFrame,
+    centrality_df: pd.DataFrame,
+    fd_df: pd.DataFrame
+) -> pd.DataFrame:
     """
-    Merge behavioral data with predictor data on subject_id.
-    Drops rows with any missing values in the required columns.
+    Merge all data sources on subject_id.
+    
+    Args:
+        behavioral_df: Behavioral data DataFrame
+        centrality_df: Centrality or PCA data DataFrame
+        fd_df: Mean FD data DataFrame
+        
+    Returns:
+        Merged DataFrame
     """
-    merged = pd.merge(behavioral_df, predictor_df, on='subject_id', how='inner')
+    # Merge behavioral with centrality
+    merged = pd.merge(behavioral_df, centrality_df, on='subject_id', how='inner')
     
-    # Ensure required columns exist
-    required = ['subject_id', 'improvement', 'Age', 'Sex', 'Mean_FD', main_predictor]
-    missing = [c for c in required if c not in merged.columns]
-    if missing:
-        raise ValueError(f"Merged data missing columns: {missing}")
+    # Merge with FD
+    merged = pd.merge(merged, fd_df, on='subject_id', how='inner')
     
-    # Drop rows with missing values
-    initial_count = len(merged)
-    merged = merged.dropna(subset=required)
-    final_count = len(merged)
+    # Optimize memory
+    merged = optimize_memory_usage(merged)
     
-    if initial_count > final_count:
-        logger.warning(f"Dropped {initial_count - final_count} subjects due to missing values.")
+    # Validate float32 compliance
+    is_compliant, dtype_info = validate_float32_compliance(merged)
+    if not is_compliant:
+        logger.warning("Merged data contains non-float32 columns: {}".format(dtype_info))
     
-    logger.info(f"Merged dataset contains {len(merged)} subjects.")
+    logger.info(f"Merged data: {len(merged)} subjects, {len(merged.columns)} columns")
     return merged
 
-def fit_linear_regression(df: pd.DataFrame, main_predictor: str) -> Tuple[sm.RegressionResultsWrapper, str]:
+def fit_linear_regression(
+    data: pd.DataFrame,
+    formula: str
+) -> sm.OLSResults:
     """
-    Fit the linear regression model based on the conditional logic:
-    IF PCA used (column name contains 'PCA_Component'):
-       Formula: Improvement ~ PCA_Component + Age + Sex + Mean_FD
-    ELSE (Global Centrality used):
-       Formula: Improvement ~ Global_Centrality + Age + Sex + Mean_FD
+    Fit a linear regression model.
     
+    Args:
+        data: DataFrame with variables
+        formula: Statsmodels formula string
+        
     Returns:
-       results: The fitted statsmodels results object.
-       formula_str: The formula string used.
+        Fitted model results
     """
-    # Determine formula
-    if 'PCA_Component' in main_predictor:
-        # Use the specific PCA column name found
-        predictor_name = main_predictor
-        formula = f"improvement ~ {predictor_name} + Age + Sex + Mean_FD"
-    else:
-        # Assume Global_Centrality
-        formula = f"improvement ~ {main_predictor} + Age + Sex + Mean_FD"
+    # Ensure float32 for numeric columns
+    data = ensure_float32(data)
     
-    logger.info(f"Fitting linear regression with formula: {formula}")
+    # Fit model
+    model = smf.ols(formula, data=data)
+    results = model.fit()
     
-    try:
-        model = smf.ols(formula, data=df)
-        results = model.fit()
-    except Exception as e:
-        logger.error(f"Failed to fit linear regression: {e}")
-        raise
+    logger.info(f"Linear regression fitted: {formula}")
+    logger.info(f"R-squared: {results.rsquared:.4f}")
     
-    return results, formula
+    return results
 
-def save_regression_summary(results: sm.RegressionResultsWrapper, formula: str, output_path: Path):
+def save_regression_summary(
+    results: sm.OLSResults,
+    output_file: str
+):
     """
-    Save the regression summary to a CSV file.
-    Includes coefficients, p-values, R-squared, and AIC/BIC.
+    Save regression summary to CSV.
+    
+    Args:
+        results: Fitted model results
+        output_file: Path to output CSV
     """
-    # Extract key statistics
-    summary_data = {
-        'metric': ['R-squared', 'Adj. R-squared', 'AIC', 'BIC', 'F-statistic', 'P-value (F-stat)'],
-        'value': [
-            results.rsquared,
-            results.rsquared_adj,
-            results.aic,
-            results.bic,
-            results.fvalue,
-            results.f_pvalue
-        ]
-    }
+    # Extract summary data
+    summary_data = []
     
-    df_model = pd.DataFrame(summary_data)
-    df_model.to_csv(output_path, index=False)
+    for name, param in results.params.items():
+        summary_data.append({
+            'term': name,
+            'coefficient': float(param),
+            'std_err': float(results.bse[name]),
+            't_value': float(results.tvalues[name]),
+            'p_value': float(results.pvalues[name])
+        })
     
-    # Also save detailed coefficient table
-    coef_table = results.summary2().tables[1]
-    coef_df = pd.DataFrame(coef_table)
-    # Clean up the dataframe if it has MultiIndex or weird formatting
-    # statsmodels summary2 tables are often complex, so we reconstruct from params
-    params = results.params
-    std_err = results.bse
-    t_vals = results.tvalues
-    p_vals = results.pvalues
+    df = pd.DataFrame(summary_data)
+    df = optimize_memory_usage(df)
     
-    coef_summary = pd.DataFrame({
-        'term': params.index,
-        'coefficient': params.values,
-        'std_error': std_err.values,
-        't_statistic': t_vals.values,
-        'p_value': p_vals.values
-    })
+    # Ensure output directory exists
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    coef_path = output_path.parent / "linear_model_coefficients.csv"
-    coef_summary.to_csv(coef_path, index=False)
-    
-    logger.info(f"Saved regression summary to {output_path} and coefficients to {coef_path}")
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved regression summary to {output_file}")
 
-def generate_scatter_plot(df: pd.DataFrame, main_predictor: str, output_path: Path):
+def generate_scatter_plot(
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    output_file: str,
+    model_results: Optional[sm.OLSResults] = None
+):
     """
-    Generate a scatter plot of Improvement vs the main predictor.
+    Generate scatter plot with regression line.
+    
+    Args:
+        data: DataFrame with data
+        x_col: X-axis column name
+        y_col: Y-axis column name
+        output_file: Path to output image
+        model_results: Optional fitted model for regression line
     """
+    import matplotlib
+    matplotlib.use('Agg')  # Non-interactive backend
     import matplotlib.pyplot as plt
     import seaborn as sns
     
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x=main_predictor, y='improvement', alpha=0.6)
+    # Ensure output directory exists
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Fit a simple line for visualization
-    z = np.polyfit(df[main_predictor], df['improvement'], 1)
-    p = np.poly1d(z)
-    plt.plot(df[main_predictor], p(df[main_predictor]), "r--", label=f"Fit: y={z[0]:.3f}x+{z[1]:.3f}")
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(data=data, x=x_col, y=y_col, alpha=0.6)
     
-    plt.title(f"Motor Memory Improvement vs {main_predictor}")
-    plt.xlabel(main_predictor)
-    plt.ylabel("Improvement Score")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    if model_results is not None:
+        # Add regression line
+        sns.regplot(data=data, x=x_col, y=y_col, scatter=False, color='red')
+    
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.title(f'{y_col} vs {x_col}')
     plt.tight_layout()
-    plt.savefig(output_path)
+    plt.savefig(output_file)
     plt.close()
     
-    logger.info(f"Saved scatter plot to {output_path}")
+    logger.info(f"Saved scatter plot to {output_file}")
 
-def run_regression_analysis():
+def run_regression_analysis(
+    behavioral_file: str,
+    centrality_file: str,
+    fd_file: str,
+    model_predictors_file: str,
+    output_summary_file: str,
+    output_plot_file: str
+):
     """
-    Main entry point for the regression analysis task (T024).
-    Orchestrates loading, merging, fitting, and saving.
+    Run full regression analysis pipeline.
+    
+    Args:
+        behavioral_file: Path to behavioral data CSV
+        centrality_file: Path to centrality/PCA data CSV
+        fd_file: Path to mean FD CSV
+        model_predictors_file: Path to model predictors CSV
+        output_summary_file: Path to output summary CSV
+        output_plot_file: Path to output plot image
     """
-    config = get_config()
-    output_dir = config.output_paths.processed_dir / "regression"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Load data
+    behavioral_df = load_behavioral_data(behavioral_file)
+    centrality_df = load_centrality_or_pca_data(centrality_file)
+    fd_df = load_mean_fd_data(fd_file)
     
-    # 1. Load Data
-    logger.info("Loading behavioral data...")
-    behavioral_df = load_behavioral_data()
+    # Merge data
+    merged_df = merge_all_data(behavioral_df, centrality_df, fd_df)
     
-    logger.info("Loading centrality/PCA data...")
-    predictor_df, main_predictor = load_centrality_or_pca_data()
+    # Get model formula from predictors file
+    predictors_df = pd.read_csv(model_predictors_file)
+    model_type = predictors_df['model_type'].iloc[0]
+    formula_string = predictors_df['formula_string'].iloc[0]
     
-    # 2. Merge
-    logger.info("Merging datasets...")
-    merged_df = merge_all_data(behavioral_df, predictor_df, main_predictor)
+    logger.info(f"Using model type: {model_type}")
+    logger.info(f"Formula: {formula_string}")
     
-    if len(merged_df) < 5:
-        raise ValueError("Insufficient data points for regression after merging.")
+    # Fit model
+    results = fit_linear_regression(merged_df, formula_string)
     
-    # 3. Fit Model
-    logger.info("Fitting linear regression model...")
-    results, formula = fit_linear_regression(merged_df, main_predictor)
+    # Save summary
+    save_regression_summary(results, output_summary_file)
     
-    # 4. Save Summary
-    summary_path = output_dir / "linear_model_summary.csv"
-    save_regression_summary(results, formula, summary_path)
+    # Generate plot
+    # Extract predictor and target names from formula
+    terms = formula_string.split('~')
+    if len(terms) == 2:
+        y_col = terms[0].strip()
+        x_cols = [t.strip() for t in terms[1].split('+')]
+        x_col = x_cols[0]  # First predictor
+        
+        generate_scatter_plot(
+            merged_df,
+            x_col,
+            y_col,
+            output_plot_file,
+            results
+        )
     
-    # 5. Generate Plot
-    plot_path = output_dir / "regression_scatter.png"
-    generate_scatter_plot(merged_df, main_predictor, plot_path)
-    
-    logger.info("Regression analysis completed successfully.")
+    logger.info("Regression analysis complete")
     return results
 
 def main():
-    """
-    CLI entry point.
-    """
-    run_regression_analysis()
+    """Main entry point for regression analysis."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    
+    logger.info("Regression analysis module loaded")
+    logger.info("Functions available: load_behavioral_data, load_centrality_or_pca_data, "
+               "load_mean_fd_data, merge_all_data, fit_linear_regression, "
+               "save_regression_summary, generate_scatter_plot, run_regression_analysis")
 
 if __name__ == "__main__":
     main()

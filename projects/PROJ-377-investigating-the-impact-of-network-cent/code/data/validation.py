@@ -1,137 +1,164 @@
-"""
-Validation module for data quality checks.
-Implements retention rate validation and behavioral data integrity checks.
-"""
 import os
 import logging
 import pandas as pd
+import json
 from pathlib import Path
 from typing import Tuple, Optional
 from utils.logging import setup_logger
-from utils.config import get_config, get_min_retention_rate
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def validate_retention_and_behavioral_data(
-    processed_data_path: Path,
-    retention_threshold: Optional[float] = None
+    metadata_path: str,
+    output_path: str,
+    min_retention_rate: float = 0.80
 ) -> Tuple[bool, dict]:
     """
-    Validates subject retention rate and checks for missing behavioral data.
+    T003: Retention & Behavioral Validation.
+    
+    Reads the downloaded metadata from `data/raw/metadata.csv`.
+    Calculates retention rate (subjects with valid data / total subjects).
+    
+    Logic:
+    1. Load metadata.
+    2. Identify total subjects.
+    3. Identify subjects with valid behavioral data (non-null pre/post motor scores).
+    4. Identify subjects with missing data due to motion artifacts (if flagged in metadata).
+    5. Calculate retention rate based on valid behavioral data.
+    6. If retention < 80% due to missing behavioral data -> Fatal Exit.
+    7. If retention < 80% due to motion artifacts -> Warning & Proceed.
+    8. Save metrics to `data/processed/behavioral/retention_metrics.json`.
     
     Args:
-        processed_data_path: Path to the processed behavioral data CSV
-        retention_threshold: Minimum required retention rate (default from config)
+        metadata_path: Path to data/raw/metadata.csv
+        output_path: Path to data/processed/behavioral/retention_metrics.json
+        min_retention_rate: Threshold (default 0.80)
         
     Returns:
-        Tuple of (is_valid, validation_report)
-        
-    Raises:
-        ValueError: If retention rate is below threshold or critical behavioral data is missing
+        Tuple[bool, dict]: (success, metrics_dict)
     """
-    if retention_threshold is None:
-        config = get_config()
-        retention_threshold = get_min_retention_rate()
+    logger.info(f"Starting retention validation for {metadata_path}")
     
-    if not processed_data_path.exists():
-        error_msg = f"Processed data file not found: {processed_data_path}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     try:
-        df = pd.read_csv(processed_data_path)
+        df = pd.read_csv(metadata_path)
+    except FileNotFoundError:
+        logger.error(f"Fatal: Metadata file not found at {metadata_path}")
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
     except Exception as e:
-        error_msg = f"Failed to read processed data file: {e}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        logger.error(f"Fatal: Error reading metadata file: {e}")
+        raise e
     
-    # Calculate retention metrics
-    total_subjects_expected = df.get('total_subjects_expected', len(df))
-    total_subjects_actual = len(df)
+    if df.empty:
+        logger.error("Fatal: Metadata file is empty.")
+        raise ValueError("Metadata file is empty.")
+        
+    total_subjects = len(df)
+    logger.info(f"Total subjects found: {total_subjects}")
     
-    # Check for missing critical behavioral columns
-    required_columns = ['subject_id', 'pre_score', 'post_score', 'improvement']
-    missing_columns = [col for col in required_columns if col not in df.columns]
+    # Check for required columns
+    required_cols = ['pre_motor_score', 'post_motor_score', 'subject_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Fatal: Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    if missing_columns:
-        error_msg = f"Missing required behavioral columns: {missing_columns}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    # Determine valid behavioral data
+    # A subject has valid behavioral data if pre_motor_score and post_motor_score are not null
+    behavioral_valid_mask = df['pre_motor_score'].notna() & df['post_motor_score'].notna()
+    subjects_with_valid_behavior = df[behavioral_valid_mask]
+    count_valid_behavior = len(subjects_with_valid_behavior)
     
-    # Check for missing values in critical columns
-    behavioral_missing = df[required_columns].isnull().sum()
-    if behavioral_missing.any():
-        missing_info = {col: int(count) for col, count in behavioral_missing.items() if count > 0}
-        error_msg = f"Missing values in behavioral data: {missing_info}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    # Determine missing behavioral data
+    subjects_missing_behavior = df[~behavioral_valid_mask]
+    count_missing_behavior = len(subjects_missing_behavior)
     
-    # Calculate retention rate
-    retention_rate = total_subjects_actual / total_subjects_expected if total_subjects_expected > 0 else 0.0
+    # Check for motion artifact flags if available
+    # Assuming a column 'exclusion_reason' or similar might exist, or we infer from specific patterns
+    # If the metadata has an explicit 'exclusion_reason' column:
+    motion_mask = None
+    if 'exclusion_reason' in df.columns:
+        motion_mask = df['exclusion_reason'].str.lower().str.contains('motion', na=False)
+        motion_count = motion_mask.sum() if motion_mask is not None else 0
+    else:
+        # Fallback: if we don't have explicit reasons, we assume missing behavioral data is the primary cause
+        # unless the project spec defines a specific motion column.
+        # For this task, we will treat missing behavioral data as the primary failure mode.
+        motion_count = 0
+        motion_mask = pd.Series([False] * len(df), index=df.index)
+
+    # Calculate retention rate based on valid behavioral data
+    retention_rate = count_valid_behavior / total_subjects if total_subjects > 0 else 0.0
     
-    validation_report = {
-        'total_subjects_expected': int(total_subjects_expected),
-        'total_subjects_actual': int(total_subjects_actual),
-        'retention_rate': float(retention_rate),
-        'retention_threshold': float(retention_threshold),
-        'retention_passed': retention_rate >= retention_threshold,
-        'missing_columns': missing_columns,
-        'missing_values': {col: int(count) for col, count in behavioral_missing.items()},
-        'excluded_subjects': int(total_subjects_expected - total_subjects_actual)
+    metrics = {
+        "total_subjects": total_subjects,
+        "retained_subjects": count_valid_behavior,
+        "retention_rate": retention_rate,
+        "missing_behavioral_count": count_missing_behavior,
+        "missing_behavioral_reason": "missing_pre_post_scores",
+        "motion_artifact_count": motion_count,
+        "threshold_met": retention_rate >= min_retention_rate
     }
     
-    logger.info(f"Retention rate: {retention_rate:.2%} (threshold: {retention_threshold:.2%})")
-    logger.info(f"Subjects included: {total_subjects_actual}/{total_subjects_expected}")
+    # Decision Logic
+    if retention_rate < min_retention_rate:
+        # Check if the missing data is primarily due to motion artifacts (if we could distinguish)
+        # The task says: "If < 80% due to missing behavioral data, log Fatal... If < 80% due to motion, log warning"
+        # Since we can't perfectly distinguish without more data, we default to the stricter check:
+        # If we have explicit motion flags and the majority of missing is motion, we warn.
+        # Otherwise, we assume missing behavioral data is the issue.
+        
+        is_motion_dominant = False
+        if motion_count > 0 and count_missing_behavior > 0:
+            if motion_count >= count_missing_behavior:
+                is_motion_dominant = True
+        
+        if is_motion_dominant:
+            logger.warning(f"Retention rate ({retention_rate:.2%}) is below threshold ({min_retention_rate:.2%}) due to motion artifacts. Proceeding with caution.")
+            # Proceed but save the warning metrics
+        else:
+            fatal_msg = f"Fatal: Retention < {min_retention_rate:.0%} due to missing behavioral data."
+            logger.error(fatal_msg)
+            # Save metrics before exiting to satisfy SC-001 logging requirement
+            with open(output_path, 'w') as f:
+                json.dump(metrics, f, indent=2)
+            raise RuntimeError(fatal_msg)
+    else:
+        logger.info(f"Retention rate ({retention_rate:.2%}) meets threshold ({min_retention_rate:.2%}).")
     
-    if not validation_report['retention_passed']:
-        error_msg = (
-            f"Retention rate {retention_rate:.2%} is below threshold {retention_threshold:.2%}. "
-            f"Only {total_subjects_actual} subjects retained out of {total_subjects_expected}. "
-            "Pipeline cannot proceed with insufficient data."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    # Save metrics
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
     
-    if missing_columns or any(behavioral_missing > 0):
-        error_msg = "Critical behavioral data is missing or incomplete."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info("Validation passed: sufficient retention and complete behavioral data.")
-    return True, validation_report
+    logger.info(f"Retention metrics saved to {output_path}")
+    return True, metrics
 
 def main():
-    """
-    Main entry point for validation script.
-    Runs validation checks on processed behavioral data.
-    """
-    config = get_config()
-    output_paths = config.output_paths
+    """Entry point for T003 execution."""
+    # Setup logger
+    setup_logger()
     
-    processed_data_path = output_paths.processed_behavioral_csv
-    
-    logger.info(f"Starting validation for: {processed_data_path}")
+    # Paths based on project structure
+    metadata_path = "data/raw/metadata.csv"
+    output_path = "data/processed/behavioral/retention_metrics.json"
     
     try:
-        is_valid, report = validate_retention_and_behavioral_data(processed_data_path)
-        
-        # Save validation report
-        report_path = output_paths.validation_report_json
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        import json
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Validation report saved to: {report_path}")
-        logger.info("Validation completed successfully.")
-        
-    except (FileNotFoundError, ValueError, RuntimeError) as e:
-        logger.error(f"Validation failed: {e}")
-        raise
+        success, metrics = validate_retention_and_behavioral_data(metadata_path, output_path)
+        if success:
+            logger.info("Validation passed.")
+        else:
+            logger.warning("Validation completed but thresholds were not met (handled by exception in strict mode).")
+    except RuntimeError as e:
+        logger.critical(str(e))
+        # Exit with error code to block pipeline
+        import sys
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        raise
+        logger.critical(f"Unexpected error during validation: {e}")
+        import sys
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-377-investigating-the-impact-of-network-cent
-last_run_id: 2c61d083-bec5-4971-8ba3-4cbeda7f22f0
+last_run_id: 627a09b3-4303-4655-9f3d-a4cf788dbc0b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent
 title: Investigating the Impact of Network Centrality on the Consolidation of Motor
   Memories
-updated_at: '2026-09-16T16:58:46.820472Z'
+updated_at: '2026-09-21T10:54:47.555442Z'
