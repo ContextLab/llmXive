@@ -1,41 +1,67 @@
-T017:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script, data file, log output, or any other artifact showing the median star
-    count and median number of contributors for the selected repositories is present.
-    The required calculations and logging are therefore missing.
-T018:
+  r: No evidence of the required directory hierarchy (`projects/PROJ-312-evaluating-the-impact-of-code-generation/`,
+    `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`) is provided;
+    the claim lacks any tangible artifact confirming those folders exist. The implementer
+    must create and show the actual directory structure.
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files under `data/raw/` or `data/processed/` was presented,\
-    \ nor any schema\u2011validation implementation or logs. Without tangible artifacts\
-    \ the requirement cannot be confirmed as met."
-T018b:
+  r: "No files or content were provided in a `contracts/` directory defining the required\
+    \ local schemas; the evidence contains only a feature specification and no schema\
+    \ artifacts, so the task\u2019s deliverable is missing."
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration implementing the data\u2011quality success\u2011\
-    rate calculation, the `DataQualityError` raise, or the success logging (SC\u2011\
-    003) was found. The required artifact is missing, so the task is not satisfied."
-T023b:
+  r: No evidence was presented showing that the required directories (`data/raw/`,
+    `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist
+    in the repository; without such proof the task is not satisfied.
+T011:
+  c: false
+  h: 7329222ce0cdae72282568bb07ee2d6f86c411fa399c34f7c612cec6f6f515de
+  r: The `tests/contract/test_schema_validation.py` file exists, but it references
+    `contracts/pull_request.schema.yaml`, which is missing from the repository. Consequently
+    the test that checks schema existence (and any validation against it) cannot succeed,
+    so the contract test is not fully functional. The missing schema file must be
+    added for the task to be complete.
+T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, log output, or any other artifact showing that skewness\
-    \ and kurtosis were calculated and recorded for the AI\u2011assisted and non\u2011\
-    AI PR groups was provided. Consequently the requirement to compute and log these\
-    \ distribution characteristics is not demonstrated."
-T023c:
+  r: "No script, notebook, or other code artifact was presented that actually fetches\
+    \ all PRs, iterates through every commit of each PR, and handles GitHub API pagination\
+    \ via the `Link` header. Consequently, the required output (full commit messages\
+    \ for classification) is missing. The implementer must supply a working data\u2011\
+    acquisition script (or equivalent) that meets the pagination and completeness\
+    \ requirements."
+T018c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log file was provided that computes or records the Shapiro\u2011\
-    Wilk test p\u2011values for the AI\u2011assisted and non\u2011AI groups. Consequently\
-    \ the required artifact (normality\u2011check calculation and logging) is missing."
-T024b:
+  r: "No script, function, or pipeline component was provided that computes the processed\u2011\
+    to\u2011total PR success rate, checks the 95\u202F% threshold, raises `DataQualityError`\
+    \ with the required message, or logs the success (SC\u2011003). The required artifact\
+    \ is missing, so the task is not satisfied."
+T019a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a CSV, JSON, or other file) containing the saved outlier indices
-    was provided, nor any evidence that the primary dataset used in T026 still includes
-    those outliers. The implementer therefore has not demonstrated that the required
-    outlier indices were persisted for later visualization and sensitivity analysis.
+  h: 2d29cc4ae82b90523561a3104bd4809453531bdc33446fffd3beecbe6d4bba2c
+  r: "The provided `code/validate_spot_check.py` ends abruptly (truncated at `def\
+    \ generate_sample_list_for_review`) and never writes the required CSV of non\u2011\
+    AI\u2011labeled PR IDs. Moreover, the expected output file `data/spot_check/sample_list.csv`\
+    \ does not exist. The task\u2019s core artifact is missing."
+T019b:
+  c: false
+  h: 56b19b769c18bab879d042448b8ee106a800d84e7293542bb2acb962e44f97c1
+  r: The required artifact `data/spot_check/annotations.csv` does not exist in the
+    repository, so the manual annotation step has not been fulfilled. Without this
+    file the pipeline cannot proceed, violating the task requirement.
+T019c:
+  c: false
+  h: 22dff3dfbeb5b4550c8e3246950e8b0d67a339dd841d4550641843b55793d5b3
+  r: "The required input file `data/spot_check/annotations.csv` is missing, and `code/validate_spot_check.py`\
+    \ is truncated (ends mid\u2011definition) and never reads the CSV, computes a\
+    \ false\u2011negative rate, or writes that metric to `data/spot_check/validation_report.csv`.\
+    \ The existing `validation_report.csv` does not contain the calculated false\u2011\
+    negative rate."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,28 +69,9 @@ T025:
     records the number of outliers removed per group. The task requires an artifact
     (e.g., a log entry or report) showing these counts, but none is present. Consequently,
     the requirement is not satisfied.
-T026b:
+T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or test output was provided that shows the p\u2011\
-    value being compared to \u03B1=0.05, the appropriate conclusion being logged,\
-    \ or a `SignificanceError` being raised when required. Without any artifact demonstrating\
-    \ this logic, the task is not satisfied."
-T027b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code defining `SampleSizeError` or raising it with the required message is
-    present; the implementer provided no artifact showing the class or the conditional
-    raise, so the task requirement is unmet.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No boxplot image, script, or notebook was provided that shows the turnaround\u2011\
-    time\u2011vs\u2011PR\u2011type plot with labeled axes and whiskers defined by\
-    \ IQR bounds, so the requirement cannot be verified as met."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/boxplot.png` file is present, and there is no evidence of a saved\
-    \ visualization with \u2265300\u202FDPI resolution. The required high\u2011resolution\
-    \ image is missing, so the task is not satisfied."
+  r: No evidence was provided that an `artifacts/boxplot.png` file actually exists,
+    nor any code that checks for its presence and computes a relative path for the
+    report. The required artifact and validation logic are missing.

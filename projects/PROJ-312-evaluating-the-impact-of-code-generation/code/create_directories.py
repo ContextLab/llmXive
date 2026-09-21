@@ -1,45 +1,36 @@
+"""
+Script to create the required directory structure for the project.
+Implements Task T008.
+"""
 import os
 from pathlib import Path
 
 def main():
-    """
-    Create the required directory structure for the project.
-    Implements Task T008: Create directory structure:
-    data/raw/, data/processed/, data/spot_check/, artifacts/, tests/
-    """
-    # Define the project root relative to this script's location
-    # Assuming the script is in code/, root is parent
-    script_dir = Path(__file__).parent
-    root_dir = script_dir.parent
-
-    # Define relative paths to create
+    """Create the directory structure for the project."""
+    # Define the base directory for this project
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Define the required subdirectories relative to the project root
+    # Note: The task asks for these relative to the project root
     directories = [
-        root_dir / "data" / "raw",
-        root_dir / "data" / "processed",
-        root_dir / "data" / "spot_check",
-        root_dir / "artifacts",
-        root_dir / "tests",
+        "data/raw",
+        "data/processed",
+        "data/spot_check",
+        "artifacts",
+        "tests"
     ]
-
+    
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {directory}")
-
-    # Also ensure the parent 'data' and 'tests' directories exist if they don't
-    # (though mkdir with parents=True handles this, explicit check is fine)
-    if not (root_dir / "data").exists():
-        (root_dir / "data").mkdir(parents=True, exist_ok=True)
+            print(f"Directory already exists: {full_path}")
     
-    if not (root_dir / "tests").exists():
-        (root_dir / "tests").mkdir(parents=True, exist_ok=True)
-
-    print(f"Directory structure verification complete. {created_count} new directories created.")
-    return 0
+    print(f"Directory creation complete. {created_count} new directories created.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

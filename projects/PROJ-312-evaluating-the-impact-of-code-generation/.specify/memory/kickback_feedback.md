@@ -4,14 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No directory structure is shown in the provided evidence; the required `projects/PROJ-312-evaluating-the-impact-of-code-generation/` folder with its subfolders (`code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`) is not present or documented. The implementer must create and list these directories to satisfy the task.
-- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-312-evaluating-the-impact-of-code-generation/pyproject.toml
-- `T004` (rejected 1x): No `contracts/` directory or schema definition files were provided; the required local schema definitions are missing entirely. The task’s core deliverable is absent, so the claim is not satisfied.
-- `T006` (rejected 1x): No `logs/pipeline.log` file with JSON‑formatted entries is present, and there is no code shown that configures logging or records the `X-RateLimit-Remaining` and `X-RateLimit-Reset` headers on API calls. The required logging infrastructure is therefore missing.
-- `T008` (rejected 1x): No evidence was presented showing that the required directories (`data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist in the repository; the claim is unsubstantiated. The implementer must provide a directory listing or screenshots confirming the creation of these folders.
-- `T011` (rejected 1x): The test file `tests/contract/test_schema_validation.py` exists and contains contract tests for `pull_request.schema.yaml`, but the required schema file `contracts/pull_request.schema.yaml` is missing, so the tests cannot actually validate anything. Add the missing `pull_request.schema.yaml` (and any other referenced schemas) with the correct structure.
-- `T012b` (rejected 1x): No script, notebook, or data files were provided that fetch PRs for the repositories from T012a, iterate through each PR’s commits, and extract commit messages. The required artifact (code and/or output CSV containing the commit messages) is missing, so the task is not satisfied.
+- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/repo_metadata.json
+- `T018b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/pr_turnaround.csv
+- `T029` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/statistical_results.json
+- `T023b` (rejected 1x): The required `data/processed/distribution_stats.json` file does not exist, and the provided `code/analyze.py` (as shown) contains no logic for computing skewness, kurtosis, or Shapiro‑Wilk p‑values nor for writing those results to the specified JSON file. The implementation therefore does not meet the task requirements.
+- `T026b` (rejected 1x): No code, script, log file, or test output was provided that shows the p‑value being compared to α=0.05, the appropriate conclusion being logged, or a `SignificanceError` being raised when required. Without any artifact demonstrating this logic, the task is not satisfied.
+- `T032` (rejected 1x): No boxplot image, script, or notebook was provided that shows the turnaround‑time‑vs‑PR‑type plot with labeled axes and whiskers defined by IQR bounds, so the requirement cannot be verified as met.
+- `T033` (rejected 1x): No `artifacts/boxplot.png` file is present, and there is no evidence of a saved visualization with ≥300 DPI resolution. The required high‑resolution image is missing, so the task is not satisfied.
 
 ## Required change
 

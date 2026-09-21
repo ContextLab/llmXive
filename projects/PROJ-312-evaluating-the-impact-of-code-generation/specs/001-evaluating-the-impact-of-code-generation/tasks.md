@@ -99,7 +99,7 @@
  required: [test_type, u_statistic, p_value]
  ```
 - [X] T005 [P] Implement schema validation utility in `code/utils.py`: Function `validate_json_schema(data, schema_path)` that returns True/False and logs errors
-- [ ] T006 [P] Setup logging infrastructure: Create file `logs/pipeline.log` with JSON formatting. Capture rate-limit headers `X-RateLimit-Remaining` and `X-RateLimit-Reset` on every API call.
+- [X] T006 [P] Setup logging infrastructure: Create file `logs/pipeline.log`. **CRITICAL**: Implement the logging logic in `code/utils.py` (function `log_api_headers(response)`) that extracts `X-RateLimit-Remaining` and `X-RateLimit-Reset` from the response headers and appends them to `logs/pipeline.log`. This logic MUST be called by every API request function in `code/fetch_data.py`. (FR-009, Constitution Principle VI)
 - [X] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier 2.0, max delay 60s, jitter strategy (random 0-50% of delay), a limited number of retries.
 - [ ] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
 
@@ -123,16 +123,19 @@
 
 ### Implementation for User Story 1
 
-- [X] T012a [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoint: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` (and JS equivalent). Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
-- [ ] T012b [US1] For each repo from T012a, fetch all PRs and iterate through the list of commits for *each* PR to extract commit messages for classification (FR-001, Edge Case)
+- [ ] T012a [P] [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoint: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` (and JS equivalent). Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
+- [ ] T012b [US1] For each repo from T012a, fetch ALL PRs and iterate through the FULL list of commits for *each* PR. **MUST handle pagination via the GitHub API 'Link' header to ensure ALL commits are fetched**, extracting all commit messages for classification. Do NOT limit to 10 commits (FR-001).
 - [X] T013 [US1] Implement logic in `code/fetch_data.py` to exclude PRs with missing `merged_at` timestamps and log exclusion counts (FR-010)
-- [X] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; ensure these repos are tracked for exclusion from final analysis (Edge Case)
+- [X] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; **explicitly write the list of skipped repository names to `data/processed/excluded_repos.txt`** (Edge Case: Repo Size < 50)
 - [X] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
 - [X] T016 [US1] Implement turnaround time calculation in `code/fetch_data.py` as total calendar hours (merged_at - created_at) (FR-003)
-- [ ] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories (FR-013)
-- [ ] T018 [US1] Save raw data to `data/raw/` and processed data to `data/processed/` with schema validation (FR-001)
-- [ ] T018b [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
-- [X] T019 [US1] Implement `code/validate_spot_check.py` to perform manual spot-check of a *stratified random sample* (n=50) of non-AI-labeled PRs. Stratification must be based on repository and PR size (number of files changed). Estimate false-negative rate (FR-011)
+- [ ] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories; Save to `data/processed/repo_metadata.json` (FR-013)
+- [ ] T018a [US1] Save raw data to `data/raw/pr_data.json` with schema validation (FR-001)
+- [ ] T018b [US1] Save processed data to `data/processed/pr_turnaround.csv` with schema validation (FR-001)
+- [ ] T018c [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
+- [ ] T019a [US1] Implement `code/validate_spot_check.py` to generate a CSV of non-AI-labeled PR IDs (stratified by repo and PR size) for manual review. Save to `data/spot_check/sample_list.csv` (FR-011)
+- [ ] T019b [US1] **Manual Step**: Human annotator reviews the sample from T019a and fills in `data/spot_check/annotations.csv` with the true AI/human classification. **Pipeline HALTS here until `data/spot_check/annotations.csv` is manually uploaded to the repository.** (FR-011)
+- [ ] T019c [US1] Implement `code/validate_spot_check.py` to ingest `data/spot_check/annotations.csv` (produced by T019b), calculate the false-negative rate, and save to `data/spot_check/validation_report.csv`. **Pipeline RESUMES here.** (FR-011)
 - [X] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -141,29 +144,27 @@
 
 ## Phase 4: User Story 2 - Statistical Analysis and Hypothesis Testing (Priority: P2)
 
-**Goal**: Perform descriptive statistics, IQR outlier handling for visualization, and execute Mann-Whitney U test.
+**Goal**: Perform descriptive statistics, IQR outlier handling for visualization, and execute Stratified Mann-Whitney U test.
 
-**Independent Test**: Can be tested by running the analysis on a sample dataset and verifying that the Mann-Whitney U test produces statistically valid results with appropriate p-values and effect size calculations, and that outliers are removed per group for visualization.
+**Independent Test**: Can be tested by running the analysis on a sample dataset and verifying that the Stratified Mann-Whitney U test produces statistically valid results with appropriate p-values and effect size calculations.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Unit test for IQR outlier calculation in `tests/unit/test_iqr.py`
-- [X] T022 [P] [US2] Unit test for Mann-Whitney U test execution in `tests/unit/test_mwu.py`
+- [X] T022 [P] [US2] Unit test for Stratified Mann-Whitney U test execution in `tests/unit/test_mwu.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories skipped in T014 (FR-004, Edge Case)
-- [ ] T023b [US2] Calculate and log distribution characteristics (skewness, kurtosis) for both groups to validate against SC-002 (distribution characteristics)
-- [ ] T023c [US2] Calculate and log Shapiro-Wilk test p-value for normality check for both groups to validate distribution shape (SC-002)
+- [X] T023 [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories listed in `data/processed/excluded_repos.txt` (from T014). **Prerequisite**: Must consume `data/processed/excluded_repos.txt` (FR-004, Edge Case).
+- [ ] T023b [US2] Implement `code/analyze.py` to calculate distribution characteristics: skewness, kurtosis, and Shapiro-Wilk p-values for both AI and non-AI groups. Save to `data/processed/distribution_stats.json` (SC-002, Plan Phase 1)
 - [X] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Note**: Outliers are excluded ONLY for visualization (T031) and sensitivity analysis (T028), NOT for the primary hypothesis test (Plan Phase 1)
-- [ ] T024b [US2] Save outlier indices for visualization and sensitivity analysis. **Do NOT exclude outliers from the primary dataset used in T026** (FR-005, Plan Phase 1)
-- [ ] T025 [US2] Log the count of outliers identified per group (FR-005)
-- [X] T026 [US2] Execute **Stratified** Mann-Whitney U test in `code/analyze.py` comparing AI vs. non-AI groups using the **FULL dataset** (from T018, not cleaned). Stratify by PR size and author activity (Plan Phase 1, FR-006). Return U statistic, p-value, and effect size (r)
-- [ ] T026b [US2] Compare the calculated p-value against the α=0.05 threshold. Log conclusion: "Significant difference found" if p < 0.05, else "No significant difference". If p >= 0.05 and power check fails, raise `SignificanceError` (SC-004)
-- [X] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, flag for abort (Plan Phase 1)
-- [ ] T027b [US2] If T027a condition is met, define `class SampleSizeError(Exception): pass` and raise `SampleSizeError` with message "Sample size too small: AI group < 30" to halt pipeline execution (Plan Phase 1)
-- [X] T028 [US2] Implement sensitivity analysis in `code/analyze.py` to apply bias-correction using spot-check error rates from T020. **Load false_negative_rate from data/spot_check/validation_report.csv**. Formula: `adjusted_p_value = p_value * (1 + false_negative_rate)`. This is a planned sensitivity check per Plan Phase 1 (FR-006, Plan Phase 1)
-- [ ] T029 [US2] Save statistical results to `data/processed/statistical_results.json`, explicitly including median star count, median contributors, U statistic, p-value, effect size, and sample sizes (FR-013, FR-006)
+- [X] T024c [US2] Implement logic to create a *copy* of the dataset with outliers removed for visualization purposes only. Save to `data/processed/pr_turnaround_cleaned.csv`. **CRITICAL**: This file is NOT to be used for the primary test in T026 (FR-005)
+- [X] T025 [US2] Log the count of outliers identified per group and the count of outliers removed in T024c (FR-005)
+- [X] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, raise `SampleSizeError` with message "Sample size too small: AI group < 30" to abort pipeline (Plan Phase 1)
+- [X] T026 [US2] Execute **Stratified Mann-Whitney U test** in `code/analyze.py`. **Input**: Use the **full dataset** from `data/processed/pr_turnaround.csv` (NOT the cleaned file). **Method**: Stratify by binning `lines_changed` (additions + deletions) into quartiles and `total_prs_by_author` into tertiles. Calculate MWU within each stratum and aggregate p-values using **Fisher's method**. Return U statistic, p-value, and effect size (r) (FR-006, Plan Phase 1)
+- [ ] T026b [US2] Compare the calculated p-value against the α=0.05 threshold. Log conclusion: "Significant difference found" if p < 0.05, else "No significant difference" (SC-004)
+- [X] T028 [US2] Implement sensitivity analysis in `code/analyze.py`. **Algorithm**: Perform a Monte Carlo simulation: randomly flip X% of non-AI labels to AI (where X = false_negative_rate from T020) using a fixed seed. Re-calculate the MWU test on the simulated dataset. Repeat the simulation multiple times and report the distribution of p-values. (mean, median, 95% CI). This addresses FR-006 and Plan Phase 1 sensitivity goals (FR-006, Plan Phase 1)
+- [ ] T029 [US2] Save statistical results to `data/processed/statistical_results.json`, explicitly including keys: `u_statistic`, `p_value`, `effect_size`, `sample_sizes`, `median_stars`, `median_contributors`, `distribution_stats` (FR-013, FR-006, SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -184,11 +185,33 @@
 - [X] T031 [US3] Implement `code/visualize.py` to generate boxplot comparing turnaround time distributions for AI and non-AI groups. **Use outlier-excluded data for whiskers only** (FR-007)
 - [ ] T032 [US3] Ensure boxplot axes are labeled (turnaround time in hours vs. PR type) and whiskers use IQR bounds (FR-007)
 - [ ] T033 [US3] Save visualization to `artifacts/boxplot.png` with ≥300 DPI resolution (FR-008, SC-005)
-- [X] T034 [US3] Implement `code/report.py` to assemble final report including boxplot, statistical test results, key descriptive statistics, and validation summary (FR-008, SC-003)
+- [ ] T036a [US3] Verify `artifacts/boxplot.png` exists and calculate the correct relative path for the report. If missing, raise an error.
+- [X] T034 [US3] Implement `code/report.py` to assemble final report including boxplot image path, statistical test results, key descriptive statistics, and validation summary (FR-008, SC-003)
 - [X] T034b [US3] Load spot-check results from `data/spot_check/validation_report.csv` (T020). Calculate `false_negative_rate = count(misclassified_AI) / total_sample_size` (FR-011, FR-012)
 - [X] T035 [US3] Implement conditional logic in `code/report.py`: **Prerequisite: T020 completion**. If `false_negative_rate` (from T034b) > 10%, inject limitation statement with text: "Limitation: False-negative rate exceeds 10% threshold, indicating potential misclassification in non-AI group." (FR-012)
-- [~] T036 [US3] Save final report to `artifacts/final_report.md`
-- [ ] T037 [US3] Update `state/projects/PROJ-312-.../state.yaml` with artifact hashes and `updated_at` timestamp (Constitution Principle V)
+- [~] T036b [US3] Render the final report to `artifacts/final_report.md`. **Template**: Use the following Markdown structure exactly:
+```markdown
+# Code Generation Impact Report
+
+## Statistical Results
+- U Statistic: {u_stat}
+- P-Value: {p_value}
+- Effect Size (r): {effect_size}
+- Sample Sizes: AI={n_ai}, Non-AI={n_non_ai}
+
+## Visualization
+![Boxplot](artifacts/boxplot.png)
+
+## Descriptive Statistics
+{descriptive_stats_text}
+
+## Validation Summary
+{validation_summary_text}
+
+{limitation_statement}
+```
+**Logic**: Replace placeholders with values from T029 and T023. If `false_negative_rate` > 10%, set `{limitation_statement}` to the exact string from T035; otherwise set it to "No limitations detected." (FR-008, SC-005, FR-012)
+- [~] T037 [US3] Update `state/projects/PROJ-312-.../state.yaml` with artifact hashes and `updated_at` timestamp (Constitution Principle V)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -198,14 +221,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `projects/PROJ-312-evaluating-the-impact-of-code-generation/README.md`
-- [ ] T039a Run ruff --fix to ensure zero linting errors
-- [ ] T039b Run black --check to ensure zero formatting errors
-- [ ] T040a [P] Add unit tests for edge cases in `fetch_data.py` (e.g., empty response, rate limit) in `tests/unit/test_fetch_data_edge_cases.py`
-- [ ] T040b [P] Add unit tests for edge cases in `analyze.py` (e.g., empty group, NaN values) in `tests/unit/test_analyze_edge_cases.py`
-- [ ] T040c [P] Add unit tests for edge cases in `visualize.py` (e.g., zero variance) in `tests/unit/test_visualize_edge_cases.py`
-- [ ] T041 Run quickstart.md validation: Execute all commands in `quickstart.md`, verify exit code 0 for each, and confirm expected output files exist
-- [ ] T042 Verify all CSV/JSON outputs match schema contracts in `contracts/`
+- [~] T038 [P] Documentation updates in `projects/PROJ-312-evaluating-the-impact-of-code-generation/README.md`
+- [~] T039a Run ruff --fix to ensure zero linting errors
+- [~] T039b Run black --check to ensure zero formatting errors
+- [X] T040a [P] Add unit tests for edge cases in `fetch_data.py` (e.g., empty response, rate limit) in `tests/unit/test_fetch_data_edge_cases.py`
+- [X] T040b [P] Add unit tests for edge cases in `analyze.py` (e.g., empty group, NaN values) in `tests/unit/test_analyze_edge_cases.py`
+- [X] T040c [P] Add unit tests for edge cases in `visualize.py` (e.g., zero variance) in `tests/unit/test_visualize_edge_cases.py`
+- [~] T041 Run quickstart.md validation: Execute all commands in `quickstart.md`, verify exit code 0 for each, and confirm expected output files exist
+- [~] T042 Verify all CSV/JSON outputs match schema contracts in `contracts/`
 
 ---
 
@@ -232,11 +255,13 @@
 - Data fetching (T012a, T012b) before classification (T015) and calculation (T016)
 - Classification before saving processed data (T018)
 - Spot-check (T019) can run in parallel with main analysis but results needed for Report (T035)
+- **T012b** depends on T012a (Repo list) - **NOT Parallel**
+- **T006** (Logging logic) must be implemented before T012a/T012b (API calls)
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2), EXCEPT T006 which must precede API calls
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -300,4 +325,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data acquisition must use real GitHub API data; no synthetic data generation.
 - **Critical Constraint**: All statistical tests must run on CPU-only free-tier runners; no GPU dependencies.
-- **Methodology Note**: Per Plan Phase 1, the primary Mann-Whitney U test uses the FULL dataset. Outlier removal (IQR) is applied only for visualization (boxplot whiskers) and sensitivity analysis, not the primary hypothesis test.
+- **Methodology Note**: Per Spec FR-005, outliers are excluded from the *visualization* dataset but the primary test (T026) uses the **full dataset** for robustness.
+- **Plan Alignment**: T026 implements the Stratified Mann-Whitney U Test as mandated by the Plan, controlling for PR size and author activity.
+- **Spot Check Flow**: The pipeline halts at T019b for human input. T019c resumes the pipeline after the file is uploaded.
+- **Sensitivity Analysis**: T028 uses a Monte Carlo simulation to adjust for false-negative rates, replacing the invalid formula.

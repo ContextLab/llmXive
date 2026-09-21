@@ -4,6 +4,7 @@ import logging
 import random
 from collections import defaultdict
 from typing import List, Dict, Any
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -77,21 +78,151 @@ def save_validation_report(results: List[Dict[str, Any]], output_path: str):
         writer.writeheader()
         writer.writerows(results)
 
+def generate_sample_list_for_review(data: List[Dict[str, Any]], output_path: str, n: int = 50):
+    """
+    Generate a CSV of non-AI-labeled PR IDs (stratified by repo and PR size) 
+    for manual review.
+    """
+    # Filter for non-AI labeled PRs only
+    non_ai_data = [pr for pr in data if not pr.get('is_ai', False)]
+    
+    if not non_ai_data:
+        logger.warning("No non-AI labeled PRs found for spot check.")
+        # Write empty file with headers
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['pr_id', 'repo_name', 'turnaround_hours', 'size_bucket'])
+            writer.writeheader()
+        return
+
+    # Stratify the non-AI data
+    strata = stratify_data(non_ai_data)
+    
+    # Perform stratified sampling
+    sample = perform_stratified_sampling(strata, n=n)
+    
+    # Prepare rows for CSV
+    rows = []
+    for pr in sample:
+        size_bucket = "small" if len(pr.get('commit_messages', [])) < 5 else "large"
+        rows.append({
+            'pr_id': pr['pr_id'],
+            'repo_name': pr['repo_name'],
+            'turnaround_hours': pr.get('turnaround_hours', 0),
+            'size_bucket': size_bucket
+        })
+    
+    # Write to CSV
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['pr_id', 'repo_name', 'turnaround_hours', 'size_bucket'])
+        writer.writeheader()
+        writer.writerows(rows)
+    
+    logger.info(f"Generated sample list with {len(rows)} PRs at {output_path}")
+
+def load_annotations(filepath: str) -> List[Dict[str, Any]]:
+    """
+    Load the manually annotated CSV file produced by T019b.
+    Expected columns: pr_id, repo_name, true_label (AI/Human)
+    """
+    annotations = []
+    with open(filepath, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            annotations.append(row)
+    return annotations
+
+def calculate_validation_metrics(annotations: List[Dict[str, Any]], processed_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Compare annotations against the original classification in processed_data.
+    Calculate false negative rate and generate a detailed report.
+    """
+    # Create a lookup for processed data by pr_id
+    pr_lookup = {pr['pr_id']: pr for pr in processed_data}
+    
+    results = []
+    fn_count = 0
+    non_ai_total = 0
+    
+    for ann in annotations:
+        pr_id = ann['pr_id']
+        true_label = ann.get('true_label', '').strip()
+        
+        if pr_id not in pr_lookup:
+            logger.warning(f"PR ID {pr_id} in annotations not found in processed data.")
+            continue
+        
+        original_pr = pr_lookup[pr_id]
+        original_is_ai = original_pr.get('is_ai', False)
+        original_label = "AI" if original_is_ai else "Human"
+        
+        # Determine if this is a false negative
+        # False Negative: Original was Human (non-AI), but True label is AI
+        is_fn = (original_label == "Human" and true_label == "AI")
+        
+        if original_label == "Human":
+            non_ai_total += 1
+            if is_fn:
+                fn_count += 1
+        
+        results.append({
+            "pr_id": pr_id,
+            "repo_name": original_pr['repo_name'],
+            "original_label": original_label,
+            "true_label": true_label,
+            "is_false_negative": is_fn
+        })
+    
+    # Calculate metrics
+    fdr = fn_count / non_ai_total if non_ai_total > 0 else 0.0
+    
+    # Add summary row to results? No, save metrics separately or in the report header.
+    # The task asks to save the report to CSV. We will include the metrics in the log
+    # and ensure the CSV contains the row-level data.
+    # However, T020 says "Save spot-check results to data/spot_check/validation_report.csv".
+    # We will include the calculated rate in the filename or just log it, 
+    # but usually validation reports include the row-level truth.
+    # Let's ensure the CSV has the necessary columns.
+    
+    return results, fdr
+
 def main():
-    """Main entry point for spot check validation."""
+    """
+    Main entry point for T019c: Validate spot check annotations.
+    1. Load processed data.
+    2. Load annotations from T019b (data/spot_check/annotations.csv).
+    3. Compare to calculate false negative rate.
+    4. Save validation report to data/spot_check/validation_report.csv.
+    """
     logging.basicConfig(level=logging.INFO)
     
-    data = load_processed_data("data/processed/pr_data.json")
-    strata = stratify_data(data)
-    sample = perform_stratified_sampling(strata, n=50)
+    processed_data_path = "data/processed/pr_data.json"
+    annotations_path = "data/spot_check/annotations.csv"
+    report_output_path = "data/spot_check/validation_report.csv"
     
-    logger.info(f"Sampled {len(sample)} PRs for validation.")
+    # Check if annotations file exists (T019b prerequisite)
+    if not os.path.exists(annotations_path):
+        logger.error(f"Annotations file not found: {annotations_path}. Pipeline halted waiting for T019b.")
+        raise FileNotFoundError(f"Missing required input for T019c: {annotations_path}")
     
-    results = simulate_manual_review(sample)
-    fn_rate = calculate_false_negative_rate(results)
-    logger.info(f"Estimated false negative rate: {fn_rate:.2%}")
+    logger.info(f"Loading processed data from {processed_data_path}")
+    processed_data = load_processed_data(processed_data_path)
     
-    save_validation_report(results, "data/spot_check/validation_report.csv")
+    logger.info(f"Loading annotations from {annotations_path}")
+    annotations = load_annotations(annotations_path)
+    
+    if not annotations:
+        logger.error("Annotations file is empty.")
+        raise ValueError("Annotations file is empty. Cannot calculate validation metrics.")
+    
+    logger.info("Calculating validation metrics...")
+    validation_results, false_negative_rate = calculate_validation_metrics(annotations, processed_data)
+    
+    logger.info(f"False Negative Rate: {false_negative_rate:.2%} ({false_negative_rate:.4f})")
+    
+    logger.info(f"Saving validation report to {report_output_path}")
+    save_validation_report(validation_results, report_output_path)
+    
+    logger.info("Pipeline resumed successfully after T019c validation.")
 
 if __name__ == "__main__":
     main()

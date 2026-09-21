@@ -17,7 +17,7 @@ This feature implements a data-driven research study to evaluate the association
 **Project Type**: Research Data Pipeline & Statistical Analysis  
 **Performance Goals**: Complete data acquisition, cleaning, analysis, and reporting within 6 hours on 2 CPU cores, ~7 GB RAM.  
 **Constraints**: No GPU usage; exponential backoff for API rate limits; **robust statistical testing** (no pre-test outlier removal); manual spot-check for false-negative estimation.  
-**Scale/Scope**: Top repositories by stars; expected a substantial volume of PRs (filtered to available data); output: 1 report, 1 plot, 1 statistical summary.  
+**Scale/Scope**: Top repositories by stars; expected a substantial volume of PRs (filtered to available data); output: a report, a plot, and a statistical summary.  
 **Validation**: Local schema files (`contracts/pull_request.schema.yaml`, `contracts/repo_metadata.schema.yaml`, `contracts/statistical_result.schema.yaml`) are validated against generated data. No external bibliographic citations are used, so the `Reference-Validator` gate is bypassed; instead, a `Schema-Validator` checks local contracts.
 
 ## Constitution Check

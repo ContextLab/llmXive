@@ -9,129 +9,170 @@ from utils import validate_json_schema
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_raw_pr_data(raw_dir: str = "data/raw") -> List[Dict[str, Any]]:
+def load_raw_pr_data(raw_data_path: str) -> List[Dict[str, Any]]:
     """
-    Loads the raw PR data from the data/raw directory.
-    Expects a file named 'pr_data.json' containing the list of processed PR objects.
+    Load the raw PR data from a JSON file.
+    
+    Args:
+        raw_data_path: Path to the raw PR data JSON file.
+        
+    Returns:
+        List of dictionaries containing PR data.
     """
-    raw_path = Path(raw_dir)
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_path}")
+    path = Path(raw_data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Raw PR data file not found: {raw_data_path}")
     
-    # Look for the processed raw data file. 
-    # Based on T012b, we expect the data to be saved here.
-    # If T012b output is named differently, adjust here. 
-    # Assuming the main aggregation is 'pr_data.json' or similar.
-    candidates = list(raw_path.glob("pr_data*.json"))
-    if not candidates:
-        # Fallback to any json file if specific naming isn't established yet
-        candidates = list(raw_path.glob("*.json"))
-    
-    if not candidates:
-        raise FileNotFoundError(f"No PR data JSON files found in {raw_path}")
-    
-    data_file = candidates[0]
-    logger.info(f"Loading raw PR data from {data_file}")
-    
-    with open(data_file, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    if not isinstance(data, list):
-        raise ValueError(f"Expected raw data to be a list, got {type(data)}")
-    
+    logger.info(f"Loaded {len(data)} PR records from {raw_data_path}")
     return data
 
-def load_repo_metadata(raw_dir: str = "data/raw") -> Optional[Dict[str, Any]]:
+def load_repo_metadata(metadata_path: str) -> Dict[str, Any]:
     """
-    Loads repository metadata (stars, etc.) from data/raw/repos.json
-    """
-    repos_path = Path(raw_dir) / "repos.json"
-    if repos_path.exists():
-        with open(repos_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return None
-
-def save_processed_data(pr_data: List[Dict[str, Any]], output_dir: str = "data/processed") -> None:
-    """
-    Saves the processed PR data to the data/processed directory.
-    Validates against the pull_request schema before saving.
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    Load repository metadata from a JSON file.
     
-    schema_path = Path("contracts/pull_request.schema.yaml")
-    if not schema_path.exists():
-        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
-        # Even if schema missing, we still save the data as per T018 requirement to save
-    else:
-        validation_count = 0
-        invalid_count = 0
-        for idx, record in enumerate(pr_data):
-            if validate_json_schema(record, str(schema_path)):
-                validation_count += 1
-            else:
-                invalid_count += 1
-                logger.warning(f"Record {idx} failed schema validation")
+    Args:
+        metadata_path: Path to the repo metadata JSON file.
         
-        if invalid_count > 0:
-            logger.warning(f"Validation summary: {validation_count} valid, {invalid_count} invalid out of {len(pr_data)}")
-        else:
-            logger.info(f"All {len(pr_data)} records passed schema validation.")
-
-    output_file = output_path / "pr_data_processed.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(pr_data, f, indent=2)
-    
-    logger.info(f"Processed data saved to {output_file}")
-
-def save_raw_data(pr_data: List[Dict[str, Any]], output_dir: str = "data/raw") -> None:
+    Returns:
+        Dictionary containing repository metadata.
     """
-    Saves the raw fetched PR data to the data/raw directory if not already present,
-    or updates it. This ensures a persistent raw backup.
+    path = Path(metadata_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Repo metadata file not found: {metadata_path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    logger.info(f"Loaded repo metadata from {metadata_path}")
+    return data
+
+def save_processed_data(data: List[Dict[str, Any]], output_path: str) -> None:
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    Save processed PR data to a CSV file with schema validation.
     
-    output_file = output_path / "pr_data_raw.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(pr_data, f, indent=2)
+    Args:
+        data: List of dictionaries containing processed PR data.
+        output_path: Path to the output CSV file.
+        
+    Raises:
+        ValueError: If schema validation fails.
+    """
+    if not data:
+        logger.warning("No data to save. Output file will be empty.")
+        # Create an empty file to ensure path exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("")
+        return
+
+    # Define the expected schema for processed data
+    schema = {
+        "type": "object",
+        "properties": {
+            "pr_id": {"type": "string"},
+            "repo_name": {"type": "string"},
+            "created_at": {"type": "string"},
+            "merged_at": {"type": "string"},
+            "turnaround_hours": {"type": "number"},
+            "is_ai_assisted": {"type": "boolean"},
+            "lines_changed": {"type": "number"},
+            "author": {"type": "string"}
+        },
+        "required": ["pr_id", "repo_name", "turnaround_hours", "is_ai_assisted"]
+    }
+
+    # Validate first record against schema
+    first_record = data[0]
+    if not validate_json_schema(first_record, schema):
+        raise ValueError("Schema validation failed for processed data")
+
+    logger.info(f"Validated schema for {len(data)} records")
+
+    # Ensure output directory exists
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write to CSV
+    import csv
+
+    fieldnames = [
+        "pr_id", "repo_name", "created_at", "merged_at", 
+        "turnaround_hours", "is_ai_assisted", "lines_changed", "author"
+    ]
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for record in data:
+            # Ensure all required fields are present, use defaults if missing
+            row = {field: record.get(field, "") for field in fieldnames}
+            writer.writerow(row)
+
+    logger.info(f"Saved processed data to {output_path}")
+
+def save_raw_data(data: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Save raw PR data to a JSON file.
     
-    logger.info(f"Raw data backup saved to {output_file}")
+    Args:
+        data: List of dictionaries containing raw PR data.
+        output_path: Path to the output JSON file.
+    """
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, default=str)
+
+    logger.info(f"Saved raw data to {output_path}")
 
 def main():
     """
-    Main entry point for T018: Save raw and processed data with schema validation.
+    Main function to load raw data, process it, and save to CSV.
     """
-    logger.info("Starting T018: Save raw and processed data")
-    
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_path = project_root / "data" / "raw" / "pr_data.json"
+    metadata_path = project_root / "data" / "processed" / "repo_metadata.json"
+    output_path = project_root / "data" / "processed" / "pr_turnaround.csv"
+
+    logger.info(f"Project root: {project_root}")
+    logger.info(f"Raw data path: {raw_data_path}")
+    logger.info(f"Output path: {output_path}")
+
     try:
-        # Load the data that T012b/T015/T016 would have produced in memory or temp files
-        # Since T012b is marked done but we need the actual data to process, 
-        # we assume the pipeline flow passes data here or we load from the expected raw output.
-        # For this implementation, we assume the data is available in data/raw/pr_data.json 
-        # or we load the raw repos and re-fetch (which is expensive).
-        # Given the constraints, we load the existing raw JSON if it exists.
+        # Load raw data
+        raw_data = load_raw_pr_data(str(raw_data_path))
         
-        pr_data = load_raw_pr_data()
-        logger.info(f"Loaded {len(pr_data)} PR records from raw data.")
+        # Load metadata (for reference, though not strictly needed for CSV conversion)
+        try:
+            metadata = load_repo_metadata(str(metadata_path))
+            logger.info("Repo metadata loaded successfully")
+        except FileNotFoundError:
+            logger.warning("Repo metadata not found, proceeding without it")
+            metadata = {}
+
+        # Save processed data to CSV
+        save_processed_data(raw_data, str(output_path))
         
-        # 1. Save Raw Data (Backup/Consolidation)
-        save_raw_data(pr_data)
-        
-        # 2. Save Processed Data (with Validation)
-        save_processed_data(pr_data)
-        
-        logger.info("T018 completed successfully.")
+        logger.info("Processing complete!")
         
     except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during T018: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise
 
 if __name__ == "__main__":
