@@ -1,12 +1,11 @@
 """
-Data integrity validators for HEA alloy analysis pipeline.
+Data validation utilities for High-Entropy Alloy (HEA) datasets.
 
-This module provides validation functions to ensure data quality:
-- Composition sums equal 1.0 (within tolerance)
-- Sample count thresholds for statistical validity
+This module provides functions to validate data integrity, specifically:
+- Composition normalization (sum = 1.0)
+- Sample count thresholds for statistical power
 - General data integrity checks
 """
-
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional, Union
@@ -16,272 +15,207 @@ from utils.seeds import get_seed
 
 logger = logging.getLogger(__name__)
 
-
 class ValidationError(Exception):
     """Custom exception for data validation errors."""
     pass
 
-
 def validate_composition_sum(
-    df: pd.DataFrame,
+    row: Dict[str, float],
     composition_cols: List[str],
     tolerance: float = 1e-6
-) -> Tuple[bool, List[int], Dict[str, Any]]:
+) -> bool:
     """
-    Validate that composition columns sum to 1.0 within tolerance.
+    Validate that the sum of composition fractions equals 1.0 within tolerance.
 
     Args:
-        df: DataFrame containing composition data
-        composition_cols: List of column names representing element fractions
-        tolerance: Maximum allowed deviation from 1.0
+        row: A dictionary representing a single data row.
+        composition_cols: List of column names representing elemental fractions.
+        tolerance: Maximum allowed deviation from 1.0.
 
     Returns:
-        Tuple of (is_valid, list of invalid row indices, summary stats)
+        True if valid, False otherwise.
 
     Raises:
-        ValidationError: If more than 0.1% of rows fail validation
+        ValidationError: If the sum is outside the tolerance range.
     """
     if not composition_cols:
-        raise ValidationError("No composition columns provided for validation")
+        raise ValidationError("No composition columns provided for validation.")
 
-    # Calculate sums
-    sums = df[composition_cols].sum(axis=1)
-    deviations = np.abs(sums - 1.0)
-    invalid_mask = deviations > tolerance
-
-    invalid_indices = df[invalid_mask].index.tolist()
-    invalid_count = len(invalid_indices)
-    total_count = len(df)
-
-    summary = {
-        "total_samples": total_count,
-        "invalid_samples": invalid_count,
-        "invalid_percentage": (invalid_count / total_count * 100) if total_count > 0 else 0,
-        "max_deviation": float(deviations.max()) if len(deviations) > 0 else 0,
-        "mean_deviation": float(deviations.mean()) if len(deviations) > 0 else 0,
-        "tolerance": tolerance
-    }
-
-    # Fail if more than 0.1% of rows are invalid
-    failure_threshold = 0.001  # 0.1%
-    if total_count > 0 and (invalid_count / total_count) > failure_threshold:
+    total = sum(row.get(col, 0.0) for col in composition_cols)
+    
+    if abs(total - 1.0) > tolerance:
         raise ValidationError(
-            f"Composition sum validation failed: {invalid_count}/{total_count} "
-            f"rows ({summary['invalid_percentage']:.2f}%) exceed tolerance {tolerance}. "
-            f"Max deviation: {summary['max_deviation']:.6f}"
+            f"Composition sum {total:.6f} deviates from 1.0 by {abs(total - 1.0):.6f} "
+            f"(tolerance: {tolerance})."
         )
-
-    is_valid = invalid_count == 0
-    logger.info(
-        f"Composition sum validation: {invalid_count}/{total_count} rows failed "
-        f"(tolerance={tolerance}, max_deviation={summary['max_deviation']:.6f})"
-    )
-
-    return is_valid, invalid_indices, summary
-
+    return True
 
 def normalize_compositions(
     df: pd.DataFrame,
     composition_cols: List[str],
+    tolerance: float = 1e-6,
     inplace: bool = False
 ) -> pd.DataFrame:
     """
-    Normalize composition columns to sum exactly to 1.0.
-
-    This function adjusts composition fractions to ensure they sum to 1.0,
-    which is required for downstream processing.
+    Normalize composition columns so they sum to 1.0.
 
     Args:
-        df: DataFrame with composition columns
-        composition_cols: List of column names to normalize
-        inplace: If True, modify df in place; otherwise return a copy
+        df: Input DataFrame.
+        composition_cols: List of column names representing elemental fractions.
+        tolerance: Threshold below which normalization is skipped (already normalized).
+        inplace: If True, modify df in place; otherwise return a copy.
 
     Returns:
-        Normalized DataFrame (or None if inplace=True)
+        Normalized DataFrame.
 
     Raises:
-        ValidationError: If any composition sum is zero or negative
+        ValidationError: If any composition value is negative or NaN before normalization.
     """
     if not inplace:
         df = df.copy()
 
-    if not composition_cols:
-        return df
+    if composition_cols:
+        # Check for invalid values before normalization
+        if df[composition_cols].isnull().any().any():
+            raise ValidationError("Composition columns contain NaN values.")
+        if (df[composition_cols] < 0).any().any():
+            raise ValidationError("Composition columns contain negative values.")
 
-    # Calculate current sums
-    sums = df[composition_cols].sum(axis=1)
-
-    # Check for zero or negative sums
-    zero_mask = sums <= 0
-    if zero_mask.any():
-        zero_count = zero_mask.sum()
-        raise ValidationError(
-            f"Cannot normalize compositions: {zero_count} rows have zero or "
-            f"negative composition sums. These samples must be filtered out."
-        )
-
-    # Normalize
-    df[composition_cols] = df[composition_cols].div(sums, axis=0)
-
-    # Verify normalization
-    new_sums = df[composition_cols].sum(axis=1)
-    max_deviation = np.abs(new_sums - 1.0).max()
-
-    if max_deviation > 1e-10:
-        logger.warning(
-            f"Normalization residual: max deviation from 1.0 is {max_deviation:.2e}"
-        )
-
-    logger.info(f"Normalized {len(composition_cols)} composition columns")
+        # Calculate current sums
+        sums = df[composition_cols].sum(axis=1)
+        
+        # Normalize only rows that are not already within tolerance
+        needs_normalization = (abs(sums - 1.0) > tolerance).values
+        
+        if needs_normalization.any():
+            logger.debug(
+                f"Normalizing {needs_normalization.sum()} rows with composition sums "
+                f"outside tolerance."
+            )
+            # Avoid division by zero
+            safe_sums = sums.replace(0.0, 1.0)
+            df.loc[needs_normalization, composition_cols] = (
+                df.loc[needs_normalization, composition_cols].values 
+                / safe_sums[needs_normalization].values[:, np.newaxis]
+            )
+    
     return df
 
-
 def validate_sample_count(
-    df: pd.DataFrame,
-    min_samples: int = 500,
-    column: Optional[str] = None
-) -> Tuple[bool, Dict[str, Any]]:
+    sample_count: int,
+    min_threshold: int = 500,
+    warning_threshold: int = 1000
+) -> Dict[str, Any]:
     """
-    Validate that the dataset meets minimum sample count requirements.
+    Validate sample count against statistical power thresholds.
 
     Args:
-        df: DataFrame to validate
-        min_samples: Minimum required number of samples
-        column: Optional column name to count non-null values.
-               If None, uses total row count.
+        sample_count: Total number of samples.
+        min_threshold: Absolute minimum samples required (study fails below this).
+        warning_threshold: Samples below this trigger a reduced power warning.
 
     Returns:
-        Tuple of (meets_threshold, summary dict)
+        Dictionary with validation status and power analysis details.
     """
-    if column is not None:
-        if column not in df.columns:
-            raise ValidationError(f"Column '{column}' not found in DataFrame")
-        sample_count = df[column].notna().sum()
-    else:
-        sample_count = len(df)
-
-    meets_threshold = sample_count >= min_samples
-    summary = {
-        "sample_count": int(sample_count),
-        "min_required": min_samples,
-        "meets_threshold": meets_threshold,
-        "deficit": max(0, min_samples - sample_count)
+    result = {
+        "count": sample_count,
+        "is_valid": sample_count >= min_threshold,
+        "is_reduced_power": sample_count < warning_threshold,
+        "message": ""
     }
 
-    logger.info(
-        f"Sample count validation: {sample_count} samples (min: {min_samples}, "
-        f"{'PASS' if meets_threshold else 'FAIL'})"
-    )
+    if sample_count < min_threshold:
+        result["message"] = (
+            f"CRITICAL: Sample count ({sample_count}) is below minimum threshold ({min_threshold}). "
+            "Study cannot proceed with standard statistical power."
+        )
+    elif sample_count < warning_threshold:
+        deficit = warning_threshold - sample_count
+        # Simple linear approximation of power deficit (placeholder for real power calc)
+        # In a real scenario, this would use power analysis formulas based on effect size
+        power_deficit = (deficit / warning_threshold) * 100
+        result["message"] = (
+            f"WARNING: Sample count ({sample_count}) is below recommended threshold ({warning_threshold}). "
+            f"Estimated power deficit: {power_deficit:.1f}%. Proceeding with Reduced Power Analysis."
+        )
+    else:
+        result["message"] = "Sample count sufficient for standard analysis."
 
-    return meets_threshold, summary
-
+    return result
 
 def validate_data_integrity(
     df: pd.DataFrame,
     composition_cols: List[str],
     target_col: Optional[str] = None,
-    min_samples: int = 500,
-    composition_tolerance: float = 1e-6
-) -> Dict[str, Any]:
+    min_samples: int = 500
+) -> Tuple[bool, List[str]]:
     """
-    Run comprehensive data integrity checks.
+    Perform comprehensive data integrity checks.
 
     Args:
-        df: DataFrame to validate
-        composition_cols: Columns representing element fractions
-        target_col: Optional target variable column
-        min_samples: Minimum sample count threshold
-        composition_tolerance: Tolerance for composition sum validation
+        df: Input DataFrame.
+        composition_cols: List of elemental composition columns.
+        target_col: Optional name of the target variable column.
+        min_samples: Minimum required sample count.
 
     Returns:
-        Dictionary with validation results and summary statistics
-
-    Raises:
-        ValidationError: If any critical validation fails
+        Tuple of (is_valid, list_of_errors).
     """
-    results = {
-        "valid": True,
-        "checks": {},
-        "warnings": [],
-        "errors": []
-    }
+    errors = []
 
-    # Check 1: Composition sum validation
-    try:
-        comp_valid, invalid_indices, comp_summary = validate_composition_sum(
-            df, composition_cols, composition_tolerance
+    # 1. Check sample count
+    if len(df) < min_samples:
+        errors.append(
+            f"Sample count ({len(df)}) is below minimum threshold ({min_samples})."
         )
-        results["checks"]["composition_sum"] = {
-            "passed": comp_valid,
-            "summary": comp_summary
-        }
-        if not comp_valid:
-            results["warnings"].append(
-                f"{len(invalid_indices)} rows have composition sums outside tolerance"
+
+    # 2. Check for NaN in composition columns
+    if composition_cols:
+        nan_counts = df[composition_cols].isnull().sum()
+        if nan_counts.any():
+            cols_with_nan = nan_counts[nan_counts > 0].index.tolist()
+            errors.append(
+                f"Composition columns contain NaN values: {cols_with_nan}."
             )
-    except ValidationError as e:
-        results["checks"]["composition_sum"] = {"passed": False, "error": str(e)}
-        results["errors"].append(str(e))
-        results["valid"] = False
 
-    # Check 2: Sample count validation
-    sample_valid, sample_summary = validate_sample_count(df, min_samples)
-    results["checks"]["sample_count"] = sample_summary
-    if not sample_valid:
-        results["warnings"].append(
-            f"Dataset has {sample_summary['sample_count']} samples, "
-            f"below threshold of {min_samples}"
-        )
+    # 3. Check for negative composition values
+    if composition_cols:
+        neg_counts = (df[composition_cols] < 0).sum()
+        if neg_counts.any():
+            cols_with_neg = neg_counts[neg_counts > 0].index.tolist()
+            errors.append(
+                f"Composition columns contain negative values: {cols_with_neg}."
+            )
 
-    # Check 3: Target variable validation (if provided)
+    # 4. Check composition sum = 1.0
+    if composition_cols:
+        sums = df[composition_cols].sum(axis=1)
+        invalid_sums = sums[(abs(sums - 1.0) > 1e-6)]
+        if len(invalid_sums) > 0:
+            errors.append(
+                f"{len(invalid_sums)} rows have composition sums deviating from 1.0 "
+                f"(max deviation: {invalid_sums.abs().max() - 1:.6f})."
+            )
+
+    # 5. Check target column if provided
     if target_col:
         if target_col not in df.columns:
-            results["errors"].append(f"Target column '{target_col}' not found")
-            results["valid"] = False
+            errors.append(f"Target column '{target_col}' not found in DataFrame.")
         else:
-            target_valid_count = df[target_col].notna().sum()
-            target_null_count = df[target_col].isna().sum()
-            results["checks"]["target_variable"] = {
-                "valid_count": int(target_valid_count),
-                "null_count": int(target_null_count),
-                "null_percentage": float(target_null_count / len(df) * 100) if len(df) > 0 else 0
-            }
-            if target_null_count > 0:
-                results["warnings"].append(
-                    f"{target_null_count} rows have missing target values"
+            if df[target_col].isnull().any():
+                nan_count = df[target_col].isnull().sum()
+                errors.append(
+                    f"Target column '{target_col}' contains {nan_count} NaN values."
+                )
+            if (df[target_col] == 0).any() and target_col != "Bulk_Modulus_Residual":
+                # Zero target might be valid for residuals but suspicious for absolute values
+                logger.warning(
+                    f"Target column '{target_col}' contains zero values. "
+                    "Verify if this is expected."
                 )
 
-    # Check 4: Negative values in composition (should not exist)
-    if composition_cols:
-        negative_mask = (df[composition_cols] < 0).any(axis=1)
-        negative_count = negative_mask.sum()
-        if negative_count > 0:
-            results["errors"].append(
-                f"Found {negative_count} rows with negative composition values"
-            )
-            results["valid"] = False
-        else:
-            results["checks"]["negative_compositions"] = {"passed": True}
-
-    # Check 5: NaN values in composition columns
-    if composition_cols:
-        nan_count = df[composition_cols].isna().sum().sum()
-        if nan_count > 0:
-            results["errors"].append(
-                f"Found {nan_count} NaN values in composition columns"
-            )
-            results["valid"] = False
-        else:
-            results["checks"]["composition_nans"] = {"passed": True}
-
-    logger.info(
-        f"Data integrity validation complete: "
-        f"{'PASSED' if results['valid'] else 'FAILED'} "
-        f"({len(results['warnings'])} warnings, {len(results['errors'])} errors)"
-    )
-
-    return results
-
+    is_valid = len(errors) == 0
+    return is_valid, errors
 
 def run_validations(
     df: pd.DataFrame,
@@ -291,29 +225,117 @@ def run_validations(
     raise_on_error: bool = True
 ) -> Dict[str, Any]:
     """
-    Execute all validation checks and return comprehensive results.
-
-    This is the main entry point for data validation in the pipeline.
+    Run all validation checks and return a comprehensive report.
 
     Args:
-        df: DataFrame to validate
-        composition_cols: Columns representing element fractions
-        target_col: Optional target variable column
-        min_samples: Minimum sample count threshold
-        raise_on_error: If True, raise ValidationError on critical failures
+        df: Input DataFrame.
+        composition_cols: List of elemental composition columns.
+        target_col: Optional name of the target variable column.
+        min_samples: Minimum required sample count.
+        raise_on_error: If True, raise ValidationError on first critical error.
 
     Returns:
-        Dictionary with all validation results
-
-    Raises:
-        ValidationError: If raise_on_error=True and critical validation fails
+        Dictionary containing validation results and statistics.
     """
-    results = validate_data_integrity(
+    report = {
+        "total_samples": len(df),
+        "is_valid": True,
+        "errors": [],
+        "warnings": [],
+        "sample_count_status": {}
+    }
+
+    # Run sample count validation
+    report["sample_count_status"] = validate_sample_count(
+        len(df), min_threshold=min_samples, warning_threshold=min_samples * 2
+    )
+
+    if not report["sample_count_status"]["is_valid"]:
+        report["is_valid"] = False
+        report["errors"].append(
+            report["sample_count_status"]["message"]
+        )
+        if raise_on_error:
+            raise ValidationError(report["errors"][-1])
+
+    # Run data integrity checks
+    is_integrity_valid, integrity_errors = validate_data_integrity(
         df, composition_cols, target_col, min_samples
     )
 
-    if raise_on_error and not results["valid"]:
-        error_msg = "\n".join(results["errors"])
-        raise ValidationError(f"Data validation failed:\n{error_msg}")
+    if not is_integrity_valid:
+        report["is_valid"] = False
+        report["errors"].extend(integrity_errors)
+        if raise_on_error:
+            raise ValidationError("; ".join(integrity_errors))
 
-    return results
+    # Log warnings if reduced power
+    if report["sample_count_status"]["is_reduced_power"]:
+        report["warnings"].append(
+            report["sample_count_status"]["message"]
+        )
+
+    logger.info(
+        f"Validation complete: {len(df)} samples. "
+        f"Valid: {report['is_valid']}, Errors: {len(report['errors'])}"
+    )
+
+    return report
+
+def main():
+    """
+    Command-line entry point for running validators on a CSV file.
+    Usage: python -m src.utils.validators --input path/to/data.csv --output results/validation_report.json
+    """
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(description="Validate HEA dataset integrity.")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV file path.")
+    parser.add_argument("--output", type=str, required=True, help="Output JSON report path.")
+    parser.add_argument("--min-samples", type=int, default=500, help="Minimum sample count.")
+    parser.add_argument("--composition-prefix", type=str, default="composition_", help="Prefix for composition columns.")
+
+    args = parser.parse_args()
+
+    # Load data
+    if not Path(args.input).exists():
+        print(f"Error: Input file '{args.input}' not found.")
+        return 1
+
+    df = pd.read_csv(args.input)
+    
+    # Identify composition columns
+    composition_cols = [col for col in df.columns if col.startswith(args.composition_prefix)]
+    
+    if not composition_cols:
+        print(f"Error: No composition columns found with prefix '{args.composition_prefix}'.")
+        return 1
+
+    # Run validations
+    try:
+        report = run_validations(
+            df, 
+            composition_cols, 
+            target_col="Bulk_Modulus_Residual",
+            min_samples=args.min_samples,
+            raise_on_error=False
+        )
+        
+        # Write report
+        with open(args.output, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"Validation report written to {args.output}")
+        return 0 if report["is_valid"] else 1
+
+    except ValidationError as e:
+        print(f"Validation Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Unexpected Error: {e}")
+        return 1
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

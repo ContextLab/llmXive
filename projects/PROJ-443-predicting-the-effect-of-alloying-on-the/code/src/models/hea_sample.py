@@ -1,186 +1,192 @@
 """
-HEA Sample Entity Structure.
+HEA Sample Entity Module.
 
-Defines the data model for High-Entropy Alloy (HEA) samples used throughout
-the pipeline. This module provides the core dataclass for representing a
- single alloy composition, its calculated features, and target properties.
+Defines the HEASample dataclass and helper functions for creating samples
+from raw data rows. This module serves as the core data structure for
+High-Entropy Alloy research data, ensuring type safety and validation.
 """
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Tuple
 from decimal import Decimal
 import json
 
-# Import validators from the established utility path
 from utils.validators import ValidationError, validate_composition_sum
 
 
 @dataclass
 class HEASample:
     """
-    Represents a single High-Entropy Alloy sample.
+    Represents a single High-Entropy Alloy (HEA) sample with its composition
+    and associated properties.
 
     Attributes:
-        sample_id: Unique identifier for the sample (e.g., from OQMD or MP).
+        sample_id: Unique identifier for the sample.
         composition: Dictionary mapping element symbols to their atomic fractions.
-                     Must sum to 1.0.
-        bulk_modulus_observed: Observed bulk modulus in GPa (if available).
-        bulk_modulus_miedema: Calculated bulk modulus using Miedema's model (if available).
-        bulk_modulus_residual: The residual target (Observed - Miedema).
-        features: Dictionary of calculated feature descriptors (e.g., VEC, entropy).
-        source: Source of the data (e.g., 'OQMD', 'MaterialsProject', 'Literature').
-        alloy_system: Tuple of sorted element symbols representing the system (e.g., ('Al', 'Co', 'Cr', 'Fe', 'Ni')).
-        principal_elements: List of elements with atomic fraction >= threshold (default 0.05).
-        metadata: Additional arbitrary metadata.
+        bulk_modulus: Observed bulk modulus in GPa.
+        source: Data source identifier (e.g., 'OQMD', 'MaterialsProject').
+        temperature: Measurement temperature in Kelvin (optional).
+        pressure: Measurement pressure in GPa (optional).
+        metadata: Additional key-value pairs for provenance or experimental details.
     """
     sample_id: str
     composition: Dict[str, float]
-    source: str = "unknown"
-    bulk_modulus_observed: Optional[float] = None
-    bulk_modulus_miedema: Optional[float] = None
-    bulk_modulus_residual: Optional[float] = None
-    features: Dict[str, float] = field(default_factory=dict)
-    alloy_system: Tuple[str, ...] = field(default_factory=tuple)
-    principal_elements: List[str] = field(default_factory=list)
+    bulk_modulus: Optional[float] = None
+    source: Optional[str] = None
+    temperature: Optional[float] = None
+    pressure: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
-        """
-        Initialize derived fields and validate the composition.
-        """
+    def __post_init__(self) -> None:
+        """Validate composition sum and types after initialization."""
         if not self.composition:
             raise ValidationError("Composition cannot be empty.")
 
         # Validate composition sum
-        total = sum(self.composition.values())
-        if not validate_composition_sum(total, tolerance=1e-4):
+        total_sum = sum(self.composition.values())
+        if not validate_composition_sum(total_sum):
             raise ValidationError(
-                f"Composition sum {total:.6f} is not approximately 1.0. "
-                f"Sample ID: {self.sample_id}"
+                f"Composition sum must be approximately 1.0. "
+                f"Got: {total_sum:.6f}"
             )
 
-        # Derive alloy system (sorted tuple of elements)
-        self.alloy_system = tuple(sorted(self.composition.keys()))
+        # Validate element symbols are strings
+        for element, fraction in self.composition.items():
+            if not isinstance(element, str):
+                raise ValidationError(f"Element key must be a string, got {type(element)}")
+            if not isinstance(fraction, (int, float, Decimal)):
+                raise ValidationError(
+                    f"Composition fraction for {element} must be numeric, got {type(fraction)}"
+                )
+            if fraction < 0:
+                raise ValidationError(
+                    f"Composition fraction for {element} cannot be negative: {fraction}"
+                )
 
-        # Identify principal elements (threshold typically 5% or 0.05)
-        # Based on task T016 context: "≥5 principal elements"
-        principal_threshold = 0.05
-        self.principal_elements = [
-            elem for elem, frac in self.composition.items()
-            if frac >= principal_threshold
-        ]
+    @property
+    def elements(self) -> List[str]:
+        """Return sorted list of elements in the composition."""
+        return sorted(self.composition.keys())
 
-        # If bulk modulus values exist, calculate residual
-        if (self.bulk_modulus_observed is not None and
-            self.bulk_modulus_miedema is not None):
-            self.bulk_modulus_residual = (
-                self.bulk_modulus_observed - self.bulk_modulus_miedema
-            )
+    @property
+    def num_elements(self) -> int:
+        """Return the number of principal elements in the alloy."""
+        return len(self.composition)
+
+    @property
+    def is_high_entropy(self) -> bool:
+        """
+        Determine if the sample qualifies as a High-Entropy Alloy.
+        Convention: >= 5 principal elements with atomic fractions >= 0.05.
+        """
+        return (
+            self.num_elements >= 5 and
+            all(frac >= 0.05 for frac in self.composition.values())
+        )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the sample to a dictionary representation.
-        """
+        """Convert the sample to a dictionary representation."""
         return {
             "sample_id": self.sample_id,
             "composition": self.composition,
+            "bulk_modulus": self.bulk_modulus,
             "source": self.source,
-            "bulk_modulus_observed": self.bulk_modulus_observed,
-            "bulk_modulus_miedema": self.bulk_modulus_miedema,
-            "bulk_modulus_residual": self.bulk_modulus_residual,
-            "features": self.features,
-            "alloy_system": list(self.alloy_system),
-            "principal_elements": self.principal_elements,
-            "metadata": self.metadata
+            "temperature": self.temperature,
+            "pressure": self.pressure,
+            "metadata": self.metadata,
+            "num_elements": self.num_elements,
+            "is_high_entropy": self.is_high_entropy,
         }
 
-    def to_json(self, indent: Optional[int] = None) -> str:
-        """
-        Serialize the sample to a JSON string.
-        """
-        return json.dumps(self.to_dict(), indent=indent)
+    def to_json(self, indent: Optional[int] = 2) -> str:
+        """Serialize the sample to a JSON string."""
+        return json.dumps(self.to_dict(), indent=indent, default=str)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "HEASample":
-        """
-        Create an HEASample instance from a dictionary.
-        """
-        # Handle alloy_system if it comes in as a list from JSON
-        alloy_system = data.get("alloy_system")
-        if alloy_system and isinstance(alloy_system, list):
-            data["alloy_system"] = tuple(alloy_system)
+        """Create an HEASample instance from a dictionary."""
+        composition = data.get("composition", {})
+        if not isinstance(composition, dict):
+            raise ValidationError("Invalid composition format in source data")
 
         return cls(
-            sample_id=data["sample_id"],
-            composition=data["composition"],
-            source=data.get("source", "unknown"),
-            bulk_modulus_observed=data.get("bulk_modulus_observed"),
-            bulk_modulus_miedema=data.get("bulk_modulus_miedema"),
-            bulk_modulus_residual=data.get("bulk_modulus_residual"),
-            features=data.get("features", {}),
-            alloy_system=data.get("alloy_system", tuple()),
-            principal_elements=data.get("principal_elements", []),
-            metadata=data.get("metadata", {})
+            sample_id=str(data.get("sample_id", "")),
+            composition=composition,
+            bulk_modulus=data.get("bulk_modulus"),
+            source=data.get("source"),
+            temperature=data.get("temperature"),
+            pressure=data.get("pressure"),
+            metadata=data.get("metadata", {}),
         )
 
 
-def create_sample_from_row(row: Dict[str, Any], source: str = "unknown") -> HEASample:
+def create_sample_from_row(
+    row: Dict[str, Any],
+    composition_prefix: str = "element_",
+    bulk_modulus_col: str = "bulk_modulus",
+    source_col: str = "source",
+    sample_id_col: str = "id"
+) -> HEASample:
     """
-    Factory function to create an HEASample from a flat dictionary row
-    typically fetched from a CSV or API response.
+    Create an HEASample instance from a flat dictionary row (e.g., from a CSV/DB).
 
-    Expected row structure:
-    - 'sample_id': str
-    - 'composition': Dict[str, float] OR a string representation to be parsed
-    - 'bulk_modulus': float (optional, mapped to observed)
-    - Other fields mapped to features or metadata.
+    This function extracts composition data based on a prefix convention
+    (e.g., 'element_Fe', 'element_Cr') and maps other columns to the sample attributes.
 
     Args:
-        row: Dictionary representing a single data row.
-        source: Source identifier.
+        row: Flat dictionary containing sample data.
+        composition_prefix: Prefix for composition columns (e.g., 'element_').
+        bulk_modulus_col: Column name for bulk modulus.
+        source_col: Column name for data source.
+        sample_id_col: Column name for sample ID.
 
     Returns:
         HEASample instance.
-    """
-    sample_id = row.get("sample_id") or row.get("id")
-    if not sample_id:
-        raise ValidationError("Row missing 'sample_id' or 'id'.")
 
-    # Handle composition: could be a dict or a string like "Al:0.2,Co:0.2..."
-    comp_raw = row.get("composition")
+    Raises:
+        ValidationError: If required fields are missing or invalid.
+    """
+    # Extract composition
     composition = {}
-    if isinstance(comp_raw, dict):
-        composition = {str(k): float(v) for k, v in comp_raw.items()}
-    elif isinstance(comp_raw, str):
-        # Simple parser for "El:frac,El:frac" format
-        parts = comp_raw.split(",")
-        for part in parts:
-            if ":" in part:
-                elem, val = part.split(":", 1)
-                composition[elem.strip()] = float(val.strip())
-    else:
-        # Fallback: look for columns like 'Al', 'Co' etc. if composition is not explicit
-        # This is a heuristic; in strict pipeline, composition should be explicit.
-        pass
+    for key, value in row.items():
+        if key.startswith(composition_prefix):
+            element = key.replace(composition_prefix, "")
+            if value is not None and float(value) > 0:
+                composition[element] = float(value)
 
     if not composition:
-        raise ValidationError(f"Could not parse composition for sample {sample_id}.")
+        raise ValidationError("No valid composition data found in row")
 
-    bulk_obs = row.get("bulk_modulus") or row.get("bulk_modulus_observed")
-    bulk_mied = row.get("bulk_modulus_miedema")
+    # Validate composition sum before creating object
+    total_sum = sum(composition.values())
+    if not validate_composition_sum(total_sum):
+        # Attempt normalization if close to 1.0 to handle floating point drift
+        if 0.99 < total_sum < 1.01:
+            composition = {k: v / total_sum for k, v in composition.items()}
+        else:
+            raise ValidationError(
+                f"Row composition sum {total_sum:.6f} deviates significantly from 1.0"
+            )
 
-    # Collect remaining numeric fields as features
-    features = {}
-    for key, val in row.items():
-        if key not in ["sample_id", "id", "composition", "bulk_modulus", "bulk_modulus_observed", "bulk_modulus_miedema"]:
-            if isinstance(val, (int, float)) and val is not None:
-                features[key] = float(val)
+    # Extract other fields
+    sample_id = row.get(sample_id_col)
+    if not sample_id:
+        # Generate a temporary ID if missing
+        sample_id = f"auto_{hash(frozenset(composition.items()))}"
+
+    bulk_modulus_val = row.get(bulk_modulus_col)
+    if bulk_modulus_val is not None:
+        try:
+            bulk_modulus_val = float(bulk_modulus_val)
+        except (ValueError, TypeError):
+            bulk_modulus_val = None
 
     return HEASample(
-        sample_id=sample_id,
+        sample_id=str(sample_id),
         composition=composition,
-        source=source,
-        bulk_modulus_observed=float(bulk_obs) if bulk_obs is not None else None,
-        bulk_modulus_miedema=float(bulk_mied) if bulk_mied is not None else None,
-        features=features,
-        metadata={"raw_row_keys": list(row.keys())}
+        bulk_modulus=bulk_modulus_val,
+        source=row.get(source_col),
+        temperature=row.get("temperature"),
+        pressure=row.get("pressure"),
+        metadata={k: v for k, v in row.items() if not k.startswith(composition_prefix) and k not in [bulk_modulus_col, source_col, sample_id_col, "temperature", "pressure"]}
     )

@@ -22,3 +22,9 @@ T004:
     \ with Black settings, or a pre\u2011commit hook) or any mention of setting up\
     \ flake8/black. Consequently, the requirement to configure linting and formatting\
     \ tools is not satisfied."
+T025:
+  c: false
+  h: 16460ea609215694479187e03c3eec032c347552d4902aa01190bf4f29bd59e9
+  r: "The required file `src/model/derive_groups.py` does not exist, so no code implementing\
+    \ the \u201CAlloy System\u201D grouping key is present. The task cannot be considered\
+    \ fulfilled until this module is created with the appropriate logic."

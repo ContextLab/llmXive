@@ -1,10 +1,8 @@
 """
 Power Analysis and Underpowered Study Report Generation.
 
-This module implements the logic to generate an 'Underpowered Study Report'
-when the retrieved sample count is below the required threshold (500).
-It replaces the previous hard-halt logic with a warning and quantification
-of the power deficit, allowing the pipeline to proceed with Reduced Power Analysis.
+This module implements the logic for detecting underpowered studies (sample count < 500)
+and generating a detailed report quantifying the power deficit, replacing hard halt logic.
 """
 
 import logging
@@ -13,194 +11,157 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-
-import numpy as np
-import pandas as pd
 import yaml
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    PROJECT_ROOT = Path(__file__).resolve().parents[3]
-    if str(PROJECT_ROOT) not in sys.path:
-        sys.path.insert(0, str(PROJECT_ROOT))
+# Import from project utilities
+from src.utils.logging_config import get_logger
 
-from utils.logging_config import get_logger
-from utils.seeds import get_seed
-
-# Configuration constants
-SAMPLE_THRESHOLD = 500
-CONFIDENCE_LEVEL = 0.95
-EFFECT_SIZE_ESTIMATE = 0.3  # Cohen's d equivalent for correlation
-ALPHA = 0.05
+# Constants
+MIN_SAMPLE_THRESHOLD = 500
+DEFAULT_CONFIDENCE_LEVEL = 0.95
+DEFAULT_EFFECT_SIZE = 0.5  # Cohen's d equivalent for rough estimation
 
 logger = get_logger(__name__)
 
 
 def calculate_power_deficit(
-    current_n: int,
-    target_n: int = SAMPLE_THRESHOLD,
-    alpha: float = ALPHA,
-    power_target: float = 0.80,
-    effect_size: float = EFFECT_SIZE_ESTIMATE
-) -> Dict[str, float]:
+    current_samples: int,
+    threshold: int = MIN_SAMPLE_THRESHOLD,
+    confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+    effect_size: float = DEFAULT_EFFECT_SIZE
+) -> Dict[str, Any]:
     """
-    Quantifies the power deficit and estimates the widening of confidence intervals.
+    Calculate the power deficit metrics for an underpowered study.
 
     Args:
-        current_n: The actual number of samples retrieved.
-        target_n: The target sample size for full power.
-        alpha: Significance level.
-        power_target: Desired statistical power (typically 0.80).
-        effect_size: Estimated effect size (Cohen's d or similar).
+        current_samples: The number of samples currently retrieved.
+        threshold: The minimum required sample count (default 500).
+        confidence_level: The desired confidence level (default 0.95).
+        effect_size: Estimated effect size for power calculation (default 0.5).
 
     Returns:
-        A dictionary containing power deficit metrics.
+        A dictionary containing:
+            - deficit_ratio: current_samples / threshold
+            - confidence_interval_widening: Estimated factor by which CI widens
+            - power_loss_percent: Estimated percentage loss in statistical power
+            - recommended_additional_samples: How many more samples are needed
     """
-    if current_n <= 0:
+    if current_samples <= 0:
         return {
-            "power": 0.0,
-            "ci_width_factor": float('inf'),
-            "sample_deficit": target_n,
+            "deficit_ratio": 0.0,
+            "confidence_interval_widening": float('inf'),
+            "power_loss_percent": 100.0,
+            "recommended_additional_samples": threshold,
             "status": "critical"
         }
 
-    # Approximate power calculation for correlation/t-test
-    # Using simplified approximation: Power ~ Phi( sqrt(n)*d - z_alpha )
-    # where d is effect size, z_alpha is critical value
-    z_alpha = 1.96  # Approx for 0.05 two-tailed
-    z_beta = 0.84   # Approx for 0.80 power
+    deficit_ratio = current_samples / threshold
+    recommended_additional = max(0, threshold - current_samples)
 
-    # Current power estimate (simplified)
-    # Non-centrality parameter lambda = sqrt(n) * effect_size
-    lambda_current = np.sqrt(current_n) * effect_size
-    power_current = 0.5 * (1 + np.math.erf((lambda_current - z_alpha) / np.sqrt(2)))
-    power_current = max(0.0, min(1.0, power_current))
+    # Approximation for CI widening: CI width is proportional to 1/sqrt(n)
+    # Widening factor = sqrt(threshold) / sqrt(current_samples)
+    ci_widening_factor = (threshold / current_samples) ** 0.5
 
-    # CI Width is proportional to 1/sqrt(n)
-    # Factor by which CI is wider compared to target_n
-    ci_width_factor = np.sqrt(target_n) / np.sqrt(current_n) if current_n > 0 else float('inf')
+    # Approximation for power loss (simplified model)
+    # If power at N=500 is ~0.80, power at N=x drops roughly with sqrt(x/500)
+    # This is a heuristic for reporting purposes
+    estimated_power_at_threshold = 0.80
+    estimated_current_power = estimated_power_at_threshold * (current_samples / threshold) ** 0.5
+    power_loss = max(0, (estimated_power_at_threshold - estimated_current_power) / estimated_power_at_threshold * 100)
 
-    sample_deficit = target_n - current_n
-
-    status = "adequate"
-    if power_current < 0.5:
-        status = "critical"
-    elif power_current < 0.8:
-        status = "underpowered"
+    status = "critical" if deficit_ratio < 0.5 else "warning"
 
     return {
-        "power": float(power_current),
-        "ci_width_factor": float(ci_width_factor),
-        "sample_deficit": int(sample_deficit),
+        "deficit_ratio": round(deficit_ratio, 4),
+        "confidence_interval_widening": round(ci_widening_factor, 4),
+        "power_loss_percent": round(power_loss, 2),
+        "recommended_additional_samples": recommended_additional,
         "status": status
     }
 
 
 def generate_power_report(
-    sample_count: int,
-    source_info: Optional[Dict[str, Any]] = None,
+    current_samples: int,
+    threshold: int = MIN_SAMPLE_THRESHOLD,
     output_path: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Generates the Underpowered Study Report.
+    Generate a comprehensive Underpowered Study Report.
+
+    This function is called when the sample count falls below the threshold.
+    It logs the specific deficit message and generates a report quantifying the deficit.
 
     Args:
-        sample_count: The number of samples retrieved.
-        source_info: Dictionary containing source metadata (optional).
-        output_path: Path to save the report (optional).
+        current_samples: The number of samples retrieved.
+        threshold: The minimum required sample count.
+        output_path: Optional path to write the report YAML file.
 
     Returns:
         The report dictionary.
     """
-    report_data = {
+    logger.warning(f"Retrieved {current_samples} samples; threshold not met. Proceeding with Reduced Power Analysis")
+
+    timestamp = datetime.utcnow().isoformat()
+    deficit_metrics = calculate_power_deficit(current_samples, threshold)
+
+    report = {
         "report_type": "Underpowered Study Report",
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "threshold_met": sample_count >= SAMPLE_THRESHOLD,
-        "sample_count": sample_count,
-        "threshold_value": SAMPLE_THRESHOLD,
+        "timestamp": timestamp,
+        "sample_statistics": {
+            "current_count": current_samples,
+            "required_threshold": threshold,
+            "shortfall": max(0, threshold - current_samples)
+        },
+        "power_analysis": deficit_metrics,
+        "impact_assessment": {
+            "confidence_interval_note": f"Confidence intervals may be widened by a factor of ~{deficit_metrics['confidence_interval_widening']:.2f}",
+            "statistical_power_note": f"Estimated statistical power reduced by ~{deficit_metrics['power_loss_percent']:.1f}%",
+            "recommendation": "Interpret results with caution. Consider data augmentation or literature synthesis if additional samples cannot be acquired."
+        },
+        "proceeding_flag": True,
+        "message": f"Retrieved {current_samples} samples; threshold not met. Proceeding with Reduced Power Analysis"
     }
 
-    if not report_data["threshold_met"]:
-        # Log the specific deficit message required by spec
-        deficit_msg = f"Retrieved {sample_count} samples; threshold not met. Proceeding with Reduced Power Analysis"
-        logger.warning(deficit_msg)
-        report_data["deficit_message"] = deficit_msg
-
-        # Calculate power metrics
-        power_metrics = calculate_power_deficit(sample_count)
-        report_data["power_analysis"] = power_metrics
-
-        # Estimate impact on confidence intervals
-        report_data["confidence_interval_impact"] = {
-            "description": "Confidence intervals will be wider than planned.",
-            "width_multiplier": power_metrics["ci_width_factor"],
-            "interpretation": f"95% CIs are approximately {power_metrics['ci_width_factor']:.2f}x wider than with {SAMPLE_THRESHOLD} samples."
-        }
-
-        # Recommendations for reduced power analysis
-        report_data["recommendations"] = [
-            "Interpret model performance metrics with caution due to reduced statistical power.",
-            "Prioritize effect size estimation over strict p-value thresholds.",
-            "Consider bootstrapping with caution (potential underestimation of CI width).",
-            "Flag all conclusions as preliminary pending larger dataset validation."
-        ]
-    else:
-        logger.info(f"Sample count {sample_count} meets threshold of {SAMPLE_THRESHOLD}.")
-        report_data["power_analysis"] = {
-            "status": "adequate",
-            "power": 1.0,
-            "ci_width_factor": 1.0
-        }
-        report_data["recommendations"] = ["Proceed with standard analysis."]
-
-    if source_info:
-        report_data["data_source"] = source_info
-
-    # Write to file if path provided
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as f:
-            yaml.dump(report_data, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"Power report saved to {output_path}")
+            yaml.dump(report, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"Power report written to {output_path}")
 
-    return report_data
+    return report
 
 
 def main():
     """
-    Main entry point for the power report generation.
-    Can be called standalone or imported by the pipeline.
+    CLI entry point for testing the power report generation.
+    Usage: python -m src.report.power_report --samples <count> --output <path>
     """
-    # Mock data for demonstration if run directly without context
-    # In a real pipeline, this would receive data from the fetcher
-    logger.info("Starting Power Report Generation")
+    import argparse
 
-    # Example: Simulate a low sample count scenario
-    simulated_count = 150
-    source_info = {
-        "primary_source": "OQMD",
-        "query_params": {"min_elements": 5},
-        "timestamp": datetime.utcnow().isoformat()
-    }
+    parser = argparse.ArgumentParser(description="Generate Underpowered Study Report")
+    parser.add_argument("--samples", type=int, required=True, help="Number of samples retrieved")
+    parser.add_argument("--threshold", type=int, default=MIN_SAMPLE_THRESHOLD, help="Minimum sample threshold")
+    parser.add_argument("--output", type=str, help="Output path for the report YAML")
+
+    args = parser.parse_args()
+
+    output_path = Path(args.output) if args.output else None
 
     report = generate_power_report(
-        sample_count=simulated_count,
-        source_info=source_info,
-        output_path=Path("data/reports/power_analysis_report.yaml")
+        current_samples=args.samples,
+        threshold=args.threshold,
+        output_path=output_path
     )
 
-    # Print summary to stdout
-    print("\n--- Power Analysis Summary ---")
-    print(f"Samples Retrieved: {report['sample_count']}")
-    print(f"Threshold Met: {report['threshold_met']}")
-    if not report['threshold_met']:
-        print(f"Status: {report['power_analysis']['status'].upper()}")
-        print(f"Power: {report['power_analysis']['power']:.2%}")
-        print(f"CI Width Multiplier: {report['power_analysis']['ci_width_factor']:.2f}x")
-        print(f"Message: {report['deficit_message']}")
-    print("------------------------------\n")
+    print("\n--- Underpowered Study Report ---")
+    print(yaml.dump(report, default_flow_style=False))
 
-    return report
+    if report["proceeding_flag"]:
+        print("\n[INFO] System proceeding with reduced power analysis.")
+        sys.exit(0)
+    else:
+        print("\n[ERROR] System halted due to insufficient power.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

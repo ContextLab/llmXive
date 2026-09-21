@@ -55,7 +55,7 @@
 - [X] T004b [P] Create `code/requirements.txt` with pinned dependencies: `nibabel==4.0.2`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `pybids==0.17.0`, `requests==2.31.0`, `tqdm==4.66.1`, `pytest==7.4.3`, `nilearn==0.10.2`, `psutil==5.9.7`, `joblib==1.3.2`, `matplotlib==3.8.2`, `seaborn==0.13.0`, `huggingface_hub==0.20.1`
 - [X] T004c [P] Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist. Exit with `EXIT_CODE_NO_LABELS = 2` if missing. Log verification status. **Note**: This task uses `ds000246` as mandated by Spec/Constitution, overriding the plan's incorrect reference to `ds000248`.
 - [X] T005a [P] Implement `code/utils/io.py`: BIDS loading functions, dataset versioning checks, and checksum verification (Constitution III).
-- [ ] T005b [P] Implement `code/utils/graph.py`: AAL atlas loading, connectivity matrix construction, and graph metric calculation wrappers.
+- [X] T005b [P] Implement `code/utils/graph.py`: AAL atlas loading, connectivity matrix construction, and graph metric calculation wrappers.
 - [ ] T005c [P] Implement `code/utils/stats.py`: Collinearity detection, variance thresholding, and statistical utility functions.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logger.py` to capture excluded subjects and feature‑filtering logs
 - [X] T007 [P] Create base schema contracts in `specs/001-predicting-cognitive-decline-from-restin/contracts/` for dataset, graph metrics, and model output

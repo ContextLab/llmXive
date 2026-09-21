@@ -1,463 +1,626 @@
+"""
+Data ingestion and energy calculation module for granular system analysis.
+Handles loading, preprocessing, and energy component calculation.
+"""
+
 import os
 import sys
 import json
 import logging
 import hashlib
 import argparse
+import math
+from pathlib import Path
+from typing import Dict, List, Tuple, Any, Optional, Union
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from typing import Optional, Dict, Any, Tuple, List
-from scipy import signal
+from scipy.signal import hilbert, welch
 from scipy.interpolate import interp1d
+import yaml
 
-# Ensure logs directory exists before initializing file handler
-logs_dir = Path("logs")
-logs_dir.mkdir(exist_ok=True)
-log_file = logs_dir / "pipeline.log"
-
-# Configure logging
+# Configure logging to file (ensure directory exists first)
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_file),
+        logging.FileHandler(LOG_DIR / "pipeline.log"),
         logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
+
 class DataIngestionError(Exception):
     """Custom exception for data ingestion errors."""
     pass
+
 
 class ConfigurationError(Exception):
     """Custom exception for configuration errors."""
     pass
 
-def calculate_sha256(filepath: Path) -> str:
+
+class DataExclusionWarning(Warning):
+    """Warning for data exclusion events."""
+    pass
+
+
+def calculate_sha256(file_path: str) -> str:
     """Calculate SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_research_md() -> Dict[str, Any]:
-    """Load research.md if it exists, otherwise return empty dict."""
-    research_path = Path("research.md")
-    if not research_path.exists():
-        return {}
-    # Simple parsing for Zenodo ID if present in research.md
-    content = research_path.read_text()
-    result = {}
-    for line in content.split('\n'):
-        if 'zenodo_id' in line.lower() or 'zenodo-id' in line.lower():
-            # Extract ID if format is like "zenodo_id: 12345" or "Zenodo ID: 12345"
-            parts = line.split(':')
-            if len(parts) >= 2:
-                result['zenodo_id'] = parts[1].strip()
-    return result
 
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load configuration from data/config.yaml."""
-    if config_path is None:
-        config_path = "data/config.yaml"
-    path = Path(config_path)
-    if not path.exists():
+def load_research_md() -> Optional[str]:
+    """Load Zenodo ID from research.md if present."""
+    research_path = Path("research.md")
+    if research_path.exists():
+        content = research_path.read_text()
+        # Simple heuristic: look for zenodo-id in the content
+        for line in content.splitlines():
+            if "zenodo-id" in line.lower() or "zenodo" in line.lower():
+                # Extract ID if possible
+                parts = line.split()
+                for part in parts:
+                    if part.replace('.', '').replace('-', '').isdigit() or 'zenodo' in part.lower():
+                        return part
+    return None
+
+
+def load_config(config_path: str = "data/config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    if not os.path.exists(config_path):
         raise ConfigurationError(f"Config file not found: {config_path}")
-    import yaml
-    with open(path, 'r') as f:
+    with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def fetch_zenodo_granular(zenodo_id: str, output_dir: Path) -> Path:
+
+def fetch_zenodo_granular(zenodo_id: str, output_dir: str = "data/raw") -> str:
     """
-    Fetch dataset from Zenodo using the datasets library.
-    Constraint: Must fail loudly if download fails. No synthetic fallback.
+    Fetch granular dataset from Zenodo.
+    Uses streaming if dataset is large.
     """
     from datasets import load_dataset
-    logger.info(f"Fetching Zenodo dataset ID: {zenodo_id}")
-    
+    from huggingface_hub import hf_hub_download
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
     try:
-        # Attempt to load the dataset. 
-        # Note: Zenodo datasets often require specific loading logic or HuggingFace Hub mapping.
-        # For this implementation, we assume the Zenodo ID maps to a HuggingFace dataset
-        # or we use the direct file download if the dataset is a simple CSV/JSON.
-        # If the specific Zenodo ID is not a HF dataset, we attempt direct download via huggingface_hub.
-        
-        # Try HF datasets first (common pattern for Zenodo mirrors)
+        # Try to load as HuggingFace dataset (Zenodo datasets often mirrored there)
+        logger.info(f"Attempting to fetch dataset from Zenodo ID: {zenodo_id}")
+        dataset = load_dataset(zenodo_id, streaming=True)
+        # For simplicity, assume the first split is the data
+        split_name = list(dataset.keys())[0]
+        # Save to parquet or csv if needed, or return iterator
+        # For this implementation, we'll assume we need to download the file
+        # Since we can't easily stream to a file with the datasets library without knowing the file type,
+        # we'll try to download the file directly if we can infer the filename.
+        # In a real scenario, we'd inspect the dataset config.
+        # Fallback: try to download a likely file name
+        # This is a simplified approach; real implementation would need more robust file discovery.
+        file_name = f"granular_data_{zenodo_id}.csv"
+        # Attempt to download from hub if it's a HF mirror
         try:
-            ds = load_dataset(zenodo_id, streaming=True)
-            # If successful, we need to save it to a local file to process.
-            # Since streaming doesn't easily save to disk in one go for large files without iteration,
-            # we iterate and save.
-            output_dir.mkdir(parents=True, exist_ok=True)
-            output_file = output_dir / "zenodo_data.csv"
-            
-            # Check if the dataset has a 'train' split or similar
-            split_name = list(ds.keys())[0]
-            df = ds[split_name].to_pandas()
-            df.to_csv(output_file, index=False)
-            logger.info(f"Successfully downloaded and saved to {output_file}")
-            return output_file
+            local_file = hf_hub_download(repo_id=zenodo_id, filename=file_name, repo_type="dataset")
+            return local_file
         except Exception as e:
-            logger.warning(f"HF dataset load failed: {e}. Attempting direct file download.")
-            pass
-
-        # Fallback to direct download if HF datasets fails
-        # This assumes the Zenodo ID is a record ID and we need to find the file.
-        # This is a simplified implementation; real-world requires parsing Zenodo API.
-        from huggingface_hub import hf_hub_download
-        # Assuming the file is named 'data.csv' or similar in the repo
-        # In a real scenario, we would query the Zenodo API for the file list.
-        # For now, we raise an error if we can't determine the file structure.
-        raise RuntimeError("Real data fetch failed: Unable to locate file in Zenodo record automatically. Manual intervention required.")
-
+            logger.warning(f"Direct file download failed: {e}. Trying full dataset load.")
+            # Fallback: load full dataset into memory (not ideal for large data)
+            df = dataset[split_name].to_pandas()
+            output_file = output_path / file_name
+            df.to_csv(output_file, index=False)
+            return str(output_file)
     except Exception as e:
         raise RuntimeError(f"Real data fetch failed: {str(e)}")
 
-def stream_dataset(file_path: Path, chunk_size: int = 10000):
+
+def stream_dataset(file_path: str, chunk_size: int = 10000) -> pd.DataFrame:
     """
-    Stream a dataset from a file in chunks.
-    Used for large datasets that don't fit in memory.
+    Stream a large dataset in chunks.
+    Returns a DataFrame with the sampled data.
     """
+    chunks = []
     for chunk in pd.read_csv(file_path, chunksize=chunk_size):
-        yield chunk
+        chunks.append(chunk)
+    return pd.concat(chunks, ignore_index=True)
 
-def load_and_sample(data_source: str, sample_ratio: float = 1.0, seed: int = 42, streaming: bool = False):
-    """
-    Load data from a source and optionally sample it.
-    Handles local paths and Zenodo IDs.
-    """
-    logger.info(f"Loading data from source: {data_source}")
-    
-    # Check if it's a Zenodo ID (starts with 10. or contains zenodo)
-    if "zenodo" in data_source.lower() or data_source.startswith("10."):
-        zenodo_id = data_source
-        output_dir = Path("data/raw")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        data_file = fetch_zenodo_granular(zenodo_id, output_dir)
-    else:
-        data_file = Path(data_source)
-        if not data_file.exists():
-            raise FileNotFoundError(f"Data source not found: {data_source}")
 
-    if streaming or data_file.stat().st_size > 14 * 1024 * 1024 * 1024: # 14GB
-        logger.info("Using streaming mode for large dataset")
-        # For streaming, we process chunk by chunk. 
-        # For sampling, we might need to count first or use reservoir sampling.
-        # Simplified: Read first chunk to get schema, then process.
-        # In a real pipeline, we would accumulate stats or write sampled chunks to a new file.
-        # Here we assume we are just returning the iterator or a sample if small enough.
-        # Since the next steps need a dataframe, we might need to materialize a sample.
-        # Let's implement a simple reservoir sampling for the streaming case.
-        sampled_chunks = []
-        total_rows = 0
-        sampled_rows = 0
-        rng = np.random.default_rng(seed)
-        
-        for chunk in stream_dataset(data_file):
-            total_rows += len(chunk)
-            if sample_ratio < 1.0:
-                # Reservoir sampling or simple random sampling per chunk
-                n = max(1, int(len(chunk) * sample_ratio))
-                if n < len(chunk):
-                    indices = rng.choice(len(chunk), size=n, replace=False)
-                    chunk = chunk.iloc[indices]
-            sampled_chunks.append(chunk)
-            sampled_rows += len(chunk)
-        
-        df = pd.concat(sampled_chunks, ignore_index=True)
-        metadata = {
-            "total_rows_streamed": total_rows,
-            "rows_sampled": sampled_rows,
-            "sampling_seed": seed,
-            "sampling_fraction": sample_ratio
-        }
-        # Save metadata
-        meta_path = Path("artifacts/sampling_metadata.json")
-        meta_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        return df
+def load_and_sample(
+    data_source: str,
+    sample_ratio: float = 1.0,
+    seed: Optional[int] = None,
+    streaming: bool = False
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Load data from source and sample if necessary.
+    """
+    logger.info(f"Loading data from: {data_source}")
+    if seed is not None:
+        np.random.seed(seed)
+
+    if streaming or os.path.getsize(data_source) > 14 * 1024 * 1024 * 1024:  # 14 GB
+        df = stream_dataset(data_source)
     else:
-        df = pd.read_csv(data_file)
-        if sample_ratio < 1.0:
+        df = pd.read_csv(data_source)
+
+    total_rows = len(df)
+    if sample_ratio < 1.0:
+        if seed is not None:
             df = df.sample(frac=sample_ratio, random_state=seed)
-        # Save metadata
-        metadata = {
-            "total_rows_streamed": len(df),
-            "rows_sampled": len(df),
-            "sampling_seed": seed,
-            "sampling_fraction": sample_ratio
-        }
-        meta_path = Path("artifacts/sampling_metadata.json")
-        meta_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        return df
+        else:
+            df = df.sample(frac=sample_ratio)
 
-def validate_metadata(df: pd.DataFrame, config: Dict[str, Any], allow_incomplete: bool = False):
+    sampling_metadata = {
+        "total_rows_streamed": total_rows,
+        "rows_sampled": len(df),
+        "sampling_seed": seed,
+        "sampling_fraction": sample_ratio,
+        "data_source": data_source
+    }
+
+    return df, sampling_metadata
+
+
+def validate_metadata(df: pd.DataFrame, config: Dict[str, Any], allow_incomplete: bool = False) -> pd.DataFrame:
     """
     Validate required metadata fields in the dataset.
-    Raises DataIngestionError if missing and allow_incomplete is False.
     """
     required_fields = ['mass', 'radius', 'material_type']
-    missing = []
-    for field in required_fields:
-        if field not in df.columns:
-            missing.append(field)
-    
-    if missing:
-        if allow_incomplete:
-            logger.warning(f"Missing metadata fields: {missing}. Proceeding with incomplete data.")
-            return df
+    missing_fields = [f for f in required_fields if f not in df.columns]
+
+    if missing_fields:
+        if not allow_incomplete:
+            raise DataIngestionError(f"Missing required fields: {missing_fields}")
         else:
-            raise DataIngestionError(f"Missing required metadata fields: {missing}. Use --allow-incomplete to proceed.")
+            logger.warning(f"Missing fields: {missing_fields}. Proceeding with incomplete data.")
+            for field in missing_fields:
+                df[field] = np.nan
+
+    # Validate against config if material_type is present
+    if 'material_type' in df.columns and 'materials' in config:
+        valid_materials = list(config['materials'].keys())
+        invalid_materials = df[~df['material_type'].isin(valid_materials)]['material_type'].unique()
+        if len(invalid_materials) > 0:
+            logger.warning(f"Found invalid material types: {invalid_materials}")
+
     return df
 
-def handle_kinetic_only_fallback(df: pd.DataFrame):
+
+def handle_kinetic_only_fallback(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handle datasets with missing potential/vibrational data.
-    Sets missing columns to NaN or 0 with a warning.
+    Handle datasets with incomplete data by calculating only available energy components.
+    """
+    logger.warning("Handling kinetic-only fallback. Setting potential/vibrational energy to NaN.")
+    if 'E_pot' not in df.columns:
+        df['E_pot'] = np.nan
+    if 'E_vib' not in df.columns:
+        df['E_vib'] = np.nan
+    return df
+
+
+def handle_missing_z_axis(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Handle missing z-axis data by adding a pot_incomplete flag.
     """
     if 'z' not in df.columns:
-        logger.warning("z-axis missing. Setting E_pot to 0.")
-        df['E_pot'] = 0.0
         df['pot_incomplete'] = True
+        df['E_pot'] = np.nan
+        logger.warning("Missing z-axis data. Set pot_incomplete=True and E_pot=NaN.")
     else:
         df['pot_incomplete'] = False
     return df
 
-def handle_missing_z_axis(df: pd.DataFrame):
-    """
-    Handle missing z-axis data by adding a pot_incomplete boolean column.
-    """
-    if 'z' not in df.columns:
-        df['pot_incomplete'] = True
-        logger.warning("z-axis data missing. pot_incomplete flag set to True.")
-    else:
-        df['pot_incomplete'] = False
-    return df
 
-def ingest_driving_logs(input_dir: Path, output_path: Path):
+def ingest_driving_logs(log_dir: str = "data/raw") -> pd.DataFrame:
     """
     Ingest and parse raw driving signal logs.
-    Output: canonical intermediate file data/derived/driving_signals.csv
+    Output: data/derived/driving_signals.csv
     """
-    input_dir = Path(input_dir)
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Assume CSV files in input_dir
-    files = list(input_dir.glob("*.csv"))
-    if not files:
-        raise DataIngestionError(f"No CSV files found in {input_dir}")
-    
-    # Concatenate all driving logs
-    dfs = []
-    for f in files:
-        try:
-            df = pd.read_csv(f)
-            if 'timestamp' not in df.columns:
-                # Try to infer timestamp if not present
-                df['timestamp'] = range(len(df))
-            dfs.append(df)
-        except Exception as e:
-            logger.warning(f"Failed to read {f}: {e}")
-    
-    if not dfs:
-        raise DataIngestionError("No valid driving log files found.")
-    
-    combined = pd.concat(dfs, ignore_index=True)
-    combined.sort_values('timestamp', inplace=True)
-    combined.to_csv(output_path, index=False)
-    logger.info(f"Driving signals saved to {output_path}")
-    return combined
+    log_path = Path(log_dir)
+    if not log_path.exists():
+        raise DataIngestionError(f"Log directory not found: {log_dir}")
 
-def handle_missing_frames(df: pd.DataFrame, max_gap: int = 10):
+    # Assume CSV or JSON logs in the directory
+    driving_data = []
+    for file in log_path.glob("*"):
+        if file.suffix in ['.csv', '.json']:
+            try:
+                if file.suffix == '.csv':
+                    df = pd.read_csv(file)
+                else:
+                    df = pd.read_json(file)
+                driving_data.append(df)
+            except Exception as e:
+                logger.warning(f"Failed to load {file}: {e}")
+
+    if not driving_data:
+        raise DataIngestionError("No valid driving log files found.")
+
+    combined_df = pd.concat(driving_data, ignore_index=True)
+
+    # Ensure timestamp column exists and is sorted
+    if 'timestamp' not in combined_df.columns:
+        # Assume first column is timestamp
+        combined_df = combined_df.rename(columns={combined_df.columns[0]: 'timestamp'})
+
+    combined_df = combined_df.sort_values('timestamp')
+
+    # Write to derived
+    derived_dir = Path("data/derived")
+    derived_dir.mkdir(exist_ok=True)
+    output_path = derived_dir / "driving_signals.csv"
+    combined_df.to_csv(output_path, index=False)
+    logger.info(f"Driving signals written to: {output_path}")
+
+    return combined_df
+
+
+def handle_missing_frames(df: pd.DataFrame, max_gap: int = 10) -> pd.DataFrame:
     """
     Handle missing frames via linear interpolation or flagging.
-    If gap > max_gap, log warning and set gap_flag.
     """
     if 'timestamp' not in df.columns:
         return df
-    
-    df = df.sort_values('timestamp').reset_index(drop=True)
-    timestamps = df['timestamp'].values
-    
-    # Identify gaps
-    gaps = np.diff(timestamps)
-    gap_indices = np.where(gaps > 1)[0]
-    
-    if len(gap_indices) == 0:
+
+    df = df.sort_values('timestamp')
+    df['gap_flag'] = False
+
+    # Detect gaps in timestamp
+    time_diff = df['timestamp'].diff()
+    median_time_diff = time_diff.median()
+    if pd.isna(median_time_diff):
         return df
-    
-    logger.info(f"Found {len(gap_indices)} gaps in data.")
-    
+
+    gap_threshold = median_time_diff * max_gap
+    gap_indices = time_diff[time_diff > gap_threshold].index
+    df.loc[gap_indices, 'gap_flag'] = True
+
     # Interpolate numeric columns
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    for col in numeric_cols:
-        if col == 'timestamp':
-            continue
-        # Create a full index for interpolation
-        full_index = np.arange(timestamps.min(), timestamps.max() + 1)
-        # Interpolate
-        f = interp1d(timestamps, df[col].values, kind='linear', fill_value='extrapolate')
-        df[col] = f(full_index)
-        # Re-align timestamps
-        df['timestamp'] = full_index
-    
-    # Flag large gaps
-    df['gap_flag'] = False
-    for idx in gap_indices:
-        gap_size = gaps[idx]
-        if gap_size > max_gap:
-            logger.warning(f"Large gap of {gap_size} frames detected at index {idx}.")
-            # Flag the range
-            start = idx + 1
-            end = idx + 1 + gap_size
-            if start < len(df) and end <= len(df):
-                df.loc[start:end, 'gap_flag'] = True
-    
+    df[numeric_cols] = df[numeric_cols].interpolate(method='linear')
+
     return df
 
-def calculate_tracking_failure_rate(df: pd.DataFrame, window_size: int = 100):
+
+def calculate_tracking_failure_rate(df: pd.DataFrame, window_size: int = 100) -> Tuple[float, pd.DataFrame]:
     """
-    Compute percentage of missing frames per time window.
-    If rate > 20%, flag window for exclusion.
+    Calculate the percentage of missing frames per time window.
     """
     if 'gap_flag' not in df.columns:
-        df['gap_flag'] = False
-    
+        return 0.0, df
+
+    df['gap_flag'] = df['gap_flag'].astype(int)
+    df['rolling_gap_rate'] = df['gap_flag'].rolling(window=window_size, center=True).mean()
+    failure_rate = df['gap_flag'].mean()
+
+    # Flag windows with > 20% missing frames
+    df['exclude_window'] = df['rolling_gap_rate'] > 0.20
+
+    return failure_rate, df
+
+
+def compute_velocity_angular_velocity(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute velocity (v) and angular velocity (omega) via finite differences.
+    """
     df = df.sort_values('timestamp')
-    total_frames = len(df)
-    total_missing = df['gap_flag'].sum()
-    overall_rate = total_missing / total_frames if total_frames > 0 else 0
-    
-    logger.info(f"Overall tracking failure rate: {overall_rate:.2%}")
-    
-    if overall_rate > 0.20:
-        logger.warning(f"Overall tracking failure rate ({overall_rate:.2%}) exceeds 20%. Consider excluding data.")
-    
+
+    # Velocity from position derivatives
+    if all(col in df.columns for col in ['x', 'y', 'z']):
+        dt = df['timestamp'].diff()
+        dx = df['x'].diff()
+        dy = df['y'].diff()
+        dz = df['z'].diff()
+
+        # Avoid division by zero
+        dt = dt.replace(0, np.nan).fillna(dt.median())
+
+        vx = dx / dt
+        vy = dy / dt
+        vz = dz / dt
+
+        df['v'] = np.sqrt(vx**2 + vy**2 + vz**2)
+    elif 'v' not in df.columns:
+        logger.warning("Position data missing, cannot compute velocity.")
+        df['v'] = 0.0
+
+    # Angular velocity from orientation derivatives (simplified)
+    if all(col in df.columns for col in ['theta', 'phi', 'psi']):
+        dtheta = df['theta'].diff()
+        dphi = df['phi'].diff()
+        dpsi = df['psi'].diff()
+
+        df['omega'] = np.sqrt(dtheta**2 + dphi**2 + dpsi**2) / dt
+    elif 'omega' not in df.columns:
+        logger.warning("Orientation data missing, cannot compute angular velocity.")
+        df['omega'] = 0.0
+
     return df
 
-def compute_velocity_angular_velocity(df: pd.DataFrame, time_col: str = 'timestamp', 
-                                      x_col: str = 'x', y_col: str = 'y', z_col: str = 'z',
-                                      angle_col: str = 'angle'):
+
+def detect_non_stationary_segments(df: pd.DataFrame, signal_col: str = 'amplitude', window_size: int = 100) -> pd.DataFrame:
     """
-    T017 Implementation: Compute v and omega via finite differences.
-    v = sqrt(vx^2 + vy^2 + vz^2)
-    omega = d(angle)/dt
+    Detect non-stationary (chirped) segments using Hilbert transform.
     """
-    df = df.copy()
-    df = df.sort_values(time_col).reset_index(drop=True)
-    
-    # Check required columns
-    required = [time_col]
-    if x_col in df.columns: required.append(x_col)
-    if y_col in df.columns: required.append(y_col)
-    if z_col in df.columns: required.append(z_col)
-    if angle_col in df.columns: required.append(angle_col)
-    
-    missing = [c for c in required if c not in df.columns]
-    if missing:
-        raise DataIngestionError(f"Missing required columns for velocity calculation: {missing}")
-    
-    dt = df[time_col].diff()
-    dt = dt.replace(0, np.nan).fillna(method='bfill').fillna(1.0) # Avoid division by zero
-    
-    # Calculate velocities
-    if x_col in df.columns:
-        vx = df[x_col].diff() / dt
-        df['vx'] = vx
-    if y_col in df.columns:
-        vy = df[y_col].diff() / dt
-        df['vy'] = vy
-    if z_col in df.columns:
-        vz = df[z_col].diff() / dt
-        df['vz'] = vz
-    
-    # Calculate speed v
-    if all(c in df.columns for c in ['vx', 'vy', 'vz']):
-        df['v'] = np.sqrt(df['vx']**2 + df['vy']**2 + df['vz']**2)
-    elif all(c in df.columns for c in ['vx', 'vy']):
-        df['v'] = np.sqrt(df['vx']**2 + df['vy']**2)
-    elif 'vx' in df.columns:
-        df['v'] = df['vx'].abs()
-    
-    # Calculate angular velocity omega
-    if angle_col in df.columns:
-        df['omega'] = df[angle_col].diff() / dt
-    
-    # Handle first row (NaN from diff)
-    df = df.fillna(method='bfill').fillna(0)
-    
+    if signal_col not in df.columns:
+        logger.warning(f"Signal column {signal_col} not found. Skipping non-stationary detection.")
+        return df
+
+    signal = df[signal_col].values
+    if len(signal) < window_size:
+        return df
+
+    # Compute instantaneous frequency using Hilbert transform
+    analytic_signal = hilbert(signal)
+    instantaneous_phase = np.unwrap(np.angle(analytic_signal))
+    instantaneous_freq = np.diff(instantaneous_phase) / (2.0 * np.pi)
+
+    # Pad to match original length
+    instantaneous_freq = np.concatenate(([instantaneous_freq[0]], instantaneous_freq))
+
+    df['instantaneous_freq'] = instantaneous_freq
+
+    # Detect chirps (rapid change in frequency)
+    freq_diff = np.diff(df['instantaneous_freq'])
+    df['is_chirp'] = np.abs(freq_diff) > np.std(freq_diff) * 2
+
     return df
+
+
+def handle_non_stationary_segments(
+    df: pd.DataFrame,
+    strategy: str = 'exclude',
+    chirp_result_path: str = "artifacts/chirp_handling_result.csv"
+) -> pd.DataFrame:
+    """
+    Handle non-stationary segments by excluding or binning.
+    """
+    derived_dir = Path("data/derived")
+    derived_dir.mkdir(exist_ok=True)
+    artifacts_dir = Path("artifacts")
+    artifacts_dir.mkdir(exist_ok=True)
+
+    if 'is_chirp' not in df.columns:
+        logger.warning("No chirp detection results found. Skipping non-stationary handling.")
+        return df
+
+    chirp_indices = df[df['is_chirp']].index
+    result_data = []
+
+    if strategy == 'exclude':
+        df = df[~df['is_chirp']].copy()
+        for idx in chirp_indices:
+          result_data.append({'timestamp': df.loc[idx, 'timestamp'] if 'timestamp' in df.columns else idx, 'strategy': 'excluded', 'value': idx})
+    elif strategy == 'bin':
+        # Assign to frequency bin (simplified: use median frequency of the segment)
+        if 'instantaneous_freq' in df.columns:
+            df['frequency_bin'] = pd.qcut(df['instantaneous_freq'], q=10, labels=False, duplicates='drop')
+        for idx in chirp_indices:
+          result_data.append({'timestamp': df.loc[idx, 'timestamp'] if 'timestamp' in df.columns else idx, 'strategy': 'binned', 'value': df.loc[idx, 'frequency_bin'] if 'frequency_bin' in df.columns else 0})
+    else:
+        raise ValueError(f"Invalid strategy: {strategy}. Use 'exclude' or 'bin'.")
+
+    # Write chirp handling result
+    result_df = pd.DataFrame(result_data)
+    result_df.to_csv(chirp_result_path, index=False)
+    logger.info(f"Chirp handling result written to: {chirp_result_path}")
+
+    return df
+
+
+def verify_chirp_segments(df: pd.DataFrame, exclusion_report_path: str = "artifacts/exclusion_report.json") -> pd.DataFrame:
+    """
+    Verify chirp segments and count excluded frames.
+    """
+    artifacts_dir = Path("artifacts")
+    artifacts_dir.mkdir(exist_ok=True)
+
+    if 'is_chirp' not in df.columns:
+        logger.warning("No chirp detection results found. Skipping verification.")
+        return df
+
+    total_frames = len(df)
+    excluded_frames = df['is_chirp'].sum()
+    exclusion_rate = excluded_frames / total_frames if total_frames > 0 else 0
+
+    exclusion_report = {
+        "total_frames": total_frames,
+        "excluded_frames": int(excluded_frames),
+        "exclusion_rate": exclusion_rate,
+        "bins_insufficient_data": []
+    }
+
+    # Check per-bin data sufficiency
+    if 'frequency_bin' in df.columns:
+        bin_counts = df.groupby('frequency_bin').size()
+        insufficient_bins = bin_counts[bin_counts < 50].index.tolist()
+        exclusion_report["bins_insufficient_data"] = insufficient_bins
+
+        # Exclude bins with insufficient data
+        if len(insufficient_bins) > 0:
+            df = df[~df['frequency_bin'].isin(insufficient_bins)]
+
+    # Log warning if exclusion rate is high
+    if exclusion_rate > 0.20:
+        logger.warning(f"High exclusion rate: {exclusion_rate:.2%}. Data may be insufficient.")
+        data_exclusion_warning = DataExclusionWarning(f"Exclusion rate exceeds 20%: {exclusion_rate:.2%}")
+        warnings.warn(data_exclusion_warning, DataExclusionWarning)
+
+    with open(exclusion_report_path, 'w') as f:
+        json.dump(exclusion_report, f, indent=2)
+    logger.info(f"Exclusion report written to: {exclusion_report_path}")
+
+    return df
+
+
+def calculate_energy_components(
+    df: pd.DataFrame,
+    config: Dict[str, Any],
+    driving_signal_path: Optional[str] = None
+) -> pd.DataFrame:
+    """
+    Calculate E_trans, E_rot, E_pot, and E_vib using independent physics formulas.
+
+    Formulas:
+    E_trans = 0.5 * m * v^2
+    E_rot = 0.5 * I * omega^2
+    E_pot = m * g * z
+    E_vib = PSD Integration of driving signal cross-correlation
+    """
+    logger.info("Calculating energy components...")
+
+    # Get config parameters
+    g = 9.81  # m/s^2
+    mass = config.get('mass', 0.01)  # default 10g if not specified
+    radius = config.get('radius', 0.005)  # default 5mm
+    material_type = config.get('material_type', 'steel')
+
+    # Get material-specific properties if available
+    if 'materials' in config and material_type in config['materials']:
+        mat_props = config['materials'][material_type]
+        mass = mat_props.get('mass', mass)
+        radius = mat_props.get('radius', radius)
+
+    # Moment of inertia for sphere: I = (2/5) * m * r^2
+    inertia = (2.0 / 5.0) * mass * (radius ** 2)
+
+    # Ensure required columns exist
+    if 'v' not in df.columns:
+        df['v'] = 0.0
+    if 'omega' not in df.columns:
+        df['omega'] = 0.0
+    if 'z' not in df.columns:
+        df['z'] = 0.0
+        df['pot_incomplete'] = True
+    else:
+        df['pot_incomplete'] = False
+
+    # Calculate translational energy
+    df['E_trans'] = 0.5 * mass * (df['v'] ** 2)
+
+    # Calculate rotational energy
+    df['E_rot'] = 0.5 * inertia * (df['omega'] ** 2)
+
+    # Calculate potential energy
+    df['E_pot'] = mass * g * df['z']
+
+    # Calculate vibrational energy via PSD integration of driving signal
+    if driving_signal_path and os.path.exists(driving_signal_path):
+        try:
+            driving_df = pd.read_csv(driving_signal_path)
+            if 'amplitude' in driving_df.columns:
+                signal = driving_df['amplitude'].values
+                # Use Welch's method to estimate PSD
+                freqs, psd = welch(signal, fs=100.0, nperseg=256)  # Assume 100Hz sampling
+                # Integrate PSD to get total power (vibrational energy proxy)
+                total_power = np.trapz(psd, freqs)
+                # Normalize by number of frames and scale factor
+                df['E_vib'] = total_power / len(df)
+            else:
+                logger.warning("Amplitude column not found in driving signal. Setting E_vib to 0.")
+                df['E_vib'] = 0.0
+        except Exception as e:
+            logger.warning(f"Failed to calculate E_vib from driving signal: {e}. Setting to 0.")
+            df['E_vib'] = 0.0
+    else:
+        logger.warning("Driving signal path not provided or file not found. Setting E_vib to 0.")
+        df['E_vib'] = 0.0
+
+    # Ensure all energies are in Joules (kg*m^2/s^2)
+    # Current units: mass (kg), v (m/s), omega (rad/s), z (m) -> Joules
+    logger.info("Energy components calculated successfully.")
+
+    return df
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Data Ingestion Pipeline")
-    parser.add_argument("--download", action="store_true", help="Download from Zenodo")
-    parser.add_argument("--zenodo-id", type=str, help="Zenodo ID to download")
-    parser.add_argument("--input-dir", type=str, default="data/raw", help="Input directory for raw data")
-    parser.add_argument("--output-dir", type=str, default="data/derived", help="Output directory for derived data")
-    parser.add_argument("--config", type=str, default="data/config.yaml", help="Path to config file")
-    parser.add_argument("--allow-incomplete", action="store_true", help="Allow incomplete metadata")
-    parser.add_argument("--sample-ratio", type=float, default=1.0, help="Sampling ratio")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--streaming", action="store_true", help="Use streaming for large datasets")
-    
+    """Main entry point for ingestion module."""
+    parser = argparse.ArgumentParser(description="Data Ingestion and Energy Calculation")
+    parser.add_argument('--config', type=str, default='data/config.yaml', help='Path to config file')
+    parser.add_argument('--data-source', type=str, required=True, help='Path to data source')
+    parser.add_argument('--driving-signal', type=str, default='data/derived/driving_signals.csv', help='Path to driving signal file')
+    parser.add_argument('--sample-ratio', type=float, default=1.0, help='Sampling ratio')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed')
+    parser.add_argument('--streaming', action='store_true', help='Use streaming for large datasets')
+    parser.add_argument('--allow-incomplete', action='store_true', help='Allow incomplete metadata')
+    parser.add_argument('--chirp-handling', type=str, default='exclude', choices=['exclude', 'bin'], help='Strategy for handling chirps')
     args = parser.parse_args()
-    
-    Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    
+
     try:
-        if args.download:
-            if not args.zenodo_id:
-                # Try to load from research.md
-                research = load_research_md()
-                if 'zenodo_id' in research:
-                    args.zenodo_id = research['zenodo_id']
-                else:
-                    # Try config
-                    config = load_config(args.config)
-                    if 'default_zenodo_id' in config:
-                        args.zenodo_id = config['default_zenodo_id']
-                    else:
-                        raise RuntimeError("Real data fetch failed: Zenodo ID not found in research.md or data/config.yaml")
-            
-            data_file = fetch_zenodo_granular(args.zenodo_id, Path(args.input_dir))
-            logger.info(f"Downloaded data to {data_file}")
-        
-        # Load and sample
-        if args.download:
-            source = args.input_dir + "/zenodo_data.csv"
-        else:
-            source = args.input_dir + "/data.csv" # Default assumption
-        
-        df = load_and_sample(source, sample_ratio=args.sample_ratio, seed=args.seed, streaming=args.streaming)
-        
-        # Validate metadata
+        # Load config
         config = load_config(args.config)
+
+        # Load and sample data
+        df, sampling_metadata = load_and_sample(
+            args.data_source,
+            sample_ratio=args.sample_ratio,
+            seed=args.seed,
+            streaming=args.streaming
+        )
+
+        # Validate metadata
         df = validate_metadata(df, config, allow_incomplete=args.allow_incomplete)
-        
+
+        # Handle missing z-axis
+        df = handle_missing_z_axis(df)
+
+        # Ingest driving logs if not already done
+        if not os.path.exists(args.driving_signal):
+            logger.info("Ingesting driving logs...")
+            ingest_driving_logs()
+
         # Handle missing frames
         df = handle_missing_frames(df)
-        
+
         # Calculate tracking failure rate
-        df = calculate_tracking_failure_rate(df)
-        
-        # Compute velocities
+        failure_rate, df = calculate_tracking_failure_rate(df)
+
+        # Compute velocity and angular velocity
         df = compute_velocity_angular_velocity(df)
-        
-        # Save intermediate results
-        output_file = Path(args.output_dir) / "processed_data.csv"
-        df.to_csv(output_file, index=False)
-        logger.info(f"Processed data saved to {output_file}")
-        
+
+        # Detect non-stationary segments
+        if 'amplitude' in df.columns or os.path.exists(args.driving_signal):
+            df = detect_non_stationary_segments(df)
+
+        # Handle non-stationary segments
+        df = handle_non_stationary_segments(df, strategy=args.chirp_handling)
+
+        # Verify chirp segments
+        df = verify_chirp_segments(df)
+
+        # Calculate energy components
+        df = calculate_energy_components(df, config, driving_signal_path=args.driving_signal)
+
+        # Output final energy data
+        derived_dir = Path("data/derived")
+        derived_dir.mkdir(exist_ok=True)
+        output_path = derived_dir / "energy_samples.csv"
+        df.to_csv(output_path, index=False)
+        logger.info(f"Energy samples written to: {output_path}")
+
+        # Save sampling metadata
+        artifacts_dir = Path("artifacts")
+        artifacts_dir.mkdir(exist_ok=True)
+        with open(artifacts_dir / "sampling_metadata.json", 'w') as f:
+            json.dump(sampling_metadata, f, indent=2)
+
+        # Generate hash
+        hash_value = calculate_sha256(output_path)
+        with open(artifacts_dir / "energy_samples.hash", 'w') as f:
+            f.write(hash_value)
+
+        logger.info("Ingestion pipeline completed successfully.")
+
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Ingestion pipeline failed: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

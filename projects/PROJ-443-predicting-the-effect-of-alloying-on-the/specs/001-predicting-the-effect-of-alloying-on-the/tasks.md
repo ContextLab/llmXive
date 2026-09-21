@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Implement seed management in `src/utils/seeds.py` (pinning all random seeds for reproducibility)
+- [X] T006 Implement seed management in `src/utils/seeds.py` (pinning all random seeds for reproducibility)
 - [ ] T007 Create `src/utils/data_fetch.py` for handling API retries and raw data download logic
 - [ ] T008 Implement `src/utils/validators.py` for data integrity checks (sum=1.0, sample count thresholds)
 - [ ] T009 Setup logging infrastructure in `src/utils/logging_config.py`
@@ -82,8 +82,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement OQMD data fetcher in `src/data/fetch_oqmd.py` (using verified URL from `data/source_metadata.yaml`); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage.
-- [ ] T015 [US1] Implement Materials Project fetcher in `src/data/fetch_mp.py` (with API key check); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage. <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement OQMD data fetcher in `src/data/fetch_oqmd.py` (using verified URL from `data/source_metadata.yaml`); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage. <!-- ATOMIZE: requested -->
+- [ ] T015 [US1] Implement Materials Project fetcher in `src/data/fetch_mp.py` (with API key check); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Implement filtering logic: retain samples with ≥5 principal elements and valid Bulk Modulus in `src/data/filter.py`
 - [ ] T016.5 [US1] Implement **Reduced Power Analysis** logic in `src/data/power_analysis.py`: if API sample count < 500, DO NOT halt. Instead, generate an 'Underpowered Study Report' that quantifies the power deficit and confidence interval widening. Log the merge (if literature fallback is used) and proceed with available data, explicitly flagging the reduced power in all downstream outputs.
 - [ ] T017 [US1] Implement normalization step: enforce sum(composition)=1.0 and log adjustments in `src/data/normalize.py`

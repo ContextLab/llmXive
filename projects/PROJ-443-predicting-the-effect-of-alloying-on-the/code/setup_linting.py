@@ -1,19 +1,18 @@
 """
-Setup script to verify and initialize linting and formatting tools.
-
-This script checks for the presence of flake8, black, and pre-commit,
-and provides installation instructions if they are missing.
+Script to configure linting and formatting tools for the project.
+This sets up flake8, black, isort, and pre-commit hooks.
 """
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def check_command(command: str) -> bool:
-    """Check if a command is available in the system PATH."""
+
+def check_command(cmd: str) -> bool:
+    """Check if a command is available in the system."""
     try:
         subprocess.run(
-            [command, "--version"],
+            [cmd, "--version"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=True,
@@ -22,81 +21,99 @@ def check_command(command: str) -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def install_dev_dependencies():
-    """Install development dependencies including linting tools."""
-    print("Installing development dependencies (flake8, black, isort, pre-commit)...")
+
+def install_dev_dependencies() -> bool:
+    """Install development dependencies for linting."""
+    print("Installing development dependencies...")
     try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-e", ".[dev]"],
-            cwd=Path(__file__).parent.parent,
+        # Try installing from requirements-dev.txt if it exists
+        req_file = Path("requirements-dev.txt")
+        if req_file.exists():
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-r", "requirements-dev.txt"],
+                check=True,
+            )
+            print("✓ Installed dependencies from requirements-dev.txt")
+            return True
+
+        # Fallback to individual packages
+        packages = ["flake8", "black", "isort", "pre-commit", "pytest"]
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install"] + packages,
+            check=True,
         )
-        print("Development dependencies installed successfully.")
+        print("✓ Installed linting dependencies")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error installing dependencies: {e}", file=sys.stderr)
-        sys.exit(1)
-
-def setup_pre_commit():
-    """Initialize pre-commit hooks if not already installed."""
-    print("Checking pre-commit installation...")
-    if not check_command("pre-commit"):
-        print("pre-commit is not installed. Installing...")
-        install_dev_dependencies()
-    
-    print("Installing pre-commit hooks...")
-    try:
-        subprocess.check_call(["pre-commit", "install"])
-        print("Pre-commit hooks installed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing pre-commit hooks: {e}", file=sys.stderr)
-        sys.exit(1)
-
-def verify_linting_tools():
-    """Verify that all required linting tools are available."""
-    tools = {
-        "flake8": "flake8",
-        "black": "black",
-        "isort": "isort",
-        "pre-commit": "pre-commit",
-    }
-    
-    missing = []
-    for name, command in tools.items():
-        if not check_command(command):
-            missing.append(name)
-    
-    if missing:
-        print(f"Missing linting tools: {', '.join(missing)}")
-        print("\nTo install all tools, run: pip install -e '.[dev]'")
-        print("Or install individual tools:")
-        for tool in missing:
-            print(f"  pip install {tool}")
+        print(f"✗ Failed to install dependencies: {e}")
         return False
-    
-    print("All linting tools are available.")
-    return True
+
+
+def setup_pre_commit() -> bool:
+    """Initialize pre-commit hooks."""
+    print("Setting up pre-commit hooks...")
+    try:
+        # Install pre-commit hook
+        subprocess.run(["pre-commit", "install"], check=True)
+        print("✓ Pre-commit hooks installed")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Failed to install pre-commit hooks: {e}")
+        return False
+
+
+def verify_linting_tools() -> bool:
+    """Verify that all linting tools are available."""
+    tools = [
+        ("flake8", "Flake8"),
+        ("black", "Black"),
+        ("isort", "isort"),
+        ("pre-commit", "pre-commit"),
+    ]
+
+    all_good = True
+    for cmd, name in tools:
+        if check_command(cmd):
+            print(f"✓ {name} is available")
+        else:
+            print(f"✗ {name} is NOT available")
+            all_good = False
+
+    return all_good
+
 
 def main():
-    """Main entry point for the setup script."""
-    print("Setting up linting and formatting tools for HEA Elastic Modulus project...")
-    
-    # Verify tools first
-    if not verify_linting_tools():
-        print("\nTools missing. Attempting to install dev dependencies...")
-        install_dev_dependencies()
-        
-        if not verify_linting_tools():
-            print("\nFailed to install required tools. Please check your environment.")
+    """Main entry point for linting setup."""
+    print("=" * 60)
+    print("Setting up linting and formatting tools")
+    print("=" * 60)
+
+    # Check if tools are already available
+    if verify_linting_tools():
+        print("\n✓ All tools are already installed")
+    else:
+        print("\nInstalling missing tools...")
+        if not install_dev_dependencies():
+            print("\n✗ Failed to install dependencies. Exiting.")
             sys.exit(1)
-    
-    # Setup pre-commit
-    setup_pre_commit()
-    
-    print("\nLinting and formatting setup complete!")
-    print("\nUsage:")
-    print("  - Run 'black code/' to format all Python files")
-    print("  - Run 'flake8 code/' to check for style violations")
-    print("  - Run 'pre-commit run --all-files' to run all hooks")
-    print("  - Add 'pre-commit install' to run hooks on every commit")
+
+        if not verify_linting_tools():
+            print("\n✗ Some tools are still missing after installation.")
+            sys.exit(1)
+
+    # Setup pre-commit hooks
+    if not setup_pre_commit():
+        print("\n⚠ Pre-commit hooks could not be installed (may already exist).")
+
+    print("\n" + "=" * 60)
+    print("Linting setup complete!")
+    print("=" * 60)
+    print("\nYou can now run:")
+    print("  - pre-commit run --all-files  (run all hooks on all files)")
+    print("  - black .                     (format code)")
+    print("  - flake8 .                    (lint code)")
+    print("  - isort .                     (sort imports)")
+
 
 if __name__ == "__main__":
     main()

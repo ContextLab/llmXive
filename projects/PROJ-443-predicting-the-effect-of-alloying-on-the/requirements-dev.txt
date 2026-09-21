@@ -1,5 +1,8 @@
+pytest>=7.4
 flake8>=6.0
 black>=23.0
 isort>=5.12
-pytest>=7.4
-pytest-cov>=4.0
+pre-commit>=3.0
+mypy>=1.4
+coverage>=7.0
+pytest-cov>=4.1

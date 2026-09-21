@@ -1,3 +1,1 @@
-"""
-Test suite for the HEA Elastic Modulus Prediction project.
-"""
+"""Test suite for HEA Elastic Modulus Prediction."""

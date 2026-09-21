@@ -1,3 +1,1 @@
-"""
-Source modules for data ingestion, feature engineering, and modeling.
-"""
+"""Source code package for HEA Elastic Modulus Prediction."""

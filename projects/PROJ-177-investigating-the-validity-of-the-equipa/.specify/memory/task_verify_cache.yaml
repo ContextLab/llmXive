@@ -1,11 +1,10 @@
 T014a:
   c: false
-  h: f6deb9d7bffa8405e0667a244c5fee5a63ed4b8f470ab0d9e0cae9e543b8b3de
-  r: "The repository contains a large `code/ingestion.py`, but the snippet shows no\
-    \ concrete function that reads raw logs and writes `data/derived/driving_signals.csv`.\
-    \ Moreover, the required output file `data/derived/driving_signals.csv` is absent\
-    \ from the disk. Without the generated CSV (or a function that creates it), the\
-    \ task\u2019s core requirement is not met."
+  h: 61b2b15789ffd891a9bd40d40cf1367773ed8cd166c3e39a747f58d9026b22a1
+  r: The repository lacks the required output file `data/derived/driving_signals.csv`,
+    and the provided `code/ingestion.py` does not show any implementation that reads
+    raw driving logs, aligns timestamps, interpolates, and writes that CSV. Consequently
+    the core task requirement is unmet.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,6 +35,22 @@ T022:
     \ inspection, so we cannot confirm that it exists, is non\u2011empty, or correctly\
     \ records the required seed and sampling rule. The implementer must supply the\
     \ actual JSON file with the expected fields."
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, documentation, or data files were presented that show\
+    \ T021 and T022 explicitly referencing `test_thermal_data.csv` and `test_nonthermal_data.csv`.\
+    \ The required linking artifact is missing, so the task\u2019s requirement is\
+    \ not satisfied."
+T024:
+  c: false
+  h: 4ee51bbdaeb3964be01c207a53694d27b6f938c8358301f1218e61a3925b3353
+  r: The repository lacks the required `data/derived/energy_samples.csv` file, so
+    the function cannot read the necessary data. Moreover, the provided `bin_energy_data`
+    implementation (truncated) expects a DataFrame argument instead of reading the
+    CSV, and there is no visible logic handling `chirp_handling_result.csv`, raising
+    the specified `FileNotFoundError`, or consulting `power_analysis_plan.json`. These
+    core requirements are missing.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,12 +67,12 @@ T026:
     \ required functionality was implemented."
 T029:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/chirp_handling_result.csv` file was supplied, and there is no\
-    \ evidence of any generated CSV containing the required columns (`timestamp`,\
-    \ `strategy`, `value`) for either the \u201Cexclude\u201D or \u201Cbin\u201D handling\
-    \ modes. The implementer\u2019s claim lacks the actual artifact, so the task is\
-    \ not satisfied."
+  h: 61b2b15789ffd891a9bd40d40cf1367773ed8cd166c3e39a747f58d9026b22a1
+  r: "The repository lacks the required `data/derived/driving_signals.csv` input,\
+    \ and the provided `code/ingestion.py` does not contain any implementation of\
+    \ the `--chirp-handling` CLI flag, Hilbert\u2011transform based instantaneous\
+    \ frequency computation, or generation of `artifacts/chirp_handling_result.csv`.\
+    \ Consequently the specified functionality and output artifact are missing."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -82,9 +97,15 @@ T035:
     from material type. Both artifacts needed for the task are absent or broken.
 T054:
   c: true
-  h: f53f8fa80f0ac30a20138ab8b601fd090c64666f56406f1c967b882de7766ef8
-  r: "The repository contains a non\u2011empty `code/main.py` that defines `check_dependency_energy_samples()`,\
-    \ which verifies the existence of `data/derived/energy_samples.csv` and logs the\
-    \ exact required error message, and the statistical task entry points (`run_statistics`,\
-    \ `run_sensitivity`, `run_regression`) call this check and exit with code\u202F\
-    1 on failure. No further artifacts are needed."
+  h: ac1509b5554f712fffec91c71f0d7a8c185389fd9d36c1b75cac0133987b2a5b
+  r: "The `code/main.py` file defines `check_dependency_energy_samples()` which checks\
+    \ for the existence of `data/derived/energy_samples.csv`, logs the exact required\
+    \ error message when missing, validates non\u2011emptiness, and also checks `artifacts/chirp_handling_result.csv`\
+    \ for emptiness if present. This matches the task\u2019s specifications."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `test_sample_size_reporting` unit test file is present, nor are the required
+    `statistical_results.json` and `energy_samples.csv` artifacts provided to verify
+    that the test checks `n_samples` against the actual row counts per bin. Consequently,
+    the claimed work cannot be confirmed as completed.

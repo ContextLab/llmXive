@@ -1,153 +1,191 @@
 """
-Target Variable Calculation Module.
+Target variable calculation for High-Entropy Alloy (HEA) elastic modulus prediction.
 
-This module implements the calculation of the primary model target:
+This module computes the primary model target:
 Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema
 
-It also computes absolute Bulk Modulus as a diagnostic column.
+It also computes the absolute Bulk Modulus as a diagnostic column.
 """
-
 import logging
 import pandas as pd
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any
-from utils.logging_config import get_logger
 
-# Initialize logger
-logger = get_logger(__name__)
+from src.utils.logging_config import get_logger
 
-def calculate_miedema_bulk_modulus(df: pd.DataFrame) -> pd.Series:
+# Constants
+OBSERVED_BULK_MODULUS_COL = "Bulk_Modulus_Observed"
+MIEDEMA_BULK_MODULUS_COL = "Bulk_Modulus_Miedema"
+RESIDUAL_TARGET_COL = "Bulk_Modulus_Residual"
+DIAGNOSTIC_BULK_MODULUS_COL = "Bulk_Modulus_Absolute"
+
+# Miedema model parameters for Bulk Modulus estimation
+# These are simplified parameters; in a full implementation, these would be
+# computed based on the specific alloy composition using Miedema's formalism.
+# For this implementation, we assume the Miedema bulk modulus has been
+# pre-calculated in T018 (descriptors.py) or is available in the dataframe.
+# If not present, we calculate it here using a simplified weighted average
+# of elemental bulk moduli as a placeholder for the Miedema prediction.
+
+# Elemental bulk moduli (GPa) - Source: Standard literature values
+# This is a lookup for common elements. In a production system, this would
+# be a comprehensive periodic table lookup or a pymatgen integration.
+ELEMENTAL_BULK_MODULI = {
+    "Al": 76.0, "Sc": 57.0, "Ti": 110.0, "V": 160.0, "Cr": 160.0,
+    "Mn": 140.0, "Fe": 170.0, "Co": 180.0, "Ni": 180.0, "Cu": 140.0,
+    "Zr": 92.0, "Nb": 170.0, "Mo": 230.0, "Tc": 190.0, "Ru": 280.0,
+    "Rh": 270.0, "Pd": 180.0, "Ag": 100.0, "Hf": 110.0, "Ta": 196.0,
+    "W": 310.0, "Re": 350.0, "Os": 410.0, "Ir": 320.0, "Pt": 230.0,
+    "Au": 180.0, "Mg": 45.0, "Ca": 17.0, "Y": 41.0, "La": 28.0,
+    "Ce": 33.0, "Pr": 32.0, "Nd": 30.0, "Sm": 35.0, "Eu": 18.0,
+    "Gd": 35.0, "Tb": 37.0, "Dy": 41.0, "Ho": 44.0, "Er": 46.0,
+    "Tm": 48.0, "Yb": 24.0, "Lu": 49.0
+}
+
+def get_elemental_bulk_modulus(element: str) -> float:
     """
-    Calculate the theoretical Bulk Modulus using Miedema's model.
-
-    This function assumes that the necessary Miedema-derived features
-    (mixing_enthalpy_miedema, atomic_radius_variance_miedema, 
-    electronegativity_variance_miedema) have already been computed
-    and are present in the DataFrame (as per T018).
-
-    The Miedema model for Bulk Modulus (B_Miedema) is typically a function
-    of atomic volume, electron density, and other electronic parameters.
-    Since the specific Miedema formula for B is complex and depends on
-    elemental parameters, we approximate it here using a simplified
-    linear combination of the pre-computed Miedema features if a direct
-    formula isn't available in the provided context, or we construct it
-    based on standard Miedema relations:
-    B ~ (n_ws)^(2/3) / V_atom, where n_ws is electron density.
-
-    For this implementation, we assume a simplified relationship derived
-    from the Miedema features already present:
-    B_Miedema = alpha * (1 / atomic_radius_variance_miedema) + beta * mixing_enthalpy_miedema + gamma
+    Retrieve the bulk modulus for a given element.
     
-    However, strictly following the task "referencing T018", we assume
-    T018 has produced the necessary inputs. If a direct calculation of
-    B_Miedema from elemental data is required here, it would be very
-    complex. 
-
-    Given the constraint "referencing T018", and the fact that T018
-    computes Miedema features (Enthalpy, Radius Variance, Electronegativity),
-    we will implement a placeholder calculation that uses these features
-    to estimate B_Miedema, acknowledging that in a real physics-based
-    pipeline, a specific Miedema equation for Bulk Modulus would be used.
-    
-    A common approximation in HEA literature using Miedema parameters
-    relates B to the mean atomic volume and electron density.
-    
-    Let's assume a simplified linear model for demonstration of the
-    residual calculation logic, as the exact Miedema constants for B
-    are not provided in the prompt. In a real scenario, this would be:
-    B_Miedema = f(Elemental_Parameters)
-    
-    We will use a heuristic:
-    B_Miedema = 1000 - (mixing_enthalpy_miedema * 10) - (electronegativity_variance_miedema * 50)
-    This is a placeholder to demonstrate the RESIDUAL calculation logic.
-    The key requirement is the SUBTRACTION: Observed - Miedema.
-    
-    NOTE: In a production system, this function would call a specific
-    physics engine or use a pre-calculated column if T018 generated B_Miedema directly.
-    Since T018 generates 'mixing_enthalpy_miedema' etc., we use them to approximate.
+    Args:
+        element: Element symbol (e.g., "Fe", "Ni")
+        
+    Returns:
+        Bulk modulus in GPa. Returns 0.0 if element not found.
     """
+    return ELEMENTAL_BULK_MODULI.get(element, 0.0)
+
+def calculate_miedema_bulk_modulus(composition: Dict[str, float]) -> float:
+    """
+    Calculate the Miedema-predicted Bulk Modulus for a given composition.
     
-    # Check for required columns
-    required_cols = ['mixing_enthalpy_miedema', 'electronegativity_variance_miedema']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required Miedema features for B calculation: {missing}")
+    This implementation uses a weighted average of elemental bulk moduli
+    as a proxy for the Miedema model prediction. In a full implementation,
+    this would use the specific Miedema formalism involving electron density,
+    electronegativity, and atomic volume parameters.
+    
+    Args:
+        composition: Dictionary mapping element symbols to their atomic fractions.
+                    
+    Returns:
+        Predicted Bulk Modulus in GPa.
+    """
+    if not composition:
+        return 0.0
+        
+    total_modulus = 0.0
+    for element, fraction in composition.items():
+        element_modulus = get_elemental_bulk_modulus(element)
+        total_modulus += element_modulus * fraction
+        
+    return total_modulus
 
-    # Placeholder Miedema Bulk Modulus calculation
-    # In reality, this would be a physics-based formula.
-    # We use a linear combination of Miedema features as a proxy.
-    # Coefficients are illustrative.
-    B_miedema = (
-        150.0  # Base bulk modulus (GPa) approximation
-        - 5.0 * df['mixing_enthalpy_miedema']  # Enthalpy contribution
-        - 20.0 * df['electronegativity_variance_miedema']  # Electronegativity contribution
-        + 10.0 * df.get('atomic_radius_variance_miedema', 0.0) # Radius contribution if available
-    )
+def compute_miedema_column(df: pd.DataFrame) -> pd.Series:
+    """
+    Compute the Miedema Bulk Modulus column for a dataframe.
+    
+    Assumes the dataframe has a 'composition' column containing dictionaries
+    of element -> fraction.
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Series containing the Miedema Bulk Modulus values.
+    """
+    if "composition" not in df.columns:
+        raise ValueError("DataFrame must contain a 'composition' column")
+        
+    return df["composition"].apply(calculate_miedema_bulk_modulus)
 
-    return B_miedema
-
-def compute_residual_target(df: pd.DataFrame, observed_col: str = 'Bulk_Modulus_Observed') -> pd.DataFrame:
+def compute_residual_target(df: pd.DataFrame, observed_col: str = OBSERVED_BULK_MODULUS_COL) -> pd.DataFrame:
     """
     Compute the primary model target: Bulk_Modulus_Residual.
-
-    Formula: Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema
-
-    Args:
-        df: Input DataFrame containing observed Bulk Modulus and Miedema features.
-        observed_col: Name of the column containing observed Bulk Modulus values.
-
-    Returns:
-        DataFrame with new columns:
-            - 'Bulk_Modulus_Miedema': Calculated theoretical value.
-            - 'Bulk_Modulus_Residual': The residual (Target).
-            - 'Bulk_Modulus_Observed': The original observed value (kept for diagnostics).
-    """
-    logger.info("Starting target calculation: Bulk_Modulus_Residual")
-
-    if observed_col not in df.columns:
-        raise ValueError(f"Observed Bulk Modulus column '{observed_col}' not found in DataFrame.")
-
-    # Calculate Miedema Bulk Modulus
-    df['Bulk_Modulus_Miedema'] = calculate_miedema_bulk_modulus(df)
-
-    # Calculate Residual
-    # Ensure no NaNs in observed before subtraction (drop or fill if necessary, but log)
-    if df[observed_col].isna().any():
-        logger.warning(f"Found {df[observed_col].isna().sum()} NaN values in {observed_col}. Rows will be NaN in residual.")
     
-    df['Bulk_Modulus_Residual'] = df[observed_col] - df['Bulk_Modulus_Miedema']
-
-    logger.info(f"Target calculation complete. Residual range: [{df['Bulk_Modulus_Residual'].min():.2f}, {df['Bulk_Modulus_Residual'].max():.2f}]")
-    logger.info(f"Mean Residual: {df['Bulk_Modulus_Residual'].mean():.4f}")
-
+    Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema
+    
+    Also computes the absolute Bulk Modulus as a diagnostic column.
+    
+    Args:
+        df: Input DataFrame containing observed bulk modulus and composition.
+        observed_col: Name of the column containing observed bulk modulus values.
+        
+    Returns:
+        DataFrame with added columns:
+        - Bulk_Modulus_Miedema: Predicted value
+        - Bulk_Modulus_Residual: The target variable
+        - Bulk_Modulus_Absolute: Diagnostic column (same as observed)
+        
+    Raises:
+        ValueError: If required columns are missing or data is invalid.
+    """
+    logger = get_logger(__name__)
+    
+    if observed_col not in df.columns:
+        raise ValueError(f"Required column '{observed_col}' not found in DataFrame")
+        
+    if "composition" not in df.columns:
+        raise ValueError("Required column 'composition' not found in DataFrame")
+        
+    # Calculate Miedema prediction
+    logger.info("Calculating Miedema Bulk Modulus predictions...")
+    miedema_values = compute_miedema_column(df)
+    df[MIEDEMA_BULK_MODULUS_COL] = miedema_values
+    
+    # Calculate residual target
+    logger.info("Computing residual target (Observed - Miedema)...")
+    df[RESIDUAL_TARGET_COL] = df[observed_col] - miedema_values
+    
+    # Add diagnostic column
+    df[DIAGNOSTIC_BULK_MODULUS_COL] = df[observed_col]
+    
+    # Log statistics
+    logger.info(f"Miedema Bulk Modulus - Mean: {df[MIEDEMA_BULK_MODULUS_COL].mean():.2f} GPa, "
+               f"Std: {df[MIEDEMA_BULK_MODULUS_COL].std():.2f} GPa")
+    logger.info(f"Residual Target - Mean: {df[RESIDUAL_TARGET_COL].mean():.4f} GPa, "
+               f"Std: {df[RESIDUAL_TARGET_COL].std():.4f} GPa")
+    
+    # Check for NaN values
+    nan_count = df[[RESIDUAL_TARGET_COL, MIEDEMA_BULK_MODULUS_COL]].isna().sum().sum()
+    if nan_count > 0:
+        logger.warning(f"Found {nan_count} NaN values in target calculation results")
+        
     return df
 
 def main():
     """
-    Main entry point for target calculation.
-    Reads from data/processed/hea_features.csv, computes targets, and saves to data/processed/hea_targets.csv.
+    Main function for testing target calculation.
+    Creates a sample dataframe and computes targets.
     """
-    input_path = "data/processed/hea_features.csv"
-    output_path = "data/processed/hea_targets.csv"
-
-    logger.info(f"Reading input data from {input_path}")
-    try:
-        df = pd.read_csv(input_path)
-    except FileNotFoundError:
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure the feature engineering pipeline (T018) has run successfully.")
-        raise
-
-    logger.info(f"Processing {len(df)} samples for target calculation...")
-    df_processed = compute_residual_target(df)
-
-    logger.info(f"Saving results to {output_path}")
-    df_processed.to_csv(output_path, index=False)
-
+    logger = get_logger(__name__)
+    logger.info("Starting target calculation test...")
+    
+    # Create sample data
+    sample_data = {
+        "composition": [
+            {"Fe": 0.2, "Co": 0.2, "Ni": 0.2, "Cr": 0.2, "Mn": 0.2},
+            {"Al": 0.2, "Ti": 0.2, "V": 0.2, "Cr": 0.2, "Ni": 0.2},
+            {"Nb": 0.2, "Mo": 0.2, "Ta": 0.2, "W": 0.2, "Zr": 0.2}
+        ],
+        "Bulk_Modulus_Observed": [180.5, 145.2, 210.8]
+    }
+    
+    df = pd.DataFrame(sample_data)
+    logger.info(f"Sample data shape: {df.shape}")
+    
+    # Compute targets
+    result_df = compute_residual_target(df)
+    
+    # Display results
+    logger.info("Result columns:")
+    for col in result_df.columns:
+        logger.info(f"  {col}")
+        
+    logger.info("\nSample results:")
+    logger.info(result_df[[OBSERVED_BULK_MODULUS_COL, MIEDEMA_BULK_MODULUS_COL, 
+                          RESIDUAL_TARGET_COL, DIAGNOSTIC_BULK_MODULUS_COL]].to_string())
+                          
     logger.info("Target calculation completed successfully.")
-    print(f"Target calculation complete. Output saved to {output_path}")
-    print(f"Columns added: Bulk_Modulus_Miedema, Bulk_Modulus_Residual")
-    print(f"Sample Residual values:\n{df_processed['Bulk_Modulus_Residual'].head()}")
+    return result_df
 
 if __name__ == "__main__":
     main()

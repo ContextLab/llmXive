@@ -1,229 +1,233 @@
 """
-Data Fetch Module: Handles API retries, session management, and raw data download logic.
+Data Fetching Utilities for HEA Elastic Modulus Prediction.
 
-This module provides robust HTTP fetching with exponential backoff,
-pagination support, and raw data retrieval for the HEA project.
+This module provides robust utilities for fetching raw data from external APIs
+(OQMD, Materials Project) with retry logic, pagination handling, and error management.
+It is designed to work within the project's resource constraints (7GB RAM, CPU only).
 """
 import os
 import time
 import json
 import logging
-from pathlib import Path
-from typing import Optional, Dict, Any, Callable, List, Union
-from urllib.parse import urljoin, urlparse
-
 import requests
+from pathlib import Path
+from typing import Optional, Dict, Any, Callable, List, Union, Tuple
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from utils.logging_config import get_logger
+from utils.seeds import get_seed
 
+# Initialize logger for this module
 logger = get_logger(__name__)
-
-# Default retry configuration
-DEFAULT_MAX_RETRIES = 5
-DEFAULT_BACKOFF_FACTOR = 1.0
-DEFAULT_STATUS_FORCES = [429, 500, 502, 503, 504]
-DEFAULT_TIMEOUT = 30  # seconds
-
-# Constants for data paths
-DATA_RAW_DIR = Path("data/raw")
 
 
 def create_retry_session(
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
-    status_forcelist: List[int] = None,
-    allowed_methods: List[str] = None,
+    total_retries: int = 5,
+    backoff_factor: float = 1.0,
+    status_forcelist: Optional[List[int]] = None,
+    allowed_methods: Optional[List[str]] = None
 ) -> requests.Session:
     """
-    Create a requests Session with automatic retry logic for transient errors.
-    
+    Create a requests Session with automatic retry logic for transient failures.
+
     Args:
-        max_retries: Maximum number of retry attempts.
-        backoff_factor: Factor for exponential backoff (sleep = backoff_factor * (2 ** (retry - 1))).
-        status_forcelist: List of HTTP status codes to retry on.
-        allowed_methods: List of HTTP methods to retry (default: ['HEAD', 'GET', 'OPTIONS']).
-        
+        total_retries: Total number of retries to allow.
+        backoff_factor: A backoff factor to apply between attempts.
+        status_forcelist: A list of status codes we should retry on.
+        allowed_methods: A list of HTTP methods to retry on.
+
     Returns:
-        A configured requests.Session object.
-        
-    Raises:
-        ValueError: If retry configuration is invalid.
+        A configured requests Session.
     """
-    if max_retries < 0:
-        raise ValueError("max_retries must be non-negative")
-    if backoff_factor < 0:
-        raise ValueError("backoff_factor must be non-negative")
-        
-    session = requests.Session()
-    
-    retry = Retry(
-        total=max_retries,
-        read=max_retries,
-        connect=max_retries,
+    if status_forcelist is None:
+        status_forcelist = [429, 500, 502, 503, 504]
+    if allowed_methods is None:
+        allowed_methods = ["HEAD", "GET", "OPTIONS"]
+
+    retry_strategy = Retry(
+        total=total_retries,
         backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist or DEFAULT_STATUS_FORCES,
-        allowed_methods=allowed_methods or ["HEAD", "GET", "OPTIONS"],
+        status_forcelist=status_forcelist,
+        allowed_methods=allowed_methods,
+        raise_on_status=False
     )
-    
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount("http://", adapter)
+
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
     session.mount("https://", adapter)
-    
-    logger.debug(f"Created retry session: max_retries={max_retries}, backoff={backoff_factor}")
+    session.mount("http://", adapter)
+
+    logger.info(f"Created retry session: {total_retries} retries, backoff={backoff_factor}")
     return session
 
 
 def fetch_url_with_retry(
     url: str,
     session: Optional[requests.Session] = None,
-    timeout: int = DEFAULT_TIMEOUT,
     params: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
-) -> Union[Dict[str, Any], str, bytes]:
+    timeout: int = 30,
+    max_retries: int = 5
+) -> Union[Dict[str, Any], List[Dict[str, Any]], str]:
     """
-    Fetch a URL with automatic retry logic and exponential backoff.
-    
+    Fetch data from a URL with automatic retry logic.
+
     Args:
         url: The URL to fetch.
-        session: Optional pre-configured session. If None, a new one is created.
+        session: Optional pre-configured session. If None, creates a new one.
+        params: Query parameters.
+        headers: Request headers.
         timeout: Request timeout in seconds.
-        params: Optional query parameters.
-        headers: Optional request headers.
-        max_retries: Maximum retry attempts (if creating a new session).
-        backoff_factor: Backoff factor (if creating a new session).
-        
+        max_retries: Maximum number of retry attempts.
+
     Returns:
-        The response content as JSON (if Content-Type is application/json),
-        text (if text/plain), or bytes (otherwise).
-        
+        The response data (parsed JSON if possible, otherwise text).
+
     Raises:
-        requests.exceptions.RequestException: If all retries fail or a non-retryable error occurs.
-        ValueError: If the URL is invalid.
+        RuntimeError: If all retries fail.
+        ValueError: If the URL is invalid or the response is not successful.
     """
-    if not url or not isinstance(url, str):
-        raise ValueError("Invalid URL provided")
-        
-    logger.info(f"Fetching URL: {url}")
-    
-    # Create session if not provided
     if session is None:
-        session = create_retry_session(max_retries, backoff_factor)
-        
-    try:
-        response = session.get(url, params=params, headers=headers, timeout=timeout)
-        response.raise_for_status()
-        
-        content_type = response.headers.get("Content-Type", "").lower()
-        
-        if "application/json" in content_type:
-            logger.debug("Parsing response as JSON")
-            return response.json()
-        elif "text/plain" in content_type or "text/csv" in content_type:
-            logger.debug("Parsing response as text")
-            return response.text
-        else:
-            logger.debug("Returning response as bytes")
-            return response.content
+        session = create_retry_session(total_retries=max_retries)
+
+    logger.info(f"Fetching URL: {url}")
+    if params:
+        logger.debug(f"Parameters: {params}")
+
+    last_exception = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            response = session.get(url, params=params, headers=headers, timeout=timeout)
             
-    except requests.exceptions.HTTPError as e:
-        logger.error(f"HTTP error fetching {url}: {e}")
-        raise
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Request failed for {url} after retries: {e}")
-        raise
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON from {url}: {e}")
-        raise
+            if response.status_code == 200:
+                # Try to parse as JSON
+                try:
+                    return response.json()
+                except json.JSONDecodeError:
+                    return response.text
+            elif response.status_code == 429:
+                # Rate limited - wait and retry
+                wait_time = (2 ** attempt) * 2  # Exponential backoff
+                logger.warning(f"Rate limited (429). Waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+                time.sleep(wait_time)
+                continue
+            else:
+                # Other error
+                last_exception = RuntimeError(f"HTTP {response.status_code}: {response.text[:200]}")
+                logger.error(f"HTTP Error {response.status_code}: {response.text[:200]}")
+                break
+
+        except requests.exceptions.Timeout as e:
+            last_exception = e
+            logger.warning(f"Timeout on attempt {attempt + 1}/{max_retries}: {e}")
+            if attempt == max_retries:
+                break
+            time.sleep(2 ** attempt)
+            
+        except requests.exceptions.RequestException as e:
+            last_exception = e
+            logger.warning(f"Request error on attempt {attempt + 1}/{max_retries}: {e}")
+            if attempt == max_retries:
+                break
+            time.sleep(2 ** attempt)
+
+    # All retries exhausted
+    if last_exception:
+        logger.error(f"Failed to fetch {url} after {max_retries + 1} attempts")
+        raise RuntimeError(f"Failed to fetch {url} after retries: {last_exception}")
+    
+    raise RuntimeError(f"Unexpected error fetching {url}")
 
 
 def fetch_paginated_data(
     base_url: str,
-    endpoint: str,
     session: Optional[requests.Session] = None,
-    timeout: int = DEFAULT_TIMEOUT,
-    initial_params: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, Any]] = None,
     page_size: int = 100,
     max_pages: Optional[int] = None,
-    response_key: str = "results",
-    next_key: str = "next",
+    response_key: Optional[str] = None,
+    headers: Optional[Dict[str, str]] = None
 ) -> List[Dict[str, Any]]:
     """
-    Fetch paginated data from an API endpoint, aggregating all pages.
-    
+    Fetch data from a paginated API endpoint.
+
     Args:
-        base_url: Base URL of the API.
-        endpoint: API endpoint path (appended to base_url).
+        base_url: The base URL of the API endpoint.
         session: Optional pre-configured session.
-        timeout: Request timeout.
-        initial_params: Initial query parameters (page will be added).
+        params: Base query parameters.
         page_size: Number of items per page.
         max_pages: Maximum number of pages to fetch (None for unlimited).
-        response_key: Key in JSON response containing the data list.
-        next_key: Key in JSON response containing the next page URL.
-        
+        response_key: Key in the JSON response containing the data list.
+        headers: Request headers.
+
     Returns:
-        A list of all aggregated data items.
-        
+        A list of all fetched items.
+
     Raises:
-        requests.exceptions.RequestException: If a request fails.
-        ValueError: If the response format is invalid.
+        RuntimeError: If fetching fails.
     """
-    if not base_url or not endpoint:
-        raise ValueError("base_url and endpoint must be provided")
-        
     if session is None:
         session = create_retry_session()
-        
+
     all_data = []
-    page_count = 0
-    
-    # Build initial URL and params
-    url = urljoin(base_url, endpoint)
-    params = initial_params.copy() if initial_params else {}
-    params["limit"] = page_size
-    
-    logger.info(f"Starting paginated fetch from {url}")
-    
+    page = 1
+    total_fetched = 0
+
+    # Ensure page size is in params
+    fetch_params = params.copy() if params else {}
+    fetch_params['limit'] = page_size
+    fetch_params['offset'] = 0  # Using offset-based pagination
+
     while True:
-        if max_pages and page_count >= max_pages:
-            logger.info(f"Reached max_pages limit ({max_pages})")
+        if max_pages and page > max_pages:
+            logger.info(f"Reached max pages limit ({max_pages})")
             break
-            
+
+        fetch_params['offset'] = (page - 1) * page_size
+        logger.info(f"Fetching page {page}...")
+
         try:
-            logger.debug(f"Fetching page {page_count + 1}")
-            response = fetch_url_with_retry(url, session=session, timeout=timeout, params=params)
-            
-            if not isinstance(response, dict):
-                raise ValueError(f"Expected JSON dict response, got {type(response)}")
-                
-            if response_key not in response:
-                raise ValueError(f"Response missing expected key '{response_key}'")
-                
-            page_data = response[response_key]
-            all_data.extend(page_data)
-            page_count += 1
-            
-            logger.info(f"Page {page_count}: retrieved {len(page_data)} items (total: {len(all_data)})")
-            
-            # Check for next page
-            if next_key in response and response[next_key]:
-                url = response[next_key]
-                params = {}  # Next URL usually includes all params
-                # Small delay to be polite to the API
-                time.sleep(0.5)
+            response_data = fetch_url_with_retry(
+                base_url, 
+                session=session, 
+                params=fetch_params, 
+                headers=headers
+            )
+
+            if isinstance(response_data, dict):
+                if response_key and response_key in response_data:
+                    items = response_data[response_key]
+                else:
+                    # Assume the whole dict is the data or contains a list
+                    items = response_data.get('results', response_data.get('data', [response_data]))
+            elif isinstance(response_data, list):
+                items = response_data
             else:
-                logger.info("No more pages found")
+                logger.warning(f"Unexpected response format: {type(response_data)}")
+                items = []
+
+            if not items:
+                logger.info(f"No more items on page {page}. Stopping pagination.")
                 break
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to fetch page {page_count + 1}: {e}")
-            raise
+
+            all_data.extend(items)
+            total_fetched += len(items)
+            logger.info(f"Fetched {len(items)} items. Total: {total_fetched}")
+
+            # Check if we got less than page_size, meaning last page
+            if len(items) < page_size:
+                logger.info(f"Last page reached (got {len(items)} < {page_size})")
+                break
+
+            page += 1
             
-    logger.info(f"Completed paginated fetch: {len(all_data)} total items")
+        except RuntimeError as e:
+            logger.error(f"Failed to fetch page {page}: {e}")
+            raise
+
+    logger.info(f"Total items fetched: {len(all_data)}")
     return all_data
 
 
@@ -231,236 +235,182 @@ def fetch_raw_data(
     url: str,
     output_path: Optional[Union[str, Path]] = None,
     session: Optional[requests.Session] = None,
-    timeout: int = DEFAULT_TIMEOUT,
-    chunk_size: int = 8192,
+    params: Optional[Dict[str, Any]] = None,
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 60
 ) -> Path:
     """
-    Fetch a large file from a URL and save it to disk as raw data.
-    
+    Fetch raw data from a URL and optionally save it to disk.
+
     Args:
-        url: URL of the file to download.
-        output_path: Optional output path. If None, uses data/raw/<filename>.
+        url: The URL to fetch.
+        output_path: Optional path to save the file. If None, returns data in memory.
         session: Optional pre-configured session.
+        params: Query parameters.
+        headers: Request headers.
         timeout: Request timeout.
-        chunk_size: Chunk size for streaming download.
-        
+
     Returns:
-        Path to the downloaded file.
-        
+        Path to the saved file if output_path is provided, otherwise the data.
+
     Raises:
-        requests.exceptions.RequestException: If download fails.
-        ValueError: If output path cannot be determined.
+        RuntimeError: If fetch fails.
+        ValueError: If output_path directory doesn't exist.
     """
-    if not url:
-        raise ValueError("URL must be provided")
-        
-    # Determine output path
-    if output_path is None:
-        parsed = urlparse(url)
-        filename = os.path.basename(parsed.path)
-        if not filename:
-            filename = "downloaded_data"
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = DATA_RAW_DIR / filename
-    else:
-        output_path = Path(output_path)
-        
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading {url} to {output_path}")
+    logger.info(f"Fetching raw data from: {url}")
     
     if session is None:
         session = create_retry_session()
-        
+
     try:
-        with session.get(url, stream=True, timeout=timeout) as r:
-            r.raise_for_status()
-            with open(output_path, "wb") as f:
-                downloaded = 0
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    if chunk:  # filter out keep-alive chunks
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        if downloaded % (1024 * 1024) < chunk_size:  # Log every ~1MB
-                            logger.debug(f"Downloaded {downloaded / (1024*1024):.1f} MB")
-                            
-        logger.info(f"Successfully downloaded {output_path} ({output_path.stat().st_size} bytes)")
-        return output_path
-        
+        response = session.get(url, params=params, headers=headers, timeout=timeout)
+        response.raise_for_status()
+
+        if output_path:
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+            
+            logger.info(f"Saved data to: {output_path} ({os.path.getsize(output_path)} bytes)")
+            return output_path
+        else:
+            # Return content based on type
+            content_type = response.headers.get('content-type', '')
+            if 'application/json' in content_type:
+                return response.json()
+            else:
+                return response.content
+
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {url}: {e}")
-        # Clean up partial file if it exists
-        if output_path.exists():
-            output_path.unlink()
-        raise
+        logger.error(f"Failed to fetch raw data: {e}")
+        raise RuntimeError(f"Failed to fetch raw data: {e}")
 
 
 class DataFetcher:
     """
-    A reusable class for fetching data with configuration and retry logic.
-    
-    Attributes:
-        base_url: Base URL for the API.
-        session: Configured requests session with retry logic.
-        timeout: Default timeout for requests.
-        headers: Default headers for requests.
+    A class-based interface for fetching data from various sources.
+    Encapsulates session management and common fetch logic.
     """
-    
+
     def __init__(
         self,
         base_url: str,
         api_key: Optional[str] = None,
-        timeout: int = DEFAULT_TIMEOUT,
-        max_retries: int = DEFAULT_MAX_RETRIES,
-        backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
+        max_retries: int = 5,
+        timeout: int = 30
     ):
         """
         Initialize the DataFetcher.
-        
+
         Args:
-            base_url: Base URL of the API.
+            base_url: The base URL of the API.
             api_key: Optional API key for authentication.
-            timeout: Default request timeout.
             max_retries: Maximum retry attempts.
-            backoff_factor: Backoff factor for retries.
+            timeout: Request timeout.
         """
-        if not base_url:
-            raise ValueError("base_url is required")
-            
-        self.base_url = base_url.rstrip("/")
+        self.base_url = base_url
+        self.api_key = api_key
+        self.max_retries = max_retries
         self.timeout = timeout
-        self.session = create_retry_session(max_retries, backoff_factor)
+        self.session = create_retry_session(total_retries=max_retries)
         
-        # Set up default headers
-        self.headers = {
-            "Accept": "application/json",
-            "User-Agent": "HEA-Research-Pipeline/1.0",
-        }
-        
+        # Add API key to headers if provided
         if api_key:
-            # Common patterns for API key headers
-            # Try to detect based on base_url or default to 'Authorization'
-            if "materialsproject" in base_url.lower():
-                self.headers["X-Api-Key"] = api_key
-            else:
-                self.headers["Authorization"] = f"Bearer {api_key}"
-                
-        logger.info(f"Initialized DataFetcher for {self.base_url}")
-        
+            self.session.headers.update({'X-API-Key': api_key, 'Authorization': f'Token {api_key}'})
+
+        logger.info(f"DataFetcher initialized for {base_url}")
+
     def get(
         self,
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Union[Dict[str, Any], str, bytes]:
+        save_to: Optional[Path] = None
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]], Path]:
         """
-        Perform a GET request to the specified endpoint.
-        
+        Fetch data from a specific endpoint.
+
         Args:
-            endpoint: API endpoint path.
+            endpoint: API endpoint (appended to base_url).
             params: Query parameters.
-            headers: Additional headers.
-            
+            save_to: Optional path to save the result.
+
         Returns:
-            Response content.
+            Fetched data or path to saved file.
         """
-        url = urljoin(self.base_url, endpoint)
-        merged_headers = {**self.headers, **(headers or {})}
-        return fetch_url_with_retry(
-            url,
-            session=self.session,
-            timeout=self.timeout,
-            params=params,
-            headers=merged_headers,
-        )
+        url = f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}"
         
-    def fetch_all(
+        if save_to:
+            return fetch_raw_data(
+                url, 
+                output_path=save_to, 
+                session=self.session, 
+                params=params,
+                timeout=self.timeout
+            )
+        else:
+            return fetch_url_with_retry(
+                url, 
+                session=self.session, 
+                params=params, 
+                timeout=self.timeout
+            )
+
+    def paginate(
         self,
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         page_size: int = 100,
         max_pages: Optional[int] = None,
-        response_key: str = "results",
-        next_key: str = "next",
+        response_key: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        Fetch all paginated data from an endpoint.
-        
+        Fetch paginated data from an endpoint.
+
         Args:
-            endpoint: API endpoint path.
-            params: Initial query parameters.
+            endpoint: API endpoint.
+            params: Base query parameters.
             page_size: Items per page.
             max_pages: Max pages to fetch.
             response_key: Key containing data list.
-            next_key: Key containing next URL.
-            
+
         Returns:
-            List of all data items.
+            List of all fetched items.
         """
-        merged_params = {**(params or {}), "limit": page_size}
+        url = f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}"
         return fetch_paginated_data(
-            self.base_url,
-            endpoint,
+            url,
             session=self.session,
-            timeout=self.timeout,
-            initial_params=merged_params,
+            params=params,
             page_size=page_size,
             max_pages=max_pages,
             response_key=response_key,
-            next_key=next_key,
+            headers=self.session.headers
         )
-        
-    def download_file(
-        self,
-        url_or_endpoint: str,
-        output_path: Optional[Union[str, Path]] = None,
-    ) -> Path:
-        """
-        Download a file from a URL or endpoint.
-        
-        Args:
-            url_or_endpoint: Full URL or endpoint path (if relative to base_url).
-            output_path: Optional output path.
-            
-        Returns:
-            Path to the downloaded file.
-        """
-        if not url_or_endpoint.startswith(("http://", "https://")):
-            url = urljoin(self.base_url, url_or_endpoint)
-        else:
-            url = url_or_endpoint
-            
-        return fetch_raw_data(url, output_path, session=self.session, timeout=self.timeout)
 
 
 def create_fetcher(
-    service_name: str,
+    source_name: str,
     base_url: str,
-    api_key_env: Optional[str] = None,
-    **kwargs
+    api_key_env_var: Optional[str] = None
 ) -> DataFetcher:
     """
-    Factory function to create a DataFetcher with environment-based API key.
-    
+    Factory function to create a DataFetcher for a specific source.
+
     Args:
-        service_name: Name of the service (for logging).
+        source_name: Name of the data source (for logging).
         base_url: Base URL of the API.
-        api_key_env: Name of the environment variable containing the API key.
-        **kwargs: Additional arguments for DataFetcher.
-        
+        api_key_env_var: Environment variable name for the API key.
+
     Returns:
         Configured DataFetcher instance.
-        
-    Raises:
-        ValueError: If API key is required but not found.
     """
     api_key = None
-    if api_key_env:
-        api_key = os.environ.get(api_key_env)
+    if api_key_env_var:
+        api_key = os.getenv(api_key_env_var)
         if not api_key:
-            logger.warning(f"API key environment variable '{api_key_env}' not set for {service_name}")
-            # Don't raise here, let the fetcher handle it if auth is needed
-            
-    logger.info(f"Creating {service_name} fetcher at {base_url}")
-    return DataFetcher(base_url, api_key=api_key, **kwargs)
+            logger.warning(f"API key environment variable '{api_key_env_var}' not set for {source_name}")
+
+    logger.info(f"Creating DataFetcher for {source_name} at {base_url}")
+    return DataFetcher(base_url=base_url, api_key=api_key)
