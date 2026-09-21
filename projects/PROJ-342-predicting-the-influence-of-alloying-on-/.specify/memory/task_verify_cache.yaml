@@ -80,16 +80,17 @@ T049:
     \ data\u2011loading and plotting utilities and does not implement any logic to\
     \ enforce associational language or to insert \u201CThese findings are associational\
     \ only\u201D into a report. The task\u2019s core requirement is therefore unmet."
-T080:
-  c: false
-  h: c1c8d02ef09bf54db487334788728a0be6c7432e11c57a0b287a5714a96946f5
-  r: The evidence shows that the required output files (`data/processed/cleaned_mg.csv`,
-    `artifacts/models/best_model.pkl`, and `artifacts/reports/final_report.md`) are
-    absent, so the pipeline cannot have succeeded nor can the mandatory phrase be
-    verified. The task remains unfinished.
 T083:
   c: false
   h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
   r: The required file `data/processed/vif_diagnostic_log.json` is missing, and there
     is no evidence that `artifacts/metrics/sensitivity_analysis.json` exists or contains
     the variance calculation. Both artifacts are needed to satisfy the task.
+T088:
+  c: false
+  h: c8e405485567ea52707c804a554461bcc8091d803beeed2339a40cb61d06e27d
+  r: "The `code/verify_report.py` file is truncated and ends with an unfinished statement\
+    \ (`violation`), so it will not run or correctly exit with code\u202F1. Additionally,\
+    \ the required `artifacts/reports/final_report.md` file does not exist, so the\
+    \ script cannot even be exercised against a report containing \u201Ccauses\u201D\
+    . Both the script implementation and the report artifact are missing/invalid."

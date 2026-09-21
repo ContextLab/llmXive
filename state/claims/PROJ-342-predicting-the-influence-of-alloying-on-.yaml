@@ -1556,3 +1556,488 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T04:06:15Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Zenodo client handles authentication, rate limits, and DataUnavailableError
+  claim_id: c_26a68fbf
+  context: Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets
+    using DOIs `10.5281/zenodo.10043838` (primary) and `10.5281/zenodo.11023456` (fallback)
+    from `config.yaml`. The client must handle authentication, rate limits, and raise
+    a specific `DataUnavailableError` if both DOIs are unreachable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zenodo_client_handles_authentication,_rate_limits,_and_DataU
+  kind: entity_fact
+  raw_text: The client must handle authentication, rate limits, and raise a specific
+    `DataUnavailableError` if both DOIs are unreachable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:48:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Unit test confirms DataUnavailableError raising
+  claim_id: c_a4383d51
+  context: 'The client must handle authentication, rate limits, and raise a specific
+    `DataUnavailableError` if both DOIs are unreachable. **Verification**: 1) Unit
+    test `tests/unit/test_zenodo_client.py::test_data_unavailable_error` confirms
+    error raising on mocked client error responses.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_confirms_DataUnavailableError_raising
+  kind: entity_fact
+  raw_text: Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error`
+    confirms error raising on mocked client error responses.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:48:49Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: DOI fetch failure reason logged
+  claim_id: c_79d9a90e
+  context: '**Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error`
+    confirms error raising on mocked client error responses. 2) Verify that when a
+    DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g.,
+    "404 Not Found", "Timeout", or exception message).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that when a DOI fetch fails, `logs/ingest.log` contains the specific
+    failure reason (e.g., "404 Not Found", "Timeout", or exception message).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:49:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Logging configured to INFO level with specific format
+  claim_id: c_4fb25790
+  context: '**Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error`
+    confirms error raising on mocked client error responses. 2) Verify that when a
+    DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g.,
+    "404 Not Found", "Timeout", or exception message). **Logging Config**: Ensure
+    `code/__init__.py` or `code/ingest.py` configures logging to `INFO` level with
+    a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s` to guarantee
+    failure reasons are written to `logs/ingest.log`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logging_configured_to_INFO_level_with_specific_format
+  kind: entity_fact
+  raw_text: Ensure `code/__init__.py` or `code/ingest.py` configures logging to `INFO`
+    level with a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s`
+    to guarantee failure reasons are written to `logs/ingest.log`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:49:30Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: SHA256 checksums calculated and saved
+  claim_id: c_f442b072
+  context: '[X] T004 Create `.gitkeep` files in `data/raw/` and `data/processed/`;
+    create `code/checksums.py` to implement checksum tracking logic to satisfy SC-003
+    and Constitution Principle III. **Action**: The script must calculate SHA256 checksums
+    for all files in `data/raw/` and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    under the key `artifact_hashes`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must calculate SHA256 checksums for all files in `data/raw/`
+    and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    under the key `artifact_hashes`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:49:51Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: artifact_hashes key exists in YAML file
+  claim_id: c_07b833f8
+  context: '**Action**: The script must calculate SHA256 checksums for all files in
+    `data/raw/` and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    under the key `artifact_hashes`. **Verification**: 1) Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    exists and contains the key `artifact_hashes`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    exists and contains the key `artifact_hashes`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:50:06Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: zenodo CSV hash exists in artifact_hashes
+  claim_id: c_86fc2075
+  context: '**Verification**: 1) Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    exists and contains the key `artifact_hashes`. 2) Verify `artifact_hashes` contains
+    an entry for `data/raw/zenodo_*.csv` with a valid SHA256 hash string.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zenodo_CSV_hash_exists_in_artifact_hashes
+  kind: entity_fact
+  raw_text: Verify `artifact_hashes` contains an entry for `data/raw/zenodo_*.csv`
+    with a valid SHA256 hash string.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:50:40Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Calculated hash matches file content
+  claim_id: c_4e14f123
+  context: '**Verification**: 1) Verify `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    exists and contains the key `artifact_hashes`. 2) Verify `artifact_hashes` contains
+    an entry for `data/raw/zenodo_*.csv` with a valid SHA256 hash string. 3) Verify
+    the hash matches the actual file content.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculated_hash_matches_file_content
+  kind: entity_fact
+  raw_text: Verify the hash matches the actual file content.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T20:59:50Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fallback DOI attempted on primary failure
+  claim_id: c_c13da05a
+  context: '- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI `10.5281/zenodo.10043838`
+    (fallback: `10.5281/zenodo.11023456`). **Action**: Call Zenodo API client (T002)
+    to fetch data if local files are missing. If local file exists but checksum mismatch,
+    re-fetch from Zenodo. **Fallback Logic**: If primary DOI fails, MUST attempt to
+    fetch from fallback DOI.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_DOI_attempted_on_primary_failure
+  kind: entity_fact
+  raw_text: If primary DOI fails, MUST attempt to fetch from fallback DOI.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:00:29Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fallback DOI success logged
+  claim_id: c_a2210184
+  context: If primary DOI fails, MUST attempt to fetch from fallback DOI. If the fallback
+    DOI succeeds, proceed and log a `FALLBACK_USED` warning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_DOI_success_logged
+  kind: entity_fact
+  raw_text: If the fallback DOI succeeds, proceed and log a `FALLBACK_USED` warning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:01:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fetched file contains >0 rows
+  claim_id: c_439e73f9
+  context: '**Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv`
+    first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the
+    selected file contains >0 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the selected file contains >0 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:01:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: source_doi recorded
+  claim_id: c_25ed8b32
+  context: '**Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv`
+    first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the
+    selected file contains >0 rows. 3) Verify `data/ingestion_stats.json` contains
+    key `source_doi` with the exact DOI used.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_doi_recorded
+  kind: entity_fact
+  raw_text: Verify `data/ingestion_stats.json` contains key `source_doi` with the
+    exact DOI used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:01:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: retention_rate accurate
+  claim_id: c_561945cd
+  context: '**Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv`
+    first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the
+    selected file contains >0 rows. 3) Verify `data/ingestion_stats.json` contains
+    key `source_doi` with the exact DOI used. 4) Verify `retention_rate` reflects
+    the cleaning of null Tg/composition records (not just row count).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retention_rate_accurate
+  kind: entity_fact
+  raw_text: Verify `retention_rate` reflects the cleaning of null Tg/composition records
+    (not just row count).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:02:13Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Cleaned data has no null values
+  claim_id: c_a22cf6b2
+  context: '**Input**: `data/raw/zenodo_*.csv` (output of T012). **Error Handling**:
+    If T012 failed, raise `DataUnavailableError`. **Verification**: Verify cleaned
+    data has no null Tg or composition fields.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cleaned_data_has_no_null_values
+  kind: entity_fact
+  raw_text: Verify cleaned data has no null Tg or composition fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:02:59Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Retention rate logged
+  claim_id: c_2b2ec9dc
+  context: '**Output**: Write retention rate to `data/ingestion_stats.json` (key:
+    `retention_rate`) and log to `logs/ingest.log`. **Verification**: Verify `data/ingestion_stats.json`
+    contains keys `source_doi`, `retention_rate` (float > 0), `raw_count`, `cleaned_count`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retention_rate_logged
+  kind: entity_fact
+  raw_text: 'Write retention rate to `data/ingestion_stats.json` (key: `retention_rate`)
+    and log to `logs/ingest.log`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:03:26Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: ingestion_stats.json contains required keys
+  claim_id: c_de0b5bb1
+  context: '**Output**: Write retention rate to `data/ingestion_stats.json` (key:
+    `retention_rate`) and log to `logs/ingest.log`. **Verification**: Verify `data/ingestion_stats.json`
+    contains keys `source_doi`, `retention_rate` (float > 0), `raw_count`, `cleaned_count`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `data/ingestion_stats.json` contains keys `source_doi`, `retention_rate`
+    (float > 0), `raw_count`, `cleaned_count`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:03:26Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Checksums calculated and saved
+  claim_id: c_158ee10e
+  context: '[X] T004 Create `.gitkeep` files in `data/raw/` and `data/processed/`;
+    create `code/checksums.py` to implement checksum tracking logic to satisfy SC-003
+    and Constitution Principle III. **Action**: The script must calculate SHA256 checksums
+    for all files in `data/raw/` and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    under the key `artifact_hashes`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must calculate SHA256 checksums for all files in `data/raw/`
+    and write them to `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`
+    under the key `artifact_hashes`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:03:26Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Stratification warning logged for N<50
+  claim_id: c_fa630f8a
+  context: 'Implement family size stratification check in `code/train.py`: Before
+    performing LOFO, check if any alloy family has < 50 samples. **Action**: If N
+    < 50, log a `STRATIFICATION_WARNING` to `logs/train.log`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 50, log a `STRATIFICATION_WARNING`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:03:27Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Descriptors saved to file
+  claim_id: c_0c9aabc7
+  context: Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv`
+    to serve as input for US3 analysis tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptors_saved_to_file
+  kind: entity_fact
+  raw_text: Save computed descriptors to `data/processed/descriptors.csv`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:15:53Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Null model R2 calculated and saved
+  claim_id: c_99a251f0
+  context: "Save metrics to `artifacts/metrics/metrics.json` including R\xB2, MAE,\
+    \ feature importances, and **baseline null model R\xB2 (mean prediction)**."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_model_R2_calculated_and_saved
+  kind: entity_fact
+  raw_text: "R\xB2 of a null model (mean prediction) and save it as `null_model_r2`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:16:21Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Resource limits enforced
+  claim_id: c_b79b11c6
+  context: Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime
+    < 6h and RAM < 7GB (FR-005, SC-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_limits_enforced
+  kind: entity_fact
+  raw_text: Enforce runtime < 6h and RAM < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:16:51Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Resource usage logged
+  claim_id: c_f97a0d3b
+  context: 'Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime
+    < 6h and RAM < 7GB (FR-005, SC-004). **Output**: Save resource usage to `data/resource_usage.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_usage_logged
+  kind: entity_fact
+  raw_text: Save resource usage to `data/resource_usage.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:17:24Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: VIF > 5 flagged
+  claim_id: c_06eecdaa
+  context: 'Implement `code/analyze.py` for VIF calculation. **Input**: `data/processed/descriptors.csv`.
+    **Depends on**: T026. **Constraint**: MUST explicitly exclude ''weighted mean
+    radius'' from calculation (verify input dataframe does not contain this column).
+    MUST **flag** predictors with VIF > 5 for diagnostic review (do NOT drop). **Function**:
+    `calculate_vif(df)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 is flagged
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:17:24Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Feature importance CI calculated
+  claim_id: c_05cc3251
+  context: 'Implement `code/analyze.py` for bootstrapping with n_resamples=1000 to
+    calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`,
+    `data/processed/cleaned_mg.csv` (T014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 95% CI for feature importance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:17:25Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Stability metrics saved
+  claim_id: c_1ab07e20
+  context: '**Output**: Save to `artifacts/metrics/stability_metrics.json`. **Schema**:
+    The JSON must contain keys for each feature, each nested with `ci_lower` and `ci_upper`
+    (floats).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save stability metrics (including 95% CI bounds) to `artifacts/metrics/stability_metrics.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:17:25Z'

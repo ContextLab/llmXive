@@ -89,7 +89,7 @@ The system MUST generate reports that quantify feature importance, visualize non
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Test-set R² is measured against the baseline null model (mean prediction) (See US-2).
-- **SC-002**: Feature importance stability is measured against 1000 bootstrapped resamples (See US-3).
+- **SC-002**: Feature importance stability is measured against multiple bootstrapped resamples. (See US-3).
 - **SC-003**: Data completeness (records with Tg + composition) is measured against the raw downloaded dataset size (See US-1).
 - **SC-004**: Computational resource usage (CPU time, RAM peak) is measured against the CI runner limits (a small number of cores, limited RAM) (See US-2).
 
