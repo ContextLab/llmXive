@@ -43,3 +43,17 @@ T014:
     \ artifact is the implementation (e.g., Python module, shell script, or pipeline\
     \ step) that performs the count, logs a critical error, and aborts the pipeline\
     \ with status \u201CInsufficient Data\u201D."
+T018:
+  c: false
+  h: ae4c5f6fec55ed3c68c267a1b7ae92467bd3d871b2fe8057005fa7a963ef9a22
+  r: "The required file `tests/perf/test_descriptor_perf.py` does not exist, so there\
+    \ is no performance test to verify the <15\u2011minute runtime constraint. The\
+    \ task\u2019s primary artifact is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided that demonstrate the implementation\
+    \ of logic to detect disconnected molecular graphs, flag them as \u201Cinvalid\
+    \ topology\u201D, and exclude those records from downstream analysis. The required\
+    \ artifact (e.g., a function/module with unit tests) is missing, so the task is\
+    \ not satisfied."

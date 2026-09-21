@@ -1,18 +1,59 @@
 [project]
-name = "llmXive-coral-resilience"
+name = "llmxive-coral-resilience"
 version = "0.1.0"
 description = "Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data"
 requires-python = ">=3.9"
+dependencies = [
+    "biopython",
+    "pysam",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "gprofiler-official",
+    "rpy2",
+    "ruff",
+    "black",
+    "isort",
+    "tomli",
+    "tomli-w",
+    "tomlkit",
+]
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
-exclude = "/(\\.git|__pycache__|\\.venv|venv|data|build|dist)/"
+target-version = [
+    "py39",
+    "py310",
+    "py311",
+]
+include = "\\.pyi?$"
+exclude = """
+    /(
+        \\.git
+      | \\.hg
+      | \\.mypy_cache
+      | \\.tox
+      | \\.venv
+      | _build
+      | buck-out
+      | build
+      | dist
+      | data
+    )/
+"""
 skip-string-normalization = false
-preview = true
 
 [tool.isort]
-profile = "black"
-line_length = 88
-skip_gitignore = true
-known_first_party = ["code", "data", "utils", "models"]
+known-first-party = [
+    "config",
+    "data",
+    "models",
+    "utils",
+    "ingest",
+    "quant",
+    "dge_analysis",
+    "viz",
+    "enrichment",
+]
+force-sort-within-sections = true
+lines-after-imports = 2

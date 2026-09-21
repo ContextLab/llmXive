@@ -306,25 +306,6 @@
   updated_at: '2026-07-07T19:14:16Z'
 - artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
   attempts: 1
-  canonical: NCBI BioProject ID PRJNA321023 contains thermal stress data
-  claim_id: c_b9d1a1ee
-  context: 'Override: Spec FR-001 lists PRJNA292777, but Plan.md confirms PRJNA321023
-    contains the required thermal stress data. Source: Plan.md Technical Context.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_ID_PRJNA321023_contains_thermal_stress_data
-  kind: entity_fact
-  raw_text: The project uses NCBI BioProject ID PRJNA321023 to contain the required
-    thermal stress data.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T19:15:53Z'
-- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
-  attempts: 1
   canonical: Peak memory usage target is less than 7 GB
   claim_id: c_364f821e
   context: 'Goal: Download raw FASTQ reads from NCBI BioProject PRJNA321023, map to
@@ -809,3 +790,248 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T16:03:52Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: NCBI BioProject ID PRJNA321023 used for thermal stress data
+  claim_id: c_b4bd52af
+  context: 'T004 Create code/config.py defining all project constants: paths (data/raw,
+    data/processed), NCBI BioProject ID (PRJNA321023)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_ID_PRJNA321023_used_for_thermal_stress_data
+  kind: entity_fact
+  raw_text: The project uses NCBI BioProject ID PRJNA321023 for thermal stress data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:29:19Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora reference transcriptome assembly GCF_000163615.2
+  claim_id: c_c3376438
+  context: T018 MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses NCBI RefSeq assembly GCF_000163615.2 for the Acropora
+    millepora reference transcriptome.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:29:40Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit 7 GB for RNA-seq quantification
+  claim_id: c_1c64be18
+  context: 'Goal: Download raw FASTQ reads... while ensuring peak memory < 7 GB. ...
+    enforce memory-mapped processing to stay under 7 GB RAM'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a peak memory usage limit of 7 GB for the RNA-seq
+    quantification pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:30:04Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Exponential backoff retry logic with max 3 retries for FASTQ download
+  claim_id: c_0d7f5283
+  context: 'T015 Implement code/ingest.py: Download FASTQ files from NCBI SRA/ENA...
+    with exponential backoff retry logic (max 3 retries)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses an exponential backoff retry logic with a maximum
+    of 3 retries for downloading FASTQ files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:30:23Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction used for FDR
+  claim_id: c_5ab42a00
+  context: T026 Apply Benjamini-Hochberg correction to p-values to generate FDR column.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2607.12208'
+        url: https://arxiv.org/abs/2607.12208
+        value: '0.01'
+      quote: to 10% for both stages of inference.
+      source_id: '1806.03143'
+      url: https://arxiv.org/abs/1806.03143
+      value: 10%
+    filled: true
+  kind: entity_fact
+  raw_text: The analysis uses the Benjamini-Hochberg correction for False Discovery
+    Rate (FDR).
+  resolved_value: 10%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-21T21:31:01Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Volcano Plot threshold FDR less than 0.05
+  claim_id: c_94ac6cea
+  context: T032 Generate Volcano Plot... for genes with FDR < 0.05 (from T029)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Volcano_Plot_threshold_FDR_less_than_0.05
+  kind: magnitude
+  raw_text: The project specifies a threshold of FDR < 0.05 for generating the Volcano
+    Plot.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:32:04Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Biological plausibility validation threshold FDR less than 0.1
+  claim_id: c_340033a6
+  context: T036 Compare against FDR < 0.1 threshold (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Biological_plausibility_validation_threshold_FDR_less_than_0
+  kind: magnitude
+  raw_text: The project specifies a threshold of FDR < 0.1 for validating biological
+    plausibility of pathway enrichment.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:32:43Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Validation requires observed significant genes count greater than expected
+    under null hypothesis
+  claim_id: c_05dc877d
+  context: Append validation status (PASS/FAIL based on observed > expected) to data/processed/validation_report.md.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_observed_significant_genes_count_greater
+  kind: magnitude
+  raw_text: The validation report requires the observed count of significant genes
+    to be greater than the expected count under the null hypothesis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:33:45Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 2
+  canonical: NCBI BioProject ID PRJNA321023 contains thermal stress data
+  claim_id: c_b9d1a1ee
+  context: 'Override: Spec FR-001 lists PRJNA292777, but Plan.md confirms PRJNA321023
+    contains the required thermal stress data. Source: Plan.md Technical Context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_ID_PRJNA321023_contains_thermal_stress_data
+  kind: entity_fact
+  raw_text: The project uses NCBI BioProject ID PRJNA321023 to contain the required
+    thermal stress data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:40:43Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: NCBI RefSeq assembly GCF_000163615.2 SHA256 checksum source
+  claim_id: c_a3343c09
+  context: MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2 (or use a pre-validated hash from research.md if
+    available).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The official SHA256 checksum is from the NCBI RefSeq FTP manifest for
+    assembly GCF_000163615.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:41:00Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit 7 GB
+  claim_id: c_cd46d3ff
+  context: 'Goal: Download raw FASTQ reads from NCBI BioProject PRJNA321023, map to
+    reference transcriptome, and quantify gene expression while ensuring peak memory
+    < 7 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must stay under 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:41:24Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Theoretical expected count of significant genes under null hypothesis
+    equals nominal significance level of total genes
+  claim_id: c_2d3df194
+  context: Calculate the theoretical expected count of significant genes under the
+    null hypothesis (approximately the nominal significance level of total genes tested,
+    assuming uniform p-value distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_expected_count_of_significant_genes_under_null_h
+  kind: entity_fact
+  raw_text: The theoretical expected count of significant genes under the null hypothesis
+    is approximately the nominal significance level of total genes tested, assuming
+    uniform p-value distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:41:57Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours on free-tier runner
+  claim_id: c_1560f14f
+  context: Run quickstart.md validation to ensure full pipeline execution time is
+    < 6 hours on free-tier runner
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_limit_6_hours_on_free-tier_runner
+  kind: magnitude
+  raw_text: The pipeline must complete in less than 6 hours on a free-tier runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T21:42:48Z'

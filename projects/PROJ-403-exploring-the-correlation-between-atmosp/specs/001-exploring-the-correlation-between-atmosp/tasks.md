@@ -37,10 +37,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0, numpy>=1.26.0, pandas>=2.1.0, scipy>=1.11.0, statsmodels>=0.14.0, cartopy>=0.22.0, netCDF4>=1.6.5, cftime>=1.6.2, dask[complete]>=2023.9.0, h5netcdf>=0.14.0, requests>=2.31.0, tqdm>=4.66.0, nitime>=0.10.0, pytest-cov
-- [X] T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration [UNRESOLVED-CLAIM: c_f2d2c9b4 — status=not_enough_info].
+- [X] T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration.
 - [X] T005 [P] Setup `src/utils/logger.py` for logging and `src/utils/config.py` for environment variable management (data paths, thresholds).
-- [X] T006 [P] [FR-001-Global] [FR-009] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for –2023, **full global grid (polar to polar, longitudinal extent)**, using CDS variables: 'integrated_water_vapor_transport' and 'z' (geopotential height), level: '500', product_type: 'reanalysis', resolution: '0.25', with explicit lat/lon bounding box parameters covering the globe. **Include logic to convert 'z' from m²/s² to meters if necessary.**
-- [ ] T007 [P] Implement `src/data/download.py` checksum verification (`sha256`) for raw NetCDF files and store in `data/metadata.yaml`.
+- [ ] T006 [P] [FR-001-Global] [FR-009] **Override Plan Phase 0**: Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for **1979–2023**, **full global grid (90°S-90°N, 180°W-180°E)**, using CDS variables: 'integrated_water_vapor_transport' and 'z' (geopotential height), level: '500', product_type: 'reanalysis', resolution: '0.25', with explicit lat/lon bounding box parameters covering the globe. **Include logic to convert 'z' from m²/s² to meters if necessary.**
+- [ ] T007 [S] [P] [FR-001] Implement `src/data/download.py` checksum verification (`sha256`) for raw NetCDF files and store in `data/metadata.yaml`. **Depends on T006 completion.**
 - [X] T008 [P] Create base data processing utilities in `src/data/preprocess.py` for loading chunked NetCDFs with `dask`.
 - [X] T009a [P] [FR-009] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure.
 - [X] T009b [P] [FR-009] Implement `src/cli/run_analysis.py` domain filtering logic to process the **full global grid** (90°S-90°N, 180°W-180°E) using streaming/chunked operations to satisfy FR-009.
@@ -55,11 +55,12 @@
 
 **Goal**: Compute temporal correlation between monthly AR frequency and Z500 anomalies per grid cell, applying monthly climatology subtraction, and controlling for multiple comparisons via Benjamini-Hochberg FDR as mandated by Spec FR-005.
 
-**Note on Methodology**: Implementation strictly follows Spec FR-004 (Pearson correlation) and FR-005 (Benjamini-Hochberg FDR). The Plan's alternative suggestions (Spearman, Cluster-based tests) are noted as conflicting with the Spec and will be addressed via Plan amendment.
+### Methodology Override
+**⚠️ CRITICAL**: The Plan Summary proposes Spearman correlation and Cluster-based FDR. **This implementation strictly overrides the Plan** to adhere to Spec FR-004 (Pearson correlation) and FR-005 (Benjamini-Hochberg FDR). All tasks in this phase must follow the Spec.
 
 **Independent Test**: Execute on a 1-year subset of the global dataset; verify `data/processed/corr_fdr_{band}_{season}.nc` contains valid Pearson coefficients, raw p-values, and BH-FDR adjusted p-values.
 
-**Note on TDD**: Tasks T012-T014 are marked [P] for *writing* (Test-Driven Development), but their execution depends on the implementation tasks (T015-T023).
+**Note on TDD**: Tasks T012-T014 are marked [P] for *authoring* (Test-Driven Development), but their *execution* depends on the implementation tasks (T015-T023). Tests must run after code is written.
 
 ### Tests for User Story 1 (MANDATORY)
 
@@ -69,14 +70,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (late 20th century to present) per grid cell on the GLOBAL dataset using streaming.
+- [X] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (1979–2023) per grid cell on the GLOBAL dataset using streaming.
 - [ ] T016a [US1] [FR-003] Implement `src/data/preprocess.py`: Calculate geopotential height anomalies by subtracting the multi-decadal monthly climatology from raw geopotential height data.
-- [ ] T017 [US1] Implement `src/data/preprocess.py`: Slice the global data into latitudinal bands of ° width (e.g., 30°N-40°N, etc.) and handle missing months by excluding time steps (no imputation). Output: `data/processed/global_subset_{band}.nc`.
-- [ ] T018 [US1] [FR-002] [FR-008] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (8-connectivity), duration >24h [UNRESOLVED-CLAIM: c_bf5c1606 — status=not_enough_info], baseline threshold of **250 kg m⁻¹ s⁻¹**; output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.
-- [ ] T019 [US1] [FR-004] Implement `src/data/analysis.py`: Compute **Pearson correlation coefficients** and raw p-value per grid cell between AR frequency and Z500 anomaly time series. **Note: Implements Spec FR-004.**
-- [ ] T020 [US1] [FR-005] Implement `src/data/analysis.py`: Apply **Benjamini-Hochberg False Discovery Rate (FDR)** procedure to control the expected proportion of false discoveries across all grid cells within a band-season, using an adjusted p-value threshold of < 0.05 [UNRESOLVED-CLAIM: c_888351da — status=not_enough_info]. **Note: Implements Spec FR-005.**
+- [ ] T017 [US1] [FR-001] [FR-004] Implement `src/data/preprocess.py`: Slice the global data into **10° latitudinal bands** covering the **full globe** (90°S-80°S, 80°S-70°S,..., 80°N-90°N). **Handle polar regions (latitudes >80°) by applying equal-area weighting to prevent geometric distortion, NOT by exclusion.** Handle missing months by excluding time steps (no imputation). Output: `data/processed/global_subset_{band}.nc`.
+- [ ] T018 [US1] [FR-002] [FR-008] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (8-connectivity), **default duration threshold of approximately one day**, baseline threshold of **250 kg m⁻¹ s⁻¹**. **Explicitly exclude time steps with missing data before aggregating monthly frequency counts.** Output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.
+- [ ] T019 [US1] [FR-004] **Override Plan Summary**: Implement `src/data/analysis.py`: Compute **Pearson correlation coefficients** and raw p-value per grid cell between AR frequency and Z500 anomaly time series. **Strictly follows Spec FR-004.**
+- [ ] T020 [S] [US1] [FR-005] **Override Plan Summary**: Implement `src/data/analysis.py`: Apply **Benjamini-Hochberg False Discovery Rate (FDR)** procedure using `statsmodels.stats.multitest.multipletests` (method='fdr_bh') to control the expected proportion of false discoveries across all grid cells within a band-season, using an adjusted p-value threshold of < 0.05. **Strictly follows Spec FR-005.**
 - [ ] T022 [US1] Implement `src/data/analysis.py`: Save results to `data/processed/corr_fdr_{band}_{season}.nc` including coefficient, raw p, and adjusted p (BH-FDR).
-- [ ] T023 [US1] [FR-010] Implement `src/data/analysis.py`: Validate physical plausibility by (a) **cross-referencing spatial patterns** with established teleconnection indices (PNA, NAO) from NOAA CPC (Monthly 500mb Height Anomalies and PNA/NAO Indices) using spatial correlation coefficient, AND (b) **regressing AR-Z500 fields against scalar PNA/NAO index time series**. Output: `data/processed/validation_{band}_{season}.json`. **Note: Implements Spec FR-010 and Plan FR-010 requirements.**
+- [ ] T023a [US1] [FR-010] Implement `src/data/analysis.py`: **Spatial Validation**: Compute spatial correlation coefficients between the significant AR-Z500 pattern and canonical teleconnection templates (PNA/NAO spatial maps) from NOAA CPC. Output: `data/processed/validation_spatial_{band}_{season}.json`.
+- [ ] T023b [US1] [FR-010] Implement `src/data/analysis.py`: **Scalar Regression**: Regress the AR-Z500 fields against scalar PNA/NAO index time series from NOAA CPC. Output: `data/processed/validation_scalar_{band}_{season}.json`. **Note: Implements Spec FR-010 and Plan FR-010 requirements.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -116,7 +118,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [S] [US3] [FR-007] Implement `src/data/analysis.py`: Create a wrapper function to **re-run the entire correlation and FDR pipeline (T019-T022)** with AR detection thresholds adjusted by ±5.0 and ±10.0 kg m⁻¹ s⁻¹ [UNRESOLVED-CLAIM: c_4a1d2b11 — status=not_enough_info] relative to the **baseline 250 kg m⁻¹ s⁻¹**. **Note: Sequential task dependent on T018 and T019-T022 completion.**
+- [ ] T031 [P] [US3] [FR-007] **Override Plan Summary**: Implement `src/data/analysis.py`: Create a wrapper function to **re-run the entire correlation and FDR pipeline (T019-T022)** by **invoking the parameterized AR detection function from T018** with thresholds adjusted by ±5.0 and ±10.0 kg m⁻¹ s⁻¹ **relative to the baseline 250 kg m⁻¹ s⁻¹**. **Note: This task calls the reusable logic of T018, not a static output.**
 - [ ] T032 [S] [US3] Implement `src/data/analysis.py`: **Regenerate monthly frequency counts** for each threshold variation (do not use cached data from baseline).
 - [ ] T033 [S] [US3] Implement `src/data/analysis.py`: Re-compute **Pearson correlations** and apply **Benjamini-Hochberg FDR** for each threshold variation. **Note: Implements Spec FR-004 and FR-005.**
 - [ ] T034 [S] [US3] Implement `src/data/analysis.py`: Aggregate counts of significant correlation cells for each threshold variation.
@@ -134,8 +136,25 @@
 - [ ] T037 [P] [FR-009] Implement `src/cli/run_analysis.py` wrappers for `time` and `memory_profiler` to log wall-clock time and peak RAM per phase (FR-009).
 - [ ] T038 [P] [FR-009] Generate `logs/performance.yaml` with timing and memory stats for all phases.
 - [ ] T039 [P] Collate all artifacts into `report/report.md` and archive reproducible ZIP in `artifacts/analysis_bundle.zip`.
-- [ ] T040 [P] [SC-003] [SC-004] Run full pipeline on 'ubuntu-latest' runner to verify execution time ≤6h [UNRESOLVED-CLAIM: c_4c958740 — status=not_enough_info] and RAM ≤7GB (SC-003, SC-004).
+- [ ] T040 [P] [SC-003] [SC-004] Run full pipeline on 'ubuntu-latest' runner to verify execution time ≤6h **measured via wall-clock time** and RAM ≤7GB (SC-003, SC-004).
 - [ ] T041 [P] Update `quickstart.md` with instructions for running specific phases and interpreting outputs.
+
+---
+
+## Phase 7: Data Integrity & Execution Safety (Revision Pass)
+
+**Goal**: Address specific execution risks regarding data sourcing, memory constraints, and statistical validity identified during plan review.
+
+**Rationale**: Ensures the pipeline fails loudly on missing real data (no synthetic fallbacks), handles the global dataset via streaming to respect RAM limits, and aligns statistical methods with the Spec while preparing for Plan amendment.
+
+- [ ] T042 [P] [FR-001] Implement `src/data/download.py`: Enforce **strict real-data sourcing**. Remove any `try/except` blocks that might fall back to synthetic/mock data. If the CDS fetch fails, the script must raise a `DataFetchError` and terminate. Add explicit logging of the CDS query parameters and file checksums.
+- [ ] T043 [P] [FR-009] Implement `src/data/preprocess.py`: Refactor global data loading to use **Dask streaming** (`chunks={'time': 1, 'lat': 180, 'lon': 360}` or similar) to ensure peak RAM never exceeds a moderate threshold during the -year global load. Verify that `xarray.open_mfdataset` uses `combine='by_coords'` with `parallel=True`.
+- [ ] T044 [P] [FR-003] Implement `src/data/preprocess.py`: Add explicit handling for **polar regions** (latitudes > 80°) to **apply equal-area weighting** to prevent geometric distortion in the correlation matrix, ensuring full 90°S-90°N coverage as per Spec FR-001.
+- [ ] T045 [P] [FR-005] Implement `src/data/analysis.py`: Add a **fallback check** for the Benjamini-Hochberg procedure: if the adjusted p-value threshold yields *zero* significant cells, the script must output a specific "No significant correlations found" flag in the JSON report rather than failing silently or producing an empty array without explanation.
+- [ ] T046 [P] [FR-010] Implement `src/data/analysis.py`: Integrate a **teleconnection index loader** (NOAA CPC) that fetches scalar PNA/NAO indices via a verified URL (e.g., `) and matches the time alignment (monthly) with the AR/Z500 data before performing regression validation.
+- [ ] T047 [P] [Plan Amendment] Update `plan.md` to explicitly document the conflict between Spec FR-004/FR-005 (Pearson/BH-FDR) and the Plan's proposed Spearman/Cluster-FDR. Add a "Methodology Resolution" section stating that the current implementation adheres to the Spec, and a formal amendment request is pending for the next review cycle.
+
+**Checkpoint**: Data integrity, memory safety, and methodological alignment confirmed.
 
 ---
 
@@ -149,6 +168,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Phase 6)**: Depends on all desired user stories being complete
+- **Data Integrity (Phase 7)**: Can run in parallel with Implementation tasks, but must be completed before the final full-pipeline run (T040).
 
 ### User Story Dependencies
 
@@ -171,6 +191,7 @@
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 7 (Data Integrity) tasks can run in parallel with US1-3 implementation tasks.
 
 ---
 
@@ -215,6 +236,7 @@ With multiple developers:
  - Developer A: User Story 1 (Correlation & BH-FDR)
  - Developer B: User Story 2 (Visualization)
  - Developer C: User Story 3 (Sensitivity)
+ - Developer D: Phase 7 (Data Integrity & Safety)
 3. Stories complete and integrate independently
 
 ---
@@ -231,9 +253,10 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Ensure all tasks consume REAL ERA5 data from Copernicus CDS; never synthesize fake inputs.
 - **Resource Constraints**: All tasks must run on CPU-only CI (limited cores, 7GB RAM) using chunked Dask operations.
-- **Global Scope**: All tasks must process the **full global grid** (90°S-90°N, 180°W-180°E) as required by Spec FR-001 and FR-004. Streaming logic is used to handle data volume.
-- **Statistical Method**: All tasks must use **Pearson correlation** and **Benjamini-Hochberg FDR** as mandated by Spec FR-004 and FR-005.
+- **Global Scope**: All tasks must process the **full global grid** (90°S-90°N, 180°W-180°E) as required by Spec FR-001 and FR-004. Streaming logic is used to handle data volume. Polar regions (>80°) are included with equal-area weighting.
+- **Statistical Method**: All tasks must use **Pearson correlation** and **Benjamini-Hochberg FDR** as mandated by Spec FR-004 and FR-005. **This overrides the Plan's conflicting methodology.**
 - **Anomaly Definition**: Z500 anomalies must be calculated by subtracting the monthly climatology as per Spec FR-003.
-- **Validation**: Validation must include both **cross-referencing spatial patterns** and **regression against scalar indices** as mandated by Spec FR-010 and Plan FR-010.
+- **Validation**: Validation must include both **spatial pattern correlation** and **scalar regression** as mandated by Spec FR-010 and Plan FR-010.
 - **Methodological Alignment**: Tasks strictly implement Spec requirements. The Plan's alternative methodology (Spearman, Cluster-based tests) is flagged as conflicting and requires a formal Spec/Plan amendment.
-- **Sequential Dependencies**: Task T031 (Sensitivity Analysis start) is marked [S] because it depends on the completion of T018 (Baseline AR Detection) and the full US1 pipeline (T019-T022).
+- **Sequential Dependencies**: Task T031 (Sensitivity Analysis start) is marked [P] (Parallel) relative to the baseline run because it invokes a reusable function from T018, not a static output.
+- **Execution Safety**: Phase 7 tasks (T042-T047) are critical to prevent the "fabrication gate" rejection by ensuring no synthetic fallbacks and proper memory management.

@@ -10,3 +10,15 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k
   verified_at: '2026-07-09T10:51:27.306053Z'
+- artifact_hash: 8fdc20a33d7e48a97b0b70b7e32a9c1acb3424e40c102dd2a9d4220933a15243
+  artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1412.6216] An approach for improving the concept of Cyclomatic
+    Complexity for Object-Oriented Programming'
+  kind: url
+  value: https://arxiv.org/abs/1412.6216
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1412.6216
+  verified_at: '2026-09-21T21:52:14.663609Z'

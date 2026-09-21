@@ -12,10 +12,12 @@ import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.formula.api import ols
+from typing import List, Dict, Tuple
 
 try:
     from config import get_project_root, get_random_state
 except ImportError:
+    from pathlib import Path
     sys.path.insert(0, str(Path(__file__).parent))
     from config import get_project_root, get_random_state
 
@@ -62,17 +64,51 @@ def load_and_prepare_data() -> Tuple[pd.DataFrame, bool]:
 def transform_and_center(df: pd.DataFrame) -> pd.DataFrame:
     """
     Log-transforms discount rate and mean-centers predictors.
+    
+    Specifically implements T021:
+    1. Log-transforms discount_rate_k -> log_k
+    2. Mean-centers predictors (procrastination_score, wm_accuracy, etc.)
     """
     df = df.copy()
     
-    # Log transform k
-    df['log_k'] = np.log(df['discount_rate_k'] + 1e-6)
+    # 1. Log-transform discount rate (log(k))
+    # Add small epsilon to avoid log(0) if any k is 0, though typically k > 0
+    # The task requires log(k), so we assume k > 0. 
+    # If k can be 0, we might need a different handling, but standard is log(k).
+    # Using log(k) directly as per task description.
+    if 'discount_rate_k' not in df.columns:
+        raise ValueError("Column 'discount_rate_k' not found in dataframe for log transformation.")
     
-    # Mean center predictors
-    predictors = ['procrastination_score', 'wm_accuracy', 'wm_rt', 'age']
-    for col in predictors:
+    # Ensure no zeros or negative values for log
+    if (df['discount_rate_k'] <= 0).any():
+        # Log transform of non-positive numbers is undefined. 
+        # We will filter or handle this. For now, raise error or clip.
+        # Given the context of discount rates, they should be positive.
+        # We will add a tiny epsilon if needed, but strict log(k) implies k>0.
+        # Let's assume valid data from ingestion. If not, we clip at 1e-6.
+        df['log_k'] = np.log(df['discount_rate_k'].clip(lower=1e-6))
+    else:
+        df['log_k'] = np.log(df['discount_rate_k'])
+    
+    # 2. Mean-center predictors
+    # Identify predictors to center. Based on the regression formula in run_regression:
+    # "log_k ~ procrastination_score * wm_accuracy + wm_rt + age"
+    # We need to center the independent variables: procrastination_score, wm_accuracy, wm_rt, age.
+    # Note: The dependent variable (log_k) is NOT mean-centered in standard OLS unless specified,
+    # but the task says "mean-centering of predictors".
+    
+    predictors_to_center = ['procrastination_score', 'wm_accuracy', 'wm_rt', 'age']
+    
+    for col in predictors_to_center:
         if col in df.columns:
-            df[col] = df[col] - df[col].mean()
+            mean_val = df[col].mean()
+            df[col] = df[col] - mean_val
+            # Optional: log the mean for debugging/traceability
+            # logging.debug(f"Mean centered {col} with mean {mean_val}")
+        else:
+            # If a predictor is missing (e.g., due to reduced model or data issues),
+            # we just skip it. The regression function should handle missing columns in formula.
+            pass
     
     return df
 

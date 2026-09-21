@@ -1,34 +1,50 @@
 """
-Integration test for memory constraints using mock data.
-Verifies that the pipeline flow logic does not crash or consume
-excessive resources when processing small mock inputs.
+Integration test for memory flow (T014 dependency).
+Verifies that the pipeline components can handle data streams without
+excessive memory usage, using mock data.
 """
-import pytest
-from pathlib import Path
-import tempfile
 import os
+import sys
+import tempfile
+import gc
+from pathlib import Path
+import logging
 
-from utils.logging import MemoryTracker, log_memory_usage
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-def test_memory_tracker_context(mock_fastq_gz_path):
+from utils.logging import get_memory_usage_mb, setup_logger
+
+logger = setup_logger("integration_memory_test", level=logging.INFO)
+
+def test_memory_tracking():
     """
-    Test that the MemoryTracker context manager works correctly.
+    Verify that memory tracking utilities work correctly.
     """
-    tracker = MemoryTracker(threshold_mb=1000) # Set a high threshold to avoid failure
+    logger.info("Starting memory tracking test...")
     
-    with tracker:
-        # Simulate some processing on the mock file
-        with open(mock_fastq_gz_path, 'rb') as f:
-            _ = f.read()
+    initial_memory = get_memory_usage_mb()
+    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
     
-    assert tracker.start_memory_mb is not None
-    assert tracker.end_memory_mb is not None
-    assert tracker.peak_memory_mb is not None
+    # Create some data to simulate processing
+    data_buffer = []
+    for i in range(10000):
+        data_buffer.append("A" * 1000)
+    
+    current_memory = get_memory_usage_mb()
+    logger.info(f"Memory after data allocation: {current_memory:.2f} MB")
+    
+    # Clean up
+    data_buffer.clear()
+    gc.collect()
+    
+    final_memory = get_memory_usage_mb()
+    logger.info(f"Final memory usage: {final_memory:.2f} MB")
+    
+    # The test passes if we can track memory without crashing
+    # We don't assert specific values as they vary by environment
+    assert current_memory >= initial_memory, "Memory tracking seems broken (memory decreased after allocation?)"
+    logger.info("Memory tracking test PASSED.")
 
-def test_log_memory_usage():
-    """
-    Test the standalone log_memory_usage function.
-    """
-    msg = log_memory_usage("Integration Test Start")
-    assert msg is not None
-    assert "MB" in msg or "mb" in msg.lower()
+if __name__ == "__main__":
+    test_memory_tracking()

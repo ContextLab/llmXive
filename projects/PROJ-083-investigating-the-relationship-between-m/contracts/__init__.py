@@ -1,9 +1,15 @@
 """
-Contracts module for PROJ-083: Investigating the Relationship Between Molecular Topology and Reaction Selectivity.
+Contracts module for PROJ-083.
 
-This module defines strict data schemas and validation interfaces for the research pipeline.
-It ensures data integrity between ingestion, descriptor calculation, and modeling stages.
+This package defines the core data schemas used throughout the pipeline
+to ensure type safety and consistency between ingestion, descriptor calculation,
+and modeling stages.
 """
-from .schemas import ReactionRecord, TopologicalDescriptor
+from .reaction_record import ReactionRecord
+from .topological_descriptor import TopologicalDescriptor, DescriptorType
 
-__all__ = ["ReactionRecord", "TopologicalDescriptor"]
+__all__ = [
+    "ReactionRecord",
+    "TopologicalDescriptor",
+    "DescriptorType"
+]

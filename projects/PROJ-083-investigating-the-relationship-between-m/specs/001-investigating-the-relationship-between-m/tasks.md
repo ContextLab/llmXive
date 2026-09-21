@@ -57,7 +57,7 @@
 > **NOTE**: Write these tests FIRST (TDD style). They will fail initially. **Run** them only after T011-T015 are implemented.
 
 - [X] T009 [P] [US1] Contract test for EAS pattern matching in `tests/unit/test_ingestion.py`
-- [ ] T010 [P] [US1] Integration test for full ingestion pipeline on small subset in `tests/integration/test_ingestion_pipeline.py`
+- [X] T010 [P] [US1] Integration test for full ingestion pipeline on small subset in `tests/integration/test_ingestion_pipeline.py`
  - **Execution Note**: This test MUST run after T011-T015 are complete to verify the implementation.
 
 ### Implementation for User Story 1
@@ -67,7 +67,7 @@
 - [X] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
 - [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < 100 (FR-001)
  - **Gate Logic**: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST exit with code 1 and prevent Phase 5 execution.
-- [ ] T015 [US1] Write filtered dataset to `data/processed/eas_reactions.csv` with checksum generation
+- [X] T015 [US1] Write filtered dataset to `data/processed/eas_reactions.csv` with checksum generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 **Critical Dependency Note**: Phase 5 (Modeling) depends on Phase 3 completion AND N_EAS >= 100.
@@ -83,20 +83,20 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
-- [ ] T017 [P] [US2] Unit test for Balaban and Zagreb index calculations in `tests/unit/test_descriptors.py`
-- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner in `tests/perf/test_descriptor_perf.py`
-- [ ] T019 [P] [US2] Unit test for graph automorphism detection in `tests/unit/test_symmetry.py`
+- [X] T017 [P] [US2] Unit test for Balaban and Zagreb index calculations in `tests/unit/test_descriptors.py`
+- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner in `tests/perf/test_descriptor_perf.py` <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Unit test for graph automorphism detection in `tests/unit/test_symmetry.py`
 
 ### Implementation for User Story 2 & Symmetry (FR-002, FR-008)
 
-- [ ] T020 [US2] Implement Wiener index calculator in `code/descriptors.py` (FR-002)
-- [ ] T021 [US2] Implement Balaban index calculator with graph connectivity checks in `code/descriptors.py` (FR-002)
-- [ ] T022 [US2] Implement Zagreb index calculator in `code/descriptors.py` (FR-002)
+- [X] T020 [US2] Implement Wiener index calculator in `code/descriptors.py` (FR-002)
+- [X] T021 [US2] Implement Balaban index calculator with graph connectivity checks in `code/descriptors.py` (FR-002)
+- [X] T022 [US2] Implement Zagreb index calculator in `code/descriptors.py` (FR-002)
 - [ ] T023 [US2] Implement logic to flag "invalid topology" for disconnected graphs and exclude from analysis (FR-002)
-- [ ] T024 [US2] Implement **Preliminary** graph automorphism detection using `rdkit` or `networkx` to verify molecule canonicalization in `code/utils/symmetry.py` (FR-008)
+- [X] T024 [US2] Implement **Preliminary** graph automorphism detection using `rdkit` or `networkx` to verify molecule canonicalization in `code/utils/symmetry.py` (FR-008)
  - **Note**: This is a preliminary check; formal group definition is in Phase 7.
-- [ ] T025 [US2] Add explicit **Preliminary** invariance check: Calculate indices for a molecule and its canonicalized form; assert equality in `code/utils/symmetry.py` (FR-008)
-- [ ] T026 [US2] Implement **Preliminary** sensitivity analysis: Rotate/permute molecular graph representation and verify index stability in `code/utils/symmetry.py` (FR-008)
+- [X] T025 [US2] Add explicit **Preliminary** invariance check: Calculate indices for a molecule and its canonicalized form; assert equality in `code/utils/symmetry.py` (FR-008)
+- [X] T026 [US2] Implement **Preliminary** sensitivity analysis: Rotate/permute molecular graph representation and verify index stability in `code/utils/symmetry.py` (FR-008)
 - [ ] T027 [US2] Write descriptor table to `data/processed/descriptors.csv` with checksums
 
 ### Tests for Symmetry Invariance (Moved to Phase 4 for TDD)

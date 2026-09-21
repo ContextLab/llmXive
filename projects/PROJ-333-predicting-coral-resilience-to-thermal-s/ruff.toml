@@ -9,25 +9,82 @@ select = [
     "B",
     "UP",
     "N",
+    "ANN",
+    "S",
+    "A",
+    "COM",
+    "C4",
+    "DTZ",
+    "T10",
+    "EXE",
+    "ISC",
+    "ICN",
+    "PIE",
     "PT",
+    "Q",
+    "RSE",
+    "RET",
+    "SIM",
+    "TCH",
+    "ARG",
+    "PTH",
+    "ERA",
+    "PL",
+    "TRY",
+    "FLY",
+    "NPY",
+    "PERF",
     "RUF",
 ]
 ignore = [
+    "ANN101",
+    "ANN102",
+    "ANN204",
+    "S101",
+    "S105",
+    "S106",
+    "S107",
     "E501",
-    "B008",
-    "C901",
-    "N803",
-    "N806",
+    "COM812",
+    "ISC001",
+    "PLR0913",
+    "PLR2004",
+    "B905",
 ]
 exclude = [
     ".git",
     "__pycache__",
-    ".venv",
-    "venv",
-    "data",
     "build",
     "dist",
+    "*.egg-info",
+    "venv",
+    ".venv",
+    "data",
+    "docs",
+    "migrations",
 ]
-
-[per-file-ignores]
-"tests/*" = ["PT001", "PT004", "PT006"]
+per-file-ignores = { "tests/*" = [
+    "S101",
+    "ANN",
+    "D103",
+], "code/utils/errors.py" = [
+    "D105",
+] }
+[isort]
+known-first-party = [
+    "config",
+    "data",
+    "models",
+    "utils",
+    "ingest",
+    "quant",
+    "dge_analysis",
+    "viz",
+    "enrichment",
+]
+force-sort-within-sections = true
+lines-after-imports = 2
+[pydocstyle]
+convention = "numpy"
+[mccabe]
+max-complexity = 12

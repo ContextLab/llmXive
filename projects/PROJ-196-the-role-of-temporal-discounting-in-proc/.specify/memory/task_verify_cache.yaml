@@ -1,19 +1,3 @@
-T013:
-  c: false
-  h: 44d7af929b8754abbabaa55c55fda8a488b776b2a0429297bcdec17d7e04410c
-  r: "The provided `code/ingestion.py` contains only synthetic data\u2011generation\
-    \ utilities and never checks `data/raw/` for ARFF/CSV files, validates required\
-    \ columns, or writes `data/processed/data_source_flag.json`. Moreover, the required\
-    \ flag file is absent from the repository. Consequently the real\u2011data ingestion\
-    \ logic mandated by T013 is not implemented."
-T014:
-  c: false
-  h: 44d7af929b8754abbabaa55c55fda8a488b776b2a0429297bcdec17d7e04410c
-  r: The repository contains a partially implemented `code/ingestion.py` with DGP
-    defaults and a validation function, but it does not produce the required three
-    CSV files nor does it write the `data/processed/data_source_flag.json` flag file
-    (the file is missing). Consequently the core outputs and flagging step mandated
-    by the task are absent.
 T014a:
   c: false
   h: 11c97a8f3b879944bb3c6ebea200c8677de3b136411c21decc7895b2249e5389
@@ -29,22 +13,14 @@ T015b:
     logic (checking for missing `discount_rate_k`, `procrastination_score`, `wm_accuracy`
     and raising `SystemExit(1)` with the specified message). Consequently, the artifact
     needed to satisfy T015b is absent.
-T016:
-  c: false
-  h: 1b660076e97ee45e93b7beeefe18c9f41d3a2191136e816fed33a6567653d43c
-  r: "The required `data/processed/model_config.json` file does not exist, and the\
-    \ provided `code/ingestion.py` contains only synthetic data generation utilities\
-    \ with no logic for calculating missingness, flagging reduced models, or performing\
-    \ mean imputation for age and gender. The task\u2019s core requirements are therefore\
-    \ unmet."
 T018:
   c: false
-  h: 56debb820f97d0d327ed4cbb51d32daf48357fff3f2fac1bdc08c08ce74e92b6
-  r: The required `data/processed/harmonized_dataset.parquet` file does not exist,
-    the state YAML `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`
-    is missing, and the provided `code/ingestion.py` snippet does not contain a `write_harmonized_dataset`
-    implementation, so the dataset write, checksum generation, and state update steps
-    are not performed.
+  h: 43f50d99f098add2a4226d80772441dcc23b5fdee31be9da55313d4fc4fa256a
+  r: "The required `data/processed/harmonized_dataset.parquet` file does not exist,\
+    \ and the state file `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`\
+    \ is also missing. Moreover, the provided `code/ingestion.py` snippet does not\
+    \ contain a `write_harmonized_dataset` implementation, so the mandated function\
+    \ and checksum\u2011updating logic are absent. The task therefore remains unfinished."
 T022:
   c: false
   h: 8dae96574d1ac609fdf7138464c51b273e4ab6061e4388b463d4af0e30581e70
