@@ -26,9 +26,9 @@ This project implements a comparative pipeline to predict molecular barrier heig
 - **FR-002 (Geometry & Retry)**: DFTB+ optimization with **one retry** using a perturbed initial guess. Failures logged to `logs/convergence_failures.log` with schema `molecule_id, timestamp, error_code, error_message`.
 - **FR-003 (Semi-Empirical Descriptors)**: Output `data/descriptors_semi.csv` with columns `molecule_id`, `HOMO_energy`, `LUMO_energy`, `mayer_bond_order`.
 - **FR-004 (DFT Subset)**: Stratified random subset by **barrier height bins**. If N < 50, use all. **Same train/test splits** used for both models.
-- **FR-005 (Paired T-Test)**: Compare errors on the **same 50 samples**. Report Null Hypothesis, Significance Level (α=0.05), and models compared.
+- **FR-005 (Paired T-Test)**: Compare errors on the **same set of samples**. Report Null Hypothesis, Significance Level (α=0.05), and models compared.
 - **FR-006 (Feature Importance)**: Top descriptors identified from RF `feature_importances_` and saved to `reports/sensitivity.csv`.
-- **FR-007 (Sensitivity)**: Sweep cutoffs {0.01, 0.05, 0.1} and noise {σ=0.01, 0.05}. Record rank correlation of top descriptors in `reports/sensitivity.csv`.
+- **FR-007 (Sensitivity)**: Sweep cutoffs across a range of small significance thresholds. and noise {σ=0.01, 0.05}. Record rank correlation of top descriptors in `reports/sensitivity.csv`.
 - **FR-008 (Confounds)**: `code/confounds.py` uses `rdkit.Chem.Lipinski` and `rdkit.Chem.Descriptors` to derive MW, atom count, and functional groups from SMILES. Output `data/confounds.csv`.
 - **SC-001**: Success rate (count/ratio of optimized geometries) calculated and reported in `reports/evaluation.json`.
 - **SC-002**: MAE for both models reported in `reports/evaluation.json` with keys `semi_empirical_mae`, `dft_mae`.

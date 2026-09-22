@@ -1,22 +1,19 @@
 {
   "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
   "ok": false,
-  "reason": "7 command(s) failed: python code/fetch_data.py (rc=1); python code/confound_analysis.py (rc=1); python code/descriptor_pipeline.py (rc=1); 4 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv",
+  "reason": "4 command(s) failed: python code/main.py run (rc=2); python code/main.py fetch (rc=2); python code/main.py optimize (rc=2); 4 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv",
   "artifacts": [],
   "failures": [
-    "python code/fetch_data.py -> rc=1\n    ",
-    "python code/confound_analysis.py -> rc=1\n    Error: No CSV files found in data/raw/",
-    "python code/descriptor_pipeline.py -> rc=1\n    Error: Input file not found: data/raw/barrier_dataset.csv",
-    "python code/dft_calculator.py -> rc=1\n    -qua/code/dft_calculator.py\", line 332, in main\n    logger = log_setup()\n             ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/dft_calculator.py\", line 35, in log_setup\n    logger = setup_logger(\"dft_calculator\", LOG_FILE)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/utils/logging_utils.py\", line 47, in setup_logger\n    file_handler = logging.FileHandler(log_path)",
-    "python code/train_models.py -> rc=1\n    ",
-    "python code/evaluate_models.py -> rc=1\n    6-predicting-molecular-properties-from-qua/code/evaluate_models.py\", line 289, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py\", line 225, in main\n    logger = setup_logger(\"evaluate_models\", args.log)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/utils/logging_utils.py\", line 47, in setup_logger\n    file_handler = logging.FileHandler(log_p",
-    "python code/sensitivity_analysis.py -> rc=1\n    2026-09-09 04:19:28,934 - sensitivity_analysis - INFO - Loading model and data...\n2026-09-09 04:19:28,934 - sensitivity_analysis - ERROR - Error during sensitivity analysis: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/models/rf_semi.pkl\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/sensitivity_analysis.py\", line 275, in main\n    model = load_model(args.model_path)\n            ^^"
+    "python code/main.py run -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: run",
+    "python code/main.py fetch -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: fetch",
+    "python code/main.py optimize -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: optimize",
+    "python code/main.py train -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: train"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-09T04:19:30Z"
+  "updated_at": "2026-09-22T04:19:24Z"
 }

@@ -1,13 +1,10 @@
 status: none
-intent: Zenodo experimental barrier dataset download verification SHA256 checksum
-  python package dataset
+intent: Zenodo experimental barrier dataset HOMO SMILES download python package dataset
 required_fields:
 - reaction_id
 - reactant_smiles
 - product_smiles
-- experimental_barrier
-- temperature
-- reference
-cache_key: 088687d089781f78c87e425cd9e41c701d5fbfcc6e3f8edf19ae29bbeb1d1360
-searched_at: '2026-09-09T04:22:00.401523+00:00'
+- activation_barrier
+cache_key: 6a2666c3b6e60c6f9c99d906ee849dd74da98240c9af88ee56fa4a4acbe9d23d
+searched_at: '2026-09-22T04:20:00.913918+00:00'
 retry_count: 1
