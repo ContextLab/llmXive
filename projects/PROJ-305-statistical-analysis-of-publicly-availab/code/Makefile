@@ -1,24 +1,20 @@
-.PHONY: lint format test clean
-
-lint:
-	ruff check code/src code/tests
-	ruff check --diff code/src code/tests
+# Makefile for development tasks
+.PHONY: format lint test clean
 
 format:
-	black code/src code/tests
-	ruff check --fix code/src code/tests
+	black code/
+	ruff check --fix code/
+
+lint:
+	ruff check code/
+	flake8 code/
+	mypy code/
 
 test:
-	pytest
+	pytest code/tests/
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	rm -rf .pytest_cache
-	rm -rf .coverage
-	rm -rf htmlcov
-	rm -rf .mypy_cache
-
-setup:
-	pip install -e ".[dev]"
+	find code/ -type d -name "__pycache__" -exec rm -r {} +
+	find code/ -type f -name "*.pyc" -delete
+	find code/ -type f -name "*.pyo" -delete
+	rm -rf code/.pytest_cache code/.mypy_cache

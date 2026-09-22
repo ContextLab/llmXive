@@ -64,7 +64,7 @@ def calculate_atomic_radii_variance(composition: Dict[str, float]) -> float:
     
     if not radii:
         return np.nan
-  
+    
     mean_radius = np.average(radii, weights=weights)
     variance = np.average((np.array(radii) - mean_radius)**2, weights=weights)
     return variance

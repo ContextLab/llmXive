@@ -1,25 +1,25 @@
 """
-Script to run the preprocessing pipeline.
-This script is invoked by the quickstart run-book to generate data/processed/alloys_raw.csv.
+Script to run the Preprocessing Pipeline.
+Standardizes, filters, imputes, and saves processed data.
 """
 import logging
 import sys
 from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from src.preprocessing.preprocess_pipeline import main as run_pipeline
 from src.utils.logging_config import setup_logging
 
 def main():
-    """Main entry point for the preprocessing script."""
     setup_logging()
     logger = logging.getLogger(__name__)
-    
-    try:
-        logger.info("Executing Preprocessing Pipeline via script wrapper...")
-        run_pipeline()
-        logger.info("Preprocessing script completed successfully.")
-    except Exception as e:
-        logger.error(f"Preprocessing script failed: {e}", exc_info=True)
-        sys.exit(1)
+    logger.info("Executing Preprocessing Pipeline Script...")
+    run_pipeline()
+    logger.info("Preprocessing Pipeline Script completed.")
 
 if __name__ == "__main__":
     main()

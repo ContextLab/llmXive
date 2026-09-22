@@ -1,28 +1,25 @@
 """
 Script to run the Manual Curator pipeline.
-Ensures data/raw/manual_curated.csv is generated (or created empty if missing).
+Ensures data/raw/manual_curated.csv exists and is valid.
 """
 import logging
 import sys
 from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from src.ingestion.manual_curator import main as run_pipeline
 from src.utils.logging_config import setup_logging
 
 def main():
-    """Run the manual curator pipeline."""
-    setup_logging("run_manual_curator", level=logging.INFO)
+    setup_logging()
     logger = logging.getLogger(__name__)
-    
-    logger.info("Starting manual curator pipeline...")
-    df = run_pipeline()
-    
-    if df.empty:
-        logger.warning("Manual curator produced no data. Proceeding with empty dataset.")
-    else:
-        logger.info(f"Manual curator successfully processed {len(df)} entries.")
-    
-    logger.info("Manual curator pipeline complete.")
-    return df
+    logger.info("Executing Manual Curator Script...")
+    run_pipeline()
+    logger.info("Manual Curator Script completed.")
 
 if __name__ == "__main__":
     main()

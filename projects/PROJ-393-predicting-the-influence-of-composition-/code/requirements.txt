@@ -5,9 +5,9 @@ matplotlib>=3.7.0
 pyyaml>=6.0
 requests>=2.31.0
 scikit-learn-extra>=0.3.0
+seaborn>=0.12.0
+scipy>=1.11.0
 pytest>=7.4.0
 black>=23.0.0
-ruff>=0.0.290
-pre-commit>=3.4.0
-scipy>=1.11.0
-joblib  # auto-added: imported by run-book but missing from venv
+ruff>=0.1.0
+pre-commit>=3.5.0

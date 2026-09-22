@@ -7,13 +7,12 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — declared artifact(s) missing/empty/invalid: src/utils/config.py
 - **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T007** — declared artifact(s) missing/empty/invalid: src/data/validate.py, schema.yaml
+- **T007** — The `validate.py` file is present but its implementation is truncated and does not fully perform validation (e.g., the `validate_data` function ends abruptly). Moreover, the required `dataset.schema.yaml` file is missing, so the script cannot actually validate against a schema and will raise a `FileNotFoundError` instead of the expected `E_SCHEMA_MISSING`. The artifact therefore does not satisfy the task’s requirement.
 - **T008** — declared artifact(s) missing/empty/invalid: src/utils/plots.py
 - **T009** — declared artifact(s) missing/empty/invalid: src/main.py
 - **T039** — The required file `src/main.py` is missing entirely, so no memory‑check logic or chunked‑processing code could be present. The task’s core deliverable does not exist.
 - **T040** — The required file `src/main.py` is missing entirely, so no memory‑check logic could have been added. Consequently the task’s deliverable does not exist.
-- **T011** — The repository lacks `src/data/validate.py`, so the unit tests cannot even import the functions they are meant to test. Moreover, the provided `tests/unit/test_validate.py` (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception is raised for missing columns; it only checks for a generic `SystemExit`. Both the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
 - **T014** — declared artifact(s) missing/empty/invalid: src/data/clean.py
 - **T016** — declared artifact(s) missing/empty/invalid: src/data/clean.py
 - **T018** — declared artifact(s) missing/empty/invalid: src/data/clean.py
-- **T019** — Both required artifacts (`src/analysis/disproportionality.py` and `tests/unit/test_disproportionality.py`) are missing from the repository, so no unit test or implementation exists to verify the ROR/PRR/IC calculation logic. The task’s deliverable is therefore not present.
+- **T019** — The required unit‑test file `tests/unit/test_disproportionality.py` does not exist in the repository, so no test verifying ROR/PRR/IC logic (including continuity correction) is present. Consequently the task’s deliverable is missing.

@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
   verified_at: '2026-08-12T15:52:33.437743Z'
-- artifact_hash: ead66d0a7f67db747aa958c20246233f026ac9f3ccd434489034ffccdac3dd4b
+- artifact_hash: be52ac62a93b4b30b0224d4c43d7660c2cb5d5fb6427c2a8f50f41263e15a034
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,8 +85,8 @@
   value: https://arxiv.org/abs/2410.21676
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
-  verified_at: '2026-09-17T13:02:37.124843Z'
-- artifact_hash: ead66d0a7f67db747aa958c20246233f026ac9f3ccd434489034ffccdac3dd4b
+  verified_at: '2026-09-22T21:43:07.970765Z'
+- artifact_hash: be52ac62a93b4b30b0224d4c43d7660c2cb5d5fb6427c2a8f50f41263e15a034
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -96,8 +96,8 @@
   value: https://www.wikidata.org/wiki/Q18760935
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18760935
-  verified_at: '2026-09-17T13:02:37.124843Z'
-- artifact_hash: ead66d0a7f67db747aa958c20246233f026ac9f3ccd434489034ffccdac3dd4b
+  verified_at: '2026-09-22T21:43:07.970765Z'
+- artifact_hash: be52ac62a93b4b30b0224d4c43d7660c2cb5d5fb6427c2a8f50f41263e15a034
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -108,4 +108,4 @@
   value: https://arxiv.org/abs/2607.07974
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.07974
-  verified_at: '2026-09-17T13:02:37.124843Z'
+  verified_at: '2026-09-22T21:43:07.970765Z'

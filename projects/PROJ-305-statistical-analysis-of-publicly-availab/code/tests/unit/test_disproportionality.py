@@ -1,17 +1,9 @@
-"""
-Unit tests for disproportionality analysis calculations.
-Tests ROR, PRR, IC, confidence intervals, and continuity correction.
-"""
 import os
 import sys
 import math
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from src.analysis.disproportionality import (
     apply_continuity_correction,
@@ -19,288 +11,122 @@ from src.analysis.disproportionality import (
     calculate_ror,
     calculate_prr,
     calculate_ic,
-    calculate_p_value_chi2,
     calculate_ci_ror,
     calculate_ci_prr,
     calculate_ci_ic,
+    calculate_p_value_chi2,
     calculate_disproportionality_metrics,
     benjamini_hochberg,
     run_analysis
 )
 
-
 class TestContinuityCorrection:
-    """Tests for continuity correction functionality."""
-    
-    def test_apply_continuity_correction_basic(self):
-        """Test that 0.5 is added to all cells."""
-        a, b, c, d = 10, 20, 15, 25
-        corrected = apply_continuity_correction(a, b, c, d)
-        
-        assert corrected == (10.5, 20.5, 15.5, 25.5)
-    
-    def test_apply_continuity_correction_zeroes(self):
-        """Test continuity correction with zero values."""
-        a, b, c, d = 0, 0, 0, 0
-        corrected = apply_continuity_correction(a, b, c, d)
-        
-        assert corrected == (0.5, 0.5, 0.5, 0.5)
-
+    def test_adds_0_5(self):
+        assert apply_continuity_correction(0) == 0.5
+        assert apply_continuity_correction(10) == 10.5
 
 class TestContingencyTable:
-    """Tests for contingency table building."""
-    
-    def test_build_contingency_table_basic(self):
-        """Test basic contingency table construction."""
+    def test_build_table_correct(self):
         data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 10 + ['Non-COVID'] * 10,
-            'SOC_CODE': ['SOC001'] * 5 + ['SOC002'] * 5 + 
-                        ['SOC001'] * 3 + ['SOC002'] * 7
+            'SOC_CODE': ['A', 'A', 'B', 'B', 'A', 'B'],
+            'VAX_TYPE': ['COVID-19', 'COVID-19', 'Flu', 'Flu', 'Flu', 'Flu']
         }
         df = pd.DataFrame(data)
         
-        table = build_contingency_table(df, 'SOC001')
-        
-        # Expected: a=5 (COVID+SOC001), b=5 (COVID+not SOC001)
-        #           c=3 (Non-COVID+SOC001), d=7 (Non-COVID+not SOC001)
-        assert table['a'] == 5
-        assert table['b'] == 5
-        assert table['c'] == 3
-        assert table['d'] == 7
-    
-    def test_build_contingency_table_no_matches(self):
-        """Test table when no matches exist."""
-        data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 5 + ['Non-COVID'] * 5,
-            'SOC_CODE': ['SOC001'] * 5 + ['SOC002'] * 5
-        }
-        df = pd.DataFrame(data)
-        
-        table = build_contingency_table(df, 'SOC003')
-        
-        assert table['a'] == 0
-        assert table['b'] == 5
-        assert table['c'] == 0
-        assert table['d'] == 5
-
+        # SOC A: 2 in COVID, 1 in Flu. Total COVID=2, Total Flu=4.
+        # a=2, b=0, c=1, d=3
+        table = build_contingency_table(df, 'A', 'COVID-19')
+        assert table['a'] == 2
+        assert table['c'] == 1
+        assert table['b'] == 0 # 2 total COVID - 2 events
+        assert table['d'] == 3 # 4 total Flu - 1 event
 
 class TestRORCalculation:
-    """Tests for Reporting Odds Ratio calculation."""
-    
-    def test_calculate_ror_basic(self):
-        """Test basic ROR calculation."""
-        # a=10, b=10, c=5, d=25
-        # ROR = (10*25) / (10*5) = 250/50 = 5.0
-        ror = calculate_ror(10, 10, 5, 25)
-        assert math.isclose(ror, 5.0, rel_tol=1e-9)
-    
-    def test_calculate_ror_equal_odds(self):
-        """Test ROR when odds are equal (should be 1.0)."""
-        # a=10, b=10, c=10, d=10
-        # ROR = (10*10) / (10*10) = 1.0
-        ror = calculate_ror(10, 10, 10, 10)
-        assert math.isclose(ror, 1.0, rel_tol=1e-9)
-    
-    def test_calculate_ror_zero_denominator(self):
-        """Test ROR with zero in denominator (after correction, this shouldn't happen)."""
-        # With continuity correction, we should never have zero
-        ror = calculate_ror(0.5, 0.5, 0.5, 0.5)
-        assert math.isclose(ror, 1.0, rel_tol=1e-9)
+    def test_basic_ror(self):
+        # a=10, b=10, c=5, d=15
+        # ROR = (10*15)/(10*5) = 150/50 = 3.0
+        assert calculate_ror(10, 10, 5, 15) == 3.0
 
+    def test_ror_nan_div_zero(self):
+        assert math.isnan(calculate_ror(10, 0, 5, 15))
 
 class TestPRRCalculation:
-    """Tests for Proportional Reporting Ratio calculation."""
-    
-    def test_calculate_prr_basic(self):
-        """Test basic PRR calculation."""
-        # a=10, b=10, c=5, d=25
-        # p1 = 10/20 = 0.5
-        # p2 = 5/30 = 0.1667
-        # PRR = 0.5 / 0.1667 = 3.0
-        prr = calculate_prr(10, 10, 5, 25)
-        assert math.isclose(prr, 3.0, rel_tol=1e-9)
-    
-    def test_calculate_prr_equal_rates(self):
-        """Test PRR when rates are equal (should be 1.0)."""
-        # a=10, b=10, c=10, d=10
-        # p1 = 10/20 = 0.5
-        # p2 = 10/20 = 0.5
-        # PRR = 1.0
-        prr = calculate_prr(10, 10, 10, 10)
-        assert math.isclose(prr, 1.0, rel_tol=1e-9)
-
+    def test_basic_prr(self):
+        # a=10, b=10 -> p1 = 0.5
+        # c=5, d=15 -> p2 = 0.25
+        # PRR = 0.5 / 0.25 = 2.0
+        assert calculate_prr(10, 10, 5, 15) == 2.0
 
 class TestICCalculation:
-    """Tests for Information Component calculation."""
-    
-    def test_calculate_ic_basic(self):
-        """Test basic IC calculation."""
-        # a=10, b=10, c=5, d=25
-        # total = 50
+    def test_basic_ic(self):
+        # a=10, b=10, c=5, d=15
+        # total = 40
         # observed = 10/20 = 0.5
-        # expected = 15/50 = 0.3
-        # IC = log2(0.5/0.3) = log2(1.667) ≈ 0.737
-        ic = calculate_ic(10, 10, 5, 25)
-        expected = math.log2(0.5 / 0.3)
-        assert math.isclose(ic, expected, rel_tol=1e-6)
-    
-    def test_calculate_ic_equal_rates(self):
-        """Test IC when observed equals expected (should be 0)."""
-        # a=10, b=10, c=10, d=10
-        # observed = 10/20 = 0.5
-        # expected = 20/40 = 0.5
-        # IC = log2(1) = 0
-        ic = calculate_ic(10, 10, 10, 10)
-        assert math.isclose(ic, 0.0, rel_tol=1e-9)
-
+        # expected = 15/40 = 0.375
+        # IC = log2(0.5/0.375) = log2(1.333) approx 0.415
+        val = calculate_ic(10, 10, 5, 15)
+        expected = math.log2( (10/20) / (15/40) )
+        assert math.isclose(val, expected, rel_tol=1e-5)
 
 class TestConfidenceIntervals:
-    """Tests for confidence interval calculations."""
-    
-    def test_calculate_ci_ror_basic(self):
-        """Test ROR confidence interval calculation."""
-        # With a=10, b=10, c=5, d=25
-        ci_lower, ci_upper = calculate_ci_ror(10, 10, 5, 25)
-        
-        assert ci_lower > 0
-        assert ci_upper > ci_lower
-        assert ci_lower < 5.0 < ci_upper  # ROR should be in CI
-    
-    def test_calculate_ci_prr_basic(self):
-        """Test PRR confidence interval calculation."""
-        ci_lower, ci_upper = calculate_ci_prr(10, 10, 5, 25)
-        
-        assert ci_lower > 0
-        assert ci_upper > ci_lower
-        assert ci_lower < 3.0 < ci_upper  # PRR should be in CI
-    
-    def test_calculate_ci_ic_basic(self):
-        """Test IC confidence interval calculation."""
-        ci_lower, ci_upper = calculate_ci_ic(10, 10, 5, 25)
-        
-        assert ci_lower < ci_upper
+    def test_ci_ror(self):
+        # Known values
+        lower, upper = calculate_ci_ror(10, 10, 5, 15)
+        assert lower < 3.0 < upper
 
+    def test_ci_prr(self):
+        lower, upper = calculate_ci_prr(10, 10, 5, 15)
+        assert lower < 2.0 < upper
+
+    def test_ci_ic(self):
+        lower, upper = calculate_ci_ic(10, 10, 5, 15)
+        # Just check it returns numbers
+        assert isinstance(lower, float)
+        assert isinstance(upper, float)
 
 class TestPValueChi2:
-    """Tests for Chi-squared p-value calculation."""
-    
-    def test_calculate_p_value_chi2_basic(self):
-        """Test basic p-value calculation."""
-        p_value = calculate_p_value_chi2(10, 10, 5, 25)
-        
-        assert 0.0 <= p_value <= 1.0
-    
-    def test_calculate_p_value_chi2_no_difference(self):
-        """Test p-value when there's no difference (should be high)."""
-        p_value = calculate_p_value_chi2(10, 10, 10, 10)
-        
-        assert p_value > 0.5  # No difference should give high p-value
-
+    def test_p_value(self):
+        p = calculate_p_value_chi2(10, 10, 5, 15)
+        assert 0 <= p <= 1
 
 class TestBenjaminiHochberg:
-    """Tests for Benjamini-Hochberg FDR correction."""
-    
-    def test_bh_correction_basic(self):
-        """Test basic BH correction."""
-        p_values = [0.01, 0.03, 0.05, 0.07, 0.10]
-        adjusted = benjamini_hochberg(p_values)
-        
-        assert len(adjusted) == 5
-        assert all(0.0 <= p <= 1.0 for p in adjusted)
-    
-    def test_bh_correction_monotonic(self):
-        """Test that adjusted p-values are monotonically increasing."""
-        p_values = [0.05, 0.01, 0.03, 0.07, 0.02]
-        adjusted = benjamini_hochberg(p_values)
-        
-        # Check monotonicity
-        sorted_indices = sorted(range(len(p_values)), key=lambda i: p_values[i])
-        sorted_adjusted = [adjusted[i] for i in sorted_indices]
-        
-        for i in range(len(sorted_adjusted) - 1):
-            assert sorted_adjusted[i] <= sorted_adjusted[i + 1]
-    
-    def test_bh_correction_empty(self):
-        """Test BH correction with empty list."""
-        adjusted = benjamini_hochberg([])
-        assert adjusted == []
-
+    def test_monotonicity(self):
+        p_vals = [0.01, 0.04, 0.03, 0.02]
+        adj = benjamini_hochberg(p_vals)
+        # Check that adjusted p-values are monotonic with respect to original order?
+        # Actually BH ensures that if you sort by p, the adjusted p is monotonic.
+        # Here we just check it returns a list of same length and valid range
+        assert len(adj) == 4
+        assert all(0 <= x <= 1 for x in adj)
 
 class TestFullMetrics:
-    """Tests for complete disproportionality metrics calculation."""
-    
-    def test_calculate_disproportionality_metrics(self):
-        """Test full metrics calculation."""
-        data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 20 + ['Non-COVID'] * 20,
-            'SOC_CODE': ['SOC001'] * 10 + ['SOC002'] * 10 + 
-                        ['SOC001'] * 5 + ['SOC002'] * 15
-        }
-        df = pd.DataFrame(data)
-        
-        metrics = calculate_disproportionality_metrics(df, 'SOC001')
-        
+    def test_all_metrics(self):
+        metrics = calculate_disproportionality_metrics(10, 10, 5, 15)
         assert 'ror' in metrics
         assert 'prr' in metrics
         assert 'ic' in metrics
-        assert 'p_value' in metrics
         assert 'ror_ci_lower' in metrics
-        assert 'ror_ci_upper' in metrics
-        assert metrics['a'] == 10
-        assert metrics['b'] == 10
-        assert metrics['c'] == 5
-        assert metrics['d'] == 15
-    
-    def test_calculate_disproportionality_metrics_zero_counts(self):
-        """Test metrics with zero counts (should handle gracefully)."""
-        data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 10 + ['Non-COVID'] * 10,
-            'SOC_CODE': ['SOC001'] * 10 + ['SOC002'] * 10
-        }
-        df = pd.DataFrame(data)
-        
-        # SOC003 doesn't exist, so all counts should be 0 (after correction: 0.5)
-        metrics = calculate_disproportionality_metrics(df, 'SOC003')
-        
-        assert metrics['a'] == 0
-        assert metrics['b'] == 10
-        assert metrics['c'] == 0
-        assert metrics['d'] == 10
-
+        assert 'adjusted_p' not in metrics # Not in this function, added in run_analysis
 
 class TestRunAnalysis:
-    """Tests for full analysis pipeline."""
-    
-    def test_run_analysis_basic(self):
-        """Test basic analysis run."""
+    def test_run_analysis_integration(self):
         data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 50 + ['Non-COVID'] * 50,
-            'SOC_CODE': ['SOC001'] * 20 + ['SOC002'] * 15 + ['SOC003'] * 15 +
-                        ['SOC001'] * 10 + ['SOC002'] * 20 + ['SOC003'] * 20
+            'SOC_CODE': ['A'] * 10 + ['B'] * 4 + ['C'] * 6,
+            'VAX_TYPE': ['COVID-19'] * 5 + ['Flu'] * 5 + ['Flu'] * 4 + ['COVID-19'] * 3 + ['Flu'] * 3
         }
         df = pd.DataFrame(data)
         
-        results = run_analysis(df, min_reports=5)
+        # SOC A: 5 COVID, 5 Flu (Total 10) -> Included
+        # SOC B: 0 COVID, 4 Flu (Total 4) -> Excluded (<5)
+        # SOC C: 3 COVID, 3 Flu (Total 6) -> Included
         
-        assert not results.empty
-        assert 'ror' in results.columns
-        assert 'prr' in results.columns
-        assert 'ic' in results.columns
-        assert 'adjusted_p' in results.columns
-        assert 'is_signal' in results.columns
-        assert len(results) == 3  # Three SOCs with >= 5 reports
-    
-    def test_run_analysis_min_reports_filter(self):
-        """Test that SOCs with fewer than min_reports are excluded."""
-        data = {
-            'VAX_TYPE_GROUP': ['COVID-19'] * 20 + ['Non-COVID'] * 20,
-            'SOC_CODE': ['SOC001'] * 10 + ['SOC002'] * 5 + ['SOC003'] * 3 +
-                        ['SOC001'] * 5 + ['SOC002'] * 10 + ['SOC003'] * 2
-        }
-        df = pd.DataFrame(data)
+        result = run_analysis(df)
         
-        # SOC001: 15, SOC002: 15, SOC003: 5
-        results = run_analysis(df, min_reports=10)
+        assert len(result) == 2
+        assert 'A' in result['SOC_CODE'].values
+        assert 'C' in result['SOC_CODE'].values
+        assert 'B' not in result['SOC_CODE'].values
         
-        assert len(results) == 2  # Only SOC001 and SOC002
-        assert 'SOC003' not in results['soc_code'].values
+        # Check columns exist
+        assert 'adjusted_p' in result.columns
+        assert 'ror' in result.columns

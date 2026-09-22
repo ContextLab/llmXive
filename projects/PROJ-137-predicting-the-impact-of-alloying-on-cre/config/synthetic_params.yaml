@@ -1,26 +1,21 @@
-# Synthetic Data Generation Parameters
-# Based on Arrhenius and Power-Law creep models
+# Parameters for Synthetic Data Generation (T016)
+# Used when real data is unavailable or for stress testing
 
-model_type: "arrhenius_power_law"
+arrhenius:
+  activation_energy: 250000 # J/mol
+  gas_constant: 8.314
+  pre_exponential: 1.0e-10
 
-# Arrhenius Parameters
-activation_energy_range: [200000, 400000] # J/mol
-pre_exponential_range: [1e-10, 1e-5] # s^-1
+power_law:
+  stress_exponent: 5.0
+  shear_modulus: 80000 # MPa
 
-# Power-Law Parameters
-stress_exponent_range: [3, 8]
-stress_coefficient_range: [1e-15, 1e-10]
-
-# Statistical Targets for Validation
 statistical_targets:
-  ks_distance_threshold: 0.05
-  mean_mismatch_threshold: 0.10
-  sd_mismatch_threshold: 0.10
-  r_squared_threshold: 0.80
+  ks_distance_max: 0.05
+  mean_mismatch_pct: 0.10
+  sd_mismatch_pct: 0.10
 
-# Distribution Parameters
-n_samples: 1000
-temperature_range: [700, 1100] # Kelvin
-stress_range: [50, 300] # MPa
-composition_elements: ["Cr", "Ni", "Fe", "Mo", "W", "Al", "Ti"]
-n_elements_per_alloy: [3, 5]
+generation:
+  n_samples: 1000
+  noise_level: 0.05
+  seed: 42

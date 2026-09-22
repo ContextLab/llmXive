@@ -1,3 +1,8 @@
+3|data distinct if log source warning:
+  quote: 'P3879: 54'
+  source_id: Q39304236
+  url: https://www.wikidata.org/wiki/Q39304236
+  value: '54'
 '|explicitly resample set':
   quote: As an example, assume we are interested in the average (or mean) height of
     people worldwide.  We cannot measure all the people in the global population,

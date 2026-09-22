@@ -33,7 +33,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.jmmm.2018.03.002
   verified_at: '2026-09-02T01:19:14.585259Z'
-- artifact_hash: 39f3a89bc628fdbe417ed3e84c1beb67261ca4a1342c8594ab5b5d771a36921a
+- artifact_hash: 4550a8c805efb2c2e045d5d47d0357cd3aaa1380d239ec9a488ee00a6c79a9ae
   artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,10 +43,21 @@
   value: https://arxiv.org/abs/2305.13486
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2305.13486
-  verified_at: '2026-09-02T01:31:14.678907Z'
-- artifact_hash: 39f3a89bc628fdbe417ed3e84c1beb67261ca4a1342c8594ab5b5d771a36921a
+  verified_at: '2026-09-22T21:38:56.573581Z'
+- artifact_hash: 4550a8c805efb2c2e045d5d47d0357cd3aaa1380d239ec9a488ee00a6c79a9ae
   artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bootstrapping - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-09-22T21:38:56.573581Z'
+- artifact_hash: 4550a8c805efb2c2e045d5d47d0357cd3aaa1380d239ec9a488ee00a6c79a9ae
+  artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: '[2409.13466] Global Outlier Detection in a Federated Learning Setting
@@ -55,4 +66,4 @@
   value: https://arxiv.org/abs/2409.13466
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2409.13466
-  verified_at: '2026-09-02T01:31:14.678907Z'
+  verified_at: '2026-09-22T21:38:56.573581Z'

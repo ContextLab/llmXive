@@ -1,96 +1,98 @@
 """
 Main entry point for the Heusler Alloy Hysteresis Prediction Pipeline.
-Orchestrates the full execution flow from ingestion to final report generation.
+Orchestrates ingestion, preprocessing, feature engineering, modeling, and reporting.
 """
 import logging
 import sys
+import traceback
 from pathlib import Path
 from datetime import datetime
 
-# Add code/src to path if running as script
-if __name__ == "__main__":
-    code_root = Path(__file__).parent
-    if str(code_root / "src") not in sys.path:
-        sys.path.insert(0, str(code_root))
-    if str(code_root / "scripts") not in sys.path:
-        sys.path.insert(0, str(code_root))
+# Add project root to path if not already present
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from src.utils.logging_config import setup_logging, create_logger
 from src.ingestion.ingest_pipeline import main as run_ingestion
 from src.preprocessing.preprocess_pipeline import main as run_preprocessing
-from src.preprocessing.scarcity_checker import main as run_scarcity_check
 from src.features.feature_engineering_pipeline import main as run_feature_engineering
-from src.models.training_pipeline import main as run_training
-from src.models.feature_importance import main as run_feature_importance
-from src.validation.null_model_comparison import main as run_null_comparison
+from src.models.training_pipeline import main as run_model_training
+from src.validation.final_evaluator import main as run_final_evaluation
+from src.preprocessing.scarcity_checker import main as run_scarcity_check
+from src.preprocessing.completeness_reporter import main as run_completeness_report
 from src.validation.bootstrap_validation import main as run_bootstrap_validation
 from src.validation.pdp_generator import main as run_pdp_generation
-from src.validation.stratified_analysis import main as run_stratified_analysis
-from src.validation.stratified_reporter import main as run_stratified_reporter
-from src.validation.final_evaluator import main as run_final_evaluator
-from src.preprocessing.completeness_reporter import main as run_completeness_report
-from src.preprocessing.fr001_gate import main as run_fr001_gate
-from src.validation.scarcity_warning import main as run_scarcity_warning_report
-from src.validation.microstructure_confounding_analysis import main as run_microstructure_analysis
-from src.features.descriptor_robustness import main as run_descriptor_robustness
-from src.validation.confounder_quantification import main as run_confounder_quantification
+from src.validation.stratified_reporter import main as run_stratified_report
+from src.validation.outlier_detection import main as run_outlier_detection
 
 def main():
-    """Execute the full research pipeline."""
-    logger = setup_logging("pipeline_execution", level=logging.INFO)
+    """
+    Execute the full pipeline end-to-end.
+    """
+    start_time = datetime.now()
+    logger = create_logger("main")
+    logger.info("="*60)
     logger.info("Starting Heusler Alloy Hysteresis Prediction Pipeline")
-    logger.info(f"Start Time: {datetime.now().isoformat()}")
+    logger.info("="*60)
 
     try:
-        # Phase 1: Ingestion
-        logger.info(">>> Phase 1: Data Ingestion")
+        # 1. Ingestion (Fetch and merge raw data)
+        logger.info("Step 1/10: Running Ingestion Pipeline...")
         run_ingestion()
 
-        # Phase 2: Preprocessing
-        logger.info(">>> Phase 2: Data Preprocessing")
+        # 2. Preprocessing (Standardize, filter, impute)
+        logger.info("Step 2/10: Running Preprocessing Pipeline...")
         run_preprocessing()
 
-        # Phase 3: Scarcity Check & FR-001 Gate
-        logger.info(">>> Phase 3: Scarcity Check & Validation Gates")
-        run_fr001_gate()
+        # 3. Scarcity Check (Check N and warn)
+        logger.info("Step 3/10: Running Scarcity Check...")
         run_scarcity_check()
-        run_completeness_report()
-        run_scarcity_warning_report()
 
-        # Phase 4: Feature Engineering
-        logger.info(">>> Phase 4: Feature Engineering")
+        # 4. Completeness Report
+        logger.info("Step 4/10: Generating Completeness Report...")
+        run_completeness_report()
+
+        # 5. Feature Engineering
+        logger.info("Step 5/10: Running Feature Engineering Pipeline...")
         run_feature_engineering()
 
-        # Phase 5: Model Training
-        logger.info(">>> Phase 5: Model Training")
-        run_training()
-        run_feature_importance()
+        # 6. Model Training
+        logger.info("Step 6/10: Running Model Training Pipeline...")
+        run_model_training()
 
-        # Phase 6: Statistical Validation
-        logger.info(">>> Phase 6: Statistical Validation")
-        run_null_comparison()
+        # 7. Outlier Detection & Sensitivity
+        logger.info("Step 7/10: Running Outlier Detection...")
+        run_outlier_detection()
+
+        # 8. Bootstrap Validation
+        logger.info("Step 8/10: Running Bootstrap Validation...")
         run_bootstrap_validation()
+
+        # 9. PDP Generation
+        logger.info("Step 9/10: Generating Partial Dependence Plots...")
         run_pdp_generation()
-        run_stratified_analysis()
-        run_stratified_reporter()
-        run_confounder_quantification()
 
-        # Phase 7: Robustness & Final Reporting
-        logger.info(">>> Phase 7: Robustness Checks & Final Report")
-        run_descriptor_robustness()
-        run_microstructure_analysis()
-        run_final_evaluator()
+        # 10. Stratified Analysis & Final Report
+        logger.info("Step 10/10: Running Stratified Analysis and Final Evaluation...")
+        run_stratified_report()
+        run_final_evaluation()
 
-        logger.info("Pipeline completed successfully.")
-        logger.info(f"End Time: {datetime.now().isoformat()}")
-        return 0
+        end_time = datetime.now()
+        duration = end_time - start_time
+        logger.info("="*60)
+        logger.info(f"Pipeline completed successfully in {duration}")
+        logger.info("="*60)
 
     except FileNotFoundError as e:
-        logger.error(f"Critical File Missing: {e}")
-        return 1
+        logger.error(f"Critical Error: Missing required file or directory. {e}")
+        logger.error(traceback.format_exc())
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Pipeline Failed: {e}", exc_info=True)
-        return 1
+        logger.error(f"Pipeline failed with unexpected error: {e}")
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    setup_logging()
+    main()

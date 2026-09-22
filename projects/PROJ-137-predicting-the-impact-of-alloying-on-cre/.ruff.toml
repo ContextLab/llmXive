@@ -1,4 +1,26 @@
-# Extends the configuration in pyproject.toml for specific linter overrides if needed.
-# Currently, all configuration is managed in pyproject.toml to keep the root clean.
-# This file exists to satisfy potential IDE detection of a dedicated ruff config file.
-extend = "pyproject.toml"
+# Ruff Configuration
+target-version = "py311"
+line-length = 100
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[lint.isort]
+known-first-party = ["src"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

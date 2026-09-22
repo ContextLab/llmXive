@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -73,7 +73,7 @@
 - [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
 - [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
 - [X] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
-- [ ] T020 REMOVED (Merged into T019)
+- [ ] T020 REMOVED (Merged into T019) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

@@ -1,23 +1,11 @@
-# Predicting the Impact of Alloying on Creep Resistance via Public Data
+# Predicting the Impact of Alloying on Creep Resistance
 
-**Project ID**: PROJ-137
-**Status**: Research Pipeline Implementation
-
-## Overview
-
-This project implements an automated scientific pipeline to predict the impact of alloying elements on creep resistance. It ingests alloy composition and experimental creep data, computes thermodynamic descriptors (mixing enthalpy, radius mismatch), and trains Gradient Boosting models to compare composition-only features against thermodynamic-enhanced features.
-
-The pipeline includes:
-1. **Data Acquisition**: Fetches real data from NIMS (if available) or generates synthetic data adhering to Arrhenius/Power-law physical laws.
-2. **Preprocessing**: Normalizes compositions, calculates descriptors, and validates against strict schema contracts.
-3. **Modeling**: Trains and evaluates models using Nested Cross-Validation with statistical significance testing (Permutation Test/Bootstrap).
-4. **Interpretability**: Generates SHAP analysis to rank feature importance.
+Automated science pipeline for predicting creep resistance in alloys using public data, thermodynamic descriptors, and machine learning.
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- (Optional) Materials Project API Key (for real thermodynamic data)
+- pip (package installer)
 
 ## Installation
 
@@ -27,87 +15,115 @@ The pipeline includes:
  cd PROJ-137-predicting-the-impact-of-alloying-on-cre
  ```
 
-2. Create a virtual environment and install dependencies:
+2. Create a virtual environment and activate it:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
+ ```bash
  pip install -r requirements.txt
  ```
 
-3. (Optional) Configure API keys in `config/settings.yaml` if using real Materials Project data.
-
 ## Quickstart
 
-Execute the full research pipeline from data generation to final reporting.
+### 1. Data Acquisition and Preprocessing (User Story 1)
 
-### Run the Data Pipeline (US1)
-Generates or fetches data, preprocesses it, and outputs a validated CSV.
+Run the full data pipeline to download (if available) or generate synthetic data, merge with thermodynamic descriptors, and output a validated CSV:
+
 ```bash
 python src/data/pipeline.py
 ```
-*Output*: `data/processed/alloy_creep_dataset.csv`
 
-### Run Model Training & Evaluation (US2)
-Trains Composition-Only and Thermodynamic models, performs Nested CV, and runs statistical tests.
+**Output**: `data/processed/alloy_dataset.csv`
+
+This script:
+- Attempts to fetch NIMS data (if configured).
+- Falls back to synthetic data generation using Arrhenius/Power-law laws if external sources fail.
+- Computes thermodynamic descriptors (mixing enthalpy, radius mismatch) via Materials Project.
+- Validates output against `contracts/dataset.schema.yaml`.
+- Logs exclusion counts and physics consistency checks.
+
+### 2. Model Training and Evaluation (User Story 2)
+
+Train and compare Gradient Boosting models (Thermodynamic vs. Composition-Only) using Nested Cross-Validation and statistical significance testing:
+
 ```bash
 python src/models/main_eval.py
 ```
-*Output*: `logs/model_metrics.log`, `data/outputs/model_comparison.json`
 
-### Run Interpretability Analysis (US3)
-Generates SHAP plots and feature importance reports.
+**Output**:
+- Model performance metrics (R², RMSE) logged to console.
+- Statistical test results (Permutation Test p-value, Bootstrap CI) printed to stdout.
+- Detailed logs saved to `logs/model_evaluation.log`.
+
+### 3. Feature Importance and Reporting (User Story 3)
+
+Generate SHAP plots and interpretability reports:
+
 ```bash
 python src/models/interpret.py
 ```
-*Output*: `data/outputs/shap_summary.png`, `docs/reports/feature_importance_report.md`
 
-### Run Full End-to-End Pipeline
-Executes all stages sequentially and logs total runtime.
+**Output**:
+- SHAP summary plot: `data/outputs/shap_summary.png`
+- Feature importance report: `docs/reports/feature_importance.md`
+
+### 4. Full Pipeline Execution
+
+To run the entire pipeline end-to-end (Data → Modeling → Reporting):
+
 ```bash
 python tests/integration/test_runtime.py
 ```
-*Output*: `logs/runtime.log` (contains measured duration), final consolidated report in `docs/reports/`.
+
+This script measures total execution time and logs it to `logs/runtime.log`.
 
 ## Project Structure
 
-```text
+```
 .
-├── config/ # Configuration files (settings, params)
-├── contracts/ # Schema definitions for data validation
-├── data/ # Data artifacts (raw, processed, outputs)
-│ └── outputs/ # Generated plots and JSON reports
-├── docs/ # Documentation and final reports
-├── logs/ # Execution logs and runtime metrics
+├── config/ # Configuration files (settings, parameters)
+├── contracts/ # Data and output schema definitions
+├── data/ # Raw and processed datasets
+│ └── outputs/ # Generated plots and intermediate results
+├── docs/ # Documentation and reports
+│ └── reports/ # Final generated reports
+├── logs/ # Execution logs
 ├── src/ # Source code
 │ ├── data/ # Data acquisition and preprocessing
-│ ├── models/ # Training, evaluation, and interpretation
+│ ├── models/ # Model training, evaluation, and interpretation
 │ ├── reports/ # Report generation
-│ └── utils/ # Logging, hashing, validation utilities
-├── tests/ # Test suite (unit, integration, contract)
-├──.gitignore
-├── pyproject.toml # Project metadata and tool config
+│ └── utils/ # Utilities (logging, hashing, validation)
+├── tests/ # Test suites
+│ ├── contract/ # Schema and physics consistency tests
+│ ├── integration/ # End-to-end pipeline tests
+│ └── unit/ # Unit tests
 ├── requirements.txt # Python dependencies
 └── README.md # This file
 ```
 
 ## Configuration
 
-- **`config/settings.yaml`**: Define random seeds, file paths, and API keys.
-- **`config/synthetic_params.yaml`**: Parameters for synthetic data generation (Arrhenius/Power-law constants).
+Edit `config/settings.yaml` to set:
+- `nims_url`: URL for NIMS data fetch (optional).
+- `mp_api_key`: Materials Project API key (optional, required for real thermodynamic data).
+- `random_seed`: Seed for reproducibility.
 
 ## Testing
 
-Run the test suite using pytest:
+Run all tests:
+
 ```bash
-pytest tests/ -v
+pytest tests/
 ```
 
-Specific test categories:
-- **Unit Tests**: `pytest tests/unit/`
-- **Integration Tests**: `pytest tests/integration/`
-- **Contract Tests**: `pytest tests/contract/`
+Run specific test suites:
+- Unit tests: `pytest tests/unit/`
+- Contract tests: `pytest tests/contract/`
+- Integration tests: `pytest tests/integration/`
 
 ## License
 
-This project is part of the llmXive automated science pipeline.
-See LICENSE for details.
+[Insert License Information]
