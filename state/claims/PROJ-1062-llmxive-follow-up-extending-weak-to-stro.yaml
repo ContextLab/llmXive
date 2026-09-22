@@ -4594,3 +4594,922 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-13T22:25:11Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: uses HuggingFaceH4/aime_2024 dataset
+  claim_id: c_49a81979
+  context: Implement src/data/download_aime_verified.py to first fetch HuggingFaceH4/aime_2024
+    from the HuggingFace Hub.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_HuggingFaceH4/aime_2024_dataset
+  kind: entity_fact
+  raw_text: The project uses the HuggingFace dataset 'HuggingFaceH4/aime_2024'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:11:32Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: uses mistral-community/Mixtral-8x2B-v0.1 model
+  claim_id: c_b4024ad2
+  context: Implement src/models/moe_student.py to load a verified mistral-community/Mixtral-8x2B-v0.1
+    (or equivalent 1-2B MoE variant) MoE student model from HuggingFace.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the model 'mistral-community/Mixtral-8x2B-v0.1' as a
+    MoE student model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:12:13Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: uses state-spaces/mamba-130m model
+  claim_id: c_f7ac063e
+  context: Implement src/models/ssm_student.py to load the state-spaces/mamba-130m
+    SSM student model in int8 precision with CPU offloading.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We use state-spaces/mamba-130m-hf (130M pa-
+      source_id: '2605.00253'
+      url: https://arxiv.org/abs/2605.00253
+      value: state-spaces/mamba-130m-hf
+    filled: true
+  kind: numeric
+  raw_text: The project uses the model 'state-spaces/mamba-130m' as an SSM student
+    model.
+  resolved_value: state-spaces/mamba-130m-hf
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T11:12:35Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: batch size is 1
+  claim_id: c_364bacad
+  context: 'Constraint: FR-007 (CPU-only, int8). ... enforce the hard limit of batch_size=1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training constraint requires a batch size of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:13:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: memory limit is 7GB
+  claim_id: c_0a091026
+  context: CPU offloading to fit within 7GB RAM ... HALT if estimated size > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_is_7GB
+  kind: entity_fact
+  raw_text: The memory constraint for the project is 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:13:28Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Jaccard index threshold for reasoning overlap is 0.01
+  claim_id: c_7da04e85
+  context: 'Halt if overlap > 0.01. Output: data/processed/reasoning_overlap_report.json.
+    ... output data/processed/split_validation_report.json with Jaccard index < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project enforces a Jaccard index threshold of 0.01 for reasoning step
+    overlap between train and holdout sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:13:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset split is 50/50
+  claim_id: c_667b80e9
+  context: stratify deterministically by hash(problem_id) % 2 to ensure a balanced
+    50/50 split of problem IDs between train and holdout sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a 50/50 split for the AIME dataset between training and
+    holdout sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:14:00Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: human_verified_label null or non-boolean threshold is 5%
+  claim_id: c_fbd3967e
+  context: If the field is present but contains nulls or non-boolean values for >5%
+    of the sample, raise ValueError and halt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project checks for human_verified_label nulls or non-boolean values
+    exceeding 5% of the sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:14:01Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: statistical power analysis seed range is 1 to 10
+  claim_id: c_ea60d0e1
+  context: Calculate required seeds dynamically (min a small number, max 10) based
+    on FR-003/US-3 requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis uses a minimum of 1 seed and a maximum
+    of 10 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:14:46Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version is 0.43.0
+  claim_id: c_36a3f4d3
+  context: Initialize Python project with ... bitsandbytes==0.43.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the bitsandbytes library version 0.43.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:15:01Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x2B-v0.1 is a 1-2B parameter MoE student model
+  claim_id: c_5d64fc13
+  context: Implement src/models/moe_student.py to load a verified mistral-community/Mixtral-8x2B-v0.1
+    (or equivalent 1-2B MoE variant) MoE student model from HuggingFace using int8
+    quantization
+  evidence:
+    entailment_evidence: Mixtral-8x2B-v0.1 is a 1-2B parameter MoE student model
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Mixtral-8x2B-v0.1_is_a_1-2B_parameter_MoE_student_model
+  kind: entity_fact
+  raw_text: load a verified 'mistral-community/Mixtral-8x2B-v0.1' (or equivalent 1-2B
+    MoE variant) MoE student model
+  resolved_value: Mixtral-8x2B-v0.1 is a 1-2B parameter MoE student model
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T11:16:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x2B-v0.1 model size fits within 7GB RAM
+  claim_id: c_680b48b1
+  context: load a verified mistral-community/Mixtral-8x2B-v0.1 (or equivalent 1-2B
+    MoE variant) MoE student model from HuggingFace using int8 quantization and CPU
+    offloading to fit within 7GB RAM
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:16:22Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-130m is a 130m parameter SSM student model
+  claim_id: c_fa821c4e
+  context: Implement src/models/ssm_student.py to load the state-spaces/mamba-130m
+    SSM student model in int8 precision
+  evidence:
+    entailment_evidence: State-spaces/mamba-130m is a 130m parameter SSM student mode
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/State-spaces/mamba-130m_is_a_130m_parameter_SSM_student_mode
+  kind: entity_fact
+  raw_text: load the state-spaces/mamba-130m SSM student model
+  resolved_value: state-spaces/mamba-130m is a 130m parameter SSM student model
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T11:16:24Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset sample size is 200
+  claim_id: c_3eb2fb43
+  context: confirm the held-out set contains no problems with overlapping reasoning
+    steps to the training set, preventing data leakage in the small N=200 sample
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: small N=200 sample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:16:50Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: human_verified_label field null or non-boolean rate threshold is 5%
+  claim_id: c_b32843b3
+  context: If the field is present but contains nulls or non-boolean values for >5%
+    of the sample, raise ValueError and halt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: human_verified_label field contains nulls or non-boolean values for >5%
+    of the sample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:16:51Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: token-level overlap Jaccard index threshold is 0.01
+  claim_id: c_4af165cb
+  context: Halt if overlap > 0.01
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: overlap > 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:16:52Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: training batch size is 1
+  claim_id: c_ae5271ad
+  context: enforce the hard limit of batch_size=1
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We find that small batch sizes (1) train stably, (2) are consistently
+        more robust to
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: batch_size=1
+  resolved_value: '1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T11:17:15Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version is 0.43.0
+  claim_id: c_e3adfbf8
+  context: Initialize Python project with transformers, datasets, torch, bitsandbytes==0.43.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bitsandbytes==0.43.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:17:33Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: statistical power threshold is 0.8
+  claim_id: c_f5f4bb27
+  context: if power < 0.8, append a clear 'Low Power' warning to the final statistical
+    report
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:17:34Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: research result 2507.07101
+  claim_id: c_48acce61
+  context: Create config/hyperparams.yaml with hyperparameters, paths, seeds, and
+    memory constraints ({{claim:c_ae5271ad}} (2507.07101, https://arxiv.org/abs/2507.07101),
+    gradient_accumulation steps).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document references a research result with identifier 2507.07101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:18:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: fetch HuggingFaceH4/aime_2024 dataset
+  claim_id: c_7dac2580
+  context: Implement src/data/download_aime_verified.py to first fetch HuggingFaceH4/aime_2024
+    from the HuggingFace Hub.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HuggingFaceH4/aime_2024_dataset
+  kind: entity_fact
+  raw_text: The project requires fetching the HuggingFaceH4/aime_2024 dataset from
+    the HuggingFace Hub.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:18:58Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistral-community/Mixtral-8x2B-v0.1 model
+  claim_id: c_7012ef01
+  context: Implement src/models/moe_student.py to load a verified mistral-community/Mixtral-8x2B-v0.1
+    (or equivalent 1-2B MoE variant) MoE student model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model is identified as mistral-community/Mixtral-8x2B-v0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:19:15Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-130m model
+  claim_id: c_97730fd6
+  context: Implement src/models/ssm_student.py to load the state-spaces/mamba-130m
+    SSM student model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model is identified as state-spaces/mamba-130m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:19:32Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: small N=200 sample
+  claim_id: c_09bbac4f
+  context: Implement validation logic in src/data/validate_split.py to confirm the
+    held-out set contains no problems with overlapping reasoning steps to the training
+    set, preventing data leakage in the small N=200 sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a small N=200 sample for the AIME subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:20:07Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model small-scale parameter count
+  claim_id: c_c2a9af33
+  context: Must include pre-load size verification to confirm parameter count is in
+    the small-scale range.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SSM_student_model_small-scale_parameter_count
+  kind: entity_fact
+  raw_text: The SSM student model parameter count is in the small-scale range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:20:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: seed value 42
+  claim_id: c_0ade850d
+  context: 'Logic: Calculate dynamic training steps based on time_budget_enforcer;
+    set {{claim:c_ae5271ad}}, seed=42, gradient_accumulation_steps from memory_config.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a seed value of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:21:06Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: maximum 10 seeds for power analysis
+  claim_id: c_3d5a88dd
+  context: Calculate required seeds dynamically (min a small number, max 10) based
+    on FR-003/US-3 requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis sets a maximum of 10 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:21:31Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: sample size n=seeds
+  claim_id: c_9ed2861e
+  context: Sample size n=seeds (dynamically calculated) is used to fit -hour time
+    limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_size_n%3Dseeds
+  kind: entity_fact
+  raw_text: The sample size limitation is n=seeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:22:08Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistral-community/Mixtral-8x2B-v0.1 model fits within 7GB RAM using int8
+    quantization
+  claim_id: c_40178cbd
+  context: T008 [P] [US1] Implement `src/models/moe_student.py` to load a verified
+    **mistral-community/Mixtral-8x2B-v0.1** (or equivalent 1-2B MoE variant) MoE student
+    model from HuggingFace using int8 quantization and CPU offloading to fit within
+    7GB RAM (See US1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/models/moe_student.py` to load a verified `mistral-community/Mixtral-8x2B-v0.1`
+    (or equivalent 1-2B MoE variant) MoE student model from HuggingFace using int8
+    quantization and CPU offloading to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:23:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistral-community/Mixtral-8x2B-v0.1 parameter count is less than or equal
+    to 2B
+  claim_id: c_7e3304ad
+  context: T008 [P] [US1] Implement `src/models/moe_student.py` to load a verified
+    **mistral-community/Mixtral-8x2B-v0.1** (or equivalent 1-2B MoE variant) MoE student
+    model from HuggingFace using int8 quantization and CPU offloading to fit within
+    7GB RAM (See US1). **Must include pre-load size verification** to confirm model
+    ID, parameter count <= 2B, and size < 7GB RAM before loading.
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - 0.1
+    - - ''
+      - -8.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Mistral-community/Mixtral-8x2B-v0.1_parameter_count_is_less
+  kind: magnitude
+  raw_text: Implement `src/models/moe_student.py` to load a verified `mistral-community/Mixtral-8x2B-v0.1`
+    (or equivalent 1-2B MoE variant) MoE student model from HuggingFace using int8
+    quantization and CPU offloading to fit within 7GB RAM. Must include pre-load size
+    verification to confirm model ID, parameter count <= 2B, and size < 7GB RAM before
+    loading.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T11:24:39Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceH4/aime_2024 dataset exists on HuggingFace Hub
+  claim_id: c_2f7e3918
+  context: T005.0 [P] [Foundational] Implement `src/data/download_aime_verified.py`
+    to **first fetch** `HuggingFaceH4/aime_2024` from the HuggingFace Hub.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFaceH4/aime_2024_dataset_exists_on_HuggingFace_Hub
+  kind: entity_fact
+  raw_text: Implement `src/data/download_aime_verified.py` to first fetch `HuggingFaceH4/aime_2024`
+    from the HuggingFace Hub.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:24:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-130m SSM student model exists
+  claim_id: c_3c3de73c
+  context: T009 [P] [US2] Implement `src/models/ssm_student.py` to load the **state-spaces/mamba-130m**
+    SSM student model in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/models/ssm_student.py` to load the `state-spaces/mamba-130m`
+    SSM student model in int8 precision with CPU offloading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:25:34Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2507.07101 on Weak-to-Strong Generalization via Direct On-Policy
+    Distillation
+  claim_id: c_02806f0c
+  context: Task T004 configures hyperparameters referencing '2507.07101, https://arxiv.org/abs/2507.07101'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document references the paper 'Weak-to-Strong Generalization via Direct
+    On-Policy Distillation' with arXiv identifier 2507.07101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:27:08Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset HuggingFaceH4/aime_2024 contains human_verified_label
+    field
+  claim_id: c_dd425e47
+  context: Task T005.0 implements fetching HuggingFaceH4/aime_2024 and checking for
+    a human_verified_label field.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_HuggingFaceH4/aime_2024_contains_human_v
+  kind: entity_fact
+  raw_text: The project uses the HuggingFace dataset 'HuggingFaceH4/aime_2024'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:27:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x2B-v0.1 model has 2 billion parameters
+  claim_id: c_8bd7906d
+  context: Task T008 loads mistral-community/Mixtral-8x2B-v0.1 with a constraint to
+    confirm parameter count <= 2B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model 'mistral-community/Mixtral-8x2B-v0.1' is targeted
+    with a parameter count of approximately 2 billion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:27:35Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mamba-130m model has 130 million parameters
+  claim_id: c_80a71f5e
+  context: Task T009 loads state-spaces/mamba-130m and verifies parameter count is
+    in the small-scale range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model 'state-spaces/mamba-130m' has 130 million parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:27:58Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Project memory constraint is 7GB RAM
+  claim_id: c_f439ffbb
+  context: Task T008 specifies fitting the MoE model within 7GB RAM; Task T015 checks
+    RAM usage under GB constraint.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_memory_constraint_is_7GB_RAM
+  kind: entity_fact
+  raw_text: The project targets a memory constraint of 7GB RAM for model loading and
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:28:20Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset split uses hash(problem_id) % 2 for 50/50 stratification
+  claim_id: c_3f1205af
+  context: Task T006.1a describes stratifying by hash(problem_id) % 2 to ensure a
+    balanced 50/50 split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AIME dataset split strategy uses a deterministic hash-based split
+    (hash(problem_id) % 2) to achieve a 50/50 balance when difficulty fields are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:28:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Jaccard index threshold for reasoning overlap is 0.01
+  claim_id: c_9e277720
+  context: Task T006.1c halts if overlap > 0.01; Task T006.1b confirms Jaccard index
+    < 0.01 in the validation report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jaccard_index_threshold_for_reasoning_overlap_is_0.01
+  kind: magnitude
+  raw_text: The project requires a Jaccard index of less than 0.01 for token-level
+    overlap between training and holdout reasoning steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:29:37Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.43.0 is a dependency
+  claim_id: c_9d8ecd53
+  context: Task T002 lists bitsandbytes==0.43.0 as a required dependency.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bitsandbytes_version_0.43.0_is_a_dependency
+  kind: entity_fact
+  raw_text: The project uses the 'bitsandbytes' library version 0.43.0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:29:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis target is 0.8
+  claim_id: c_ed131ade
+  context: Task T057 calculates required seeds and appends a 'Low Power' warning if
+    power < 0.8.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The statistical power analysis targets a minimum power of 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T11:29:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Maximum seeds for power analysis is 10
+  claim_id: c_638ee8b1
+  context: Task T057 calculates required seeds dynamically with a max of 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis caps the maximum number of seeds at 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:30:12Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Paper 2507.07101 titled Weak-to-Strong Generalization via Direct On-Policy
+    Distillation
+  claim_id: c_a64a7a22
+  context: Create config/hyperparams.yaml with hyperparameters, paths, seeds, and
+    memory constraints ({{claim:c_ae5271ad}} (2507.07101, https://arxiv.org/abs/2507.07101),
+    gradient_accumulation steps).
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passages explicitly state the
+      title of paper 2507.07101 is "Small Batch Size Training for Language Models..."
+      rather than "Weak-to-Strong Generalization via Direct On-Policy Distillation".)
+  kind: numeric
+  raw_text: The document references the paper 'Weak-to-Strong Generalization via Direct
+    On-Policy Distillation' (2507.07101, https://arxiv.org/abs/2507.07101).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T11:32:06Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Dataset HuggingFaceH4/aime_2024 on HuggingFace Hub
+  claim_id: c_7d128ddf
+  context: Implement src/data/download_aime_verified.py to first fetch HuggingFaceH4/aime_2024
+    from the HuggingFace Hub.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_HuggingFaceH4/aime_2024_on_HuggingFace_Hub
+  kind: entity_fact
+  raw_text: The HuggingFace dataset 'HuggingFaceH4/aime_2024' is used for verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:32:24Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Model mistral-community/Mixtral-8x2B-v0.1
+  claim_id: c_721ab7c0
+  context: Implement src/models/moe_student.py to load a verified mistral-community/Mixtral-8x2B-v0.1
+    (or equivalent 1-2B MoE variant) MoE student model from HuggingFace.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model is identified as mistral-community/Mixtral-8x2B-v0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:32:25Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Model state-spaces/mamba-130m
+  claim_id: c_1f533d4b
+  context: Implement src/models/ssm_student.py to load the state-spaces/mamba-130m
+    SSM student model in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model is identified as state-spaces/mamba-130m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:32:26Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Dependency bitsandbytes version 0.43.0
+  claim_id: c_c352c096
+  context: Initialize Python project with transformers, datasets, torch, bitsandbytes==0.43.0,
+    scikit-learn, scipy, pandas, numpy, statsmodels, pyyaml, ruff, black dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependencies include bitsandbytes version 0.43.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:32:47Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME subset sample size N=200
+  claim_id: c_01cd3d10
+  context: Implement validation logic in src/data/validate_split.py to confirm the
+    held-out set contains no problems with overlapping reasoning steps to the training
+    set, preventing data leakage in the small N=200 sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the AIME subset is specified as N=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:33:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Memory constraint 7GB RAM
+  claim_id: c_922dc79a
+  context: Load a verified mistral-community/Mixtral-8x2B-v0.1 MoE student model from
+    HuggingFace using int8 quantization and CPU offloading to fit within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_7GB_RAM
+  kind: entity_fact
+  raw_text: The target RAM constraint for model loading is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:34:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Maximum seeds for power analysis is 10
+  claim_id: c_8cc35534
+  context: Calculate required seeds dynamically (min a small number, max 10) based
+    on FR-003/US-3 requirements; if power < 0.8, append a clear Low Power warning
+    to the final statistical report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of seeds for power analysis is capped at 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:34:39Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Human label null/non-boolean threshold 5%
+  claim_id: c_ea38c5ba
+  context: If the field is present but contains nulls or non-boolean values for >5%
+    of the sample, raise ValueError and halt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for nulls or non-boolean values in human_verified_label
+    is 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T11:34:40Z'

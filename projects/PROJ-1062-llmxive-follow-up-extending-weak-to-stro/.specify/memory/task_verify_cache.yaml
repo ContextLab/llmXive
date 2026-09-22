@@ -1,19 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file tree was provided showing the required folders\
-    \ (e.g., `src/data/`, `tests/unit/`, `data/raw/`, etc.). Without concrete evidence\
-    \ that these directories exist and are non\u2011empty, the task\u2019s requirement\
-    \ is not satisfied. The next implementer should create the specified project structure\
-    \ and supply a visible file\u2011system snapshot (e.g., `tree` output)."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
-    `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts were provided
-    as evidence, so the requirement to configure these tools is not demonstrated.
-    The implementer must supply the actual configuration artifacts showing ruff and
-    black are set up for the project.
 T005:
   c: true
   h: 738be5d91bd14aa0ec1d6f94487b3984ba8d4cd5a29d0d94e3f4c562d5de7802

@@ -1,24 +1,30 @@
+"""
+Script to run black formatter on the project.
+"""
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 def main():
-    """Run black formatter on the codebase."""
-    code_root = Path(__file__).parent.parent
-    black_cmd = [sys.executable, "-m", "black", "--check", str(code_root)]
+    """Run black format on the project."""
+    project_root = Path(__file__).parent.parent.parent
+    print(f"Running formatter in: {project_root}")
 
-    print(f"Running formatter check: {' '.join(black_cmd)}")
     try:
-        result = subprocess.run(black_cmd, cwd=code_root, check=True)
-        print("Formatting check passed successfully.")
+        result = subprocess.run(
+            ["black", "."],
+            cwd=project_root,
+            check=True,
+            capture_output=False,
+        )
+        print("Formatting completed successfully.")
         return 0
     except subprocess.CalledProcessError as e:
-        print(f"Formatting check failed. Run 'python -m black .' to fix.")
-        return e.returncode
+        print(f"Formatting failed with exit code {e.returncode}")
+        sys.exit(e.returncode)
     except FileNotFoundError:
         print("Error: 'black' not found. Please install it via 'pip install black'.")
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

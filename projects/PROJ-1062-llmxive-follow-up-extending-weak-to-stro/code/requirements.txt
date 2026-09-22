@@ -1,23 +1,29 @@
-# Core dependencies
-torch==2.3.1
-transformers>=4.40.0
-bitsandbytes>=0.43.0
-numpy>=1.26.0
-pandas>=2.2.0
-scipy>=1.13.0
-scikit-learn>=1.4.0
-datasets>=2.19.0
-accelerate>=0.30.0
-huggingface_hub>=0.23.0
-peft>=0.11.0
+# Core dependencies for llmXive project
+# Generated for T001/T002 setup phase
+# Note: T002 handles the specific version pinning, this is a placeholder for structure
 
-# Linting and Formatting
-ruff>=0.4.0
-black>=24.4.0
+# Transformers and Dataset handling
+transformers>=4.30.0
+datasets>=2.14.0
+
+# Deep Learning
+torch>=2.0.0
+# bitsandbytes==0.43.0 # Specified in T002
+
+# Data Processing and Analysis
+scikit-learn>=1.0.0
+scipy>=1.9.0
+pandas>=2.0.0
+numpy>=1.24.0
+statsmodels>=0.14.0
+
+# Configuration and Utilities
+pyyaml>=6.0
+
+# Code Quality
+ruff>=0.1.0
+black>=23.0.0
 
 # Testing
-pytest>=8.2.0
-
-# Utilities
-pyyaml>=6.0.1
-tqdm>=4.66.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
