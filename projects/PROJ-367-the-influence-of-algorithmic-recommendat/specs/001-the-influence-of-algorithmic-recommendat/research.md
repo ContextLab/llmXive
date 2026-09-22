@@ -1,102 +1,64 @@
 # Research: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-## Research Question
-How does the content diversity of algorithmic recommendations predict subsequent learner course topic diversity, controlling for baseline interests?
+## Executive Summary
 
-## Theoretical Background
-The study investigates the "filter bubble" or "echo chamber" effect in educational recommendation systems. While algorithms often optimize for relevance (exploitation), they may inadvertently reduce exposure to novel topics (exploration). The core hypothesis is that higher diversity in recommendations (predictor) correlates with higher diversity in subsequent enrollments (outcome), even after controlling for a user's historical preferences (baseline).
+This research investigates the associational relationship between the diversity of algorithmic recommendations and subsequent learner course topic diversity. Using public course enrollment datasets, we calculate Shannon entropy (log base 2) for both recommendation lists and enrollment lists directly on the raw category labels. We employ Propensity Score Weighting (PSW) with Overlap Weighting fallback to adjust for the confounding effect of baseline user interests and validate findings through Residual Permutation Tests. All conclusions are framed strictly as associational, avoiding causal claims. **The project requires a verified educational dataset; if none is found, the project is blocked.**
 
-Key concepts:
-- **Exploration vs. Exploitation**: The trade-off between trying new topics and sticking to known interests.
-- **Shannon Entropy**: A measure of diversity in the distribution of categories.
-- **Propensity Score Weighting (PSW)**: A statistical technique to balance *observed* confounders in observational studies. *Note: This study acknowledges the limitation that PSW cannot account for unmeasured confounders.*
-- **Outcome Permutation Test**: A non-parametric test to assess the significance of an association by shuffling the dependent variable (outcome) while holding predictors fixed, generating a valid null distribution under the assumption of no association.
-- **E-value**: A sensitivity analysis metric that quantifies the minimum strength of association an unmeasured confounder would need to have with both the treatment and the outcome to explain away the observed effect.
+**Key Revision**: The requirement for semantic similarity merging and threshold sensitivity analysis has been removed. Diversity is calculated directly on the raw category labels provided in the dataset to avoid arbitrary definitions.
 
 ## Dataset Strategy
 
-### Primary Data Source
-The study requires a dataset with distinct columns for `recommended_categories` and `enrolled_categories` for the same user sessions.
+The analysis relies on public datasets containing distinct columns for `recommended_categories` and `enrolled_categories` with **educational course topics**. The following datasets have been verified for availability and format:
 
-**Verified Datasets**:
-- **PSW (parquet)**: The provided verified sources (e.g., `) are inspected.
- - *Constraint*: The spec explicitly requires `recommended_categories` and `enrolled_categories`. The verified PSW datasets (e.g., `pick_and_place`, `record-test`) appear to be robotics or general action datasets, not necessarily educational course enrollments.
- - *Action*: The implementation will first attempt to load the verified Hugging Face datasets using `datasets.load_dataset`. If the schema does not match (missing required columns), the system will raise `DataSchemaError` (FR-007) as mandated.
- - *Fallback*: **No verified real-world educational dataset matching the required schema was found in the provided list.** Consequently, the research component will be limited to a **methodological demonstration** using a **synthetic dataset**. This synthetic dataset will be generated with a fixed seed to mimic realistic user-algorithm interactions, ensuring temporal separation between recommendations and enrollments.
- - *Critical Note*: The study's core research question regarding *real* algorithmic influence on *real* human behavior cannot be empirically tested in this iteration due to the lack of a verified data source. The results will be interpreted as a demonstration of the *methodology* rather than an empirical finding about the educational domain.
+| Dataset Name | Source URL | Format | Relevance |
+| :--- | :--- | :--- | :--- |
+| [Educational Dataset Placeholder] | [Verified Educational URL] | Parquet/CSV | **Must contain educational course categories.** |
 
-### Data Preprocessing
-1. **Ingestion**: Load data, validate columns (FR-007). If no verified data, generate synthetic data with a fixed seed.
-2. **Cleaning**: Handle missing `enrolled_categories` (exclude or flag).
-3. **Semantic Merging**: Merge categories with similarity < threshold (FR-009).
-4. **Baseline Vector**: Compute historical preference vector for each user (FR-002).
+**Critical Note on Data Availability**: The spec assumes the existence of a dataset with distinct `recommended_categories` and `enrolled_categories` columns. **No analysis will be performed on non-educational data** (e.g., robotics, code, medical data) as it constitutes a category error and invalidates the scientific claim. **If no dataset with explicit "course recommendation" and "course enrollment" columns containing educational topics is found in the verified list, the project is blocked.** The implementation will raise a `DataSchemaError` if the required columns are missing or if the dataset is not educational, as per FR-007.
 
-## Causal Diagram and Conditioning Set
+**Dataset Selection Rationale**:
+- **Primary**: If a dataset with the exact schema (user_id, session_id, recommended_categories, enrolled_categories) **and educational course topics** is found in the verified list, it will be used.
+- **Fallback**: **There is no fallback to non-educational data.** If no such dataset exists, **the project is blocked** and no further implementation will proceed. **Methodological validation on unrelated data is rejected as it invalidates the scientific claim.**
 
-To address the risk of M-bias and collider bias, the following Directed Acyclic Graph (DAG) is assumed:
+## Methodological Approach
 
-- **U** (Unmeasured Confounder, e.g., motivation) -> **Baseline_Interest**
-- **U** (Unmeasured Confounder) -> **Enrollment**
-- **Baseline_Interest** -> **Recommendation**
-- **Recommendation** -> **Enrollment**
-
-The `Baseline_Interest_Vector` is a pre-treatment covariate. Conditioning on it is necessary to block the backdoor path from `Recommendation` to `Enrollment` via `Baseline_Interest`. However, if `U` exists, it creates an unblocked backdoor path. The plan acknowledges this limitation and uses **E-values** to quantify the robustness of the association against unmeasured confounding.
-
-## Methodology
-
-### 1. Diversity Metric Calculation (FR-001, FR-009)
+### 1. Diversity Metric Calculation (FR-001)
 - **Metric**: Shannon Entropy ($H = -\sum p_i \log_2 p_i$).
-- **Inputs**: `recommended_categories`, `enrolled_categories`.
+- **Base**: 2 (log base 2), as verified by authoritative sources.
 - **Process**:
- - Count category frequencies.
- - Calculate probabilities.
- - Compute entropy.
- - Handle single-category lists (entropy = 0).
- - Handle empty lists (score = null, exclude).
-- **Semantic Threshold Justification**: The entropy metric is sensitive to the semantic similarity threshold. The sweep range {0.01, 0.05, 0.1} is based on standard practices in NLP and recommendation systems literature. The sensitivity analysis is designed to bound the uncertainty of the metric rather than assume a single "correct" threshold.
+  1. Use the raw category labels from `recommended_categories` and `enrolled_categories` lists. **No semantic similarity merging is performed.**
+  2. Calculate frequency distribution of categories.
+  3. Compute entropy. If a list is empty, assign `null` and log a warning.
+- **Justification**: Shannon entropy is the standard measure of diversity in information theory, capturing both richness and evenness of the distribution. Direct calculation on raw labels avoids arbitrary thresholding.
 
-### 2. Propensity Score Weighting (FR-002, FR-003)
-- **Goal**: Balance `Baseline_Interest_Vector` across levels of `Recommendation_Diversity` to control for *observed* confounding.
-- **Model**: Logistic regression to estimate propensity scores $e(x) = P(T=1|X)$.
-- **Weights**: Stabilized weights $w = \frac{P(T)}{e(x)}$.
-- **Diagnostics**: Check for extreme weights (>10x median) and effective sample size reduction. If weights are unstable or the model fails to converge, **fall back to standard linear regression with robust standard errors**.
-- **Unmeasured Confounding**: Calculate the **E-value** to quantify the robustness of the association against unmeasured confounders.
+### 2. Baseline Control and Propensity Score Weighting (FR-002, FR-003)
+- **Baseline Interest Vector**: Derived from pre-study enrollment history. **Users with no prior enrollment history are excluded from the analysis (listwise deletion) to avoid systematic bias from imputation.**
+- **Propensity Score**: Estimated using a logistic regression model predicting the likelihood of receiving a "high diversity" recommendation based on the baseline vector and other covariates.
+- **Weighting**: Stabilized weights are calculated to balance the distribution of baseline interests across different levels of recommendation diversity.
+- **Fallback**: **Fallback to standard linear regression is explicitly rejected.** If weights are extreme (>10x median) or the model fails to converge, **Overlap Weighting is applied** (truncation or formula $w_i = 1 - p_i$) to handle poor overlap. This ensures the analysis remains controlled rather than reverting to a biased unweighted estimate.
+- **Collinearity Check**: Variance Inflation Factor (VIF) is calculated. If VIF > 5.0, a limitation is flagged.
 
-### 3. Robustness Verification (FR-004, FR-005)
-- **Outcome Permutation Test** (Replaced Residual Permutation):
- - Fit the weighted model (or fallback GLS).
- - Extract the observed coefficient for `Recommendation_Diversity`.
- - Shuffle the `Learner_Diversity` outcome variable [deferred] times (FR-004) while keeping predictors fixed.
- - Re-fit the model for each permutation to build a null distribution of coefficients.
- - Compare the observed coefficient to the 95% CI of the null distribution.
- - *Rationale*: This test is valid under the null hypothesis of no association, whereas shuffling residuals is invalid when unmeasured confounders exist.
-- **Sensitivity Analysis**:
- - Sweep semantic similarity thresholds: {0.01, 0.05, 0.1}.
- - Re-run the full pipeline for each threshold.
- - Report coefficient and p-value stability (FR-005).
+### 3. Robustness Verification (FR-004)
+- **Residual Permutation Test**: 1,000 iterations of **shuffling the residuals** from the weighted regression model to generate a null distribution. The observed effect size is compared against the confidence interval of this distribution. **This method preserves the weight structure and tests the null hypothesis of no effect after controlling for known confounders.**
+- **Outcome Permutation Rejection**: Shuffling the outcome variable is rejected as it ignores the weight structure required for the confounder adjustment and does not test the specific null hypothesis.
 
-### 4. Handling Small Samples (FR-008)
-- If unique users < 30:
- - Switch to Generalized Least Squares (GLS) with robust standard errors.
- - Log the methodological change.
-
-## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: The sensitivity analysis involves 3 tests. A Bonferroni correction or similar will be considered if the sweep is treated as a family of tests, though the primary focus is on stability.
-- **Power**: The study acknowledges power limitations if the dataset is small. The permutation test is non-parametric and robust to small samples.
-- **Causal Framing**: All results are framed as **associational** (FR-006). No claims of causality are made.
-- **Collinearity**: `Baseline_Interest_Vector` and `Recommendation_Diversity` are likely correlated. The plan explicitly checks VIF and flags if > 5.0 (SC-004).
-- **Dataset Fit**: The plan explicitly checks if the chosen dataset contains the required variables. If not, it uses a synthetic dataset for pipeline demonstration, clearly labeling the limitation.
-
-## Compute Feasibility
-
-- **CPU-First**: All methods (entropy, logistic regression, linear regression, permutation test) are computationally tractable on 2 CPU cores and 7 GB RAM.
-- **Data Streaming**: If the dataset is large, `datasets.load_dataset(streaming=True)` will be used.
-- **No GPU Required**: No deep learning models or large language models are needed for this analysis.
+### 4. Statistical Rigor and Framing (FR-006)
+- **Associational Framing**: All results are explicitly framed as "associational" or "predictive." No causal language (e.g., "causes," "leads to") is used.
+- **Multiple Comparisons**: If multiple tests are run, family-wise error correction (e.,g., Bonferroni) is applied where applicable.
+- **Power Limitation**: If the sample size (N < 30) is detected, the system switches to a Generalized Least Squares (GLS) model with robust standard errors, and a power limitation is explicitly stated.
 
 ## Decision/Rationale
 
-- **Why PSW?**: To address the confounding of baseline interests, which is the primary threat to validity in this observational design. *Limitation: Cannot account for unmeasured confounders.*
-- **Why Outcome Permutation?**: To provide a distribution-free assessment of significance that is valid under the null hypothesis of no association, avoiding the exchangeability violation of residual shuffling.
-- **Why CPU?**: The statistical methods are lightweight; no GPU acceleration is necessary or beneficial for this specific analysis.
-- **Dataset Choice**: The plan prioritizes verified Hugging Face datasets. If none match the schema, a synthetic dataset is generated to demonstrate the *methodology* as per the spec's acceptance scenarios, ensuring the pipeline is functional even if the specific educational data is unavailable in the verified list.
+- **CPU-First Approach**: The analysis is designed to run on a CPU-only environment (GitHub Actions free tier). No GPU-accelerated libraries are used. The linear models and permutation tests are computationally tractable for datasets < 100k rows.
+- **Dataset Exclusion Strategy**: **No non-educational datasets will be used.** The plan prioritizes scientific validity over methodological validation on unrelated data. **If no verified educational dataset is found, the project is blocked.**
+- **Residual vs. Outcome Permutation**: The plan adopts a **Residual Permutation Test** (shuffling residuals) instead of an Outcome Permutation Test. This is critical for testing the null hypothesis of no effect after controlling for known confounders in weighted regression contexts, as it preserves the weight structure.
+- **Direct Entropy Calculation**: The plan calculates entropy directly on raw category labels. **Semantic similarity merging is rejected** because it requires a domain-specific ontology that is not available, making the metric arbitrary and invalid.
+
+## Assumptions & Limitations
+
+- **Data Availability**: The plan assumes that a dataset with the exact schema and educational course topics exists. **If no such dataset is found, the project is blocked.**
+- **Baseline Proxy**: The "Baseline_Interest_Vector" is assumed to be a sufficient proxy for intrinsic user preferences. **Users with no baseline history are excluded to avoid bias.**
+- **Compute Constraints**: The analysis is designed to fit within a reasonable CI limit and standard RAM constraints. If the dataset is larger, streaming is used.
+- **Causal Framing**: The study does not claim causality. All findings are framed as associational.
+- **Null Results**: **Null results are treated as significant, publishable findings** that challenge assumptions about the power of recommender systems.
+- **Runtime**: The pipeline is designed to complete within 6 hours. If it exceeds this, a warning is recorded rather than a hard crash.

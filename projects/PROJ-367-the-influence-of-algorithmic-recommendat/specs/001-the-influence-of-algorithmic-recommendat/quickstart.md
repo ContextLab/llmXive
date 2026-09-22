@@ -2,65 +2,69 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Access to the verified Hugging Face datasets (or a local mock dataset).
+- Python 3.11 or higher.
+- Access to the verified datasets (see `research.md`). **A verified educational dataset is required.**
+- A GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) for CI execution.
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-367-the-influence-of-algorithmic-recommendat
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
+1. Clone the repository and navigate to the project directory.
+2. Install dependencies:
    ```bash
    pip install -r code/requirements.txt
    ```
+3. Verify the installation by running the unit tests:
+   ```bash
+   pytest tests/unit/
+   ```
+
+## Data Preparation
+
+1. **Download the Dataset**: Use the verified URLs from `research.md` to download the dataset.
+   ```bash
+   # Example for a Hugging Face dataset
+   python -c "from datasets import load_dataset; ds = load_dataset('educational_dataset_name', split='train'); ds.to_parquet('data/raw/dataset.parquet')"
+   ```
+   *Note: The dataset MUST contain educational course categories. If not, the ingestion script will raise a `DataSchemaError`.*
+
+2. **Checksum Verification**: Record the checksum of the downloaded file in `state/projects/PROJ-367-the-influence-of-algorithmic-recommendat.yaml`.
 
 ## Running the Pipeline
 
-### 1. Data Ingestion & Processing
-Run the main script to ingest data, calculate diversity scores, and perform PSW.
+1. **Ingestion and Preprocessing**:
+   ```bash
+   python code/ingestion.py --input data/raw/dataset.parquet --output data/processed/processed_data.csv
+   ```
+   This step calculates entropy scores directly on raw categories, handles missing data, **excludes users with no baseline history, and validates causal independence.**
 
-```bash
-python code/main.py --data <path-to-data> --output data/processed/results.json
-```
+2. **Modeling**:
+   ```bash
+   python code/modeling.py --input data/processed/processed_data.csv --output data/results/model_results.json
+   ```
+   This step fits the weighted linear regression (with Overlap Weighting fallback) and calculates diagnostics.
 
-- If `--data` is not provided, the script will attempt to load the verified Hugging Face datasets.
-- If no verified dataset matches the schema, a synthetic dataset is generated for demonstration (with a fixed seed).
+3. **Robustness Analysis**:
+   ```bash
+   python code/robustness.py --input data/processed/processed_data.csv --output data/results/robustness_results.json
+   ```
+   This step performs the **Residual Permutation Test**. **No sensitivity analysis for semantic thresholds is performed.**
 
-### 2. Robustness Analysis
-The robustness analysis (Outcome Permutation Test and sensitivity sweep) is triggered automatically if the main pipeline succeeds.
+4. **Report Generation**:
+   ```bash
+   python code/report.py --input data/results/ --output docs/final_report.md
+   ```
 
-```bash
-python code/main.py --robustness
-```
+## Verification
 
-### 3. Unit Tests
-Run the test suite to verify entropy calculations and pipeline logic.
-
-```bash
-pytest tests/
-```
-
-## Output
-
-- `data/processed/results.json`: Contains the main regression results, weights, E-values, and diagnostics.
-- `data/processed/sensitivity_analysis.csv`: Results of the threshold sweep.
-- `data/processed/permutation_test.json`: Null distribution and p-value from the Outcome Permutation Test.
-- `docs/reports/final_report.md`: A human-readable summary of the findings (generated automatically).
+- **Unit Tests**: Run `pytest tests/unit/` to verify entropy calculations and data ingestion.
+- **Integration Tests**: Run `pytest tests/integration/` to verify the full pipeline.
+- **Reproducibility**: Re-run the pipeline on a fresh runner and compare the output checksums.
+- **Runtime Metric**: The pipeline logs the total runtime to the output schema (e.g., `output.schema.yaml`) to satisfy SC-005. If runtime > 6h, a warning is recorded.
 
 ## Troubleshooting
 
-- **DataSchemaError**: Raised if the input dataset lacks `recommended_categories` or `enrolled_categories`. Check the dataset schema.
-- **VIF Warning**: If VIF > 5.0, the model flags collinearity. Review the `Baseline_Interest_Vector` construction.
-- **Small Sample**: If unique users < 30, the model switches to GLS. Check the log for the methodological change.
-- **Synthetic Data Warning**: If no verified real-world dataset is found, the pipeline will generate synthetic data. The results are a methodological demonstration, not an empirical finding about real-world behavior.
+- **DataSchemaError**: If the dataset lacks `recommended_categories` or `enrolled_categories`, **or if the dataset is not educational**, the pipeline will stop. Check the dataset schema against the spec.
+- **Extreme Weights**: If the PSW model produces extreme weights (>10x median), the system will apply **Overlap Weighting** instead of falling back to standard linear regression. Check the logs for details.
+- **Convergence Issues**: If the PSW model fails to converge, the system will apply **Overlap Weighting**. Check the logs for details.
+- **No Baseline History**: Users with no prior enrollment history are excluded from the analysis. Check the logs for the count of excluded users.
+- **Runtime Warning**: If the pipeline exceeds 6 hours, a warning flag is recorded in the output. The pipeline is designed to be CPU-trivial to avoid this.

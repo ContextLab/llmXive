@@ -1,52 +1,58 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Model Output Schema"
-type: object
-description: "Schema for the final regression and robustness analysis results."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+type: "object"
 properties:
   coefficient:
-    type: number
-    description: "Estimated effect of recommendation diversity on learner diversity."
+    type: "number"
+    description: "Fixed effect of Recommendation_Diversity."
   standard_error:
-    type: number
+    type: "number"
     description: "Standard error of the coefficient."
   p_value:
-    type: number
-    description: "P-value from the weighted regression."
+    type: "number"
+    description: "P-value for the coefficient."
   vif:
-    type: number
-    description: "Variance Inflation Factor for collinearity diagnostics."
-  method:
-    type: string
-    description: "Method used (e.g., 'Weighted Regression', 'GLS', 'Robust Linear Regression')."
-  e_value:
-    type: number
-    description: "E-value quantifying sensitivity to unmeasured confounding."
-  sensitivity_analysis:
-    type: array
-    items:
-      type: object
-      properties:
-        threshold:
-          type: number
-          description: "Semantic similarity threshold used."
-        coefficient:
-          type: number
-        p_value:
-          type: number
-      required:
-        - threshold
-        - coefficient
-        - p_value
+    type: "number"
+    description: "Variance Inflation Factor for Baseline_Interest."
+  convergence_status:
+    type: "boolean"
+    description: "Whether the model converged."
+  effective_sample_size:
+    type: "integer"
+    description: "Effective sample size after weighting."
+  extreme_weights_flag:
+    type: "boolean"
+    description: "True if any weight > 10x median."
+  overlap_weighting_applied:
+    type: "boolean"
+    description: "True if overlap weighting was used instead of standard PSW."
+  rows_trimmed:
+    type: "integer"
+    description: "Number of rows trimmed for overlap weighting."
   permutation_p_value:
-    type: number
-    description: "P-value from the Outcome Permutation Test."
+    type: "number"
+    description: "P-value from the Residual Permutation Test."
+  total_runtime_seconds:
+    type: "number"
+    description: "Total runtime of the pipeline in seconds, measured to satisfy SC-005."
+  runtime_warning:
+    type: ["string", "null"]
+    description: "Warning if runtime exceeds 6 hours, or null."
+  warning:
+    type: "string"
+    description: "Any warnings (e.g., power limitation, null result significance)."
 required:
   - coefficient
   - standard_error
   - p_value
   - vif
-  - method
-  - e_value
-  - sensitivity_analysis
+  - convergence_status
+  - effective_sample_size
+  - extreme_weights_flag
+  - overlap_weighting_applied
+  - rows_trimmed
   - permutation_p_value
+  - total_runtime_seconds
+  - runtime_warning
 additionalProperties: false
+description: "Schema for the final model results and robustness metrics."
