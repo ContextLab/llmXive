@@ -1,3 +1,17 @@
+T005c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `verify_dataset.py` script run, its output, or any log confirming\
+    \ that T005a and T005b logic succeeded and the hard\u2011gate condition was satisfied.\
+    \ The required artifact (execution result showing the gate passed) is missing."
+T013:
+  c: false
+  h: 69bc0c504e017aa1fd81fabf7cddb955f8a2d0ecfb6c83af8b9909fd43a830e8
+  r: "The repository lacks the required `data/processed/epoch_audit.log` file, and\
+    \ the provided excerpt of `code/preprocessing.py` does not show any function that\
+    \ creates 2\u2011second epochs centered on attention\u2011shift events (no epoching\
+    \ logic is present). Both the epoch implementation and the audit\u2011log entry\
+    \ are missing."
 T018:
   c: false
   h: fe998ee71e5e1f59ae012f300777d1f96d5d8282686837dd50cf9fcc985b9f31

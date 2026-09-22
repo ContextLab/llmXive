@@ -1,13 +1,4 @@
-'|alpha determined level significance statistical':
-  quote: The 0.05 significance level is merely a convention. The 0.05 significance
-    level (alpha level) is often used as the boundary between a statistically significant
-    and a statistically non-significant p-value. However, this does not imply that
-    there is generally a scientific reason to consider results on opposite sides of
-    any threshold as qualitatively different.
-  source_id: Misuse of p-values
-  url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  value: '0.05'
-'|establish iteration least must permutation significance statistical testing use':
+'|establish iteration least permutation significance statistical testing use':
   quote: Blocks are batches of microarrays; for example for eight samples split into
     two groups (control and affected) there are 4!=24 permutations for each block
     and the total number of permutations is (24)(24)= 576. A minimum of 1000 permutations
