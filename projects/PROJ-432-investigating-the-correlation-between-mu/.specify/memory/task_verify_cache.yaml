@@ -29,6 +29,21 @@ T007:
   r: No evidence of the required `tests/unit/` and `tests/integration/` directories
     (or any files within them) was provided; without these artifacts the task of setting
     up the test directory structure is not satisfied.
+T009:
+  c: false
+  h: 18f34272a0d0a3d6683742839f5040480825039f04e5a91831d54110263f546b
+  r: "The repository contains a non\u2011empty `src/data/ingest.py`, but the required\
+    \ output file `data/raw/icecube.csv` is absent, and the script uses placeholder\
+    \ URLs without guaranteeing a real download. The caching artifact the task mandates\
+    \ does not exist."
+T010:
+  c: false
+  h: cffd51b75d84682c10b347a2182d366012ea7bd0fe5518570af630b218641a5e
+  r: "The required output file `data/raw/era5.csv` is absent, and the provided `src/data/ingest.py`\
+    \ contains only placeholder/comments for ERA5 fetching without a concrete implementation\
+    \ that writes the data to that path. The task\u2019s core requirement\u2014to\
+    \ fetch ERA5 pressure\u2011level data (1000\u202FhPa\u201310\u202FhPa) and cache\
+    \ it as `data/raw/era5.csv`\u2014is therefore not satisfied."
 T012:
   c: false
   h: ce69a25b1810bcaf206402f71ec1e7f869b5383d015ad83db31a110f438d469d
@@ -36,3 +51,10 @@ T012:
     the temporal alignment logic (resampling, averaging, dropping missing dates) is
     present. The task cannot be considered fulfilled until this file is created with
     the specified functionality.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `logs/alignment.json` file or its contents were supplied, so we cannot confirm
+    that exclusion events are being logged in the required JSON list format or that
+    all events are captured. The implementer must provide the actual log file with
+    correctly structured entries.

@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any evidence that `spec.md` was edited \u2013\
-    \ no file diff, excerpt, or commit showing the required corrected sections is\
-    \ present. Without a visible, non\u2011empty `spec.md` containing the specified\
-    \ text, the task requirement is not satisfied. The next implementer must supply\
-    \ the updated `spec.md` (or a clear proof such as a diff or file content) showing\
-    \ the exact corrected excerpt."
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,6 +5,14 @@ T002:
     or file listings) that the required folders `code/`, `tests/`, `data/raw/`, `data/processed/`,
     `data/results/`, and `state/` actually exist in the repository. Without such artifacts,
     we cannot verify that the project structure was created.
+T009:
+  c: false
+  h: 54ca575e43485c32e233ae98fbb746f6e33f56b2834dd638eb47df1b7731c495
+  r: The `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` file
+    does not exist, and the provided `code/utils/versioning.py` is truncated (the
+    `update_state_file` implementation is missing), so there is no evidence that the
+    utility actually writes the computed hashes to the `artifact_hashes` map in the
+    required state YAML.
 T018:
   c: true
   h: 0552adef467193ea4cfec868ed725577d7c778f28c5eb0449a14b6cfa606906b

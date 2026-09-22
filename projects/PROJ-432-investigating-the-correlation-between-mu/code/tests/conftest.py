@@ -1,9 +1,9 @@
 """
-Pytest configuration and fixtures for the llmXive muon-temp-correlation project.
+Pytest configuration and shared fixtures for the muon flux analysis project.
 
-This module configures the test environment to run on CPU-only hardware,
-ensuring reproducibility and compatibility with environments lacking GPU access.
-It also provides shared fixtures for temporary directories and logging setup.
+This module configures the test environment to run in a CPU-only mode,
+ensuring reproducibility and compatibility with environments lacking GPU resources.
+It also provides shared fixtures for temporary data directories and logging.
 """
 import os
 import sys
@@ -11,126 +11,114 @@ import tempfile
 import shutil
 import logging
 from pathlib import Path
-from typing import Generator
-
 import pytest
 
-# Force CPU-only execution for any potential ML libraries (e.g., PyTorch, TensorFlow)
-# Set environment variables before any heavy imports occur
+# Force CPU-only execution for any libraries that might attempt GPU usage
+# This is critical for environments without CUDA or for reproducibility
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-os.environ["XLA_IR_DEBUG"] = "0"  # Disable XLA debug if using JAX/TF
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = ""
 
-# Attempt to configure specific backend CPU limits if available
-try:
-    import torch
-    torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
-    if torch.cuda.is_available():
-        # Ensure CUDA is not used even if detected
-        torch.cuda.is_available = lambda: False
-except ImportError:
-    pass
+# Ensure numpy uses a fixed seed for reproducibility if randomization is used in tests
+import numpy as np
+np.random.seed(42)
 
-try:
-    import tensorflow as tf
-    tf.config.set_visible_devices([], 'GPU')
-except ImportError:
-    pass
+# Project root path for relative imports and path resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-try:
-    import jax
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-except ImportError:
-    pass
+# Configure logging to capture test output
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_environment() -> Generator[None, None, None]:
+@pytest.fixture(scope="session")
+def temp_data_dir():
     """
-    Setup fixture to ensure a clean test environment.
-    Runs once per session.
-    """
-    # Ensure project root is in path for imports
-    project_root = Path(__file__).parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-    # Create a temporary directory for test artifacts if not specified
-    # This is handled by the temp_data_dir fixture, but we ensure logs dir exists
-    logs_dir = project_root / "logs"
-    logs_dir.mkdir(exist_ok=True)
-
-    yield
-
-    # Teardown: Optional cleanup if needed
-    pass
-
-
-@pytest.fixture
-def temp_data_dir() -> Generator[Path, None, None]:
-    """
-    Creates a temporary directory for test data artifacts.
-    Ensures cleanup after the test completes.
-    """
-    temp_dir = tempfile.mkdtemp(prefix="llmxive_test_")
-    temp_path = Path(temp_dir)
+    Creates a temporary directory structure mimicking the project's data layout.
+    Yields the path to the temporary root, then cleans up afterwards.
     
-    # Create standard subdirectories expected by the ingestion pipeline
-    (temp_path / "raw").mkdir(exist_ok=True)
-    (temp_path / "processed").mkdir(exist_ok=True)
-    (temp_path / "results").mkdir(exist_ok=True)
+    Structure:
+    temp_root/
+      data/
+        raw/
+        processed/
+        results/
+      logs/
+      config/
+    """
+    temp_root = tempfile.mkdtemp(prefix="muon_test_")
+    temp_path = Path(temp_root)
+    
+    # Create required subdirectories
+    (temp_path / "data" / "raw").mkdir(parents=True)
+    (temp_path / "data" / "processed").mkdir(parents=True)
+    (temp_path / "data" / "results").mkdir(parents=True)
+    (temp_path / "logs").mkdir(parents=True)
+    (temp_path / "config").mkdir(parents=True)
     
     yield temp_path
+    
+    # Cleanup after tests
+    shutil.rmtree(temp_path)
 
-    # Cleanup
-    if temp_path.exists():
-        shutil.rmtree(temp_path)
-
-
-@pytest.fixture
-def sample_config_path(temp_data_dir: Path) -> Path:
+@pytest.fixture(scope="function")
+def sample_config_path(temp_data_dir):
     """
-    Creates a minimal configuration file for testing.
+    Creates a minimal valid config file for testing purposes.
     """
-    config_file = temp_data_dir / "test_config.yaml"
+    config_file = temp_data_dir / "config" / "test_constants.yaml"
     config_content = """
-    parameters:
-      z_peak: 15.0
-      sigma: 2.5
-      t_eff_threshold: 200.0
+    t_eff:
+      grieder_1985:
+        z_peak: 10000.0
+        sigma: 2500.0
+    thresholds:
+      min_pressure: 10.0
+      max_pressure: 1000.0
     """
-    config_file.write_text(config_content)
+    with open(config_file, "w") as f:
+        f.write(config_content)
     return config_file
-
 
 def pytest_configure(config):
     """
-    Pytest hook to add custom markers or configuration.
+    Pytest hook to configure global test settings.
     """
+    # Mark tests that require network access (skipped if --no-network)
     config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+        "markers", "network: marks test as requiring network access"
     )
+    # Mark tests that are slow (skipped if --no-slow)
     config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
+        "markers", "slow: marks test as slow running"
     )
 
 def pytest_collection_modifyitems(config, items):
     """
-    Automatically skip slow tests if not explicitly requested.
+    Pytest hook to skip tests based on markers if specific flags are not passed.
     """
-    if config.getoption("--run-slow", default=False):
-        return
+    if config.getoption("--no-network", default=False):
+        skip_network = pytest.mark.skip(reason="Network access disabled")
+        for item in items:
+            if "network" in item.keywords:
+                item.add_marker(skip_network)
 
-    skip_slow = pytest.mark.skip(reason="need --run-slow option to run")
-    for item in items:
-        if "slow" in item.keywords:
-            item.add_marker(skip_slow)
-
-# Add command line option for slow tests
 def pytest_addoption(parser):
+    """
+    Add custom command-line options to pytest.
+    """
     parser.addoption(
-        "--run-slow",
+        "--no-network",
         action="store_true",
         default=False,
-        help="run slow tests",
+        help="Skip tests that require network access"
+    )
+    parser.addoption(
+        "--no-slow",
+        action="store_true",
+        default=False,
+        help="Skip tests marked as slow"
     )

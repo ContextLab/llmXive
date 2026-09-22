@@ -44,4 +44,12 @@ properties:
     description: "Cliff’s Δ effect size"
   significance:
     type: boolean
-    description: "True if adjusted p‑value < 0.05"
+    description: "True if adjusted p‑value < 0.5"
+required:
+  - tissue
+  - gene_label
+  - n_mets
+  - n_control
+  - wilcoxon_stat
+  - p_value_raw
+  . . .

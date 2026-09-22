@@ -45,7 +45,7 @@
 **⚠️ CRITICAL GATE**: This phase MUST complete successfully before Phase 1 (Setup) begins. **Verification Step**: After T001, verify `spec.md` content matches `plan.md` requirements (FR-005: LMM, FR-012: prompt token count). If verification fails, halt execution.
 
 - [ ] T001 **Apply Spec Amendments**: Directly edit `spec.md` to correct corrupted text and align requirements with the plan. The implementer MUST overwrite the specific sections of `spec.md` with the following corrected text:
- 1. **FR-001**: Replace the entire FR-001 text (which contains garbage citations and unrelated research questions) with: "System MUST generate multiple prompt variants per HumanEval problem with controlled complexity levels defined by structural composition: simple (problem statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step instructions), degenerate (+redundant constraints/examples). Token counts (using tiktoken cl100k_base, counting only prompt text) MUST serve as secondary indicators: simple ≤ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500 tokens. (See US-1)"
+ 1. **FR-001**: Replace the entire FR-001 text (which contains garbage citations and unrelated research questions) with: "System MUST generate multiple prompt variants per HumanEval problem with controlled complexity levels defined by structural composition: simple (problem statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step instructions), degenerate (+redundant constraints/examples). [UNRESOLVED-CLAIM: c_5514e292 — status=not_enough_info] Token counts (using tiktoken cl100k_base, counting only prompt text) MUST serve as secondary indicators: simple ≤ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500 tokens. [UNRESOLVED-CLAIM: c_c35de0ca — status=not_enough_info] (See US-1)"
  2. **FR-005**: Replace "ANOVA or Kruskal-Wallis" with "Linear Mixed Models (LMM)".
  3. **FR-012**: Replace "code length (lines of code)" with "prompt token count" as the covariate for readability metrics.
  4. **US-1 Acceptance Scenario 3**: Explicitly authorize the output artifact `data/results/manual_review_queue.csv` with columns `problem_id`, `variant_label`, `token_delta`, `reason` for flagging samples where the 'degenerate' prompt token delta is < 100 tokens vs 'very complex'.
@@ -70,12 +70,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 Initialize Python 3.11 project with dependencies: `datasets`, `tiktoken`, `scikit-learn`, `statsmodels`, `pandas`, `ruff`, `requests`, `pyyaml` in `requirements.txt`
-- [ ] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
-- [ ] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
+- [X] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
+- [X] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
 - [ ] T009 [P] Implement artifact versioning utility in `code/utils/versioning.py` to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation. The utility MUST compute cryptographic hashes of all files in `data/` and write them to the `artifact_hashes` map in the state YAML.
-- [ ] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
-- [ ] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
+- [X] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
+- [X] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [X] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py` <!-- FAILED: unspecified -->
 - [ ] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API or local GGUF (CPU only, no CUDA).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

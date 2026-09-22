@@ -1,39 +1,46 @@
 """
-Data Directory Setup Utility.
+Setup Data Directory Structure.
 
-Creates the required data directory structure for the project:
-- data/raw/
-- data/processed/
-- data/results/
+Creates the required directory hierarchy for raw, processed, and result data
+to support the research pipeline.
 """
 
 import os
 from pathlib import Path
 
-# Project root is the parent of the 'code/' directory
+# Project root is assumed to be the parent of 'code/'
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def create_data_directories() -> None:
     """
-    Create the standard data directory structure if it does not exist.
+    Create the standard data directory structure.
 
-    Directories created:
-    - data/raw
-    - data/processed
-    - data/results
+    Creates:
+        - data/raw/           : For downloaded source data (e.g., HumanEval)
+        - data/processed/     : For cleaned, transformed, and intermediate data
+        - data/results/       : For final analysis outputs and CSV reports
     """
     data_base = _PROJECT_ROOT / "data"
-    directories = [
+    dirs = [
         data_base / "raw",
         data_base / "processed",
         data_base / "results",
     ]
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified directory: {directory}")
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        # Ensure the directory exists on disk
+        if not d.exists():
+            raise RuntimeError(f"Failed to create directory: {d}")
+
+    print(f"Data directories created under: {data_base}")
+
+
+def main() -> None:
+    """Entry point for CLI execution."""
+    create_data_directories()
 
 
 if __name__ == "__main__":
-    create_data_directories()
+    main()

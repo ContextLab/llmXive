@@ -1,117 +1,92 @@
-# Quickstart: Running the Circadian‑MetS Analysis Pipeline
+# Quickstart: Investigating Circadian Gene Expression & Metabolic Syndrome Risk
 
-> The following steps assume you are on a fresh GitHub Actions runner or a local Linux environment with Python 3.11.
+This guide walks you through running the full analysis on a fresh GitHub Actions runner (or locally) using the open METSIM muscle RNA‑seq cohort (primary) and GTEx v8 TPM matrices (exploratory).
 
-## 1. Clone the Repository & Set Up Environment
+## Prerequisites
+- Python 3.11
+- Internet access (to download HF and Zenodo datasets)
+- 2 CPU cores, ≥ 6 GB RAM (default GH Actions free tier)
+
+## Setup
+
 ```bash
-git clone https://github.com/yourorg/circadian-metabolic-correlation.git
+# 1️⃣ Clone the repository
+git clone https://github.com/your-org/circadian-metabolic-correlation.git
 cd circadian-metabolic-correlation
+
+# 2️⃣ Create a virtual environment and install pinned dependencies
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt   # pins exact versions
 ```
 
-## 2. Verify Data Checksums (Optional but recommended)
+## Run the Pipeline
+
 ```bash
-python scripts/verify_checksums.py   # reads data/checksums.txt and aborts on mismatch
+# Execute the end‑to‑end pipeline
+python src/pipelines/run_pipeline.py \
+    --seed 42 \
+    --log-level INFO
 ```
 
-## 3. Download Raw Datasets
-```bash
-python scripts/download_data.py \
-    --gtex-url https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description/resolve/main/data/test-00000-of-00001.parquet \
-    --mesa-url https://huggingface.co/datasets/MESA2025/mesa/resolve/main/device_1/music/rD9E2aF8K4.json \
-    --out-dir data/raw
-```
-*The script streams the GTEx parquet to avoid memory spikes and writes a local copy.*
+The script performs the following ordered steps (see `plan.md` for details):
 
-## 4. Pre‑process Phenotypes & Classify MetS
-```bash
-python scripts/prepare_phenotypes.py \
-    --mesa data/raw/mesa.json \
-    --out data/processed/donors.parquet
-```
-*Outputs `donors.parquet` with MetS labels, severity score, and sensitivity‑analysis log (FR‑001, FR‑002, SC‑005).*
+1. **Download METSIM expression (TPM) and phenotype files** – streamed from Zenodo; checksummed and validated against `dataset.schema.yaml`.  
+2. **Download GTEx expression & phenotype** – streamed from HuggingFace for exploratory analyses.  
+3. **Merge expression with phenotype; exclude donors with any missing ATP‑III variable or PMI > 24 h**; log exclusions.  
+4. **Classify MetS status** using ATP‑III criteria (≥ 3 of 5 thresholds).  
+5. **Power analyses** for logistic regression, DE, and correlation; results logged.  
+6. **Differential expression (ANCOVA)** per tissue with covariate adjustment; hierarchical fallback applied when needed.  
+7. **Global Benjamini‑Hochberg correction** across all gene‑tissue tests.  
+8. **Gene‑trait correlation** (Spearman or Pearson) with mixed‑effects modeling and global FDR.  
+9. **Fit L2‑regularized logistic regression** with 5‑fold CV; compute AUC, DeLong test, odds ratios, VIF diagnostics.  
+10. **External validation** on an independent METSIM batch; compute gene‑overlap and AUC‑delta metrics.  
+11. **Generate figures** (heatmaps, ROC curves, scatter plots) and summary tables.  
+12. **Validate all outputs** against their schema contracts (`contracts/`). Any validation failure aborts the run.
 
-## 5. Extract Core Gene Expression
-```bash
-python scripts/extract_expression.py \
-    --donors data/processed/donors.parquet \
-    --genes PER1 BMAL1 CLOCK NR1D1 RORA \
-    --out data/processed/expression.parquet
-```
+## Expected Outputs
 
-## 6. Differential Expression (Hierarchical ANCOVA) & Global FDR
-```bash
-python scripts/differential_expression.py \
-    --donors data/processed/donors.parquet \
-    --expr data/processed/expression.parquet \
-    --out data/processed/de_results.csv
-```
+| Directory | Content |
+|-----------|---------|
+| `data/raw/` | Downloaded METSIM & GTEx parquet files (streamed; not stored permanently). |
+| `data/processed/` | Cleaned expression matrix, donor phenotype table, MetS classification, DE results, correlation results, logistic model JSON, validation results. |
+| `src/results/figures/` | `de_heatmap.png`, `roc_curve.png`, `gene_trait_scatter_{gene}_{trait}.png`. |
+| `state/projects/PROJ-110...yaml` | Checksums, artifact hashes, timestamps (for reproducibility). |
 
-## 7. Gene‑Trait Correlations
-```bash
-python scripts/gene_trait_correlation.py \
-    --donors data/processed/donors.parquet \
-    --expr data/processed/expression.parquet \
-    --out data/processed/correlation_results.csv
-```
+All files are automatically validated; any schema violation aborts the run (see `contracts/`).
 
-## 8. Logistic Regression (Primary) & Auxiliary Traits‑Only Model
-```bash
-python scripts/logistic_model.py \
-    --donors data/processed/donors.parquet \
-    --expr data/processed/expression.parquet \
-    --out-dir data/processed/logistic/
-```
-*Creates `logistic_model_coefficients.csv`, `auxiliary_traits_coefficients.csv`, `cv_performance.csv`, and batch‑sensitivity diagnostics.*
+## CI Integration (GitHub Actions)
 
-## 9. Power Analysis (FR‑011)
-```bash
-python scripts/power_analysis.py \
-    --donors data/processed/donors.parquet \
-    --out data/processed/power_report.txt
+Create `.github/workflows/ci.yml` (included in the repository) with the following minimal workflow to satisfy T060:
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Verify CPU‑only environment
+        run: |
+          python -c "import torch; assert not torch.cuda.is_available(), 'GPU detected!'" 
+      - name: Run pipeline
+        run: python src/pipelines/run_pipeline.py --seed 42 --log-level INFO
+      - name: Run tests
+        run: pytest -q tests/
 ```
 
-## 10. External Validation (MESA Blood)
-```bash
-python scripts/validate_mesa.py \
-    --mesa-data data/raw/mesa.json \
-    --model data/processed/logistic/logistic_model.pkl \
-    --out data/processed/validation_results.csv
-```
-
-## 11. Generate Figures & Summary Report
-```bash
-python scripts/report.py \
-    --de data/processed/de_results.csv \
-    --corr data/processed/correlation_results.csv \
-    --logreg data/processed/logistic/logistic_model_coefficients.csv \
-    --aux data/processed/logistic/auxiliary_traits_coefficients.csv \
-    --cv data/processed/logistic/cv_performance.csv \
-    --validation data/processed/validation_results.csv \
-    --out-dir figures/
-```
-
-## 12. Run All Tests
-```bash
-pytest -v
-```
-*Contract tests validate schema compliance (`contracts/*.schema.yaml`).*
-
-## 13. CI Execution (CPU‑Only Enforcement)
-The repository includes a GitHub Actions workflow at `.github/workflows/ci.yml`. This workflow:
-1. Installs dependencies from `requirements.txt`.
-2. Executes `python -c "import torch; assert not torch.cuda.is_available()"` to guarantee CPU‑only execution.
-3. Runs the full pipeline in the order shown above.
-4. Executes `pytest` with contract validation.
-
-## 14. Clean Up (optional)
-```bash
-rm -rf data/raw
-```
-
-All scripts are located under `scripts/`. Random seeds are fixed (`seed=42`) to ensure reproducibility (Constitution I). For detailed parameter options, see each script’s `--help` output.
+The `Verify CPU‑only environment` step asserts `torch.cuda.is_available() == False`, fulfilling the T060 requirement.
 
 ---
+
+
 

@@ -1,41 +1,17 @@
 """
-Project structure initialization script.
-Creates the required directory hierarchy for the llmXive research pipeline.
+Main entry point for setting up the full project structure.
+This script orchestrates the creation of all necessary directories.
 """
 import os
 from pathlib import Path
+from setup_data_directories import create_data_directories
 
 def main():
-    """Create project directories."""
-    # Define base directories relative to the project root
-    # The script assumes it is run from the project root or the code directory
-    # We resolve the project root as the parent of the 'code' directory if this file is in code/
-    
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent  # Assuming file is at code/setup_project_structure.py
-    
-    directories = [
-        project_root / "code",
-        project_root / "tests",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "results",
-        project_root / "state",
-    ]
-    
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory.relative_to(project_root)}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {directory.relative_to(project_root)}")
-    
-    if created_count == 0:
-        print("All directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directories.")
+    """Main entry point for project setup."""
+    print("Setting up project structure...")
+    created = create_data_directories()
+    print("Project structure setup complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

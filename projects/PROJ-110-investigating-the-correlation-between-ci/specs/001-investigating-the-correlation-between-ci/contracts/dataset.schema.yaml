@@ -1,76 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GTEx Dataset Schema"
-description: "Schema for the raw and processed GTEx dataset used in the circadian‑metabolic correlation study."
-type: "object"
+title: "Dataset Schema"
+type: object
 properties:
   donor_id:
-    type: "string"
-    description: "Unique GTEx donor identifier."
-  age:
-    type: "integer"
-    description: "Age at death in years."
-  sex:
-    type: "string"
-    enum: ["M", "F"]
-    description: "Biological sex."
+    type: string
+    description: "Unique identifier for each donor."
   tissue:
-    type: "string"
-    description: "Tissue source (e.g., Liver, Adipose)."
-  bmi:
-    type: "number"
-    description: "Body Mass Index (kg/m^2)."
-  fasting_glucose:
-    type: "number"
-    description: "Fasting glucose (mg/dL)."
-  triglycerides:
-    type: "number"
-    description: "Triglycerides (mg/dL)."
-  hdl:
-    type: "number"
-    description: "High‑Density Lipoprotein (mg/dL)."
-  systolic_bp:
-    type: "number"
-    description: "Systolic blood pressure (mmHg)."
-  diastolic_bp:
-    type: "number"
-    description: "Diastolic blood pressure (mmHg)."
-  pmi:
-    type: "number"
-    description: "Post‑Mortem Interval (hours)."
-  time_of_death:
-    type: "string"
-    description: "Time of death (HH:MM)."
-  gene_symbol:
-    type: "string"
-    description: "Gene symbol (e.g., PER1, BMAL1)."
-  tpm:
-    type: "number"
-    description: "Transcripts Per Million (TPM)."
-  log_tpm:
-    type: "number"
-    description: "Log2 transformed TPM (log2(TPM + 1))."
-  metabolic_status:
-    type: "string"
-    enum: ["MetS", "Control"]
-    description: "Classification based on ATP‑III criteria."
-  criteria_count:
-    type: "integer"
+    type: string
+    description: "GTEx or METSIM tissue name (e.g., 'Muscle_Skeletal')."
+  age:
+    type: integer
     minimum: 0
-    maximum: 5
-    description: "Number of ATP‑III criteria met."
+    description: "Age of donor in years."
+  sex:
+    type: string
+    enum: ["M", "F"]
+    description: "Sex of donor."
+  PMI:
+    type: number
+    minimum: 0
+    description: "Post‑mortem interval in hours; may be null if unavailable."
+  time_of_death:
+    type: number
+    minimum: 0
+    description: "Time of death (24‑hour clock); may be null."
+  BMI:
+    type: number
+    description: "Body Mass Index (kg/m²)."
+  fasting_glucose:
+    type: number
+    description: "Fasting glucose (mg/dL)."
+  systolic_bp:
+    type: number
+    description: "Systolic blood pressure (mm Hg)."
+  diastolic_bp:
+    type: number
+    description: "Diastolic blood pressure (mm Hg)."
+  triglycerides:
+    type: number
+    description: "Triglycerides (mg/dL)."
+  HDL:
+    type: number
+    description: "High‑density lipoprotein (mg/dL)."
+  gene_symbol:
+    type: string
+    description: "HGNC gene symbol (core circadian list only)."
+  tpm:
+    type: number
+    minimum: 0
+    description: "Transcripts per million (TPM) value."
 required:
   - donor_id
-  - age
-  - sex
   - tissue
-  - bmi
-  - fasting_glucose
-  - triglycerides
-  - hdl
-  - systolic_bp
-  - diastolic_bp
-  - pmi
-  - time_of_death
   - gene_symbol
   - tpm
 additionalProperties: false

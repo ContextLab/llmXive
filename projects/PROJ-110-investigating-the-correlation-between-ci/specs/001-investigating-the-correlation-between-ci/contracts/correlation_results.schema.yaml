@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gene‑Trait Correlation Results Schema"
+type: object
+properties:
+  gene_symbol:
+    type: string
+    description: "Core circadian gene."
+  trait:
+    type: string
+    description: "Metabolic trait (e.g., 'BMI', 'fasting_glucose')."
+  rho:
+    type: number
+    description: "Spearman or Pearson correlation coefficient."
+  p_raw:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Unadjusted p‑value."
+  p_adj:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg adjusted p‑value."
+  model_type:
+    type: string
+    enum: ["Spearman", "Pearson"]
+    description: "Test used based on normality check."
+required:
+  - gene_symbol
+  - trait
+  - rho
+  - p_raw
+  - p_adj
+  - model_type
+additionalProperties: false

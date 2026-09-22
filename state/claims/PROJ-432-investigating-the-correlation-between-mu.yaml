@@ -14,3 +14,112 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T12:19:39Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: Grieder 1985 weight function for T_eff calculation
+  claim_id: c_f9eeade7
+  context: src/config/constants.yaml defining T_eff weighting parameters (Grieder
+    1985)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grieder 1985
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:29:45Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: ERA5 data fetched for pressure levels 1000hPa-10hPa
+  claim_id: c_d26fe2f0
+  context: Implement src/data/ingest.py to fetch ERA5 data for pressure levels 1000hPa-10hPa
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_data_fetched_for_pressure_levels_1000hPa-10hPa
+  kind: entity_fact
+  raw_text: pressure levels 1000hPa-10hPa
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:30:11Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: Seasonal stratification defined as Summer Jun-Aug and Winter Dec-Feb
+  claim_id: c_f7380cb2
+  context: Implement src/analysis/stratify.py to split data into Summer (Jun-Aug)
+    and Winter (Dec-Feb) subsets
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seasonal_stratification_defined_as_Summer_Jun-Aug_and_Winter
+  kind: entity_fact
+  raw_text: Summer (Jun-Aug) and Winter (Dec-Feb)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:31:00Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: Fisher's r-to-z test skipped if subset size is less than 30
+  claim_id: c_80c65e17
+  context: 'Implement power check in src/analysis/stratify.py: skip Fisher''s r-to-z
+    test if subset size < 30'
+  evidence:
+    candidates:
+    - - ''
+      - 30.0
+    - - ''
+      - 27.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Fisher's_r-to-z_test_skipped_if_subset_size_is_less_than_30
+  kind: magnitude
+  raw_text: subset size < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T18:32:05Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: Outlier detection threshold set to greater than 3 sigma
+  claim_id: c_6d1594e1
+  context: Implement outlier detection (>3$\sigma$) and re-run analysis to compare
+    filtered vs. unfiltered results
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outlier_detection_threshold_set_to_greater_than_3_sigma
+  kind: magnitude
+  raw_text: '>3$\sigma$'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:32:32Z'
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: ANOVA test skipped if fewer than 3 parameter sets are generated
+  claim_id: c_f6e3e645
+  context: 'include fallback logic: if fewer than 3 parameter sets are generated,
+    skip ANOVA and log Insufficient Parameter Sets'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_test_skipped_if_fewer_than_3_parameter_sets_are_genera
+  kind: magnitude
+  raw_text: fewer than 3 parameter sets
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:33:10Z'

@@ -1,12 +1,10 @@
-# This file is DEPRECATED. Please use dataset.schema.yaml as the single source of truth.
-# This file is kept for backward compatibility but contains no new definitions.
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GTEx Metabolic Syndrome Dataset Schema (Deprecated)"
+title: "GTEx Metabolic Syndrome Dataset Schema"
 description: "This schema is deprecated. Use dataset.schema.yaml."
-type: "object"
+type: object
 properties:
   deprecated:
-    type: "boolean"
+    type: boolean
     description: "Always true."
 required:
   - deprecated

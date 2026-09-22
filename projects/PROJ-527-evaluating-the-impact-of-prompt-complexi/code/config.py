@@ -23,6 +23,7 @@ import numpy as np
 # Determine project root by looking for the .git directory or the
 # 'data' directory which we know exists from T002/T005.
 _CURRENT_FILE = Path(__file__).resolve()
+# Navigate up from code/config.py to project root
 _PROJECT_ROOT = _CURRENT_FILE.parent.parent
 if not (_PROJECT_ROOT / "data").exists():
     # Fallback: assume current working directory if script moved

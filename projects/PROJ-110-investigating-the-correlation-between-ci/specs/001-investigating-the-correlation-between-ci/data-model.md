@@ -1,98 +1,39 @@
 # Data Model: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
-## Overview
-All intermediate and final artifacts are stored as CSV or Parquet files under `data/processed/`. The schema definitions below are used by contract tests to guarantee structural integrity.
+## Core Entities
 
-### 1. `donors.parquet`
-| Column | Type | Description |
-|--------|------|-------------|
-| `donor_id` | string | Unique MESA or GTEx donor identifier |
-| `age` | int | Age at blood draw (MESA) or at death (GTEx) (years) |
-| `sex` | string (`"M"`/`"F"`) | Biological sex |
-| `tissue` | string | Tissue name (`"Blood"` for MESA; GTEx tissue ontology for GTEx) |
-| `pmi` | float | Post‑mortem interval (hours) – GTEx only |
-| `time_of_death` | float | Clock time of death (hours, 0‑24) – GTEx only |
-| `batch` | string | Sequencing batch identifier (if available) |
-| `bmi` | float | Body mass index (kg/m²) |
-| `fasting_glucose` | float | Fasting glucose (mg/dL) |
-| `sbp` | float | Systolic blood pressure (mmHg) |
-| `dbp` | float | Diastolic blood pressure (mmHg) |
-| `triglycerides` | float | Triglycerides (mg/dL) |
-| `hdl` | float | HDL cholesterol (mg/dL) |
-| `metabolic_status` | string (`"MetS"`/`"Control"`/`"Exploratory"`) | ATP‑III classification (MESA) or `"Exploratory"` for GTEx (no label) |
-| `criteria_count` | int (0‑5) | Number of ATP‑III criteria met |
-| `study_status` | string (`"exploratory"`/`"full"`) | Set after power analysis |
+| Entity | Description | Key Attributes |
+|--------|-------------|----------------|
+| **Donor** | Human subject identifier; includes phenotype variables required for MetS labeling and covariates. | `donor_id` (str), `age` (int), `sex` (enum: M/F), `tissue` (str), `PMI` (float, optional), `time_of_death` (float, optional), `BMI` (float), `fasting_glucose` (float), `systolic_bp` (float), `diastolic_bp` (float), `triglycerides` (float), `HDL` (float) |
+| **GeneExpression** | TPM value for a single gene in a donor. | `donor_id` (str), `gene_symbol` (str), `tpm` (float) |
+| **MetSClassification** | Binary MetS label derived from ATP‑III criteria. | `donor_id` (str), `label` (enum: MetS/Control), `criteria_met` (int 0‑5) |
+| **CorrelationResult** | Mixed‑effects correlation outcome for a gene‑trait pair. | `gene_symbol`, `trait`, `rho`, `p_raw`, `p_adj`, `model_type` |
+| **DEResult** | ANCOVA differential expression outcome per gene‑tissue. | `gene_symbol`, `tissue`, `beta`, `ci_lower`, `ci_upper`, `p_raw`, `p_adj` |
+| **LogisticModel** | Multivariate logistic regression fitted on METSIM data. | `model_id` (UUID), `predictors` (list of strings), `coefficients` (list of floats), `odds_ratios` (list of floats), `auc_mean`, `auc_std`, `cv_folds` |
+| **ValidationResult** | External validation metrics comparing METSIM and GTEx pipelines. | `metric` (e.g., gene_overlap, auc_delta), `value` (float), `p_value` (float), `pass` (bool) |
 
-### 2. `expression.parquet`
-| Column | Type | Description |
-|--------|------|-------------|
-| `donor_id` | string | Foreign key to `donors` |
-| `gene` | string | Gene symbol (core circadian list) |
-| `tpm` | float | Transcripts per million (raw) |
-| `log_tpm` | float | `log2(tpm + 1)` for modeling |
+## File Layout (under `data/processed/`)
 
-### 3. `de_results.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `gene` | string | Core circadian gene |
-| `tissue` | string | Tissue name |
-| `beta` | float | Hierarchical ANCOVA coefficient for MetS |
-| `ci_lower` | float | 95 % CI lower bound |
-| `ci_upper` | float | 95 % CI upper bound |
-| `p_value` | float | Raw p‑value |
-| `adj_p_value` | float | BH‑adjusted p‑value |
-| `significant` | bool | `true` if `adj_p_value < 0.05` |
+| File | Entity | Format | Schema |
+|------|--------|--------|--------|
+| `donors.parquet` | Donor | Parquet | `dataset.schema.yaml` |
+| `expression.parquet` | GeneExpression | Parquet | `dataset.schema.yaml` |
+| `metS_classification.csv` | MetSClassification | CSV | `classification.schema.yaml` |
+| `de_results.csv` | DEResult | CSV | `de_results.schema.yaml` |
+| `correlation_results.csv` | CorrelationResult | CSV | `correlation_results.schema.yaml` |
+| `logistic_model.json` | LogisticModel | JSON | `logistic_regression.schema.yaml` (coefficients) + `output.schema.yaml` (model_metrics) |
+| `validation_results.csv` | ValidationResult | CSV | `validation_results.schema.yaml` |
 
-### 4. `correlation_results.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `gene` | string | Core circadian gene |
-| `trait` | string | One of `bmi`, `fasting_glucose`, `sbp`, `dbp`, `triglycerides`, `hdl` |
-| `rho` | float | Spearman (or Pearson) correlation coefficient |
-| `p_value` | float | Raw p‑value |
-| `adj_p_value` | float | BH‑adjusted p‑value |
-| `significant` | bool | `true` if `adj_p_value < 0.05` |
-| `model_beta` | float | Fixed‑effect estimate from mixed‑effects model |
-| `model_ci_lower` | float | 95 % CI lower bound |
-| `model_ci_upper` | float | 95 % CI upper bound |
+All files include a `generated_at` timestamp and a SHA‑256 checksum recorded in `state/projects/PROJ-110-investigating-the-correlation-between-ci.yaml`.
 
-### 5. `logistic_model_coefficients.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `feature` | string | Predictor name (`gene_PER1`, `age`, `sex_F`, …) |
-| `odds_ratio` | float | Exponentiated coefficient |
-| `ci_lower` | float | 95 % CI lower bound |
-| `ci_upper` | float | 95 % CI upper bound |
-| `p_value` | float | Wald test p‑value |
-| `vif` | float | Variance Inflation Factor (≥ 5 flagged) |
+## Relationships
 
-### 6. `auxiliary_traits_coefficients.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `trait` | string | Clinical trait name |
-| `odds_ratio` | float | Exponentiated coefficient from traits‑only model |
-| `ci_lower` | float | 95 % CI lower bound |
-| `ci_upper` | float | 95 % CI upper bound |
-| `p_value` | float | Wald test p‑value |
+- **One‑to‑many**: One `Donor` → many `GeneExpression` rows (one per core circadian gene).  
+- **One‑to‑one**: One `Donor` → one `MetSClassification`.  
+- **Many‑to‑many**: `LogisticModel` predictors reference `GeneExpression` and covariate fields.  
 
-### 7. `cv_performance.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `fold` | int | CV fold index (1‑5) |
-| `auc` | float | Area Under ROC curve |
-| `auc_ci_lower` | float | 95 % CI lower bound (bootstrapped) |
-| `auc_ci_upper` | float | 95 % CI upper bound |
-| `delta_auc_vs_random` | float | `auc - 0.5` |
-
-### 8. `validation_results.csv` (MESA Blood)
-| Column | Type | Description |
-|--------|------|-------------|
-| `metric` | string | `gene_overlap`, `auc_difference` |
-| `value` | float | Numeric result |
-| `p_value` | float | Significance test result |
-| `pass` | bool | Whether the metric meets the replication threshold (FR‑010) |
-
-All files are version‑controlled via git LFS pointers if > 100 MB; otherwise stored directly under `data/processed/`.
+Foreign‑key‑like integrity checks are performed during validation (e.g., every `donor_id` in `expression.parquet` must exist in `donors.parquet`).
 
 ---
+
 

@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "External Validation Results Schema"
+type: object
+properties:
+  metric:
+    type: string
+    description: "Name of validation metric (e.g., 'gene_overlap', 'auc_delta')."
+  value:
+    type: number
+    description: "Numeric value of the metric."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Statistical significance of the metric."
+  pass:
+    type: boolean
+    description: "Whether the metric meets the pre‑specified success threshold."
+required:
+  - metric
+  - value
+  - p_value
+  - pass
+additionalProperties: false

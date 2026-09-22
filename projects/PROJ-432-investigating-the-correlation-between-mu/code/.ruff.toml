@@ -1,0 +1,27 @@
+# Explicit Ruff configuration file
+# Extends settings defined in pyproject.toml if needed, or serves as a standalone config
+# Keeping this file ensures the tool can be invoked directly with `ruff check .`
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

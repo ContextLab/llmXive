@@ -1,31 +1,21 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Metabolic Syndrome Classification Schema"
-description: "Schema for the output of the ATP‑III classification step."
+title: "Metabolic Status Classification Schema"
 type: object
 properties:
-  sample_id:
+  donor_id:
     type: string
-    description: "Reference to the original sample"
+    description: "Corresponds to donor_id in dataset."
+  label:
+    type: string
+    enum: ["MetS", "Control", "Unlabeled"]
+    description: "Binary MetS classification; 'Unlabeled' when phenotype missing."
   criteria_met:
     type: integer
     minimum: 0
     maximum: 5
-    description: "Number of ATP‑III criteria met (none to all)"
-  metabolic_status:
-    type: string
-    enum: ["MetS", "Control", "Excluded"]
-    description: "Classification result based on >=3 criteria"
-  validation_status:
-    type: string
-    enum: ["Valid", "Probable", "Invalid"]
-    description: "Result of Phase 0.5 validation gate"
-  exclusion_reason:
-    type: ["string", "null"]
-    description: "Reason for exclusion if not classified (e.g., 'Missing Glucose')"
+    description: "Number of ATP‑III criteria satisfied."
 required:
-  - sample_id
+  - donor_id
+  - label
   - criteria_met
-  - metabolic_status
-  - validation_status
-  - exclusion_reason
 additionalProperties: false

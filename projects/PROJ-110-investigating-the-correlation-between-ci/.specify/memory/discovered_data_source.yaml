@@ -1,19 +1,17 @@
 status: none
-intent: download GTEx v8 TPM matrix and phenotype, TCGA normal, MESA MetS python package
+intent: METSIM muscle RNAseq TPM and phenotype with GTEx v8 and MESA python package
   dataset
 required_fields:
-- donor_id
 - sample_id
-- tissue
-- gene_symbol
-- tpm
 - bmi
 - fasting_glucose
 - systolic_bp
 - diastolic_bp
 - triglycerides
 - hdl
-- age
-cache_key: 2af9ed1fa7e8bf08ae29140c1138482b960c0d52fda1b6b19db26c558444154d
-searched_at: '2026-09-10T20:15:52.617881+00:00'
+- pmi
+- gene_id
+- tpm
+cache_key: 00e0d48955fe7baf17763ac03696f334c44e518df1c7b37fb3fc29cfcd690e5b
+searched_at: '2026-09-22T18:40:56.915214+00:00'
 retry_count: 1

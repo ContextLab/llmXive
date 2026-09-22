@@ -758,3 +758,361 @@
   source_type: external
   status: verified
   updated_at: '2026-08-08T00:58:20Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/spec.md
+  attempts: 1
+  canonical: HumanEval benchmark contains 164 problems
+  claim_id: c_e963866e
+  context: The analysis is associative; causality is not claimed. The study is limited
+    by the sample size of the HumanEval benchmark (164 problems).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The study is limited by the sample size of the HumanEval benchmark (164
+    problems).
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T19:01:18Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: System generates 5 prompt variants per HumanEval problem based on structural
+    composition
+  claim_id: c_5514e292
+  context: 'T001 Apply Spec Amendments: Directly edit spec.md to correct corrupted
+    text and align requirements with the plan. The implementer MUST overwrite the
+    specific sections of spec.md with the following corrected text: 1. FR-001...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'System MUST generate multiple prompt variants per HumanEval problem with
+    controlled complexity levels defined by structural composition: simple (problem
+    statement only), moderate (+1 example), complex (+constraints), very complex (+multi-step
+    instructions), degenerate (+redundant constraints/examples).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:04:25Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: 'Prompt token thresholds using tiktoken cl100k_base: simple <= 50, moderate
+    51-150, complex 151-300, very complex 301-500, degenerate > 500'
+  claim_id: c_c35de0ca
+  context: "T001 Apply Spec Amendments: ...Token counts (using tiktoken cl100k_base,\
+    \ counting only prompt text) MUST serve as secondary indicators: simple \u2264\
+    \ 50 tokens, moderate 51-150 tokens, complex 151-300 tokens, very complex 301-500\
+    \ tokens, degenerate > 500 tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Token counts (using tiktoken cl100k_base, counting only prompt text)\
+    \ MUST serve as secondary indicators: simple \u2264 50 tokens, moderate 51-150\
+    \ tokens, complex 151-300 tokens, very complex 301-500 tokens, degenerate > 500\
+    \ tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:04:48Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset hosted at HuggingFace openai/human-eval
+  claim_id: c_d918b5bb
+  context: 'T016 [US1] Fetch HumanEval Dataset: Implement code/data/fetcher.py to
+    download HumanEval dataset from https://huggingface.co/datasets/openai/human-eval
+    with checksum verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_hosted_at_HuggingFace_openai/human-eval
+  kind: entity_fact
+  raw_text: The HumanEval dataset is available at https://huggingface.co/datasets/openai/human-eval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:05:21Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Artifact versioning utility computes SHA-256 hashes of data directory
+    files
+  claim_id: c_0fcfd51d
+  context: T009 [P] Implement artifact versioning utility in code/utils/versioning.py
+    to update state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml
+    after data generation. The utility MUST compute cryptographic hashes of all files
+    in data/ and write them to the artifact_hashes map in the state YAML.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The utility MUST compute cryptographic hashes of all files in data/ and
+    write them to the artifact_hashes map in the state YAML.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:05:21Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_d264b8ed
+  context: 'T003 Initialize Python 3.11 project with dependencies: datasets, tiktoken,
+    scikit-learn, statsmodels, pandas, ruff, requests, pyyaml in requirements.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:05:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: datasets, tiktoken, scikit-learn, statsmodels,
+    pandas, ruff, requests, pyyaml'
+  claim_id: c_ce3ef540
+  context: 'T003 Initialize Python 3.11 project with dependencies: datasets, tiktoken,
+    scikit-learn, statsmodels, pandas, ruff, requests, pyyaml in requirements.txt'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies:_datasets,_tiktoken,_scikit-learn,_stat
+  kind: entity_fact
+  raw_text: The project dependencies include datasets, tiktoken, scikit-learn, statsmodels,
+    pandas, ruff, requests, and pyyaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:06:13Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: LLM client wrapper supports HuggingFace Inference API or local GGUF on
+    CPU only
+  claim_id: c_b4f38bdf
+  context: T010 [P] Setup CPU-tractable LLM client wrapper in code/llm/client.py supporting
+    HuggingFace Inference API or local GGUF (CPU only, no CUDA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LLM_client_wrapper_supports_HuggingFace_Inference_API_or_loc
+  kind: entity_fact
+  raw_text: The implementation supports HuggingFace Inference API or local GGUF (CPU
+    only, no CUDA).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:06:34Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Test verifies generation of 5 distinct prompt variants per HumanEval
+    problem
+  claim_id: c_0631952c
+  context: 'Independent Test: Can be fully tested by generating prompts for a single
+    HumanEval problem, querying the LLM, and verifying that 5 distinct code samples
+    are captured with correct metadata tags.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test asserts that 5 distinct code samples are captured with correct
+    metadata tags.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:06:56Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: 'Contract test asserts 5 variants with specific labels: simple, moderate,
+    complex, very_complex, degenerate'
+  claim_id: c_77c26d24
+  context: 'T011 [P] [US1] Contract test for prompt generation logic in tests/unit/test_prompt_gen.py:
+    Implement test_generates_5_variants using a single HumanEval problem JSON as input,
+    asserting len(variants) == 5 and all(label in [''simple'', ''moderate'', ''complex'',
+    ''very_complex'', ''degenerate''] for label in labels).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test asserts len(variants) == 5 and all(label in ['simple', 'moderate',
+    'complex', 'very_complex', 'degenerate'] for label in labels).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:07:27Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: 'Manual review queue CSV contains columns: problem_id, variant_label,
+    token_delta, reason'
+  claim_id: c_199c979c
+  context: '4. US-1 Acceptance Scenario 3: Explicitly authorize the output artifact
+    data/results/manual_review_queue.csv with columns problem_id, variant_label, token_delta,
+    reason for flagging samples where the ''degenerate'' prompt token delta is < 100
+    tokens vs ''very complex''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_review_queue_CSV_contains_columns:_problem_id,_varian
+  kind: entity_fact
+  raw_text: The output artifact data/results/manual_review_queue.csv has columns problem_id,
+    variant_label, token_delta, reason.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:08:00Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Flag manual review if degenerate vs very complex token delta is less
+    than 100
+  claim_id: c_fbf4170e
+  context: '4. US-1 Acceptance Scenario 3: Explicitly authorize the output artifact
+    data/results/manual_review_queue.csv with columns problem_id, variant_label, token_delta,
+    reason for flagging samples where the ''degenerate'' prompt token delta is < 100
+    tokens vs ''very complex''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_manual_review_if_degenerate_vs_very_complex_token_delta
+  kind: magnitude
+  raw_text: Samples where the 'degenerate' prompt token delta is < 100 tokens vs 'very
+    complex' are flagged for manual review.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:08:42Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: 'Validation sources for metrics: McCabe 1976 and Ruff Documentation v0.1.0'
+  claim_id: c_32d5d77d
+  context: 'T027b [P] [US2] Document Validation Sources: Add comments in static_analysis.py
+    and entries in research.md citing ''McCabe 1976'' and ''Ruff Documentation v0.1.0''
+    as the validation sources for the extracted metrics (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation sources for extracted metrics are 'McCabe 1976' and 'Ruff
+    Documentation v0.1.0'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:09:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction uses adjusted significance threshold alpha
+    <= 0.05 divided by number of tests
+  claim_id: c_8c2b8a8d
+  context: "T034 [US3] Implement multiple-comparison correction in code/analysis/stats.py\
+    \ using Bonferroni or Holm-Bonferroni with adjusted significance threshold (\u03B1\
+    \ \u2264 0.05 / number of tests)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The adjusted significance threshold is \u03B1 \u2264 0.05 / number of\
+    \ tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:09:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis re-bins data with shifted thresholds of plus or
+    minus 10 tokens
+  claim_id: c_545e2837
+  context: "T036 [US3] Implement sensitivity analysis in code/analysis/stats.py to\
+    \ re-bin data using shifted thresholds (\xB110 tokens) and report variance in\
+    \ pass rates (FR-010)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis re-bins data using shifted thresholds of \xB1\
+    10 tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:09:36Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Effect size calculation uses Cohen's d and eta-squared
+  claim_id: c_a1f6f5a2
+  context: T038 [US3] Implement effect size calculation (Cohen's d, eta-squared) with
+    standard interpretation thresholds for small, medium, and large effects.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_size_calculation_uses_Cohen's_d_and_eta-squared
+  kind: entity_fact
+  raw_text: The analysis calculates effect sizes using Cohen's d and eta-squared.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:12:07Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime target is less than or equal to 6 hours on CPU
+  claim_id: c_4e2a0542
+  context: "T045 Performance optimization to ensure full pipeline runs within \u2264\
+    6 hours on CPU (subset if necessary): Profile main.py and implement caching for\
+    \ LLM queries in code/llm/client.py to reduce runtime to \u22646 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_target_is_less_than_or_equal_to_6_hour
+  kind: magnitude
+  raw_text: "The full pipeline runs within \u22646 hours on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:12:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity of runner.py reduced to less than 10
+  claim_id: c_bffef63c
+  context: 'T044 Code cleanup and refactoring to ensure modularity: Reduce cyclomatic
+    complexity of runner.py to < 10 and refactor code/execution/runner.py and code/analysis/stats.py
+    to separate concerns.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_of_runner.py_reduced_to_less_than_10
+  kind: magnitude
+  raw_text: The cyclomatic complexity of runner.py is reduced to < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:13:04Z'

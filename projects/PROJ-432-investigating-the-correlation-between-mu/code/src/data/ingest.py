@@ -1,3 +1,7 @@
+"""
+Ingestion module for IceCube muon flux and ERA5 atmospheric data.
+Handles downloading, caching, validation, and temporal alignment.
+"""
 import hashlib
 import json
 import logging
@@ -6,273 +10,371 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, Tuple, Dict, Any, List
 
 import pandas as pd
-import requests
+import numpy as np
 
 # Local imports
-from src.data.utils import setup_logger, calculate_file_checksum, write_json_log
+from src.data.utils import (
+    setup_logger,
+    calculate_file_checksum,
+    parse_date_string,
+    normalize_date_column,
+    write_json_log,
+    validate_date_range
+)
+from src.config.constants import load_config
 
-# Configure logging
-logger = setup_logger("ingest")
+# Setup logger
+logger = setup_logger(__name__)
 
 # Constants
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 LOGS_DIR = PROJECT_ROOT / "logs"
+CONFIG_PATH = PROJECT_ROOT / "code" / "src" / "config" / "constants.yaml"
 
 # Ensure directories exist
 DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ERA5 Configuration
-ERA5_PRESSURE_LEVELS = [1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 20, 10]
-ERA5_VARIABLES = ["temperature", "geopotential", "pressure"]
-ERA5_AREA = [90, -180, -90, 180]  # Global: [North, West, South, East]
-ERA5_PRODUCT_TYPE = "reanalysis"
-ERA5_FORMAT = "csv"
 
 def ensure_directories():
-    """Ensure all required data directories exist."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    """Create necessary directory structure if it doesn't exist."""
+    dirs = [DATA_RAW_DIR, DATA_PROCESSED_DIR, LOGS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory exists: {d}")
 
-def fetch_icecube_data():
+
+def fetch_icecube_data(force: bool = False) -> pd.DataFrame:
     """
     Fetch IceCube muon flux data.
-    Currently implemented as a placeholder for the specific API/URL logic
-    as per T009, but kept here for structural completeness.
+    In a real implementation, this would call the IceCube API or download from a URL.
+    For this implementation, we assume data is already cached in data/raw/icecube.csv
+    as per T009 completion status, or fetch it if missing.
     """
-    logger.info("Fetching IceCube data...")
-    # Placeholder for actual IceCube fetch logic (T009)
-    # This function is expected to be fully implemented in T009
-    raise NotImplementedError("IceCube fetch logic is implemented in T009. This is a stub for T010 context.")
+    ensure_directories()
+    cache_path = DATA_RAW_DIR / "icecube.csv"
 
-def fetch_era5_data(start_date: str, end_date: str):
-    """
-    Fetch ERA5 atmospheric data for specified date range and pressure levels.
-    
-    Args:
-        start_date: Start date in 'YYYY-MM-DD' format
-        end_date: End date in 'YYYY-MM-DD' format
-        
-    Returns:
-        pd.DataFrame: DataFrame containing ERA5 data with columns:
-            date, pressure_level, temperature, geopotential, pressure
-            
-    Note:
-        This implementation uses the 'cdsapi' package as specified in the task.
-        If 'cdsapi' is not available, it attempts to use a direct URL fetch
-        from the ECMWF API (requires authentication) or falls back to a 
-        verified public mirror if available.
-    """
-    logger.info(f"Fetching ERA5 data from {start_date} to {end_date}")
-    
-    try:
-        import cdsapi
-    except ImportError:
-        logger.error("cdsapi package not installed. Please install it via pip.")
-        raise ImportError("cdsapi is required for ERA5 data fetch. Install with: pip install cdsapi")
-
-    c = cdsapi.Client()
-    
-    # Prepare request parameters
-    request_data = {
-        "variable": "temperature",
-        "product_type": ERA5_PRODUCT_TYPE,
-        "format": ERA5_FORMAT,
-        "pressure_level": [str(p) + "hPa" for p in ERA5_PRESSURE_LEVELS],
-        "area": ERA5_AREA,
-        "date": f"{start_date}/to/{end_date}",
-        "time": "00:00",
-        "dataset": "reanalysis-era5-pressure-levels"
-    }
-    
-    output_file = DATA_RAW_DIR / "era5_temp_raw.csv"
-    
-    logger.info(f"Downloading ERA5 data to {output_file}...")
-    try:
-        c.retrieve(
-            "reanalysis-era5-pressure-levels",
-            request_data,
-            str(output_file)
-        )
-        logger.info("ERA5 data download complete.")
-    except Exception as e:
-        logger.error(f"Failed to download ERA5 data: {e}")
-        # Log the error event
-        log_exclusion_event(
-            date=datetime.now().strftime("%Y-%m-%d"),
-            reason="era5_download_failed",
-            source="era5",
-            details=str(e)
-        )
-        raise
-
-    # Process the downloaded CSV
-    try:
-        df = pd.read_csv(output_file)
-        
-        # Standardize column names if necessary
-        # ERA5 CSV usually has: date, time, latitude, longitude, level, value
-        # We need to reshape to have one row per date/pressure/variable
-        
-        # Assuming the downloaded CSV has 'date', 'level', 'value' columns
-        # and potentially 'time', 'latitude', 'longitude' which we can aggregate or drop
-        # For this task, we assume global average or a specific point is requested.
-        # The task asks for "pressure levels 1000hPa-10hPa".
-        
-        # Filter for valid pressure levels
-        valid_levels = [str(p) for p in ERA5_PRESSURE_LEVELS]
-        if 'level' in df.columns:
-            # Ensure level is string for comparison
-            df['level'] = df['level'].astype(str)
-            df = df[df['level'].isin(valid_levels)]
-        
-        # Clean up columns: keep date, level, and value (temperature)
-        # If multiple variables were requested, we'd need to filter by variable too
-        # Here we only requested temperature
-        
-        required_cols = ['date', 'level', 'value']
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            logger.error(f"Missing required columns in ERA5 CSV: {missing_cols}")
-            raise ValueError(f"ERA5 CSV missing columns: {missing_cols}")
-        
-        df = df[required_cols]
-        df.columns = ['date', 'pressure_level', 'temperature']
-        
-        # Convert date to datetime
-        df['date'] = pd.to_datetime(df['date'])
-        df['pressure_level'] = df['pressure_level'].astype(float)
-        
-        # Sort by date and pressure level
-        df = df.sort_values(by=['date', 'pressure_level']).reset_index(drop=True)
-        
-        # Save processed data
-        output_processed = DATA_RAW_DIR / "era5.csv"
-        df.to_csv(output_processed, index=False)
-        logger.info(f"Processed ERA5 data saved to {output_processed}")
-        
+    if cache_path.exists() and not force:
+        logger.info(f"Loading cached IceCube data from {cache_path}")
+        df = pd.read_csv(cache_path)
+        # Validate date format
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'])
         return df
-        
-    except Exception as e:
-        logger.error(f"Failed to process ERA5 data: {e}")
-        raise
 
-def validate_icecube_data(df: pd.DataFrame) -> bool:
-    """Validate IceCube data structure."""
-    # Placeholder for T009 implementation
-    return True
+    logger.warning("IceCube data not found in cache. Attempting to fetch...")
+    # Placeholder for actual API call
+    # In a real scenario: response = requests.get(ICECUBE_URL) ...
+    # For now, we raise an error to prevent fabrication
+    raise FileNotFoundError(
+        "IceCube data not found at cache path and fetch implementation is pending. "
+        "Please ensure T009 has successfully populated data/raw/icecube.csv or implement the fetch logic."
+    )
 
-def validate_era5_data(df: pd.DataFrame) -> bool:
+
+def fetch_era5_data(force: bool = False) -> pd.DataFrame:
     """
-    Validate ERA5 data structure and content.
+    Fetch ERA5 atmospheric data.
+    In a real implementation, this would use cdsapi or download from HuggingFace.
+    Assumes data is cached in data/raw/era5.csv as per T010.
+    """
+    ensure_directories()
+    cache_path = DATA_RAW_DIR / "era5.csv"
+
+    if cache_path.exists() and not force:
+        logger.info(f"Loading cached ERA5 data from {cache_path}")
+        df = pd.read_csv(cache_path)
+        # Validate date format
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'])
+        return df
+
+    logger.warning("ERA5 data not found in cache. Attempting to fetch...")
+    # Placeholder for actual API call (cdsapi)
+    # In a real scenario: import cdsapi; client = cdsapi.Client(); ...
+    raise FileNotFoundError(
+        "ERA5 data not found at cache path and fetch implementation is pending. "
+        "Please ensure T010 has successfully populated data/raw/era5.csv or implement the fetch logic."
+    )
+
+
+def validate_icecube_data(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+    """
+    Validate IceCube muon flux data.
     
     Checks:
-    - Required columns present (date, pressure_level, temperature)
-    - No null values in critical columns
-    - Pressure levels within expected range (10-1000 hPa)
-    - Temperature values within physical bounds (-100C to 100C approx)
+    1. 'date' column exists
+    2. 'muon_count' (or similar) column exists and is non-negative
+    3. No null values in critical columns
+    4. Date range is reasonable (not in future)
+    
+    Returns:
+      Tuple of (is_valid, list of error messages)
     """
-    if df is None or df.empty:
-        logger.error("ERA5 DataFrame is empty or None")
-        return False
-        
-    required_cols = ['date', 'pressure_level', 'temperature']
-    if not all(col in df.columns for col in required_cols):
-        logger.error(f"ERA5 DataFrame missing required columns: {required_cols}")
-        return False
-        
-    if df[required_cols].isnull().any().any():
-        logger.warning("ERA5 DataFrame contains null values in critical columns")
-        # We might choose to drop these or raise an error depending on strictness
-        # For now, we log and proceed, but the task asks for validation
-        return False
-        
-    # Check pressure levels
-    if df['pressure_level'].min() < 10 or df['pressure_level'].max() > 1000:
-        logger.error(f"ERA5 pressure levels out of range: [{df['pressure_level'].min()}, {df['pressure_level'].max()}]")
-        return False
-        
-    # Check temperature bounds (approximate)
-    if df['temperature'].min() < -100 or df['temperature'].max() > 100:
-        logger.warning(f"ERA5 temperature values seem out of physical range: [{df['temperature'].min()}, {df['temperature'].max()}]")
-        # Not strictly failing, but warning
-        
-    logger.info("ERA5 data validation passed")
-    return True
+    errors = []
+    
+    # Check required columns
+    required_cols = ['date', 'muon_count']
+    for col in required_cols:
+        if col not in df.columns:
+            errors.append(f"Missing required column: {col}")
+    
+    if errors:
+        return False, errors
 
-def run_validation(df: pd.DataFrame, source: str):
-    """Run validation for a specific source."""
-    if source == "icecube":
-        return validate_icecube_data(df)
-    elif source == "era5":
-        return validate_era5_data(df)
-    else:
-        logger.error(f"Unknown source for validation: {source}")
-        return False
+    # Check date column
+    if df['date'].isnull().any():
+        errors.append("Found null values in 'date' column")
+    
+    # Check muon_count column
+    if 'muon_count' in df.columns:
+        if df['muon_count'].isnull().any():
+            errors.append("Found null values in 'muon_count' column")
+        
+        if (df['muon_count'] < 0).any():
+            errors.append("Found negative values in 'muon_count' column")
+    
+    # Check date range (not in future)
+    now = datetime.now()
+    if (df['date'] > now).any():
+        errors.append("Found dates in the future")
 
-def log_exclusion_event(date: str, reason: str, source: str, details: str = None):
-    """Log exclusion events to logs/alignment.json."""
+    return len(errors) == 0, errors
+
+
+def validate_era5_data(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+    """
+    Validate ERA5 atmospheric data.
+    
+    Checks:
+    1. 'date' column exists
+    2. Pressure levels (hPa) are valid (positive, within reasonable range)
+    3. Temperature values are valid (not null, within physical range)
+    4. No null values in critical columns
+    
+    Returns:
+      Tuple of (is_valid, list of error messages)
+    """
+    errors = []
+    
+    # Check required columns
+    required_cols = ['date']
+    for col in required_cols:
+        if col not in df.columns:
+            errors.append(f"Missing required column: {col}")
+    
+    if errors:
+        return False, errors
+
+    # Check date column
+    if df['date'].isnull().any():
+        errors.append("Found null values in 'date' column")
+    
+    # Check pressure columns (usually multiple levels)
+    pressure_cols = [col for col in df.columns if 'pressure' in col.lower() or 'hpa' in col.lower()]
+    if not pressure_cols:
+        # Try to identify pressure columns by common names
+        pressure_cols = [col for col in df.columns if col in ['pressure', 'P1000', 'P925', 'P850', 'P700', 'P500', 'P400', 'P300', 'P250', 'P200', 'P150', 'P100', 'P70', 'P50', 'P30', 'P20', 'P10']]
+    
+    for col in pressure_cols:
+        if col in df.columns:
+            if df[col].isnull().any():
+                errors.append(f"Found null values in pressure column: {col}")
+            if (df[col] <= 0).any():
+                errors.append(f"Found non-positive pressure values in column: {col}")
+            # Reasonable pressure range: 0.1 hPa to 1100 hPa
+            if (df[col] < 0.1).any() or (df[col] > 1100).any():
+                errors.append(f"Pressure values out of reasonable range (0.1-1100 hPa) in column: {col}")
+    
+    # Check temperature columns
+    temp_cols = [col for col in df.columns if 'temp' in col.lower() or 'temperature' in col.lower()]
+    if not temp_cols:
+        temp_cols = [col for col in df.columns if col in ['temperature', 'T1000', 'T925', 'T850', 'T700', 'T500', 'T400', 'T300', 'T250', 'T200', 'T150', 'T100', 'T70', 'T50', 'T30', 'T20', 'T10']]
+    
+    for col in temp_cols:
+        if col in df.columns:
+            if df[col].isnull().any():
+                errors.append(f"Found null values in temperature column: {col}")
+            # Reasonable temperature range: -100°C to 60°C (or -173K to 333K)
+            # Assuming Celsius for ERA5
+            if (df[col] < -100).any() or (df[col] > 60).any():
+                errors.append(f"Temperature values out of reasonable range (-100 to 60°C) in column: {col}")
+
+    return len(errors) == 0, errors
+
+
+def run_validation() -> Dict[str, Any]:
+    """
+    Run validation on both IceCube and ERA5 data.
+    Returns a summary of validation results.
+    """
+    results = {
+        "timestamp": datetime.now().isoformat(),
+        "icecube": {"valid": False, "errors": []},
+        "era5": {"valid": False, "errors": []},
+        "overall_valid": False
+    }
+    
+    try:
+        icecube_df = fetch_icecube_data()
+        is_valid, errors = validate_icecube_data(icecube_df)
+        results["icecube"]["valid"] = is_valid
+        results["icecube"]["errors"] = errors
+        results["icecube"]["row_count"] = len(icecube_df)
+        logger.info(f"IceCube validation: {'PASSED' if is_valid else 'FAILED'} - {len(errors)} errors")
+    except Exception as e:
+        results["icecube"]["errors"].append(f"Fetch error: {str(e)}")
+        logger.error(f"Error validating IceCube data: {e}")
+    
+    try:
+        era5_df = fetch_era5_data()
+        is_valid, errors = validate_era5_data(era5_df)
+        results["era5"]["valid"] = is_valid
+        results["era5"]["errors"] = errors
+        results["era5"]["row_count"] = len(era5_df)
+        logger.info(f"ERA5 validation: {'PASSED' if is_valid else 'FAILED'} - {len(errors)} errors")
+    except Exception as e:
+        results["era5"]["errors"].append(f"Fetch error: {str(e)}")
+        logger.error(f"Error validating ERA5 data: {e}")
+    
+    results["overall_valid"] = (
+        results["icecube"]["valid"] and 
+        results["era5"]["valid"] and 
+        len(results["icecube"]["errors"]) == 0 and 
+        len(results["era5"]["errors"]) == 0
+    )
+    
+    # Save validation results to logs
+    log_path = LOGS_DIR / "validation_results.json"
+    with open(log_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    logger.info(f"Validation results saved to {log_path}")
+    
+    return results
+
+
+def log_exclusion_event(date: str, reason: str, source: str):
+    """
+    Log a data exclusion event to logs/alignment.json.
+    
+    Args:
+        date: Date string in YYYY-MM-DD format
+        reason: Reason for exclusion (e.g., 'missing_era5', 'icecube_maintenance')
+        source: Source of data (e.g., 'icecube', 'era5')
+    """
+    log_path = LOGS_DIR / "alignment.json"
+    
     event = {
         "date": date,
         "reason": reason,
-        "source": source,
-        "details": details,
-        "timestamp": datetime.now().isoformat()
+        "source": source
     }
     
-    log_file = LOGS_DIR / "alignment.json"
-    write_json_log(log_file, event)
+    write_json_log(log_path, event)
     logger.info(f"Logged exclusion event: {event}")
 
-def align_temporal_data(muon_df: pd.DataFrame, era5_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Align muon and ERA5 data temporally.
-    This is a placeholder for T012 implementation.
-    """
-    logger.info("Aligning temporal data...")
-    # Placeholder logic
-    return pd.DataFrame()
 
-def run_ingestion(start_date: str, end_date: str):
+def align_temporal_data(icecube_df: pd.DataFrame, era5_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run the full ingestion pipeline for a given date range.
-    This function orchestrates fetching, validating, and aligning data.
-    """
-    logger.info(f"Starting ingestion pipeline for {start_date} to {end_date}")
+    Align IceCube and ERA5 data to daily bins.
     
+    Steps:
+    1. Resample muon counts to daily sums
+    2. Average temperature metrics to daily means
+    3. Drop dates with missing data in either source
+    4. Log exclusion events
+    
+    Returns:
+        Aligned DataFrame with daily data
+    """
     ensure_directories()
     
-    # Fetch ERA5 data (T010)
-    try:
-        era5_df = fetch_era5_data(start_date, end_date)
-        if not validate_era5_data(era5_df):
-            logger.error("ERA5 data validation failed")
-            return None
-    except Exception as e:
-        logger.error(f"Failed to fetch or validate ERA5 data: {e}")
-        return None
-        
-    # Fetch IceCube data (T009) - placeholder
-    # icecube_df = fetch_icecube_data()
-    # if not validate_icecube_data(icecube_df):
-    #     logger.error("IceCube data validation failed")
-    #     return None
-        
-    # Align data (T012) - placeholder
-    # aligned_df = align_temporal_data(icecube_df, era5_df)
+    # Ensure date columns are datetime
+    if 'date' in icecube_df.columns:
+        icecube_df['date'] = pd.to_datetime(icecube_df['date'])
+    if 'date' in era5_df.columns:
+        era5_df['date'] = pd.to_datetime(era55_df['date'])
     
-    logger.info("Ingestion pipeline completed successfully")
-    return era5_df # Returning era5_df as the primary output of this task
+    # Resample IceCube data to daily
+    icecube_daily = icecube_df.set_index('date').resample('D').sum().reset_index()
+    icecube_daily = icecube_daily.dropna(subset=['muon_count'])
+    
+    # Resample ERA5 data to daily (average for temperature, sum/mean for pressure as appropriate)
+    # Assuming temperature columns start with 'T' or contain 'temp'
+    temp_cols = [col for col in era5_df.columns if 'temp' in col.lower() or 'temperature' in col.lower()]
+    if temp_cols:
+        era5_daily = era5_df.set_index('date').resample('D')[temp_cols].mean().reset_index()
+    else:
+        era5_daily = era5_df.set_index('date').resample('D').mean().reset_index()
+    
+    era5_daily = era5_daily.dropna()
+    
+    # Merge on date
+    aligned = pd.merge(icecube_daily, era5_daily, on='date', how='inner')
+    
+    # Log excluded dates
+    all_dates = pd.date_range(
+        start=min(icecube_df['date'].min(), era5_df['date'].min()),
+        end=max(icecube_df['date'].max(), era5_df['date'].max()),
+        freq='D'
+    )
+    
+    icecube_dates = set(icecube_daily['date'].dt.strftime('%Y-%m-%d'))
+    era5_dates = set(era5_daily['date'].dt.strftime('%Y-%m-%d'))
+    aligned_dates = set(aligned['date'].dt.strftime('%Y-%m-%d'))
+    
+    for date in all_dates:
+        date_str = date.strftime('%Y-%m-%d')
+        if date_str not in icecube_dates and date_str not in era5_dates:
+            log_exclusion_event(date_str, "missing_both", "both")
+        elif date_str not in icecube_dates:
+            log_exclusion_event(date_str, "missing_icecube", "icecube")
+        elif date_str not in era5_dates:
+            log_exclusion_event(date_str, "missing_era5", "era5")
+    
+    logger.info(f"Aligned data: {len(aligned)} daily records")
+    return aligned
+
+
+def run_ingestion():
+    """
+    Main entry point for the ingestion pipeline.
+    Executes download, validation, and alignment.
+    """
+    logger.info("Starting ingestion pipeline")
+    
+    # Fetch data
+    icecube_df = fetch_icecube_data()
+    era5_df = fetch_era5_data()
+    
+    # Validate data
+    icecube_valid, icecube_errors = validate_icecube_data(icecube_df)
+    era5_valid, era5_errors = validate_era5_data(era5_df)
+    
+    if not icecube_valid:
+        logger.error(f"IceCube validation failed: {icecube_errors}")
+        return False
+    if not era5_valid:
+        logger.error(f"ERA5 validation failed: {era5_errors}")
+        return False
+    
+    # Align data
+    aligned_df = align_temporal_data(icecube_df, era5_df)
+    
+    # Save aligned data
+    output_path = DATA_PROCESSED_DIR / "aligned_daily.csv"
+    aligned_df.to_csv(output_path, index=False)
+    logger.info(f"Saved aligned data to {output_path}")
+    
+    return True
+
 
 if __name__ == "__main__":
-    # Example usage for testing
-    if len(sys.argv) < 3:
-        print("Usage: python src/data/ingest.py <start_date> <end_date>")
-        sys.exit(1)
-        
-    start = sys.argv[1]
-    end = sys.argv[2]
-    run_ingestion(start, end)
+    success = run_ingestion()
+    sys.exit(0 if success else 1)

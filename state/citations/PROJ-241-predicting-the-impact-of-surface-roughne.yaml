@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 9c1fe15150de8d319b2e33f28636ab521c6c014be19f13cf4465ade730ef4d9f
+  artifact_path: projects/PROJ-241-predicting-the-impact-of-surface-roughne/specs/001-predicting-the-impact-of-surface-roughne/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18434/T4C54V
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18434/T4C54V
+  verified_at: '2026-09-22T18:59:28.752674Z'
