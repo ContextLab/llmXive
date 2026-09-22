@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017a` (rejected 1x): No code, script, notebook, or data file showing that the timecourses from T014, T015, and T016 have been loaded and concatenated into a single NumPy array is present. The claim lacks any artifact (e.g., a `.npy` file, a Python function, or console output) demonstrating the required in‑memory combination, and there is no evidence that the prerequisite tasks’ outputs even exist. The implementer must provide the actual implementation and proof (e.g., a saved array file or reproducible code) that performs the combination.
-- `T017b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_timecourses.csv, schema.yaml
+- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_left_hipp.npy
 
 ## Required change
 
