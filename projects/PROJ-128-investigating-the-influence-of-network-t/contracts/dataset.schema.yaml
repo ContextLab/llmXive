@@ -1,16 +1,26 @@
-# Schema for input dataset validation
-type: object
-required:
-  - subject_id
-  - fmri_path
-  - dmri_path
-properties:
+name: HCP_Dataset_Schema
+version: '1.0.0'
+description: Schema for HCP OpenNeuro data loading
+fields:
   subject_id:
     type: string
-    description: Unique HCP subject identifier
-  fmri_path:
+    required: true
+    description: HCP Subject ID
+  session_id:
     type: string
-    description: Path to preprocessed fMRI data (NIFTI or HDF5)
-  dmri_path:
+    required: false
+    description: Session ID
+  modality:
     type: string
-    description: Path to preprocessed dMRI data (NIFTI or HDF5)
+    enum:
+    - dMRI
+    - fMRI
+    required: true
+  raw_path:
+    type: string
+    required: true
+    description: Path to raw data file
+  processed_path:
+    type: string
+    required: false
+    description: Path to processed data file

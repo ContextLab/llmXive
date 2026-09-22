@@ -1,4 +1,3 @@
 """
-llmXive Research Pipeline: Code Module
-Contains all implementation logic for brain network analysis.
+Package initialization for the code module.
 """

@@ -93,7 +93,7 @@ A researcher needs to verify that the findings are robust to parameter choices (
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The correlation between structural global efficiency and dynamic state stability (hypothesized to be stable) is measured against the null hypothesis of no association (r=0) using the appropriate correlation method (Pearson or Spearman) and FDR-corrected p-values. (See US-2)
-- **SC-002**: The robustness of dynamic state metrics is measured against the baseline (standard TR window) by calculating the absolute difference in correlation coefficients when using a 20 TR window. (See US-3)
+- **SC-002**: The robustness of dynamic state metrics is measured against the baseline (standard TR window) by calculating the absolute difference in correlation coefficients when using an alternative TR window. (See US-3)
 - **SC-003**: The computational feasibility is measured against the GitHub Actions free-tier constraints (a limited number of CPU cores, a limited amount of RAM, a time limit) by verifying the total runtime and peak memory usage of the full pipeline via a generated resource usage report. (See US-3)
 - **SC-004**: The methodological validity is measured against the requirement for observational inference by verifying that the final report contains explicit "associational" framing and no causal language. (See US-3)
 - **SC-005**: The data completeness is measured against the total cohort size by calculating the percentage of subjects successfully processed, with exclusions explicitly categorized by reason (e.g., convergence failure, sparsity >90%). (See US-1)

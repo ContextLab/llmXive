@@ -1,4 +1,2 @@
-"""
-llmXive Research Pipeline: Data Module
-Contains data loading and processing utilities.
-"""
+# Data directory marker
+# This directory will contain raw, processed, and log files.

@@ -1,161 +1,153 @@
-"""
-Setup script to create the project directory structure and initialize schema files.
-This script ensures that all required directories (code/, data/, contracts/, tests/)
-exist and creates placeholder schema files in the contracts/ directory.
-"""
-
 import os
 from pathlib import Path
 import yaml
 from typing import Dict, Any
 
-
 def ensure_directories():
     """
-    Create the required project directory structure.
+    Creates the required directory structure for the project:
+    - data/raw
+    - data/processed
+    - data/logs
+    - contracts
     """
-    base_dirs = [
-        "code",
-        "code/preprocess",
-        "code/analysis",
-        "code/reports",
-        "code/utils",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/figures",
-        "data/logs",
-        "contracts",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "docs"
+    base_path = Path(__file__).resolve().parent.parent
+    directories = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "logs",
+        base_path / "contracts",
     ]
 
-    for dir_path in base_dirs:
-        path = Path(dir_path)
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-
-    # Create __init__.py files to make directories proper Python packages
-    package_dirs = [
-        "code",
-        "code/preprocess",
-        "code/analysis",
-        "code/reports",
-        "code/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration"
-    ]
-
-    for dir_path in package_dirs:
-        init_file = Path(dir_path) / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py: {init_file}")
-
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created/Verified directory: {directory}")
 
 def create_schema_files():
     """
-    Create placeholder schema files in the contracts/ directory.
+    Creates the required schema files in the contracts/ directory:
+    - dataset.schema.yaml
+    - output.schema.yaml
     """
-    contracts_dir = Path("contracts")
+    base_path = Path(__file__).resolve().parent.parent
+    contracts_dir = base_path / "contracts"
 
-    # Dataset schema
+    if not contracts_dir.exists():
+        contracts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Define Dataset Schema
     dataset_schema = {
-        "name": "HCP Brain Connectivity Dataset",
-        "version": "1.0.0",
-        "description": "Schema for HCP diffusion and functional MRI data",
-        "fields": {
+        "title": "HCP Dataset Schema",
+        "description": "Schema for raw and preprocessed HCP data inputs",
+        "type": "object",
+        "properties": {
             "subject_id": {
                 "type": "string",
-                "description": "Unique subject identifier"
+                "description": "Unique identifier for the subject (e.g., HCP ID)"
             },
-            "age": {
-                "type": "integer",
-                "description": "Subject age in years"
-            },
-            "sex": {
+            "modality": {
                 "type": "string",
-                "enum": ["M", "F"],
-                "description": "Subject sex"
+                "enum": ["fMRI", "dMRI"],
+                "description": "Imaging modality"
             },
-            "dwi_path": {
+            "file_path": {
                 "type": "string",
-                "description": "Path to diffusion MRI data"
+                "description": "Absolute or relative path to the data file"
             },
-            "func_path": {
-                "type": "string",
-                "description": "Path to functional MRI data"
-            },
-            "aparc_path": {
-                "type": "string",
-                "description": "Path to anatomical parcellation"
+            "acquisition_params": {
+                "type": "object",
+                "properties": {
+                    "TR": {"type": "number", "description": "Repetition time in seconds"},
+                    "TE": {"type": "number", "description": "Echo time in seconds"},
+                    "voxel_size": {"type": "array", "items": {"type": "number"}}
+                }
             }
         },
-        "required": ["subject_id", "dwi_path", "func_path", "aparc_path"]
+        "required": ["subject_id", "modality", "file_path"]
     }
 
-    dataset_schema_file = contracts_dir / "dataset.schema.yaml"
-    with open(dataset_schema_file, 'w') as f:
-        yaml.dump(dataset_schema, f, default_flow_style=False)
-    print(f"Created schema: {dataset_schema_file}")
-
-    # Output schema
+    # Define Output Schema
     output_schema = {
-        "name": "Brain Connectivity Analysis Output",
-        "version": "1.0.0",
-        "description": "Schema for analysis output files",
-        "files": {
-            "structural_metrics.csv": {
-                "description": "Per-subject structural graph metrics",
-                "columns": ["subject_id", "global_efficiency", "clustering_coeff", "modularity", "sparsity"]
+        "title": "Pipeline Output Schema",
+        "description": "Schema for aggregated metrics and correlation results",
+        "type": "object",
+        "properties": {
+            "structural_metrics": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "subject_id": {"type": "string"},
+                        "global_efficiency": {"type": "number"},
+                        "average_clustering": {"type": "number"},
+                        "modularity": {"type": "number"},
+                        "density": {"type": "number"}
+                    },
+                    "required": ["subject_id", "global_efficiency", "average_clustering", "modularity"]
+                }
             },
-            "dynamic_metrics.csv": {
-                "description": "Per-subject dynamic functional metrics",
-                "columns": ["subject_id", "dwell_time", "visited_states", "transition_matrix"]
+            "dynamic_metrics": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "subject_id": {"type": "string"},
+                        "state_id": {"type": "integer"},
+                        "mean_dwell_time": {"type": "number"},
+                        "num_visits": {"type": "integer"}
+                    },
+                    "required": ["subject_id", "state_id", "mean_dwell_time", "num_visits"]
+                }
             },
-            "correlation_results.csv": {
-                "description": "Structure-function correlation results",
-                "columns": ["metric_pair", "correlation", "p_value", "fdr_corrected_p", "significant"]
+            "correlation_results": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "metric_pair": {"type": "string"},
+                        "r_value": {"type": "number"},
+                        "p_value": {"type": "number"},
+                        "fdr_corrected_p": {"type": "number"},
+                        "is_significant": {"type": "boolean"}
+                    },
+                    "required": ["metric_pair", "r_value", "p_value", "fdr_corrected_p", "is_significant"]
+                }
             },
-            "sensitivity_comparison.csv": {
-                "description": "Sensitivity analysis results",
-                "columns": ["metric_pair", "baseline_corr", "sensitivity_corr", "absolute_diff"]
-            },
-            "final_report.json": {
-                "description": "Final analysis report",
-                "type": "object"
-            },
-            "exclusion_log.json": {
-                "description": "Log of excluded subjects",
-                "type": "array"
+            "exclusion_log": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "subject_id": {"type": "string"},
+                        "reason": {"type": "string"},
+                        "timestamp": {"type": "string", "format": "date-time"}
+                    }
+                }
             }
-        }
+        },
+        "required": ["structural_metrics", "dynamic_metrics", "correlation_results"]
     }
 
-    output_schema_file = contracts_dir / "output.schema.yaml"
-    with open(output_schema_file, 'w') as f:
-        yaml.dump(output_schema, f, default_flow_style=False)
-    print(f"Created schema: {output_schema_file}")
+    # Write Dataset Schema
+    dataset_path = contracts_dir / "dataset.schema.yaml"
+    with open(dataset_path, "w") as f:
+        yaml.dump(dataset_schema, f, default_flow_style=False, sort_keys=False)
+    print(f"Created schema: {dataset_path}")
 
+    # Write Output Schema
+    output_path = contracts_dir / "output.schema.yaml"
+    with open(output_path, "w") as f:
+        yaml.dump(output_schema, f, default_flow_style=False, sort_keys=False)
+    print(f"Created schema: {output_path}")
 
 def main():
     """
-    Main entry point for the setup script.
+    Main entry point to setup data directories and schema files.
     """
-    print("=" * 60)
-    print("Setting up project directory structure...")
-    print("=" * 60)
-
+    print("Starting data structure setup...")
     ensure_directories()
     create_schema_files()
-
-    print("=" * 60)
-    print("Setup complete!")
-    print("=" * 60)
-
+    print("Data structure setup complete.")
 
 if __name__ == "__main__":
     main()

@@ -1,16 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/`, `data/`, `contracts/`, or `tests/` directories
+    is provided; the claim lacks any artifact confirming the directory structure was
+    created.
 T003:
   c: true
-  h: 563e4d6952a6c6339af60e582e8e49bb4c38d0f3e84bbabbbf0759e380dba581
-  r: "The provided `pyproject.toml` (1258\u202Fbytes) contains concrete configuration\
-    \ sections for Black, Flake8, and Pylint, fulfilling the requirement to set up\
-    \ linting and formatting tools. The missing `.pre-commit-config.yaml` is optional\
-    \ since the configurations are already present in `pyproject.toml`."
+  h: 28c454cdacd165956cb464c39c1810707fcff6a8b3bd70843187afd768f04105
+  r: "The provided `pyproject.toml` contains full configuration sections for Black,\
+    \ Flake8, and Pylint, fulfilling the task\u2019s requirement to set up linting\
+    \ and formatting tools. The optional `.pre-commit-config.yaml` is not needed since\
+    \ the configurations are already present in `pyproject.toml`."
 T012:
   c: false
   h: a44e9592df01e631797702866da865abd90a0669758e5d0a8a3d447ab99bf80b
   r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
     so no unit test for `code/preprocess/structural.py` is provided. The task remains
     unfinished.
+T015b:
+  c: false
+  h: 43bd3a1c0e7f0776dc29db3dc531af006133666e07796d1a100d444859259f1f
+  r: "The repository contains `code/preprocess/structural.py`, but it only defines\
+    \ metric calculation and a single\u2011subject processing function; there is no\
+    \ code that iterates over `DENSITY_THRESHOLD_VARIATIONS` and writes a CSV. Moreover,\
+    \ the required output file `data/processed/structural_density_sensitivity.csv`\
+    \ does not exist. The sensitivity analysis and result export are therefore missing."
+T017:
+  c: false
+  h: 6dd7dd6b3d7c890722e0db91e61ad34a35136babeb022ce68c9bb0e510e6dfcb
+  r: "The provided `code/preprocess/functional.py` is truncated and never loads `data/processed/loo_centroids_all_subjects.npz`\
+    \ nor implements the per\u2011subject state\u2011assignment logic described. Moreover,\
+    \ the required `data/processed/loo_centroids_all_subjects.npz` file is absent.\
+    \ Both the code artifact and the data artifact needed for the task are missing/incomplete."
+T018:
+  c: false
+  h: be383409114ed42f6126aca3b1571961e42cfaf2e80d51158fc93e5dcd76b7b3
+  r: The required output files `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`
+    are absent, and the referenced `contracts/output.schema.yaml` (schema.yaml) is
+    also missing. Consequently the batch aggregation logic cannot be verified as implemented.
 T051:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

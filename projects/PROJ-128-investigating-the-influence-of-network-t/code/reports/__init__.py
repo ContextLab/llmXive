@@ -1,3 +1,3 @@
 """
-Report generation utilities.
+Reports module initialization.
 """

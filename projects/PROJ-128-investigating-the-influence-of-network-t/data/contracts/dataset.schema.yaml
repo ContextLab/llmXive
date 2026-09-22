@@ -1,0 +1,138 @@
+schema_version: "1.0"
+name: "HCP Brain Connectivity Dataset"
+description: "Schema for raw and processed HCP brain connectivity data"
+
+entities:
+  subject:
+    type: object
+    properties:
+      subject_id:
+        type: string
+        description: "Unique subject identifier (e.g., HCP 123456)"
+      age:
+        type: integer
+        description: "Subject age in years"
+      sex:
+        type: string
+        enum: ["M", "F"]
+      handedness:
+        type: string
+        enum: ["R", "L", "A"]
+        
+  structural_connectome:
+    type: object
+    properties:
+      subject_id:
+        type: string
+        description: "Reference to subject"
+      adjacency_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: "N x N weighted adjacency matrix"
+      num_regions:
+        type: integer
+        description: "Number of brain regions (nodes)"
+      acquisition_params:
+        type: object
+        properties:
+          b_value:
+            type: number
+          num_directions:
+            type: integer
+            
+  functional_connectome:
+    type: object
+    properties:
+      subject_id:
+        type: string
+        description: "Reference to subject"
+      timeseries:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: "T x N timeseries data"
+      window_length:
+        type: integer
+        description: "Sliding window length in TRs"
+      window_step:
+        type: integer
+        description: "Step size between windows in TRs"
+        
+  graph_metrics:
+    type: object
+    properties:
+      subject_id:
+        type: string
+      global_efficiency:
+        type: number
+      average_clustering_coefficient:
+        type: number
+      modularity:
+        type: number
+      density_threshold:
+        type: number
+      actual_density:
+        type: number
+      num_nodes:
+        type: integer
+      num_edges:
+        type: integer
+        
+  dynamic_metrics:
+    type: object
+    properties:
+      subject_id:
+        type: string
+      state_id:
+        type: integer
+      mean_dwell_time:
+        type: number
+      num_visits:
+        type: integer
+        
+  correlation_results:
+    type: object
+    properties:
+      structural_metric:
+        type: string
+      dynamic_metric:
+        type: string
+      correlation_coefficient:
+        type: number
+      p_value:
+        type: number
+      fdr_corrected:
+        type: boolean
+      significant:
+        type: boolean
+        
+files:
+  raw_fmri:
+    path: "data/raw/*/func/*.nii.gz"
+    format: "NIfTI"
+    schema_ref: "functional_connectome"
+    
+  raw_dmri:
+    path: "data/raw/*/dwi/*.nii.gz"
+    format: "NIfTI"
+    schema_ref: "structural_connectome"
+    
+  processed_structural:
+    path: "data/processed/structural_metrics.csv"
+    format: "CSV"
+    schema_ref: "graph_metrics"
+    
+  processed_dynamic:
+    path: "data/processed/dynamic_metrics.csv"
+    format: "CSV"
+    schema_ref: "dynamic_metrics"
+    
+  processed_correlation:
+    path: "data/processed/correlation_results.csv"
+    format: "CSV"
+    schema_ref: "correlation_results"

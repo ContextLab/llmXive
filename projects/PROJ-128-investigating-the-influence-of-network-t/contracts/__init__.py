@@ -1,4 +1,2 @@
-"""
-llmXive Research Pipeline: Contracts Module
-Contains schema definitions and validation contracts.
-"""
+# Contracts package marker
+# Contains schema definitions for data validation.

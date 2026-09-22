@@ -1,1 +1,2 @@
-# Placeholder for processed data artifacts (metrics, states)
+# This directory is intended for processed metrics and intermediate results.
+# Do not commit large files to git.

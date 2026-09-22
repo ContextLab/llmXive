@@ -1,3 +1,3 @@
 """
-Utility functions for optimization and validation.
+Utilities module initialization.
 """

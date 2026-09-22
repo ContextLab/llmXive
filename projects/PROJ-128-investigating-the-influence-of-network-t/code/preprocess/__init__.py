@@ -1,3 +1,3 @@
 """
-Preprocessing utilities for structural and functional data.
+Preprocessing module initialization.
 """

@@ -1,11 +1,19 @@
-nilearn>=0.10.0
-networkx>=3.0
-scikit-learn>=1.0.0
-pandas>=2.0.0
+# Core Data & Scientific Computing
 numpy>=1.24.0
-statsmodels>=0.14.0
+pandas>=2.0.0
 scipy>=1.10.0
+scikit-learn>=1.2.0
+
+# Neuroimaging & Network Analysis
+nilearn>=0.10.0
+networkx>=3.1.0
+
+# Statistics
+statsmodels>=0.14.0
+
+# Configuration & Utilities
 pyyaml>=6.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-tqdm>=4.65.0
+
+# Testing (Optional but recommended for pipeline validation)
+pytest>=7.3.0
+pytest-cov>=4.1.0

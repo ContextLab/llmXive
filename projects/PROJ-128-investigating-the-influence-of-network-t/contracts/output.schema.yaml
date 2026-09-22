@@ -1,31 +1,32 @@
-# Schema for pipeline output validation
-type: object
-required:
-  - subject_id
-  - structural_metrics
-  - dynamic_metrics
-properties:
-  subject_id:
-    type: string
+name: Pipeline_Output_Schema
+version: '1.0.0'
+description: Schema for pipeline output metrics
+outputs:
   structural_metrics:
-    type: object
-    properties:
-      global_efficiency:
-        type: number
-      average_clustering:
-        type: number
-      modularity:
-        type: number
+    type: csv
+    columns:
+    - subject_id
+    - global_efficiency
+    - clustering_coeff
+    - modularity
+    - density
   dynamic_metrics:
-    type: object
-    properties:
-      dwell_times:
-        type: array
-        items:
-          type: number
-      visited_states:
-        type: integer
-      state_sequence:
-        type: array
-        items:
-          type: integer
+    type: csv
+    columns:
+    - subject_id
+    - state_id
+    - mean_dwell_time
+    - num_visits
+  correlation_results:
+    type: csv
+    columns:
+    - metric_pair
+    - r_value
+    - p_value
+    - fdr_corrected
+  exclusion_log:
+    type: json
+    schema:
+    - subject_id: string
+      reason: string
+      timestamp: string
