@@ -72,11 +72,12 @@ def validate_dataset_size(df: pd.DataFrame) -> pd.DataFrame:
 def run_engineering_pipeline():
     """Main orchestration for T024."""
     project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "validated.csv"
+    # T021 outputs 'clipped.csv', T022 passes it to T024
+    input_path = project_root / "data" / "processed" / "clipped.csv"
     output_path = project_root / "data" / "processed" / "engineered_features.csv"
     
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file {input_path} not found. Run T022 first.")
+        raise FileNotFoundError(f"Input file {input_path} not found. Run T021/T022 first.")
     
     print("Starting engineering pipeline...")
     

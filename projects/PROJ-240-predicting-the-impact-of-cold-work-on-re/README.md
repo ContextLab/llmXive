@@ -1,12 +1,11 @@
-# PROJ-240: Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys
+# Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys
 
-This project implements a data pipeline to analyze how cold work and alloy composition affect recrystallization kinetics in aluminum alloys. It includes data generation, ingestion, feature engineering, model training, and statistical evaluation.
+This project implements an automated science pipeline to analyze how cold work and alloy composition affect recrystallization kinetics. It generates synthetic baseline data, engineers interaction features, trains Random Forest models, and performs statistical significance testing (Permutation Test & SHAP).
 
 ## Prerequisites
 
 - Python 3.8+
 - pip
-- (Optional) Virtual environment manager (venv, conda, etc.)
 
 ## Installation
 
@@ -17,51 +16,45 @@ This project implements a data pipeline to analyze how cold work and alloy compo
 
 ## Execution Guide
 
-Follow these 5 steps to run the full analysis pipeline:
+Follow these 5 steps to run the full pipeline:
 
-1. **Generate synthetic baseline data**:
+2. **Generate Data**:
+ Creates the deterministic synthetic baseline dataset (`data/raw/synthetic_baseline.csv`).
  ```bash
  python code/generate_synthetic.py
  ```
- This creates `data/raw/synthetic_baseline.csv` and its checksum.
 
-2. **Ingest and validate data**:
+3. **Ingest & Engineer**:
+ Validates, cleans, clips outliers, and engineers interaction features. Outputs `data/processed/final_dataset.csv`.
  ```bash
  python code/ingest.py
- ```
- This processes the raw data, applies physical bounds, handles missing values, clips outliers, and saves `data/processed/validated.csv` and validation reports.
-
-3. **Engineer interaction features**:
- ```bash
  python code/engineer.py
+ python code/finalize_dataset.py
  ```
- This calculates interaction terms (e.g., `cold_work * Mn_content`) and saves `data/processed/engineered_features.csv`.
 
-4. **Train predictive models**:
+4. **Train**:
+ Trains the Random Forest model, performs cross-validation, and evaluates on the test set. Outputs `artifacts/models/kinetic_model.pkl` and metrics.
  ```bash
  python code/train.py
  ```
- This trains Random Forest models (additive and interaction), performs cross-validation, and saves model artifacts and metrics.
 
-5. **Evaluate statistical significance**:
+5. **Evaluate**:
+ Runs the Additive vs. Interaction model comparison (Permutation Test) and SHAP analysis. Outputs `artifacts/reports/statistical_significance.json` and `artifacts/reports/shap_interaction_report.json`.
  ```bash
  python code/evaluate.py
  ```
- This runs permutation tests, SHAP analysis, and generates final evaluation reports.
 
 ## Output Artifacts
 
-- **Data**: `data/raw/`, `data/processed/`
-- **Models**: `artifacts/models/`
-- **Reports**: `artifacts/reports/`
-- **Figures**: `figures/`
+- **Data**: `data/processed/final_dataset.csv`
+- **Models**: `artifacts/models/kinetic_model.pkl`, `artifacts/models/additive_model.pkl`
+- **Reports**:
+ - `artifacts/reports/training_metrics.json`
+ - `artifacts/reports/statistical_significance.json`
+ - `artifacts/reports/shap_interaction_report.json`
 
 ## Notes
 
-- All scripts use deterministic seeds for reproducibility.
-- The pipeline enforces strict data validation and fails loudly on errors.
-- Ensure sufficient disk space for intermediate data files.
-
-## License
-
-Internal research use only.
+- The pipeline uses a fixed random seed (42) for reproducibility.
+- Synthetic data is the primary source as per project specification.
+- Ensure `code/config.py` settings (e.g., `N_ROWS_TARGET`, `N_ESTIMATORS`) are adjusted if needed before running.

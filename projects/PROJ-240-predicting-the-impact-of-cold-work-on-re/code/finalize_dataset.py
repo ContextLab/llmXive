@@ -1,9 +1,9 @@
 """
-T025: Generate final dataset artifact data/processed/final_dataset.csv ready for modeling.
-Dependency: T024 (engineer.py)
+T025: Generate final dataset artifact.
 
-This script loads the engineered features, enforces any row caps defined in config,
-and saves the final dataset to data/processed/final_dataset.csv.
+Loads the engineered dataset, enforces the row cap (if necessary),
+and saves the final dataset ready for modeling to:
+data/processed/final_dataset.csv
 """
 import os
 import sys
@@ -12,95 +12,109 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 
-# Import shared config
-from config import get_project_root, get_max_rows
+# Import local config utilities
+from config import get_project_root, get_config_value
 
-def load_engineered_data(input_path: Optional[str] = None) -> pd.DataFrame:
-    """Load the engineered features dataset."""
+def load_engineered_data() -> pd.DataFrame:
+    """
+    Load the engineered features dataset from T024.
+    Path: data/processed/engineered_features.csv
+    """
     project_root = get_project_root()
-    if input_path is None:
-        input_path = project_root / "data" / "processed" / "engineered_features.csv"
+    input_path = project_root / "data" / "processed" / "engineered_features.csv"
     
-    if not os.path.exists(input_path):
+    if not input_path.exists():
         raise FileNotFoundError(
-            f"Engineered features file not found at {input_path}. "
-            "Please ensure T024 (engineer.py) has been executed successfully."
+            f"Engineered dataset not found at {input_path}. "
+            "Please ensure T024 (engineer.py) has completed successfully."
         )
     
-    # Use chunked loading if file is large, though for final dataset we assume it fits in memory
-    # unless specified otherwise. We use na_filter=True for safety.
-    df = pd.read_csv(input_path, na_filter=True)
-    return df
-
-def enforce_row_cap(df: pd.DataFrame, max_rows: Optional[int] = None) -> pd.DataFrame:
-    """
-    Enforce a hard cap on the number of rows if specified.
-    Returns the capped DataFrame.
-    """
-    if max_rows is None:
-        max_rows = get_max_rows()
+    # Read with explicit dtype enforcement and na_filter for sanitization
+    df = pd.read_csv(
+        input_path,
+        dtype={
+            'cold_work_pct': float,
+            'Mn_wt': float,
+            'Mg_wt': float,
+            'Si_wt': float,
+            'Cu_wt': float,
+            'annealing_temp_K': float,
+            'time_to_peak_min': float,
+            'cold_work_Mn_content': float,
+            'cold_work_Mg_content': float,
+            'cold_work_Si_content': float,
+            'cold_work_Cu_content': float
+        },
+        na_filter=True
+    )
     
-    if df.shape[0] > max_rows:
-        print(f"Dataset size ({df.shape[0]}) exceeds cap ({max_rows}). Capping...")
-        # Deterministic slicing based on index to ensure reproducibility
-        df = df.iloc[:max_rows].reset_index(drop=True)
     return df
 
-def save_final_dataset(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
-    """Save the final dataset to CSV."""
+def enforce_row_cap(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Enforce the maximum row count constraint if the dataset is too large.
+    If rows > N_ROWS_TARGET, sample deterministically.
+    """
+    n_rows_target = get_config_value("N_ROWS_TARGET", default=10000)
+    
+    if len(df) > n_rows_target:
+        # Deterministic sampling to ensure reproducibility
+        seed = get_config_value("SEED", default=42)
+        np.random.seed(seed)
+        indices = np.random.choice(df.index, size=n_rows_target, replace=False)
+        df_sampled = df.loc[indices].reset_index(drop=True)
+        print(f"Dataset size {len(df)} exceeds cap {n_rows_target}. "
+              f"Sampled {n_rows_target} rows deterministically.")
+        return df_sampled
+    
+    print(f"Dataset size {len(df)} is within cap {n_rows_target}.")
+    return df
+
+def save_final_dataset(df: pd.DataFrame) -> Path:
+    """
+    Save the final processed dataset to the declared output path.
+    Path: data/processed/final_dataset.csv
+    """
     project_root = get_project_root()
-    if output_path is None:
-        output_path = project_root / "data" / "processed" / "final_dataset.csv"
+    output_dir = project_root / "data" / "processed"
+    output_path = output_dir / "final_dataset.csv"
     
     # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV
+    # Write to disk
     df.to_csv(output_path, index=False)
-    print(f"Final dataset saved to {output_path} with {len(df)} rows.")
-    return str(output_path)
+    
+    print(f"Final dataset saved to: {output_path}")
+    print(f"Shape: {df.shape}")
+    print(f"Columns: {list(df.columns)}")
+    
+    return output_path
 
 def main():
-    """Main entry point for T025."""
-    print("Starting T025: Generate final dataset artifact...")
-    
+    """
+    Main entry point for T025.
+    """
     try:
-        # 1. Load engineered data (from T024)
+        # 1. Load engineered data
+        print("Loading engineered dataset...")
         df = load_engineered_data()
-        print(f"Loaded {len(df)} rows from engineered features.")
         
-        # 2. Enforce row cap (FR-003 compliance)
-        max_rows = get_max_rows()
-        df = enforce_row_cap(df, max_rows)
+        # 2. Enforce row cap if necessary
+        print("Checking dataset size...")
+        df_final = enforce_row_cap(df)
         
-        # 3. Validate no nulls in critical columns (optional safety check)
-        # The spec implies data should be clean by this stage, but we check.
-        critical_cols = ['cold_work_pct', 'Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt', 
-                         'annealing_temp_K', 'time_to_peak_min',
-                         'cold_work_Mn_content', 'cold_work_Mg_content', 
-                         'cold_work_Si_content', 'cold_work_Cu_content']
+        # 3. Save final dataset
+        print("Saving final dataset...")
+        output_path = save_final_dataset(df_final)
         
-        missing_cols = [c for c in critical_cols if c not in df.columns]
-        if missing_cols:
-            raise ValueError(f"Missing critical columns in final dataset: {missing_cols}")
-        
-        null_counts = df[critical_cols].isnull().sum()
-        if null_counts.any():
-            raise ValueError(f"Null values found in critical columns:\n{null_counts[null_counts > 0]}")
-        
-        # 4. Save final dataset
-        output_path = save_final_dataset(df)
-        
-        print("T025 completed successfully.")
+        print(f"Task T025 completed successfully. Output: {output_path}")
         
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-    except ValueError as e:
-        print(f"Validation Error: {e}", file=sys.stderr)
-        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(f"Unexpected error during finalization: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,16 +1,14 @@
 status: none
-intent: NIST recrystallization kinetics dataset Mg Si Cu Mn alloy python package dataset
+intent: NIST alloy recrystallization dataset Mg Si Cu Mn cold work temperature time-to-peak
+  python package dataset
 required_fields:
 - cold_work_percent
-- Mg_weight_percent
-- Si_weight_percent
-- Cu_weight_percent
-- Mn_weight_percent
+- Mg_wt_percent
+- Si_wt_percent
+- Cu_wt_percent
+- Mn_wt_percent
 - annealing_temperature_K
 - time_to_peak_softening
-- interaction_feature_1
-- interaction_feature_2
-- normalized_composition_vector
-cache_key: b7c540280454a9f0fc06a7753cc93eb9775cffaa89bfd55ffd67274e54546950
-searched_at: '2026-09-07T03:40:20.516432+00:00'
+cache_key: aaa4fdeccbbfdab72298e814fe7ed0cf4961fbe5fad5d46538c0f7b082b886a3
+searched_at: '2026-09-22T06:22:42.252179+00:00'
 retry_count: 1

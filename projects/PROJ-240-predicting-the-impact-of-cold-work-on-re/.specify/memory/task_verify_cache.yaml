@@ -1,32 +1,12 @@
-T011:
+T019:
   c: false
-  h: b3774c882fee66d5bfe8a14d095700071d3065ca217dff090484613c44088746
-  r: "The required output file `data/raw/synthetic_baseline.csv` is missing and the\
-    \ accompanying checksum file contains a dummy value. Moreover, the script does\
-    \ not read a `N_ROWS_TARGET` variable nor enforce the specified hard\u2011cap\
-    \ logic, and it does not clearly raise a `RuntimeError` on failure. These gaps\
-    \ mean the deterministic synthetic data generation task is not fulfilled."
-T012:
-  c: false
-  h: 073dfcc2031e6223d06281d9f9e5595a816a7d6f123bdd86eb13ff0e0050e7ae
-  r: The required input file `data/processed/validated.csv` does not exist, and consequently
-    the output `artifacts/reports/baseline_stats.json` is also missing. Without these
-    artifacts the mean cannot be computed, so the task is not satisfied.
-T021:
-  c: false
-  h: 652b6ecd5df072c3db7ffc16c09c9cd6456d3df392c728c2a577d63014dcaab5
-  r: "The repository lacks `artifacts/reports/validation_log.json` and `data/processed/validated.csv`,\
-    \ and the shown portion of `code/ingest.py` does not contain any outlier\u2011\
-    clipping logic or code that writes the required JSON report. Consequently the\
-    \ required clipping, logging, and saved dataset are not present."
-T022:
-  c: false
-  h: 6c53274fcf4da41d9d96b9a830869024b19de67d0ee0557604f627eef580b33e
-  r: "The repository lacks the required `data/raw/synthetic_baseline.csv`, `data/processed/validated.csv`,\
-    \ and `artifacts/reports/validation_log.json` files, and the provided `code/ingest.py`\
-    \ does not automatically load a merged external dataset nor write the specified\
-    \ output files. Consequently the task\u2019s orchestration, fail\u2011fast check,\
-    \ and output generation are not fulfilled."
+  h: 6211ee41533ed1e205c2139a902f9d55176abd511a237171df8c94bd3f449c6b
+  r: "The repository lacks the required `data/processed/cleaned.csv` file, so the\
+    \ cleaning step\u2019s output was never saved. Moreover, the provided `ingest.py`\
+    \ snippet only imports `impute_missing_composition` from `utils` and does not\
+    \ show any implementation that imputes missing values column\u2011wise within\
+    \ this script. Without evidence of the imputation logic and the saved CSV, the\
+    \ task is not fulfilled."
 T024:
   c: false
   h: 56ed9c4b1b97a1e2e78366c1b884836200ccdd76df6783ccb600385d393d5fab
@@ -42,14 +22,6 @@ T026:
     \ or compare the test MAE to a threshold. Moreover, the required `reports/baseline_stats.json`\
     \ file is absent from the repository. Both the implementation and the dependent\
     \ artifact are missing, so the task is not satisfied."
-T029:
-  c: false
-  h: f84db56764d12877c4452055f6471b7499855f934415380f0861431eea168cf3
-  r: "The required output files `artifacts/reports/training_metrics.json` and `artifacts/models/kinetic_model.pkl`\
-    \ are absent, and the provided `code/train.py` snippet is incomplete (truncated)\
-    \ with no visible implementation of the pure\u2011aluminum flag handling, dataset\u2011\
-    size check, or model saving. Consequently the task\u2019s specifications are not\
-    \ met."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

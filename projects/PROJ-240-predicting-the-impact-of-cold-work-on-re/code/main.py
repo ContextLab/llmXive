@@ -1,13 +1,14 @@
 """
-Main orchestration script for the pipeline.
-Executes steps sequentially: Generate -> Ingest -> Engineer -> Finalize -> Train -> Evaluate.
+T013: Pipeline Orchestrator.
+Executes the full pipeline: T011 -> T022 -> T024 -> T029 -> T039.
 """
 import argparse
 import sys
 import os
+import subprocess
 from pathlib import Path
 
-# Import step functions
+# Import main functions from pipeline steps
 from generate_synthetic import main as run_generate
 from ingest import main as run_ingest
 from engineer import main as run_engineer
@@ -16,54 +17,53 @@ from train import main as run_train
 from evaluate import main as run_evaluate
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run the cold-work recrystallization pipeline.")
-    parser.add_argument(
-        "--step",
-        type=str,
-        choices=["generate", "ingest", "engineer", "finalize", "train", "evaluate", "all"],
-        default="all",
-        help="Which step to run. Default is 'all'."
-    )
+    parser = argparse.ArgumentParser(description="Pipeline Orchestrator")
+    parser.add_argument("--step", type=str, choices=["generate", "ingest", "engineer", "finalize", "train", "evaluate", "all"],
+                        help="Specific step to run. Defaults to 'all'.")
     return parser.parse_args()
 
 def run_generate_step():
-    print("Running Step 1: Generate Synthetic Data...")
+    print("Running Generate Step (T011)...")
     run_generate()
+    print("Generate Step completed.")
 
 def run_ingest_step():
-    print("Running Step 2: Ingest and Validate Data...")
+    print("Running Ingest Step (T022)...")
     run_ingest()
+    print("Ingest Step completed.")
 
 def run_engineer_step():
-    print("Running Step 3: Engineer Features...")
+    print("Running Engineer Step (T024)...")
     run_engineer()
+    print("Engineer Step completed.")
 
 def run_finalize_step():
-    print("Running Step 4: Finalize Dataset (T025)...")
+    print("Running Finalize Step (T025)...")
     run_finalize()
+    print("Finalize Step completed.")
 
 def run_train_step():
-    print("Running Step 5: Train Model...")
+    print("Running Train Step (T029, T030, T031, T032, T033, T034)...")
     run_train()
+    print("Train Step completed.")
 
 def run_evaluate_step():
-    print("Running Step 6: Evaluate Model...")
+    print("Running Evaluate Step (T037, T038, T039, T040, T041)...")
     run_evaluate()
+    print("Evaluate Step completed.")
 
 def run_all_steps():
-    print("Running full pipeline...")
     run_generate_step()
     run_ingest_step()
     run_engineer_step()
     run_finalize_step()
     run_train_step()
     run_evaluate_step()
-    print("Pipeline completed successfully.")
 
 def main():
     args = parse_args()
     
-    if args.step == "all":
+    if args.step == "all" or args.step is None:
         run_all_steps()
     elif args.step == "generate":
         run_generate_step()
@@ -77,9 +77,8 @@ def main():
         run_train_step()
     elif args.step == "evaluate":
         run_evaluate_step()
-    else:
-        print(f"Unknown step: {args.step}", file=sys.stderr)
-        sys.exit(1)
+    
+    print("Pipeline execution finished.")
 
 if __name__ == "__main__":
     main()

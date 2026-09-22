@@ -97,8 +97,12 @@ def main():
     
     print(f"Generating synthetic dataset with seed={seed}, max_rows={max_rows}...")
     
-    # Enforce hard cap
-    n_samples = min(max_rows, 5000) # Cap at 5000 for this run to ensure speed
+    # Enforce hard cap: T011 requires exactly 10000 rows if config allows,
+    # but the execution failure noted a cap. We respect the config's max_rows
+    # but ensure we generate the requested amount if within limits.
+    # The task spec says "Generate exactly 10000 rows".
+    # We will use min(max_rows, 10000) to be safe, but default config is 10000.
+    n_samples = min(max_rows, 10000)
     
     # Generate data
     compositions = generate_compositions(n_samples, seed)

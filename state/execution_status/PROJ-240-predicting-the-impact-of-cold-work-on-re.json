@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-240-predicting-the-impact-of-cold-work-on-re",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n df  def main():     \"\"\"Generate synthetic dataset and save to CSV.\u2026\u201d; code/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026index=False)     print(f\"Generated synthetic dataset with {n_samples}\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/main.py --step generate; python code/main.py --step engineer; python code/main.py --step train; 4 declared deliverable(s) absent: data/processed/engineered_features.csv; data/processed/final_dataset.csv; data/processed/validated.csv",
+  "reason": "10 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/__init__.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026on - generate_synthetic: Synthetic data generation (for baseline\u2026\u201d; code/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" T011: Generate deterministic synthetic baseline data. Generates\u2026\u201d; code/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026print(f\"Generating synthetic dataset with seed={seed}, max_ro\u2026\u201d; 3 command(s) failed: python code/main.py --step generate (rc=1); python code/main.py --step engineer (rc=1); python code/main.py --step train (rc=1); 2 declared deliverable(s) absent: data/processed/final_dataset.csv; data/raw/synthetic_baseline.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --step generate -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py': [Errno 2] No such file or directory",
-    "python code/main.py --step engineer -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py': [Errno 2] No such file or directory",
-    "python code/main.py --step train -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py': [Errno 2] No such file or directory"
+    "python code/main.py --step generate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py\", line 16, in <module>\n    from evaluate import main as run_evaluate\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/evaluate.py\", line 16, in <module>\n    import shap\nModuleNotFoundError: No module named 'shap'",
+    "python code/main.py --step engineer -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py\", line 16, in <module>\n    from evaluate import main as run_evaluate\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/evaluate.py\", line 16, in <module>\n    import shap\nModuleNotFoundError: No module named 'shap'",
+    "python code/main.py --step train -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/main.py\", line 16, in <module>\n    from evaluate import main as run_evaluate\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/evaluate.py\", line 16, in <module>\n    import shap\nModuleNotFoundError: No module named 'shap'"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-07T03:39:54Z"
+  "updated_at": "2026-09-22T06:21:59Z"
 }
