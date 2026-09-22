@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult Schema"
+description: "Schema for the output metrics of the model evaluation against AndroidWorld tasks. Includes distilled, baseline, and ablation results."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the AndroidWorld task."
+  model_type:
+    type: "string"
+    enum:
+      - "distilled"
+      - "baseline_tinyllama"
+      - "ablation_retry"
+    description: "Type of model used for this run. 'ablation_retry' indicates the hint was replaced with 'Try again'."
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully."
+  steps_taken:
+    type: "integer"
+    minimum: 0
+    description: "Number of steps taken by the model."
+  optimal_steps:
+    type: "integer"
+    minimum: 0
+    description: "Ground truth number of steps."
+  inconsistency_tolerance:
+    type: "number"
+    description: "Threshold used for action matching."
+  execution_time_sec:
+    type: "number"
+    minimum: 0
+    description: "Time taken for inference in seconds."
+required:
+  - "task_id"
+  - "model_type"
+  - "success"
+  - "steps_taken"
+  - "optimal_steps"
+  - "inconsistency_tolerance"
+  - "execution_time_sec"
+additionalProperties: false

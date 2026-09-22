@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalReport Schema"
+description: "Schema for the final statistical analysis report including McNemar's test and effect size."
+type: "object"
+properties:
+  mcnemar_test:
+    type: "object"
+    description: "Results of the McNemar's test between distilled and baseline."
+    properties:
+      chi2_statistic:
+        type: "number"
+      p_value:
+        type: "number"
+        description: "P-value for the hypothesis test."
+      odds_ratio:
+        type: "number"
+        description: "Odds ratio for the paired binary outcome."
+      confidence_interval_95:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+    required:
+      - "chi2_statistic"
+      - "p_value"
+      - "odds_ratio"
+  effect_size:
+    type: "object"
+    description: "Observed effect size and confidence intervals."
+    properties:
+      cohen_d:
+        type: "number"
+        description: "Cohen's d effect size (for continuous metrics)."
+      confidence_interval_95:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+    required:
+      - "cohen_d"
+      - "confidence_interval_95"
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the threshold sensitivity sweep."
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+      success_rates:
+        type: "array"
+        items:
+          type: "number"
+      variance:
+        type: "number"
+        description: "Variance in success rates across thresholds."
+    required:
+      - "thresholds_tested"
+      - "success_rates"
+      - "variance"
+required:
+  - "mcnemar_test"
+  - "effect_size"
+  - "sensitivity_analysis"
+additionalProperties: false

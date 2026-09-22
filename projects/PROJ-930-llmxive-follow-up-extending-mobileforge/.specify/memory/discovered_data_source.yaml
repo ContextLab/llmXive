@@ -1,0 +1,11 @@
+status: none
+intent: download mobileforge trajectories and androidworld datasets huggingface python
+  package dataset
+required_fields:
+- instruction
+- hint
+- initial_trajectory
+- post_hint_trajectory
+cache_key: d1ab7b8fd95edcab5a0bc88d621d923c829b9a7544c87dba039fa26eeb1a6046
+searched_at: '2026-09-22T13:48:18.808624+00:00'
+retry_count: 1

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExtractionDataset Schema"
+description: "Schema for the filtered MobileForge training dataset containing failed-then-success triples."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_url:
+        type: "string"
+        description: "Verified URL of the source dataset."
+      extraction_timestamp:
+        type: "string"
+        format: "date-time"
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw source file."
+      record_count:
+        type: "integer"
+        minimum: 0
+        description: "Number of valid triples extracted."
+  triples:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "ui_state_description"
+        - "corrective_hint"
+        - "optimal_action_sequence"
+        - "trajectory_id"
+      properties:
+        ui_state_description:
+          type: "string"
+          minLength: 1
+          description: "Text description of the UI state."
+        corrective_hint:
+          type: "string"
+          minLength: 1
+          description: "Linguistic hint provided after failure."
+        optimal_action_sequence:
+          type: "string"
+          description: "Serialized optimal action sequence."
+        trajectory_id:
+          type: "string"
+          description: "Unique ID of the source trajectory."
+        source_app:
+          type: "string"
+          description: "App name from metadata."
+    description: "List of valid training triples."
+required:
+  - "metadata"
+  - "triples"
+additionalProperties: false
