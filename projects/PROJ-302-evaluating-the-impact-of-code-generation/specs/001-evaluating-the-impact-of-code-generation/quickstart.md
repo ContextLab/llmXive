@@ -3,159 +3,90 @@
 ## Prerequisites
 
 - Python 3.11+
-- GitHub API token (required for content fetching)
-- Substantial disk space
-- -hour runtime budget (GitHub Actions)
+- Git
+- GitHub Personal Access Token (optional, for higher rate limits)
+- Google Cloud SDK (for BigQuery access)
+- Sufficient RAM, 14GB+ Disk
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd llm-code-review-impact/projects/PROJ-302-evaluating-the-impact-of-code-generation
- ```
+1.  **Clone and Setup**
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-302-evaluating-the-impact-of-code-generation
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-2. **Create virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-4. **Set environment variables**:
- ```bash
- export GITHUB_TOKEN=your_token_here
- export RANDOM_SEED=42
- ```
+2.  **Verify Dependencies**
+    Ensure `radon`, `transformers`, `torch`, `scikit-learn`, and `google-cloud-bigquery` are installed correctly.
+    ```bash
+    python -c "import radon, torch, sklearn, google.cloud.bigquery; print('Dependencies OK')"
+    ```
 
 ## Running the Pipeline
 
 ### 1. Data Acquisition
-
+Download and prepare the raw GitHub PR data (BigQuery + API).
+**Note**: This step MUST retrieve the `diff` field from BigQuery.
 ```bash
-python code/data_acquisition/github_scraper.py --repos "repo1,repo2" --output data/raw/pr_metadata.parquet
+python code/data_acquisition.py --stream --max-rows 500 --include-diffs
+```
+*Output*: `data/raw/github_prs.parquet`
+
+### 2. Prompt Engineering
+Extract intent from commit messages.
+```bash
+python code/prompt_engineering.py --input data/raw/github_prs.parquet
+```
+*Output*: `data/processed/intent_prompts.json`
+
+### 3. Synthetic Code Generation
+Generate LLM code snippets (Generation-from-Scratch and Refactoring).
+*Note: This step will attempt CPU first. If it exceeds 60s, it will trigger the GPU escape hatch if configured.*
+```bash
+python code/synthetic_generation.py --cohort generation,refactoring --max-snippets 50
+```
+*Output*: `data/synthetic/llm_snippets.jsonl`
+
+### 4. Feature Extraction
+Calculate LOC, complexity, and semantic similarity (optional).
+```bash
+python code/feature_extraction.py --input data/raw/github_prs.parquet --synthetic data/synthetic/llm_snippets.jsonl
+```
+*Output*: `data/processed/features.parquet`
+
+### 5. Propensity Score Matching & Analysis
+Perform matching and statistical testing.
+**Note**: This step excludes `semantic_similarity` from matching covariates.
+```bash
+python code/analysis.py --input data/processed/features.parquet --alpha 0.05
+```
+*Output*: `data/processed/matched_pairs.parquet`, `data/reports/statistical_results.json`, `data/reports/covariate_balance.json`, `data/reports/matching_failure_report.json` (if applicable)
+
+### 6. Visualization
+Generate box plots and CDF curves.
+```bash
+python code/visualization.py --input data/processed/matched_pairs.parquet --output data/reports/
+```
+*Output*: `data/reports/boxplot.png`, `data/reports/cdf.png`
+
+### 7. Full Pipeline (End-to-End)
+Run the entire workflow from scratch.
+```bash
+python code/main.py --full-run
 ```
 
-- Downloads PR metadata for specified repos.
-- Implements exponential backoff for rate limits.
-- Fetches raw file content for sampled PRs.
+## Verification
 
-### 2. Style Classification
-
-```bash
-python code/data_acquisition/classifier_runner.py --input data/raw/pr_metadata.parquet --output data/processed/classified_snippets.parquet --model "codebert-base"
-```
-
-- Classifies code snippets as "LLM-like" or "Human-typical".
-- Validates syntax and logs classifier params.
-
-### 3. Feature Extraction
-
-```bash
-python code/feature_extraction/complexity.py --input data/processed/classified_snippets.parquet --output data/processed/features.parquet
-python code/feature_extraction/timestamps.py --input data/processed/classified_snippets.parquet --output data/processed/features.parquet
-```
-
-- Computes LOC, complexity, review latency.
-
-### 4. Propensity Score Matching
-
-```bash
-python code/analysis/matching.py --input data/processed/features.parquet --output data/processed/matched_pairs.parquet --covariates "file_size,complexity_score,repo_stars"
-```
-
-- Matches "Human-typical" and "LLM-like" pairs.
-- Generates covariate balance report.
-- **Note**: Semantic similarity is excluded from covariates.
-
-### 5. Statistical Analysis
-
-```bash
-python code/analysis/statistical_test.py --input data/processed/matched_pairs.parquet --output data/processed/test_results.json
-```
-
-- Runs normality check (Shapiro-Wilk).
-- Executes paired t-test or Mann-Whitney U.
-- Outputs p-value and effect size.
-
-### 6. Sensitivity Analysis & Visualization
-
-```bash
-python code/analysis/sensitivity.py --input data/processed/matched_pairs.parquet --output data/processed/sensitivity_results.json
-python code/analysis/visualization.py --input data/processed/matched_pairs.parquet --output data/processed/visualizations/
-```
-
-- Stratifies by star quartiles.
-- Generates box plots and CDF curves (bootstrapped).
-
-### 7. Full Pipeline (Optional)
-
-```bash
-python code/main.py --config config.yaml
-```
-
-- Orchestrates all steps end-to-end.
-
-## Validation
-
-### 1. Contract Tests
-
-```bash
-pytest tests/contract/
-```
-
-- Validates data schemas against `contracts/`.
-
-### 2. Integration Tests
-
-```bash
-pytest tests/integration/
-```
-
-- Runs pipeline on a small sample (a single repository, 100 PRs).
-
-### 3. Unit Tests
-
-```bash
-pytest tests/unit/
-```
-
-- Tests individual functions (e.g., complexity calculation).
+- **Check Covariate Balance**: Ensure `data/reports/covariate_balance.json` shows all SMD < 0.1.
+- **Check Validity**: Ensure `data/reports/statistical_results.json` reports ≥95% syntactic validity for synthetic code.
+- **Check Runtime**: Ensure `data/reports/runtime_report.json` shows total time ≤ 6 hours.
+- **Check Reproducibility**: Re-run `main.py --full-run` and verify checksums match.
 
 ## Troubleshooting
 
-### API Rate Limit Exceeded
-
-- **Symptom**: `403 Forbidden` from GitHub API.
-- **Fix**: Wait 1 hour or use a token with higher rate limits.
-
-### Classification Fails
-
-- **Symptom**: Low confidence scores.
-- **Fix**: Exclude PRs with confidence < 0.7.
-
-### Memory Error
-
-- **Symptom**: `MemoryError` during feature extraction.
-- **Fix**: Reduce sample size; process in smaller batches (1 PR at a time).
-
-## Output Artifacts
-
-- `data/raw/pr_metadata.parquet`: Raw GitHub API data.
-- `data/processed/classified_snippets.parquet`: Classified code snippets.
-- `data/processed/features.parquet`: Extracted features.
-- `data/processed/matched_pairs.parquet`: Matched pairs.
-- `data/processed/test_results.json`: Statistical test outputs.
-- `data/processed/visualizations/`: Box plots, CDF curves.
-- `data/checksums.yaml`: Artifact checksums.
-
-## Next Steps
-
-1. Review `plan.md` for detailed methodology.
-2. Check `research.md` for dataset strategy and feasibility.
-3. Run the pipeline and validate results against `contracts/`.
-4. Generate the research paper using outputs from `data/processed/`.
+- **Rate Limit Error**: Wait 60 seconds or provide a GitHub Token via `GITHUB_TOKEN` env var.
+- **Memory Error**: Reduce `--max-rows` or `--max-snippets` in the respective commands.
+- **Matching Failure**: If SMD > 0.1, the script will abort and generate `data/processed/matching_failure_report.json`. Adjust propensity parameters in `code/analysis.py` and retry.

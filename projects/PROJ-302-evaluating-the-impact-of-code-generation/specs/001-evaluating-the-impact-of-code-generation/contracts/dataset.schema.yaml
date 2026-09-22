@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PullRequest Dataset Schema"
+type: "object"
+properties:
+  pr_id:
+    type: "string"
+    description: "Unique PR identifier (e.g., repo#123)"
+  repo_id:
+    type: "string"
+    description: "Repository identifier (e.g., owner/repo)"
+  author_type:
+    type: "string"
+    enum:
+      - "human"
+      - "llm"
+    description: "Type of code author"
+  generation_source:
+    type: "string"
+    enum:
+      - "context-based"
+      - "prompt-based"
+      - "null"
+    description: "Source of generation if author_type is llm"
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "PR creation timestamp"
+  merge_at:
+    type: "string"
+    format: "date-time"
+    description: "PR merge timestamp"
+  review_duration:
+    type: "number"
+    description: "Duration in seconds"
+  file_size_loc:
+    type: "integer"
+    description: "Lines of Code"
+  complexity_score:
+    type: "number"
+    description: "Cyclomatic Complexity"
+  semantic_similarity:
+    type: "number"
+    description: "Cosine similarity to human original (Optional, Exploratory)"
+  source_commit:
+    type: "string"
+    description: "Original commit hash"
+required:
+  - pr_id
+  - repo_id
+  - author_type
+  - created_at
+  - review_duration
+  - file_size_loc
+  - complexity_score

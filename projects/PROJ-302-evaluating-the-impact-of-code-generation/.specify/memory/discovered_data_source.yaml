@@ -1,0 +1,18 @@
+status: none
+intent: GHTorrent GitHub pull request metadata python package dataset
+required_fields:
+- repository_id
+- repository_name
+- repository_stars
+- pr_id
+- pr_number
+- pr_created_at
+- pr_first_comment_at
+- pr_approved_at
+- pr_merged_at
+- commit_id
+- commit_message
+- file_path
+cache_key: 76dd368f00d7b841cfdf61aa79f4b88fc56687406b01e2731ff03f414d7d8401
+searched_at: '2026-09-22T00:34:43.443813+00:00'
+retry_count: 1

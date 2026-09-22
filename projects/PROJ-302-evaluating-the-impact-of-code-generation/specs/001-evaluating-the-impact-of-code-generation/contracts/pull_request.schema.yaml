@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PullRequest"
-description: "Represents a GitHub PR with metadata and review metrics (Classifier-Based Proxy)."
+description: "Represents a GitHub PR with metadata and review metrics."
 type: object
 properties:
   pr_id:
@@ -13,12 +13,15 @@ properties:
     type: string
     enum:
       - "human"
-    description: "Source of the code (always human in this study)"
-  llm_style_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Probability of 'LLM-like' style"
+      - "llm"
+    description: "Source of the code"
+  generation_source:
+    type: string
+    enum:
+      - "generation-from-scratch"
+      - "refactoring"
+      - "null"
+    description: "Source of generation if author_type is llm"
   created_at:
     type: string
     format: date-time
@@ -29,29 +32,33 @@ properties:
     description: "First reviewer comment timestamp"
   review_latency:
     type: number
-    description: "Duration (hours) from created_at to first_comment_at"
+    description: "Duration (seconds) from created_at to first_comment_at"
   file_size:
     type: integer
     description: "Lines of code (LOC)"
   complexity_score:
     type: number
     description: "Cyclomatic complexity"
-  repo_stars:
-    type: integer
-    description: "Repository star count"
-  repo_pr_count:
-    type: integer
-    description: "Total PRs in repository"
+  workflow_type:
+    type: string
+    enum:
+      - "ci-enabled"
+      - "no-ci"
+    description: "Repository workflow type"
+  semantic_similarity:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Cosine similarity to human original (Optional, Exploratory)"
+    x-optional: true
 required:
   - pr_id
   - repo_id
   - author_type
-  - llm_style_score
   - created_at
   - first_comment_at
   - review_latency
   - file_size
   - complexity_score
-  - repo_stars
-  - repo_pr_count
+  - workflow_type
 additionalProperties: false

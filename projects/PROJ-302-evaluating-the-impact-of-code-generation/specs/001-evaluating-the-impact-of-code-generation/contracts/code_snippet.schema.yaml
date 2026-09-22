@@ -13,7 +13,8 @@ properties:
     type: string
     enum:
       - "human"
-    description: "Generation source (always human in this study)"
+      - "llm"
+    description: "Generation source"
   code_content:
     type: string
     description: "Code text"
@@ -29,20 +30,18 @@ properties:
     required:
       - cyclomatic
       - lines
-  llm_style_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Probability of 'LLM-like' style"
+  is_valid_syntax:
+    type: boolean
+    description: "True if AST parsing succeeds"
   model_version:
     type: string
-    description: "Classifier version (e.g., codebert-base)"
+    description: "Model version used for generation"
 required:
   - snippet_id
   - source_commit
   - generation_source
   - code_content
   - complexity_metrics
-  - llm_style_score
+  - is_valid_syntax
   - model_version
 additionalProperties: false

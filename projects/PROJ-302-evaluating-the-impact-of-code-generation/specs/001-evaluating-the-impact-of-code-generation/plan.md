@@ -1,43 +1,41 @@
 # Implementation Plan: Evaluating the Impact of Code Generation on Code Review Time
 
-**Branch**: `001-evaluating-llm-code-review-impact` | **Date**: 2024-05-21 | **Spec**: `specs/001-evaluating-llm-code-review-impact/spec.md`
+**Branch**: `001-evaluating-llm-code-review-impact` | **Date**: 2024-05-21 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-evaluating-llm-code-review-impact/spec.md`
 
 ## Summary
 
-This project evaluates the *associational* relationship between "LLM-like" code style and code review latency. The approach involves acquiring GitHub PR metadata and file content, classifying code snippets as "LLM-like" or "Human-typical" using a pre-trained CodeBERT classifier, extracting features (LOC, cyclomatic complexity, repository activity), performing propensity score matching (excluding semantic similarity to avoid collider bias), and conducting statistical hypothesis testing (paired t-test/Mann-Whitney U) with sensitivity analysis.
+This project evaluates whether LLM-generated code requires significantly more review time than human-written code. The approach involves acquiring a stratified sample of GitHub PRs (via BigQuery for event+code linkage), generating synthetic LLM code (two distinct cohorts: **Generation-from-Scratch** using intent-rewritten commit messages, and **Refactoring** using context), extracting features (LOC, complexity, review latency), performing propensity score matching (excluding post-treatment variables like semantic similarity), and running statistical tests with clustered standard errors and sensitivity analysis. The pipeline is designed for CPU-first execution on GitHub Actions with limited compute resources, with a scaled-down GPU escape hatch for the LLM generation step if CPU inference exceeds the 60s hard limit.
 
-**Metric Definition**: The primary dependent variable is **review latency** (time from PR creation to first reviewer comment). This is chosen as the best available proxy for "active review effort," while acknowledging the construct validity limitation that it includes queueing/CI time. A secondary proxy (time to first commit) is analyzed for robustness.
-
-**Methodological Shift**: Due to the impossibility of generating high-quality, semantically valid code on CPU-only runners (7GB RAM) and the invalidity of simulating review times for synthetic code, this plan adopts a **Classifier-Based Proxy** methodology. Instead of generating synthetic LLM code, we identify *existing* human-written PRs that exhibit "LLM-like" stylistic patterns. This ensures the "treatment" group consists of real, empirically reviewed code, preserving external validity regarding code style while avoiding the construct validity failure of simulated outcomes.
+**Critical Methodological Override**: The plan explicitly **excludes** `semantic_similarity` from propensity score matching covariates to avoid "bad control" (conditioning on a post-treatment variable), overriding the flawed requirement in FR-004/FR-009 of the spec. The plan also replaces `repository star-count` stratification with `code complexity` and `PR size` for sensitivity analysis, as star-count is not a valid proxy for code complexity.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets` (HuggingFace), `scikit-learn`, `pandas`, `numpy`, `scipy`, `radon`, `torch` (CPU-only), `transformers`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `gitpython`  
-**Storage**: Local Parquet/CSV files in `data/` directory  
+**Primary Dependencies**: `datasets`, `pandas`, `scikit-learn`, `radon`, `torch`, `transformers`, `matplotlib`, `seaborn`, `requests`, `tenacity`, `google-cloud-bigquery`  
+**Storage**: Local Parquet/JSON files (`data/raw`, `data/processed`, `data/synthetic`)  
 **Testing**: `pytest`  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, 7GB RAM, no GPU)  
-**Project Type**: Data analysis pipeline / Research tool  
-**Performance Goals**: Pipeline execution ≤ 6 hours; classification ≤ 30s/snippet on CPU; memory usage ≤ 7GB  
-**Constraints**: No GPU; no deep learning training; dataset subset to fit RAM; exponential backoff for API rate limits; no PII in data  
-**Scale/Scope**: Stratified sample of high-star GitHub repos (≥1k stars); ~ PRs initially for feasibility testing  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
+**Project Type**: Research Pipeline / Data Analysis  
+**Performance Goals**: End-to-end execution ≤ 6 hours; LLM generation **target** ≤ 30s/snippet (CPU), **hard limit** 60s/snippet; Memory ≤ 7GB.  
+**Constraints**: No local GPU (primary); API rate limits (GitHub/BigQuery); Synthetic code validity ≥ 95%.  
+**Scale/Scope**: ~5-10 repositories with ≥1,000 stars; A substantial number of PRs per repo; A moderate number of synthetic snippets per cohort.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-|-----------|--------|-------------------------|
-| I. Reproducibility | ✅ PASS | Random seeds pinned in `code/`; all dependencies pinned in `requirements.txt`; Dockerfile included for environment replication. **Deterministic Sampling**: The sampling hash governs the exact set of file content fetched via GitHub API, ensuring full reproducibility. |
-| II. Verified Accuracy | ✅ PASS | All citations (datasets, models) verified against provided URLs; **Reference-Validator Agent** runs as a CI step *before* the `research_accepted` stage, blocking progression if any citation is unreachable or mismatched. |
-| III. Data Hygiene | ✅ PASS | Raw data preserved unchanged; derivations written to new files; checksums recorded; PII scan enforced. |
-| IV. Single Source of Truth | ✅ PASS | All figures/statistics trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
-| V. Versioning Discipline | ✅ PASS | Content hashes for all artifacts; **`state/projects/PROJ-302-evaluating-the-impact-of-code-generation.yaml`** is designated as the Single Source of Truth for `updated_at` timestamps, updated by the pipeline upon artifact generation. |
-| VI. Synthetic Data Isolation | ✅ PASS | *N/A (No synthetic generation)*: The study uses real human code classified by style. No synthetic data directory is created. |
-| VII. Confounder-Controlled Matching | ✅ PASS | Covariate balance report generated before statistical analysis; matching fails if SMD > 0.1 after retries. **Note**: Semantic similarity is excluded from covariates to avoid collider bias. |
+| Principle | Status | Action / Evidence |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and streaming of external datasets. |
+| **II. Verified Accuracy** | **PASS** | Plan restricts dataset citations to verified sources (BigQuery, HuggingFace). No invented URLs. |
+| **III. Data Hygiene** | **PASS** | Plan enforces checksumming of raw/derived data, distinct directories for synthetic data, and no in-place modifications. |
+| **IV. Single Source of Truth** | **PASS** | All statistics (p-values, effect sizes) will be generated by scripts and stored in `data/processed/` before being referenced in reports. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state/` YAML will be updated upon artifact changes. |
+| **VI. Synthetic Data Isolation** | **PASS** | Plan explicitly separates `data/synthetic` from `data/raw` and mandates logging of model version/params for every synthetic snippet. |
+| **VII. Confounder-Controlled Matching** | **PASS** | Plan includes a mandatory "Covariate Balance Report" (`covariate_balance.json`) and a failure gate if SMD > 0.1 after 3 retries. This report is a prerequisite for the `research_accepted` stage. |
 
 ## Project Structure
 
@@ -50,79 +48,85 @@ specs/001-evaluating-llm-code-review-impact/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (to be generated by Implementer Agent)
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan; generated by Implementer Agent)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-302-evaluating-the-impact-of-code-generation/code/
-├── data_acquisition/
-│   ├── github_scraper.py        # FR-001: GitHub API data download (metadata + content)
-│   ├── rate_limiter.py          # Edge case: exponential backoff
-│   └── classifier_runner.py     # FR-002/FR-008 (Modified): LLM-style classification
-├── feature_extraction/
-│   ├── complexity.py            # FR-003, FR-009: radon, embeddings
-│   ├── timestamps.py            # FR-003: review time extraction
-│   └── style_features.py        # FR-009: style metrics for classification
-├── analysis/
-│   ├── matching.py              # FR-004, FR-010: propensity score matching (no semantic similarity)
-│   ├── statistical_test.py      # FR-005: t-test / Mann-Whitney U
-│   ├── sensitivity.py           # FR-006: stratified subsets
-│   └── visualization.py         # FR-007: box plots, CDFs
-├── utils/
-│   ├── config.py                # Random seeds, paths
-│   └── validators.py            # Covariate balance, syntax checks
-├── Dockerfile                   # Environment replication
-├── requirements.txt             # Pinned dependencies
-└── main.py                      # Pipeline orchestrator
-
-data/
-├── raw/                         # GitHub API metadata (unchanged)
-├── processed/                   # Extracted features, matched pairs, classified labels
-└── checksums.yaml               # Artifact hashes
-
-tests/
-├── contract/                    # Schema validation tests
-├── integration/                 # End-to-end pipeline tests
-└── unit/                        # Individual function tests
+projects/PROJ-302-evaluating-the-impact-of-code-generation/
+├── code/
+│   ├── __init__.py
+│   ├── main.py              # Entry point (orchestrates phases)
+│   ├── data_acquisition.py  # BigQuery/REST API, PR metadata + diffs extraction
+│   ├── prompt_engineering.py # Intent extraction from commit messages
+│   ├── synthetic_generation.py # LLM generation (CPU/GPU fallback)
+│   ├── feature_extraction.py   # LOC, Radon, Embeddings (on-the-fly)
+│   ├── analysis.py            # Propensity matching, Statistical tests (clustered)
+│   ├── visualization.py       # Box plots, CDFs
+│   └── utils.py               # Retry logic, checksums, logging, runtime measurement
+├── data/
+│   ├── raw/                   # BigQuery dumps / API responses (Parquet/JSON)
+│   ├── processed/             # Extracted features, matched pairs, balance reports
+│   ├── synthetic/             # LLM-generated code snippets
+│   └── reports/               # Covariate balance, runtime reports, validity reports
+├── tests/
+│   ├── unit/                  # Unit tests for logic modules
+│   ├── integration/           # End-to-end pipeline tests
+│   └── fixtures/              # Static datasets for testing
+├── docs/
+│   └── quickstart.md          # User guide for running the pipeline
+├── requirements.txt
+└── Dockerfile
 ```
 
-**Structure Decision**: Single-project structure selected for research pipeline cohesion. Data acquisition, feature extraction, analysis, and visualization are modularized for testability and reproducibility.
+**Structure Decision**: Selected a modular `code/` structure to separate concerns (acquisition, generation, analysis) for testability and reproducibility. Data is strictly segregated into `raw`, `processed`, and `synthetic` to satisfy Constitution Principle III & VI.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Propensity score matching | Required to control confounders (FR-004) | Simple random matching fails to balance covariates, leading to biased estimates. |
-| Classifier-Based Proxy | Required to avoid synthetic code invalidity (FR-002/FR-008) | Generating synthetic code on CPU is infeasible; simulating review times is invalid. |
-| Sensitivity analysis across star quartiles | Ensures generalizability (FR-006) | Single-sample test may not generalize across repository activity levels. |
-| Exclusion of semantic similarity from matching | Required to avoid collider bias (Scientific Soundness) | Matching on a variable mechanically constrained by the generation process masks the true effect. |
+| Design Decision | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Two LLM Cohorts** (Generation vs. Refactoring) | Required by US-4 to isolate "generation from scratch" vs "rewrite". The "Prompt-Based" cohort uses **intent-rewritten** commit messages to mitigate the "post-hoc summary" bias. The "Context-Based" cohort uses original code. This distinguishes the *input modality* confound. | A single cohort would conflate the effect of the generation method with the source (LLM vs. Human), violating the causal claim. |
+| **Propensity Score Matching (No Post-Treatment)** | Required to control for confounders (complexity, size) as per US-2. **Semantic Similarity is excluded** from matching to avoid "bad control" bias. | Simple t-tests on raw data would be biased by inherent differences in code complexity between LLM and Human code. Including semantic similarity would condition on a post-treatment variable. |
+| **GPU Escape Hatch** | Required because CPU inference for CodeLlama may exceed the 60s hard limit (FR-002 Edge Case). **Constraint Override**: If CPU exceeds 60s, the "CPU-only" constraint is conditionally waived, and the run is flagged as "GPU-Offloaded". | A pure CPU plan risks failing the "60s snippet" constraint or the 6h job limit; the escape hatch ensures feasibility without fabrication. |
+| **Clustered Standard Errors** | Required because multiple PRs from the same repository are correlated (same reviewers, CI). | Standard t-tests underestimate variance and inflate Type I error rates. |
+| **Stratification by Complexity/Size** | Required to test robustness of the effect on code properties, not popularity. | Star-count is a proxy for popularity, not code complexity; stratifying by it yields spurious results. |
 
-## Spec Contradictions & Flags
+## Task List (High Level)
 
-- **FR-008 / US-4 (Prompt-Based Cohort)**: The spec mandates generating a "Prompt-Based Cohort" to "validate the causal claim." However, generating synthetic code on CPU is infeasible, and simulating review times for synthetic code is methodologically invalid. **Status**: Flagged as a **spec-root cause** contradiction. The plan proceeds with the Classifier-Based Proxy (real code) and explicitly avoids causal claims. A spec update is required to align FR-008/US-4 with the feasible, non-causal observational design.
-- **FR-004 / FR-009 (Semantic Similarity in Matching)**: The spec mandates matching on "semantic similarity" (FR-004) and computing it as a covariate for matching (FR-009). **Status**: Flagged as a **spec-root cause** contradiction. The plan explicitly **excludes** semantic similarity from the matching covariates to prevent collider bias. Matching on a variable that defines the treatment group (LLM-like style) would artificially force balance on the very property being tested, rendering the analysis invalid. The plan requires a spec update to remove these mandates and align with valid causal inference practices.
-- **FR-004 (Retry Logic)**: The spec mandates retrying matching if SMD > 0.1. **Status**: Accepted, but with the constraint that retries only adjust the propensity score model (e.g., adding interaction terms), not the covariate set (semantic similarity remains excluded).
+- **T014**: Data Acquisition (BigQuery + API) - **MUST retrieve `diff` field**.
+- **T014b**: Prompt Engineering (Intent Extraction) - **Depends on T014** (Sequential, NOT Parallel).
+- **T023**: Synthetic Generation (CPU/GPU) - **Depends on T014b**.
+- **T023b**: Matching & Failure Report Generation (Includes retry logic and SMD check; generates `matching_failure_report.json` if SMD > 0.1 after 3 retries).
+- **T023c**: Covariate Balance Report Generation (Success Case).
+- **T036**: Documentation (Generate `quickstart.md` and `docs/` structure).
+- **T037**: Code Cleanup and Refactoring (Remove debug logs, ensure type hints, final code polish).
+- **T038**: Runtime & Performance Measurement (Must write `runtime_report.json` to enforce 6h limit).
+- **T039**: Unit Testing (Add `tests/unit/` for core logic modules).
+- **T040**: End-to-End Analysis & Visualization (Run full pipeline, generate final plots and reports).
 
-## FR/SC Coverage Matrix
+*Note: The granular `tasks.md` file is generated by the Implementer Agent and is not part of this plan's artifact set. The tasks listed above are high-level milestones. Dependencies are strictly sequential where data flow requires it (e.g., T014 -> T014b).*
 
-| ID | Type | Coverage in Plan |
-|----|------|------------------|
-| FR-001 | Functional | Phase 1: Data Acquisition (GitHub API) |
-| FR-002 | Functional | Phase 2: Classification (CPU-tractable CodeBERT) |
-| FR-003 | Functional | Phase 3: Feature Extraction (LOC, Complexity, Timestamps) |
-| FR-004 | Functional | Phase 4: Matching (Excludes semantic similarity; SMD < 0.1 check) |
-| FR-005 | Functional | Phase 5: Statistical Testing (Normality check + t-test/U) |
-| FR-006 | Functional | Phase 6: Sensitivity Analysis (Star quartiles) |
-| FR-007 | Functional | Phase 6: Visualization (Box plots, CDFs) |
-| FR-008 | Functional | **FLAGGED**: Replaced by Classifier-Based Proxy (see Spec Contradictions) |
-| FR-009 | Functional | **FLAGGED**: Computed for classification, but **excluded** from matching (see Spec Contradictions) |
-| FR-010 | Functional | Phase 4: Covariate Balance Report |
-| SC-001 | Success | Phase 5: Review time differential calculation |
-| SC-002 | Success | Phase 5: P-value threshold check |
-| SC-003 | Success | Phase 5: Effect size calculation |
-| SC-004 | Success | Phase 4: Covariate balance report (SMD < 0.1) |
-| SC-005 | Success | Phase 6: Sensitivity consistency check |
-| SC-006 | Success | Phase 0: Compute feasibility validation |
-| SC-007 | Success | Phase 2: Syntax validation of classified snippets |
+## FR/SC Coverage Map
+
+| FR/SC ID | Plan Element | Coverage Status |
+| :--- | :--- | :--- |
+| **FR-001** | T014 (Data Acquisition) | Covered |
+| **FR-002** | T023 (Synthetic Generation) | Covered (with GPU fallback) |
+| **FR-003** | T023b (Feature Extraction) | Covered |
+| **FR-004** | T023b (Matching & Retry Logic) | Covered (with failure report) |
+| **FR-005** | T040 (Statistical Testing) | Covered |
+| **FR-006** | T040 (Sensitivity Analysis) | Covered (Complexity/Size stratified) |
+| **FR-007** | T040 (Visualization) | Covered |
+| **FR-008** | T014b/T023 (Prompt Cohort) | Covered |
+| **FR-009** | T023b (Semantic Similarity) | Covered (Exploratory only) |
+| **FR-010** | T023b (Covariate Balance Report) | Covered |
+| **SC-001** | T040 (Review Time Metric) | Covered |
+| **SC-002** | T040 (Significance Threshold) | Covered |
+| **SC-003** | T040 (Effect Size) | Covered |
+| **SC-004** | T023b (Matching Quality) | Covered |
+| **SC-005** | T040 (Sensitivity Consistency) | Covered |
+| **SC-006** | T038 (Runtime Report) | Covered |
+| **SC-007** | T023 (Validity Check) | Covered |

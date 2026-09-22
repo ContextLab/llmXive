@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "paired_t_test"
+      - "mann_whitney_u"
+    description: "Type of statistical test performed"
+  p_value:
+    type: "number"
+    description: "P-value from the statistical test"
+  effect_size:
+    type: "number"
+    description: "Cohen's d or Rank-biserial correlation"
+  significance:
+    type: "boolean"
+    description: "True if p < 0.05"
+  covariate_balance:
+    type: "object"
+    properties:
+      file_size:
+        type: "number"
+        description: "Standardized Mean Difference for file size"
+      complexity:
+        type: "number"
+        description: "Standardized Mean Difference for complexity"
+      activity:
+        type: "number"
+        description: "Standardized Mean Difference for repo activity"
+    required:
+      - file_size
+      - complexity
+      - activity
+  balance_verified:
+    type: "boolean"
+    description: "True if all SMD < 0.1"
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        subset_name:
+          type: "string"
+          description: "Name of the subset (e.g., 'complexity_low')"
+        p_value:
+          type: "number"
+        significant:
+          type: "boolean"
+  consistency_rate:
+    type: "number"
+    description: "Percentage of subsets where p < 0.05"
+required:
+  - test_type
+  - p_value
+  - effect_size
+  - significance
+  - covariate_balance
+  - balance_verified
+  - sensitivity_analysis
+  - consistency_rate
