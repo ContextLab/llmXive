@@ -1,187 +1,197 @@
-"""
-Main orchestration script for the SN1 Rate Constant Prediction Pipeline.
-Executes the full pipeline from data ingestion to final report generation.
-"""
 import os
 import sys
 import logging
 import argparse
 import time
 import json
+import subprocess
 from pathlib import Path
+from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure imports work
+sys.path.insert(0, str(Path(__file__).parent))
 
-from config import DataConfig, TrainingConfig, AnalysisConfig, ensure_dirs
-from utils.logger import get_logger
+from config import ensure_dirs, DataConfig, TrainingConfig, AnalysisConfig
+from utils.logger import setup_logging, get_logger
 
-# Import pipeline stages
-# Data Pipeline
-from data.schema_check import main as schema_check_main
-from data.download import main as download_main
-from data.mapping import main as mapping_main
-from data.clean import main as clean_main
-from data.descriptors import main as descriptors_main
-from data.exclusion_report import main as exclusion_report_main
-from data.finalize_dataset import main as finalize_dataset_main
-from data.split import main as split_main
+logger = get_logger(__name__)
 
-# Models
-from models.train import main as train_main
-from models.evaluate import main as evaluate_main
-from models.save_artifacts import main as save_artifacts_main
+# Pipeline stages
+STAGES = {
+    'schema_check': 'code/data/schema_check.py',
+    'download': 'code/data/download.py',
+    'mapping': 'code/data/mapping.py',
+    'clean': 'code/data/clean.py',
+    'descriptors': 'code/data/descriptors.py',
+    'exclusion_report': 'code/data/exclusion_report.py',
+    'finalize': 'code/data/finalize_dataset.py',
+    'split': 'code/data/split.py',
+    'train': 'code/models/train.py',
+    'evaluate': 'code/models/evaluate.py',
+    'interpret': 'code/analysis/interpret.py',
+    'sensitivity': 'code/analysis/sensitivity_runner.py',
+    'collinearity': 'code/analysis/collinearity.py',
+    'consistency': 'code/analysis/consistency.py',
+    'hyperparameter_sensitivity': 'code/analysis/hyperparameter_sensitivity.py',
+    'final_report': 'code/analysis/final_report.py',
+}
 
-# Analysis
-from analysis.collinearity import main as collinearity_main
-from analysis.sensitivity_runner import main as sensitivity_runner_main
-from analysis.hyperparameter_sensitivity import main as hyperparameter_sensitivity_main
-from analysis.consistency import main as consistency_main
-from analysis.interpret import main as interpret_main
-from analysis.final_report import main as final_report_main
-from data.final_validation import main as final_validation_main
-
-def setup_logging_pipeline(log_dir: Path):
-    """Setup logging for the pipeline."""
-    ensure_dirs()
-    log_file = log_dir / "pipeline_run.log"
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return get_logger(__name__)
-
-def run_stage(name: str, func, *args, **kwargs):
-    """Run a pipeline stage with timing and error handling."""
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting stage: {name}")
-    start_time = time.time()
+def run_command(cmd, stage_name, timeout=None):
+    """Run a shell command with optional timeout."""
+    logger.info(f"Running stage: {stage_name}")
+    logger.info(f"Command: {' '.join(cmd)}")
+    
     try:
-        func(*args, **kwargs)
-        elapsed = time.time() - start_time
-        logger.info(f"Stage {name} completed successfully in {elapsed:.2f}s")
-        return True
-    except Exception as e:
-        elapsed = time.time() - start_time
-        logger.error(f"Stage {name} failed after {elapsed:.2f}s: {str(e)}")
-        raise
+        start_time = time.time()
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=True
+        )
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        if result.stdout:
+            logger.info(f"Output:\n{result.stdout}")
+        if result.stderr:
+            logger.warning(f"Stderr:\n{result.stderr}")
+        
+        logger.info(f"Stage {stage_name} completed in {duration:.2f}s")
+        return True, duration, None
+        
+    except subprocess.TimeoutExpired:
+        logger.error(f"Stage {stage_name} timed out after {timeout}s")
+        return False, timeout, "timeout"
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Stage {stage_name} failed with return code {e.returncode}")
+        logger.error(f"Stdout: {e.stdout}")
+        logger.error(f"Stderr: {e.stderr}")
+        return False, e.returncode, str(e)
 
-def run_full_pipeline():
-    """Execute the full SN1 rate constant prediction pipeline."""
-    config = DataConfig()
-    ensure_dirs()
-    logger = setup_logging_pipeline(Path(config.log_dir))
+def run_stage(stage_name, args):
+    """Run a single pipeline stage."""
+    if stage_name not in STAGES:
+        logger.error(f"Unknown stage: {stage_name}")
+        return False, 0, "unknown_stage"
+    
+    script_path = STAGES[stage_name]
+    cmd = [sys.executable, script_path]
+    
+    # Add specific arguments based on stage
+    if stage_name == 'train' and args.max_configs:
+        cmd.extend(['--max-configs', str(args.max_configs)])
+    
+    return run_command(cmd, stage_name, args.timeout)
 
-    logger.info("="*60)
-    logger.info("Starting Full SN1 Rate Constant Prediction Pipeline")
-    logger.info("="*60)
+def count_rows(file_path):
+    """Count rows in a CSV file."""
+    try:
+        with open(file_path, 'r') as f:
+            # Count lines minus header
+            return sum(1 for _ in f) - 1
+    except FileNotFoundError:
+        logger.warning(f"File not found: {file_path}")
+        return 0
 
+def run_full_pipeline(args):
+    """Run the full pipeline with dynamic budgeting and timeout."""
     start_time = time.time()
-
-    # --- Data Ingestion and Preprocessing ---
-    logger.info("Phase 1: Data Ingestion and Preprocessing")
-
-    # T011a: Schema Check
-    run_stage("Schema Check", schema_check_main)
-
-    # T011b: Download
-    run_stage("Download", download_main)
-
-    # T011c: Mapping
-    run_stage("Mapping", mapping_main)
-
-    # T012: Clean and Filter
-    run_stage("Clean and Filter", clean_main)
-
-    # T013: Descriptors
-    run_stage("Descriptors", descriptors_main)
-
-    # T015: Exclusion Report
-    run_stage("Exclusion Report", exclusion_report_main)
-
-    # T016: Finalize Dataset
-    run_stage("Finalize Dataset", finalize_dataset_main)
-
-    # T014: Split
-    run_stage("Split", split_main)
-
-    # --- Model Training and Evaluation ---
-    logger.info("Phase 2: Model Training and Evaluation")
-
-    # T019-T022: Training
-    run_stage("Train MPNN", train_main)
-
-    # T021-T022: Evaluation and Save Artifacts
-    run_stage("Evaluate", evaluate_main)
-    run_stage("Save Artifacts", save_artifacts_main)
-
-    # --- Analysis and Interpretability ---
-    logger.info("Phase 3: Analysis and Interpretability")
-
-    # T028: Collinearity
-    run_stage("Collinearity Analysis", collinearity_main)
-
-    # T036: Sensitivity Runner
-    run_stage("Sensitivity Analysis", sensitivity_runner_main)
-
-    # T037: Hyperparameter Sensitivity
-    run_stage("Hyperparameter Sensitivity", hyperparameter_sensitivity_main)
-
-    # T035: Consistency
-    run_stage("Consistency Analysis", consistency_main)
-
-    # T026-T029: Interpretability
-    run_stage("Interpretability", interpret_main)
-
-    # --- Final Validation and Reporting ---
-    logger.info("Phase 4: Final Validation and Reporting")
-
-    # T040: Final Validation (this stage)
-    run_stage("Final Validation", final_validation_main)
-
-    # T039: Final Report
-    run_stage("Generate Final Report", final_report_main)
-
-    total_time = time.time() - start_time
-    logger.info("="*60)
-    logger.info(f"Pipeline completed successfully in {total_time:.2f}s")
-    logger.info("="*60)
-
-    # Log feasibility metrics
-    feasibility_log = {
-        "total_runtime_seconds": total_time,
-        "status": "success",
-        "artifacts_generated": [
-            "data/processed/cleaned_sn1.csv",
-            "data/processed/exclusion_report.csv",
-            "artifacts/best_model.pt",
-            "artifacts/metrics.json",
-            "artifacts/final_report.md"
-        ]
+    results = {
+        'start_time': datetime.now().isoformat(),
+        'stages': {},
+        'success': False,
+        'error': None
     }
+    
+    # Dynamic Budgeting: Check dataset size
+    cleaned_data_path = "data/processed/cleaned_sn1.csv"
+    if os.path.exists(cleaned_data_path):
+        n_rows = count_rows(cleaned_data_path)
+        logger.info(f"Dataset size: {n_rows} rows")
+        
+        if n_rows >= 2000:
+            logger.info("Dataset size >= 2000, reducing hyperparameter search to 20 configurations")
+            args.max_configs = 20
+        else:
+            args.max_configs = 50
+    else:
+        logger.warning(f"Cleaned data file not found: {cleaned_data_path}. Using default configs.")
+        args.max_configs = 50
+    
+    # Run stages
+    failed_stages = []
+    for stage_name in STAGES.keys():
+        success, duration, error = run_stage(stage_name, args)
+        results['stages'][stage_name] = {
+            'success': success,
+            'duration': duration,
+            'error': error
+        }
+        
+        if not success:
+            failed_stages.append(stage_name)
+            if error == "timeout":
+                logger.error(f"Pipeline aborted due to timeout at stage: {stage_name}")
+                break
+            # Continue to next stage unless critical failure
+            # For now, we continue but mark pipeline as failed
+    
+    end_time = time.time()
+    total_duration = end_time - start_time
+    
+    results['end_time'] = datetime.now().isoformat()
+    results['total_duration'] = total_duration
+    results['success'] = len(failed_stages) == 0
+    
+    if not results['success']:
+        results['error'] = f"Failed stages: {', '.join(failed_stages)}"
+        logger.error(f"Pipeline failed. Failed stages: {', '.join(failed_stages)}")
+    else:
+        logger.info("Pipeline completed successfully")
+    
+    return results
 
-    with open(Path(config.artifacts_dir) / "feasibility_test_log.json", 'w') as f:
-        json.dump(feasibility_log, f, indent=2)
-
-    return True
+def setup_logging_pipeline(log_file=None):
+    """Setup logging for the pipeline."""
+    if log_file is None:
+        log_file = "artifacts/pipeline.log"
+    
+    ensure_dirs()
+    return setup_logging(log_file)
 
 def main():
-    parser = argparse.ArgumentParser(description="SN1 Rate Constant Prediction Pipeline")
-    parser.add_argument("--full", action="store_true", help="Run full pipeline")
-    parser.add_argument("--stage", type=str, help="Run specific stage")
+    parser = argparse.ArgumentParser(description="Run the full SN1 rate constant prediction pipeline")
+    parser.add_argument("--timeout", type=int, default=21600, help="Timeout in seconds (default: 6 hours)")
+    parser.add_argument("--max-configs", type=int, default=None, help="Maximum hyperparameter configurations (dynamic budgeting)")
+    parser.add_argument("--stage", type=str, choices=list(STAGES.keys()), help="Run a specific stage")
+    parser.add_argument("--log-file", type=str, default="artifacts/pipeline.log", help="Log file path")
     args = parser.parse_args()
 
-    if args.full or not args.stage:
-        run_full_pipeline()
+    setup_logging_pipeline(args.log_file)
+    ensure_dirs()
+    
+    if args.stage:
+        # Run single stage
+        success, duration, error = run_stage(args.stage, args)
+        if not success:
+            sys.exit(1)
     else:
-        # Placeholder for single stage execution if needed
-        logging.error("Single stage execution not fully implemented in this task.")
-        sys.exit(1)
+        # Run full pipeline
+        results = run_full_pipeline(args)
+        
+        # Save feasibility test log
+        log_path = "artifacts/feasibility_test_log.json"
+        with open(log_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Feasibility test log saved to {log_path}")
+        
+        if not results['success']:
+            logger.error("Pipeline execution failed")
+            sys.exit(1)
+        else:
+            logger.info("Pipeline execution completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -1,30 +1,41 @@
-T012:
+T011a:
   c: false
-  h: 2184f1df9052851740452fac086bc262d6e0da23ca82b55e94c50e260c38fdbc
-  r: "The required input `data/processed/intermediate_sn1.csv`, the log `data/processed/clean.log`,\
-    \ and the output `data/processed/cleaned_intermediate.csv` are all absent, so\
-    \ the script cannot be exercised or verified. Moreover, the implementation contains\
-    \ a `calculate_steric_index` proxy function, violating the \u201CDo NOT use proxies\u201D\
-    \ constraint. The guard clause also does not clearly raise a `ValueError` with\
-    \ the specified log format. These issues must be fixed and the missing files generated\
-    \ for the task to be considered complete."
-T013:
+  h: c6d55b4e6c4ba53b802b9750da0792bcdc9df8dd412245f71db0705f63d2e5f3
+  r: "The provided `code/data/schema_check.py` is incomplete/truncated \u2013 it never\
+    \ shows the logic that checks for the required columns, raises a fatal `ValueError`,\
+    \ or writes to `data/processed/schema_check.log`. Moreover, the expected log file\
+    \ does not exist, indicating the script either was not executed or does not create\
+    \ the required output. The implementation must include the column\u2011validation\
+    \ step with a hard error, ensure streaming loading, retry with exponential backoff,\
+    \ and write a log file at the specified location."
+T011b:
   c: false
-  h: b0f74481a3146edc9d7dbbaffba61f283c1227230b8023520be098a1a2cfb0c7
-  r: "The repository contains a partially\u2011implemented `code/data/descriptors.py`,\
-    \ but the script is truncated and does not show logic for reading data, writing\
-    \ `data/processed/descriptors.csv`, or appending failures to `data/processed/exclusion_raw.log`.\
-    \ Moreover, both `data/processed/exclusion_raw.log` and `data/processed/descriptors.csv`\
-    \ are absent from the file tree. These required output artifacts are missing,\
-    \ so the task is not fully satisfied."
-T014:
+  h: 14fd1849abd99a1514cf54f6679af7db51373e473682a088213757fc2acc60ff
+  r: "The `download.py` script is truncated (e.g., an unfinished `if idx % 10000 =`\
+    \ line) and never writes a Parquet file to `data/raw/sn1_raw.parquet`. Moreover,\
+    \ the required output file is missing from the repository. The implementation\
+    \ does not fully satisfy the task\u2019s logic or output requirements."
+T011c:
   c: false
-  h: 6bf54ab615cb0a21b2efb6fcc9bef3715657bc5c7e7df46008d7726da6da7b0c
-  r: "The repository contains a `code/data/split.py` file, but the required input\
-    \ file `data/processed/cleaned_sn1.csv` is absent, and none of the expected output\
-    \ files (`split_train.csv`, `split_val.csv`, `split_test.csv`, `split_report.json`)\
-    \ were generated. Without the input data and the resulting split files, the task\u2019\
-    s functional requirements are not satisfied."
+  h: dce69fe95736c50f6149042ff7d2df7ef5db4a1b8b54b8ac998f7fa92d7a8e43
+  r: "The `mapping.py` does not rename the `smiles` column to `SMILES` as required,\
+    \ and the expected output file `data/processed/intermediate_sn1.csv` is absent.\
+    \ Additionally, the script\u2019s `main` function is truncated, so it\u2019s unclear\
+    \ whether the CSV is ever written. These issues must be fixed for the task to\
+    \ be considered complete."
+T013b:
+  c: false
+  h: 82b7b2b96b5d6a586b04c8a1dfe7d8f31d1e210c5b94ce9f493940963ebadd71
+  r: The required schema file (`exclusion_report.schema.yaml` / `schema.yaml`) is
+    missing, and the expected output file `data/processed/exclusion_validation.log`
+    was not created. Without the schema and validation log, the exclusion log cannot
+    be validated as specified.
+T015:
+  c: false
+  h: 780590bf995b69034b7bf3fc3babe60ce3545be25d3a40927b1d8c963d3903a2
+  r: The required input `data/processed/clean.log` is missing, and the expected outputs
+    `exclusion_mapped.json`, `exclusion_report.csv`, and the validation schema `exclusion_report.schema.yaml`
+    are absent, so the aggregation, mapping, and validation steps were never performed.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,28 +43,19 @@ T023:
     \ showing the required columns or top\u201110 configurations was provided. The\
     \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
     \ the specified fields is missing."
-T029:
+T028:
   c: false
-  h: db07041fc8b6400b4d072b90dc66e44c7fa3208f64be6e103b3406e26621303f
-  r: "The repository lacks the required `data/processed/split_test.csv` file, and\
-    \ the provided `interpret.py` does not contain the perturbation\u2011study implementation\
-    \ (no SHAP\u2011based atom removal, inference, R\xB2 computation, or CSV output).\
-    \ Consequently the expected `artifacts/perturbation_results.csv` is also absent."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/final_report.md` file or its contents were provided; thus the required
-    comprehensive report aggregating the listed metrics and containing the mandated
-    sections (`# Final Report`, `## Executive Summary`, `## Methodology`, `## Results`,
-    `## Limitations`, `## Conclusion`) is absent. The implementer must supply the
-    final markdown report with the specified structure and aggregated data.
+  h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
+  r: "The required input file `data/processed/cleaned_sn1.csv` is absent, and the\
+    \ provided `collinearity.py` does not implement the specified guard\u2011clause\
+    \ behavior (raising a fatal `ValueError` and writing `artifacts/collinearity_report.json`\
+    \ with the required status/reason). The script is also truncated and lacks the\
+    \ VIF calculation, pair identification, and strict JSON report generation as described."
 T040:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no `artifacts/feasibility_test_log.json` file, nor any logs,\
-    \ runtime records, or evidence that the end\u2011to\u2011end pipeline was re\u2011\
-    run with the required dynamic budgeting, timeout enforcement, and comparison to\
-    \ T033. Without this artifact (or any output showing a successful run or logged\
-    \ timeout), the task is not satisfied. The next implementer must execute the full\
-    \ pipeline as specified and produce the `artifacts/feasibility_test_log.json`\
-    \ containing the run status, runtime, and verification results."
+  h: fdadd2c98004a4a4df3c24825fed543047c62c94e77ab112eb9dd9850bcf7508
+  r: "The required `artifacts/feasibility_test_log.json` does not exist, the dataset\
+    \ file `data/processed/cleaned_sn1.csv` is missing, and the provided `code/models/train.py`\
+    \ lacks any timeout logic or handling of a `--max-configs` argument. Consequently,\
+    \ the end\u2011to\u2011end validation run, dynamic budgeting, and logging steps\
+    \ described in the task have not been performed."

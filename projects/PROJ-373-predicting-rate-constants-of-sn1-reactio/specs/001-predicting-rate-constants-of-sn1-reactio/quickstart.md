@@ -1,112 +1,82 @@
-# Quick Start Guide - SN1 Rate Constant Prediction
+# Quickstart Guide: Predicting SN1 Rate Constants
 
-## Overview
-
-This project implements an automated pipeline to predict rate constants of SN1 reactions from molecular structure using Graph Neural Networks (GNNs). The pipeline includes data ingestion, preprocessing, model training, evaluation, and interpretability analysis.
+## Project Structure
+- `code/`: Source code
+- `data/`: Data files (raw, processed)
+- `tests/`: Test suite
+- `specs/`: Specifications and documentation
+- `artifacts/`: Model outputs and reports
 
 ## Prerequisites
-
-- Python 3.9+
-- pip package manager
-- 8GB+ RAM (for full dataset processing)
-- CPU-only execution (no GPU required)
+- Python 3.8+
+- pip
 
 ## Installation
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-1. Clone the repository and navigate to the project directory:
+## Execution
+Run the full pipeline step-by-step or via the main orchestrator.
+
+### Step 1: Schema Check (T011a)
 ```bash
-cd projects/PROJ-373-predicting-rate-constants-of-sn1-reactio
+python code/data/schema_check.py --dataset-name "author/DTS-SN1-15-01-2024" --output data/processed/schema_check.log
 ```
 
-2. Create a virtual environment and activate it:
+### Step 2: Download Data (T011b)
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+python code/data/download.py --schema-pass --output data/raw/sn1_raw.parquet
 ```
 
-3. Install dependencies:
+### Step 3: Map Columns (T011c)
 ```bash
-pip install -r requirements.txt
+python code/data/mapping.py --input data/raw/sn1_raw.parquet --output data/processed/intermediate_sn1.csv --exclusion-log data/processed/exclusion_raw.log
 ```
 
-## Running the Pipeline
-
-The full pipeline can be run end-to-end with a single command:
-
+### Step 4: Initialize Exclusion Log (T011d)
 ```bash
-python code/main.py
+python code/data/init_exclusion_log.py --output data/processed/exclusion_raw.log
 ```
 
-This will execute the following stages in sequence:
-1. Schema validation
-2. Data download from HuggingFace
-3. Column mapping and cleaning
-4. SMILES canonicalization and filtering
-5. Descriptor computation (Gasteiger charges, topological indices)
-6. Exclusion report generation
-7. Dataset finalization
-8. Stratified train/val/test splitting
-9. MPNN model training with hyperparameter optimization
-10. Model evaluation and baseline comparison
-11. Artifact saving (model weights, metrics)
-12. Collinearity analysis
-13. Interpretability analysis (SHAP values, perturbation studies)
-14. Sensitivity analysis
-15. Hyperparameter sensitivity analysis
-16. Consistency analysis
-17. Final report generation
-
-## Output Artifacts
-
-After successful execution, the following artifacts will be generated:
-
-### Data Artifacts (under `data/processed/`)
-- `cleaned_sn1.csv`: Final cleaned and processed dataset
-- `exclusion_report.csv`: List of excluded rows with reasons
-- `success_rate.json`: Pipeline success rate metrics
-- `post_filter_distribution.json`: Distribution of substrate classes after filtering
-- `clean.log`: Detailed cleaning log
-- `exclusion_raw.log`: Raw exclusion logs from various stages
-
-### Model Artifacts (under `artifacts/`)
-- `best_model.pt`: Saved PyTorch model weights
-- `metrics.json`: Model performance metrics (R², MAE)
-- `hyperparameter_search.csv`: Hyperparameter search results
-- `collinearity_report.json`: VIF analysis results
-- `sensitivity_report.csv`: Sensitivity analysis results
-- `perturbation_results.csv`: Perturbation study results
-- `shap_consistency_report.md`: SHAP consistency analysis
-- `final_report.md`: Comprehensive final report
-- `feasibility_test_log.json`: Execution timing and status
-
-### Logs (under `artifacts/logs/`)
-- Pipeline execution logs with timestamps
-
-## Validation
-
-To validate the quickstart guide and ensure all artifacts are generated correctly:
-
+### Step 5: Clean Data (T012)
 ```bash
-python code/validation/validate_quickstart.py
+python code/data/clean.py --input data/processed/intermediate_sn1.csv --output data/processed/cleaned_intermediate.csv --exclusion-log data/processed/exclusion_raw.log
 ```
 
-## Troubleshooting
+### Step 6: Compute Descriptors (T013)
+```bash
+python code/data/descriptors.py --input data/processed/cleaned_intermediate.csv --output data/processed/descriptors.csv --exclusion-log data/processed/exclusion_raw.log
+```
 
-### Common Issues
+### Step 7: Validate Exclusion Log (T013b)
+```bash
+python code/data/exclusion_report.py --input data/processed/exclusion_raw.log --schema specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml --output data/processed/exclusion_validation.log
+```
 
-1. **Missing dependencies**: Ensure all packages from `requirements.txt` are installed.
-2. **Memory errors**: The full dataset may require significant RAM. Consider running on a subset if memory is limited.
-3. **Network errors**: Data download requires internet access. Check your connection if downloads fail.
-4. **Schema validation failures**: Ensure the input data matches the expected schema defined in `specs/`.
+### Step 8: Aggregate Exclusions (T015)
+```bash
+python code/data/exclusion_report.py --aggregate --clean-log data/processed/clean.log --raw-log data/processed/exclusion_raw.log --output data/processed/exclusion_report.csv
+```
 
-### Getting Help
+### Step 9: Finalize Dataset (T016)
+```bash
+python code/data/finalize_dataset.py \
+ --input-path data/processed/cleaned_intermediate.csv \
+ --intermediate-path data/processed/intermediate_sn1.csv \
+ --output-path data/processed/cleaned_sn1.csv \
+ --exclusion-path data/processed/exclusion_report.csv \
+ --success-rate-path data/processed/success_rate.json \
+ --checksum-path data/processed/cleaned_sn1.csv.sha256
+```
 
-If you encounter issues not covered here, check the pipeline logs in `artifacts/logs/` for detailed error messages.
+### Step 10: Split Data (T014)
+```bash
+python code/data/split.py --input data/processed/cleaned_sn1.csv --output-dir data/processed/
+```
 
-## Next Steps
-
-After running the pipeline:
-1. Review the `artifacts/final_report.md` for comprehensive results
-2. Examine the model performance in `artifacts/metrics.json`
-3. Analyze feature importance from the SHAP analysis results
-4. Use the trained model for predictions on new molecules (extend the code as needed)
+## Verification
+Check that `data/processed/cleaned_sn1.csv` and `data/processed/success_rate.json` exist and contain valid data.
+Ensure `success_rate` in `success_rate.json` is >= 0.95.

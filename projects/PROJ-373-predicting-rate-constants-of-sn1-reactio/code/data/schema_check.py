@@ -1,125 +1,142 @@
-"""
-T011a: Verify dataset metadata from HuggingFace.
-
-Fetches dataset info for 'DTS-SN1-15-01-2024' and 'SN18-All-20240204'.
-Validates presence of 'substrate_class', 'temperature', and 'solvent' columns.
-Raises ValueError if any are missing.
-Writes success log to data/processed/schema_check.log.
-"""
 import os
 import sys
 import logging
+import time
 from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure imports work from project root
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import DataConfig, ensure_dirs
+from config import ensure_dirs, DataConfig
 from utils.logger import get_logger
 
-REQUIRED_COLUMNS = ['substrate_class', 'temperature', 'solvent']
-DATASET_IDS = ['DTS-SN1-15-01-2024', 'SN18-All-20240204']
+logger = get_logger(__name__)
 
-def setup_schema_check_logger():
-    """Setup logger for schema check task."""
-    log_dir = Path("data/processed")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "schema_check.log"
+# Configuration for retry logic
+MAX_RETRIES = 5
+INITIAL_BACKOFF = 1.0  # seconds
+MAX_BACKOFF = 30.0     # seconds
 
-    logger = get_logger(
-        name="schema_check",
-        log_file=log_file,
-        level=logging.INFO
-    )
-    return logger
+def setup_schema_check_logger() -> logging.Logger:
+    """Setup logging for schema check."""
+    return get_logger(__name__)
 
-def fetch_dataset_info(dataset_id: str) -> dict:
+def fetch_dataset_info_with_retry(dataset_name: str, split: str = 'train') -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     """
-    Fetch dataset info from HuggingFace without downloading full data.
-    Uses streaming mode to inspect features efficiently.
-    Ensures reproducibility by using revision='main'.
+    Fetch dataset info from HuggingFace with exponential backoff retry logic.
+    Returns (features_dict, error_message).
+    If successful, error_message is None. If failed after retries, features is None.
     """
-    try:
-        from datasets import load_dataset
-        # Load in streaming mode to get info without downloading full data
-        # Explicitly use revision='main' for reproducibility as per spec
-        ds = load_dataset(dataset_id, split="train", streaming=True, revision='main')
-        
-        # Try to get features directly first
-        if hasattr(ds, 'features') and ds.features:
-            columns = list(ds.features.keys())
-        else:
-            # Fallback: peek at the first item to infer columns
-            # This is necessary if features aren't immediately exposed
-            try:
-                first_item = next(iter(ds))
-                columns = list(first_item.keys())
-            except Exception as peek_error:
-                raise RuntimeError(f"Failed to inspect dataset {dataset_id}: {peek_error}")
-        
-        return {
-            "dataset_id": dataset_id,
-            "columns": columns,
-            "success": True
-        }
-    except Exception as e:
-        return {
-            "dataset_id": dataset_id,
-            "columns": [],
-            "success": False,
-            "error": str(e)
-        }
+    attempt = 0
+    backoff = INITIAL_BACKOFF
 
-def validate_columns(dataset_info: dict) -> tuple:
+    while attempt < MAX_RETRIES:
+        try:
+            from datasets import load_dataset
+            logger.info(f"Fetching dataset info for {dataset_name} (attempt {attempt + 1}/{MAX_RETRIES})...")
+            
+            # Load with streaming=True to fetch metadata without full download
+            dataset = load_dataset(dataset_name, split=split, streaming=True, revision='main')
+            
+            # Access features to trigger metadata fetch
+            features = dataset.info.features
+            if features:
+                logger.info(f"Successfully fetched dataset info for {dataset_name}")
+                return features, None
+            else:
+                raise ValueError("Dataset features returned empty or None")
+
+        except Exception as e:
+            attempt += 1
+            if attempt >= MAX_RETRIES:
+                error_msg = f"Failed to fetch dataset info for {dataset_name} after {MAX_RETRIES} attempts: {str(e)}"
+                logger.error(error_msg)
+                return None, error_msg
+            
+            # Exponential backoff
+            sleep_time = min(backoff * (2 ** (attempt - 1)), MAX_BACKOFF)
+            logger.warning(f"Attempt {attempt} failed: {str(e)}. Retrying in {sleep_time:.2f}s...")
+            time.sleep(sleep_time)
+
+    # Should not reach here due to loop logic, but safety return
+    return None, f"Unexpected exit from retry loop for {dataset_name}"
+
+def validate_columns(features: Dict[str, Any], required_columns: List[str]) -> List[str]:
     """
-    Validate that all required columns are present in the dataset.
-    Returns (is_valid, list_of_missing_columns).
+    Validate that required columns exist in dataset.
+    Returns a list of missing columns. Empty list if all present.
     """
-    columns = dataset_info.get("columns", [])
-    missing = [col for col in REQUIRED_COLUMNS if col not in columns]
-    is_valid = len(missing) == 0
-    return is_valid, missing
+    missing_columns = []
+    for col in required_columns:
+        if col not in features:
+            missing_columns.append(col)
+    return missing_columns
 
 def main():
-    """
-    Main entry point for schema check task.
-    """
-    logger = setup_schema_check_logger()
-    logger.info("Starting schema check for SN1 datasets")
+    parser = argparse.ArgumentParser(description="Check dataset schema for SN1 reaction data")
+    parser.add_argument("--dataset", type=str, default="author/DTS-SN1-15-01-2024", 
+                        help="HuggingFace dataset name")
+    parser.add_argument("--output", type=str, default="data/processed/schema_check.log", 
+                        help="Output log path")
+    parser.add_argument("--required-columns", nargs='+', default=[
+        'smiles', 'rate_constant', 'substrate_class', 'temperature', 'solvent'
+    ], help="Required columns to validate")
+    args = parser.parse_args()
 
-    # Ensure output directory exists
     ensure_dirs()
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    all_valid = True
-    results = []
+    try:
+        # Fetch dataset info with retry logic
+        features, error = fetch_dataset_info_with_retry(args.dataset)
+        
+        if error:
+            # Fatal error: network issue or dataset not found
+            logger.critical(f"Schema check halted: {error}")
+            with open(args.output, 'w') as f:
+                f.write(f"status: 'error'\n")
+                f.write(f"reason: '{error}'\n")
+                f.write("action: 'pipeline_halted'\n")
+            raise ValueError(f"Schema check failed due to network/dataset error: {error}")
 
-    for dataset_id in DATASET_IDS:
-        logger.info(f"Checking dataset: {dataset_id}")
-        info = fetch_dataset_info(dataset_id)
-        results.append(info)
+        # Validate required columns
+        missing = validate_columns(features, args.required_columns)
+        
+        if missing:
+            # Fatal error: missing required columns
+            error_msg = f"Missing required columns: {missing}"
+            logger.critical(f"Schema check halted: {error_msg}")
+            with open(args.output, 'w') as f:
+                f.write(f"status: 'fail'\n")
+                f.write(f"reason: '{error_msg}'\n")
+                f.write("action: 'pipeline_halted'\n")
+            raise ValueError(error_msg)
 
-        if not info["success"]:
-            logger.error(f"Failed to fetch info for {dataset_id}: {info.get('error')}")
-            all_valid = False
-            continue
+        # Success
+        logger.info("Schema validation passed for all required columns")
+        with open(args.output, 'w') as f:
+            f.write("status: 'pass'\n")
+            f.write(f"dataset: {args.dataset}\n")
+            f.write(f"columns_verified: {list(features.keys())}\n")
+            f.write("action: 'proceed'\n")
+        
+        logger.info(f"Schema check log written to {args.output}")
 
-        is_valid, missing = validate_columns(info)
-        if not is_valid:
-            logger.error(f"Dataset {dataset_id} missing required columns: {missing}")
-            all_valid = False
-        else:
-            logger.info(f"Dataset {dataset_id} passed schema validation")
-
-    if not all_valid:
-        error_msg = "Schema validation failed. Missing required columns or datasets unavailable."
-        logger.error(error_msg)
-        # Raise fatal ValueError to halt the entire pipeline as per spec
-        raise ValueError(error_msg)
-
-    logger.info("All datasets passed schema validation.")
-    logger.info("Schema check completed successfully.")
-    return 0
+    except ValueError as ve:
+        # Re-raise to halt pipeline as per requirements
+        raise ve
+    except Exception as e:
+        logger.critical(f"Unexpected error during schema check: {str(e)}")
+        with open(args.output, 'w') as f:
+            f.write(f"status: 'error'\n")
+            f.write(f"reason: 'unexpected_exception: {str(e)}'\n")
+            f.write("action: 'pipeline_halted'\n")
+        raise e
 
 if __name__ == "__main__":
-    sys.exit(main())
+    import argparse
+    main()
