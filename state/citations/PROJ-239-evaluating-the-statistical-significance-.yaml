@@ -1,1 +1,11 @@
-[]
+- artifact_hash: b0faf31a4cde97d81b3ee039268a15e18a842c845bcf37427a9a2272b85e43a8
+  artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1000/xyz123
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1000/xyz123
+  verified_at: '2026-09-22T22:23:46.124956Z'

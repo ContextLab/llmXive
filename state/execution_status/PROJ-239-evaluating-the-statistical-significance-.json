@@ -1,21 +1,18 @@
 {
   "project_id": "PROJ-239-evaluating-the-statistical-significance-",
   "ok": false,
-  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/derived/robustResults.csv: results file is EMPTY \u2014 the analysis produced no rows; 1 command(s) failed: python code/simulation_runner.py (rc=1); 1 declared deliverable(s) absent: data/derived/final_report.csv",
+  "reason": "2 declared deliverable(s) absent: data/derived/final_report.csv; data/derived/simulation_config_log.csv",
   "artifacts": [
-    "data/derived/baseline_results.csv",
     "data/derived/robustResults.csv",
     "data/memory.csv",
     "data/timing.csv"
   ],
-  "failures": [
-    "python code/simulation_runner.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py\", line 420, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py\", line 381, in main\n    cfg = parse_cli_args(args, cfg)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/config.py\", line 269, in parse_cl"
-  ],
-  "fix_rounds": 4,
+  "failures": [],
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "unknown",
   "evidence": [],
-  "updated_at": "2026-07-25T19:00:49Z"
+  "updated_at": "2026-09-22T22:49:46Z"
 }

@@ -1,39 +1,17 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- data/derived/robustResults.csv: results file is EMPTY — the analysis produced no rows
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/derived/robustResults.csv: results file is EMPTY — the analysis produced no rows; 1 command(s) failed: python code/simulation_runner.py (rc=1); 1 declared deliverable(s) absent: data/derived/final_report.csv
+**Summary**: 2 declared deliverable(s) absent: data/derived/final_report.csv; data/derived/simulation_config_log.csv
 
 ## Failing / missing run-book commands
 
-- python code/simulation_runner.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py", line 420, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py", line 381, in main
-    cfg = parse_cli_args(args, cfg)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/config.py", line 269, in parse_cli_args
-    validate_config(cfg)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/config.py", line 54, in validate_config
-    if icc < 0.0 or icc > 1.0:
-       ^^^^^^^^^
-TypeError: '<' not supported between instances of 'NoneType' and 'float'
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
 ## Declared deliverables still missing
 
 - data/derived/final_report.csv
+- data/derived/simulation_config_log.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -43,13 +21,15 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `parse_cli_args` — defined in `code/config.py`; called 5 way(s):
+### `parse_cli_args` — defined in `code/config.py`; called 7 way(s):
 
+- code/config.py: cfg = parse_cli_args(cli_args, cfg)
 - code/config.py: 1. parse_cli_args() -> Returns config with defaults
 - code/config.py: 2. parse_cli_args(args) -> Parses args and returns new config
 - code/config.py: 3. parse_cli_args(args, cfg) -> Parses args and updates existing config
 - code/config.py: 4. parse_cli_args(cfg) -> Updates existing config with defaults (no CLI)
 - code/simulation_runner.py: cfg = parse_cli_args(args, cfg)
+- code/run_simulation_baseline.py: cfg = parse_cli_args(args, cfg)
 
 Make `parse_cli_args` in `code/config.py` accept ALL of the above.
 
@@ -62,3 +42,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/generate_report.py` — NOT invoked by the run-book
     - `code/scripts/merge_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/final_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/derived/simulation_config_log.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/simulation_runner.py` — IS a run-book command
+  Make ONE of these WRITE `data/derived/simulation_config_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
