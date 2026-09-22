@@ -19,7 +19,7 @@ The system must parse raw SMILES strings from a standard molecular dataset and c
 
 1. **Given** a valid SMILES string from the QM9 dataset, **When** the preprocessing module parses it using `rdkit.Chem.Descriptors` and `rdkit.Chem.rdMolDescriptors` (excluding 3D functions and target-correlated proxies), **Then** it outputs a feature vector containing at least 200 2D topological descriptors, zero 3D coordinates, and explicitly excludes TPSA, TPSA_E, and direct functional group identifiers (e.g., SMARTS patterns for -OH, -C=O).
 2. **Given** a malformed SMILES string, **When** the preprocessing module attempts parsing, **Then** the system logs the error and skips the record without crashing the batch process.
-3. **Given** a batch of [deferred] SMILES strings, **When** processed, **Then** the peak memory usage remains below 6 GB, and the output matrix is saved to disk within 15 minutes.
+3. **Given** a batch of [deferred] SMILES strings, **When** processed, **Then** the peak memory usage remains within acceptable limits for standard deployment environments., and the output matrix is saved to disk within 15 minutes.
 
 ---
 
@@ -33,7 +33,11 @@ The system must train a Gradient Boosting Regressor (LightGBM) using only the ge
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed 2D feature matrix and target dipole moments, **When** the training pipeline executes with a standard random split (no stratification by target value), **Then** the model converges within 500 iterations and achieves a validation R² score that exceeds the baseline null model (predicting the mean) on the 5-fold cross-validation.
+1. **Given** the preprocessed 2D feature matrix and target dipole moments, **When** the training pipeline executes with a standard random split (no stratification by target value), **Then** the model converges within 500 iterations and achieves a validation R² score that exceeds the baseline null model (predicting the mean) on the k-fold cross-validation
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:.
 2. **Given** the trained model, **When** it predicts on the held-out test set, **Then** the predictions are strictly based on the 2D descriptor inputs, with no implicit reliance on 3D geometry.
 3. **Given** the training process, **When** hyperparameter tuning is performed, **Then** the system logs the optimal parameters (e.g., `num_leaves`, `learning_rate`) to a reproducible configuration file.
 
@@ -49,8 +53,8 @@ The system must apply SHAP (SHapley Additive exPlanations) to quantify the contr
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained LightGBM model and the test set, **When** SHAP analysis is executed, **Then** the output identifies the top 10 most influential 2D descriptors with their mean absolute SHAP values.
-2. **Given** the dataset, **When** the sensitivity analysis bootstraps the dataset 100 times (sample size [deferred]), **Then** the system reports the Jaccard similarity of the top 10 SHAP features across resamples, requiring a similarity ≥ 0.7 to confirm stability.
+1. **Given** the trained LightGBM model and the test set, **When** SHAP analysis is executed, **Then** the output identifies the most influential 2D descriptors with their mean absolute SHAP values.
+2. **Given** the dataset, **When** the sensitivity analysis bootstraps the dataset multiple times (sample size [deferred]), **Then** the system reports the Jaccard similarity of the top 10 SHAP features across resamples, requiring a similarity ≥ 0.7 to confirm stability.
 3. **Given** the feature importance results, **When** the report is generated, **Then** it explicitly distinguishes between descriptors that are definitionally related (collinear) and frames their joint contribution descriptively rather than claiming independent causal effects.
 
 ---

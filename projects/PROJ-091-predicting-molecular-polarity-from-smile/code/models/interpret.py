@@ -4,33 +4,32 @@ import json
 import logging
 import pickle
 import gc
-import numpy as np
-import pandas as pd
+import argparse
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional, Set
-from scipy.spatial.distance import jaccard as scipy_jaccard
-from scipy.stats import pearsonr
+import numpy as np
+import pandas as pd
+from scipy.spatial.distance import jaccard
+from rdkit import Chem
+from rdkit.Chem import Descriptors
+import lightgbm as lgb
+import shap
 
-from utils.config import load_hyperparameters, get_config_summary
-from utils.logging_config import get_logger, setup_logging
-from utils.validators import enforce_2d_only_imports
-
-# Setup logging
-logger = get_logger(__name__)
-setup_logging()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_ANALYSIS = DATA_PROCESSED / "analysis"
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+ANALYSIS_DIR = PROCESSED_DIR / "analysis"
 
 def load_model_and_data(model_path: str, data_path: str) -> Tuple[Any, pd.DataFrame]:
-    """Load the trained LightGBM model and the processed feature matrix."""
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-
+    """Load the trained model and the processed descriptor data."""
     logger.info(f"Loading model from {model_path}")
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
@@ -38,325 +37,212 @@ def load_model_and_data(model_path: str, data_path: str) -> Tuple[Any, pd.DataFr
     logger.info(f"Loading data from {data_path}")
     df = pd.read_parquet(data_path)
 
-    # Ensure SMILES and target are separated if they exist
-    if 'smiles' in df.columns:
-        smiles = df['smiles']
-        df = df.drop(columns=['smiles'])
-    else:
-        smiles = None
+    # Ensure we have the required columns
+    required_cols = ['smiles', 'target']
+    desc_cols = [col for col in df.columns if col.startswith('desc_')]
+    if not desc_cols:
+        raise ValueError("No descriptor columns found in data. Expected columns starting with 'desc_'.")
 
-    if 'target' in df.columns:
-        target = df['target']
-        df = df.drop(columns=['target'])
-    else:
-        target = None
+    return model, df
 
-    return model, df, smiles, target
-
-def compute_shap_values(model: Any, X: np.ndarray, sample_size: int = 1000) -> np.ndarray:
-    """Compute SHAP values for the model on the given data."""
-    import shap
-
-    logger.info(f"Computing SHAP values for {X.shape[0]} samples")
-    
-    # Use a sample for SHAP computation if data is large
-    if X.shape[0] > sample_size:
-        logger.info(f"Sampling {sample_size} rows for SHAP computation")
-        indices = np.random.choice(X.shape[0], sample_size, replace=False)
-        X_sample = X[indices]
-    else:
-        X_sample = X
-
-    try:
-        explainer = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(X_sample)
-        
-        # Handle multi-output regression if necessary
-        if isinstance(shap_values, list):
-            shap_values = np.array(shap_values)
-            if len(shap_values.shape) == 3:
-                shap_values = shap_values.mean(axis=1) # Average over outputs if any
-        
-        logger.info(f"SHAP computation complete. Shape: {shap_values.shape}")
-        return shap_values
-    except Exception as e:
-        logger.error(f"Error computing SHAP values: {e}")
-        raise
-
-def load_clusters_from_report(cluster_path: str) -> Dict[str, List[str]]:
+def load_clusters_from_file(cluster_map_path: str) -> Dict[str, List[str]]:
     """Load cluster mapping from CSV file."""
-    if not os.path.exists(cluster_path):
-        raise FileNotFoundError(f"Cluster map not found: {cluster_path}")
-    
-    df = pd.read_csv(cluster_path)
+    logger.info(f"Loading cluster map from {cluster_map_path}")
+    df = pd.read_csv(cluster_map_path)
     clusters = {}
-    
-    # Assuming columns are 'feature_id' and 'cluster_id'
-    if 'feature_id' in df.columns and 'cluster_id' in df.columns:
-        for _, row in df.iterrows():
-            fid = str(row['feature_id'])
-            cid = int(row['cluster_id'])
-            if cid not in clusters:
-                clusters[cid] = []
-            clusters[cid].append(fid)
-    else:
-        logger.warning(f"Expected columns 'feature_id' and 'cluster_id' not found in {cluster_path}. Using default grouping.")
-        # Fallback: treat each feature as its own cluster
-        for col in df.columns:
-            if col not in ['feature_id', 'cluster_id']:
-                clusters[col] = [col]
-        
+    for _, row in df.iterrows():
+        cluster_id = row['cluster_id']
+        feature = row['feature_id']
+        if cluster_id not in clusters:
+            clusters[cluster_id] = []
+        clusters[cluster_id].append(feature)
     return clusters
 
-def get_cluster_aware_importance(shap_values: np.ndarray, clusters: Dict[int, List[str]], feature_names: List[str]) -> Dict[int, float]:
-    """Calculate cluster importance as mean absolute SHAP value."""
-    importance = {}
-    
-    # Map feature names to indices
-    name_to_idx = {name: i for i, name in enumerate(feature_names)}
-    
-    for cluster_id, feature_list in clusters.items():
-        abs_shap_sum = 0.0
-        count = 0
-        
-        for feature in feature_list:
-            if feature in name_to_idx:
-                idx = name_to_idx[feature]
-                abs_shap_sum += np.mean(np.abs(shap_values[:, idx]))
-                count += 1
-            else:
-                logger.warning(f"Feature {feature} not found in feature names list.")
-        
-        if count > 0:
-            importance[cluster_id] = abs_shap_sum / count
-        else:
-            importance[cluster_id] = 0.0
-            
-    return importance
-
-def generate_shap_summary_plot(shap_values: np.ndarray, feature_names: List[str], output_path: str):
-    """Generate and save SHAP summary plot."""
-    import shap
-    
-    logger.info(f"Generating SHAP summary plot to {output_path}")
-    try:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        shap.summary_plot(shap_values, feature_names=feature_names, show=False, plot_type="bar")
-        plt = shap.plots.bar(shap_values, feature_names=feature_names, show=False)
-        plt.savefig(output_path)
-        plt.close()
-        logger.info(f"SHAP summary plot saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Error generating SHAP summary plot: {e}")
-        # Fallback: just save a text report if plot fails
-        with open(output_path.replace('.png', '.txt'), 'w') as f:
-            f.write(f"SHAP Summary Plot Generation Failed: {e}\n")
-        raise
+def compute_shap_values(model: Any, data: pd.DataFrame, feature_names: List[str]) -> np.ndarray:
+    """Compute SHAP values using TreeExplainer."""
+    logger.info("Computing SHAP values")
+    X = data[feature_names].values
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X)
+    return shap_values
 
 def save_shap_values(shap_values: np.ndarray, output_path: str):
-    """Save SHAP values to a pickle file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    """Save SHAP values to a file."""
+    logger.info(f"Saving SHAP values to {output_path}")
     with open(output_path, 'wb') as f:
         pickle.dump(shap_values, f)
-    logger.info(f"Saved SHAP values to {output_path}")
 
-def generate_feature_report(importance: Dict[int, float], output_path: str):
-    """Generate a text report of cluster importances."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    sorted_importance = sorted(importance.items(), key=lambda x: x[1], reverse=True)
-    
-    with open(output_path, 'w') as f:
-        f.write("Cluster Importance Report\n")
-        f.write("=" * 40 + "\n")
-        for cid, imp in sorted_importance:
-            f.write(f"Cluster {cid}: {imp:.4f}\n")
-    logger.info(f"Feature report saved to {output_path}")
+def run_cluster_aware_shap_analysis(model: Any, data: pd.DataFrame, clusters: Dict[str, List[str]]) -> Dict[str, float]:
+    """Run cluster-aware SHAP analysis and return cluster importances."""
+    feature_names = [col for col in data.columns if col.startswith('desc_')]
+    shap_values = compute_shap_values(model, data, feature_names)
 
-def run_two_stage_bootstrap_shap(model: Any, X: np.ndarray, clusters: Dict[int, List[str]], feature_names: List[str], n_resamples: int = 100, seed: int = 42) -> Dict[int, List[float]]:
+    # Aggregate SHAP values by cluster
+    cluster_importance = {}
+    for cluster_id, features in clusters.items():
+        # Filter features that exist in the dataset
+        existing_features = [f for f in features if f in feature_names]
+        if not existing_features:
+            continue
+
+        # Get indices of existing features
+        indices = [feature_names.index(f) for f in existing_features]
+
+        # Compute mean absolute SHAP value for the cluster
+        cluster_shap = np.abs(shap_values[:, indices])
+        cluster_importance[cluster_id] = float(np.mean(cluster_shap))
+
+    return cluster_importance
+
+def compute_stability_metrics(cluster_importance: Dict[str, float], shap_values: np.ndarray, 
+                              feature_names: List[str], clusters: Dict[str, List[str]], 
+                              n_bootstrap: int = 100, seed: int = 42) -> Tuple[List[Dict], float]:
     """
-    Perform bootstrap resampling on SHAP values directly (Plan Override).
-    Calculates stability of top clusters.
-    """
-    logger.info(f"Starting bootstrap stability analysis with {n_resamples} resamples")
+    Compute stability metrics using SHAP-only resampling.
     
-    # Set seed for reproducibility
+    This implements the Ratified Plan Override: resample SHAP values directly
+    without re-computing them or re-training the model.
+    """
+    logger.info(f"Computing stability metrics with {n_bootstrap} bootstrap resamples")
+    
     np.random.seed(seed)
+    n_samples = shap_values.shape[0]
     
-    # Compute original SHAP values (on a subset if needed, but here we assume X is the sample used for SHAP)
-    # Note: In a real scenario, we might compute SHAP on the full set and resample from that, 
-    # or compute on subsets. The task specifies "Resample the computed SHAP values directly".
-    # We assume X passed here is the data used for the initial SHAP computation (e.g., 1000 samples).
+    # Get top clusters by importance
+    sorted_clusters = sorted(cluster_importance.items(), key=lambda x: x[1], reverse=True)
+    top_clusters = sorted_clusters[:10]
+    top_cluster_ids = [cid for cid, _ in top_clusters]
     
-    shap_vals = compute_shap_values(model, X)
+    # Store top clusters for each bootstrap
+    bootstrap_top_clusters = []
     
-    # Map feature names to indices
-    name_to_idx = {name: i for i, name in enumerate(feature_names)}
-    
-    # Pre-calculate cluster feature indices
-    cluster_indices = {}
-    for cid, features in clusters.items():
-        indices = [name_to_idx[f] for f in features if f in name_to_idx]
-        if indices:
-            cluster_indices[cid] = indices
-    
-    # Track top cluster IDs based on original mean absolute SHAP
-    original_importance = get_cluster_aware_importance(shap_vals, clusters, feature_names)
-    top_clusters = sorted(original_importance.keys(), key=lambda k: original_importance[k], reverse=True)[:10]
-    
-    logger.info(f"Top 10 clusters for stability check: {top_clusters}")
-    
-    # Bootstrap loop
-    stability_results = {cid: [] for cid in top_clusters}
-    
-    for i in range(n_resamples):
-        # Resample rows (indices) from the SHAP matrix
-        # This simulates the variability in the dataset
-        resample_indices = np.random.choice(shap_vals.shape[0], size=shap_vals.shape[0], replace=True)
-        resampled_shap = shap_vals[resample_indices, :]
+    for i in range(n_bootstrap):
+        # Resample SHAP values (with replacement)
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        resampled_shap = shap_values[indices]
         
-        # Calculate importance for this resample
-        resample_importance = get_cluster_aware_importance(resampled_shap, clusters, feature_names)
+        # Recompute cluster importance for resampled data
+        resampled_cluster_importance = {}
+        for cluster_id, features in clusters.items():
+            existing_features = [f for f in features if f in feature_names]
+            if not existing_features:
+                continue
+            
+            indices_in_features = [feature_names.index(f) for f in existing_features]
+            cluster_shap = np.abs(resampled_shap[:, indices_in_features])
+            resampled_cluster_importance[cluster_id] = float(np.mean(cluster_shap))
         
-        # Determine top 10 clusters for this resample
-        resample_top_clusters = sorted(resample_importance.keys(), key=lambda k: resample_importance[k], reverse=True)[:10]
+        # Get top 10 clusters for this bootstrap
+        sorted_resampled = sorted(resampled_cluster_importance.items(), key=lambda x: x[1], reverse=True)
+        resampled_top_cluster_ids = [cid for cid, _ in sorted_resampled[:10]]
         
-        # Store the set of top clusters for this resample
-        # We are interested in the stability of the *set* of top clusters
-        for cid in top_clusters:
-            # Check if this specific cluster is in the top 10 of this resample
-            if cid in resample_top_clusters:
-                stability_results[cid].append(1)
-            else:
-                stability_results[cid].append(0)
-                
-    # Calculate Jaccard similarity for the *set* of top clusters across resamples?
-    # The task says: "Calculate Jaccard similarity of top feature clusters across 100 bootstrap resamples"
-    # This usually means: Compare the set of top clusters from resample A to resample B, etc.
-    # Or compare the set of top clusters from the ORIGINAL to each resample.
-    # Given the verification "Jaccard scores for identical sets are maximal", we implement a set-based Jaccard.
+        bootstrap_top_clusters.append(set(resampled_top_cluster_ids))
     
-    # Let's collect the set of top 10 clusters for each resample
-    resample_top_sets = []
-    for i in range(n_resamples):
-        # Re-run logic to get the set for this specific resample index
-        # (We need to re-calculate to be precise, or store it during the loop above)
-        # Optimization: We already calculated resample_top_clusters in the loop above, but didn't store the set.
-        # Let's re-iterate or store. Storing is better.
-        # For now, let's just re-calculate the set for the specific top clusters logic to ensure correctness.
-        pass
-    
-    # Re-do the loop to capture sets
-    resample_top_sets = []
-    for i in range(n_resamples):
-        resample_indices = np.random.choice(shap_vals.shape[0], size=shap_vals.shape[0], replace=True)
-        resampled_shap = shap_vals[resample_indices, :]
-        resample_importance = get_cluster_aware_importance(resampled_shap, clusters, feature_names)
-        resample_top_clusters = sorted(resample_importance.keys(), key=lambda k: resample_importance[k], reverse=True)[:10]
-        resample_top_sets.append(set(resample_top_clusters))
-    
-    # Calculate Jaccard similarity of each resample's top set against the original top set
-    original_top_set = set(top_clusters)
+    # Calculate Jaccard similarity for each bootstrap against the original top clusters
+    original_top_set = set(top_cluster_ids)
     jaccard_scores = []
     
-    for res_set in resample_top_sets:
-        # scipy.spatial.distance.jaccard expects boolean arrays or 1D arrays.
-        # For sets, we can implement: |A intersect B| / |A union B|
-        intersection = len(original_top_set.intersection(res_set))
-        union = len(original_top_set.union(res_set))
-        if union == 0:
-            jaccard = 0.0
-        else:
-            jaccard = intersection / union
-        jaccard_scores.append(jaccard)
-        
-    # Verification: Assert that identical sets yield 1.0
-    # We can't easily test this without a specific case, but the math holds.
-    # We will log the mean and min Jaccard score.
-    mean_jaccard = np.mean(jaccard_scores)
-    min_jaccard = np.min(jaccard_scores)
+    for i in range(n_bootstrap):
+        # Use scipy.spatial.distance.jaccard for precise calculation
+        # Jaccard distance = 1 - Jaccard similarity
+        dist = jaccard(list(original_top_set), list(bootstrap_top_clusters[i]))
+        jaccard_sim = 1.0 - dist
+        jaccard_scores.append(jaccard_sim)
     
-    logger.info(f"Bootstrap Stability Analysis Complete. Mean Jaccard: {mean_jaccard:.4f}, Min Jaccard: {min_jaccard:.4f}")
+    # Calculate mean Jaccard similarity
+    mean_jaccard = float(np.mean(jaccard_scores))
     
-    return {
-        "jaccard_scores": jaccard_scores,
-        "mean_jaccard": mean_jaccard,
-        "min_jaccard": min_jaccard,
-        "original_top_clusters": list(original_top_set),
-        "resample_top_sets": [list(s) for s in resample_top_sets]
-    }
+    return jaccard_scores, mean_jaccard
 
-def run_cluster_aware_shap_analysis(model_path: str, data_path: str, cluster_path: str, output_dir: str):
-    """Main entry point for cluster-aware SHAP analysis."""
-    logger.info("Starting Cluster-Aware SHAP Analysis")
-    
-    # Load data
-    model, X_df, smiles, target = load_model_and_data(model_path, data_path)
-    clusters = load_clusters_from_report(cluster_path)
-    
-    # Convert to numpy
-    X = X_df.values
-    feature_names = X_df.columns.tolist()
-    
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Compute SHAP
-    shap_values = compute_shap_values(model, X)
-    
-    # Save SHAP values
-    shap_path = os.path.join(output_dir, "shap_values.pkl")
-    save_shap_values(shap_values, shap_path)
-    
-    # Generate Plot
-    plot_path = os.path.join(output_dir, "shap_summary.png")
-    generate_shap_summary_plot(shap_values, feature_names, plot_path)
-    
-    # Calculate Importance
-    importance = get_cluster_aware_importance(shap_values, clusters, feature_names)
-    report_path = os.path.join(output_dir, "cluster_importance_report.txt")
-    generate_feature_report(importance, report_path)
-    
-    # Bootstrap Analysis
-    bootstrap_results = run_two_stage_bootstrap_shap(model, X, clusters, feature_names, n_resamples=100)
-    
-    # Save Bootstrap Results
-    bootstrap_path = os.path.join(output_dir, "bootstrap_stability.json")
-    with open(bootstrap_path, 'w') as f:
-        json.dump(bootstrap_results, f, indent=2)
-        
-    logger.info("Cluster-Aware SHAP Analysis Complete")
-    return bootstrap_results
-
-def run_full_dataset_bootstrap(model_path: str, data_path: str, cluster_path: str, output_dir: str, n_resamples: int = 100):
+def verify_jaccard_precision(jaccard_scores: List[float]) -> bool:
     """
-    Wrapper for the full dataset bootstrap analysis as per T034a.
-    This function orchestrates the loading, SHAP computation, and stability check.
+    Verify that Jaccard similarity calculation is precise.
+    Assert that Jaccard scores for identical sets are maximal (1.0).
     """
-    logger.info("Running Full Dataset Bootstrap Analysis")
-    return run_cluster_aware_shap_analysis(model_path, data_path, cluster_path, output_dir)
+    # Test with identical sets
+    set1 = {1, 2, 3, 4, 5}
+    set2 = {1, 2, 3, 4, 5}
+    
+    dist = jaccard(list(set1), list(set2))
+    sim = 1.0 - dist
+    
+    # Jaccard similarity of identical sets should be 1.0
+    assert sim == 1.0, f"Jaccard similarity of identical sets should be 1.0, got {sim}"
+    
+    # Test with completely different sets
+    set3 = {1, 2, 3}
+    set4 = {4, 5, 6}
+    
+    dist2 = jaccard(list(set3), list(set4))
+    sim2 = 1.0 - dist2
+    
+    # Jaccard similarity of disjoint sets should be 0.0
+    assert sim2 == 0.0, f"Jaccard similarity of disjoint sets should be 0.0, got {sim2}"
+    
+    logger.info("Jaccard precision verification passed")
+    return True
 
 def main():
-    """Main entry point for the script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run Cluster-Aware SHAP Analysis")
-    parser.add_argument("--model", type=str, required=True, help="Path to the trained model (.pkl)")
-    parser.add_argument("--data", type=str, required=True, help="Path to the processed data (.parquet)")
-    parser.add_argument("--clusters", type=str, required=True, help="Path to the cluster map (.csv)")
-    parser.add_argument("--output", type=str, default=str(DATA_ANALYSIS), help="Output directory")
+    """Main entry point for cluster-aware SHAP analysis."""
+    parser = argparse.ArgumentParser(description="Cluster-aware SHAP analysis")
+    parser.add_argument("--model", required=True, help="Path to trained model pickle file")
+    parser.add_argument("--data", required=True, help="Path to processed descriptors parquet file")
+    parser.add_argument("--clusters", required=True, help="Path to cluster map CSV file")
+    parser.add_argument("--output", default=str(ANALYSIS_DIR / "shap_analysis.json"), 
+                      help="Path to output JSON file")
     
     args = parser.parse_args()
     
-    try:
-        results = run_cluster_aware_shap_analysis(args.model, args.data, args.clusters, args.output)
-        print(f"Analysis complete. Results saved to {args.output}")
-        print(f"Mean Jaccard Similarity: {results['mean_jaccard']:.4f}")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    # Verify Jaccard precision
+    verify_jaccard_precision([])
+    
+    # Load model and data
+    model, data = load_model_and_data(args.model, args.data)
+    
+    # Load clusters
+    clusters = load_clusters_from_file(args.clusters)
+    
+    # Run cluster-aware SHAP analysis
+    cluster_importance = run_cluster_aware_shap_analysis(model, data, clusters)
+    
+    # Compute stability metrics
+    feature_names = [col for col in data.columns if col.startswith('desc_')]
+    shap_values = compute_shap_values(model, data, feature_names)
+    
+    jaccard_scores, mean_jaccard = compute_stability_metrics(
+        cluster_importance, shap_values, feature_names, clusters
+    )
+    
+    # Prepare results
+    results = {
+        "cluster_importance": cluster_importance,
+        "stability_metrics": {
+            "mean_jaccard_similarity": mean_jaccard,
+            "jaccard_scores": jaccard_scores,
+            "n_bootstrap": len(jaccard_scores)
+        },
+        "top_10_clusters": sorted(cluster_importance.items(), key=lambda x: x[1], reverse=True)[:10]
+    }
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save results
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Analysis complete. Results saved to {output_path}")
+    logger.info(f"Mean Jaccard similarity: {mean_jaccard:.4f}")
+    
+    # Verify that identical sets produce maximal Jaccard score
+    test_set1 = set(range(10))
+    test_set2 = set(range(10))
+    dist = jaccard(list(test_set1), list(test_set2))
+    sim = 1.0 - dist
+    assert sim == 1.0, f"Precision check failed: identical sets should have Jaccard=1.0, got {sim}"
+    
+    return results
 
 if __name__ == "__main__":
     main()

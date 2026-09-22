@@ -8,5 +8,5 @@ pyyaml
 pytest
 safety
 datasets
-rdkit
 pyarrow
+memory-profiler

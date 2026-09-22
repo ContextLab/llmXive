@@ -3,154 +3,229 @@ import os
 import argparse
 import logging
 import gc
+import json
 from pathlib import Path
-from typing import Optional
 
-# Ensure code directory is in path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# Import standardized logging
 from utils.logging_config import setup_logging, get_logger
-from utils.validators import enforce_2d_only_imports, assert_no_3d_calls
+from utils.validators import assert_no_3d_calls, validate_dataset_schema
+from utils.checksums import compute_file_checksum
+from data.preprocess_2d import preprocess_2d, main as preprocess_main
+from data.save_descriptors import save_descriptors, main as save_main
+from data.validate import validate_processed_descriptors, main as validate_main
+from data.loader import iterate_smiles
+from utils.config import get_config_summary
 
-logger = get_logger(__name__)
+logger = None
 
-def check_prerequisites() -> bool:
-    """Verify that all prerequisite files and directories exist."""
+def check_prerequisites():
+    """Verify basic project structure and config."""
+    global logger
+    logger = get_logger("main")
     logger.info("Checking prerequisites...")
     
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/processed/analysis",
-        "logs"
-    ]
+    # Check directories
+    dirs = ["code", "tests", "data", "data/raw", "data/processed", "data/processed/analysis", "logs", "state"]
+    for d in dirs:
+        path = PROJECT_ROOT / d
+        if not path.exists():
+            logger.error(f"Directory missing: {path}")
+            return False
     
-    required_files = [
-        "data/raw/qm9_smiles.csv",
-        "code/config.yaml"
-    ]
+    # Check config
+    config_summary = get_config_summary()
+    if not config_summary:
+        logger.error("Failed to load configuration")
+        return False
     
-    project_root = Path(__file__).parent.parent
-    
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            logger.warning(f"Directory missing: {full_path}")
-            # Attempt to create
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-    
-    # Note: We do not fail if data files are missing, as they might be downloaded
-    # But we log a warning
-    for file_path in required_files:
-        full_path = project_root / file_path
-        if not full_path.exists():
-            logger.warning(f"Required file missing (may be downloaded later): {full_path}")
-    
+    logger.info("Prerequisites check passed.")
     return True
 
-def validate_2d_compliance() -> bool:
-    """Validate that no 3D conformer generation functions are called."""
+def validate_2d_compliance():
+    """
+    Verify that the pipeline execution (specifically descriptor computation)
+    does not contain 3D conformer generation calls.
+    Uses the shared validator from code/utils/validators.py.
+    """
+    global logger
+    logger = get_logger("main")
     logger.info("Validating 2D-only compliance...")
+
+    # Read the source code of the descriptor computation module
+    preprocess_path = PROJECT_ROOT / "code" / "data" / "preprocess_2d.py"
+    if not preprocess_path.exists():
+        logger.error(f"Preprocessing script not found: {preprocess_path}")
+        return False
+
+    code_str = preprocess_path.read_text(encoding="utf-8")
+    
+    # Call the validator. The validator is designed to accept a string of code
+    # to inspect for forbidden 3D functions (e.g., EmbedMolecule, Get3DConformer).
     try:
-        # This function would ideally inspect the code or runtime context
-        # For now, we rely on the validators module
-        # Fix: assert_no_3d_calls requires a code_str argument per the shared contract
-        # We pass an empty string to satisfy the signature without analyzing specific code here
-        # as the full pipeline analysis is deferred to the preprocessing step.
-        assert_no_3d_calls("")
-        logger.info("2D-only compliance check passed.")
+        if not assert_no_3d_calls(code_str):
+            logger.critical("2D-only compliance check FAILED: 3D calls detected in code.")
+            return False
+        logger.info("2D-only compliance check PASSED.")
         return True
-    except AssertionError as e:
-        logger.error(f"2D-only compliance check failed: {e}")
+    except Exception as e:
+        logger.error(f"Error during 2D compliance check: {e}")
         return False
-    except TypeError as e:
-        # Fallback if signature changes or arguments are missing
-        logger.warning(f"Compliance check skipped due to signature error: {e}")
+
+def validate_descriptors_file():
+    """
+    Verify that the processed descriptors file exists and matches the expected schema.
+    Uses the schema validators from T006.
+    """
+    global logger
+    logger = get_logger("main")
+    logger.info("Validating descriptors file...")
+
+    descriptors_path = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
+    if not descriptors_path.exists():
+        logger.error(f"Descriptors file not found: {descriptors_path}")
+        return False
+
+    # Call the validator from utils.validators
+    # This function checks for required columns (smiles, target) and dynamic desc_* columns
+    try:
+        if not validate_dataset_schema(str(descriptors_path)):
+            logger.critical("Schema validation FAILED for descriptors file.")
+            return False
+        logger.info("Schema validation PASSED for descriptors file.")
         return True
-
-def validate_descriptors_file(filepath: Path) -> bool:
-    """Validate the processed descriptors file schema."""
-    logger.info(f"Validating descriptors file: {filepath}")
-    if not filepath.exists():
-        logger.error(f"Descriptors file not found: {filepath}")
+    except Exception as e:
+        logger.error(f"Error during schema validation: {e}")
         return False
-    
-    # Basic validation: check if it's a parquet file
-    if not filepath.suffix == '.parquet':
-        logger.error(f"Invalid file format: {filepath.suffix}")
-        return False
-    
-    # In a real scenario, we would load and check schema
-    # For now, we assume if it exists and is parquet, it's valid
-    logger.info(f"Descriptors file validated: {filepath}")
-    return True
 
-def run_data_preprocessing() -> bool:
-    """Run the data preprocessing pipeline."""
-    logger.info("Running data preprocessing...")
-    
-    # Import here to avoid circular imports if any
-    from data.preprocess_2d import preprocess_2d
-    
-    success = preprocess_2d()
-    if success:
-        logger.info("Data preprocessing completed successfully.")
-    else:
-        logger.error("Data preprocessing failed.")
-    
+def validate_artifact_integrity():
+    """
+    [FR-003] Verify that critical artifacts have not been modified since generation.
+    Reads state/manifest.json and compares file checksums against stored values.
+    """
+    global logger
+    logger = get_logger("main")
+    logger.info("Validating artifact integrity (checksums)...")
+
+    manifest_path = PROJECT_ROOT / "state" / "manifest.json"
+    if not manifest_path.exists():
+        logger.error(f"Manifest file not found: {manifest_path}")
+        return False
+
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to read manifest: {e}")
+        return False
+
+    if "checksums" not in manifest:
+        logger.error("Manifest missing 'checksums' key.")
+        return False
+
+    checksums = manifest["checksums"]
+    success = True
+
+    # Define expected artifacts and their keys in manifest
+    expected_artifacts = {
+        "data/processed/descriptors.parquet": "descriptors_parquet",
+        "data/processed/cluster_map.csv": "cluster_map_csv"
+    }
+
+    for rel_path, key in expected_artifacts.items():
+        full_path = PROJECT_ROOT / rel_path
+        if not full_path.exists():
+            logger.error(f"Artifact missing for integrity check: {full_path}")
+            success = False
+            continue
+
+        if key not in checksums:
+            logger.error(f"Checksum missing in manifest for {key}")
+            success = False
+            continue
+
+        expected_hash = checksums[key]
+        try:
+            current_hash = compute_file_checksum(str(full_path))
+            if current_hash != expected_hash:
+                logger.critical(f"INTEGRITY FAILURE: {rel_path} hash mismatch.")
+                logger.critical(f"  Expected: {expected_hash}")
+                logger.critical(f"  Current:  {current_hash}")
+                success = False
+            else:
+                logger.info(f"Integrity OK: {rel_path}")
+        except Exception as e:
+            logger.error(f"Error computing checksum for {rel_path}: {e}")
+            success = False
+
     return success
 
-def run_pipeline() -> bool:
-    """Run the full pipeline."""
-    logger.info("Starting full pipeline...")
+def run_data_preprocessing():
+    """Run the data preprocessing pipeline."""
+    global logger
+    logger = get_logger("main")
+    logger.info("Running data preprocessing...")
     
-    # Step 1: Check prerequisites
+    # This invokes the logic in preprocess_2d.py which downloads (if needed),
+    # computes descriptors, handles NaNs, and saves to data/processed/descriptors.parquet
+    try:
+        preprocess_main()
+        return True
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
+        return False
+
+def run_pipeline():
+    """Execute the full pipeline with runtime assertions."""
+    global logger
+    
+    # 1. Check Prerequisites
     if not check_prerequisites():
-        logger.error("Prerequisites check failed.")
         return False
-    
-    # Step 2: Validate 2D compliance
+
+    # 2. Validate 2D Compliance (Runtime Assertion on Code)
     if not validate_2d_compliance():
-        logger.error("2D compliance validation failed.")
         return False
-    
-    # Step 3: Run preprocessing
+
+    # 3. Run Data Preprocessing (Produces descriptors.parquet)
     if not run_data_preprocessing():
-        logger.error("Preprocessing failed.")
         return False
-    
-    # Step 4: Validate output
-    output_file = Path(__file__).parent.parent / "data" / "processed" / "descriptors.parquet"
-    if not validate_descriptors_file(output_file):
-        logger.error("Output validation failed.")
+
+    # 4. Validate Output File (Runtime Assertion on Data)
+    # This ensures the file produced in step 3 matches the schema defined in T006
+    if not validate_descriptors_file():
         return False
-    
-    logger.info("Full pipeline completed successfully.")
+
+    # 5. Validate Artifact Integrity (T049)
+    # Verifies that descriptors.parquet and cluster_map.csv match the manifest (T049a)
+    if not validate_artifact_integrity():
+        logger.critical("Artifact integrity check failed. Data may have been tampered with or regenerated inconsistently.")
+        return False
+
+    logger.info("Pipeline execution completed successfully with all assertions passed.")
     return True
 
 def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Molecular Polarity Prediction Pipeline")
-    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Set logging level")
-    parser.add_argument("--pipeline", action="store_true", help="Run full pipeline")
-    parser.add_argument("--preprocess", action="store_true", help="Run only preprocessing")
-    
+    global logger
+    parser = argparse.ArgumentParser(description="Main pipeline orchestrator")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
     args = parser.parse_args()
-    
-    # Setup logging with standardized format
-    setup_logging(log_level=getattr(logging, args.log_level.upper()))
-    
-    if args.pipeline:
-        success = run_pipeline()
-    elif args.preprocess:
-        success = run_data_preprocessing()
+
+    # Setup logging
+    setup_logging(level=logging.INFO)
+    logger = get_logger("main")
+    logger.info("Starting pipeline...")
+
+    success = run_pipeline()
+
+    if success:
+        logger.info("Pipeline finished successfully.")
+        sys.exit(0)
     else:
-        # Default: run pipeline
-        success = run_pipeline()
-    
-    sys.exit(0 if success else 1)
+        logger.error("Pipeline failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

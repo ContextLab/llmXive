@@ -4,108 +4,176 @@ import logging
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
-
-import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr
-from utils.logging_config import get_logger
+import numpy as np
+from scipy.spatial.distance import pdist, squareform
+from sklearn.linear_model import LinearRegression
 
-logger = get_logger(__name__)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def compute_vif(features: pd.DataFrame) -> pd.Series:
-    """Compute Variance Inflation Factor for each feature."""
-    vif_data = pd.Series(dtype=float)
-    for i, col in enumerate(features.columns):
-        X = features.drop(columns=[col])
-        y = features[col]
-        if X.shape[1] == 0:
-            vif_data[col] = 1.0
-            continue
-        # Simple linear regression to compute R^2
-        # Using numpy for speed
-        try:
-            coeffs = np.linalg.lstsq(X.values, y.values, rcond=None)[0]
-            y_pred = X.values @ coeffs
-            ss_res = np.sum((y.values - y_pred) ** 2)
-            ss_tot = np.sum((y.values - np.mean(y.values)) ** 2)
-            r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
-            vif = 1 / (1 - r_squared) if r_squared < 1 else np.inf
-            vif_data[col] = vif
-        except Exception as e:
-            logger.warning(f"Could not compute VIF for {col}: {e}")
-            vif_data[col] = np.nan
-    return vif_data
+def compute_vif(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
+    """
+    Compute Variance Inflation Factor (VIF) for each feature.
+    Does NOT remove features; returns scores for all.
+    """
+    if not feature_cols:
+        return pd.DataFrame(columns=['feature', 'vif'])
 
-def cluster_correlated_features(features: pd.DataFrame, threshold: float = 0.8) -> List[List[str]]:
-    """Group features with |correlation| > threshold into clusters."""
-    corr_matrix = features.corr().abs()
-    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    vif_data = []
+    for i, feature in enumerate(feature_cols):
+        X = df[feature_cols].values
+        y = df[feature].values
+        
+        # Fit linear model to predict this feature from others
+        model = LinearRegression()
+        model.fit(X, y)
+        r_squared = model.score(X, y)
+        
+        # VIF = 1 / (1 - R^2)
+        if r_squared >= 1.0:
+            vif = np.inf
+        else:
+            vif = 1.0 / (1.0 - r_squared)
+        
+        vif_data.append({'feature': feature, 'vif': vif})
+        logger.debug(f"Computed VIF for {feature}: {vif:.4f}")
+
+    return pd.DataFrame(vif_data)
+
+def cluster_correlated_features(df: pd.DataFrame, feature_cols: List[str], threshold: float = 0.8) -> Dict[int, List[str]]:
+    """
+    Group features with |correlation| > threshold into clusters.
+    Uses hierarchical clustering on correlation distance.
+    """
+    if len(feature_cols) < 2:
+        return {0: feature_cols} if feature_cols else {}
+
+    # Compute correlation matrix
+    corr_matrix = df[feature_cols].corr().abs()
     
-    # Build clusters
-    clusters = []
-    visited = set()
+    # Convert to distance (1 - correlation)
+    dist_matrix = 1 - corr_matrix.values
     
-    for col in corr_matrix.columns:
-        if col in visited:
-            continue
-        cluster = [col]
-        visited.add(col)
-        for other_col in corr_matrix.columns:
-            if other_col == col or other_col in visited:
-                continue
-            if abs(corr_matrix.loc[col, other_col]) > threshold:
-                cluster.append(other_col)
-                visited.add(other_col)
-        if len(cluster) > 1:
-            clusters.append(cluster)
+    # Use linkage to cluster (ward or average)
+    from scipy.cluster.hierarchy import linkage, fcluster
     
-    return clusters
+    # Flatten distance matrix for linkage
+    condensed_dist = squareform(dist_matrix, checks=False)
+    Z = linkage(condensed_dist, method='average')
+    
+    # Form flat clusters with a threshold on distance (1 - 0.8 = 0.2)
+    # We want correlation > 0.8, so distance < 0.2
+    cluster_labels = fcluster(Z, t=0.2, criterion='distance')
+    
+    # Group features by cluster label
+    clusters = {}
+    for label, feature in zip(cluster_labels, feature_cols):
+        if label not in clusters:
+            clusters[label] = []
+        clusters[label].append(feature)
+    
+    # Re-index clusters to be 0-based consecutive
+    new_clusters = {}
+    for new_id, old_id in enumerate(sorted(clusters.keys())):
+        new_clusters[new_id] = clusters[old_id]
+    
+    logger.info(f"Identified {len(new_clusters)} feature clusters with |r| > 0.8")
+    return new_clusters
 
-def run_feature_clustering_analysis(data_path: Path, output_path: Path) -> Dict[str, Any]:
-    """Run full feature clustering analysis."""
+def save_vif_scores(vif_df: pd.DataFrame, output_path: Path) -> None:
+    """Save VIF scores to CSV."""
+    vif_df.to_csv(output_path, index=False)
+    logger.info(f"Saved VIF scores to {output_path}")
+
+def save_cluster_map(clusters: Dict[int, List[str]], output_path: Path) -> None:
+    """
+    Save cluster mapping to CSV.
+    Format: feature_id, cluster_id
+    """
+    records = []
+    for cluster_id, features in clusters.items():
+        for feature in features:
+            records.append({'feature_id': feature, 'cluster_id': cluster_id})
+    
+    df = pd.DataFrame(records)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved cluster map to {output_path} with {len(records)} entries")
+
+def run_feature_clustering_analysis(
+    data_path: Path,
+    vif_output_path: Path,
+    cluster_output_path: Path,
+    correlation_threshold: float = 0.8
+) -> None:
+    """
+    Main entry point for feature clustering analysis.
+    Computes VIF and clusters correlated features.
+    """
     logger.info(f"Loading data from {data_path}")
-    df = pd.read_parquet(data_path)
+    try:
+        df = pd.read_parquet(data_path)
+    except FileNotFoundError:
+        logger.error(f"Input file not found: {data_path}")
+        sys.exit(1)
     
-    # Filter out non-feature columns
+    # Identify feature columns (exclude 'smiles' and 'target')
     feature_cols = [c for c in df.columns if c not in ['smiles', 'target']]
-    features = df[feature_cols].dropna()
+    logger.info(f"Found {len(feature_cols)} feature columns")
     
-    if features.empty:
-        logger.warning("No features to analyze")
-        return {"clusters": [], "vif": {}}
+    if not feature_cols:
+        logger.warning("No feature columns found. Exiting.")
+        return
     
-    vif_results = compute_vif(features)
-    clusters = cluster_correlated_features(features)
+    # Compute VIF
+    logger.info("Computing VIF scores...")
+    vif_df = compute_vif(df, feature_cols)
+    save_vif_scores(vif_df, vif_output_path)
     
-    report = {
-        "clusters": clusters,
-        "vif": vif_results.to_dict(),
-        "summary": {
-            "total_features": len(feature_cols),
-            "clusters_found": len(clusters),
-            "avg_cluster_size": np.mean([len(c) for c in clusters]) if clusters else 0
-        }
-    }
+    # Cluster correlated features
+    logger.info(f"Clustering features with |r| > {correlation_threshold}...")
+    clusters = cluster_correlated_features(df, feature_cols, threshold=correlation_threshold)
+    save_cluster_map(clusters, cluster_output_path)
     
-    logger.info(f"Saving report to {output_path}")
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    return report
+    logger.info("Feature clustering analysis complete.")
 
-def iterative_vif_removal(features: pd.DataFrame, threshold: float = 10.0) -> pd.DataFrame:
-    """Iteratively remove features with VIF > threshold."""
-    # Note: T031 says DO NOT implement iterative removal, but the function exists in API
-    # We keep it as a stub or minimal implementation to satisfy API surface
-    logger.info("Iterative VIF removal not implemented per T031 constraints")
-    return features
+def iterative_vif_removal(df: pd.DataFrame, feature_cols: List[str], threshold: float = 10.0) -> List[str]:
+    """
+    Placeholder for iterative VIF removal (NOT implemented per Plan Override).
+    This function exists for API compatibility but does nothing.
+    """
+    logger.warning("iterative_vif_removal is disabled per Plan Override. Returning all features.")
+    return feature_cols
 
-def main() -> None:
-    """Main entry point."""
-    data_path = Path("data/processed/descriptors.parquet")
-    output_path = Path("data/processed/analysis/feature_clusters.json")
-    run_feature_clustering_analysis(data_path, output_path)
+def main():
+    """CLI entry point."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Feature Clustering Analysis")
+    parser.add_argument("--data", type=str, required=True, help="Path to input parquet file")
+    parser.add_argument("--vif-output", type=str, required=True, help="Path for VIF scores CSV")
+    parser.add_argument("--cluster-output", type=str, required=True, help="Path for cluster map CSV")
+    parser.add_argument("--threshold", type=float, default=0.8, help="Correlation threshold for clustering")
+    
+    args = parser.parse_args()
+    
+    data_path = Path(args.data)
+    vif_output_path = Path(args.vif_output)
+    cluster_output_path = Path(args.cluster_output)
+    
+    # Ensure output directories exist
+    vif_output_path.parent.mkdir(parents=True, exist_ok=True)
+    cluster_output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    run_feature_clustering_analysis(
+        data_path,
+        vif_output_path,
+        cluster_output_path,
+        args.threshold
+    )
 
 if __name__ == "__main__":
     main()

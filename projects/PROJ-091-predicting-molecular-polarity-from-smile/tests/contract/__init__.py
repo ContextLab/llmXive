@@ -1,1 +1,3 @@
-"""Contract test schemas for dataset and model outputs."""
+"""
+Contract tests package for schema validation.
+"""

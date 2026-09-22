@@ -1,49 +1,45 @@
-T006:
+T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/contract/` directory or any schema validator files (e.g., JSON/YAML
-    schemas, Python validation scripts) are present in the provided evidence. Consequently,
-    the required artifact for setting up dataset and model output validators is missing.
-T014c:
-  c: false
-  h: 913532decb9e19c6663919047b55c01f59dae28a54057bb21c0cdc84bd3d4a98
-  r: "The repository does not contain the required `data/processed/descriptors_filtered.parquet`\
-    \ file, and the shown portion of `code/data/preprocess_2d.py` stops before any\
-    \ implementation of Pearson\u2011correlation filtering or writing a filtered matrix.\
-    \ Consequently the core logic (computing correlations, dropping features with\
-    \ |r|\u202F>\u202F0.85, and saving the result) is absent."
-T014d:
-  c: false
-  h: 335772cbbd398eee6bd4334974a3e69521855b3a2eca4573738dcba9afb6def7
-  r: "The required output files `data/processed/descriptors.parquet` and `data/processed/descriptors_no_filter.parquet`\
-    \ are missing, and the provided `preprocess_2d.py` does not contain any implementation\
-    \ of the \u201Cno\u2011filter\u201D correlation logic nor a copy operation to\
-    \ create the `_no_filter` file. The task\u2019s core requirement is therefore\
-    \ not satisfied."
-T019:
-  c: false
-  h: 4683cc7f733dab10e6e50c6b1756059c6f1e6a2f0fd6218a4a016f8be3271534
-  r: "The `code/main.py` contains the runtime assertion (`assert_no_3d_calls`) and\
-    \ a call to a schema validator (`verify_schema`), satisfying the code\u2011side\
-    \ part of the requirement. However, the required output file `data/processed/descriptors.parquet`\
-    \ does not exist, so the pipeline cannot actually perform the validity check on\
-    \ a real file. The missing descriptor file means the task\u2019s requirement is\
-    \ not fully met."
+  h: 5fb418a0faefbdbb3000ed578d3bf506d841f24bca833f032c86c51b80dffcb4
+  r: The required `data/processed/descriptors.parquet` file is missing, so the validation
+    cannot even load a matrix. Moreover, `code/data/validate.py` does not derive `expected_input_columns`
+    from `descriptor_names` as specified; it only compares against an optional argument,
+    not the dynamic `2 + len(descriptor_names)` logic required by the task. The implementation
+    therefore does not satisfy the validation requirement.
 T022:
   c: true
-  h: cb148377dd81f34bfb57d8687237988429590599c5dc2a57908e1fcf13d9a227
-  r: "The `code/data/split_data.py` file exists, is non\u2011empty, and contains a\
-    \ full implementation of a standard random train/test split (no stratification)\
-    \ that reads `data/processed/descriptors.parquet`, shuffles indices with a fixed\
-    \ seed, creates the splits, and writes them to parquet files. The missing `descriptors.parquet`\
-    \ is an input, not an artifact the task required to produce."
-T034a:
+  h: 98a34bda4254f177e3218d9b94ceb57fe0e301e530783d0aeedaf0ddf726ae80
+  r: "The repository contains a non\u2011empty `code/data/split_data.py` that reads\
+    \ a Parquet file, performs a standard random train/test split (no stratification),\
+    \ and writes the resulting splits to disk, fulfilling the specified functionality.\
+    \ No placeholder code or missing implementation remains."
+T031a:
+  c: false
+  h: dbe31c0e2f4106e2bc1204bfb3ee76b1d2647a22596415c2533cff178e7880ae
+  r: "The repository contains a `compute_vif` implementation and a `save_vif_scores`\
+    \ helper, but there is no code that actually invokes these functions to generate\
+    \ the VIF scores, and the required output file `data/processed/vif_scores.csv`\
+    \ is missing. The task\u2019s output artifact is therefore not present."
+T031c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or result files were provided that compute or report the Jaccard\
-    \ similarity of the top feature clusters. The implementer supplied no artifact\
-    \ (e.g., script, notebook, CSV, or figure) containing the required similarity\
-    \ calculations, so the task\u2019s core requirement is unmet."
+  r: No `cluster_map.csv` file was found in `data/processed/`, and no content or code
+    showing its creation from T031b output was provided. The required artifact is
+    missing, so the task is not satisfied.
+T031d:
+  c: true
+  h: 043637f650cd73191ed53efea68a4caa25f4d1cb073045e74d5954c697e1fd04
+  r: "The evidence shows `code/data/feature_selection.py` is absent and `code/data/feature_clustering.py`\
+    \ exists (11333\u202Fbytes) and contains a `compute_vif` function implementing\
+    \ VIF calculation, satisfying the migration requirement. No other files are shown\
+    \ to contain VIF logic."
+T033b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the task description and specification excerpt;
+    there are no generated SHAP artifacts, code, data files, or any output demonstrating
+    that resampled SHAP artifacts for T034a were produced. Consequently, the required
+    deliverable is missing.
 T042b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,3 +49,11 @@ T042b:
     \ address the required CI safety\u2011check implementation. The task lacks the\
     \ necessary artifact (e.g., updated `.github/workflows/*.yml` or a new CI script)\
     \ to satisfy the claim."
+T049:
+  c: false
+  h: 5e4b4fe8685db3e242709f7f7a9fd4b55c2e8c66afa20e9d6ee78c2389c39da3
+  r: The `code/main.py` shown does not contain any logic that reads `state/manifest.json`
+    and compares stored hashes to the actual checksums of `data/processed/cluster_map.csv`
+    and `data/processed/descriptors.parquet`. Moreover, both required data files are
+    absent from the repository. Consequently the checksum validation step cannot be
+    performed, and the task is not satisfied.

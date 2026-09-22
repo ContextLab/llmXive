@@ -1,17 +1,3 @@
-"""
-Stability Report Generation for Molecular Polarity Prediction.
-
-This module generates the stability report by verifying Jaccard similarity
-of top feature clusters across bootstrap resamples. It implements the
-failure handling logic required by T035: if Jaccard < 0.7, it logs a
-CRITICAL error, writes a `stability_failed.json` artifact, and exits with
-code 1.
-
-Dependencies:
-    - data/processed/descriptors.parquet (from T018)
-    - data/processed/model.pkl (from T026)
-    - data/processed/analysis/shap_bootstrap_results.json (from T034a/T033a)
-"""
 import os
 import sys
 import json
@@ -19,197 +5,129 @@ import logging
 import pickle
 import gc
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+import numpy as np
+import pandas as pd
 
-from utils.logging_config import get_logger, set_log_level
-from utils.config import load_hyperparameters
+# Import from stability_analysis module
+from models.stability_analysis import (
+    run_stability_analysis,
+    calculate_jaccard_similarity
+)
 
 # Configure logging
-logger = get_logger("stability_report")
-set_log_level(logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Constants
-JACCARD_THRESHOLD = 0.7
-ANALYSIS_DIR = PROJECT_ROOT / "data" / "processed" / "analysis"
-FAILED_REPORT_PATH = ANALYSIS_DIR / "stability_failed.json"
-SUCCESS_REPORT_PATH = ANALYSIS_DIR / "stability_report.json"
-
-
-def load_json(filepath: Path) -> Dict[str, Any]:
+def load_json(path: str) -> Dict[str, Any]:
     """Load a JSON file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Required file not found: {filepath}")
-    with open(filepath, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
-
-def calculate_jaccard_similarity(set_a: Set[int], set_b: Set[int]) -> float:
-    """
-    Calculate Jaccard similarity between two sets of indices.
-    J(A, B) = |A ∩ B| / |A ∪ B|
-    """
+def calculate_jaccard_similarity(set_a: set, set_b: set) -> float:
+    """Calculate Jaccard similarity between two sets."""
     if not set_a and not set_b:
         return 1.0
     if not set_a or not set_b:
         return 0.0
     intersection = len(set_a.intersection(set_b))
     union = len(set_a.union(set_b))
-    return intersection / union if union > 0 else 0.0
+    if union == 0:
+        return 0.0
+    return intersection / union
 
-
-def verify_cluster_stability(bootstrap_results: Dict[str, Any]) -> Dict[str, Any]:
+def verify_cluster_stability(
+    stability_results: Dict[str, Any],
+    threshold: float = 0.7
+) -> bool:
     """
-    Verify stability of top feature clusters across bootstrap resamples.
-
-    Args:
-        bootstrap_results: Dictionary containing bootstrap resample results.
-                           Expected structure:
-                           {
-                               "resamples": [
-                                   {
-                                       "top_cluster_indices": [list of feature indices],
-                                       "cluster_id": int,
-                                       ...
-                                   },
-                                   ...
-                               ],
-                               "cluster_mapping": {cluster_id: [feature_indices]}
-                           }
-
-    Returns:
-        Dictionary containing stability metrics and pass/fail status.
+    Verify that the stability analysis passed the threshold.
     """
-    resamples = bootstrap_results.get("resamples", [])
-    if len(resamples) < 2:
-        raise ValueError("Insufficient bootstrap resamples for stability analysis.")
+    mean_jaccard = stability_results.get('mean_jaccard_similarity', 0.0)
+    return mean_jaccard >= threshold
 
-    # Extract top cluster indices from each resample
-    top_cluster_sets = []
-    for resample in resamples:
-        indices = resample.get("top_cluster_indices", [])
-        if indices:
-            top_cluster_sets.append(set(indices))
-
-    if len(top_cluster_sets) < 2:
-        raise ValueError("Could not extract top cluster indices from resamples.")
-
-    # Calculate pairwise Jaccard similarities
-    jaccard_scores = []
-    for i in range(len(top_cluster_sets)):
-        for j in range(i + 1, len(top_cluster_sets)):
-            score = calculate_jaccard_similarity(top_cluster_sets[i], top_cluster_sets[j])
-            jaccard_scores.append(score)
-
-    if not jaccard_scores:
-        raise ValueError("No valid Jaccard scores computed.")
-
-    avg_jaccard = sum(jaccard_scores) / len(jaccard_scores)
-    min_jaccard = min(jaccard_scores)
-    max_jaccard = max(jaccard_scores)
-
-    return {
-        "average_jaccard": avg_jaccard,
-        "min_jaccard": min_jaccard,
-        "max_jaccard": max_jaccard,
-        "num_resamples": len(resamples),
-        "num_comparisons": len(jaccard_scores),
-        "threshold": JACCARD_THRESHOLD,
-        "passed": avg_jaccard >= JACCARD_THRESHOLD
-    }
-
-
-def write_failed_report(stability_metrics: Dict[str, Any], output_path: Path) -> None:
-    """
-    Write a failure report to JSON and log a CRITICAL error.
-
-    Args:
-        stability_metrics: The computed stability metrics.
-        output_path: Path to write the failure report.
-    """
+def write_failed_report(output_path: str, results: Dict[str, Any]) -> None:
+    """Write a failure report to disk."""
     report = {
         "status": "failed",
         "reason": "Jaccard similarity below threshold",
-        "metrics": stability_metrics,
-        "threshold": JACCARD_THRESHOLD,
-        "action": "CI_FAILURE_TRIGGERED"
+        "details": results
     }
-
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.error(f"Stability check FAILED. Report written to {output_path}")
 
-    logger.critical(
-        f"STABILITY CHECK FAILED: Average Jaccard={stability_metrics['average_jaccard']:.4f} "
-        f"(< {JACCARD_THRESHOLD}). Report written to {output_path}. Exiting with code 1."
-    )
-
-
-def write_success_report(stability_metrics: Dict[str, Any], output_path: Path) -> None:
-    """
-    Write a success report to JSON.
-
-    Args:
-        stability_metrics: The computed stability metrics.
-        output_path: Path to write the success report.
-    """
+def write_success_report(output_path: str, results: Dict[str, Any]) -> None:
+    """Write a success report to disk."""
     report = {
-        "status": "passed",
-        "metrics": stability_metrics,
-        "threshold": JACCARD_THRESHOLD,
-        "message": "Feature clusters are stable across bootstrap resamples."
+        "status": "success",
+        "message": "Cluster stability verified",
+        "details": results
     }
-
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Stability check PASSED. Report written to {output_path}")
 
-    logger.info(
-        f"STABILITY CHECK PASSED: Average Jaccard={stability_metrics['average_jaccard']:.4f} "
-        f"(>= {JACCARD_THRESHOLD}). Report written to {output_path}."
-    )
-
-
-def main() -> int:
+def main():
     """
-    Main entry point for generating the stability report.
-
-    Returns:
-        int: Exit code (0 for success, 1 for failure).
+    CLI entry point to generate stability report.
+    This script orchestrates the stability analysis and generates the final report.
+    
+    Expected arguments:
+    --shap-values: Path to SHAP values pickle file
+    --clusters: Path to cluster_map.csv
+    --output-json: Path to output JSON report (intermediate)
+    --output-report: Path to final stability report (stability_report.md or .json)
+    --n-bootstrap: Number of bootstrap resamples
+    --top-k: Number of top clusters
     """
-    # Ensure analysis directory exists
-    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+    import argparse
 
-    # Load bootstrap results from T033a/T034a
-    bootstrap_file = ANALYSIS_DIR / "shap_bootstrap_results.json"
-    if not bootstrap_file.exists():
-        logger.error(f"Bootstrap results file not found: {bootstrap_file}")
-        logger.error("Ensure T033a and T034a have been completed successfully.")
-        return 1
+    parser = argparse.ArgumentParser(description="Generate stability report")
+    parser.add_argument("--shap-values", required=True, help="Path to SHAP values pickle")
+    parser.add_argument("--clusters", required=True, help="Path to cluster_map.csv")
+    parser.add_argument("--output-json", required=True, help="Path to intermediate JSON results")
+    parser.add_argument("--output-report", required=True, help="Path to final report file")
+    parser.add_argument("--n-bootstrap", type=int, default=100)
+    parser.add_argument("--top-k", type=int, default=10)
+
+    args = parser.parse_args()
 
     try:
-        bootstrap_results = load_json(bootstrap_file)
-    except (json.JSONDecodeError, FileNotFoundError) as e:
-        logger.error(f"Failed to load bootstrap results: {e}")
-        return 1
+        # Run the stability analysis
+        logger.info("Running stability analysis...")
+        run_stability_analysis(
+            shap_values_path=args.shap_values,
+            cluster_map_path=args.clusters,
+            output_path=args.output_json,
+            n_bootstrap=args.n_bootstrap,
+            top_k_clusters=args.top_k
+        )
 
-    # Verify cluster stability
-    try:
-        stability_metrics = verify_cluster_stability(bootstrap_results)
-    except ValueError as e:
-        logger.error(f"Stability verification failed: {e}")
-        return 1
+        # Load results
+        with open(args.output_json, 'r') as f:
+            results = json.load(f)
 
-    # Check against threshold and handle accordingly
-    if not stability_metrics["passed"]:
-        write_failed_report(stability_metrics, FAILED_REPORT_PATH)
-        return 1
-    else:
-        write_success_report(stability_metrics, SUCCESS_REPORT_PATH)
-        return 0
+        # Verify threshold
+        passed = verify_cluster_stability(results, threshold=0.7)
 
+        # Generate final report
+        if passed:
+            write_success_report(args.output_report, results)
+            logger.info("Stability check passed. Exiting with code 0.")
+            sys.exit(0)
+        else:
+            write_failed_report(args.output_report, results)
+            logger.critical("Stability check FAILED. Exiting with code 1.")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"Failed to generate stability report: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    main()

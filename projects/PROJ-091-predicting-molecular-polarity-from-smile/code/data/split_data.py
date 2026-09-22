@@ -36,6 +36,7 @@ def split_data(input_path: Path, output_prefix: Path, test_size: float = 0.2, se
     effective_seed = seed if seed is not None else _DETERMINISTIC_SEED
     logger.info(f"Using random seed: {effective_seed}")
     
+    # Explicitly set the seed before any random operations
     np.random.seed(effective_seed)
     indices = np.random.permutation(len(df))
     test_count = int(len(df) * test_size)
@@ -102,7 +103,7 @@ def verify_determinism(input_path: Path, output_prefix: Path, iterations: int = 
         if test_path.exists():
             test_path.unlink()
         
-        # Run split
+        # Run split with explicit seed
         split_data(input_path, output_prefix, seed=_DETERMINISTIC_SEED)
         
         # Load and record shapes
@@ -132,10 +133,13 @@ def main() -> None:
     
     split_data(input_path, output_prefix)
     
-    # Optional: Verify determinism (can be enabled for testing)
-    # is_deterministic = verify_determinism(input_path, output_prefix, iterations=5)
-    # if not is_deterministic:
-    #     sys.exit(1)
+    # Verify determinism as part of T046
+    is_deterministic = verify_determinism(input_path, output_prefix, iterations=5)
+    if not is_deterministic:
+        logger.critical("Determinism verification failed. Exiting.")
+        sys.exit(1)
+    else:
+        logger.info("Determinism verification passed.")
 
 if __name__ == "__main__":
     main()

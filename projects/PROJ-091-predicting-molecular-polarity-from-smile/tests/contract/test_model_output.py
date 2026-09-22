@@ -1,63 +1,123 @@
 """
-Contract test for model output schema.
-
-This test ensures that model predictions and evaluation metrics
-conform to the expected schema.
+Contract tests for the model output schema (ModelOutput).
+Validates that the prediction artifacts adhere to the expected schema:
+- 'smiles': str
+- 'prediction': float
+- 'shap_value': float
 """
 import pytest
-import numpy as np
-from typing import Dict, Any
+import pandas as pd
+from pydantic import BaseModel, field_validator, ValidationError
+from typing import List, Dict, Any
 
-def test_model_output_schema():
-    """
-    Verify that model output has the expected structure.
-    """
-    # Simulated model output
-    model_output = {
-        'predictions': np.array([1.5, 2.0, 1.8, 3.2]),
-        'actuals': np.array([1.6, 2.1, 1.7, 3.0]),
-        'metrics': {
-            'r2': 0.85,
-            'rmse': 0.15,
-            'mae': 0.12
-        }
-    }
-    
-    # Check structure
-    assert 'predictions' in model_output
-    assert 'actuals' in model_output
-    assert 'metrics' in model_output
-    
-    # Check types
-    assert isinstance(model_output['predictions'], np.ndarray)
-    assert isinstance(model_output['actuals'], np.ndarray)
-    assert isinstance(model_output['metrics'], dict)
-    
-    # Check metric keys
-    required_metrics = ['r2', 'rmse', 'mae']
-    for metric in required_metrics:
-        assert metric in model_output['metrics'], f"Missing metric: {metric}"
-        
-    # Check shapes
-    assert len(model_output['predictions']) == len(model_output['actuals']), \
-        "Predictions and actuals must have the same length"
-        
-def test_null_model_comparison():
-    """
-    Verify that model performance is compared against a null model.
-    """
-    # Simulated comparison output
-    comparison = {
-        'model_r2': 0.45,
-        'null_model_r2': 0.0,
-        'improvement': 0.45
-    }
-    
-    assert comparison['model_r2'] > comparison['null_model_r2'], \
-        "Model should outperform null model"
-        
-    assert comparison['improvement'] == comparison['model_r2'] - comparison['null_model_r2'], \
-        "Improvement calculation is incorrect"
+# --- Pydantic Model Definition ---
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class ModelOutput(BaseModel):
+    """
+    Pydantic model representing a single model prediction output.
+    Enforces:
+    - 'smiles' is a string
+    - 'prediction' is a float
+    - 'shap_value' is a float
+    """
+    smiles: str
+    prediction: float
+    shap_value: float
+
+    @field_validator('prediction', 'shap_value', mode='before')
+    @classmethod
+    def ensure_float(cls, v):
+        if v is None:
+            raise ValueError('Numeric field cannot be None')
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            raise ValueError(f"Field must be numeric, got {type(v)}")
+
+# --- Test Functions ---
+
+def test_valid_model_output():
+    """Test that a valid output row passes validation."""
+    data = {
+        'smiles': 'CCO',
+        'prediction': 1.5,
+        'shap_value': 0.25
+    }
+    row = ModelOutput(**data)
+    assert row.smiles == 'CCO'
+    assert row.prediction == 1.5
+    assert row.shap_value == 0.25
+
+def test_missing_required_field():
+    """Test that missing 'smiles' raises ValidationError."""
+    data = {
+        'prediction': 1.5,
+        'shap_value': 0.25
+    }
+    with pytest.raises(ValidationError):
+        ModelOutput(**data)
+
+def test_missing_prediction():
+    """Test that missing 'prediction' raises ValidationError."""
+    data = {
+        'smiles': 'CCO',
+        'shap_value': 0.25
+    }
+    with pytest.raises(ValidationError):
+        ModelOutput(**data)
+
+def test_missing_shap_value():
+    """Test that missing 'shap_value' raises ValidationError."""
+    data = {
+        'smiles': 'CCO',
+        'prediction': 1.5
+    }
+    with pytest.raises(ValidationError):
+        ModelOutput(**data)
+
+def test_invalid_prediction_type():
+    """Test that non-numeric prediction raises ValidationError."""
+    data = {
+        'smiles': 'CCO',
+        'prediction': 'invalid',
+        'shap_value': 0.25
+    }
+    with pytest.raises(ValidationError):
+        ModelOutput(**data)
+
+def test_invalid_shap_type():
+    """Test that non-numeric shap_value raises ValidationError."""
+    data = {
+        'smiles': 'CCO',
+        'prediction': 1.5,
+        'shap_value': 'invalid'
+    }
+    with pytest.raises(ValidationError):
+        ModelOutput(**data)
+
+def test_pandas_dataframe_validation():
+    """
+    Test validation against a pandas DataFrame row.
+    """
+    df = pd.DataFrame([{
+        'smiles': 'CCO',
+        'prediction': 1.5,
+        'shap_value': 0.25
+    }])
+
+    for _, row_dict in df.iterrows():
+        try:
+            ModelOutput(**row_dict.to_dict())
+        except ValidationError as e:
+            pytest.fail(f"Validation failed for valid data: {e}")
+
+    # Validate invalid row
+    df_invalid = pd.DataFrame([{
+        'smiles': 'CCO',
+        'prediction': 'bad',
+        'shap_value': 0.25
+    }])
+
+    for _, row_dict in df_invalid.iterrows():
+        with pytest.raises(ValidationError):
+            ModelOutput(**row_dict.to_dict())

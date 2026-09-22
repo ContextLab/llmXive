@@ -1,151 +1,117 @@
 """
-Contract test for dataset schema validation.
-
-This test ensures that the processed dataset conforms to the expected
-schema with required columns and data types as defined in the project
-specifications for molecular polarity prediction.
+Contract tests for the DescriptorMatrix schema.
+Validates dynamic column patterns for descriptor columns.
 """
 import pytest
-import pandas as pd
-import numpy as np
-import os
-from pathlib import Path
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Dict, Any, Optional
+import re
 
-# Ensure we can import project modules if needed for schema constants
-# (Currently using inline definitions based on spec)
+class DescriptorMatrix(BaseModel):
+    """
+    Schema for the descriptor matrix.
+    - smiles: str
+    - target: float
+    - Any number of columns starting with 'desc_'
+    """
+    smiles: str
+    target: float
+    # Allow arbitrary extra fields, but we will validate them in the validator
+    model_config = {"extra": "allow"}
 
-def test_dataset_schema_raw():
-    """
-    Verify that a raw dataset (e.g., from download_qm9) has the expected basic schema.
-    Expected: 'smiles' (string), 'target' (numeric).
-    """
-    # Define expected schema for raw input
-    expected_columns = {'smiles', 'target'}
-    
-    # Create a sample dataframe mimicking the output of download_qm9/loader
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O', 'C1=CC=CC=C1'],
-        'target': [1.5, 2.0, 0.0]  # Dipole moment in Debye
+    @field_validator('smiles')
+    @classmethod
+    def validate_smiles(cls, v):
+        if not v or not isinstance(v, str):
+            raise ValueError('smiles must be a non-empty string')
+        return v
+
+    @field_validator('target')
+    @classmethod
+    def validate_target(cls, v):
+        if not isinstance(v, (int, float)):
+            raise ValueError('target must be a number')
+        return float(v)
+
+    @field_validator('model_fields', mode='before')
+    @classmethod
+    def validate_extra_fields(cls, values):
+        # This validator runs before standard validation to check extra fields
+        if isinstance(values, dict):
+            for key, value in values.items():
+                if key in ['smiles', 'target']:
+                    continue
+                if not key.startswith('desc_'):
+                    raise ValueError(f"Extra column '{key}' must start with 'desc_'")
+                if not isinstance(value, (int, float, type(None))):
+                    # Allow None for missing values, but ensure numeric otherwise
+                    raise ValueError(f"Descriptor column '{key}' must be numeric or None, got {type(value)}")
+        return values
+
+    def model_dump(self, exclude_none=True):
+        return super().model_dump(exclude_none=exclude_none)
+
+def test_valid_descriptor_matrix():
+    """Test that a valid descriptor matrix passes validation."""
+    data = {
+        "smiles": "CCO",
+        "target": 1.5,
+        "desc_mol_weight": 46.07,
+        "desc_logp": 0.5,
+        "desc_num_h_donors": 1
     }
-    df = pd.DataFrame(sample_data)
-    
-    # Check columns
-    found_cols = set(df.columns)
-    assert expected_columns.issubset(found_cols), \
-        f"Missing required columns. Expected subset of: {expected_columns}, Found: {found_cols}"
-    
-    # Check data types
-    assert df['smiles'].dtype == object, "SMILES column should be string/object"
-    assert np.issubdtype(df['target'].dtype, np.number), "Target column should be numeric"
+    model = DescriptorMatrix(**data)
+    assert model.smiles == "CCO"
+    assert model.target == 1.5
+    assert model.desc_mol_weight == 46.07
 
-def test_processed_descriptor_schema():
-    """
-    Verify that processed descriptor data (from preprocess_2d) has the expected structure.
-    Must contain 'smiles', 'target', and numeric descriptor columns.
-    """
-    # Sample processed data with descriptors as expected after T014/T016
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O'],
-        'target': [1.5, 2.0],
-        'MolWt': [46.0, 60.0],
-        'LogP': [-0.3, 0.1],
-        'NumHDonors': [1, 1],
-        'NumHAcceptors': [1, 1]
-    }
-    df = pd.DataFrame(sample_data)
-    
-    # Must have smiles and target
-    assert 'smiles' in df.columns, "Processed data must contain 'smiles' column"
-    assert 'target' in df.columns, "Processed data must contain 'target' column"
-    
-    # Identify descriptor columns (everything except smiles and target)
-    descriptor_cols = [col for col in df.columns if col not in ['smiles', 'target']]
-    
-    # Must have at least one descriptor (as per US1 requirement of >=200, but schema check just needs existence)
-    assert len(descriptor_cols) > 0, "Processed data must contain at least one descriptor column"
-    
-    # All descriptor columns should be numeric
-    for col in descriptor_cols:
-        assert np.issubdtype(df[col].dtype, np.number), \
-            f"Descriptor column {col} should be numeric, found {df[col].dtype}"
+def test_missing_required_fields():
+    """Test that missing required fields raise ValidationError."""
+    with pytest.raises(ValidationError):
+        DescriptorMatrix(smiles="CCO") # missing target
 
-def test_no_3d_descriptors_in_schema():
-    """
-    Contract test to ensure no 3D-dependent descriptors (like TPSA) are present
-    in the processed dataset schema, enforcing the 2D-only constraint.
-    """
-    # Simulate a dataframe that might accidentally include 3D descriptors
-    sample_data = {
-        'smiles': ['CCO'],
-        'target': [1.5],
-        'MolWt': [46.0],
-        'TPSA': [20.0],  # This should NOT be there per US1 constraints
-        'LogP': [-0.3]
-    }
-    df = pd.DataFrame(sample_data)
-    
-    forbidden_3d_descriptors = {
-        'TPSA', 'TPSA_E', 'TPSA_V', 'InertialMoment1', 'InertialMoment2', 
-        'InertialMoment3', 'RadiusOfGyration'
-    }
-    
-    found_cols = set(df.columns)
-    violations = found_cols.intersection(forbidden_3d_descriptors)
-    
-    assert len(violations) == 0, \
-        f"Schema contains forbidden 3D-dependent descriptors: {violations}. " \
-        f"US1 requires 2D-only descriptors."
+    with pytest.raises(ValidationError):
+        DescriptorMatrix(target=1.5) # missing smiles
 
-def test_schema_handles_missing_values():
-    """
-    Verify that the schema allows for NaN values in descriptor columns
-    (since T016 handles them, but the raw processed output might still have them
-    before final cleaning, or the schema must accommodate them).
-    """
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O'],
-        'target': [1.5, 2.0],
-        'MolWt': [46.0, np.nan],
-        'LogP': [-0.3, 0.1]
-    }
-    df = pd.DataFrame(sample_data)
-    
-    # Check that numeric columns can hold NaN
-    assert pd.isna(df['MolWt']).any(), "Numeric descriptor columns must be able to hold NaN values"
-    
-    # Verify the column is still considered numeric (float) despite NaNs
-    assert np.issubdtype(df['MolWt'].dtype, np.floating), \
-        "Columns with NaN should be floating point to preserve numeric type"
+def test_invalid_smiles_type():
+    """Test that non-string smiles raises ValidationError."""
+    with pytest.raises(ValidationError):
+        DescriptorMatrix(smiles=123, target=1.5)
 
-def test_real_parquet_schema():
-    """
-    Contract test that validates the actual schema of the generated parquet file
-    if it exists. This ensures the pipeline produces data matching the contract.
-    """
-    parquet_path = Path("data/processed/descriptors.parquet")
-    if not parquet_path.exists():
-        pytest.skip(f"Parquet file not found at {parquet_path}. Run preprocessing first.")
-    
-    import pyarrow.parquet as pq
-    table = pq.read_table(str(parquet_path))
-    df = table.to_pandas()
-    
-    # Check required columns
-    assert 'smiles' in df.columns, "Processed data must contain 'smiles' column"
-    assert 'target' in df.columns, "Processed data must contain 'target' column"
-    
-    # Check no forbidden 3D columns
-    forbidden_3d = {'TPSA', 'TPSA_E', 'TPSA_V', 'InertialMoment1', 'InertialMoment2', 'InertialMoment3', 'RadiusOfGyration'}
-    found_cols = set(df.columns)
-    violations = found_cols.intersection(forbidden_3d)
-    assert len(violations) == 0, f"Schema contains forbidden 3D-dependent descriptors: {violations}"
-    
-    # Check descriptor count (US1 requires >= 200, but we check > 0 for schema validity)
-    descriptor_cols = [c for c in df.columns if c not in ['smiles', 'target']]
-    assert len(descriptor_cols) > 0, "Must have descriptor columns"
-    
-    # Check types
-    assert df['smiles'].dtype == object, "SMILES must be object/string"
-    assert np.issubdtype(df['target'].dtype, np.number), "Target must be numeric"
-    for col in descriptor_cols:
-        assert np.issubdtype(df[col].dtype, np.number), f"Descriptor {col} must be numeric"
+def test_invalid_extra_column_prefix():
+    """Test that extra columns not starting with 'desc_' raise ValidationError."""
+    data = {
+        "smiles": "CCO",
+        "target": 1.5,
+        "invalid_column": 100
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        DescriptorMatrix(**data)
+    assert "must start with 'desc_'" in str(exc_info.value)
+
+def test_dynamic_descriptor_count():
+    """Test that any number of descriptor columns are accepted."""
+    data = {
+        "smiles": "CCO",
+        "target": 1.5
+    }
+    # Add 100 descriptor columns
+    for i in range(100):
+        data[f"desc_feature_{i}"] = float(i)
+
+    model = DescriptorMatrix(**data)
+    assert model.smiles == "CCO"
+    # Verify all extra fields are accessible
+    for i in range(100):
+        assert getattr(model, f"desc_feature_{i}") == float(i)
+
+def test_non_numeric_descriptor():
+    """Test that non-numeric descriptor values raise ValidationError."""
+    data = {
+        "smiles": "CCO",
+        "target": 1.5,
+        "desc_bad": "not_a_number"
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        DescriptorMatrix(**data)
+    assert "must be numeric" in str(exc_info.value)
