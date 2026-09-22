@@ -1,1 +1,3 @@
-# Utils package
+"""
+Initialization file for the utils package.
+"""

@@ -1,1 +1,3 @@
-# Integration tests package
+"""
+Initialization file for integration tests.
+"""

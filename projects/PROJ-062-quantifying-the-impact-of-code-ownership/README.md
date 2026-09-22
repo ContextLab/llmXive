@@ -1,27 +1,25 @@
 # PROJ-062: Quantifying the Impact of Code Ownership on Software Quality
 
-## Overview
-This project analyzes the relationship between code ownership (measured via Gini coefficient) and software quality (bug density) across multiple open-source repositories.
+## Project Overview
+This project investigates the relationship between code ownership (measured via Gini coefficient) and software quality (measured via bug density).
 
-## Project Structure
-- `code/`: Source code for data collection, metrics calculation, and statistical analysis
-- `data/`: Raw, intermediate, and results data directories
+## Structure
+- `data/raw/`: Raw cloned repositories and git history
+- `data/intermediate/`: Processed CSVs (ownership, churn, complexity)
+- `data/results/`: Final analysis outputs (JSON, plots)
+- `code/`: Python implementation modules
 - `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design documents
-- `figures/`: Generated visualizations
-- `state/`: State management snapshots
+- `specs/`: Feature specifications and design docs
 
-## Prerequisites
-- Python 3.11+
-- Git
-- GitHub API token (for rate limit access)
+## Usage
+Run the full pipeline:
+```bash
+python code/main.py
+```
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set environment variables (see `code/config.py`)
-3. Run the pipeline: `python code/main.py`
-
-## Key Outputs
-- `data/results/final_report.json`: Statistical analysis results
-- `data/results/linkage_rate.json`: Bug-file linkage metrics
-- `figures/*.png`: Scatter plots and visualizations
+Run specific stages:
+```bash
+python code/data_collection.py
+python code/metrics_calc.py
+python code/statistical_analysis.py
+```

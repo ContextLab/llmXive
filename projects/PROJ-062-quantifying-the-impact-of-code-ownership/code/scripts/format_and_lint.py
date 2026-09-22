@@ -1,57 +1,58 @@
-"""
-Script to run Black formatting and Flake8 linting on the project.
-Usage: python code/scripts/format_and_lint.py [--fix]
-"""
 import subprocess
 import sys
 import argparse
 from pathlib import Path
+from utils.logging_utils import get_logger
 
-def run_command(cmd: list[str], check: bool = True) -> None:
-    """Execute a shell command."""
-    print(f"Running: {' '.join(cmd)}")
+logger = get_logger(__name__)
+
+def run_command(cmd: list) -> bool:
+    """Run a command and return success status."""
     try:
-        subprocess.run(cmd, check=check)
+        result = subprocess.run(cmd, check=True)
+        return result.returncode == 0
     except subprocess.CalledProcessError as e:
-        if check:
-            raise RuntimeError(f"Command failed with exit code {e.returncode}") from e
-        print(f"Command failed (expected): {e}")
+        logger.error(f"Command failed: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return False
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run formatting and linting tools.")
-    parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Run black in fix mode to automatically correct formatting issues."
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Format and lint the project code.")
+    parser.add_argument("--fix", action="store_true", help="Fix formatting issues with black.")
+    parser.add_argument("--check", action="store_true", help="Only check formatting and linting (default).")
     args = parser.parse_args()
 
-    project_root = Path(__file__).resolve().parent.parent.parent
+    project_root = Path(__file__).resolve().parent.parent
     code_dir = project_root / "code"
     tests_dir = project_root / "tests"
 
-    # Run Black
-    black_cmd = [sys.executable, "-m", "black", "--config", str(project_root / "pyproject.toml")]
     if args.fix:
-        black_cmd.append(str(code_dir))
-        black_cmd.append(str(tests_dir))
-        print("Formatting code with Black (fix mode)...")
-    else:
-        black_cmd.extend(["--check", "--diff", str(code_dir), str(tests_dir)])
-        print("Checking formatting with Black...")
+        logger.info("Fixing formatting with black...")
+        success = run_command([sys.executable, "-m", "black", str(code_dir), str(tests_dir)])
+        if success:
+            logger.info("Formatting fixed successfully.")
+        else:
+            logger.error("Failed to fix formatting.")
+            sys.exit(1)
+    
+    logger.info("Running flake8...")
+    flake8_success = run_command([sys.executable, "-m", "flake8", str(code_dir), str(tests_dir)])
+    
+    if not flake8_success:
+        logger.error("flake8 found issues. Please fix them manually.")
+        sys.exit(1)
 
-    run_command(black_cmd, check=True)
+    logger.info("Running black check...")
+    black_success = run_command([sys.executable, "-m", "black", "--check", str(code_dir), str(tests_dir)])
+    
+    if not black_success:
+        logger.error("black found formatting issues. Run with --fix to fix them.")
+        sys.exit(1)
 
-    # Run Flake8
-    flake8_cmd = [
-        sys.executable, "-m", "flake8",
-        "--config", str(project_root / ".flake8"),
-        str(code_dir), str(tests_dir)
-    ]
-    print("Linting code with Flake8...")
-    run_command(flake8_cmd, check=True)
-
-    print("All checks passed.")
+    logger.info("All linting and formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

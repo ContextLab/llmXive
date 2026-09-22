@@ -1,62 +1,76 @@
-"""
-Unit tests to verify linting configuration files exist and are valid.
-"""
 import os
-import toml
-import pytest
+import sys
+import tempfile
 from pathlib import Path
+import pytest
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
-def test_flake8_config_exists():
-    """Verify .flake8 configuration file exists."""
-    config_path = PROJECT_ROOT / ".flake8"
-    assert config_path.exists(), ".flake8 configuration file is missing"
-    assert config_path.stat().st_size > 0, ".flake8 file is empty"
+from config_linting import run_command, check_flake8, check_black, setup_config_files
 
-def test_pyproject_toml_exists():
-    """Verify pyproject.toml configuration file exists."""
-    config_path = PROJECT_ROOT / "pyproject.toml"
-    assert config_path.exists(), "pyproject.toml configuration file is missing"
-    assert config_path.stat().st_size > 0, "pyproject.toml file is empty"
+def test_run_command_success():
+    """Test running a simple command."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cwd = Path(tmpdir)
+        returncode, stdout, stderr = run_command(["echo", "hello"], cwd=cwd)
+        assert returncode == 0
+        assert "hello" in stdout
+        assert stderr == ""
 
-def test_black_config_valid():
-    """Verify Black configuration is present and valid in pyproject.toml."""
-    config_path = PROJECT_ROOT / "pyproject.toml"
-    try:
-        with open(config_path, "r") as f:
-            config = toml.load(f)
+def test_run_command_failure():
+    """Test running a failing command."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cwd = Path(tmpdir)
+        returncode, stdout, stderr = run_command(["false"], cwd=cwd)
+        assert returncode != 0
+
+def test_setup_config_files_creates_files():
+    """Test that setup_config_files creates .flake8 and pyproject.toml."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        setup_config_files(tmp_path)
         
-        assert "tool" in config, "No [tool] section in pyproject.toml"
-        assert "black" in config["tool"], "No [tool.black] section found"
-        
-        black_config = config["tool"]["black"]
-        assert "line-length" in black_config, "line-length not configured for Black"
-        assert black_config["line-length"] == 88, f"Expected line-length 88, got {black_config['line-length']}"
-    except Exception as e:
-        pytest.fail(f"Failed to validate Black configuration: {e}")
+        assert (tmp_path / ".flake8").exists()
+        assert (tmp_path / "pyproject.toml").exists()
 
-def test_flake8_config_valid():
-    """Verify .flake8 configuration is present and valid."""
-    config_path = PROJECT_ROOT / ".flake8"
-    try:
-        with open(config_path, "r") as f:
-            content = f.read()
-        
-        assert "[flake8]" in content, "No [flake8] section found in .flake8"
-        assert "max-line-length" in content, "max-line-length not configured in .flake8"
-    except Exception as e:
-        pytest.fail(f"Failed to validate Flake8 configuration: {e}")
+        # Check content exists
+        flake8_content = (tmp_path / ".flake8").read_text()
+        assert "max-line-length" in flake8_content
 
-def test_gitignore_excludes_data_raw():
-    """Verify .gitignore ignores data/raw and data/intermediate."""
-    gitignore_path = PROJECT_ROOT / ".gitignore"
-    assert gitignore_path.exists(), ".gitignore file is missing"
-    
-    with open(gitignore_path, "r") as f:
-        content = f.read()
-    
-    assert "data/raw/" in content, ".gitignore should ignore data/raw/"
-    assert "data/intermediate/" in content, ".gitignore should ignore data/intermediate/"
-    assert "data/ownership_metrics/" not in content or "!data/ownership_metrics/*.csv" in content, \
-        ".gitignore should not ignore ownership_metrics CSVs"
+        pyproject_content = (tmp_path / "pyproject.toml").read_text()
+        assert "[tool.black]" in pyproject_content
+
+def test_check_flake8_on_empty_project():
+    """Test flake8 check on a project with no code (should pass)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        # Create empty code and tests directories
+        (tmp_path / "code").mkdir()
+        (tmp_path / "tests").mkdir()
+        
+        # Create __init__.py to make them packages
+        (tmp_path / "code" / "__init__.py").touch()
+        (tmp_path / "tests" / "__init__.py").touch()
+        
+        setup_config_files(tmp_path)
+        
+        success, msg = check_flake8(tmp_path)
+        # flake8 should pass on empty valid packages
+        assert success is True
+
+def test_check_black_on_empty_project():
+    """Test black check on a project with no code (should pass)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        # Create empty code and tests directories
+        (tmp_path / "code").mkdir()
+        (tmp_path / "tests").mkdir()
+        
+        (tmp_path / "code" / "__init__.py").touch()
+        (tmp_path / "tests" / "__init__.py").touch()
+        
+        setup_config_files(tmp_path)
+        
+        success, msg = check_black(tmp_path)
+        assert success is True

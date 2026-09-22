@@ -1,3 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project directory or any files under `projects/PROJ-062-quantifying-the-impact-of-code-ownership/`
+    were presented; without visible structure we cannot confirm that the required
+    hierarchy was created. The implementer must provide the actual folder tree (e.g.,
+    README, src/, data/, scripts/, etc.) to verify completion.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, or pre\u2011commit hooks) are present in the provided artifacts, and\
+    \ the evidence only contains specifications unrelated to linting. Consequently\
+    \ the requirement to configure flake8/black is not satisfied."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented as evidence; the claim
+    lacks any tangible artifact showing that `data/raw/`, `data/intermediate/`, and
+    `data/results/` exist with the required placeholder files. The implementer must
+    create those directories and include a `.gitkeep` (or equivalent) file in each
+    to satisfy the task.
 T032:
   c: false
   h: c323d49cc34862dc5518425e06c30553b83611807760c3505caee6bc0198cd04
@@ -20,3 +42,11 @@ T035:
     show a complete `generate_final_report` implementation that writes a JSON file
     with the required phrase. Moreover, the expected output file `data/results/final_report.json`
     is absent. Both the artifact and its content required by the task are missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, refactored scripts, or performance logs were supplied; without artifacts\
+    \ showing the RAM usage and runtime after cleanup, we cannot confirm that the\
+    \ code meets the \u22647\u202FGB RAM and \u22646\u202Fhour runtime constraints.\
+    \ The required evidence (e.g., updated source files, profiling output, or benchmark\
+    \ reports) is missing."

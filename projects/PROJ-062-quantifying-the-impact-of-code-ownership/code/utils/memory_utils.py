@@ -1,126 +1,211 @@
 """
-Memory management utilities for the project.
-Ensures peak RAM usage stays within 7 GB limit (FR-007).
-"""
+Memory utilities for the Code Ownership Impact Analysis pipeline.
 
+Provides functions to monitor, optimize, and guard against memory overflows
+to ensure the pipeline stays within the 7GB RAM constraint (T042).
+"""
 import gc
 import os
 import sys
 import logging
-from typing import Optional, Callable, Any
-from pathlib import Path
+import time
+from typing import Optional, Callable, Any, List, Dict
+import psutil
 
-from .logging_utils import get_logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-# Memory limit in MB (7 GB)
-MEMORY_LIMIT_MB = 7 * 1024
+# Constants
+MEMORY_LIMIT_MB = 7 * 1024  # 7 GB in MB
 
 def get_current_memory_mb() -> float:
     """
-    Get current memory usage in MB.
+    Get the current memory usage of the current process in MB.
     
     Returns:
-        Current memory usage in MB
+        float: Current memory usage in MB.
     """
-    try:
-        import resource
-        # Get memory usage of current process
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On macOS, ru_maxrss is in bytes; on Linux, it's in KB
-        if sys.platform == 'darwin':
-            return mem / (1024 * 1024)
-        else:
-            return mem / 1024
-    except ImportError:
-        # Fallback for Windows or if resource module unavailable
-        logger.warning("resource module not available, using psutil fallback")
-        try:
-            import psutil
-            process = psutil.Process(os.getpid())
-            return process.memory_info().rss / (1024 * 1024)
-        except ImportError:
-            logger.error("Neither resource nor psutil available for memory measurement")
-            return 0.0
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / (1024 * 1024)
 
-def check_memory_limit(limit_mb: float = MEMORY_LIMIT_MB) -> bool:
+def check_memory_limit(current_mb: Optional[float] = None, limit_mb: float = MEMORY_LIMIT_MB) -> bool:
     """
-    Check if current memory usage is within limit.
+    Check if current memory usage is within the specified limit.
     
     Args:
-        limit_mb: Memory limit in MB
-    
+        current_mb: Current memory usage in MB. If None, fetched automatically.
+        limit_mb: Memory limit in MB (default 7GB).
+        
     Returns:
-        True if within limit, False otherwise
+        bool: True if within limit, False otherwise.
     """
-    current = get_current_memory_mb()
-    if current > limit_mb:
-        logger.warning(f"Memory usage {current:.1f}MB exceeds limit {limit_mb:.1f}MB")
+    if current_mb is None:
+        current_mb = get_current_memory_mb()
+    
+    if current_mb > limit_mb:
+        logger.warning(f"Memory usage {current_mb:.2f} MB exceeds limit {limit_mb:.2f} MB")
         return False
     return True
 
-def force_gc() -> None:
-    """Force garbage collection."""
+def force_gc():
+    """Force garbage collection to free up memory."""
+    logger.debug("Forcing garbage collection...")
     gc.collect()
-    logger.debug("Forced garbage collection")
+    logger.debug("Garbage collection complete.")
 
-def clear_memory() -> None:
-    """
-    Clear memory by forcing GC and removing references.
-    Should be called between repository processing iterations.
-    """
+def clear_memory():
+    """Attempt to clear memory by running GC and clearing internal caches."""
     force_gc()
-    logger.debug(f"Memory cleared. Current usage: {get_current_memory_mb():.1f}MB")
+    # Clear Python's internal free lists
+    if hasattr(gc, 'callbacks'):
+        # In some Python versions, we can trigger more aggressive cleanup
+        pass
+    logger.info("Memory cleared.")
 
-def process_repository_batch(func: Callable) -> Callable:
+def optimize_large_dataframe(df):
     """
-    Decorator to process repositories with memory management.
+    Optimize the memory usage of a pandas DataFrame.
     
-    Ensures memory is cleared after each repository processing.
+    This function downcasts numeric types and converts object columns to categories
+    where appropriate to reduce memory footprint.
     
     Args:
-        func: Function that processes a repository
-    
+        df: pandas DataFrame to optimize.
+        
     Returns:
-        Wrapped function with memory management
+        pandas DataFrame: Optimized DataFrame.
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        try:
-            result = func(*args, **kwargs)
-            return result
-        finally:
-            # Clear memory after processing
-            clear_memory()
-            # Check if we're over limit
-            if not check_memory_limit():
-                logger.error("Memory limit exceeded after repository processing")
+    try:
+        import pandas as pd
+        import numpy as np
+    except ImportError:
+        logger.error("pandas and numpy are required for DataFrame optimization.")
+        return df
+
+    initial_mem = df.memory_usage(deep=True).sum() / (1024 * 1024)
+    logger.debug(f"Initial DataFrame memory: {initial_mem:.2f} MB")
+
+    for col in df.columns:
+        col_type = df[col].dtype
+
+        if pd.api.types.is_numeric_dtype(col_type):
+            c_min = df[col].min()
+            c_max = df[col].max()
+
+            if pd.api.types.is_integer_dtype(col_type):
+                if c_min >= np.iinfo(np.int8).min and c_max <= np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min >= np.iinfo(np.int16).min and c_max <= np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min >= np.iinfo(np.int32).min and c_max <= np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                else:
+                    df[col] = df[col].astype(np.int64)
+            else:
+                if c_min >= np.finfo(np.float16).min and c_max <= np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min >= np.finfo(np.float32).min and c_max <= np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+        elif pd.api.types.is_object_dtype(col_type):
+            # Try to convert to category if unique values are low
+            num_unique = df[col].nunique()
+            num_total = len(df[col])
+            if num_unique / num_total < 0.5 and num_unique > 0:
+                df[col] = df[col].astype('category')
+
+    final_mem = df.memory_usage(deep=True).sum() / (1024 * 1024)
+    logger.debug(f"Optimized DataFrame memory: {final_mem:.2f} MB (Saved {initial_mem - final_mem:.2f} MB)")
+    return df
+
+def memory_limit_guard(func: Callable) -> Callable:
+    """
+    Decorator to enforce memory limits on a function.
     
+    If the function exceeds the memory limit, it will log a warning and force GC.
+    If the memory remains too high after GC, it raises a MemoryError.
+    
+    Args:
+        func: Function to wrap.
+        
+    Returns:
+        Callable: Wrapped function.
+    """
+    def wrapper(*args, **kwargs):
+        start_mem = get_current_memory_mb()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_mem = get_current_memory_mb()
+            if end_mem - start_mem > MEMORY_LIMIT_MB * 0.5:
+                logger.warning(f"Function {func.__name__} caused a large memory spike: {end_mem - start_mem:.2f} MB")
+                force_gc()
+                if not check_memory_limit():
+                    raise MemoryError(f"Memory limit exceeded after function {func.__name__}")
     return wrapper
 
-# Import wraps here to avoid circular dependency
-from functools import wraps
-
-def memory_limit_decorator(limit_mb: float = MEMORY_LIMIT_MB) -> Callable:
+def process_repository_batch(repos: List[str], process_func: Callable) -> Dict[str, Any]:
     """
-    Decorator to enforce memory limit on a function.
+    Process a batch of repositories with memory monitoring.
     
     Args:
-        limit_mb: Memory limit in MB
+        repos: List of repository identifiers.
+        process_func: Function to process a single repository.
+        
+    Returns:
+        Dict: Results of the batch processing.
+    """
+    results = {}
+    for repo in repos:
+        if not check_memory_limit():
+            logger.error(f"Memory limit reached before processing {repo}. Stopping batch.")
+            break
+        
+        try:
+            logger.info(f"Processing {repo}...")
+            results[repo] = process_func(repo)
+            # Force GC after each repo to prevent accumulation
+            force_gc()
+        except Exception as e:
+            logger.error(f"Error processing {repo}: {e}")
+            results[repo] = {"error": str(e)}
+    
+    return results
+
+def process_single_repository(repo: str, process_func: Callable) -> Any:
+    """
+    Process a single repository with memory monitoring.
+    
+    Args:
+        repo: Repository identifier.
+        process_func: Function to process the repository.
+        
+    Returns:
+        Any: Result of the processing function.
+    """
+    if not check_memory_limit():
+        raise MemoryError(f"Memory limit exceeded before processing {repo}")
+    
+    start_mem = get_current_memory_mb()
+    try:
+        return process_func(repo)
+    finally:
+        end_mem = get_current_memory_mb()
+        logger.debug(f"Processed {repo}. Memory delta: {end_mem - start_mem:.2f} MB")
+        force_gc()
+
+def get_peak_memory_mb() -> float:
+    """
+    Get the peak memory usage of the current process.
     
     Returns:
-        Decorator function
+        float: Peak memory usage in MB.
     """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            if not check_memory_limit(limit_mb):
-                raise MemoryError(f"Memory limit {limit_mb}MB exceeded before {func.__name__}")
-            
-            try:
-                return func(*args, **kwargs)
-            finally:
-                clear_memory()
-        return wrapper
-    return decorator
+    try:
+        import resource
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
+    except AttributeError:
+        # Fallback for Windows
+        process = psutil.Process(os.getpid())
+        return process.memory_info().peak_wset / (1024 * 1024)

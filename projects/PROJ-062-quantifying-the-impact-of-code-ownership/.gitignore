@@ -2,34 +2,59 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.python-version
+*.so
+.Python
+env/
 venv/
-.venv/
-
-# Data (Raw and Intermediate are ignored per T009, ownership_metrics are kept)
-data/raw/
-data/intermediate/
-!data/ownership_metrics/
-data/ownership_metrics/*.csv
-!data/ownership_metrics/*_ownership.csv
-
-# Logs and State
-logs/
-.log
-state/
-!state/*.yaml
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Build
-dist/
-build/
-*.egg-info/
+# Data (Raw and Intermediate CSVs, but NOT raw_ownership_*.csv per T021)
+data/raw/*
+data/intermediate/*.csv
+!data/intermediate/raw_ownership_*.csv
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Misc
+.env
+.venv
+*.bak
+*.tmp

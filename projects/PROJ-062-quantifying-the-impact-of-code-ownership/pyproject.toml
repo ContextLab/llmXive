@@ -1,50 +1,16 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-quantifying-code-ownership"
-version = "0.1.0"
-description = "Automated science pipeline for quantifying code ownership impact"
-requires-python = ">=3.11"
-dependencies = [
-    "GitPython>=3.1.0",
-    "scikit-learn>=1.3.0",
-    "scipy>=1.11.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "radon>=6.0.0",
-    "matplotlib>=3.7.0",
-    "pyyaml>=6.0",
-    "requests>=2.31.0",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["code", "tests", "utils"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
