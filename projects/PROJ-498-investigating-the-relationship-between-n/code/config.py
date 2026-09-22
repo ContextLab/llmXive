@@ -1,31 +1,39 @@
 import os
 from pathlib import Path
 
-def ensure_directories():
-    """
-    Create all necessary directories for the project.
-    """
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/metrics",
-        "data/trial_level",
-        "logs",
-        "contracts"
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+METRICS_DIR = DATA_DIR / "metrics"
+TRIAL_LEVEL_DIR = DATA_DIR / "trial_level"
+LOGS_DIR = PROJECT_ROOT / "logs"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-# Configuration constants
+# Hyperparameters
 BANDPASS_LOW = 1.0
 BANDPASS_HIGH = 45.0
-EPOCH_TMIN = -1.0  # -1000ms
-EPOCH_TMAX = 2.0   # +2000ms
-PRE_STIM = 0.0
-NOTCH_FREQS = [50, 60]
-ICA_KURTOSIS_THRESHOLD = 5.0
-ICA_SPECTRAL_PEAK_THRESHOLD = 30.0
-MIN_TRIALS_PER_CONDITION = 10
-MAX_ARTIFACT_REMOVAL_RATIO = 0.5
+EPOCH_TMIN = -1.0
+EPOCH_TMAX = 2.0
+PRE_STIM_TMIN = -0.5
+PRE_STIM_TMAX = 0.0
+THETA_BAND = (4, 7)
+GAMMA_BAND = (30, 45)
 MEMORY_LIMIT_GB = 6.5
-TIMEOUT_HOURS = 4
+TIMEOUT_HOURS = 6
+
+def ensure_directories():
+    """Create all necessary directories if they don't exist."""
+    dirs = [DATA_DIR, RAW_DIR, PROCESSED_DIR, METRICS_DIR, TRIAL_LEVEL_DIR, LOGS_DIR, CONTRACTS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    # Ensure subdirectories for processed data
+    (PROCESSED_DIR / "band_filtered").mkdir(parents=True, exist_ok=True)
+    (PROCESSED_DIR / "epochs").mkdir(parents=True, exist_ok=True)
+
+def main():
+    ensure_directories()
+    print("Directories ensured.")
+
+if __name__ == "__main__":
+    main()

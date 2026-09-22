@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T15:26:30.697068Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-498-investigating-the-relationship-between-n
-last_run_id: 7e09bca1-254b-4e85-a611-b7e796a96a6a
+last_run_id: 5b3c472f-408b-482a-8c45-faaf066299c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n
 title: Investigating the Relationship Between Neural Synchrony and Attention Switching
   Costs
-updated_at: '2026-09-20T15:58:14.629711Z'
+updated_at: '2026-09-22T18:55:11.859744Z'

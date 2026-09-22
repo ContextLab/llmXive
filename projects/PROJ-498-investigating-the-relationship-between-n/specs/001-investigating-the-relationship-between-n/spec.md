@@ -9,7 +9,7 @@
 
 ### User Story 1 - Preprocess and Epoch Public Task-Switching EEG Data (Priority: P1)
 
-The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and preprocesses it to create clean, time-locked epochs suitable for analysis. This includes bandpass filtering (1–45 Hz), ICA-based artifact removal, and epoching around stimulus onset (-1000ms to +2000ms).
+The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and preprocesses it to create clean, time-locked epochs suitable for analysis. This includes bandpass filtering (low-frequency cutoff to 45 Hz), ICA-based artifact removal, and epoching around stimulus onset (-1000ms to +2000ms).
 
 **Why this priority**: This is the foundational step; without clean, correctly epoch-aligned data, no synchrony or behavioral analysis can occur. It validates the data pipeline's ability to handle the specific dataset constraints on a CPU-only environment.
 
@@ -25,11 +25,11 @@ The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and
 
 ### User Story 2 - Compute Pre-Stimulus Frontoparietal Synchrony Metrics (Priority: P2)
 
-The researcher calculates Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs (approximating DLPFC and parietal cortex) in the pre-stimulus window (-500ms to 0ms) for theta (4–7 Hz) and gamma (30–45 Hz) bands.
+The researcher calculates Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs (approximating DLPFC and parietal cortex) in a pre-stimulus baseline window relative to stimulus onset for theta (4–7 Hz) and gamma (30–45 Hz) bands.
 
 **Why this priority**: This is the core predictor generation. It transforms raw signals into the specific metric hypothesized to predict behavior. It must run without GPU acceleration.
 
-**Independent Test**: Can be fully tested by computing PLV on a synthetic signal with known phase relationships and verifying the output matches the theoretical expectation within a tolerance of 0.05.
+**Independent Test**: Can be fully tested by computing PLV on a synthetic signal with known phase relationships and verifying the output matches the theoretical expectation within an acceptable tolerance.
 
 **Acceptance Scenarios**:
 
@@ -70,7 +70,7 @@ The researcher computes attention switching costs (RT_switch - RT_stay) per subj
 - **FR-002**: System MUST apply a 1–45 Hz bandpass filter and perform ICA-based artifact removal on the EEG data before epoching, rejecting components with kurtosis > 5 or spectral peaks > 30 Hz. (See US-1)
 - **FR-003**: System MUST compute Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs in the -500ms to 0ms pre-stimulus window for theta (4–7 Hz) and gamma (30–45 Hz) bands. (See US-2)
 - **FR-004**: System MUST calculate the attention switching cost for each subject as the mean reaction time difference between switch and stay trials. (See US-3)
-- **FR-005**: System MUST execute the final correlation analysis using 1000 permutations to assess significance and apply a multiple-comparison correction for the number of frequency bands tested. (See US-3)
+- **FR-005**: System MUST execute the final correlation analysis using a sufficient number of permutations to assess significance and apply a multiple-comparison correction for the number of frequency bands tested. (See US-3)
 - **FR-006**: System MUST run entirely on CPU without requiring CUDA, 8-bit quantization, or GPU acceleration. (See US-1, US-2, US-3)
 - **FR-007**: System MUST execute a sensitivity analysis by re-running the primary correlation with pre-stimulus windows shifted to [-600ms, 0ms] and [-400ms, 0ms], verifying stability of results. (See US-3)
 - **FR-008**: System MUST report all findings as associational rather than causal in the final output. (See US-3)

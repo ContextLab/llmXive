@@ -1,3 +1,36 @@
+T012:
+  c: false
+  h: 3b08708596443c1056d4f0f7737ad0f881d035527f0f782ddf8984cb1265b48c
+  r: The provided `code/download.py` is incomplete (truncated) and does not show the
+    logic for saving the selected dataset ID, generating a gap report adhering to
+    the schema, logging to `logs/processing.log`, or halting execution as required.
+    Additionally, the expected output files `data/selected_dataset_id.txt` and `data/data_gap_report.json`
+    are absent. The implementation therefore does not satisfy the task specifications.
+T014:
+  c: false
+  h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
+  r: "The provided `code/preprocess.py` does not implement the required band\u2011\
+    pass filter with a lower cutoff of\u202F45\u202FHz (it uses 1\u202FHz\u202F\u2013\
+    \u202F45\u202FHz), lacks any memory\u2011monitoring logic with `psutil`, and does\
+    \ not write a `data/metrics/memory_profile.json` file (the file is missing). Consequently\
+    \ the task\u2019s core requirements are not satisfied."
+T015:
+  c: false
+  h: f10ee34c7736fa9ba0863e5ee070e0bf187b1fa2253ecfff7dbbdf37ad29dd77
+  r: "The repository contains a partially\u2011implemented `code/preprocess.py` that\
+    \ stops mid\u2011function and never writes `data/processed/ica_components.csv`.\
+    \ The required CSV file is absent, and the ICA removal logic does not actually\
+    \ compute kurtosis or spectral peaks nor record rejected component IDs. The task\
+    \ therefore remains unfinished."
+T016:
+  c: false
+  h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
+  r: "The repository contains a `code/preprocess.py` file, but it is truncated, lacks\
+    \ any RSS monitoring with `psutil`, and does not include the required `try/finally`\
+    \ block that writes `data/metrics/memory_profile.json` when peak RSS exceeds 6.5\u202F\
+    GB. Moreover, the `data/metrics/memory_profile.json` file is missing entirely.\
+    \ Consequently, the task\u2019s memory\u2011constraint and verification requirements\
+    \ are not satisfied."
 T017:
   c: false
   h: c81d42818e5d1042ded484090b5050cd21dacac35d8404208257c232d0c5b8a7
@@ -7,22 +40,6 @@ T017:
     and to record them with the appropriate reason is therefore not demonstrated.
     The artifact file must contain rows with `subject_id` and `reason` for any subjects
     meeting the exclusion criteria.
-T018b:
-  c: false
-  h: 9fd3a1db87a19e96adcebf8958b0f6814cd6d088ea7dd00a14afea034479bc73
-  r: The `code/main.py` contains a timeout check and calls `save_runtime_log`, but
-    the required output file `data/metrics/runtime_log.json` is missing, and there
-    is no evidence that the logger is configured to write to `logs/processing.log`.
-    The implementation must create/write the JSON runtime log and ensure the processing
-    log receives the timeout entry.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No runtime logs, benchmark scripts, or measured execution times are provided\
-    \ to demonstrate that the synchrony computation finishes within 30\u202Fminutes\
-    \ per subject on a CPU. Without concrete evidence (e.g., timing output, profiling\
-    \ reports, or reproducible code showing the elapsed time), the requirement cannot\
-    \ be verified."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,21 +47,14 @@ T033:
     for the theta and gamma band analyses is present. The provided information only
     restates the feature specification without delivering the required artifact, so
     the task is not satisfied.
-T034:
-  c: false
-  h: 934d971b7035067c129d7959233c9a71dca6f1fa28656e085d8e713ac215f142
-  r: "The repository lacks the required `data/metrics/sensitivity_report.json` file,\
-    \ and the provided `code/analysis.py` does not contain any implementation of the\
-    \ described sensitivity analysis (re\u2011computing correlations for windows [-600,\u202F\
-    0] and [-400,\u202F0], checking r\u2011change\u202F<\u202F0.1 and p\u202F<\u202F\
-    0.05, and writing the results to the JSON). The task therefore remains unfinished."
 T041:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README file or its contents were provided; without the `projects/PROJ-498-investigating-the-relationship-between-n/README.md`\
-    \ showing the claimed documentation updates, we cannot verify that the required\
-    \ documentation change was made. The implementer must supply the updated README\
-    \ file (non\u2011empty) containing the new documentation."
+  h: 50a969f20ac348221b5f2eff77b068a9d7abc8d0eb6ea841c586ce441aec6faa
+  r: "The repository does not contain a `projects/PROJ-498-investigating-the-relationship-between-n/README.md`\
+    \ file with the required \u201CUsage\u201D section, nor any evidence that such\
+    \ a section was added. Additionally, the referenced `data/selected_dataset_id.txt`\
+    \ file is missing, which contradicts the claim that the command runs without manual\
+    \ dataset ID. The documentation update therefore has not been provided."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-498-investigating-the-relationship-between-n",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/exclusion_tracker.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026lusions_path)          # Mock data for demonstration     su\u2026\u201d; 2 command(s) failed: python code/main.py --dataset ds004173 --output data/results (rc=1); python code/main.py --dataset ds004173 --subject sub-01 --quick (rc=1); 3 declared deliverable(s) absent: data/data_gap_report.json; data/metrics/memory_profile.json; data/metrics/synchrony_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --dataset ds004173 --output data/results -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py\", line 14, in <module>\n    from preprocess import process_subject, get_subject_ids, get_subject_trials_per_condition\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/preprocess.py\", line 18, in <module>\n    from exclusion_logic import run_exclusion_check, MIN_TRIALS_PER_CONDITION, MAX_ARTIFACT_REMOVAL_RATIO\n  File \"/hom",
+    "python code/main.py --dataset ds004173 --subject sub-01 --quick -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/main.py\", line 14, in <module>\n    from preprocess import process_subject, get_subject_ids, get_subject_trials_per_condition\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-498-investigating-the-relationship-between-n/code/preprocess.py\", line 18, in <module>\n    from exclusion_logic import run_exclusion_check, MIN_TRIALS_PER_CONDITION, MAX_ARTIFACT_REMOVAL_RATIO\n  File \"/"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-22T18:43:42Z"
+}
