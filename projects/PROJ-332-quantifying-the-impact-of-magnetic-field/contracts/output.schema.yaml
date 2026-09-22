@@ -1,31 +1,28 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Output Schema
-description: Schema for the final statistical analysis output.
 type: object
 properties:
   r:
     type: number
-    description: Spearman correlation coefficient.
   p_value:
     type: number
-    description: P-value for the correlation test.
   ci_lower:
     type: number
-    description: Lower bound of the 95% confidence interval.
   ci_upper:
     type: number
-    description: Upper bound of the 95% confidence interval.
   power:
     type: number
-    description: Statistical power of the test.
   hypothesis_status:
     type: string
-    description: Status of the hypothesis test (e.g., 'Supported', 'Not Supported', 'Inconclusive').
+    enum: ["Supported", "Not Supported", "Inconclusive due to low power"]
   warning_flags:
     type: array
     items:
       type: string
-    description: List of warning flags generated during analysis.
+  stratification_warning:
+    type: string
+    nullable: true
+  collinearity_flag:
+    type: boolean
+    default: false
 required:
   - r
   - p_value

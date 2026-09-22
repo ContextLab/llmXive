@@ -1,1 +1,3 @@
-"""Visualization module for llmXive research pipeline."""
+"""
+Visualization package.
+"""

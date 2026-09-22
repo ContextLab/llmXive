@@ -1,270 +1,189 @@
 """
-Resource limits and timeout management utilities.
+Utility module for enforcing system limits (timeouts, memory) on operations.
 
-This module provides decorators and context managers for enforcing execution
-timeouts and memory limits on functions and code blocks. It uses signal-based
-timeout handling and resource usage monitoring to prevent runaway processes.
-
-Functions:
-    timeout_guard: Decorator that enforces a maximum execution time.
-    timeout_context: Context manager for timeout enforcement within a block.
-    get_memory_usage_mb: Get current memory usage in megabytes.
-    check_memory_usage: Check if memory usage exceeds a threshold.
-    memory_guard: Decorator that enforces a maximum memory limit.
-
-Exceptions:
-    TimeoutError: Raised when execution exceeds the specified timeout.
-    MemoryLimitError: Raised when memory usage exceeds the specified limit.
+This module implements the internal timeout wrapper required by FR-007,
+using signal handling to abort long-running operations immediately.
 """
 
 import os
 import signal
 import sys
 import resource
+import logging
 from functools import wraps
 from contextlib import contextmanager
-from typing import Callable, Optional, Any
-import logging
+from typing import Callable, Any, Optional
+from pathlib import Path
+
+# Import the configurable timeout constant
+from code.config import PER_OPERATION_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
-
 class TimeoutError(Exception):
-    """
-    Exception raised when a function or code block exceeds its execution timeout.
-
-    Attributes:
-        message: Description of the timeout error.
-        elapsed_time: Approximate time elapsed before timeout (if available).
-    """
-
-    def __init__(self, message: str = "Execution timeout exceeded", elapsed_time: Optional[float] = None):
-        self.message = message
-        self.elapsed_time = elapsed_time
-        super().__init__(self.message)
-
+    """Exception raised when an operation exceeds its timeout limit."""
+    pass
 
 class MemoryLimitError(Exception):
+    """Exception raised when an operation exceeds its memory limit."""
+    pass
+
+def timeout_guard(func: Callable, timeout: Optional[int] = None):
     """
-    Exception raised when memory usage exceeds the specified limit.
+    Decorator to enforce a timeout on a function using signal handling.
 
-    Attributes:
-        message: Description of the memory limit error.
-        current_usage_mb: Current memory usage in megabytes.
-        limit_mb: The configured memory limit in megabytes.
-    """
-
-    def __init__(self, message: str = "Memory limit exceeded", current_usage_mb: float = 0.0, limit_mb: float = 0.0):
-        self.message = message
-        self.current_usage_mb = current_usage_mb
-        self.limit_mb = limit_mb
-        super().__init__(self.message)
-
-
-def timeout_guard(seconds: int, error_message: Optional[str] = None) -> Callable:
-    """
-    Decorator that enforces a maximum execution time on a function.
-
-    This decorator uses signal-based timeout handling to interrupt and abort
-    functions that exceed the specified time limit. It is effective for CPU-bound
-    operations but has limitations with I/O-bound or blocking operations.
+    This implements the "immediate abort" constraint for slow operations like
+    network retries. If the function takes longer than the specified timeout,
+    a TimeoutError is raised.
 
     Args:
-        seconds: Maximum allowed execution time in seconds.
-        error_message: Optional custom error message. If None, a default message is used.
+        func: The function to wrap.
+        timeout: Timeout in seconds. If None, uses PER_OPERATION_TIMEOUT from config.
 
     Returns:
-        A decorated function that will raise TimeoutError if it exceeds the time limit.
-
-    Raises:
-        TimeoutError: If the function execution exceeds the specified timeout.
-        ValueError: If seconds is not a positive integer.
-
-    Example:
-        >>> @timeout_guard(10)
-        ... def long_running_task():
-        ...     time.sleep(15)
-        >>> try:
-        ...     long_running_task()
-        ... except TimeoutError as e:
-        ...     print(f"Task timed out: {e}")
+        Wrapped function that enforces the timeout.
     """
-    if seconds <= 0:
-        raise ValueError("Timeout duration must be a positive integer.")
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Determine the timeout threshold
+        operation_timeout = timeout if timeout is not None else PER_OPERATION_TIMEOUT
 
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            # Set up the signal handler
-            def timeout_handler(signum, frame):
-                raise TimeoutError(
-                    error_message or f"Function '{func.__name__}' exceeded timeout of {seconds} seconds"
-                )
+        # Define the signal handler
+        def handler(signum, frame):
+            raise TimeoutError(
+                f"Operation '{func.__name__}' exceeded timeout of {operation_timeout}s"
+            )
 
-            # Store the old handler
-            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+        # Set the signal handler for SIGALRM
+        # Note: SIGALRM is only available on Unix-like systems
+        if sys.platform.startswith('win'):
+            logger.warning(
+                "Signal-based timeouts are not supported on Windows. "
+                "The timeout_guard decorator will be skipped."
+            )
+            return func(*args, **kwargs)
 
-            try:
-                # Set the alarm
-                signal.alarm(seconds)
-                result = func(*args, **kwargs)
-                return result
-            finally:
-                # Cancel the alarm and restore the old handler
-                signal.alarm(0)
-                signal.signal(signal.SIGALRM, old_handler)
+        old_handler = signal.signal(signal.SIGALRM, handler)
+        # Set the alarm
+        signal.alarm(operation_timeout)
 
-        return wrapper
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            # Cancel the alarm
+            signal.alarm(0)
+            # Restore the old handler
+            signal.signal(signal.SIGALRM, old_handler)
 
-    return decorator
+        return result
 
+    return wrapper
 
 @contextmanager
-def timeout_context(seconds: int, error_message: Optional[str] = None):
+def timeout_context(timeout: Optional[int] = None):
     """
-    Context manager for enforcing a timeout on a code block.
-
-    This context manager uses signal-based timeout handling to interrupt
-    code blocks that exceed the specified time limit.
+    Context manager to enforce a timeout on a block of code.
 
     Args:
-        seconds: Maximum allowed execution time in seconds.
-        error_message: Optional custom error message. If None, a default message is used.
+        timeout: Timeout in seconds. If None, uses PER_OPERATION_TIMEOUT from config.
 
     Yields:
         None
 
     Raises:
-        TimeoutError: If the code block execution exceeds the specified timeout.
-
-    Example:
-        >>> with timeout_context(10):
-        ...     # This code block must complete within 10 seconds
-        ...     perform_long_operation()
+        TimeoutError: If the block exceeds the timeout.
     """
-    if seconds <= 0:
-        raise ValueError("Timeout duration must be a positive integer.")
+    operation_timeout = timeout if timeout is not None else PER_OPERATION_TIMEOUT
 
-    def timeout_handler(signum, frame):
+    if sys.platform.startswith('win'):
+        logger.warning(
+            "Signal-based timeouts are not supported on Windows. "
+            "The timeout_context will be skipped."
+        )
+        yield
+        return
+
+    def handler(signum, frame):
         raise TimeoutError(
-            error_message or f"Code block exceeded timeout of {seconds} seconds"
+            f"Code block exceeded timeout of {operation_timeout}s"
         )
 
-    old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+    old_handler = signal.signal(signal.SIGALRM, handler)
+    signal.alarm(operation_timeout)
 
     try:
-        signal.alarm(seconds)
         yield
     finally:
         signal.alarm(0)
         signal.signal(signal.SIGALRM, old_handler)
 
-
 def get_memory_usage_mb() -> float:
     """
-    Get the current memory usage of the process in megabytes.
-
-    This function uses the `resource` module to retrieve the maximum resident
-    set size (RSS) of the current process.
+    Get the current memory usage of the process in MB.
 
     Returns:
-        Current memory usage in megabytes.
-
-    Note:
-        On some platforms, this may return the peak memory usage rather than
-        the current usage.
+        Memory usage in megabytes.
     """
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in kilobytes on Linux, but bytes on some other platforms
-    # We assume Linux/Unix behavior (kilobytes)
-    maxrss_kb = usage.ru_maxrss
-    return maxrss_kb / 1024.0
+    if sys.platform.startswith('win'):
+        # Windows-specific memory usage (approximate)
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / (1024 * 1024)
+        except ImportError:
+            return 0.0
+    else:
+        # Unix-like systems
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in kilobytes on Linux, but bytes on some other systems
+        # Convert to MB
+        maxrss = usage.ru_maxrss
+        if sys.platform == 'darwin':
+            # macOS reports in bytes
+            return maxrss / (1024 * 1024)
+        else:
+            # Linux reports in kilobytes
+            return maxrss / 1024.0
 
-
-def check_memory_usage(limit_mb: float) -> bool:
+def check_memory_usage(limit_gb: float = 7.0) -> bool:
     """
-    Check if the current memory usage is below a specified limit.
+    Check if current memory usage is within the specified limit.
 
     Args:
-        limit_mb: Memory limit in megabytes.
+        limit_gb: Memory limit in gigabytes.
 
     Returns:
-        True if current usage is below the limit, False otherwise.
-
-    Example:
-        >>> if check_memory_usage(4096):
-        ...     print("Memory usage is acceptable")
-        ... else:
-        ...     print("Memory usage too high")
+        True if within limit, False otherwise.
     """
-    current_usage = get_memory_usage_mb()
-    return current_usage < limit_mb
+    current_mb = get_memory_usage_mb()
+    limit_mb = limit_gb * 1024
+    return current_mb <= limit_mb
 
-
-def memory_guard(limit_mb: float, error_message: Optional[str] = None) -> Callable:
+def memory_guard(func: Callable, limit_gb: float = 7.0):
     """
-    Decorator that enforces a maximum memory limit on a function.
-
-    This decorator periodically checks memory usage during function execution
-    and raises a MemoryLimitError if the limit is exceeded.
-
-    Note:
-        This is a best-effort check and may not catch rapid memory spikes
-        between checks. For strict memory limits, consider using cgroups
-        or similar OS-level controls.
+    Decorator to enforce a memory limit on a function.
 
     Args:
-        limit_mb: Maximum allowed memory usage in megabytes.
-        error_message: Optional custom error message. If None, a default message is used.
+        func: The function to wrap.
+        limit_gb: Memory limit in gigabytes.
 
     Returns:
-        A decorated function that will raise MemoryLimitError if it exceeds the limit.
-
-    Raises:
-        MemoryLimitError: If memory usage exceeds the specified limit.
-        ValueError: If limit_mb is not a positive number.
-
-    Example:
-        >>> @memory_guard(2048)
-        ... def memory_intensive_task():
-        ...     data = [0] * 10000000
-        ...     return sum(data)
+        Wrapped function that checks memory usage.
     """
-    if limit_mb <= 0:
-        raise ValueError("Memory limit must be a positive number.")
-
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            # Check memory before execution
-            if not check_memory_usage(limit_mb):
-                current_usage = get_memory_usage_mb()
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            # Check memory after execution
+            if not check_memory_usage(limit_gb):
                 raise MemoryLimitError(
-                    error_message or f"Memory usage ({current_usage:.2f} MB) exceeds limit ({limit_mb} MB) before execution",
-                    current_usage_mb=current_usage,
-                    limit_mb=limit_mb
+                    f"Operation '{func.__name__}' exceeded memory limit of {limit_gb}GB. "
+                    f"Current usage: {get_memory_usage_mb():.2f}MB"
                 )
-
-            try:
-                result = func(*args, **kwargs)
-                # Check memory after execution
-                if not check_memory_usage(limit_mb):
-                    current_usage = get_memory_usage_mb()
-                    raise MemoryLimitError(
-                        error_message or f"Memory usage ({current_usage:.2f} MB) exceeds limit ({limit_mb} MB) after execution",
-                        current_usage_mb=current_usage,
-                        limit_mb=limit_mb
-                    )
-                return result
-            except MemoryLimitError:
-                raise
-            except Exception as e:
-                # Check memory even if an exception occurred
-                current_usage = get_memory_usage_mb()
-                if current_usage > limit_mb:
-                    logger.warning(f"Memory usage ({current_usage:.2f} MB) exceeded limit ({limit_mb} MB) during error handling")
-                raise
-
-        return wrapper
-
-    return decorator
+            return result
+        except MemoryLimitError:
+            raise
+        except Exception as e:
+            # Re-raise other exceptions
+            raise
+    return wrapper

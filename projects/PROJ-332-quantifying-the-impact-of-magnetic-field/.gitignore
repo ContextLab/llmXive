@@ -1,77 +1,82 @@
 # Python
 __pycache__/
 *.py[cod]
-*.$py
-*.pyo
-*.pyw
-*.pyi
-.eggs/
-*.egg-info/
-*.egg
-dist/
+*$py.class
+*.so
+.Python
 build/
-.pytest_cache/
-.mypy_cache/
-.venv/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
 venv/
 ENV/
 env/
-.env
+.venv
 
-# IDE and Editors
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .project
-.python-version
+.pydevproject
+.settings/
 
-# OS
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS generated files
 .DS_Store
+.DS_Store?
+_Thumbs.db
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Data Artifacts (Raw and Processed)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/cache/
-data/downloads/
+data/raw/*.csv
+data/raw/*.nc
+data/raw/*.h5
+data/processed/*.csv
+data/processed/*.nc
+data/processed/*.h5
+data/processed/*.json
+data/processed/*.pkl
 
 # Output Artifacts
 outputs/*.json
 outputs/*.png
+outputs/*.pdf
 outputs/*.csv
-outputs/*.log
-figures/*.png
-figures/*.pdf
 
-# Logs
-logs/
+# Logs and Temporary Files
 *.log
-
-# Configuration and Secrets
-.env
-*.pem
-secrets/
-
-# Jupyter Notebooks (Optional - uncomment if not used)
-# *.ipynb_checkpoints/
-# .ipynb_checkpoints/
-
-# CI/CD
-.github/
-# Keep the workflow files but ignore generated artifacts
-.github/workflows/
-
-# Testing
+.cache/
+.pytest_cache/
 .coverage
-coverage.xml
 htmlcov/
-pytest-html/
+.mypy_cache/
 
-# Temporary files
-*.tmp
-temp/
-tmp/
+# MDSplus specific (if local cache used)
+.mdsplus/
+
+# Secrets and Configs (if not in repo)
+.env
+*.key
+*.pem

@@ -1,1 +1,3 @@
-# Schema contracts
+"""
+Contracts and schema definitions package.
+"""

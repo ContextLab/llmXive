@@ -191,3 +191,1010 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T12:44:59Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: configurable_duration value removal
+  claim_id: c_96a704d1
+  context: Rewritten passage regarding CI pipeline timeout configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configurable_duration_value_removal
+  kind: entity_fact
+  raw_text: 'The specific value to remove/generalize: ''configurable_duration'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:11:58Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: DIII-D discharge IDs 123456 to 123465
+  claim_id: c_d8120be6
+  context: Environment variables for the CI pipeline test data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DIII_D_DISCHARGES: "123456,123457,123458,123459,123460,123461,123462,123463,123464,123465"'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:14:01Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: PER_OPERATION_TIMEOUT default 300s
+  claim_id: c_ab54e407
+  context: Task T006a requirements for internal timeout wrapper.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PER_OPERATION_TIMEOUT_default_300s
+  kind: entity_fact
+  raw_text: Use a configurable constant PER_OPERATION_TIMEOUT (default 300s) defined
+    in code/config.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:14:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: H-mode classification threshold h98y2 0.85
+  claim_id: c_087e122a
+  context: Task T012 logic for calculating confinement_mode.
+  evidence:
+    asserted: '98.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Confinement mode is classified as 'H-mode' if h98y2 >= 0.85, else 'L-mode'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T21:14:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Rational surface tolerance 0.01
+  claim_id: c_25244c96
+  context: Task T018c logic for calculating resonant_surface_density.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify rational surfaces using tolerance |q - m/n| < 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:14:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Resonant surface density calculation method
+  claim_id: c_f3a90759
+  context: Task T018c description of density calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resonant_surface_density_calculation_method
+  kind: entity_fact
+  raw_text: Calculate resonant surface density by counting rational surfaces per unit
+    normalized minor radius (rho_tor)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:14:41Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Low power threshold 20% for |r|=0.5
+  claim_id: c_17db8c03
+  context: Task T028 Power Analysis requirements.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: =0.5
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Low_power_threshold_20%25_for_r_=0.5
+    source_value: https://en.wikipedia.org/wiki/Low_power_threshold_20%_for_r_=0.5
+    subject: Low power threshold 20% for
+  kind: relational
+  raw_text: Flag result as 'Inconclusive due to low power' if power < 20% to detect
+    |r|=0.5
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:15:13Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Power Analysis effect size 0.5 and alpha 0.05
+  claim_id: c_0680a3e1
+  context: Task T028 parameters for scipy.stats.zt_ind_solve_power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use effect_size=0.5 and alpha=0.05 for Power Analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:15:32Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Multicollinearity threshold default 0.95
+  claim_id: c_ce6271bb
+  context: Task T025b requirements for checking correlation between q_max - q_min
+    and resonant_surface_density.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use MULTICOLLINEARITY_THRESHOLD (configurable constant, default 0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:15:47Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Bootstrap random seed 42 and 1000 iterations
+  claim_id: c_133f249e
+  context: Task T025 requirements for Spearman correlation confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:16:11Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Stratification minimum sample size 3
+  claim_id: c_fbad7146
+  context: Task T025a logic for stratification by mode.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratification is skipped if N < 3 for either mode
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:16:11Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Memory footprint limit 7 GB
+  claim_id: c_6cde7d8b
+  context: Task T033a verification requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory footprint < 7 GB in CI environment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:16:11Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Execution time limit 6 hours
+  claim_id: c_926ab8f8
+  context: Task T033b verification requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 6 hours in CI environment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:16:11Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Synthetic test data N=20 and r=-0.7
+  claim_id: c_b19afa58
+  context: Task T032b test data specifications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create synthetic dataset with N=20, r=-0.7, Gaussian noise for integration
+    test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:17:16Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Test discharge IDs 123456, 123457, 123458
+  claim_id: c_f6b35d16
+  context: Task T032a test data specifications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use discharge IDs 123456, 123457, 123458 for data retrieval integration
+    test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:17:40Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: bootstrap with random seed 42 and 1000 iterations for reproducibility
+  claim_id: c_07703c63
+  context: 'T025 [US3] [FR-004] Implement Global Spearman rank correlation calculation
+    between island_width and tau_e. MUST include: 1. Bootstrap Resampling: Perform
+    bootstrap with random_seed=42 and bootstrap_iterations=1000 (minimum per Constitution
+    Principle VII)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000 to
+    ensure reproducibility and calculate confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:19:50Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: bootstrap with random seed 42 and 1000 iterations for density correlation
+  claim_id: c_4f387e58
+  context: T025c [US3] [FR-004] ...calculate correlation using the same bootstrap
+    parameters as T025 (random_seed=42, iterations=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:19:50Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: flag inconclusive if power less than 20% to detect correlation magnitude
+    0.5
+  claim_id: c_ea6b9660
+  context: T028 [US3] [FR-008] ...If power < 20% to detect |r|=0.5, flag result as
+    'Inconclusive due to low power' in the output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_inconclusive_if_power_less_than_20%25_to_detect_correlati
+  kind: magnitude
+  raw_text: Flag result as 'Inconclusive due to low power' if power is less than 20%
+    to detect |r|=0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:20:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: power analysis using effect size 0.5 and alpha 0.05
+  claim_id: c_b4e6f4dc
+  context: T028 [US3] [FR-008] ...Implement Power Analysis calculation using scipy.stats.zt_ind_solve_power
+    (or manual simulation) with effect_size=0.5, alpha=0.05, n=current-N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use effect_size=0.5 and alpha=0.05 for power analysis calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:20:48Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: exclude resonant surface density if correlation exceeds 0.95
+  claim_id: c_ec7e108f
+  context: T025b [US3] [FR-011] ...If correlation exceeds MULTICOLLINEARITY_THRESHOLD
+    (configurable constant, default 0.95), flag as collinear, exclude resonant_surface_density...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag as collinear and exclude resonant_surface_density if correlation
+    exceeds 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:21:35Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: count rational surfaces with tolerance 0.01 for resonant surface density
+  claim_id: c_5194978b
+  context: "T018c [US2] ...calculate resonant_surface_density by counting rational\
+    \ surfaces (q=m/n) per unit normalized minor radius (rho_tor) using the EFIT q-profile\
+    \ (m,n \u2208 \u2115\u207A, tolerance |q - m/n| < 0.01)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate resonant_surface_density by counting rational surfaces where
+    |q - m/n| < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:21:35Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: classify confinement mode as H-mode if h98y2 is at least 0.85
+  claim_id: c_51a20b81
+  context: T012 [US1] ...MUST explicitly calculate and store confinement_mode as 'H-mode'
+    if h98y2 >= 0.85, else 'L-mode'...
+  evidence:
+    asserted: '98.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: magnitude
+  raw_text: Classify confinement mode as 'H-mode' if h98y2 is greater than or equal
+    to 0.85, else 'L-mode'.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T21:21:35Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: skip stratification if sample size less than 3 per mode
+  claim_id: c_5e0aaa1a
+  context: 'T025a [US3] [FR-010] ...IF N < 3 for either, SKIP stratification, calculate
+    global correlation, and append warning flag: ''Stratification skipped: insufficient
+    samples per mode (N < 3)''...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_stratification_if_sample_size_less_than_3_per_mode
+  kind: magnitude
+  raw_text: Flag stratification as skipped if N is less than 3 for either mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:22:35Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: fail pipeline if fewer than 5 valid discharges
+  claim_id: c_fdab4bba
+  context: 'T015 [US1] Implement validation: ensure at least 5 valid discharges remain;
+    fail pipeline if fewer [FR-001] in code/main.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fail_pipeline_if_fewer_than_5_valid_discharges
+  kind: magnitude
+  raw_text: Fail pipeline if fewer than 5 valid discharges remain.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:23:23Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: verify memory footprint less than 7 GB
+  claim_id: c_74fa721f
+  context: T033a [P] Verify memory footprint < 7 GB in CI environment.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_memory_footprint_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify memory footprint is less than 7 GB in CI environment.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:23:45Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: verify execution time less than 6 hours
+  claim_id: c_01ad643a
+  context: T033b [P] Verify execution time < 6 hours in CI environment.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify execution time is less than 6 hours in CI environment.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:24:12Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: synthetic dataset with 20 samples and correlation -0.7
+  claim_id: c_814483c7
+  context: 'T032b [P] ...Test Data: Create a synthetic dataset with N=20, r=-0.7,
+    Gaussian noise.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use synthetic dataset with N=20 and r=-0.7 for analysis integration test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:25:18Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: use discharge IDs 123456, 123457, 123458 for retrieval test
+  claim_id: c_ee7187b7
+  context: 'T032a [P] ...Test Data: Use discharge IDs 123456, 123457, 123458 (if available)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use discharge IDs 123456, 123457, and 123458 for data retrieval integration
+    test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:25:44Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: default per operation timeout is 300 seconds
+  claim_id: c_0881f1cb
+  context: T006a [P] [FR-007] ...MUST use a configurable constant PER_OPERATION_TIMEOUT
+    (default 300s) defined in code/config.py...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default PER_OPERATION_TIMEOUT is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:26:10Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: set flake8 max line length to 88
+  claim_id: c_e1a6f0d5
+  context: T003a [P] Configure flake8 linting rules. Create .flake8 file with max-line-length
+    = 88...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set max-line-length to 88 in flake8 rules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:26:24Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: set black line length to 88
+  claim_id: c_ef32e928
+  context: T003b [P] Configure black formatting rules. Create pyproject.toml with
+    [tool.black] line-length = 88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set black line-length to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:26:51Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: use latest supported major python version in CI
+  claim_id: c_62dd9250
+  context: 'T006b ...python-version: ''latest supported major version''...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_latest_supported_major_python_version_in_CI
+  kind: magnitude
+  raw_text: Use Python version 'latest supported major version' in CI setup.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:27:11Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: DIII-D discharge IDs 123456 through 123465 used in CI pipeline
+  claim_id: c_2e831b98
+  context: Environment variables for the CI pipeline include a list of specific DIII-D
+    discharge IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DIII_D_DISCHARGES: "123456,123457,123458,123459,123460,123461,123462,123463,123464,123465"'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:27:49Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Resonant surface density calculated with q-profile tolerance of 0.01
+  claim_id: c_6df6aaef
+  context: Task T018c requires calculating resonant surface density by counting rational
+    surfaces with a specific tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculate resonant_surface_density by counting rational surfaces (q=m/n)\
+    \ per unit normalized minor radius (rho_tor) using the EFIT q-profile (m,n \u2208\
+    \ \u2115\u207A, tolerance |q - m/n| < 0.01)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:27:49Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5 and alpha 0.05
+  claim_id: c_9d833e2f
+  context: Task T028 specifies parameters for the power analysis calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Power Analysis calculation using scipy.stats.zt_ind_solve_power
+    with effect_size=0.5, alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:28:07Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Power analysis flags results as inconclusive if power is below 20%
+  claim_id: c_6a7739a1
+  context: Task T028 defines the threshold for flagging low power results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If power < 20% to detect |r|=0.5, flag result as "Inconclusive due to
+    low power"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:28:07Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Multicollinearity threshold default set to 0.95
+  claim_id: c_d07e664f
+  context: Task T025b defines the threshold for detecting multicollinearity between
+    variables.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check correlation between q_max - q_min and resonant_surface_density.
+    If correlation exceeds MULTICOLLINEARITY_THRESHOLD (configurable constant, default
+    0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:28:23Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses seed 42 and 1000 iterations
+  claim_id: c_91678447
+  context: Task T025 specifies the parameters for the bootstrap resampling method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:28:23Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if fewer than 5 valid discharges remain
+  claim_id: c_de9ce6bf
+  context: Task T015 establishes a hard gate for the minimum number of valid discharges.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_fewer_than_5_valid_discharges_remain
+  kind: magnitude
+  raw_text: Ensure at least 5 valid discharges remain; fail pipeline if fewer
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:28:56Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Pipeline retrieves up to 10 DIII-D discharge datasets
+  claim_id: c_da789f83
+  context: The goal of User Story 1 is to retrieve a specific number of discharge
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Automatically retrieve up to 10 specific DIII-D discharge datasets from
+    the public MDSplus archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:29:37Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Memory footprint verification limit is 7 GB
+  claim_id: c_98b97077
+  context: Task T033a sets a memory usage constraint for the CI environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory footprint < 7 GB in CI environment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:29:37Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Execution time verification limit is 6 hours
+  claim_id: c_ad1de220
+  context: Task T033b sets a time constraint for the CI environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 6 hours in CI environment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:29:38Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Synthetic test dataset uses N=20 and r=-0.7
+  claim_id: c_8b648785
+  context: Task T032b describes the parameters for a synthetic integration test dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a synthetic dataset with N=20, r=-0.7, Gaussian noise
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:30:21Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Confinement mode classified as H-mode if h98y2 is 0.85 or higher
+  claim_id: c_6989fae3
+  context: Task T012 defines the threshold for classifying confinement modes based
+    on h98y2.
+  evidence:
+    asserted: '98.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: confinement_mode as 'H-mode' if h98y2 >= 0.85, else 'L-mode'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T21:30:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Stratification by mode requires at least 3 samples per mode
+  claim_id: c_2d2edd32
+  context: Task T025a specifies the minimum sample size required for stratified correlation
+    analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_by_mode_requires_at_least_3_samples_per_mode
+  kind: magnitude
+  raw_text: If N >= 3 for both L and H modes, calculate separate correlations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:32:40Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: DIII-D discharge IDs 123456 to 123465 included in CI pipeline test data
+  claim_id: c_e9f1896e
+  context: Environment variables in the CI pipeline configuration for testing data
+    retrieval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'DIII_D_DISCHARGES: ''123456,123457,123458,123459,123460,123461,123462,123463,123464,123465'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:45:58Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Rutherford equation derivation for island width uses q-profile tolerance
+    of 0.01
+  claim_id: c_da56cd63
+  context: Implementation details for calculating topological metrics from EFIT data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Rutherford equation derivation for island_width and resonant_surface_density
+    calculation... tolerance |q - m/n| < 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:45:58Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses random seed 42 and 1000 iterations
+  claim_id: c_43386d31
+  context: Statistical correlation calculation requirements for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:45:58Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations
+  claim_id: c_3580914d
+  context: Statistical correlation calculation requirements for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bootstrap_iterations=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:46:24Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Internal timeout wrapper uses default PER_OPERATION_TIMEOUT of 300 seconds
+  claim_id: c_baff9a6e
+  context: Implementation of internal timeout wrapper for slow operations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST use a configurable constant PER_OPERATION_TIMEOUT (default 300s)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:46:49Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: CI pipeline timeout set to configurable duration
+  claim_id: c_cbf01ab9
+  context: CI pipeline configuration for immediate abort at the CI level.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_timeout_set_to_configurable_duration
+  kind: entity_fact
+  raw_text: 'timeout-minutes: [configurable_duration]'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:47:15Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5 and alpha 0.05
+  claim_id: c_7931666c
+  context: Power analysis calculation parameters using scipy.stats.zt_ind_solve_power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect_size=0.5, alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:47:41Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Power analysis flags results as inconclusive if power is below 20% for
+    effect size 0.5
+  claim_id: c_495f5703
+  context: Power analysis logic for determining hypothesis status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If power < 20% to detect |r|=0.5, flag result as 'Inconclusive due to
+    low power'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:47:42Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Multicollinearity check uses default threshold of 0.95
+  claim_id: c_fab5a618
+  context: Multicollinearity check logic to exclude resonant surface density from
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MULTICOLLINEARITY_THRESHOLD (default 0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:47:56Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Stratification is skipped if sample size per mode is less than 3
+  claim_id: c_6f7c427a
+  context: Stratification logic for correlation analysis based on confinement mode.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_is_skipped_if_sample_size_per_mode_is_less_th
+  kind: magnitude
+  raw_text: 'stratification warning: N < 3'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:48:59Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if fewer than 5 valid discharges remain
+  claim_id: c_6b3c7236
+  context: Validation step to ensure sufficient data for analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_fewer_than_5_valid_discharges_remain
+  kind: magnitude
+  raw_text: Ensure at least 5 valid discharges remain; fail pipeline if fewer
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:49:01Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Integration test uses DIII-D discharge IDs 123456, 123457, 123458
+  claim_id: c_f388cf6d
+  context: Test data specification for data retrieval integration test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use discharge IDs 123456, 123457, 123458 (if available) or synthetic mock
+    data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:49:17Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: Analysis integration test uses synthetic dataset with N=20 and r=-0.7
+  claim_id: c_087faf8b
+  context: Test data specification for analysis integration test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a synthetic dataset with N=20, r=-0.7, Gaussian noise
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:49:18Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: CI environment verifies memory footprint is less than 7 GB
+  claim_id: c_c1662523
+  context: Polish phase task to verify system resource usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_environment_verifies_memory_footprint_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify memory footprint < 7 GB in CI environment
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:49:40Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: CI environment verifies execution time is less than 6 hours
+  claim_id: c_7b161d8e
+  context: Polish phase task to verify system performance.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_environment_verifies_execution_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify execution time < 6 hours in CI environment
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T21:50:14Z'

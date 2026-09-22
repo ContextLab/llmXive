@@ -1,13 +1,12 @@
 # Quickstart Guide: Quantifying the Impact of Magnetic Field Topology on Plasma Confinement
 
-This guide provides instructions for setting up the environment and executing the analysis pipeline to study the relationship between magnetic island topology and energy confinement time in DIII-D tokamak discharges.
+This guide provides instructions for setting up the environment and running the analysis pipeline.
 
 ## Prerequisites
 
 - Python 3.9 or higher
 - pip (Python package installer)
-- Git (for cloning the repository)
-- Internet connection (to fetch DIII-D data from the public MDSplus archive)
+- Access to the public MDSplus archive for DIII-D data
 
 ## Environment Setup
 
@@ -24,95 +23,77 @@ This guide provides instructions for setting up the environment and executing th
  ```
 
 3. **Install dependencies**:
- Install the required Python packages listed in `requirements.txt`:
  ```bash
- pip install -r requirements.txt
+ pip install -r code/requirements.txt
  ```
-
- *Note: This project uses `scipy`, `numpy`, `pandas`, `matplotlib`, and `pytest`. It does **not** require the `mdsplus` library as a Python dependency, as data retrieval is handled via HTTP requests to the public MDSplus archive.*
+ *Note: This project does NOT require the `mdsplus` Python library as a direct dependency for the pipeline logic, as data retrieval is handled via specific client logic defined in `code/data/retrieval.py`.*
 
 4. **Verify installation**:
- Ensure all dependencies are correctly installed:
+ Ensure `numpy`, `pandas`, `scipy`, `matplotlib`, and `pytest` are installed:
  ```bash
- python -c "import scipy, numpy, pandas, matplotlib, pytest; print('All dependencies installed successfully.')"
+ python -c "import numpy; import pandas; import scipy; import matplotlib; print('Dependencies OK')"
  ```
 
 ## Execution Commands
 
-The pipeline is executed via the `code/main.py` entry point.
+The main entry point for the analysis pipeline is `code/main.py`.
 
-### Basic Usage
+### Running the Full Pipeline
 
-Run the full pipeline with a list of DIII-D discharge IDs:
+To run the analysis on a specific set of DIII-D discharges:
+
 ```bash
-python code/main.py --discharges 123456 123457 123458 123459 123460 123461 123462 123463 123464 123465
+python code/main.py --discharges 123456,123457,123458,123459,123460
 ```
 
-**Important**: You must provide at least 5 valid discharge IDs. The pipeline will fail if fewer than 5 valid discharges are retrieved (per FR-001).
+**Arguments**:
+- `--discharges` (required): Comma-separated list of DIII-D discharge IDs (e.g., `123456,123457`).
+- `--output-dir` (optional): Path to the output directory (default: `outputs/`).
+- `--verbose` (optional): Enable verbose logging.
 
-### Configuration Options
-
-- `--discharges`: Comma-separated or space-separated list of DIII-D discharge IDs (required).
-- `--timeout`: Maximum execution time in seconds (default: 3600).
-- `--output-dir`: Directory for output artifacts (default: `outputs/`).
-- `--log-level`: Logging verbosity (default: `INFO`; options: `DEBUG`, `INFO`, `WARNING`, `ERROR`).
-
-Example with custom options:
+**Example**:
 ```bash
-python code/main.py --discharges 123456,123457,123458,123459,123460 --timeout 7200 --log-level DEBUG
+python code/main.py --discharges 123456,123457,123458
 ```
 
 ### Expected Outputs
 
 Upon successful completion, the pipeline generates the following artifacts:
 
-- **`data/processed/unified_analysis.csv`**: The unified dataset containing discharge metrics (island width, resonant surface density, tau_e, confinement mode, etc.).
-- **`data/processed/metrics.csv`**: Detailed metric calculations for each discharge.
-- **`outputs/summary_report.json`**: Final statistical analysis results, including correlation coefficients, p-values, confidence intervals, power analysis, and hypothesis status.
+- **`data/processed/unified_analysis.csv`**: The unified dataset containing all parsed discharge data.
+- **`data/processed/metrics.csv`**: Calculated topological metrics (island width, resonant surface density).
+- **`outputs/summary_report.json`**: Final statistical analysis report including correlation coefficients, p-values, and hypothesis status.
 - **`outputs/topology_vs_confinement.png`**: Diagnostic scatter plot visualizing the relationship between island width and energy confinement time.
-- **`outputs/checksum.txt`**: SHA-256 checksum for the unified dataset.
+- **`outputs/checksum.txt`**: Checksum for the unified dataset to ensure data integrity.
 
-### Running Specific Modules
+### Running Tests
 
-You can also run individual modules directly for testing or debugging:
+To run the test suite:
 
-- **Data Retrieval**:
- ```bash
- python code/data/retrieval.py --discharges 123456
- ```
-- **Metrics Calculation**:
- ```bash
- python code/analysis/run_metrics.py
- ```
-- **Correlation Analysis**:
- ```bash
- python code/analysis/correlation.py
- ```
-- **Visualization**:
- ```bash
- python code/viz/plots.py
- ```
-
-## Troubleshooting
-
-- **Missing Data**: If the pipeline fails to retrieve data for a discharge, it will log a warning and exclude that discharge. Ensure you have a stable internet connection and that the discharge IDs are valid DIII-D discharges.
-- **Timeout Errors**: If the pipeline exceeds the timeout limit, increase the `--timeout` value. The default is 3600 seconds (1 hour).
-- **Insufficient Discharges**: The pipeline requires at least 5 valid discharges to proceed. If fewer are retrieved, the pipeline will abort with an error (FR-001).
-- **MDSplus Connection Issues**: The retrieval logic includes retry mechanisms. If all retries fail, the discharge is excluded. Check the logs for specific error messages.
-
-## Testing
-
-Run the test suite to verify the implementation:
 ```bash
 pytest tests/ -v
 ```
 
-To run specific test categories:
-- **Unit Tests**: `pytest tests/unit/ -v`
-- **Integration Tests**: `pytest tests/integration/ -v`
+To run a specific test file:
 
-## Further Reading
+```bash
+pytest tests/unit/test_metrics.py -v
+```
 
-- **Project Specification**: See `specs/001-quantify-topology-confinement/spec.md` for detailed requirements.
-- **Data Model**: Refer to `specs/001-quantify-topology-confinement/data-model.md` for schema definitions.
-- **Contracts**: Review `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for data validation rules.
+## Configuration
+
+Key configuration parameters are defined in `code/config.py`:
+
+- `PER_OPERATION_TIMEOUT`: Timeout threshold for individual operations (default: 300 seconds).
+- `MULTICOLLINEARITY_THRESHOLD`: Threshold for detecting multicollinearity (default: 0.95).
+- `MIN_DISCHARGES`: Minimum number of valid discharges required to proceed (default: 5).
+
+## Troubleshooting
+
+- **MDSplus Connection Failures**: If the pipeline fails to connect to the MDSplus archive, check your network connection and ensure the public archive is accessible. The pipeline includes retry logic but will fail loudly if data cannot be retrieved.
+- **Insufficient Data**: If fewer than 5 valid discharges are found after filtering, the pipeline will terminate with an error.
+- **Memory Issues**: The pipeline monitors memory usage. If it exceeds the 7 GB limit, it will abort.
+
+## Data Provenance
+
+All data is retrieved directly from the public DIII-D MDSplus archive. No synthetic or placeholder data is used. If real data cannot be retrieved, the pipeline fails to ensure scientific integrity.

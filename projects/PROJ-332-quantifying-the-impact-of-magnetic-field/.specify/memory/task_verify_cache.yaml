@@ -11,23 +11,46 @@ T009:
   r: "The required artifact `tests/unit/test_retrieval.py` does not exist in the repository,\
     \ so no unit test for MDSplus connection retry logic is present. The task\u2019\
     s core deliverable is missing."
-T016:
-  c: false
-  h: ebd852f436961ae357625a1b7a0cdad575f6e8975646626c74c7f99803a56ecd
-  r: "The required `data/processed/unified_analysis.csv` file does not exist, so the\
-    \ unified dataset was never saved. Moreover, while `code/data/preprocessing.py`\
-    \ is present, the provided excerpt does not show any implementation that adds\
-    \ a `confinement_mode` column, includes `tau_e`, or generates a checksum, and\
-    \ the rest of the file is truncated. Consequently the task\u2019s core requirements\
-    \ are unmet."
-T025a:
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output artifact implementing the stratification logic was\
-    \ provided. The required behavior\u2014checking sample size per mode, computing\
-    \ separate or global Spearman correlations, and appending the specific warning\
-    \ flag when N\u202F<\u202F3\u2014is absent, so the task\u2019s deliverable is\
-    \ missing."
+  r: No code, script, or dataset was supplied that retrieves `island_width` from MDSplus,
+    checks for raw EFIT data, sets the `needs_derivation` flag, or logs warnings as
+    required. Consequently the required output (intermediate dataset with the fields)
+    is missing.
+T014b:
+  c: false
+  h: b85fb277310e8c633fdd729aec7f143ba9ca071b67e96c8eff842ee38cf31b26
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`\
+    \ files, so the validator cannot actually load or apply the schemas. Moreover,\
+    \ the provided `validator.py` is truncated and shows no integration with the parsed\
+    \ DataFrame from T007a or any post\u2011parsing validation hook. Both the necessary\
+    \ schema artifacts and the full validation implementation are missing."
+T016:
+  c: false
+  h: 1c2f15973e8d92069fe004450ad104d43d12ade676e804cd2f19eef3b2cfddb3
+  r: "The required output file `data/processed/unified_analysis.csv` does not exist,\
+    \ and the provided `code/data/preprocessing.py` is truncated and contains no logic\
+    \ that writes the unified dataset or creates the SHA\u2011256 checksum file. Consequently\
+    \ the task\u2019s core requirement (saving the dataset with exact columns and\
+    \ generating a checksum) is not satisfied."
+T018c:
+  c: false
+  h: 44e9cfc127c1072cf55ba2dea2b31f5e2961ff8edc238d2923a512db52e6b892
+  r: "The provided `metrics.py` only contains helper functions and a partially\u2011\
+    shown `calculate_resonant_surface_density`; it lacks any Rutherford\u2011equation\
+    \ based island\u2011width derivation, conditional execution based on the `needs_derivation`\
+    \ flag, use of `Bt_field`, and code to write the results to `data/processed/metrics.csv`.\
+    \ Moreover, the required `metrics.csv` file does not exist. The task\u2019s core\
+    \ outputs are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing the global Spearman rank\
+    \ correlation between `island_width` and `tau_e` is present; the claim lacks any\
+    \ tangible artifact (e.g., a function, test, or generated plot) to verify the\
+    \ required calculation was performed. Consequently the task\u2019s core requirement\
+    \ is not demonstrated."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,13 +58,6 @@ T028:
     \ are present, nor any logic that flags results with power\u202F<\u202F20% as\
     \ \u201CInconclusive due to low power.\u201D The required artifact is missing,\
     \ so the task is not satisfied."
-T031a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file or its contents were presented, and there is no evidence\
-    \ that it has been updated with the required execution commands and environment\u2011\
-    setup instructions. The implementer must provide the actual `quickstart.md` file\
-    \ showing the added sections."
 T031b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,3 +99,9 @@ T034a:
   r: No docstrings were provided or shown for any of the modules under `code/data/`
     or `code/analysis/`; the evidence does not contain the required documentation
     artifacts, so the task is not satisfied.
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or excerpts from `code/viz/` or `code/utils/` were provided, and there
+    is no evidence that docstrings were added to every module in those directories.
+    The required documentation artifacts are missing.
