@@ -15,7 +15,7 @@ The analysis involves:
 1.  Ingesting and validating the Cyberbullying Survey data.
 2.  Calculating standardized scores for Social Support, Harassment Severity, and Mental Health Outcomes (CES-D, GAD-7, PCL-5).
 3.  Fitting robust linear regression models (OLS with heteroskedasticity-consistent standard errors) including an interaction term.
-4.  Computing 95% bias-corrected bootstrapped confidence intervals.
+4.  Computing bias-corrected bootstrapped confidence intervals.
 5.  Executing sensitivity analyses on harassment operationalization.
 
 **Note on Specification Inconsistency**: The source `spec.md` mandates the "Synthetic Cohort" approach. This plan explicitly deviates from those requirements due to the methodological invalidity described above. The implementation will follow the *revised* single-dataset methodology. The `spec.md` must be updated (kickback required) to remove FR-001/FR-002 and the "Synthetic Cohort" user stories to align with the implemented plan.

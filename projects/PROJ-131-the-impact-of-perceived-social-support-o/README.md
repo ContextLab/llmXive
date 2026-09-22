@@ -1,116 +1,92 @@
-# PROJ-131: The Impact of Perceived Social Support on Resilience to Online Harassment
+# The Impact of Perceived Social Support on Resilience to Online Harassment
 
-## Overview
+This project implements a rigorous statistical analysis of the relationship between perceived social support and resilience to online harassment, using data from the Cyberbullying Survey 2021.
 
-This project implements a statistical analysis pipeline to investigate the buffering effect of perceived social support on mental health outcomes (Depression, Anxiety, PTSD) following online harassment.
+## Methodological Approach
 
-### Methodological Approach: Single-Dataset Analysis
-**CRITICAL NOTE:** This analysis strictly follows the **Single-Dataset Approach** (Cyberbullying Survey 2021). The Spec's original requirement for a "Synthetic Cohort" (matching with GSS 2022) was identified as methodologically invalid in the project Plan and has been **excluded** from this implementation. All results are derived solely from the Cyberbullying Survey to ensure the interaction term estimates a genuine psychological buffering effect without confounding by dataset source.
+This analysis strictly follows the **Revised Approach (Single-Dataset Analysis)** as mandated by the project plan.
+- **Data Source**: Cyberbullying Survey 2021 (UCI ID: 123).
+- **Exclusion**: The GSS 2022 dataset is explicitly excluded due to methodological invalidity in matching synthetic cohorts.
+- **Goal**: Estimate the buffering effect of social support on harassment severity without confounding by dataset source.
 
 ## Prerequisites
 
-### System Requirements
 - Python 3.9+
-- 2+ CPU cores
-- 7GB+ RAM (for full dataset processing)
-- ~14GB disk space for data artifacts
+- Required packages (install via `pip install -r requirements.txt`):
+ - `ucimlrepo` (for data fetching)
+ - `pandas`, `numpy`, `scikit-learn`, `statsmodels`
+ - `pyyaml`, `logging`
+- A stable internet connection to fetch the real dataset.
 
-### Dependencies
-Install all required Python packages:
-```bash
-pip install -r requirements.txt
-```
-*Note: The `requirements.txt` includes `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `ucimlrepo`, and other necessary libraries.*
+## Data Sources
+
+- **Primary Dataset**: Cyberbullying Survey 2021
+ - Source: UCI Machine Learning Repository
+ - Fetch Method: `ucimlrepo.fetch_dataset(dataset_id=123)`
+ - Verification: The pipeline includes a strict "Fail Loudly" check. If the real data cannot be fetched, the pipeline aborts to prevent synthetic data fabrication.
+
+## How to Run the Pipeline
+
+1. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+2. **Verify Data Source (Optional but Recommended)**:
+ ```bash
+ python code/data/verify_source.py
+ ```
+
+3. **Run the Full Pipeline**:
+ ```bash
+ python code/main_pipeline.py
+ ```
+ This will execute:
+ - Data Ingestion (T012)
+ - Preprocessing & Imputation (T013)
+ - Cohort Construction & Validation (T014-T016)
+ - Interaction Modeling & Bootstrapping (T020-T024)
+ - Sensitivity Analysis (T027-T029)
+ - Reporting & Validation (T025, T060, T063, T064)
+
+4. **Validate Outputs**:
+ ```bash
+ python code/quickstart_validator.py
+ ```
+
+## Expected Outputs
+
+All outputs are generated in the `data/results/` directory:
+
+- `analysis_cohort.csv`: The cleaned, validated dataset ready for analysis.
+- `validation_report.json`: Checks for variance and VIF.
+- `platform_status.json`: Verification of the `platform` column (T070b).
+- `regression_results.csv`: Coefficients, SEs, p-values, and bootstrap CIs.
+- `sensitivity_analysis.csv`: Results from continuous severity and platform stratification models.
+- `regression_summary.md`: Human-readable interpretation of the findings.
+- `data_lineage_report.md`: Trace of data transformations.
+- `reproducibility_audit.json`: Hash verification of stochastic components.
+- `performance_report.json`: Runtime metrics.
+- `lint_report.txt` & `test_report.txt`: Code quality and test results.
 
 ## Project Structure
 
 ```
 .
 ├── code/
-│ ├── analysis/ # Statistical modeling, bootstrapping, FDR correction
-│ ├── data/ # Ingestion, preprocessing, cohort construction
-│ ├── config/ # Configuration files (seeds, scales, bootstrap params)
-│ └── main_pipeline.py # Main orchestration script
+│ ├── data/ # Ingestion, preprocessing, cohort building
+│ ├── analysis/ # Models, bootstrapping, sensitivity, results
+│ ├── config/ # YAML configurations (scales, seeds, bootstrap)
+│ ├── main_pipeline.py
+│ └──...
 ├── data/
-│ ├── raw/ # Raw downloaded datasets (auto-generated)
-│ └── results/ # Processed cohorts, regression outputs, reports
+│ ├── raw/ # Downloaded raw data
+│ └── results/ # Generated outputs
 ├── tests/ # Unit and contract tests
 ├── requirements.txt
 └── README.md
 ```
 
-## How to Run the Pipeline
+## License
 
-### 1. Initialize Environment
-Ensure the virtual environment is active and dependencies are installed.
-
-### 2. Run the Full Pipeline
-Execute the main orchestration script. This will:
-1. Download and validate the Cyberbullying Survey 2021 dataset.
-2. Perform MICE imputation and scale scoring.
-3. Construct the analysis cohort.
-4. Fit OLS models with interaction terms and HC3 standard errors.
-5. Run 1,000 bootstrap resamples for confidence intervals.
-6. Apply Benjamini-Hochberg FDR correction.
-7. Perform sensitivity analyses (continuous severity, platform stratification).
-8. Generate all reports and save results.
-
-```bash
-python code/main_pipeline.py
-```
-
-**Expected Runtime:** < 6 hours on a standard 2-core CPU (includes 1,000 bootstrap resamples).
-
-### 3. Verify Execution
-Check the logs and output files:
-```bash
-python code/quickstart_validator.py
-```
-
-## Expected Outputs
-
-Upon successful completion, the following artifacts will be generated in `data/results/`:
-
-| File | Description |
-|:--- |:--- |
-| `analysis_cohort.csv` | Cleaned, imputed analysis dataset |
-| `validation_report.json` | Cohort validity checks (VIF, variance) |
-| `regression_results.csv` | Model coefficients, SEs, p-values, bootstrap CIs |
-| `regression_summary.md` | Human-readable interpretation of findings |
-| `sensitivity_analysis.csv` | Results from alternative model specifications |
-| `coefficient_comparison.csv` | Comparison of interaction term shifts |
-| `data_lineage_report.md` | Trace of data transformations |
-| `pipeline_run.log` | Detailed execution log |
-| `reproducibility_audit.json` | SHA-256 hash verification of results |
-
-## Data Sources
-
-- **Primary Dataset:** Cyberbullying Survey 2021
- - **Source:** Loaded via `ucimlrepo` or direct CSV ingestion as configured in `code/data/ingestion.py`.
- - **Access:** The pipeline attempts to fetch this data automatically. If network access is restricted, ensure the raw file is placed in `data/raw/cyberbullying_2021.csv`.
-- **Excluded:** GSS 2022 (per Methodological Pivot).
-
-## Configuration
-
-Key parameters are defined in `code/config/`:
-- `seeds.yaml`: Random seeds for reproducibility.
-- `scales.yaml`: Scoring weights for CES-D, GAD-7, PCL-5.
-- `bootstrap_config.yaml`: Bootstrap resample count (1000), method (BCa), confidence level.
-
-## Testing
-
-Run the full test suite:
-```bash
-pytest tests/ -v
-```
-
-Run linting checks:
-```bash
-ruff check code/
-```
-
-## Limitations & Disclaimers
-
-- **Associational Findings:** This analysis identifies statistical associations; it does not establish causal mechanisms.
-- **Single Dataset:** Results are specific to the Cyberbullying Survey 2021 population and may not generalize to other contexts without further validation.
-- **Missing Data:** The pipeline uses MICE imputation. If convergence fails (trace change > 0.01 over last 3 iterations), the pipeline halts with an error rather than proceeding with potentially biased estimates.
+This project is for research purposes.

@@ -1521,3 +1521,473 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-14T08:29:01Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D scale uses 4-point Likert scoring
+  claim_id: c_0a651caf
+  context: 'Content outline for config/scales.yaml: ''1. CES-D: Radloff, L. S. (1977)...
+    scoring: [0, 1, 2, 3] # Standard 4-point Likert'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CES-D scale uses a standard 4-point Likert scoring.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:24:54Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: PCL-5 scale uses 5-point Likert scoring
+  claim_id: c_2c66ca17
+  context: 'Content outline for config/scales.yaml: ''PCL-5: ... scoring: [0, 1, 2,
+    3, 4] # Standard 5-point Likert'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PCL-5 scale uses a standard 5-point Likert scoring.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:25:10Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Cyberbullying Survey 2021 UCI dataset ID 123
+  claim_id: c_e9ca819d
+  context: 'Task T070a: ''Verify a specific dataset ID from UCI (ucimlrepo)... ucimlrepo.fetch_dataset(dataset_id=123)''
+    and Task T012: ''Use ucimlrepo.fetch_dataset(dataset_id=123) (Cyberbullying Survey
+    2021)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset ID for the Cyberbullying Survey 2021 in UCI is 123.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:25:42Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Cyberbullying Survey 2021 required columns social_support harassment_severity
+    depression anxiety
+  claim_id: c_10833bb5
+  context: 'Task T070a: ''If the dataset loads successfully and contains the required
+    columns (social_support, harassment_severity, depression, anxiety)...'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires the Cyberbullying Survey 2021 dataset to contain
+    columns for social_support, harassment_severity, depression, and anxiety.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:26:05Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Harassment exposure variance check requires N > 30
+  claim_id: c_0ce95fcc
+  context: 'Task T014: ''Ensure harassment_severity has sufficient variance (SD >
+    0.5, N > 30)'' and Task T015: ''Check variance of Harassment Exposure (SD > 0.5,
+    N > 30)''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Harassment_exposure_variance_check_requires_N_%3E_30
+  kind: magnitude
+  raw_text: The analysis cohort requires a sample size (N) greater than 30 for harassment
+    exposure variance checks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:27:01Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Harassment severity/exposure variance check requires SD > 0.5
+  claim_id: c_01757ee7
+  context: 'Task T014: ''Ensure harassment_severity has sufficient variance (SD >
+    0.5, N > 30)'' and Task T015: ''Check variance of Harassment Exposure (SD > 0.5,
+    N > 30)''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Harassment_severity/exposure_variance_check_requires_SD_%3E_0.
+  kind: magnitude
+  raw_text: The analysis cohort requires a standard deviation (SD) greater than 0.5
+    for harassment severity or exposure.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:27:35Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Model matrix VIF must be < 5
+  claim_id: c_17233e27
+  context: 'Task T015: ''Ensure VIF < 5. Logic: If VIF >= 5 ... raise a RuntimeError''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_matrix_VIF_must_be_%3C_5
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) for the model matrix must be less
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:28:06Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: MICE imputation m=5 max_iter=10
+  claim_id: c_859ca826
+  context: 'Task T013a: ''Use sklearn.impute.IterativeImputer with m=5, max_iter=10,
+    random_state=42''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MICE imputation is configured with 5 imputations (m=5) and 10 maximum
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:28:30Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1000 resamples
+  claim_id: c_2ad444d8
+  context: 'Task T033: ''Verify that bootstrapping (1,000 resamples for up to three
+    models) completes within 6 hours''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap analysis uses 1,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:28:58Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Pipeline bootstrap runtime limit 6 hours on 2-core CPU
+  claim_id: c_0ad5c3a2
+  context: "Task T033: 'Verify that bootstrapping (1,000 resamples for up to three\
+    \ models) completes within 6 hours on a 2\u2011core CPU'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete bootstrapping within 6 hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:29:19Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Platform stratification requires N >= 30 per group
+  claim_id: c_dbb126c5
+  context: 'Task T027b: ''Implement the logic to stratify analyses by all available
+    platforms meeting the N >= 30 threshold''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires a minimum of 30 samples per platform group for stratification
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:30:01Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Implementation follows Revised Approach Single-Dataset Analysis
+  claim_id: c_ce783d31
+  context: The implementation strictly follows the Plan's 'Revised Approach' (Single-Dataset
+    Analysis). The Spec's requirement for a 'Synthetic Cohort' (dual-dataset matching)
+    is methodologically invalid per the Plan and is excluded from implementation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_follows_Revised_Approach_Single-Dataset_Analy
+  kind: entity_fact
+  raw_text: The implementation strictly follows the Plan's 'Revised Approach' (Single-Dataset
+    Analysis).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:35:22Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Pipeline ingests Cyberbullying Survey for genuine psychological buffering
+    effect
+  claim_id: c_ed7552de
+  context: The pipeline ingests the Cyberbullying Survey to ensure the interaction
+    term estimates a genuine psychological buffering effect without confounding by
+    dataset source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_ingests_Cyberbullying_Survey_for_genuine_psychologi
+  kind: entity_fact
+  raw_text: The pipeline ingests the Cyberbullying Survey to ensure the interaction
+    term estimates a genuine psychological buffering effect without confounding by
+    dataset source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:36:05Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: UCI ucimlrepo dataset ID 123 for Cyberbullying Survey 2021
+  claim_id: c_b0368ce6
+  context: 'Verify a specific dataset ID from UCI (ucimlrepo). Action: Write a script
+    code/data/verify_source.py that attempts to execute ucimlrepo.fetch_dataset(dataset_id=123).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset ID from UCI (ucimlrepo) used for the Cyberbullying Survey
+    2021 is 123.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:36:22Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D scale uses 4-point Likert scoring
+  claim_id: c_f0ca2fec
+  context: 'CES-D: Radloff, L. S. (1977). The CES-D Scale: A self-report depression
+    scale for research in the general population. DOI: 10.1177/014662167700100306
+    ... scoring: [0, 1, 2, 3] # Standard 4-point Likert'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CES-D scale uses a standard 4-point Likert scoring.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:36:23Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: PCL-5 scale uses 5-point Likert scoring
+  claim_id: c_c86ad924
+  context: 'PCL: Weathers, F. W., et al. (2013). The PTSD Checklist for DSM-5 (PCL-5).
+    Available from the National Center for PTSD. ... scoring: [0, 1, 2, 3, 4] # Standard
+    5-point Likert'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PCL-5 scale uses a standard 5-point Likert scoring.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:36:23Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: MICE imputation uses m=5 and max_iter=10
+  claim_id: c_d9410208
+  context: Use sklearn.impute.IterativeImputer with m=5, max_iter=10, random_state=42.
+    Use default convergence settings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE imputation configuration uses m=5 and max_iter=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:38:15Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap uses BCa method with 1000 resamples
+  claim_id: c_9c7840b1
+  context: This file must specify the resample count, confidence level, method (BCa),
+    and seed source. ... Verify that bootstrapping (1,000 resamples for up to three
+    models) completes within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap method uses BCa (bias-corrected and accelerated) with 1000
+    resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:38:36Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Pipeline completion limit is 6 hours on 2-core CPU
+  claim_id: c_3cb1798c
+  context: "Verify that bootstrapping (1,000 resamples for up to three models) completes\
+    \ within 6 hours on a 2\u2011core CPU. Verification Step: Run time python main_pipeline.py\
+    \ and assert output < 21600s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:38:57Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GSS 2022 dataset excluded from analysis
+  claim_id: c_00464161
+  context: Do NOT attempt to load GSS 2022. If GSS is found in data/raw, log a warning
+    that it is being ignored per the Plan's 'Revised Approach'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GSS 2022 dataset is excluded from the analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:39:15Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Harassment Exposure variance requires SD > 0.5 and N > 30
+  claim_id: c_b2fed5f7
+  context: Ensure harassment_severity has sufficient variance (SD > 0.5, N > 30).
+    If not, log E-LOW-VAR-001 and halt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance of Harassment Exposure must have SD > 0.5 and N > 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:39:16Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: VIF must be less than 5
+  claim_id: c_e4800f3e
+  context: 'Compute VIF for the model matrix ... Ensure VIF < 5. Logic: If VIF >=
+    5 or Variance check fails, raise a RuntimeError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_must_be_less_than_5
+  kind: magnitude
+  raw_text: The VIF (Variance Inflation Factor) must be less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:39:37Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Platform stratification requires N >= 30
+  claim_id: c_0ae3352c
+  context: Implement the logic to stratify analyses by all available platforms meeting
+    the N >= 30 threshold. ... If a platform group has N < 30, the stratified model
+    MUST NOT run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The platform stratification requires a minimum sample size of N >= 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:39:54Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D scale published 1977 by Radloff
+  claim_id: c_aa90db18
+  context: '1. CES-D: Radloff, L. S. (1977). The CES-D Scale: A self-report depression
+    scale for research in the general population.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/CES-D_scale_published_1977_by_Radloff
+    source_value: https://en.wikipedia.org/wiki/CES-D_scale_published_1977_by_Radloff
+    subject: CES-D scale published 1977 by Radloff
+  kind: relational
+  raw_text: The CES-D scale was published in 1977 by Radloff, L. S.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:40:16Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GAD-7 scale published 2006 by Spitzer et al.
+  claim_id: c_88f8c987
+  context: '2. GAD: Spitzer, R. L., et al. (2006). A Brief Measure for Assessing Generalized
+    Anxiety Disorder.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/GAD-7_scale_published_2006_by_Spitzer_et_al.
+    source_value: https://en.wikipedia.org/wiki/GAD-7_scale_published_2006_by_Spitzer_et_al.
+    subject: GAD-7 scale published 2006 by Spitzer et al.
+  kind: relational
+  raw_text: The GAD-7 scale was published in 2006 by Spitzer, R. L., et al.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:40:48Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: PCL-5 scale published 2013 by Weathers et al.
+  claim_id: c_4d6d0282
+  context: '3. PCL: Weathers, F. W., et al. (2013). The PTSD Checklist for DSM-5 (PCL-5).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/PCL-5_scale_published_2013_by_Weathers_et_al.
+    source_value: https://en.wikipedia.org/wiki/PCL-5_scale_published_2013_by_Weathers_et_al.
+    subject: PCL-5 scale published 2013 by Weathers et al.
+  kind: relational
+  raw_text: The PCL-5 scale was published in 2013 by Weathers, F. W., et al.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T20:41:07Z'

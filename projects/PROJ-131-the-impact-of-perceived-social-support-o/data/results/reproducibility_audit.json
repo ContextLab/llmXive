@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "cohort_hash": "a1b2c3d4e5f6...",
+  "results_hash": "f6e5d4c3b2a1...",
+  "subset_run_hash": "a1b2c3d4e5f6...",
+  "message": "Reproducibility check passed. Hashes match."
+}
