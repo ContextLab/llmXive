@@ -1,99 +1,74 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+# Schema Definition: EotvosResult
+# Defines the structure for the final Eötvös parameter estimation results.
+# Used for validation of data produced by src/analysis/eotvos.py and src/models/estimator.py.
+
+$schema: http://json-schema.org/draft-07/schema#
 title: EotvosResult
-description: >
-  Schema for the final Eötvös parameter estimation result, including
-  the calculated value, confidence interval, p-value from statistical tests,
-  and sensitivity sweep data.
+description: Final metric schema for the Equivalence Principle test results.
 type: object
+
+properties:
+  eta_value:
+    type: number
+    description: The calculated Eötvös parameter (η = |ac| / g).
+    minimum: 0
+    
+  confidence_interval:
+    type: array
+    description: 95% confidence interval for eta_value as [lower_bound, upper_bound].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    
+  p_value:
+    type: number
+    description: P-value for the hypothesis test (Null: η = 0).
+    minimum: 0
+    maximum: 1
+    
+  sensitivity_sweep_data:
+    type: object
+    description: Results from the geopotential model sensitivity analysis.
+    additionalProperties:
+      type: object
+      properties:
+        model_name:
+          type: string
+        z_score:
+          type: number
+        chi2:
+          type: number
+      required:
+        - model_name
+        - z_score
+        - chi2
+    description: Map of geopotential model names to their statistical metrics.
+    
+  metadata:
+    type: object
+    description: Metadata about the calculation run.
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      satellite_pair:
+        type: array
+        items:
+          type: string
+      geopotential_model_primary:
+        type: string
+      data_points_used:
+        type: integer
+        minimum: 0
+    required:
+      - timestamp
+      - satellite_pair
+      - data_points_used
+      
 required:
   - eta_value
   - confidence_interval
   - p_value
   - sensitivity_sweep_data
-  - timestamp
-  - satellites_used
-  - status
-properties:
-  eta_value:
-    type: number
-    description: >
-      The calculated Eötvös parameter (η = |a_c| / g).
-      This is the primary metric for testing the Equivalence Principle.
-    minimum: 0
-  confidence_interval:
-    type: object
-    description: 95% confidence interval for the eta_value.
-    required:
-      - lower
-      - upper
-      - level
-    properties:
-      lower:
-        type: number
-      upper:
-        type: number
-      level:
-        type: number
-        const: 0.95
-  p_value:
-    type: number
-    description: >
-      P-value from the F-test comparing the Null model (no differential acceleration)
-      against the Alternative model (with differential acceleration).
-    minimum: 0
-    maximum: 1
-  sensitivity_sweep_data:
-    type: array
-    description: >
-      Results of the sensitivity analysis performed across different geopotential
-      models (e.g., GGM, EGM2008, GOCO). Each entry represents the eta_value
-      and uncertainty derived from a specific model.
-    items:
-      type: object
-      required:
-        - model_name
-        - eta_value
-        - uncertainty
-      properties:
-        model_name:
-          type: string
-          description: Name of the geopotential model used (e.g., "EGM2008").
-        eta_value:
-          type: number
-        uncertainty:
-          type: number
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp when the analysis was completed.
-  satellites_used:
-    type: array
-    description: List of satellite IDs included in the joint estimation.
-    items:
-      type: string
-      examples:
-        - "LAGEOS-1"
-        - "LAGEOS-2"
-        - "Etalon-1"
-        - "Starlette"
-  status:
-    type: string
-    description: Status of the result generation.
-    enum:
-      - "Success"
-      - "Incomplete"
-      - "Failed"
-    examples:
-      - "Success"
-  metadata:
-    type: object
-    description: Additional metadata for reproducibility.
-    properties:
-      config_version:
-        type: string
-      software_version:
-        type: string
-      data_checksum:
-        type: string
-        description: SHA-256 checksum of the input data used.
-additionalProperties: false
+  - metadata

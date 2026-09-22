@@ -423,3 +423,557 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T05:18:34Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Gravitational Constant G is 6.67430e-11 m3 kg-1 s-2 CODATA 2018
+  claim_id: c_3a517814
+  context: "Table of Constants and Units lists the Gravitational Constant with value\
+    \ 6.67430 \xD7 10\u207B\xB9\xB9 and source CODATA 2018."
+  evidence:
+    asserted: '6.6743'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "The Gravitational Constant G is 6.67430 \xD7 10\u207B\xB9\xB9 m\xB3 kg\u207B\
+    \xB9 s\u207B\xB2 according to CODATA 2018."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:44:01Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Earth Mass is 5.97219e24 kg IERS 2010
+  claim_id: c_d35d70c5
+  context: "Table of Constants and Units lists Earth Mass with value 5.97219 \xD7\
+    \ 10\xB2\u2074 and source IERS 2010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Earth Mass is 5.97219 \xD7 10\xB2\u2074 kg according to IERS 2010."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:44:40Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Earth GM is 3.986004418e14 m3 s-2 IERS 2010
+  claim_id: c_220d7627
+  context: "Table of Constants and Units lists Earth GM with value 3.986004418 \xD7\
+    \ 10\xB9\u2074 and source IERS 2010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Earth GM is 3.986004418 \xD7 10\xB9\u2074 m\xB3 s\u207B\xB2 according\
+    \ to IERS 2010."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:45:08Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Earth Equatorial Radius is 6378136.3 m IERS 2010
+  claim_id: c_fca8304b
+  context: Table of Constants and Units lists Equatorial Radius with value 6378136.3
+    and source IERS 2010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Earth Equatorial Radius is 6378136.3 m according to IERS 2010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:45:33Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Speed of Light c is 299792458 m s-1 SI Definition
+  claim_id: c_99d229eb
+  context: Table of Constants and Units lists Speed of Light with value 299792458
+    and source SI Definition.
+  evidence:
+    fill:
+      channel: constants
+      conflicts:
+      - channel: wikipedia
+        source_id: 2019 revision of the SI
+        url: https://en.wikipedia.org/wiki/2019_revision_of_the_SI
+        value: '299792458'
+      - channel: wikipedia
+        source_id: International System of Units
+        url: https://en.wikipedia.org/wiki/International_System_of_Units
+        value: '299792458'
+      - channel: wikipedia
+        source_id: Speed of light
+        url: https://en.wikipedia.org/wiki/Speed_of_light
+        value: '299792458'
+      quote: 299792458.0 (scipy.constants.c (CODATA 2018, exact by SI definition))
+      source_id: speed_of_light
+      url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+      value: '299792458.0'
+    filled: true
+  kind: numeric
+  raw_text: "Speed of Light c is 299792458 m s\u207B\xB9 by SI Definition."
+  resolved_value: '299792458.0'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:45:49Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Solar Constant S0 is 1361 W m-2 IERS 2010
+  claim_id: c_ff8c802b
+  context: Table of Constants and Units lists Solar Constant with value 1361 and source
+    IERS 2010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar Constant S0 is 1361 W m\u207B\xB2 according to IERS 2010."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:46:20Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: 1 AU is 1.495978707e11 m IAU 2012
+  claim_id: c_34d11391
+  context: "Table of Constants and Units lists AU with value 1.495978707 \xD7 10\xB9\
+    \xB9 and source IAU 2012."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1 AU is 1.495978707 \xD7 10\xB9\xB9 m according to IAU 2012."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:46:46Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Solar Mass Parameter is 1.32712440018e20 m3 s-2 JPL DE440
+  claim_id: c_171ea128
+  context: "Table of Constants and Units lists Solar Mass Parameter with value 1.32712440018\
+    \ \xD7 10\xB2\u2070 and source JPL DE440."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar Mass Parameter is 1.32712440018 \xD7 10\xB2\u2070 m\xB3 s\u207B\
+    \xB2 according to JPL DE440."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:47:19Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Drag coefficient CD is typically 2.2 for LAGEOS
+  claim_id: c_56e0489b
+  context: Section 3.2 states that the drag coefficient CD is typically 2.2 for LAGEOS.
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The drag coefficient CD is typically 2.2 for LAGEOS satellites.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:19Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Radiation pressure coefficient CR is typically 1.1 to 1.3 for spherical
+    satellites with retroreflectors
+  claim_id: c_d41194fd
+  context: Section 3.3 states that the radiation pressure coefficient CR is typically
+    1.1 to 1.3 for spherical satellites with retroreflectors.
+  evidence:
+    asserted: '1.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The radiation pressure coefficient CR is typically between 1.1 and 1.3
+    for spherical satellites with retroreflectors.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:19Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Schwarzschild acceleration at LAGEOS altitude is approx 1e-9 m/s2
+  claim_id: c_14256a68
+  context: "Section 6 Verification Criteria states that the magnitude of a_Sch at\
+    \ LAGEOS altitude must be approx 10\u207B\u2079 m/s\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The magnitude of the Schwarzschild acceleration at LAGEOS altitude is\
+    \ approximately 10\u207B\u2079 m/s\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:47:51Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Jacchia LG published Slowly varying model thermospheric temperatures
+    in 1971
+  claim_id: c_a8672e0a
+  context: Section 3.2 and References cite Jacchia, L. G. (1971) 'Slowly varying model
+    thermospheric temperatures'.
+  evidence:
+    asserted: '1971.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Jacchia, L. G. published 'Slowly varying model thermospheric temperatures'
+    in 1971.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:51Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: Montenbruck O and Gill E published Satellite Orbits in 2000
+  claim_id: c_1009571a
+  context: Section 3.3 and References cite Montenbruck, O., & Gill, E. (2000) 'Satellite
+    Orbits'.
+  evidence:
+    asserted: '2000.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Montenbruck, O. and Gill, E. published 'Satellite Orbits' in 2000.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:51Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  attempts: 1
+  canonical: GGM03C gravity model available at http://earth-info.nga.mil/GandG/wgs84/gravitymod/
+  claim_id: c_0f7e8224
+  context: References section lists GGM03C Gravity Model URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GGM03C_gravity_model_available_at_http://earth-info.nga.mil/
+  kind: entity_fact
+  raw_text: The GGM03C gravity model is available at http://earth-info.nga.mil/GandG/wgs84/gravitymod/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:48:33Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: latest available full year definition >90% complete data
+  claim_id: c_4897ff52
+  context: T013 Integration Test requirement for fetching LAGEOS data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/latest_available_full_year_definition_%3E90%25_complete_data
+  kind: magnitude
+  raw_text: The latest available full year is defined as the last calendar year where
+    data for all target satellites is >90% complete, with a fallback to the previous
+    year.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:50:13Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: warning threshold for insufficient data 10000 rows
+  claim_id: c_1c4de7eb
+  context: T013 Integration Test conditional logic for data volume.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_threshold_for_insufficient_data_10000_rows
+  kind: magnitude
+  raw_text: A warning 'Insufficient data for year' is logged if the fetched data has
+    fewer than 10,000 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:51:21Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: minimum data rows to avoid test failure 500
+  claim_id: c_7f60726d
+  context: T013 Integration Test conditional logic for minimum arc length.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum data count required to avoid test failure for a satellite
+    arc is 500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:51:53Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: exclusion threshold for satellites <30 days unique dates
+  claim_id: c_7f4443f9
+  context: T018 Exclusion Logic requirement for handling insufficient data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclusion_threshold_for_satellites_%3C30_days_unique_dates
+  kind: magnitude
+  raw_text: Satellites with less than 30 days of unique dates are excluded from the
+    downstream joint estimation and differential analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:52:15Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: checksum algorithm SHA-256
+  claim_id: c_a18804b0
+  context: T019 requirement for writing output with checksum verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SHA-256 algorithm is used for checksum verification of the cleaned
+    SLR data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:52:35Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: benchmark paper criteria post-2010 precision <1e-13
+  claim_id: c_bb968334
+  context: T048.0a research task requirements for selecting benchmark papers.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/benchmark_paper_criteria_post-2010_precision_%3C1e-13
+  kind: magnitude
+  raw_text: "The benchmark papers for E\xF6tv\xF6s parameter precision must be published\
+    \ after 2010 with a precision less than 1e-13."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:53:14Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: minimum candidate papers 3
+  claim_id: c_bddf6978
+  context: T048.0a deliverable requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_candidate_papers_3
+  kind: magnitude
+  raw_text: At least 3 candidate papers must be included in the research benchmarks
+    table.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:54:09Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: solver algorithm Levenberg-Marquardt tolerance 1e-8
+  claim_id: c_014f52e7
+  context: T024 implementation requirement for the JointLeastSquaresSolver.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The joint least-squares solver uses the Levenberg-Marquardt algorithm
+    with a convergence tolerance of 1e-8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:54:39Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: memory limit exit code 1 6GB
+  claim_id: c_8ca262f2
+  context: T038 requirement for resource validation and memory monitoring.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must exit with code 1 if the RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:55:12Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: time limit exit code 124 6 hours
+  claim_id: c_bfe107da
+  context: T038 requirement for global timer gate.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must exit with code 124 if the total execution time exceeds
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:55:40Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: unreliable flag threshold Z-score variation >20%
+  claim_id: c_2cd99504
+  context: T035 logic for flagging unreliable results based on sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A satellite is flagged as 'Unreliable' if the Z-score variation exceeds
+    20% across different geopotential models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:55:41Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: consistency check 2-sigma threshold
+  claim_id: c_891e2d84
+  context: T025a requirement to verify joint estimate against separate-fit baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The consistency check verifies the difference between joint and separate-fit
+    estimates is within a 2-sigma threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:56:09Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: default correction method Bonferroni
+  claim_id: c_a1b44521
+  context: T034 requirement for applying p-value corrections.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_correction_method_Bonferroni
+  kind: entity_fact
+  raw_text: The default multiple-comparison correction method is Bonferroni if not
+    specified.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:56:37Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: ingestion success threshold 95% available points
+  claim_id: c_ce17f602
+  context: Independent Test for User Story 1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_success_threshold_95%25_available_points
+  kind: magnitude
+  raw_text: The data ingestion pipeline must verify that the output CSV contains at
+    least 95% of available points.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:57:21Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: quality filter threshold >2cm residual exclusion
+  claim_id: c_182f57bf
+  context: T012 unit test and T016 implementation requirement.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/quality_filter_threshold_%3E2cm_residual_exclusion
+  kind: magnitude
+  raw_text: The quality filtering excludes residuals greater than 2cm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:57:50Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: solver convergence threshold residuals <1e-5m
+  claim_id: c_7289bacb
+  context: Independent Test for User Story 2.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/solver_convergence_threshold_residuals_%3C1e-5m
+  kind: magnitude
+  raw_text: The convergence of the joint solver is verified if residuals are less
+    than 1e-5 meters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:58:34Z'

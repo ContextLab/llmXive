@@ -1,0 +1,5 @@
+'|definition light si speed':
+  quote: 299792458.0 (scipy.constants.c (CODATA 2018, exact by SI definition))
+  source_id: speed_of_light
+  url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  value: '299792458.0'

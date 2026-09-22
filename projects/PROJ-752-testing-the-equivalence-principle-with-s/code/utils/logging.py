@@ -1,11 +1,8 @@
 """
-Standardized logging and error handling utilities for the SLR Equivalence Principle pipeline.
+Logging module for the Equivalence Principle Testing Pipeline.
 
-This module provides:
-- Custom exception hierarchy for specific failure modes
-- Centralized logging configuration
-- Progress tracking decorators and utilities
-- Error handling wrappers
+Provides centralized logging configuration, custom exceptions, and
+utility functions for consistent logging across the project.
 """
 
 import logging
@@ -14,220 +11,304 @@ import os
 from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 import traceback
-from functools import wraps
 
-# Custom Exception Hierarchy
+
+# Custom Exceptions
 class PipelineError(Exception):
-    """Base exception for all pipeline-related errors."""
+    """Base exception for pipeline-related errors."""
     pass
+
 
 class DataUnavailableError(PipelineError):
-    """Raised when required data sources are missing or inaccessible."""
+    """Raised when required data is missing or inaccessible."""
     pass
+
 
 class ConfigurationError(PipelineError):
-    """Raised when configuration validation fails."""
+    """Raised when configuration is invalid or missing required fields."""
     pass
+
 
 class AnalysisError(PipelineError):
-    """Raised when an analysis step fails due to numerical or logical issues."""
+    """Raised when an analysis step fails."""
     pass
+
 
 class ModelConvergenceError(AnalysisError):
-    """Raised when a model fitting algorithm fails to converge."""
+    """Raised when a model fails to converge."""
     pass
 
-class ValidationError(PipelineError):
-    """Raised when data validation checks fail."""
+
+class ValidationError(AnalysisError):
+    """Raised when validation checks fail."""
     pass
 
-# Logging Configuration
-_logger_instance: Optional[logging.Logger] = None
-_log_initialized = False
 
-def init_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
+class ModelError(AnalysisError):
+    """Raised when a model encounters an internal error."""
+    pass
+
+
+# Global logger registry
+_loggers: Dict[str, logging.Logger] = {}
+_initialized = False
+
+
+def init_logging(
+    log_file: Optional[str] = None,
+    log_level: int = logging.INFO,
+    console: bool = True,
+    project_root: Optional[str] = None
+) -> None:
     """
-    Initialize the global logger with standardized formatting.
-    
+    Initialize the logging configuration for the entire project.
+
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional file path to write logs to (in addition to console)
-    
-    Returns:
-        Configured logger instance
+        log_file: Path to the log file. If None, only console logging is configured.
+        log_level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        console: Whether to log to console.
+        project_root: Base directory for relative log file paths. If None, uses current dir.
     """
-    global _logger_instance, _log_initialized
-    
-    if _log_initialized:
-        return _logger_instance
-    
-    # Create logger
-    logger = logging.getLogger("slr_pipeline")
-    logger.setLevel(getattr(logging, log_level.upper()))
-    
-    # Prevent duplicate handlers
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Console handler with detailed format
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    
-    # Format: [TIMESTAMP] [LEVEL] [MODULE] MESSAGE
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # Optional file handler
+    global _initialized
+
+    if _initialized:
+        return
+
+    # Determine project root
+    if project_root is None:
+        # Default to code/ directory relative to current working directory
+        # or try to find the project root
+        current_dir = os.getcwd()
+        # Look for project root markers
+        for marker in ['.git', 'requirements.txt', 'tasks.md']:
+            if os.path.exists(os.path.join(current_dir, marker)):
+                project_root = current_dir
+                break
+        else:
+            project_root = current_dir
+
+    # Create log directory if needed
+    log_dir = os.path.join(project_root, 'data', 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+
+    # Clear existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+
+    # Console handler
+    if console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(log_level)
+        console_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        console_handler.setFormatter(console_formatter)
+        root_logger.addHandler(console_handler)
+
+    # File handler (if specified)
     if log_file:
-        os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else ".", exist_ok=True)
-        file_handler = logging.FileHandler(log_file, mode='a')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    
-    _logger_instance = logger
-    _log_initialized = True
-    
-    logger.info("Logging system initialized")
+        # Handle relative paths
+        if not os.path.isabs(log_file):
+            log_file = os.path.join(project_root, log_file)
+
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        file_handler.setFormatter(file_formatter)
+        root_logger.addHandler(file_handler)
+
+    _initialized = True
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get or create a logger with the specified name.
+
+    Args:
+        name: Logger name (typically module name).
+
+    Returns:
+        Configured logger instance.
+    """
+    if name in _loggers:
+        return _loggers[name]
+
+    logger = logging.getLogger(name)
+    _loggers[name] = logger
     return logger
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Get a logger instance. If not initialized, creates one with defaults.
-    
-    Args:
-        name: Sub-logger name (e.g., "slr_pipeline.data.ingestion")
-    
-    Returns:
-        Logger instance
-    """
-    global _logger_instance
-    if not _log_initialized:
-        init_logging()
-    
-    if name:
-        return logging.getLogger(f"slr_pipeline.{name}")
-    return _logger_instance
 
-def log_progress(step_name: str, current: int, total: int, message: Optional[str] = None) -> None:
+def log_progress(
+    logger: logging.Logger,
+    step_name: str,
+    message: str,
+    level: int = logging.INFO,
+    **kwargs: Any
+) -> None:
     """
-    Log a progress update for a multi-step process.
-    
-    Args:
-        step_name: Name of the current step
-        current: Current iteration count
-        total: Total iterations
-        message: Optional additional context message
-    """
-    logger = get_logger()
-    percentage = (current / total) * 100 if total > 0 else 0
-    status = f"Step '{step_name}': {current}/{total} ({percentage:.1f}%)"
-    if message:
-        status += f" - {message}"
-    logger.info(status)
+    Log a progress message with structured context.
 
-def log_error(error: Exception, context: Optional[str] = None, logger_name: Optional[str] = None) -> None:
+    Args:
+        logger: Logger instance.
+        step_name: Name of the current step.
+        message: Progress message.
+        level: Logging level.
+        **kwargs: Additional context to include.
+    """
+    context_str = ', '.join(f'{k}={v}' for k, v in kwargs.items()) if kwargs else ''
+    full_message = f"[{step_name}] {message}"
+    if context_str:
+        full_message += f" ({context_str})"
+    logger.log(level, full_message)
+
+
+def log_error(
+    logger: logging.Logger,
+    error: Exception,
+    context: Optional[str] = None
+) -> None:
     """
     Log an error with full traceback and optional context.
-    
-    Args:
-        error: The exception to log
-        context: Additional context about where the error occurred
-        logger_name: Optional logger name override
-    """
-    logger = get_logger(logger_name)
-    error_msg = f"{type(error).__name__}: {str(error)}"
-    
-    if context:
-        logger.error(f"Context: {context} | {error_msg}")
-    else:
-        logger.error(error_msg)
-    
-    logger.debug("Traceback:\n" + traceback.format_exc())
 
-def handle_fatal_error(error: Exception, exit_code: int = 1) -> None:
-    """
-    Log a fatal error and exit the process.
-    
     Args:
-        error: The fatal exception
-        exit_code: Exit code to use
+        logger: Logger instance.
+        error: Exception to log.
+        context: Optional context string.
     """
-    logger = get_logger()
-    logger.critical(f"FATAL ERROR: {error}")
-    logger.critical(traceback.format_exc())
+    error_msg = f"{type(error).__name__}: {str(error)}"
+    if context:
+        error_msg = f"{context}: {error_msg}"
+
+    logger.error(error_msg)
+    logger.debug(traceback.format_exc())
+
+
+def handle_fatal_error(
+    logger: logging.Logger,
+    error: Exception,
+    step_name: str,
+    exit_code: int = 1
+) -> None:
+    """
+    Handle a fatal error by logging and exiting.
+
+    Args:
+        logger: Logger instance.
+        error: Fatal exception.
+        step_name: Name of the step where error occurred.
+        exit_code: Exit code for the process.
+    """
+    log_error(logger, error, f"FATAL ERROR in {step_name}")
+    logger.error(f"Pipeline failed at step: {step_name}")
     sys.exit(exit_code)
 
-def log_step_duration(step_name: str, duration_seconds: float) -> None:
-    """
-    Log the duration of a completed step.
-    
-    Args:
-        step_name: Name of the step
-        duration_seconds: Time taken in seconds
-    """
-    logger = get_logger()
-    if duration_seconds < 60:
-        logger.info(f"Step '{step_name}' completed in {duration_seconds:.2f}s")
-    else:
-        minutes = duration_seconds / 60
-        logger.info(f"Step '{step_name}' completed in {minutes:.2f}m ({duration_seconds:.2f}s)")
 
-def track_step(step_name: str) -> Callable:
+def log_step_duration(
+    logger: logging.Logger,
+    step_name: str,
+    start_time: datetime,
+    end_time: Optional[datetime] = None
+) -> float:
     """
-    Decorator to track execution time and log progress for a function.
-    
+    Log the duration of a step.
+
     Args:
-        step_name: Name of the step for logging
-    
+        logger: Logger instance.
+        step_name: Name of the step.
+        start_time: Start datetime.
+        end_time: End datetime (defaults to now).
+
     Returns:
-        Decorated function
+        Duration in seconds.
     """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            logger = get_logger(func.__module__)
-            logger.info(f"Starting step: {step_name}")
-            start_time = datetime.now()
-            
-            try:
-                result = func(*args, **kwargs)
-                duration = (datetime.now() - start_time).total_seconds()
-                log_step_duration(step_name, duration)
-                return result
-            except Exception as e:
-                duration = (datetime.now() - start_time).total_seconds()
-                log_step_duration(step_name, duration)
-                log_error(e, context=f"Failed during step: {step_name}", logger_name=func.__module__)
-                raise
-        return wrapper
-    return decorator
+    if end_time is None:
+        end_time = datetime.now()
 
-# Context Manager for timed steps
+    duration = (end_time - start_time).total_seconds()
+    logger.info(f"[{step_name}] Completed in {duration:.2f} seconds")
+    return duration
+
+
 class TimedStep:
-    """Context manager for timing and logging code blocks."""
-    
-    def __init__(self, step_name: str, logger_name: Optional[str] = None):
+    """Context manager for timing and logging a step."""
+
+    def __init__(
+        self,
+        logger: logging.Logger,
+        step_name: str,
+        log_duration: bool = True
+    ):
+        self.logger = logger
         self.step_name = step_name
-        self.logger_name = logger_name
+        self.log_duration = log_duration
         self.start_time: Optional[datetime] = None
-        self.logger: Optional[logging.Logger] = None
-    
-    def __enter__(self):
-        self.logger = get_logger(self.logger_name)
-        self.logger.info(f"Entering step: {self.step_name}")
+        self.end_time: Optional[datetime] = None
+
+    def __enter__(self) -> 'TimedStep':
         self.start_time = datetime.now()
+        self.logger.info(f"[{self.step_name}] Starting...")
         return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        duration = (datetime.now() - self.start_time).total_seconds()
-        if exc_type is None:
-            log_step_duration(self.step_name, duration)
-        else:
-            log_error(exc_val, context=f"Step '{self.step_name}' failed", logger_name=self.logger_name)
-            log_step_duration(self.step_name, duration)
-        return False  # Do not suppress exceptions
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.end_time = datetime.now()
+        if exc_type is not None:
+            self.logger.error(f"[{self.step_name}] Failed with {exc_type.__name__}: {exc_val}")
+        elif self.log_duration:
+            duration = (self.end_time - self.start_time).total_seconds()
+            self.logger.info(f"[{self.step_name}] Completed in {duration:.2f} seconds")
+
+
+def track_step(
+    logger: logging.Logger,
+    step_name: str,
+    func: Callable
+) -> Callable:
+    """
+    Decorator to track step execution time and status.
+
+    Args:
+        logger: Logger instance.
+        step_name: Name of the step.
+        func: Function to wrap.
+
+    Returns:
+        Wrapped function.
+    """
+    def wrapper(*args, **kwargs):
+        start_time = datetime.now()
+        try:
+            logger.info(f"[{step_name}] Starting...")
+            result = func(*args, **kwargs)
+            duration = (datetime.now() - start_time).total_seconds()
+            logger.info(f"[{step_name}] Completed in {duration:.2f} seconds")
+            return result
+        except Exception as e:
+            duration = (datetime.now() - start_time).total_seconds()
+            logger.error(f"[{step_name}] Failed after {duration:.2f} seconds: {type(e).__name__}: {e}")
+            raise
+
+    return wrapper
+
+
+# Initialize logging with defaults when module is imported
+# This can be overridden by calling init_logging() explicitly
+try:
+    init_logging(
+        log_file='data/logs/pipeline.log',
+        log_level=logging.INFO,
+        console=True
+    )
+except Exception:
+    # Silently fail during import; user must call init_logging() explicitly
+    pass

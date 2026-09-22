@@ -64,3 +64,14 @@
   verification_status: pending
   verified_against_url: https://ilrs.cddis.eosdis.nasa.gov/
   verified_at: '2026-09-18T06:56:51.983189Z'
+- artifact_hash: 7f1fe37f4925fbbd39288ab92f9fbb64c27d4622b20d4f47f6a989509c62465a
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/dynamics_spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: NGA Geomatics - WGS 84
+  kind: url
+  value: http://earth-info.nga.mil/GandG/wgs84/gravitymod/
+  verification_status: pending
+  verified_against_url: https://earth-info.nga.mil/index.php?dir=wgs84&action=wgs84
+  verified_at: '2026-09-22T09:43:32.833100Z'
