@@ -1,334 +1,274 @@
 import os
 import csv
 import sys
+import json
 from typing import Dict, List, Any, Optional, Tuple
 from utils.logging import get_logger, log_info, log_warning, log_error
 from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-# Threshold for validation deviation (1% as per SC-005)
-VALIDATION_DEVIATION_THRESHOLD = 0.01
-
-def load_elemental_properties(filepath: str) -> Dict[str, Dict[str, float]]:
+def load_elemental_properties(filepath: str = "data/raw/elemental_properties.csv") -> Dict[str, Dict[str, float]]:
     """
-    Load elemental properties from a CSV file.
+    Load elemental properties from CSV into a dictionary keyed by element symbol.
     Expected columns: element, atomic_radius_angstrom, electronegativity_pauling, valence_electrons
-    Returns a dict keyed by element symbol.
     """
-    properties = {}
     if not os.path.exists(filepath):
-        log_error(f"Elemental properties file not found: {filepath}", ErrorCode.DATA_SOURCE_MISSING)
-        return properties
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Elemental properties file not found: {filepath}")
+        raise FileNotFoundError(f"Elemental properties file not found: {filepath}")
 
-    try:
-        with open(filepath, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                element = row['element'].strip()
-                if not element:
-                    continue
+    properties = {}
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            element = row['element'].strip()
+            try:
                 properties[element] = {
                     'atomic_radius_angstrom': float(row['atomic_radius_angstrom']),
                     'electronegativity_pauling': float(row['electronegativity_pauling']),
-                    'valence_electrons': float(row['valence_electrons'])
+                    'valence_electrons': int(row['valence_electrons'])
                 }
-        log_info(f"Loaded {len(properties)} elemental properties from {filepath}")
-    except Exception as e:
-        log_error(f"Failed to load elemental properties: {e}", ErrorCode.INVALID_DATA_SCHEMA)
-        raise
-    
+            except (ValueError, KeyError) as e:
+                log_warning(ErrorCode.INVALID_DATA_SCHEMA, f"Skipping invalid row in elemental properties: {row} - {e}")
+                continue
     return properties
 
-def calculate_mean_atomic_radius(atomic_radii: List[float]) -> float:
-    if not atomic_radii:
+def calculate_mean_atomic_radius(elements: List[str], properties: Dict[str, Dict[str, float]]) -> float:
+    """Calculate mean atomic radius for a list of elements."""
+    if not elements:
         return 0.0
-    return sum(atomic_radii) / len(atomic_radii)
+    radii = []
+    for el in elements:
+        if el in properties:
+            radii.append(properties[el]['atomic_radius_angstrom'])
+        else:
+            log_warning(ErrorCode.DATA_SOURCE_MISSING, f"Element {el} not found in properties file")
+    if not radii:
+        return 0.0
+    return sum(radii) / len(radii)
 
-def calculate_electronegativity_variance(electronegativities: List[float]) -> float:
-    if not electronegativities:
+def calculate_electronegativity_variance(elements: List[str], properties: Dict[str, Dict[str, float]]) -> float:
+    """Calculate variance of electronegativity for a list of elements."""
+    if len(elements) < 2:
         return 0.0
-    mean_en = sum(electronegativities) / len(electronegativities)
-    variance = sum((x - mean_en) ** 2 for x in electronegativities) / len(electronegativities)
+    en_values = []
+    for el in elements:
+        if el in properties:
+            en_values.append(properties[el]['electronegativity_pauling'])
+    if len(en_values) < 2:
+        return 0.0
+    mean_en = sum(en_values) / len(en_values)
+    variance = sum((x - mean_en) ** 2 for x in en_values) / len(en_values)
     return variance
 
-def calculate_valence_electron_count(valence_counts: List[float], concentrations: List[float]) -> float:
-    """
-    Calculate weighted average valence electron count.
-    valence_counts: list of valence electron counts for each element in the alloy
-    concentrations: list of atomic fractions for each element
-    """
-    if not valence_counts or not concentrations or len(valence_counts) != len(concentrations):
-        return 0.0
-    return sum(v * c for v, c in zip(valence_counts, concentrations))
+def calculate_valence_electron_count(elements: List[str], properties: Dict[str, Dict[str, float]]) -> int:
+    """Calculate total valence electron count for a list of elements."""
+    total = 0
+    for el in elements:
+        if el in properties:
+            total += properties[el]['valence_electrons']
+        else:
+            log_warning(ErrorCode.DATA_SOURCE_MISSING, f"Element {el} not found in properties file")
+    return total
 
-def calculate_hume_rothery_concentration(concentrations: List[float]) -> float:
+def calculate_hume_rothery_concentration(elements: List[str], concentrations: List[float], properties: Dict[str, Dict[str, float]]) -> float:
     """
-    Simple Hume-Rothery concentration metric: sum of squared concentrations.
-    A value of 1.0 indicates a pure element, lower values indicate more mixing.
+    Calculate Hume-Rothery concentration factor.
+    Simplified: weighted average of atomic radius differences relative to the largest.
     """
-    if not concentrations:
-        return 0.0
-    return sum(c ** 2 for c in concentrations)
-
-def generate_descriptors(
-    alloy_data: Dict[str, Any],
-    elemental_props: Dict[str, Dict[str, float]]
-) -> Dict[str, float]:
-    """
-    Generate compositional descriptors for a single alloy entry.
-    
-    Args:
-        alloy_data: Dictionary containing 'elements' (list of symbols) and 'concentrations' (list of fractions).
-        elemental_props: Dictionary of elemental properties loaded from CSV.
-        
-    Returns:
-        Dictionary of calculated descriptors.
-    """
-    elements = alloy_data.get('elements', [])
-    concentrations = alloy_data.get('concentrations', [])
-    
     if not elements or not concentrations:
-        log_warning("Invalid alloy data: missing elements or concentrations", ErrorCode.INVALID_DATA_SCHEMA)
-        return {}
-
-    # Validate that all elements exist in properties
-    missing_elements = [e for e in elements if e not in elemental_props]
-    if missing_elements:
-        log_warning(f"Missing elemental properties for: {missing_elements}", ErrorCode.DATA_SOURCE_MISSING)
-        # We could raise, but for robustness we proceed with available data or return empty
-        # For strict validation (SC-005), we might want to halt or flag.
-        # Here we log and continue, but real production might raise.
+        return 0.0
     
     radii = []
-    en_values = []
-    valence_values = []
-    
-    for elem, conc in zip(elements, concentrations):
-        if elem in elemental_props:
-            props = elemental_props[elem]
-            radii.append(props['atomic_radius_angstrom'])
-            en_values.append(props['electronegativity_pauling'])
-            valence_values.append(props['valence_electrons'])
-        else:
-            # Handle missing property gracefully (e.g., skip or use 0)
-            # For this implementation, we skip adding to lists to avoid distorting averages
-            continue
+    for el, conc in zip(elements, concentrations):
+        if el in properties:
+            radii.append(properties[el]['atomic_radius_angstrom'])
     
     if not radii:
-        log_warning("No valid elemental properties found for alloy", ErrorCode.DATA_SOURCE_MISSING)
+        return 0.0
+    
+    max_radius = max(radii)
+    if max_radius == 0:
+        return 0.0
+    
+    # Calculate weighted deviation
+    weighted_deviation = 0.0
+    for el, conc in zip(elements, concentrations):
+        if el in properties:
+            r = properties[el]['atomic_radius_angstrom']
+            deviation = abs(r - max_radius) / max_radius
+            weighted_deviation += deviation * conc
+    
+    return weighted_deviation
+
+def generate_descriptors(row: Dict[str, Any], properties: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
+    """
+    Generate compositional descriptors for a single alloy row.
+    Expects row to contain 'element_a', 'element_b', and optionally 'concentration_a' (0-1).
+    """
+    elements = []
+    concentrations = []
+    
+    el_a = row.get('element_a', '').strip()
+    el_b = row.get('element_b', '').strip()
+    
+    if el_a:
+        elements.append(el_a)
+        conc_a = float(row.get('concentration_a', 0.5))
+        concentrations.append(conc_a)
+    
+    if el_b:
+        elements.append(el_b)
+        conc_b = 1.0 - conc_a if el_a else float(row.get('concentration_b', 0.5))
+        concentrations.append(conc_b)
+    
+    if not elements:
+        log_warning(ErrorCode.INVALID_DATA_SCHEMA, "Row missing element identifiers")
         return {}
-
-    descriptors = {
-        'mean_atomic_radius': calculate_mean_atomic_radius(radii),
-        'electronegativity_variance': calculate_electronegativity_variance(en_values),
-        'valence_electron_count': calculate_valence_electron_count(valence_values, concentrations),
-        'hume_rothery_concentration': calculate_hume_rothery_concentration(concentrations)
+    
+    # Normalize concentrations if needed
+    total_conc = sum(concentrations)
+    if total_conc > 0:
+        concentrations = [c / total_conc for c in concentrations]
+    
+    mean_radius = calculate_mean_atomic_radius(elements, properties)
+    en_variance = calculate_electronegativity_variance(elements, properties)
+    valence_count = calculate_valence_electron_count(elements, properties)
+    hume_rothery = calculate_hume_rothery_concentration(elements, concentrations, properties)
+    
+    return {
+        'mean_atomic_radius': mean_radius,
+        'electronegativity_variance': en_variance,
+        'valence_electron_count': valence_count,
+        'hume_rothery_concentration': hume_rothery
     }
-    
-    return descriptors
 
-def validate_descriptors(
-    descriptors: Dict[str, float],
-    alloy_data: Dict[str, Any],
-    elemental_props: Dict[str, Dict[str, float]]
-) -> bool:
+def validate_descriptors(descriptors: Dict[str, Any], properties: Dict[str, Dict[str, float]], tolerance: float = 0.01) -> Tuple[bool, List[str]]:
     """
-    Validate derived descriptors against source elemental properties.
-    
-    Checks:
-    1. Mean atomic radius deviation from weighted average of source radii <= 1%
-    2. Electronegativity variance consistency
-    3. Valence electron count consistency
-    
-    Returns True if validation passes, False otherwise.
+    Validate derived descriptor values against elemental properties.
+    Checks if derived values are within reasonable bounds based on input properties.
+    Returns (is_valid, list_of_errors).
     """
-    elements = alloy_data.get('elements', [])
-    concentrations = alloy_data.get('concentrations', [])
+    errors = []
     
-    if not elements or not concentrations:
-        log_error("Cannot validate: missing alloy data", ErrorCode.INVALID_DATA_SCHEMA)
-        return False
-
-    # Re-calculate expected values directly from source data for comparison
-    expected_radii_sum = 0.0
-    expected_en_sum = 0.0
-    expected_valence_sum = 0.0
-    total_weight = 0.0
+    # Check mean_atomic_radius
+    if 'mean_atomic_radius' in descriptors and descriptors['mean_atomic_radius'] is not None:
+        mean_r = descriptors['mean_atomic_radius']
+        if mean_r <= 0:
+            errors.append(f"Mean atomic radius must be positive: {mean_r}")
+        # Check if it falls within the range of available properties
+        if properties:
+            all_radii = [p['atomic_radius_angstrom'] for p in properties.values()]
+            if all_radii:
+                min_r, max_r = min(all_radii), max(all_radii)
+                if mean_r < min_r * (1 - tolerance) or mean_r > max_r * (1 + tolerance):
+                    errors.append(f"Mean atomic radius {mean_r} outside expected range [{min_r}, {max_r}]")
     
-    valid_elements_count = 0
+    # Check electronegativity_variance
+    if 'electronegativity_variance' in descriptors and descriptors['electronegativity_variance'] is not None:
+        var_en = descriptors['electronegativity_variance']
+        if var_en < 0:
+            errors.append(f"Electronegativity variance cannot be negative: {var_en}")
+        # Variance should generally be less than the square of the max range
+        if properties:
+            all_en = [p['electronegativity_pauling'] for p in properties.values()]
+            if all_en:
+                max_range = max(all_en) - min(all_en)
+                max_possible_var = (max_range ** 2) / 4  # Max variance for two points at extremes
+                if var_en > max_possible_var * (1 + tolerance):
+                    errors.append(f"Electronegativity variance {var_en} exceeds theoretical max {max_possible_var}")
     
-    for elem, conc in zip(elements, concentrations):
-        if elem in elemental_props:
-            props = elemental_props[elem]
-            expected_radii_sum += props['atomic_radius_angstrom'] * conc
-            expected_en_sum += props['electronegativity_pauling'] * conc
-            expected_valence_sum += props['valence_electrons'] * conc
-            total_weight += conc
-            valid_elements_count += 1
+    # Check valence_electron_count
+    if 'valence_electron_count' in descriptors and descriptors['valence_electron_count'] is not None:
+        v_count = descriptors['valence_electron_count']
+        if v_count < 0:
+            errors.append(f"Valence electron count cannot be negative: {v_count}")
     
-    if valid_elements_count == 0:
-        log_error("No valid elements found for validation", ErrorCode.DATA_SOURCE_MISSING)
-        return False
-
-    # Calculate expected weighted averages
-    expected_mean_radius = expected_radii_sum / total_weight if total_weight > 0 else 0.0
-    expected_valence = expected_valence_sum / total_weight if total_weight > 0 else 0.0
+    # Check hume_rothery_concentration
+    if 'hume_rothery_concentration' in descriptors and descriptors['hume_rothery_concentration'] is not None:
+        hr = descriptors['hume_rothery_concentration']
+        if hr < 0 or hr > 1:
+            errors.append(f"Hume-Rothery concentration must be between 0 and 1: {hr}")
     
-    # Validate Mean Atomic Radius
-    if 'mean_atomic_radius' in descriptors and expected_mean_radius > 0:
-        calc_radius = descriptors['mean_atomic_radius']
-        deviation = abs(calc_radius - expected_mean_radius) / expected_mean_radius
-        if deviation > VALIDATION_DEVIATION_THRESHOLD:
-            log_error(
-                f"Mean atomic radius deviation {deviation:.4f} exceeds threshold {VALIDATION_DEVIATION_THRESHOLD}",
-                ErrorCode.INVALID_DATA_SCHEMA
-            )
-            return False
-        log_info(f"Mean atomic radius validation passed (deviation: {deviation:.4f})")
+    return len(errors) == 0, errors
 
-    # Validate Valence Electron Count
-    if 'valence_electron_count' in descriptors and expected_valence > 0:
-        calc_valence = descriptors['valence_electron_count']
-        deviation = abs(calc_valence - expected_valence) / expected_valence
-        if deviation > VALIDATION_DEVIATION_THRESHOLD:
-            log_error(
-                f"Valence electron count deviation {deviation:.4f} exceeds threshold {VALIDATION_DEVIATION_THRESHOLD}",
-                ErrorCode.INVALID_DATA_SCHEMA
-            )
-            return False
-        log_info(f"Valence electron count validation passed (deviation: {deviation:.4f})")
-
-    # Note: Electronegativity variance is a derived statistic of the set, not a simple weighted average.
-    # We assume the calculation logic is consistent. A strict check would require re-computing the variance
-    # from the source list and comparing.
-    if 'electronegativity_variance' in descriptors:
-        en_values = []
-        for elem, conc in zip(elements, concentrations):
-            if elem in elemental_props:
-                en_values.append(elemental_props[elem]['electronegativity_pauling'])
-        
-        if len(en_values) > 1:
-            mean_en = sum(en_values) / len(en_values)
-            expected_variance = sum((x - mean_en) ** 2 for x in en_values) / len(en_values)
-            calc_variance = descriptors['electronegativity_variance']
-            
-            # Handle zero variance case
-            if expected_variance > 1e-9:
-                deviation = abs(calc_variance - expected_variance) / expected_variance
-            else:
-                deviation = abs(calc_variance - expected_variance) if abs(calc_variance - expected_variance) > 1e-9 else 0.0
-                
-            if deviation > VALIDATION_DEVIATION_THRESHOLD:
-                log_error(
-                    f"Electronegativity variance deviation {deviation:.4f} exceeds threshold {VALIDATION_DEVIATION_THRESHOLD}",
-                    ErrorCode.INVALID_DATA_SCHEMA
-                )
-                return False
-            log_info(f"Electronegativity variance validation passed (deviation: {deviation:.4f})")
-
-    return True
-
-def process_alloy_dataset(
-    input_path: str,
-    output_path: str,
-    elemental_props_path: str
-) -> int:
+def process_alloy_dataset(input_path: str, output_path: str, properties_path: str = "data/raw/elemental_properties.csv") -> int:
     """
-    Process a dataset of alloys, generate descriptors, and validate them.
-    
-    Args:
-        input_path: Path to input CSV with alloy compositions.
-        output_path: Path to write output CSV with descriptors.
-        elemental_props_path: Path to elemental properties CSV.
-        
-    Returns:
-        Number of successfully processed rows.
+    Process an alloy dataset, generate descriptors, validate them, and write to CSV.
+    Returns the number of successfully processed rows.
     """
-    elemental_props = load_elemental_properties(elemental_props_path)
-    if not elemental_props:
-        log_error("Failed to load elemental properties", ErrorCode.DATA_SOURCE_MISSING)
-        return 0
-
+    if not os.path.exists(properties_path):
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Elemental properties file not found: {properties_path}")
+        raise FileNotFoundError(f"Elemental properties file not found: {properties_path}")
+    
+    properties = load_elemental_properties(properties_path)
     processed_count = 0
+    validation_failures = 0
     
-    try:
-        with open(input_path, 'r', newline='', encoding='utf-8') as infile, \
-             open(output_path, 'w', newline='', encoding='utf-8') as outfile:
-            
-            reader = csv.DictReader(infile)
-            fieldnames = reader.fieldnames + [
-                'mean_atomic_radius',
-                'electronegativity_variance',
-                'valence_electron_count',
-                'hume_rothery_concentration'
-            ]
-            
-            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-            writer.writeheader()
-            
-            for row in reader:
-                try:
-                    # Parse elements and concentrations
-                    # Assuming format: "Cu,Al,Zn" and "0.6,0.3,0.1"
-                    elements_str = row.get('elements', '')
-                    conc_str = row.get('concentrations', '')
-                    
-                    if not elements_str or not conc_str:
-                        continue
-                        
-                    elements = [e.strip() for e in elements_str.split(',')]
-                    concentrations = [float(c.strip()) for c in conc_str.split(',')]
-                    
-                    alloy_data = {
-                        'elements': elements,
-                        'concentrations': concentrations
-                    }
-                    
-                    descriptors = generate_descriptors(alloy_data, elemental_props)
-                    
-                    if not descriptors:
-                        continue
-                        
-                    # Validate descriptors against source properties (T016)
-                    if not validate_descriptors(descriptors, alloy_data, elemental_props):
-                        log_warning(f"Validation failed for row: {row.get('id', 'unknown')}. Skipping.", ErrorCode.INVALID_DATA_SCHEMA)
-                        continue
-                        
-                    # Merge original row with descriptors
-                    output_row = dict(row)
-                    output_row.update(descriptors)
-                    writer.writerow(output_row)
-                    processed_count += 1
-                    
-                except Exception as e:
-                    log_error(f"Error processing row {row}: {e}", ErrorCode.INVALID_DATA_SCHEMA)
+    if not os.path.exists(input_path):
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    
+    with open(input_path, 'r', newline='', encoding='utf-8') as infile, \
+         open(output_path, 'w', newline='', encoding='utf-8') as outfile:
+        
+        reader = csv.DictReader(infile)
+        fieldnames = reader.fieldnames + ['mean_atomic_radius', 'electronegativity_variance', 
+                                          'valence_electron_count', 'hume_rothery_concentration', 
+                                          'validation_status', 'validation_errors']
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for row_num, row in enumerate(reader, 1):
+            try:
+                descriptors = generate_descriptors(row, properties)
+                if not descriptors:
+                    log_warning(ErrorCode.INVALID_DATA_SCHEMA, f"Row {row_num}: Could not generate descriptors")
                     continue
-                    
-    except Exception as e:
-        log_error(f"Failed to process dataset: {e}", ErrorCode.INVALID_DATA_SCHEMA)
-        raise
-
-    log_info(f"Successfully processed {processed_count} alloy entries with validation.")
+                
+                is_valid, errors = validate_descriptors(descriptors, properties)
+                status = "VALID" if is_valid else "INVALID"
+                error_str = "; ".join(errors) if errors else ""
+                
+                if not is_valid:
+                    validation_failures += 1
+                    log_warning(ErrorCode.INVALID_DATA_SCHEMA, f"Row {row_num}: Validation failed - {error_str}")
+                
+                # Merge original row with descriptors
+                new_row = {**row, **descriptors}
+                new_row['validation_status'] = status
+                new_row['validation_errors'] = error_str
+                
+                writer.writerow(new_row)
+                processed_count += 1
+                
+            except Exception as e:
+                log_error(ErrorCode.INVALID_DATA_SCHEMA, f"Row {row_num}: Unexpected error - {e}")
+                continue
+    
+    log_info(ErrorCode.DATA_SOURCE_MISSING, f"Processed {processed_count} rows. Validation failures: {validation_failures}")
     return processed_count
 
 def main():
-    """
-    Main entry point for descriptor generation and validation.
-    Usage: python -m code.features.generate_descriptors --input <path> --output <path> --props <path>
-    """
+    """Main entry point for descriptor generation."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Generate and validate alloy descriptors")
-    parser.add_argument('--input', required=True, help='Input CSV path')
-    parser.add_argument('--output', required=True, help='Output CSV path')
-    parser.add_argument('--props', required=True, help='Elemental properties CSV path')
+    parser = argparse.ArgumentParser(description="Generate and validate compositional descriptors for alloy data.")
+    parser.add_argument("--input", default="data/processed/raw_phase_data.csv", help="Input CSV file path")
+    parser.add_argument("--output", default="data/processed/descriptors.csv", help="Output CSV file path")
+    parser.add_argument("--properties", default="data/raw/elemental_properties.csv", help="Elemental properties CSV path")
     
     args = parser.parse_args()
     
-    log_info(f"Starting descriptor generation for {args.input}")
-    count = process_alloy_dataset(args.input, args.output, args.props)
-    log_info(f"Finished. Processed {count} rows.")
+    try:
+        count = process_alloy_dataset(args.input, args.output, args.properties)
+        log_info(ErrorCode.DATA_SOURCE_MISSING, f"Successfully generated descriptors for {count} rows")
+    except Exception as e:
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

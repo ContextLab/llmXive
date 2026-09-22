@@ -4,112 +4,165 @@ import argparse
 import json
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
+# Import from existing API surface
 from viz.plot_phase_diagrams import run_visualization, plot_phase_diagram
 from utils.logging import get_logger, log_info, log_error, log_warning
-from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-def ensure_output_dir(output_dir: str) -> None:
-    """Ensure the output directory exists, creating it if necessary."""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        log_info(f"Created output directory: {output_dir}")
+def ensure_output_dir(output_dir: str) -> bool:
+    """
+    Ensure the output directory exists. Create it if it doesn't.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+        log_info(logger, f"Output directory ensured: {output_dir}")
+        return True
+    except Exception as e:
+        log_error(logger, f"Failed to create output directory {output_dir}: {e}")
+        return False
 
 def save_plot_to_disk(
-    plot_data: Dict[str, Any],
+    plot_obj: Any,
     system_id: str,
     output_dir: str,
-    format: str = "png"
-) -> str:
+    formats: Optional[List[str]] = None
+) -> List[str]:
     """
-    Save a generated plot to disk with system ID naming convention.
+    Save a matplotlib plot object to disk with system ID naming convention.
     
     Args:
-        plot_data: Dictionary containing plot data (lines, labels, etc.)
-        system_id: Unique identifier for the alloy system (e.g., "Cu-Zn")
-        output_dir: Directory to save the plot
-        format: Output format ("png" or "svg")
-        
+        plot_obj: Matplotlib figure object to save.
+        system_id: System identifier (e.g., "Cu-Zn") used in filename.
+        output_dir: Directory path to save the plot.
+        formats: List of file formats to save (e.g., ["png", "svg"]). 
+                Defaults to ["png", "svg"].
+                
     Returns:
-        Path to the saved file
+        List of saved file paths.
+        
+    Raises:
+        ValueError: If plot_obj is None or invalid.
+        OSError: If file cannot be written.
     """
-    ensure_output_dir(output_dir)
+    if plot_obj is None:
+        raise ValueError("plot_obj cannot be None")
+        
+    if formats is None:
+        formats = ["png", "svg"]
+        
+    saved_paths = []
     
-    # Sanitize system_id for filename
-    safe_system_id = system_id.replace("/", "_").replace("\\", "_")
-    filename = f"{safe_system_id}.{format}"
-    filepath = os.path.join(output_dir, filename)
-    
-    # Extract components from plot_data
-    if 'figure' in plot_data:
-        fig = plot_data['figure']
-        fig.savefig(filepath, dpi=300, bbox_inches='tight')
-        log_info(f"Saved plot to {filepath}")
-        return filepath
-    else:
-        # If plot_data is a path or already saved, just verify
-        if os.path.exists(str(plot_data)):
-            log_info(f"Plot file already exists at {plot_data}")
-            return str(plot_data)
-        else:
-            raise FileNotFoundError(f"Plot data not found or invalid: {plot_data}")
+    for fmt in formats:
+        filename = f"{system_id}.{fmt}"
+        filepath = os.path.join(output_dir, filename)
+        
+        try:
+            plot_obj.savefig(filepath, dpi=300, bbox_inches='tight')
+            saved_paths.append(filepath)
+            log_info(logger, f"Saved plot to {filepath}")
+        except Exception as e:
+            log_error(logger, f"Failed to save plot to {filepath}: {e}")
+            # Don't raise here, allow other formats to be attempted
+            
+    return saved_paths
 
 def run_save_plots(
     systems: Optional[List[str]] = None,
     output_dir: str = "data/artifacts/plots",
-    format: str = "png"
-) -> Dict[str, str]:
+    formats: Optional[List[str]] = None
+) -> Dict[str, Any]:
     """
-    Generate and save phase diagrams for specified alloy systems.
+    Run the full visualization and save workflow for specified systems.
+    
+    This function orchestrates:
+    1. Ensuring the output directory exists
+    2. Running visualization for each system
+    3. Saving plots to disk with proper naming convention
     
     Args:
-        systems: List of system IDs to process (e.g., ["Cu-Zn", "Al-Cu"])
-               If None, defaults to simple binary systems.
-        output_dir: Directory to save generated plots
-        format: Output format ("png" or "svg")
+        systems: List of system IDs to visualize (e.g., ["Cu-Zn", "Al-Cu"]).
+                If None, defaults to standard simple binary systems.
+        output_dir: Directory to save plots. Defaults to "data/artifacts/plots".
+        formats: List of file formats. Defaults to ["png", "svg"].
                 
     Returns:
-        Dictionary mapping system_id to saved file path
+        Dictionary with results summary:
+        {
+            "success": bool,
+            "systems_processed": int,
+            "files_saved": int,
+            "saved_files": List[str],
+            "errors": List[Dict]
+        }
     """
     if systems is None:
-        # Default to simple binary systems as per US-3
+        # Default to simple binary systems as per US-3 constraints
         systems = ["Cu-Zn", "Al-Cu"]
-    
-    saved_files = {}
+        
+    if not ensure_output_dir(output_dir):
+        return {
+            "success": False,
+            "systems_processed": 0,
+            "files_saved": 0,
+            "saved_files": [],
+            "errors": [{"error": "Failed to create output directory"}]
+        }
+        
+    results = {
+        "success": True,
+        "systems_processed": 0,
+        "files_saved": 0,
+        "saved_files": [],
+        "errors": []
+    }
     
     for system_id in systems:
+        log_info(logger, f"Processing system: {system_id}")
+        
         try:
-            log_info(f"Processing system: {system_id}")
+            # Run visualization for this system
+            # plot_phase_diagram returns a matplotlib figure object
+            fig = plot_phase_diagram(system_id)
             
-            # Generate the plot using existing visualization logic
-            # This calls the plot_phase_diagram function which returns plot data
-            plot_result = plot_phase_diagram(system_id)
-            
-            if plot_result is None:
-                log_warning(f"No plot generated for {system_id}, skipping save")
+            if fig is None:
+                log_warning(logger, f"No plot generated for system {system_id}")
+                results["errors"].append({
+                    "system": system_id,
+                    "error": "No plot generated"
+                })
                 continue
-            
+                
             # Save the plot to disk
-            filepath = save_plot_to_disk(
-                plot_data=plot_result,
-                system_id=system_id,
-                output_dir=output_dir,
-                format=format
-            )
+            saved_paths = save_plot_to_disk(fig, system_id, output_dir, formats)
             
-            saved_files[system_id] = filepath
-            log_info(f"Successfully saved plot for {system_id}: {filepath}")
-            
+            if saved_paths:
+                results["files_saved"] += len(saved_paths)
+                results["saved_files"].extend(saved_paths)
+                results["systems_processed"] += 1
+            else:
+                results["errors"].append({
+                    "system": system_id,
+                    "error": "No files were saved"
+                })
+                
         except Exception as e:
-            log_error(f"Failed to process system {system_id}: {str(e)}")
-            # Continue with other systems rather than halting entirely
-            continue
-    
-    return saved_files
+            log_error(logger, f"Error processing system {system_id}: {e}")
+            results["errors"].append({
+                "system": system_id,
+                "error": str(e)
+            })
+            results["success"] = False
+            
+    # Log final summary
+    if results["success"]:
+        log_info(logger, f"Successfully processed {results['systems_processed']} systems, "
+                       f"saved {results['files_saved']} files")
+    else:
+        log_warning(logger, f"Completed with errors: {len(results['errors'])} systems failed")
+        
+    return results
 
 def main():
     """Main entry point for the save_plots script."""
@@ -120,51 +173,39 @@ def main():
         "--systems",
         nargs="+",
         default=None,
-        help="Space-separated list of system IDs (e.g., Cu-Zn Al-Cu)"
+        help="List of system IDs to visualize (e.g., Cu-Zn Al-Cu). Defaults to Cu-Zn Al-Cu."
     )
     parser.add_argument(
         "--output-dir",
         default="data/artifacts/plots",
-        help="Directory to save generated plots"
+        help="Directory to save plots. Defaults to data/artifacts/plots."
     )
     parser.add_argument(
-        "--format",
-        choices=["png", "svg"],
-        default="png",
-        help="Output format (png or svg)"
+        "--formats",
+        nargs="+",
+        default=["png", "svg"],
+        help="File formats to save (e.g., png svg). Defaults to png svg."
     )
     
     args = parser.parse_args()
     
-    log_info(f"Starting plot save process for systems: {args.systems}")
+    results = run_save_plots(
+        systems=args.systems,
+        output_dir=args.output_dir,
+        formats=args.formats
+    )
     
+    # Write summary to a JSON file for verification
+    summary_path = os.path.join(args.output_dir, "save_plots_summary.json")
     try:
-        saved_files = run_save_plots(
-            systems=args.systems,
-            output_dir=args.output_dir,
-            format=args.format
-        )
-        
-        if not saved_files:
-            log_warning("No plots were saved. Check logs for errors.")
-            sys.exit(1)
-        
-        log_info(f"Successfully saved {len(saved_files)} plots:")
-        for system_id, filepath in saved_files.items():
-            log_info(f"  - {system_id}: {filepath}")
-        
-        # Verify files exist (FR-005 verification)
-        for system_id, filepath in saved_files.items():
-            if not os.path.exists(filepath):
-                log_error(f"Verification failed: File does not exist at {filepath}")
-                sys.exit(1)
-        
-        log_info("All plots saved and verified successfully.")
-        sys.exit(0)
-        
+        with open(summary_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        log_info(logger, f"Summary written to {summary_path}")
     except Exception as e:
-        log_error(f"Pipeline failed: {str(e)}")
-        sys.exit(1)
+        log_error(logger, f"Failed to write summary: {e}")
+        
+    # Exit with appropriate code
+    sys.exit(0 if results["success"] else 1)
 
 if __name__ == "__main__":
     main()

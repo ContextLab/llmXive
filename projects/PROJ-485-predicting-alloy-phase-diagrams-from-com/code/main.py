@@ -1,239 +1,222 @@
 """
-Pipeline Orchestrator for Alloy Phase Diagram Prediction.
+Pipeline Orchestrator for Predicting Alloy Phase Diagrams.
 
-This module manages the execution flow of the research pipeline, handling
-state persistence, step execution, and error management.
-
-State is managed in `state/PROJ-485/` as per Constitution Principle V.
+This module manages the execution flow of the research pipeline,
+handling state persistence, step execution, and error recovery.
 """
-
 import os
 import sys
 import argparse
 import yaml
+import json
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
-# Add project root to path to resolve relative imports if running as script
-# Note: In a packaged environment, these would be installed imports.
-# We assume the execution context allows importing from code/ subpackages.
-try:
-    from utils.logging import get_logger, log_error, log_info, log_warning
-    from utils.checksum import compute_file_sha256, compute_and_store_checksum
-except ImportError:
-    # Fallback for direct execution context adjustments
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from code.utils.logging import get_logger, log_error, log_info, log_warning
-    from code.utils.checksum import compute_file_sha256, compute_and_store_checksum
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from utils.logging import get_logger, log_info, log_error, log_warning
+from utils.checksum import compute_file_sha256
+from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-# Constants
-PROJECT_ID = "PROJ-485"
-STATE_DIR = os.path.join("state", PROJECT_ID)
+STATE_DIR = "state/PROJ-485"
 STATE_FILE = os.path.join(STATE_DIR, "pipeline_state.yaml")
+CONFIG_FILE = "code/config.yaml"
 
-# Pipeline Steps Definition
-# Order matters. These correspond to the implementation tasks in tasks.md.
+# Define the pipeline steps in execution order
 PIPELINE_STEPS = [
     {
-        "id": "ingest",
-        "name": "Data Ingestion",
-        "module": "code.ingest.load_data",
-        "function": "run_ingestion",
-        "description": "Load raw data from NIST-JANAF/SGTE or local CSV"
+        "id": "T009",
+        "name": "Configuration Validation",
+        "module": "utils.config_validator",
+        "func": "main",
+        "description": "Validate config.yaml and data source availability"
     },
     {
-        "id": "features",
-        "name": "Feature Generation",
-        "module": "code.features.generate_descriptors",
-        "function": "run_descriptor_generation",
-        "description": "Calculate compositional descriptors"
+        "id": "T012_T018",
+        "name": "Data Ingestion & Feature Generation",
+        "module": "ingest.load_data",
+        "func": "main",
+        "description": "Load raw data, filter, generate descriptors"
     },
     {
-        "id": "train",
-        "name": "Model Training",
-        "module": "code.models.train",
-        "function": "run_training",
-        "description": "Train Random Forest with LOSO CV"
+        "id": "T022",
+        "name": "LOSO Pre-checks (Convex Hull)",
+        "module": "models.loso_checks",
+        "func": "main",
+        "description": "Validate element scope and generate convex hull"
     },
     {
-        "id": "viz",
-        "name": "Visualization",
-        "module": "code.viz.plot_phase_diagrams",
-        "function": "run_visualization",
-        "description": "Generate phase diagram plots"
+        "id": "T021_T029",
+        "name": "Model Training & Evaluation",
+        "module": "models.train",
+        "func": "main",
+        "description": "Train RF model, run LOSO, power analysis, baseline comparison"
+    },
+    {
+        "id": "T032_T038",
+        "name": "Visualization & Fidelity",
+        "module": "viz.plot_phase_diagrams",
+        "func": "main",
+        "description": "Generate plots and fidelity reports"
     }
 ]
 
+def ensure_state_directory():
+    """Ensure the state directory exists."""
+    if not os.path.exists(STATE_DIR):
+        os.makedirs(STATE_DIR, exist_ok=True)
+        logger.info(f"Created state directory: {STATE_DIR}")
+
 def load_state() -> Dict[str, Any]:
     """Load the current pipeline state from disk."""
+    ensure_state_directory()
     if not os.path.exists(STATE_FILE):
-        logger.info(f"State file {STATE_FILE} not found. Initializing new state.")
-        return {
-            "project_id": PROJECT_ID,
+        state = {
+            "project_id": "PROJ-485",
             "start_time": None,
             "end_time": None,
             "status": "initialized",
-            "steps": {},
-            "config": {}
+            "steps": {}
         }
-    
+        save_state(state)
+        return state
+
     try:
         with open(STATE_FILE, 'r') as f:
             state = yaml.safe_load(f)
-            if state is None:
-                return {"project_id": PROJECT_ID, "status": "empty"}
+            if not state:
+                state = {"project_id": "PROJ-485", "status": "initialized", "steps": {}}
             return state
     except Exception as e:
-        log_error(logger, f"Failed to load state file: {e}")
-        return {"project_id": PROJECT_ID, "status": "corrupted"}
+        log_error(f"Failed to load state file: {e}", ErrorCode.RESOURCE_LIMIT_EXCEEDED)
+        return {"project_id": "PROJ-485", "status": "error", "steps": {}}
 
-def save_state(state: Dict[str, Any]) -> bool:
+def save_state(state: Dict[str, Any]):
     """Save the pipeline state to disk."""
-    os.makedirs(STATE_DIR, exist_ok=True)
+    ensure_state_directory()
     try:
         with open(STATE_FILE, 'w') as f:
             yaml.dump(state, f, default_flow_style=False)
-        log_info(logger, f"State saved to {STATE_FILE}")
-        return True
+        logger.info(f"State saved to {STATE_FILE}")
     except Exception as e:
-        log_error(logger, f"Failed to save state file: {e}")
-        return False
+        log_error(f"Failed to save state file: {e}", ErrorCode.RESOURCE_LIMIT_EXCEEDED)
+        raise
 
-def update_step_status(step_id: str, status: str, details: Optional[Dict] = None, state: Optional[Dict] = None) -> Dict:
-    """Update the status of a specific step in the state dictionary."""
-    if state is None:
-        state = load_state()
-    
+def update_step_status(step_id: str, status: str, details: Optional[Dict] = None):
+    """Update the status of a specific step in the state."""
+    state = load_state()
     if "steps" not in state:
         state["steps"] = {}
-    
+
     timestamp = datetime.now().isoformat()
-    
-    step_info = {
-        "step_id": step_id,
+    state["steps"][step_id] = {
         "status": status,
-        "started_at": state["steps"].get(step_id, {}).get("started_at"),
-        "completed_at": timestamp,
+        "timestamp": timestamp,
         "details": details or {}
     }
-    
+
     if status == "running":
-        step_info["started_at"] = timestamp
-        step_info["completed_at"] = None
-    
-    state["steps"][step_id] = step_info
-    state["last_updated"] = timestamp
-    
-    # Update overall status
-    if status == "failed":
-        state["status"] = "failed"
+        state["status"] = "running"
     elif status == "completed":
         # Check if all steps are completed
-        completed_count = sum(1 for s in state["steps"].values() if s.get("status") == "completed")
-        if completed_count == len(PIPELINE_STEPS):
+        all_completed = all(
+            s.get("status") == "completed"
+            for s in state["steps"].values()
+        )
+        if all_completed:
             state["status"] = "completed"
             state["end_time"] = timestamp
-        elif state["status"] != "failed":
-            state["status"] = "running"
-    
-    return state
+    elif status == "failed":
+        state["status"] = "failed"
+        state["end_time"] = timestamp
 
-def run_step(step_config: Dict, state: Dict[str, Any]) -> bool:
+    save_state(state)
+
+def run_step(step_config: Dict[str, Any]) -> bool:
     """Execute a single pipeline step."""
     step_id = step_config["id"]
-    step_name = step_config["name"]
     module_name = step_config["module"]
-    func_name = step_config["function"]
-    
-    logger.info(f"Starting step: {step_name} ({step_id})")
-    
-    state = update_step_status(step_id, "running", {}, state)
-    save_state(state)
-    
+    func_name = step_config["func"]
+    description = step_config["description"]
+
+    log_info(f"Starting step: {step_id} - {description}")
+    update_step_status(step_id, "running")
+
     try:
-        # Dynamic import
-        module = __import__(module_name, fromlist=[func_name])
-        run_func = getattr(module, func_name)
+        # Dynamically import the module
+        # Handle relative imports based on project structure
+        full_module_path = f"code.{module_name}"
+        if module_name.startswith("utils"):
+            full_module_path = f"code.{module_name}"
         
-        # Execute the step function
-        # We pass the current state to allow steps to read config or previous results if needed
-        result = run_func(state)
-        
-        if result is True or (isinstance(result, dict) and result.get("success", True)):
-            logger.info(f"Step {step_name} completed successfully.")
-            state = update_step_status(step_id, "completed", result if isinstance(result, dict) else {}, state)
-            save_state(state)
+        try:
+            mod = __import__(full_module_path, fromlist=[func_name])
+        except ImportError as e:
+            # Fallback for cases where 'code' prefix might be handled differently
+            mod = __import__(module_name, fromlist=[func_name])
+
+        func = getattr(mod, func_name)
+
+        # Execute the function
+        result = func()
+
+        if result is None or result == 0:
+            log_info(f"Step {step_id} completed successfully.")
+            update_step_status(step_id, "completed", {"result": "success"})
             return True
         else:
-            raise Exception(f"Step returned failure result: {result}")
-            
+            log_warning(f"Step {step_id} returned non-zero exit code: {result}")
+            update_step_status(step_id, "failed", {"result": result})
+            return False
+
     except Exception as e:
-        log_error(logger, f"Step {step_name} failed with error: {e}", exc_info=True)
-        state = update_step_status(step_id, "failed", {"error": str(e)}, state)
-        save_state(state)
+        log_error(f"Step {step_id} failed with exception: {e}", ErrorCode.RESOURCE_LIMIT_EXCEEDED)
+        update_step_status(step_id, "failed", {"error": str(e)})
         return False
 
-def run_pipeline(steps: Optional[List[str]] = None, resume: bool = False) -> bool:
-    """
-    Execute the full pipeline or a subset of steps.
-    
-    Args:
-        steps: List of step IDs to run. If None, runs all defined steps.
-        resume: If True, skips steps already marked as 'completed' in state.
-    
-    Returns:
-        bool: True if pipeline finished successfully, False otherwise.
-    """
+def run_pipeline(args):
+    """Run the full pipeline sequentially."""
     state = load_state()
-    
-    if state.get("status") == "failed" and not resume:
-        logger.warning("Previous run failed. Use --resume to continue.")
-        return False
-    
-    if state["status"] != "running" and state["status"] != "initialized":
-        state["start_time"] = datetime.now().isoformat()
-        state["status"] = "running"
-        save_state(state)
-    
-    steps_to_run = steps if steps else [s["id"] for s in PIPELINE_STEPS]
-    
-    for step_config in PIPELINE_STEPS:
-        if step_config["id"] not in steps_to_run:
-            continue
-        
-        # Check if already completed and we are resuming
-        if resume:
-            step_state = state.get("steps", {}).get(step_config["id"], {})
-            if step_state.get("status") == "completed":
-                logger.info(f"Skipping {step_config['name']} (already completed)")
-                continue
-        
-        success = run_step(step_config, state)
-        if not success:
-            logger.error(f"Pipeline halted at step: {step_config['name']}")
-            return False
-    
-    logger.info("Pipeline execution completed successfully.")
-    return True
+    state["start_time"] = datetime.now().isoformat()
+    state["status"] = "running"
+    save_state(state)
+
+    log_info("Pipeline execution started.")
+
+    # Filter steps if specific step ID is requested
+    steps_to_run = PIPELINE_STEPS
+    if args.step:
+        steps_to_run = [s for s in PIPELINE_STEPS if s["id"] == args.step]
+        if not steps_to_run:
+            log_error(f"Step {args.step} not found in pipeline definition.", ErrorCode.RESOURCE_LIMIT_EXCEEDED)
+            return 1
+
+    for step in steps_to_run:
+        if not run_step(step):
+            log_error("Pipeline halted due to step failure.", ErrorCode.RESOURCE_LIMIT_EXCEEDED)
+            return 1
+
+    log_info("Pipeline execution completed successfully.")
+    return 0
 
 def main():
+    """Main entry point for the pipeline orchestrator."""
     parser = argparse.ArgumentParser(description="Alloy Phase Diagram Prediction Pipeline")
-    parser.add_argument("--steps", nargs="+", help="Specific steps to run (e.g., ingest features)")
-    parser.add_argument("--resume", action="store_true", help="Resume from last failed step")
-    parser.add_argument("--init", action="store_true", help="Initialize state file only")
-    
+    parser.add_argument("--step", type=str, help="Run a specific step ID only")
+    parser.add_argument("--reset", action="store_true", help="Reset state file before running")
     args = parser.parse_args()
-    
-    if args.init:
-        state = load_state()
-        save_state(state)
-        logger.info("State initialized.")
-        return
-    
-    success = run_pipeline(steps=args.steps, resume=args.resume)
-    sys.exit(0 if success else 1)
+
+    if args.reset:
+        if os.path.exists(STATE_FILE):
+            os.remove(STATE_FILE)
+            logger.info("State file reset.")
+
+    return run_pipeline(args)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

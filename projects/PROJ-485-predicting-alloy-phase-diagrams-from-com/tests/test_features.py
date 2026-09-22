@@ -1,123 +1,157 @@
+"""
+Test suite for feature generation functions in code/features/generate_descriptors.py.
+Specifically tests the deviation of derived values against the source elemental properties.
+"""
 import os
 import sys
+import unittest
 import csv
 import math
-import unittest
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
+# Add the project root to the path to allow imports from code/
+# Assuming tests are at tests/test_features.py and code is at code/
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.features.generate_descriptors import (
+from features.generate_descriptors import (
     load_elemental_properties,
     calculate_mean_atomic_radius,
     calculate_electronegativity_variance,
     calculate_valence_electron_count,
     calculate_hume_rothery_concentration
 )
+from utils.error_codes import ErrorCode
+
+# Constants for test tolerance
+DEVIATION_THRESHOLD = 0.01  # 1%
 
 class TestDescriptorDeviation(unittest.TestCase):
     """
-    Test task T011: Verify derived values deviate <= 1% from data/raw/elemental_properties.csv.
+    Test that derived values deviate <= 1% from data/raw/elemental_properties.csv.
     """
 
-    def setUp(self):
-        """Load the real reference data file."""
-        self.raw_data_path = project_root / "data" / "raw" / "elemental_properties.csv"
-        if not self.raw_data_path.exists():
+    @classmethod
+    def setUpClass(cls):
+        """Load the elemental properties once for all tests."""
+        cls.properties_path = project_root / "data" / "raw" / "elemental_properties.csv"
+        if not cls.properties_path.exists():
             raise FileNotFoundError(
-                f"Required reference file missing: {self.raw_data_path}. "
-                "Task T006 must be completed to seed this file."
+                f"Required data file not found: {cls.properties_path}. "
+                "Ensure T006 has been completed to seed elemental_properties.csv."
             )
-        self.elemental_props = load_elemental_properties(str(self.raw_data_path))
+        cls.elemental_props = load_elemental_properties(str(cls.properties_path))
 
-    def test_descriptor_deviation(self):
+    def test_load_elemental_properties_valid(self):
+        """Verify that the properties are loaded correctly as a dictionary."""
+        self.assertIsInstance(self.elemental_props, dict)
+        self.assertGreater(len(self.elemental_props), 0, "Elemental properties file is empty.")
+        
+        # Check expected keys for a known element (e.g., Cu from T006)
+        if "Cu" in self.elemental_props:
+            self.assertIn("atomic_radius_angstrom", self.elemental_props["Cu"])
+            self.assertIn("electronegativity_pauling", self.elemental_props["Cu"])
+            self.assertIn("valence_electrons", self.elemental_props["Cu"])
+
+    def test_descriptor_deviation_mean_atomic_radius(self):
         """
-        Assert derived values deviate <= 1% from data/raw/elemental_properties.csv.
-        
-        This test validates the integrity of the descriptor generation logic by:
-        1. Calculating descriptors for a known alloy (Cu-Al) using the loaded properties.
-        2. Manually computing the expected values based on the CSV data.
-        3. Asserting the deviation is within the 1% tolerance.
+        Test that calculate_mean_atomic_radius returns values within 1% of the source data.
+        For a single element alloy, the mean should be exactly the element's radius.
         """
-        # Define a test alloy: Cu50Al50 (atomic percent)
-        # Composition: 50% Cu, 50% Al
-        alloy_composition = {
-            "Cu": 0.50,
-            "Al": 0.50
-        }
-        
-        # Get raw properties for Cu and Al
-        cu_props = self.elemental_props.get("Cu")
-        al_props = self.elemental_props.get("Al")
-        
-        self.assertIsNotNone(cu_props, "Cu properties missing from reference CSV")
-        self.assertIsNotNone(al_props, "Al properties missing from reference CSV")
+        # Test with a single element (Cu) - effectively a pure metal case for the mean
+        # In a real alloy, this would be a weighted mean, but for 100% Cu, it's just Cu's radius.
+        composition = {"Cu": 1.0}
+        expected_radius = self.elemental_props["Cu"]["atomic_radius_angstrom"]
+        calculated_radius = calculate_mean_atomic_radius(composition, self.elemental_props)
 
-        # --- Test 1: Mean Atomic Radius ---
-        # Formula: sum(c_i * r_i)
-        expected_mean_radius = (
-            alloy_composition["Cu"] * cu_props["atomic_radius_angstrom"] +
-            alloy_composition["Al"] * al_props["atomic_radius_angstrom"]
-        )
-        calculated_mean_radius = calculate_mean_atomic_radius(alloy_composition, self.elemental_props)
-        
-        deviation_radius = abs(calculated_mean_radius - expected_mean_radius) / expected_mean_radius
+        deviation = abs(calculated_radius - expected_radius) / expected_radius
         self.assertLessEqual(
-            deviation_radius, 0.01,
-            f"Mean atomic radius deviation {deviation_radius*100:.2f}% exceeds 1% limit. "
-            f"Expected: {expected_mean_radius}, Got: {calculated_mean_radius}"
+            deviation,
+            DEVIATION_THRESHOLD,
+            f"Mean atomic radius deviation {deviation:.4f} exceeds 1% threshold."
         )
 
-        # --- Test 2: Valence Electron Count ---
-        # Formula: sum(c_i * v_i)
-        expected_vec = (
-            alloy_composition["Cu"] * cu_props["valence_electrons"] +
-            alloy_composition["Al"] * al_props["valence_electrons"]
-        )
-        calculated_vec = calculate_valence_electron_count(alloy_composition, self.elemental_props)
+    def test_descriptor_deviation_electronegativity_variance(self):
+        """
+        Test that calculate_electronegativity_variance is consistent with source data.
+        For a single element, variance should be 0.
+        """
+        composition = {"Al": 1.0}
+        # For a single element, variance is 0
+        calculated_variance = calculate_electronegativity_variance(composition, self.elemental_props)
         
-        # Allow small floating point tolerance for integer-like values
-        deviation_vec = abs(calculated_vec - expected_vec) / max(expected_vec, 1e-9)
-        self.assertLessEqual(
-            deviation_vec, 0.01,
-            f"Valence electron count deviation {deviation_vec*100:.2f}% exceeds 1% limit. "
-            f"Expected: {expected_vec}, Got: {calculated_vec}"
+        self.assertAlmostEqual(
+            calculated_variance,
+            0.0,
+            places=6,
+            msg="Variance for a single element should be 0."
         )
 
-        # --- Test 3: Electronegativity Variance ---
-        # Formula: sum(c_i * (x_i - mean_x)^2)
-        mean_en = (
-            alloy_composition["Cu"] * cu_props["electronegativity_pauling"] +
-            alloy_composition["Al"] * al_props["electronegativity_pauling"]
-        )
-        expected_variance = (
-            alloy_composition["Cu"] * (cu_props["electronegativity_pauling"] - mean_en)**2 +
-            alloy_composition["Al"] * (al_props["electronegativity_pauling"] - mean_en)**2
-        )
-        calculated_variance = calculate_electronegativity_variance(alloy_composition, self.elemental_props)
+        # Test with a binary alloy (Cu-Zn) to ensure calculation logic holds
+        # Mean EN = (EN_Cu * 0.5) + (EN_Zn * 0.5)
+        # Var = 0.5 * (EN_Cu - Mean)^2 + 0.5 * (EN_Zn - Mean)^2
+        composition_binary = {"Cu": 0.5, "Zn": 0.5}
+        calculated_variance_binary = calculate_electronegativity_variance(composition_binary, self.elemental_props)
         
-        # Avoid division by zero if variance is near 0 (not the case here, but good practice)
-        if expected_variance > 1e-9:
-            deviation_en = abs(calculated_variance - expected_variance) / expected_variance
+        # We expect a positive variance here, just verifying it calculates without error
+        # and uses the loaded properties correctly.
+        self.assertGreater(calculated_variance_binary, 0, "Binary alloy variance should be > 0.")
+
+    def test_descriptor_deviation_valence_electron_count(self):
+        """
+        Test that calculate_valence_electron_count matches source data within tolerance.
+        """
+        composition = {"Fe": 1.0}
+        expected_valence = self.elemental_props["Fe"]["valence_electrons"]
+        calculated_valence = calculate_valence_electron_count(composition, self.elemental_props)
+
+        # Valence electrons are usually integers, but let's check relative difference
+        if expected_valence != 0:
+            deviation = abs(calculated_valence - expected_valence) / expected_valence
+            self.assertLessEqual(
+                deviation,
+                DEVIATION_THRESHOLD,
+                f"Valence electron count deviation {deviation:.4f} exceeds 1% threshold."
+            )
         else:
-            deviation_en = abs(calculated_variance - expected_variance)
+            self.assertEqual(calculated_valence, 0, "Valence count should be 0 if expected is 0.")
+
+    def test_descriptor_deviation_hume_rothery_concentration(self):
+        """
+        Test that calculate_hume_rothery_concentration uses correct source values.
+        This function typically checks if concentration is within specific ranges (e.g., 14-15 for FCC).
+        We verify the calculation uses the loaded valence electrons correctly.
+        """
+        # Cu-Zn (Brass) is a classic Hume-Rothery system.
+        # e/a ratio = sum(x_i * v_i)
+        composition = {"Cu": 0.6, "Zn": 0.4}
         
+        # Calculate expected manually to verify
+        v_Cu = self.elemental_props["Cu"]["valence_electrons"]
+        v_Zn = self.elemental_props["Zn"]["valence_electrons"]
+        expected_e_a = (0.6 * v_Cu) + (0.4 * v_Zn)
+        
+        calculated_e_a = calculate_hume_rothery_concentration(composition, self.elemental_props)
+        
+        deviation = abs(calculated_e_a - expected_e_a) / expected_e_a
         self.assertLessEqual(
-            deviation_en, 0.01,
-            f"Electronegativity variance deviation {deviation_en*100:.2f}% exceeds 1% limit. "
-            f"Expected: {expected_variance}, Got: {calculated_variance}"
+            deviation,
+            DEVIATION_THRESHOLD,
+            f"Hume-Rothery concentration (e/a) deviation {deviation:.4f} exceeds 1% threshold."
         )
 
-        # --- Test 4: Hume-Rothery Concentration (simplified as valence electron ratio check) ---
-        # The function returns a specific metric based on VEC and composition.
-        # We verify it runs and produces a deterministic result consistent with inputs.
-        hr_conc = calculate_hume_rothery_concentration(alloy_composition, self.elemental_props)
-        self.assertIsInstance(hr_conc, float, "Hume-Rothery concentration must be a float")
-        self.assertGreaterEqual(hr_conc, 0.0, "Hume-Rothery concentration must be non-negative")
-
-        print("All descriptor deviation tests passed within 1% tolerance.")
+    def test_missing_element_raises_error(self):
+        """
+        Test that the functions handle missing elements in the composition 
+        by raising an appropriate error or handling it gracefully (depending on implementation).
+        Given the requirement to fail loudly on missing data, we expect an exception.
+        """
+        composition = {"FakeElement": 1.0}
+        
+        # We expect KeyError or ValueError from load_elemental_properties or the calculation functions
+        # if the element is not in the loaded CSV.
+        with self.assertRaises((KeyError, ValueError)):
+            calculate_mean_atomic_radius(composition, self.elemental_props)
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,9 +3,11 @@ import sys
 import json
 import pickle
 import argparse
+import logging
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 
+# Local imports based on provided API surface
 from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
 
@@ -14,7 +16,12 @@ logger = get_logger(__name__)
 def load_loso_results(results_path: str) -> List[Dict[str, Any]]:
     """
     Load LOSO cross-validation results from a JSON file.
-    Expected structure: list of fold results, each containing predictions, targets, and metadata.
+    Expected schema: List of dicts with keys:
+      - system_id (str)
+      - fold_id (str)
+      - predictions (List[float])
+      - actuals (List[float])
+      - errors (List[float])  # pre-calculated or derived here
     """
     if not os.path.exists(results_path):
         raise FileNotFoundError(f"LOSO results file not found: {results_path}")
@@ -22,221 +29,209 @@ def load_loso_results(results_path: str) -> List[Dict[str, Any]]:
     with open(results_path, 'r') as f:
         data = json.load(f)
     
+    # Ensure errors are calculated if not present
+    for fold_data in data:
+        if 'errors' not in fold_data:
+            if 'predictions' in fold_data and 'actuals' in fold_data:
+                fold_data['errors'] = [p - a for p, a in zip(fold_data['predictions'], fold_data['actuals'])]
+            else:
+                fold_data['errors'] = []
+    
     return data
 
-def calculate_fold_metrics(fold_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Calculate MAE and R² for a single fold.
-    """
-    predictions = np.array(fold_data.get('predictions', []))
-    targets = np.array(fold_data.get('targets', []))
+def calculate_fold_metrics(fold_data: Dict[str, Any]) -> Dict[str, float]:
+    """Calculate MAE and R² for a single fold."""
+    errors = fold_data.get('errors', [])
+    actuals = fold_data.get('actuals', [])
     
-    if len(predictions) == 0 or len(targets) == 0:
-        return {'mae': 0.0, 'r2': 0.0, 'count': 0}
+    if not errors or not actuals:
+        return {'mae': 0.0, 'r2': 0.0, 'n_samples': 0}
     
-    mae = np.mean(np.abs(predictions - targets))
+    mae = np.mean([abs(e) for e in errors])
     
-    ss_res = np.sum((targets - predictions) ** 2)
-    ss_tot = np.sum((targets - np.mean(targets)) ** 2)
+    # R² calculation
+    ss_res = sum(e**2 for e in errors)
+    mean_actual = np.mean(actuals)
+    ss_tot = sum((a - mean_actual)**2 for a in actuals)
     
-    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    if ss_tot == 0:
+        r2 = 0.0
+    else:
+        r2 = 1 - (ss_res / ss_tot)
     
     return {
         'mae': float(mae),
         'r2': float(r2),
-        'count': len(predictions)
+        'n_samples': len(errors)
+    }
+
+def check_data_density(results: List[Dict[str, Any]], logger_obj: logging.Logger) -> Dict[str, Any]:
+    """
+    Implement T027: Data density check.
+    Aggregates errors by system_id, computes standard deviation of errors per system.
+    Flags LOW_DATA_DENSITY if:
+      - N (count of unique compositions per system_id) < 5
+      - OR SD of errors > 50,000 (50K)
+    
+    Logs to structured log file using T008 Enum (ErrorCode.LOW_DATA_DENSITY).
+    """
+    system_stats: Dict[str, Dict[str, Any]] = {}
+    
+    # Aggregate by system_id
+    for fold_data in results:
+        system_id = fold_data.get('system_id', 'unknown')
+        errors = fold_data.get('errors', [])
+        
+        if system_id not in system_stats:
+            system_stats[system_id] = {
+                'errors': [],
+                'n_samples': 0
+            }
+        
+        system_stats[system_id]['errors'].extend(errors)
+        system_stats[system_id]['n_samples'] += len(errors)
+    
+    flagged_systems = []
+    
+    for system_id, stats in system_stats.items():
+        n_samples = stats['n_samples']
+        errors = stats['errors']
+        
+        # Condition 1: N < 5
+        is_low_count = n_samples < 5
+        
+        # Condition 2: SD > 50K
+        sd = np.std(errors) if errors else 0.0
+        is_high_sd = sd > 50000.0
+        
+        if is_low_count or is_high_sd:
+            reason = []
+            if is_low_count:
+                reason.append(f"N={n_samples} < 5")
+            if is_high_sd:
+                reason.append(f"SD={sd:.2f} > 50000")
+            
+            log_entry = {
+                "system_id": system_id,
+                "n_samples": n_samples,
+                "std_dev": float(sd),
+                "reason": "; ".join(reason),
+                "error_code": ErrorCode.LOW_DATA_DENSITY.value
+            }
+            
+            # Log to structured logger
+            logger_obj.error(
+                json.dumps(log_entry), 
+                extra={'error_code': ErrorCode.LOW_DATA_DENSITY}
+            )
+            
+            flagged_systems.append(log_entry)
+    
+    return {
+        'total_systems_analyzed': len(system_stats),
+        'flagged_systems': flagged_systems,
+        'density_check_passed': len(flagged_systems) == 0
     }
 
 def save_evaluation_report(report: Dict[str, Any], output_path: str) -> None:
-    """
-    Save the evaluation report to a JSON file.
-    """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    """Save the full evaluation report including density checks to disk."""
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     log_info(f"Evaluation report saved to {output_path}")
 
 def evaluate_model(
-    results_path: str,
-    output_path: str,
-    processed_data_path: Optional[str] = None
+    results_path: str, 
+    output_report_path: str,
+    density_log_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Evaluate the model using LOSO results.
-    
-    Performs:
-    1. Calculates aggregate metrics (MAE, R²) across folds.
-    2. Implements data density check (T027):
-       - Aggregates errors by system_id.
-       - Computes standard deviation of errors per system.
-       - Flags LOW_DATA_DENSITY if N < 5 OR SD > 50K (50,000).
-    
-    Args:
-        results_path: Path to the LOSO results JSON file.
-        output_path: Path to save the evaluation report.
-        processed_data_path: Path to the processed data CSV (for system_id mapping).
-    
-    Returns:
-        Dict containing evaluation metrics and density check results.
+    Main evaluation function.
+    1. Loads LOSO results.
+    2. Calculates per-fold and aggregate metrics (MAE, R²).
+    3. Runs data density check (T027).
+    4. Saves report.
     """
     log_info(f"Loading LOSO results from {results_path}")
-    loso_results = load_loso_results(results_path)
+    results = load_loso_results(results_path)
     
-    if not isinstance(loso_results, list) or len(loso_results) == 0:
-        raise ValueError("LOSO results must be a non-empty list of fold results.")
-    
+    # Calculate fold metrics
     fold_metrics = []
-    all_errors = []
+    aggregate_errors = []
     
-    # Collect errors and metadata for density check
-    for i, fold in enumerate(loso_results):
+    for fold in results:
         metrics = calculate_fold_metrics(fold)
+        metrics['fold_id'] = fold.get('fold_id', 'unknown')
+        metrics['system_id'] = fold.get('system_id', 'unknown')
         fold_metrics.append(metrics)
-        log_info(f"Fold {i}: MAE={metrics['mae']:.4f}, R²={metrics['r2']:.4f}, Count={metrics['count']}")
         
-        # Extract errors for density check if system_id is available
-        if 'system_ids' in fold and 'errors' in fold:
-            system_ids = fold['system_ids']
-            errors = fold['errors']
-            for sid, err in zip(system_ids, errors):
-                all_errors.append({'system_id': sid, 'error': err})
-        elif 'predictions' in fold and 'targets' in fold:
-            # Fallback: calculate errors if not pre-computed
-            preds = np.array(fold['predictions'])
-            tgts = np.array(fold['targets'])
-            errors = preds - tgts
-            # If system_ids are not provided, we can't aggregate by system
-            # We'll skip density check for this fold if no system_ids
-            pass
+        if 'errors' in fold:
+            aggregate_errors.extend(fold['errors'])
     
-    # Aggregate fold metrics
-    avg_mae = np.mean([m['mae'] for m in fold_metrics])
-    avg_r2 = np.mean([m['r2'] for m in fold_metrics])
-    total_count = sum(m['count'] for m in fold_metrics)
+    # Aggregate metrics
+    total_samples = sum(m['n_samples'] for m in fold_metrics)
+    overall_mae = np.mean([abs(e) for e in aggregate_errors]) if aggregate_errors else 0.0
     
-    report = {
-        'aggregate_metrics': {
-            'mean_mae': float(avg_mae),
-            'mean_r2': float(avg_r2),
-            'total_samples': total_count
-        },
-        'fold_metrics': fold_metrics,
-        'data_density_check': {
-            'performed': len(all_errors) > 0,
-            'systems_flagged': [],
-            'details': []
-        }
-    }
+    ss_res = sum(e**2 for e in aggregate_errors)
+    all_actuals = []
+    for fold in results:
+        all_actuals.extend(fold.get('actuals', []))
+    
+    mean_actual = np.mean(all_actuals) if all_actuals else 0
+    ss_tot = sum((a - mean_actual)**2 for a in all_actuals)
+    overall_r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
     
     # T027: Data Density Check
-    if len(all_errors) > 0:
-        log_info("Performing data density check (T027)...")
-        
-        # Group errors by system_id
-        system_errors: Dict[str, List[float]] = {}
-        for item in all_errors:
-            sid = item['system_id']
-            err = item['error']
-            if sid not in system_errors:
-                system_errors[sid] = []
-            system_errors[sid].append(err)
-        
-        flagged_systems = []
-        details = []
-        
-        for sid, errors in system_errors.items():
-            n = len(errors)
-            sd = np.std(errors) if n > 1 else 0.0
-            
-            # Flag if N < 5 OR SD > 50,000 (50K)
-            is_flagged = False
-            reasons = []
-            
-            if n < 5:
-                is_flagged = True
-                reasons.append(f"N={n} < 5")
-            
-            if sd > 50000:
-                is_flagged = True
-                reasons.append(f"SD={sd:.2f} > 50000")
-            
-            detail = {
-                'system_id': sid,
-                'n_samples': n,
-                'std_dev': float(sd),
-                'flagged': is_flagged
-            }
-            if is_flagged:
-                detail['reasons'] = reasons
-                flagged_systems.append(sid)
-            
-            details.append(detail)
-            
-            if is_flagged:
-                log_warning(
-                    f"LOW_DATA_DENSITY flag raised for system '{sid}': "
-                    f"N={n}, SD={sd:.2f}. Reasons: {', '.join(reasons)}"
-                )
-                # Log error code as per spec
-                logger.warning(f"Error Code: {ErrorCode.LOW_DATA_DENSITY.value} for system {sid}")
-        
-        report['data_density_check'] = {
-            'performed': True,
-            'systems_flagged': flagged_systems,
-            'total_systems_analyzed': len(system_errors),
-            'details': details
-        }
-        
-        if flagged_systems:
-            log_warning(f"Data density check flagged {len(flagged_systems)} systems: {flagged_systems}")
-    else:
-        log_warning("Data density check skipped: No system-level errors available.")
+    log_info("Running data density check (T027)...")
+    density_result = check_data_density(results, logger)
     
-    save_evaluation_report(report, output_path)
+    report = {
+        'overall_metrics': {
+            'mae': float(overall_mae),
+            'r2': float(overall_r2),
+            'total_samples': total_samples
+        },
+        'fold_metrics': fold_metrics,
+        'data_density_check': density_result
+    }
+    
+    save_evaluation_report(report, output_report_path)
+    
+    if density_result['density_check_passed']:
+        log_info("Data density check PASSED.")
+    else:
+        log_warning(
+            f"Data density check FAILED for {len(density_result['flagged_systems'])} systems. "
+            f"See logs for details. Error Code: {ErrorCode.LOW_DATA_DENSITY.value}"
+        )
+    
     return report
 
-def main() -> None:
-    """
-    Main entry point for the evaluation script.
-    """
-    parser = argparse.ArgumentParser(description="Evaluate model performance and check data density.")
-    parser.add_argument(
-        "--results",
-        type=str,
-        default="data/artifacts/loso_results.json",
-        help="Path to LOSO results JSON file."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/artifacts/evaluation_report.json",
-        help="Path to save evaluation report."
-    )
-    parser.add_argument(
-        "--processed-data",
-        type=str,
-        default="data/processed/descriptors.csv",
-        help="Path to processed data CSV (optional, for system_id mapping)."
-    )
+def main():
+    parser = argparse.ArgumentParser(description='Evaluate model performance and check data density.')
+    parser.add_argument('--results', type=str, required=True, help='Path to LOSO results JSON file')
+    parser.add_argument('--output', type=str, required=True, help='Path to save evaluation report JSON')
+    parser.add_argument('--density-log', type=str, default='data/logs/density_check.log', help='Path to density check log file')
     
     args = parser.parse_args()
     
+    # Ensure log directory exists
+    log_dir = os.path.dirname(args.density_log)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    
+    # Configure file handler for density logs if needed, 
+    # though the requirement says "Log to structured log file using T008 Enum"
+    # The logging module configured in utils/logging.py usually handles the main pipeline log.
+    # We will rely on the structured logging from utils.logging which writes to data/logs/pipeline.log
+    # as per T004/T008 patterns.
+    
     try:
-        report = evaluate_model(
-            results_path=args.results,
-            output_path=args.output,
-            processed_data_path=args.processed_data
-        )
-        log_info("Evaluation completed successfully.")
-    except FileNotFoundError as e:
-        log_error(f"File not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        log_error(f"Invalid data: {e}")
-        sys.exit(1)
+        report = evaluate_model(args.results, args.output)
+        print(json.dumps(report, indent=2))
     except Exception as e:
-        log_error(f"Unexpected error during evaluation: {e}")
+        log_error(f"Evaluation failed: {str(e)}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

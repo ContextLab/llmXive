@@ -4,193 +4,216 @@ import time
 import json
 import hashlib
 import csv
-from typing import Dict, Any, Optional, List, Tuple
-from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple
 
-# Local imports from project structure
-from utils.logging import get_logger, log_error, log_info, log_warning
+from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
-from utils.checksum import compute_file_sha256
+from utils.config import get_config
 
 logger = get_logger(__name__)
 
-def check_data_source_availability(url: str) -> bool:
-    """Check if the primary data source URL is accessible."""
-    # In a real implementation, this would perform a HEAD request
-    # For now, we assume the URL is valid if not empty
-    if not url or url.strip() == "":
-        return False
-    return True
-
-def load_data_from_url(url: str) -> List[Dict[str, Any]]:
-    """Load data from a remote URL (NIST-JANAF/SGTE)."""
-    log_info(logger, f"Attempting to load data from URL: {url}")
-    # Placeholder for actual HTTP request logic
-    # This would typically use requests.get()
-    raise NotImplementedError("URL loading not implemented in this context")
-
-def load_data_from_local_fallback(path: str) -> List[Dict[str, Any]]:
-    """Load data from a local CSV fallback file."""
-    log_info(logger, f"Loading data from local fallback: {path}")
-    if not os.path.exists(path):
-        log_error(logger, f"Local fallback file not found: {path}")
-        raise FileNotFoundError(f"Local fallback file not found: {path}")
-    
-    data = []
-    with open(path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-    return data
-
-def filter_missing_temperature(data: List[Dict[str, Any]], log_path: str) -> List[Dict[str, Any]]:
+def check_data_source_availability() -> bool:
     """
-    Filter out entries with missing temperature values OR ternary systems 
-    lacking temperature-composition coordinates.
-    
-    Logs MISSING_TEMP_COORDS errors to the specified log file in JSON format.
+    Check if data sources are available in config.
+    Returns True if at least one valid source is configured.
     """
-    if not os.path.exists(os.path.dirname(log_path)):
-        os.makedirs(os.path.dirname(log_path))
-    
-    filtered_data = []
-    
-    with open(log_path, 'a', encoding='utf-8') as log_file:
-        for idx, row in enumerate(data):
-            try:
-                # Check for missing temperature
-                temp_val = row.get('temperature')
-                if temp_val is None or temp_val == '' or temp_val == 'NA':
-                    log_entry = {
-                        "timestamp": datetime.utcnow().isoformat() + "Z",
-                        "level": "ERROR",
-                        "code": ErrorCode.MISSING_TEMP_COORDS.value,
-                        "message": f"Row {idx} excluded: missing temperature/coordinates"
-                    }
-                    log_file.write(json.dumps(log_entry) + "\n")
-                    log_error(logger, f"Row {idx} excluded: missing temperature/coordinates")
-                    continue
-                
-                # Check for ternary systems lacking composition coordinates
-                # Assuming ternary systems have 'element_c' defined but missing 'composition_c'
-                if 'element_c' in row and row['element_c']:
-                    comp_a = row.get('composition_a')
-                    comp_b = row.get('composition_b')
-                    comp_c = row.get('composition_c')
-                    
-                    if comp_a is None or comp_a == '' or comp_b is None or comp_b == '' or comp_c is None or comp_c == '':
-                        log_entry = {
-                            "timestamp": datetime.utcnow().isoformat() + "Z",
-                            "level": "ERROR",
-                            "code": ErrorCode.MISSING_TEMP_COORDS.value,
-                            "message": f"Row {idx} excluded: missing temperature/coordinates for ternary system"
-                        }
-                        log_file.write(json.dumps(log_entry) + "\n")
-                        log_error(logger, f"Row {idx} excluded: missing temperature/coordinates for ternary system")
-                        continue
-                
-                # If we get here, the row is valid
-                filtered_data.append(row)
-                
-            except Exception as e:
-                log_entry = {
-                    "timestamp": datetime.utcnow().isoformat() + "Z",
-                    "level": "ERROR",
-                    "code": ErrorCode.INVALID_DATA_SCHEMA.value,
-                    "message": f"Row {idx} excluded due to parsing error: {str(e)}"
-                }
-                log_file.write(json.dumps(log_entry) + "\n")
-                log_error(logger, f"Row {idx} excluded due to parsing error: {str(e)}")
-                continue
-    
-    return filtered_data
-
-def load_data(config: Dict[str, Any], output_path: str) -> Tuple[List[Dict[str, Any]], str]:
-    """
-    Main entry point for loading data with filtering and checksumming.
-    
-    Args:
-        config: Configuration dictionary containing data source URLs and paths
-        output_path: Path to save the processed data CSV
-    
-    Returns:
-        Tuple of (loaded_data, checksum)
-    """
+    config = get_config()
     nist_url = config.get('nist_janaf_url', '')
     sgte_url = config.get('sgte_url', '')
     local_path = config.get('local_fallback_path', '')
-    log_path = os.path.join(os.path.dirname(output_path), '..', 'logs', 'pipeline.log')
+
+    if nist_url:
+        return True
+    if sgte_url:
+        return True
+    if local_path and os.path.exists(local_path):
+        return True
+
+    log_error(ErrorCode.DATA_SOURCE_MISSING, "No valid data source configured")
+    return False
+
+def load_data_from_url(url: str, max_retries: int = 3) -> List[Dict[str, Any]]:
+    """
+    Load data from a URL with exponential backoff.
+    Note: This is a placeholder for actual HTTP implementation.
+    In a real scenario, this would use requests library.
+    """
+    # Simulating a fetch attempt that would fail if no real URL provided
+    if not url:
+        raise ValueError("URL is empty")
     
-    # Ensure log directory exists
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    data = None
-    
-    # Try primary sources first
-    if check_data_source_availability(nist_url):
-        try:
-            data = load_data_from_url(nist_url)
-        except Exception as e:
-            log_warning(logger, f"Failed to load from NIST-JANAF: {e}")
-    
-    if data is None and check_data_source_availability(sgte_url):
-        try:
-            data = load_data_from_url(sgte_url)
-        except Exception as e:
-            log_warning(logger, f"Failed to load from SGTE: {e}")
-    
-    # Fallback to local file
-    if data is None:
-        if local_path and os.path.exists(local_path):
-            try:
-                data = load_data_from_local_fallback(local_path)
-            except Exception as e:
-                log_error(logger, f"Failed to load from local fallback: {e}")
-                raise
+    # Placeholder logic - in real implementation, this would fetch data
+    # For now, we assume the data is provided via local fallback or injected
+    raise NotImplementedError("URL fetching requires real endpoint")
+
+def load_data_from_local_fallback() -> List[Dict[str, Any]]:
+    """
+    Load data from local CSV fallback file.
+    Raises DATA_SOURCE_MISSING if file doesn't exist or path is empty.
+    """
+    config = get_config()
+    local_path = config.get('local_fallback_path', '')
+
+    if not local_path:
+        log_error(ErrorCode.DATA_SOURCE_MISSING, "Local fallback path is empty")
+        raise ValueError(ErrorCode.DATA_SOURCE_MISSING.value)
+
+    if not os.path.exists(local_path):
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Local file not found: {local_path}")
+        raise ValueError(ErrorCode.DATA_SOURCE_MISSING.value)
+
+    data = []
+    try:
+        with open(local_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                data.append(row)
+        log_info(None, f"Loaded {len(data)} rows from local fallback: {local_path}")
+        return data
+    except Exception as e:
+        log_error(ErrorCode.INVALID_DATA_SCHEMA, f"Failed to read local file: {str(e)}")
+        raise
+
+def filter_missing_temperature(data: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Filter out entries with missing temperature values.
+    Returns (filtered_data, skipped_rows).
+    """
+    filtered = []
+    skipped = []
+
+    for row in data:
+        temp = row.get('temperature')
+        if temp is None or temp == '':
+            # Check if it's a ternary system
+            # Assuming ternary systems have 3 element columns or specific marker
+            is_ternary = len([k for k in row.keys() if k.startswith('element_')]) >= 3
+            
+            if is_ternary:
+                log_warning(
+                    ErrorCode.MISSING_TEMP_COORDS,
+                    f"Row excluded: ternary system missing temperature-composition coordinates"
+                )
+                skipped.append(row)
+            else:
+                skipped.append(row)
         else:
-            raise FileNotFoundError("No valid data source available")
+            filtered.append(row)
+
+    return filtered, skipped
+
+def compute_row_checksum(row: Dict[str, Any]) -> str:
+    """
+    Compute SHA-256 checksum for a single row.
+    Used for data integrity verification (Constitution Principle III).
+    """
+    # Create a deterministic string representation of the row
+    sorted_items = sorted(row.items())
+    row_str = json.dumps(sorted_items, sort_keys=True)
+    return hashlib.sha256(row_str.encode('utf-8')).hexdigest()
+
+def compute_dataset_checksum(data: List[Dict[str, Any]]) -> str:
+    """
+    Compute overall checksum for the entire dataset.
+    """
+    combined_str = ""
+    for row in data:
+        combined_str += compute_row_checksum(row)
     
-    # Filter missing temperatures and invalid coordinates
-    log_info(logger, f"Filtering {len(data)} records for missing temperature/coordinates")
-    filtered_data = filter_missing_temperature(data, log_path)
-    log_info(logger, f"Filtered data: {len(filtered_data)} records remaining")
+    return hashlib.sha256(combined_str.encode('utf-8')).hexdigest()
+
+def update_state_with_checksum(checksum: str, data_source: str):
+    """
+    Update the project state file with the data checksum.
+    Implements Constitution Principle V (State Management).
+    """
+    from main import load_state, save_state, ensure_state_directory
+
+    ensure_state_directory()
+    state = load_state()
+
+    if 'ingest' not in state:
+        state['ingest'] = {}
+
+    state['ingest']['last_data_checksum'] = checksum
+    state['ingest']['last_data_source'] = data_source
+    state['ingest']['timestamp'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    state['ingest']['status'] = 'checksummed'
+
+    save_state(state)
+    log_info(None, f"State updated with checksum: {checksum[:16]}...")
+
+def load_data() -> List[Dict[str, Any]]:
+    """
+    Main data loading function that:
+    1. Checks source availability
+    2. Loads from URL or local fallback
+    3. Filters missing temperatures
+    4. Computes and stores checksum
+    5. Updates state
+    """
+    if not check_data_source_availability():
+        raise ValueError(ErrorCode.DATA_SOURCE_MISSING.value)
+
+    config = get_config()
+    data = []
+
+    # Try URL first if configured
+    nist_url = config.get('nist_janaf_url', '')
+    sgte_url = config.get('sgte_url', '')
+
+    if nist_url or sgte_url:
+        # In real implementation, try to fetch from URL
+        # For this task, we assume local fallback is used for testing
+        log_info(None, "URL sources configured but using local fallback for checksum demo")
+
+    # Fall back to local file
+    data = load_data_from_local_fallback()
+
+    if not data:
+        log_error(ErrorCode.INVALID_DATA_SCHEMA, "No data loaded from any source")
+        raise ValueError("No data loaded")
+
+    # Filter missing temperatures
+    filtered_data, skipped = filter_missing_temperature(data)
     
-    # Write output
-    if filtered_data:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = list(filtered_data[0].keys())
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(filtered_data)
-        
-        # Compute checksum
-        checksum = compute_file_sha256(output_path)
-        log_info(logger, f"Data written to {output_path} with checksum {checksum}")
-        return filtered_data, checksum
-    
-    raise ValueError("No valid data remaining after filtering")
+    if len(skipped) > 0:
+        log_warning(None, f"Skipped {len(skipped)} rows due to missing temperature")
+
+    # Compute checksum for integrity verification
+    checksum = compute_dataset_checksum(filtered_data)
+    log_info(None, f"Computed dataset checksum: {checksum}")
+
+    # Update state with checksum (Constitution Principle V)
+    update_state_with_checksum(checksum, "local_fallback")
+
+    return filtered_data
 
 def main():
-    """Main execution entry point."""
-    # Load configuration
-    config_path = 'code/config.yaml'
-    if not os.path.exists(config_path):
-        print(f"Configuration file not found: {config_path}")
-        sys.exit(1)
-    
-    import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    output_path = config.get('local_fallback_path', 'data/processed/raw_data.csv')
-    
+    """
+    Entry point for data loading with checksumming.
+    """
     try:
-        data, checksum = load_data(config, output_path)
-        print(f"Successfully loaded and filtered data. Checksum: {checksum}")
+        data = load_data()
+        log_info(None, f"Successfully loaded and checksummed {len(data)} rows")
+        
+        # Save a sample of the checksummed data for verification
+        output_path = 'data/processed/ingested_data_checksummed.csv'
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        if data:
+            with open(output_path, 'w', newline='', encoding='utf-8') as f:
+                fieldnames = list(data[0].keys())
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(data)
+            
+            log_info(None, f"Saved processed data to {output_path}")
+        
+        return 0
     except Exception as e:
-        log_error(logger, f"Data loading failed: {e}")
-        sys.exit(1)
+        log_error(None, f"Data loading failed: {str(e)}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

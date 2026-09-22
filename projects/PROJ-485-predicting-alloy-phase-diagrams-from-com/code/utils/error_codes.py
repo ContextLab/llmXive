@@ -38,3 +38,11 @@ class ErrorCode(Enum):
     # Statistical Power Errors
     INSUFFICIENT_POWER = "INSUFFICIENT_POWER"
     """Raised when statistical power analysis indicates insufficient sample size."""
+    
+    # Scope Errors
+    INVALID_SCOPE = "INVALID_SCOPE"
+    """Raised when a test element is not present in the training set's scope."""
+    
+    # Resource Errors
+    RESOURCE_LIMIT_EXCEEDED = "RESOURCE_LIMIT_EXCEEDED"
+    """Raised when execution time or memory usage exceeds configured limits."""

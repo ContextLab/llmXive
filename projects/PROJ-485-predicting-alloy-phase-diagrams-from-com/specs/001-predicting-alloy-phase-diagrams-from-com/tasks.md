@@ -24,26 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a1 [P] Create directory `code/`
-- [ ] T001a2 [P] Create directory `code/ingest`
-- [ ] T001a3 [P] Create directory `code/features`
-- [ ] T001a4 [P] Create directory `code/models`
-- [ ] T001a5 [P] Create directory `code/viz`
-- [ ] T001a6 [P] Create directory `code/utils`
-- [ ] T001b1 [P] Create directory `data/raw`
-- [ ] T001b2 [P] Create directory `data/processed`
-- [ ] T001b3 [P] Create directory `data/artifacts`
-- [ ] T001c1 [P] Create directory `state/`
-- [ ] T002a1 [P] Create `code/__init__.py` (empty file)
-- [ ] T002a2 [P] Create `code/ingest/__init__.py` (empty file)
-- [ ] T002a3 [P] Create `code/features/__init__.py` (empty file)
-- [ ] T002a4 [P] Create `code/models/__init__.py` (empty file)
-- [ ] T002a5 [P] Create `code/viz/__init__.py` (empty file)
-- [ ] T002a6 [P] Create `code/utils/__init__.py` (empty file)
-- [ ] T002a7 [P] Create `tests/__init__.py` (empty file)
-- [ ] T002b [P] Create `.gitignore` excluding `data/raw/*`, `data/processed/*`, `data/artifacts/*`, `*.pyc`, `__pycache__`, `state/*.yaml` EXCEPT `state/PROJ-485/*.yaml` (Constitution Principle V)
-- [ ] T003a1 [P] Define linting rules: max-line-length=88, target-version=py311
-- [ ] T003a2 [P] Create `.ruff.toml` with content:
+- [X] T001 [P] **Initialize Project Structure**: Create all required directories (`code/`, `code/ingest`, `code/features`, `code/models`, `code/viz`, `code/utils`, `data/raw`, `data/processed`, `data/artifacts`, `state/`) and all necessary `__init__.py` files for the `code/` package structure. Create `.gitignore` excluding `data/raw/*`, `data/processed/*`, `data/artifacts/*`, `*.pyc`, `__pycache__`, `state/*.yaml` EXCEPT `state/PROJ-485/*.yaml` (Constitution Principle V). **Verify**: Run `find code -type d | wc -l` and assert count > 10.
+- [X] T003 [P] **Configure Linting and Formatting**:
+ 1. Create `.ruff.toml` with content:
 ```toml
 [lint]
 select = ["E", "F", "W", "I"]
@@ -62,13 +45,13 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 ```
-- [ ] T003b1 [P] Define formatting rules: line-length=88, target-version=py311
-- [ ] T003b2 [P] Create `pyproject.toml` with black config:
+ 2. Create `pyproject.toml` with black config:
 ```toml
 [tool.black]
 line-length = 88
 target-version = ['py311']
 ```
+**Verify**: Run `ruff check .` and assert exit code 0.
 
 ---
 
@@ -82,7 +65,7 @@ target-version = ['py311']
 - [X] T005 [P] Implement `code/utils/checksum.py` for SHA-256 data verification (Constitution Principle III)
 - [X] T006 [P] Create `data/raw/elemental_properties.csv` with columns: `element`, `atomic_radius_angstrom`, `electronegativity_pauling`, `valence_electrons`. Seed with rows for Cu, Al, Zn, Fe, C (Constitution Principle III)
 - [X] T007 [P] Create `code/main.py` pipeline orchestrator with state management (state/PROJ-485/...yaml)
-- [X] T008 [P] Implement `code/utils/error_codes.py` as a Python Enum class with string values for: `DATA_SOURCE_MISSING`, `INVALID_DATA_SCHEMA`, `MISSING_TEMP_COORDS`, `LOW_DATA_DENSITY`, `API_RATE_LIMIT_EXCEEDED`, `INSUFFICIENT_POWER`
+- [X] T008 [P] Implement `code/utils/error_codes.py` as a Python Enum class with string values for: `DATA_SOURCE_MISSING`, `INVALID_DATA_SCHEMA`, `MISSING_TEMP_COORDS`, `LOW_DATA_DENSITY`, `API_RATE_LIMIT_EXCEEDED`, `INSUFFICIENT_POWER`, `INVALID_SCOPE`, `RESOURCE_LIMIT_EXCEEDED`
 - [X] T009a [P] Define configuration schema for `code/config.yaml`. **Requirement**: Must include keys `nist_janaf_url`, `sgte_url`, `local_fallback_path`. **Validation**: Schema must explicitly require phase boundary coordinates (temperature, composition) as part of the data validation rules (FR-001).
 - [X] T009b [P] Create `code/config.yaml` with the defined schema. **Content**:
 ```yaml
@@ -97,7 +80,7 @@ data_schema:
  - element_b
 ```
 **Validation**: Script must fail if these keys are missing or empty. (Constitution Principle II, Plan Methodology 1)
-- [X] T009a [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block (from T009); halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1). **Dependency**: T009
+- [X] T009c [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block (from T009); halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1). **Dependency**: T009
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,18 +95,18 @@ data_schema:
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/ingest/load_data.py` with exponential backoff (limited retries) for API access (FR-001, FR-007)
-- [X] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs if primary source fails (FR-012)
-- [X] T013b [US1] **Fallback Data Generation**: Create `data/raw/fallback_phase_data.csv` containing a small, verified subset of experimental binary phase data (e.g., Cu-Al, Al-Cu) with columns `temperature`, `composition`, `element_a`, `element_b`. **Requirement**: Data must be sourced from public literature or verified local files to ensure the pipeline has a viable path to execution if primary sources are missing. (FR-001, FR-012)
-- [X] T014 [US1] Implement filtering logic: 
+- [X] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs ONLY if `local_fallback_path` in `code/config.yaml` points to an existing, verified real file. **Requirement**: If the path is empty or the file does not exist, the system MUST raise `DATA_SOURCE_MISSING`. Do NOT generate synthetic data. The fallback path is validated at runtime and supports loading from a verified input block (FR-001, FR-012).
+- [X] T014 [US1] Implement filtering logic:
  1. Skip entries with missing temperature values in binary systems (handled by FR-001).
  2. Skip entries for ternary systems lacking temperature-composition coordinates. **Requirement**: Log `MISSING_TEMP_COORDS` ONLY for the ternary case to `data/logs/pipeline.log` (JSON line format: `{"timestamp": "...", "level": "ERROR", "code": "MISSING_TEMP_COORDS", "message": "Row <id> excluded: ternary system missing temperature-composition coordinates"}`). **Depends on T008**. (FR-001, FR-008)
+ **Verify**: Assert `data/logs/pipeline.log` exists and contains a line with code `MISSING_TEMP_COORDS`.
 - [X] T015 [US1] Implement `code/features/generate_descriptors.py` to calculate: mean atomic radius, electronegativity variance, valence electron count, Hume-Rothery concentration using constants from `data/raw/elemental_properties.csv` (created by T006) (FR-002, FR-015)
 - [X] T016 [US1] Add validation in `code/features/generate_descriptors.py` to verify derived values against `data/raw/elemental_properties.csv` (SC-005, SC-007)
 - [X] T017 [US1] Implement data checksumming and state update in `code/ingest/load_data.py` after raw data load (Constitution Principle III, V)
-- [X] T018 [US1] Write processed data to `data/processed/descriptors.csv` with schema compliance (FR-001)
+- [X] T018 [US1] Write processed data to `data/processed/descriptors.csv` with schema compliance (FR-001). **Verify**: Run `code/utils/validate_schema.py data/processed/descriptors.csv` and assert exit code 0.
 
 ### Tests for User Story 1 (MANDATORY)
-*Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow. They depend on T008 and T012-T018.*
+*Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow. They depend on T008 and T012-T018. Test tasks must be executed ONLY after their corresponding implementation tasks are complete.*
 
 - [X] T010 [P] [US1] Write `tests/test_ingest.py` with function `test_invalid_schema_raises_error` asserting `INVALID_DATA_SCHEMA` is raised when phase boundary coordinates (temperature, composition) are missing. **Depends on T008 completion.**
 - [X] T011 [P] [US1] Write `tests/test_features.py` with function `test_descriptor_deviation` asserting derived values deviate ≤1% from `data/raw/elemental_properties.csv` (Mandatory per US-1 Independent Test)
@@ -141,22 +124,27 @@ data_schema:
 ### Implementation for User Story 2
 
 - [X] T022 [US2] **Pre-step to T021**. Implement 'Property Range Extrapolation' and 'New Element' checks.
- 1. **New Element Check (FR-010)**: Verify if any element in test fold is NOT present in training fold. If yes, skip fold and log `DATA_SOURCE_MISSING` (or `INVALID_DATA_SCHEMA` if interpreted as data quality issue, but spec says skip/halt). **Decision**: Skip fold.
- 2. **Extrapolation Check (Plan)**: Calculate convex hull of elemental properties (radius, EN) in training set. Log warning if test elements fall outside hull, but do NOT skip based on this alone unless new elements are found.
- **Deliverables**: Generate `data/artifacts/convex_hull.json` (schema: `{"vertices": [{"element": "Cu", "radius": 1.28,...},...]}`) and `data/logs/skipped_fold.log` (JSON lines: `{"fold_id": "Cu-Zn", "reason": "new_element"}`). **Requirement**: The generation of `data/artifacts/convex_hull.json` is a mandatory artifact that must be written to disk before T021 executes. (FR-010, Plan Methodology 3)
-- [X] T021 [US2] **Depends on T018, T022**. Implement `code/models/train.py` with Random Forest Regressor (scikit-learn) and LOSO strategy (FR-003)
+ 1. **New Element Check (FR-010)**: Verify if any element in test fold is NOT present in training fold. If yes, skip fold and log `INVALID_SCOPE` (not `DATA_SOURCE_MISSING`).
+ 2. **Extrapolation Check (Plan)**: Calculate convex hull of elemental properties (radius, EN) in training set using data from `data/raw/elemental_properties.csv` for the specific elements in the training fold. Log warning if test elements fall outside hull, but do NOT skip based on this alone unless new elements are found.
+ **Deliverables**: Generate `data/artifacts/convex_hull.json` (schema: `{"vertices": [{"element": "Cu", "radius": <float>, "electronegativity": <float>},...]}`) and `data/logs/skipped_fold.log` (JSON lines: `{"fold_id": "Cu-Zn", "reason": "invalid_scope"}`). **Requirement**: The generation of `data/artifacts/convex_hull.json` is a mandatory artifact that must be written to disk before T021 executes. **Primary Deliverable**: The skip logic for FR-010. The JSON is secondary for traceability. (FR-010, Plan Methodology 3)
+ **Verify**: Assert `data/artifacts/convex_hull.json` exists and is valid JSON; assert `data/logs/skipped_fold.log` exists if any folds were skipped.
+- [X] T021 [US2] **Depends on T018, T022**. Implement `code/models/train.py` with Random Forest Regressor (scikit-learn) and LOSO strategy (FR-003). **Algorithm**: Use `sklearn.model_selection.LeaveOneGroupOut` on the `system_id` column. **Dependency**: T022 must be complete before T021 runs.
 - [X] T023 [US2] Implement statistical power analysis (target ≥0.8) in `code/models/train.py` using `statsmodels`; halt with `INSUFFICIENT_POWER` if failed (FR-011, FR-014)
-- [X] T024 [US2] Implement null model baseline (global mean) and comparison logic. 
- 1. **Per-Fold Baseline**: For each LOSO fold, calculate the mean experimental temperature of the *training fold* only.
- 2. **Prediction**: Generate predictions for the *test fold* using this training-fold mean.
- 3. **Deliverable**: Generate `data/artifacts/baseline_comparison.json` (schema: `{"null_model_mae": "<null_mae_value>", "rf_model_mae": "<rf_mae_value>", "percentage_improvement": "<improvement_percentage>"}`). **Constraint**: Baseline must be derived from experimental data distinct from any computational assessment. (FR-009)
-- [X] T025 [US2] Verify SC-008: Implement Permutation Test on fold-level MAE differences between Random Forest and Null Model baseline. 
- 1. **Algorithm**: Shuffle the fold-level MAE differences (RF vs Null) a sufficient number of times. Calculate the p-value as the fraction of permuted statistics (absolute mean difference) that are >= the observed statistic.
+- [X] T024 [US2] Implement null model baseline (global mean) and comparison logic.
+ 1. **Global Mean Calculation**: Calculate the mean experimental temperature of the **ENTIRE** dataset (not per fold) to establish a constant baseline as required by FR-009.
+ 2. **Prediction**: For each LOSO fold, generate predictions for the *test fold* using this constant global mean.
+ 3. **Deliverable**: Generate `data/artifacts/baseline_comparison.json` (schema: `{"null_model_mae": <float>, "rf_model_mae": <float>, "percentage_improvement": <float>}`). **Constraint**: Baseline must be derived from experimental data distinct from any computational assessment. (FR-009)
+ **Verify**: Assert `data/artifacts/baseline_comparison.json` exists and contains keys `null_model_mae`, `rf_model_mae`, `percentage_improvement`.
+- [X] T025 [US2] Verify SC-008: Implement Permutation Test on fold-level MAE differences between Random Forest and Null Model baseline.
+ 1. **Algorithm**: Shuffle the fold-level MAE differences (RF vs Null) [deferred] times. Calculate the p-value as the fraction of permuted statistics (absolute mean difference) that are >= the observed statistic.
  2. **Deliverable**: Write `data/artifacts/permutation_pvalue.txt` containing raw float with a standard level of precision. **Verification**: Assert p < 0.05 AND report percentage improvement. (US-2, SC-008, Plan Methodology 4)
+ **Verify**: Assert `data/artifacts/permutation_pvalue.txt` exists and contains a float < 0.05.
 - [X] T026 [US2] Calculate and log MAE and R² per fold and aggregate in `code/models/evaluate.py` (FR-004)
 - [X] T027 [US2] Implement data density check in `code/models/evaluate.py`: aggregate errors by `system_id`; compute standard deviation of errors per system; flag `LOW_DATA_DENSITY` if N (count of unique compositions per system_id) < 5 OR SD > 50K. **Requirement**: Log to structured log file using T008 Enum. (FR-008, FR-013, SC-009)
-- [X] T028 [US2] Implement resource monitoring wrapper in `code/utils/resource_monitor.py`. **Deliverable**: Log execution time and peak memory usage to `data/artifacts/resource_log.json` (schema: `{The execution time will be measured and recorded., peak_memory_gb: moderate}`). **Verification**: If time > 4h or memory > 7GB, log a warning/error to the log file indicating the constraint violation, but do NOT enforce a hard halt (aligning with SC-003 success criteria). (FR-006, SC-003)
+- [X] T028 [US2] Implement resource monitoring wrapper in `code/utils/resource_monitor.py`. **Deliverable**: Log execution time (seconds, int) and peak memory usage (GB, float) to `data/artifacts/resource_log.json` (schema: `{"execution_time_seconds": <int>, "peak_memory_gb": <float>}`). **Enforcement**: If `execution_time_seconds > 14400` OR `peak_memory_gb > 7.0`, HALT the pipeline immediately with error code `RESOURCE_LIMIT_EXCEEDED`. **Dependency**: This wrapper must wrap T021 and T023 execution. (FR-006, SC-003)
+ **Verify**: Assert `data/artifacts/resource_log.json` exists and contains `execution_time_seconds` and `peak_memory_gb`.
 - [X] T029 [US2] Save trained model artifact to `data/artifacts/model.pkl` with version hash. **Verification**: Assert file exists and hash is recorded in state. (Constitution Principle V)
+ **Verify**: Assert `data/artifacts/model.pkl` exists and `state/PROJ-485/...yaml` contains its SHA-256 hash.
 
 ### Tests for User Story 2 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow.*
@@ -177,23 +165,32 @@ data_schema:
 ### Implementation for User Story 3
 
 - [X] T032 [US3] **Depends on T029**. Implement `code/viz/plot_phase_diagrams.py` to load model artifact from `data/artifacts/model.pkl` (produced by T029) and ground truth for specific systems. **Verification**: Assert model file exists before loading. (FR-005)
-- [X] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature). **Verification**: Assert plot object has correct axis labels and ranges. (US-3)
+ **Verify**: Assert `data/artifacts/model.pkl` exists.
+- [X] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature). **Verification**: Assert plot object has correct axis labels and ranges. Use `matplotlib.pyplot`. (US-3)
+ **Verify**: Assert plot object has X-axis label 'Composition (%)' and Y-axis label 'Temperature (K)'.
 - [X] T034 [US3] Implement visual distinction (solid vs. dashed lines) for experimental vs. predicted boundaries. **Verification**: Assert line styles are distinct in saved plot. (US-3)
-- [X] T035 [US3] Calculate Topological Consistency Score (TCS): 
- 1. **Algorithm**: For each system, select fixed composition slices (e.g., 0.1, 0.2, ... 0.9). At each slice, sort the predicted temperatures and experimental temperatures. 
- 2. **Metric**: TCS = (Number of slices where `sorted(predicted) == sorted(experimental)`) / (Total slices).
- 3. **Deliverable**: Generate `data/artifacts/tcs_report.json` (schema: `{"system": "Cu-Zn", tcs_score: high, "slices_evaluated": a representative subset}`). **Verification**: Log warning if TCS < 0.8 but DO NOT halt. TCS is an auxiliary metric; primary gate is MAE. (Methodology Section 4, SC-004)
-- [X] T036 [US3] Implement MAE check for visual fidelity. 
+ **Verify**: Assert experimental lines are solid and predicted lines are dashed in the generated plot.
+- [X] T035 [US3] Calculate Topological Consistency Score (TCS):
+ 1. **Algorithm**: For each system, select fixed composition slices (e.g., 0.1, 0.2,... 0.9). At each slice, sort the predicted temperatures and experimental temperatures.
+ 2. **Metric**: TCS = (Number of slices where `sorted(predicted) == sorted(experimental)`) / (Total slices). Result is a normalized float value.
+ 3. **Deliverable**: Generate `data/artifacts/tcs_report.json` (schema: `{"system": "Cu-Zn", "tcs_score": <float>, "slices_evaluated": <int>}`). **Verification**: Log warning if TCS < 0.8 but DO NOT halt. TCS is an auxiliary metric for topology; the primary gate is MAE (SC-004). (Methodology Section 4, SC-004)
+ **Verify**: Assert `data/artifacts/tcs_report.json` exists and contains `tcs_score`.
+- [X] T036 [US3] Implement MAE check for visual fidelity.
  1. **Logic**: Calculate MAE between predicted and experimental phase boundary lines.
- 2. **Action**: If MAE > 50K, log a warning with error code `LOW_DATA_FIDELITY` to `data/artifacts/fidelity_check.log` (JSON lines: `{"system": "Cu-Zn", mae: moderate magnitude, "status": "PASS"}`). **Requirement**: Do NOT halt the pipeline; this is a qualitative flag per US-3 Acceptance Scenario 3. (US-3, SC-004)
+ 2. **Action**: If MAE > 50K, log a warning with error code `LOW_DATA_FIDELITY` to `data/artifacts/fidelity_check.log` (JSON lines: `{"system": "Cu-Zn", "mae": <float>, "status": "FAILED"}`). **Requirement**: Mark the *system-specific* result as 'FAILED' in the final report to explicitly record that SC-004 is unmet for this system. Do NOT halt the pipeline execution for other systems, but the success criterion (SC-004) is considered unmet for this specific system. (US-3, SC-004)
+ **Verify**: Assert `data/artifacts/fidelity_check.log` exists and contains the failure record if MAE > 50K.
 - [X] T037 [US3] Save generated plots to `data/artifacts/plots/` with system ID naming convention. **Verification**: Assert PNG/SVG files exist. (FR-005)
+ **Verify**: Assert `data/artifacts/plots/Cu-Zn.png` exists.
 - [X] T038 [US3] Exclude complex/metastable systems (e.g., Fe-C) from visualization. **Verification**: Assert Fe-C is not in the generated plots list. **Constraint**: Visualization must be limited to 'simple binary systems' (e.g., Cu-Zn, Al-Cu). (US-3, Assumptions)
+ **Verify**: Assert `data/artifacts/plots/Fe-C.png` does NOT exist.
 
 ### Tests for User Story 3 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow.*
 
 - [X] T030 [P] [US3] Write `tests/test_viz.py` with function `test_tcs_calculation` verifying partial match ratio formula logic (Mandatory per SC-004 auxiliary check). **Depends on T035 completion.**
+ **Verify**: Run `pytest tests/test_viz.py::test_tcs_calculation` and assert exit code 0.
 - [X] T031 [P] [US3] Write `tests/integration/test_viz.py` with function `test_plot_generation` verifying PNG/SVG output exists (Mandatory per US-3). **Depends on T032, T037 completion.**
+ **Verify**: Run `pytest tests/integration/test_viz.py::test_plot_generation` and assert exit code 0.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -203,12 +200,12 @@ data_schema:
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `docs/` (README, API docs)
-- [ ] T040 Code cleanup and refactoring (remove debug prints, optimize loops)
-- [ ] T041 Performance optimization: ensure data subsampling if memory > 6 GB
-- [ ] T042 [P] Additional unit tests for edge cases (ternary systems, empty datasets)
-- [ ] T043 Run `quickstart.md` validation script
-- [ ] T044 Update `state/PROJ-485/...yaml` with final artifact hashes
+- [X] T039 [P] Documentation updates in `docs/` (README, API docs)
+- [X] T040 Code cleanup and refactoring (remove debug prints, optimize loops)
+- [X] T041 Performance optimization: ensure data subsampling if memory > 6 GB
+- [X] T042 [P] Additional unit tests for edge cases (ternary systems, empty datasets)
+- [X] T043 Run `quickstart.md` validation script
+- [X] T044 Update `state/PROJ-485/...yaml` with final artifact hashes
 
 ---
 
@@ -305,6 +302,27 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on free CPU-only CI (cores, limited RAM, no GPU). No 8-bit/4-bit quantization or CUDA dependencies.
 - **Data Integrity**: No synthetic/fake data generation. All tasks must use real data from NIST-JANAF/SGTE or verified local CSVs.
-- **Data Streaming Requirement**: For datasets exceeding ~7GB RAM, tasks MUST implement streaming (e.g., `datasets.load_dataset(..., streaming=True)`) or explicit chunking. Do not load entire datasets into memory.
+- **Data Streaming Requirement**: For datasets exceeding substantial RAM capacity, tasks MUST implement streaming (e.g., `datasets.load_dataset(..., streaming=True)`) or explicit chunking. Do not load entire datasets into memory.
 - **Loader Failure Policy**: Data loaders MUST fail loudly (raise exception) if real data fetch fails. Do NOT implement synthetic fallbacks.
 - **Real Data Only**: All analysis tasks must consume real datasets. Synthetic or toy stand-ins are prohibited.
+
+---
+
+## Phase N+1: Review Resolution & Robustness (Revision Pass)
+
+**Goal**: Address specific reviewer concerns regarding data source verification, streaming logic, and error handling robustness identified in prior research-stage reviews.
+
+### Implementation for Review Resolution
+
+- [X] T045 [P] [US1] **Data Source Verification**: Confirm `code/ingest/load_data.py` strictly enforces the "Fail Loudly" policy. Ensure the script raises a specific `ValueError` with code `DATA_SOURCE_MISSING` if the verified URL block is empty or the fetch fails after retries. No synthetic fallbacks exist. (Constitution Principle II, Rule: Loader must fail loudly)
+ **Verify**: Run pipeline with empty URL block and assert `DATA_SOURCE_MISSING` is raised.
+- [X] T046 [P] [US1] **Streaming Implementation**: Implement streaming logic for large dataset ingestion in `code/ingest/load_data.py`. For external sources (NIST-JANAF/SGTE) that are not standard HuggingFace datasets, use `requests` with `stream=True` and manual chunked parsing, or `pandas.read_csv(..., chunksize=...)` for local/HTTP CSVs. Ensure the code accumulates statistics online and writes to `data/processed/descriptors.csv` incrementally. (Rule: Large real datasets: STREAM the real data)
+ **Verify**: Run pipeline on large dataset and assert `data/processed/descriptors.csv` is populated without OOM error.
+- [X] T047 [P] [US1] **Verified Source Injection**: Add a pre-check in `code/ingest/load_data.py` to detect if a "VERIFIED REAL DATA SOURCE" block is injected by the execution stage. If present, override `code/config.yaml` defaults and use the injected package/recipe as the sole source. (Rule: If a verified real data source is injected, USE it)
+ **Verify**: Inject a verified source and assert it is used instead of config defaults.
+- [X] T048 [P] [US2] **Convex Hull Validation**: Refine `code/models/train.py` (T022 logic) to strictly enforce FR-010. Ensure the "New Element" check explicitly halts or skips the fold with a clear log entry (`INVALID_SCOPE`) if the test set contains elements not present in the training set's convex hull of properties. (FR-010, Plan Methodology 3)
+ **Verify**: Run with a fold containing a new element and assert `INVALID_SCOPE` is logged and fold skipped.
+- [X] T049 [P] [US2] **Power Analysis Rigor**: Enhance `code/models/train.py` (T023) to perform a more rigorous power analysis using the actual variance observed in the pilot run, not just a theoretical estimate. Ensure the `INSUFFICIENT_POWER` error is raised with a detailed report of the calculated power, effect size, and sample size. (FR-011, FR-014)
+ **Verify**: Run with a small dataset and assert `INSUFFICIENT_POWER` is raised with detailed report.
+- [X] T050 [P] [US3] **Fidelity Threshold Enforcement**: Update `code/viz/plot_phase_diagrams.py` (T036) to strictly enforce the 50K MAE threshold. If the MAE exceeds this limit, the system must log the specific error code `LOW_DATA_FIDELITY` and flag the system in the final report as 'FAILED', ensuring the success criterion is met or explicitly failed. (US-3, SC-004)
+ **Verify**: Run with a system having MAE > 50K and assert `LOW_DATA_FIDELITY` is logged and system marked 'FAILED'.

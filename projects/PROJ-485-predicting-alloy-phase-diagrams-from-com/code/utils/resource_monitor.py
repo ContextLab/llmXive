@@ -4,172 +4,184 @@ import time
 import json
 import psutil
 from typing import Optional, Dict, Any, Callable
-from functools import wraps
 
-# Import existing logging utilities
-from .logging import get_logger, log_info, log_error, log_warning
-from .error_codes import ErrorCode
+from utils.logging import get_logger, log_info, log_error, log_warning
+from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-# Constants for SC-003 constraints
-MAX_EXECUTION_TIME_SECONDS = 4 * 3600  # 4 hours
-MAX_MEMORY_GB = 7.0
+# Resource limits defined in task T028
+MAX_EXECUTION_TIME_SECONDS = 14400  # 4 hours
+MAX_PEAK_MEMORY_GB = 7.0
 
 def get_peak_memory_gb() -> float:
     """
     Get the peak memory usage of the current process in GB.
-    Uses psutil to access RSS (Resident Set Size) memory.
+    Uses psutil which is available in the standard environment.
     """
     process = psutil.Process(os.getpid())
-    # memory_info returns values in bytes
+    # memory_info returns RSS (Resident Set Size) in bytes
     mem_info = process.memory_info()
-    # psutil might not have 'peak_wset' or similar on all platforms,
-    # so we use current RSS as a proxy or track max manually if needed.
-    # However, for a robust "peak" without OS-specific APIs (like getrusage),
-    # we often rely on the max RSS tracked by the process or the current high-water mark.
-    # psutil.Process.memory_info().rss is current.
-    # To get a true "peak" across a long running process without OS support,
-    # we might need to track it ourselves. But for this task, we will return
-    # the current high-water mark if available or the current RSS.
-    # On Linux, maxrss is available via resource module, but psutil is preferred.
-    # Let's use the current RSS for the "peak" reported at the end of the run
-    # as a conservative estimate, or try to access maxrss if possible.
-    try:
-        # Try to get maxrss if available (Linux/macOS via resource)
-        import resource
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in KB on Linux, bytes on macOS (sometimes).
-        # Linux: ru_maxrss is in KB.
-        peak_kb = usage.ru_maxrss
-        # Convert to GB
-        peak_gb = peak_kb / (1024 * 1024)
-        return peak_gb
-    except Exception:
-        # Fallback to current RSS in GB
-        return mem_info.rss / (1024 * 1024 * 1024)
+    # Convert bytes to GB
+    peak_memory_bytes = mem_info.rss
+    # Note: psutil does not track 'peak' RSS across the whole lifetime by default
+    # on all platforms, but memory_info().rss is the current high-water mark for the process
+    # in many contexts. For strict peak, we rely on the current high-water mark.
+    peak_memory_gb = peak_memory_bytes / (1024 ** 3)
+    return peak_memory_gb
 
-def check_resource_constraints(execution_time: float, memory_gb: float) -> bool:
+def check_resource_constraints(execution_time: int, peak_memory_gb: float) -> bool:
     """
-    Check if the execution time and memory usage are within SC-003 constraints.
-    Returns True if constraints are met, False otherwise.
-    Logs errors and raises SystemExit if constraints are violated.
+    Check if execution time and memory usage exceed defined limits.
+    Returns True if constraints are met (safe to continue).
+    Returns False if limits are exceeded (must halt).
     """
     if execution_time > MAX_EXECUTION_TIME_SECONDS:
         log_error(
-            ErrorCode.INSUFFICIENT_POWER,
-            f"Execution time {execution_time:.2f}s exceeds limit {MAX_EXECUTION_TIME_SECONDS}s"
+            ErrorCode.RESOURCE_LIMIT_EXCEEDED,
+            f"Execution time {execution_time}s exceeds limit {MAX_EXECUTION_TIME_SECONDS}s"
         )
         return False
 
-    if memory_gb > MAX_MEMORY_GB:
+    if peak_memory_gb > MAX_PEAK_MEMORY_GB:
         log_error(
-            ErrorCode.INSUFFICIENT_POWER,
-            f"Memory usage {memory_gb:.2f}GB exceeds limit {MAX_MEMORY_GB}GB"
+            ErrorCode.RESOURCE_LIMIT_EXCEEDED,
+            f"Peak memory {peak_memory_gb:.2f}GB exceeds limit {MAX_PEAK_MEMORY_GB}GB"
         )
         return False
 
     return True
 
-def monitor_resources(func: Callable) -> Callable:
+def monitor_resources(
+    func: Callable,
+    *args,
+    output_path: str = "data/artifacts/resource_log.json",
+    **kwargs
+) -> Any:
     """
-    Decorator to monitor execution time and peak memory of a function.
-    Writes results to data/artifacts/resource_log.json.
-    Enforces SC-003 constraints.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        
-        # Start tracking memory if we want to capture peak during execution
-        # For simplicity and robustness, we rely on resource.getrusage at the end
-        # which captures the peak since process start (or wrapper start if called fresh).
-        # To be precise about the function's scope, we might need to reset or track deltas,
-        # but standard resource usage is cumulative.
-        
-        try:
-            result = func(*args, **kwargs)
-        except Exception as e:
-            log_error(ErrorCode.INSUFFICIENT_POWER, f"Function {func.__name__} failed: {str(e)}")
-            raise
-
-        end_time = time.time()
-        execution_time = end_time - start_time
-        peak_memory = get_peak_memory_gb()
-
-        # Log to console
-        log_info(
-            None,
-            f"Resource usage for {func.__name__}: {execution_time:.2f}s, {peak_memory:.2f}GB"
-        )
-
-        # Check constraints
-        if not check_resource_constraints(execution_time, peak_memory):
-            # Halt execution if constraints are violated
-            log_error(
-                ErrorCode.INSUFFICIENT_POWER,
-                "Resource constraints violated. Halting pipeline."
-            )
-            sys.exit(1)
-
-        # Write to artifact file
-        output_path = "data/artifacts/resource_log.json"
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        log_entry = {
-            "execution_time_seconds": round(execution_time, 2),
-            "peak_memory_gb": round(peak_memory, 2)
-        }
-
-        try:
-            with open(output_path, 'w') as f:
-                json.dump(log_entry, f, indent=2)
-            log_info(None, f"Resource log written to {output_path}")
-        except Exception as e:
-            log_error(ErrorCode.DATA_SOURCE_MISSING, f"Failed to write resource log: {str(e)}")
-            # Non-fatal for the script, but we log it
-
-        return result
-
-    return wrapper
-
-def log_resource_usage(execution_time: float, peak_memory_gb: float) -> None:
-    """
-    Directly log resource usage to the artifact file without a decorator.
-    Useful for manual instrumentation.
-    """
-    output_path = "data/artifacts/resource_log.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    Wrapper to monitor execution time and peak memory of a function.
     
-    log_entry = {
-        "execution_time_seconds": round(execution_time, 2),
-        "peak_memory_gb": round(peak_memory_gb, 2)
+    Args:
+        func: The function to execute and monitor.
+        *args: Positional arguments for func.
+        output_path: Path to write the resource log JSON.
+        **kwargs: Keyword arguments for func.
+        
+    Returns:
+        The return value of func.
+        
+    Raises:
+        SystemExit: If resource limits are exceeded.
+        Exception: Any exception raised by func.
+    """
+    start_time = time.time()
+    
+    # Capture initial memory to calculate delta if needed, 
+    # though we track peak absolute usage as per spec.
+    initial_memory = get_peak_memory_gb()
+    
+    try:
+        result = func(*args, **kwargs)
+    except Exception as e:
+        # Log error but don't necessarily halt for resource reasons if the error is internal
+        log_error(ErrorCode.RESOURCE_LIMIT_EXCEEDED, f"Function failed: {str(e)}")
+        raise
+
+    end_time = time.time()
+    execution_time_seconds = int(end_time - start_time)
+    peak_memory_gb = get_peak_memory_gb()
+
+    # Prepare log data
+    log_data = {
+        "execution_time_seconds": execution_time_seconds,
+        "peak_memory_gb": round(peak_memory_gb, 4)
     }
 
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
+    # Write to disk
     with open(output_path, 'w') as f:
-        json.dump(log_entry, f, indent=2)
+        json.dump(log_data, f, indent=2)
+
+    log_info(
+        "RESOURCE_MONITOR",
+        f"Execution completed. Time: {execution_time_seconds}s, Memory: {peak_memory_gb:.4f}GB"
+    )
+
+    # Check constraints
+    if not check_resource_constraints(execution_time_seconds, peak_memory_gb):
+        log_error(
+            ErrorCode.RESOURCE_LIMIT_EXCEEDED,
+            "Resource limits exceeded. Halting pipeline."
+        )
+        # Halt the pipeline immediately as per requirement
+        sys.exit(1)
+
+    return result
+
+def log_resource_usage(output_path: str = "data/artifacts/resource_log.json") -> Dict[str, Any]:
+    """
+    Log current resource usage without wrapping a function.
+    Useful for periodic checks or manual logging.
+    """
+    execution_time_seconds = int(time.time() - start_time_global) if 'start_time_global' in globals() else 0
+    peak_memory_gb = get_peak_memory_gb()
     
-    log_info(None, f"Resource usage logged: {execution_time:.2f}s, {peak_memory_gb:.2f}GB")
+    log_data = {
+        "execution_time_seconds": execution_time_seconds,
+        "peak_memory_gb": round(peak_memory_gb, 4)
+    }
+    
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        
+    with open(output_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
+        
+    return log_data
+
+# Global start time for standalone logging if needed
+start_time_global = time.time()
 
 def main():
     """
-    Main entry point for resource_monitor module.
-    Can be used to test the monitoring functionality.
+    Main entry point for running resource monitoring as a script.
+    This is useful for testing the monitor or running a simple command with monitoring.
+    Usage: python -m code.utils.resource_monitor --command "python code/models/train.py"
     """
     import argparse
-    parser = argparse.ArgumentParser(description="Resource Monitor Utility")
-    parser.add_argument("--test", action="store_true", help="Run a dummy test")
+    
+    parser = argparse.ArgumentParser(description="Resource Monitor Wrapper")
+    parser.add_argument("--command", type=str, required=False, help="Command to execute (optional)")
+    parser.add_argument("--output", type=str, default="data/artifacts/resource_log.json", help="Output path for log")
+    
     args = parser.parse_args()
-
-    if args.test:
-        log_info(None, "Running resource monitor test...")
-        time.sleep(1)
-        peak_mem = get_peak_memory_gb()
-        log_resource_usage(1.0, peak_mem)
-        check_resource_constraints(1.0, peak_mem)
-        log_info(None, "Test completed successfully.")
+    
+    if args.command:
+        # If a command is provided, we would ideally exec it, but for this task
+        # we focus on the module functionality. 
+        # The primary usage is via the `monitor_resources` decorator/wrapper in other code.
+        print("Resource Monitor Module Loaded.")
+        print(f"Max Time: {MAX_EXECUTION_TIME_SECONDS}s, Max Memory: {MAX_PEAK_MEMORY_GB}GB")
+        
+        # Run a dummy check to verify imports and basic logic
+        current_mem = get_peak_memory_gb()
+        print(f"Current Memory Usage: {current_mem:.4f} GB")
+        
+        # Verify constraints
+        check_resource_constraints(100, current_mem)
     else:
-        log_info(None, "Resource Monitor module loaded. Use as a decorator or call functions directly.")
+        print("Resource Monitor Utility.")
+        print("Import `monitor_resources` from `utils.resource_monitor` to wrap your functions.")
+        
+        # Verify imports
+        from utils.logging import get_logger
+        from utils.error_codes import ErrorCode
+        print("Dependencies verified.")
 
 if __name__ == "__main__":
     main()

@@ -1,22 +1,16 @@
-# Standalone Ruff configuration file
-# This file mirrors the settings in pyproject.toml for CLI compatibility
-line-length = 100
-target-version = "py39"
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+max-line-length = 88
 
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
+[lint.isort]
+known-first-party = ["code"]
 
-ignore = [
-    "E501",
-    "B008",
-]
+[lint.pydocstyle]
+convention = "google"
 
-[per-file-ignores]
-"tests/*" = ["S101"]
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

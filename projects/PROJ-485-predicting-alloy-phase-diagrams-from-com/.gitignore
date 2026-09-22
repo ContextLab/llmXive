@@ -1,35 +1,51 @@
-# Data directories - exclude all generated and raw data
+# Data directories (Constitution Principle V - exclude raw/processed/artifacts)
 data/raw/*
+!data/raw/.gitkeep
 data/processed/*
+!data/processed/.gitkeep
 data/artifacts/*
+!data/artifacts/.gitkeep
 
-# Python cache files
+# Python bytecode and cache
 *.pyc
 __pycache__
+*.pyo
+*.pyd
+.Python
 
-# State files - exclude all EXCEPT project-specific state
+# State files (except specific project state)
 state/*.yaml
 !state/PROJ-485/*.yaml
 
-# IDE and editor files
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Logs (unless needed for debugging)
+# Logs
 data/logs/
+*.log
 
 # Virtual environments
 venv/
-.venv/
 env/
+.venv/
 
-# Build artifacts
-dist/
-build/
-*.egg-info/
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

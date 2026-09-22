@@ -1,4 +1,4 @@
 """
 Data ingestion module.
-Handles loading, filtering, and checksumming of raw alloy data.
+Handles loading, validation, and checksumming of raw phase data.
 """

@@ -8,6 +8,7 @@ parsing and human readability.
 import logging
 import json
 import sys
+import os
 import traceback
 from datetime import datetime
 from typing import Any, Dict, Optional
@@ -77,7 +78,18 @@ def get_logger(name: str = "llmXive") -> logging.Logger:
         console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(StructuredFormatter())
         
+        # File handler for pipeline.log (FR-008)
+        # Ensure data/logs directory exists
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        log_file_path = os.path.join(log_dir, "pipeline.log")
+        
+        file_handler = logging.FileHandler(log_file_path)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(StructuredFormatter())
+        
         logger.addHandler(console_handler)
+        logger.addHandler(file_handler)
     
     return logger
 

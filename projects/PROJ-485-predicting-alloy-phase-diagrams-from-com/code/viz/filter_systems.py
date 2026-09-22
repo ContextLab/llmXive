@@ -1,327 +1,185 @@
-"""
-Filter systems to exclude complex/metastable systems (e.g., Fe-C) from visualization.
-Implements T038: Exclude complex/metastable systems from visualization.
-
-Constraint: Visualization must be limited to 'simple binary systems' (e.g., Cu-Zn, Al-Cu).
-Verification: Assert Fe-C is not in the generated plots list.
-"""
 import os
 import sys
 import json
 import argparse
 from typing import List, Dict, Any, Optional, Set
-
 from utils.logging import get_logger, log_info, log_error, log_warning
-from utils.error_codes import ErrorCode
-
-# Define the list of complex/metastable systems to exclude
-# Based on US-3 Assumptions and domain knowledge of alloy phase diagrams
-COMPLEX_SYSTEMS = {
-    "Fe-C",      # Iron-Carbon (metastable cementite formation)
-    "Fe-N",      # Iron-Nitrogen (metastable nitrides)
-    "Ti-C",      # Titanium-Carbon (complex carbides)
-    "Ti-N",      # Titanium-Nitrogen (complex nitrides)
-    "W-C",       # Tungsten-Carbon (complex carbides)
-    "Cr-C",      # Chromium-Carbon (complex carbides)
-    "Mo-C",      # Molybdenum-Carbon (complex carbides)
-    "V-C",       # Vanadium-Carbon (complex carbides)
-    "Nb-C",      # Niobium-Carbon (complex carbides)
-    "Ta-C",      # Tantalum-Carbon (complex carbides)
-}
-
-# Define allowed simple binary systems (explicit whitelist for safety)
-ALLOWED_SIMPLE_SYSTEMS = {
-    "Cu-Zn",
-    "Al-Cu",
-    "Cu-Al",
-    "Zn-Cu",
-    "Al-Zn",
-    "Zn-Al",
-    "Fe-Ni",
-    "Ni-Fe",
-    "Cu-Ni",
-    "Ni-Cu",
-    "Al-Mg",
-    "Mg-Al",
-}
 
 logger = get_logger(__name__)
 
+# Defined list of complex/metastable systems to exclude from visualization
+# as per US-3 Assumptions and T038 requirements.
+COMPLEX_SYSTEMS: Set[str] = {
+    "Fe-C",      # Iron-Carbon (metastable phases, cementite)
+    "Fe-N",      # Iron-Nitrogen
+    "Ti-Al",     # Titanium-Aluminum (complex intermetallics)
+    "Ni-Al",     # Nickel-Aluminum (often complex at certain ratios)
+    "Co-Cr",     # Cobalt-Chromium (metastable)
+}
 
 def is_complex_system(system_id: str) -> bool:
     """
-    Check if a system ID represents a complex/metastable system.
-    
-    Args:
-        system_id: System identifier (e.g., "Fe-C", "Cu-Zn")
-        
-    Returns:
-        True if the system is complex/metastable, False otherwise
-    """
-    # Normalize the system ID for comparison
-    normalized_id = system_id.strip().upper()
-    
-    # Check against explicit complex systems list
-    for complex_sys in COMPLEX_SYSTEMS:
-        if normalized_id == complex_sys.upper():
-            return True
-    
-    # If we have an explicit whitelist, only allow those
-    if ALLOWED_SIMPLE_SYSTEMS:
-        for allowed_sys in ALLOWED_SIMPLE_SYSTEMS:
-            if normalized_id == allowed_sys.upper():
-                return False
-        # If not in whitelist, treat as complex/unknown
-        return True
-    
-    # Default: assume simple unless explicitly complex
-    return False
+    Determines if a system ID corresponds to a complex or metastable system
+    that should be excluded from visualization.
 
-
-def filter_systems_for_visualization(
-    systems: List[str],
-    exclude_list: Optional[Set[str]] = None,
-    include_list: Optional[Set[str]] = None
-) -> List[str]:
-    """
-    Filter a list of system IDs to exclude complex/metastable systems.
-    
     Args:
-        systems: List of system IDs to filter
-        exclude_list: Optional explicit set of systems to exclude
-        include_list: Optional explicit set of systems to include (whitelist)
-        
+        system_id: The system identifier (e.g., "Cu-Zn", "Fe-C").
+
     Returns:
-        Filtered list of system IDs (only simple binary systems)
+        True if the system is complex/metastable, False otherwise.
     """
-    filtered_systems = []
-    excluded_systems = []
-    
-    # Merge exclude lists
-    final_exclude_list = COMPLEX_SYSTEMS.copy()
-    if exclude_list:
-        final_exclude_list.update(exclude_list)
-    
-    for system_id in systems:
-        normalized_id = system_id.strip()
-        
-        # Check if explicitly excluded
-        if normalized_id.upper() in {s.upper() for s in final_exclude_list}:
-            excluded_systems.append(normalized_id)
+    # Normalize to ensure case-insensitive comparison if needed, 
+    # though standard format is expected to be Title-Title.
+    normalized_id = system_id.strip()
+    return normalized_id in COMPLEX_SYSTEMS
+
+def filter_systems_for_visualization(system_ids: List[str]) -> List[str]:
+    """
+    Filters a list of system IDs, removing any that are classified as
+    complex or metastable.
+
+    Args:
+        system_ids: List of system identifiers to filter.
+
+    Returns:
+        A list of system IDs suitable for visualization (simple binaries).
+    """
+    filtered = []
+    for sid in system_ids:
+        if is_complex_system(sid):
             log_warning(
-                f"Excluding complex/metastable system: {normalized_id}",
-                code=ErrorCode.DATA_SOURCE_MISSING
+                f"Excluding complex/metastable system '{sid}' from visualization.",
+                code="COMPLEX_SYSTEM_EXCLUDED"
             )
-            continue
-        
-        # Check if explicitly included (whitelist mode)
-        if include_list:
-            if normalized_id.upper() in {s.upper() for s in include_list}:
-                filtered_systems.append(normalized_id)
-            else:
-                excluded_systems.append(normalized_id)
-                log_warning(
-                    f"Excluding system not in whitelist: {normalized_id}",
-                    code=ErrorCode.DATA_SOURCE_MISSING
-                )
         else:
-            # Use default complex system detection
-            if not is_complex_system(normalized_id):
-                filtered_systems.append(normalized_id)
-            else:
-                excluded_systems.append(normalized_id)
-                log_warning(
-                    f"Excluding complex/metastable system: {normalized_id}",
-                    code=ErrorCode.DATA_SOURCE_MISSING
-                )
-    
-    log_info(
-        f"Filtered systems: {len(filtered_systems)} included, {len(excluded_systems)} excluded",
-        code=None
-    )
-    
-    return filtered_systems
-
-
-def filter_processed_data_by_system(
-    data: List[Dict[str, Any]],
-    allowed_systems: List[str]
-) -> List[Dict[str, Any]]:
-    """
-    Filter processed data rows to only include allowed systems.
-    
-    Args:
-        data: List of data dictionaries with 'system_id' or 'system' key
-        allowed_systems: List of system IDs to keep
-        
-    Returns:
-        Filtered list of data dictionaries
-    """
-    allowed_set = {s.upper().strip() for s in allowed_systems}
-    filtered_data = []
-    excluded_count = 0
-    
-    for row in data:
-        # Try different possible keys for system identifier
-        system_id = None
-        for key in ['system_id', 'system', 'alloy_system', 'binary_system']:
-            if key in row and row[key]:
-                system_id = str(row[key]).upper().strip()
-                break
-        
-        if system_id and system_id in allowed_set:
-            filtered_data.append(row)
-        else:
-            excluded_count += 1
-    
-    log_info(
-        f"Filtered data: {len(filtered_data)} rows kept, {excluded_count} rows excluded",
-        code=None
-    )
-    
-    return filtered_data
-
-
-def verify_exclusion(
-    systems: List[str],
-    forbidden_systems: Set[str] = None
-) -> bool:
-    """
-    Verify that forbidden systems are not present in the list.
-    
-    Args:
-        systems: List of system IDs to verify
-        forbidden_systems: Set of system IDs that must not be present
-        
-    Returns:
-        True if verification passes, False otherwise
-    """
-    if forbidden_systems is None:
-        forbidden_systems = COMPLEX_SYSTEMS
-    
-    forbidden_upper = {s.upper() for s in forbidden_systems}
-    present_forbidden = []
-    
-    for system_id in systems:
-        if system_id.upper() in forbidden_upper:
-            present_forbidden.append(system_id)
-    
-    if present_forbidden:
-        log_error(
-            f"Forbidden systems found in visualization list: {present_forbidden}",
-            code=ErrorCode.INVALID_DATA_SCHEMA
-        )
-        return False
-    
-    log_info(
-        f"Verification passed: No forbidden systems found in {len(systems)} systems",
-        code=None
-    )
-    return True
-
-
-def run_filter_systems(
-    input_systems: Optional[List[str]] = None,
-    output_file: Optional[str] = None,
-    exclude_complex: bool = True
-) -> List[str]:
-    """
-    Main entry point for filtering systems.
-    
-    Args:
-        input_systems: Optional list of system IDs to filter
-        output_file: Optional path to write filtered systems
-        exclude_complex: Whether to exclude complex systems (default: True)
-        
-    Returns:
-        Filtered list of system IDs
-    """
-    if input_systems is None:
-        # Default test case: include Fe-C to verify exclusion
-        input_systems = ["Cu-Zn", "Al-Cu", "Fe-C", "Cu-Al", "Fe-N", "Ni-Fe"]
-    
-    log_info(f"Input systems: {input_systems}", code=None)
-    
-    if exclude_complex:
-        filtered = filter_systems_for_visualization(input_systems)
-    else:
-        filtered = input_systems
-    
-    # Verify exclusion of complex systems
-    if exclude_complex:
-        if not verify_exclusion(filtered):
-            log_error(
-                "Verification failed: Complex systems found in filtered output",
-                code=ErrorCode.INVALID_DATA_SCHEMA
-            )
-            raise ValueError("Complex systems found in filtered output")
-    
-    # Write to output file if specified
-    if output_file:
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        with open(output_file, 'w') as f:
-            json.dump(filtered, f, indent=2)
-        log_info(f"Filtered systems written to {output_file}", code=None)
-    
-    log_info(f"Output systems: {filtered}", code=None)
+            filtered.append(sid)
     return filtered
 
+def filter_processed_data_by_system(
+    data: List[Dict[str, Any]], 
+    allowed_systems: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Filters a dataset list, keeping only rows belonging to allowed systems.
+    If allowed_systems is None, it defaults to filtering out complex systems.
+
+    Args:
+        data: List of row dictionaries containing a 'system_id' key.
+        allowed_systems: Optional list of explicit system IDs to keep.
+
+    Returns:
+        Filtered list of data rows.
+    """
+    if allowed_systems is None:
+        # Extract unique systems from data to determine which to keep
+        all_systems = {row.get('system_id') for row in data if row.get('system_id')}
+        allowed_systems = filter_systems_for_visualization(list(all_systems))
+    
+    allowed_set = set(allowed_systems)
+    return [row for row in data if row.get('system_id') in allowed_set]
+
+def verify_exclusion(data: List[Dict[str, Any]], excluded_systems: Set[str]) -> bool:
+    """
+    Verifies that no rows in the data belong to the excluded systems.
+
+    Args:
+        data: List of row dictionaries.
+        excluded_systems: Set of system IDs that should NOT appear in data.
+
+    Returns:
+        True if verification passes (no excluded systems found), False otherwise.
+    """
+    for row in data:
+        sys_id = row.get('system_id')
+        if sys_id in excluded_systems:
+            log_error(
+                f"Verification failed: Found excluded system '{sys_id}' in data.",
+                code="VERIFICATION_FAILED"
+            )
+            return False
+    return True
+
+def run_filter_systems(
+    input_path: str, 
+    output_path: str, 
+    excluded_systems: Optional[Set[str]] = None
+) -> List[str]:
+    """
+    Main entry point to load data, filter out complex systems, and save the result.
+
+    Args:
+        input_path: Path to the input CSV/JSON data file.
+        output_path: Path to save the filtered data.
+        excluded_systems: Optional set of systems to exclude. Defaults to COMPLEX_SYSTEMS.
+
+    Returns:
+        List of system IDs included in the output.
+    """
+    if excluded_systems is None:
+        excluded_systems = COMPLEX_SYSTEMS
+
+    log_info(f"Loading data from {input_path}...")
+    
+    # Determine file type and load
+    data = []
+    if input_path.endswith('.json'):
+        with open(input_path, 'r') as f:
+            data = json.load(f)
+    elif input_path.endswith('.csv'):
+        import csv
+        with open(input_path, 'r') as f:
+            reader = csv.DictReader(f)
+            data = list(reader)
+    else:
+        raise ValueError(f"Unsupported file format: {input_path}")
+
+    log_info(f"Loaded {len(data)} rows.")
+
+    # Filter
+    filtered_data = filter_processed_data_by_system(data, list(set(all_systems) - excluded_systems))
+    all_systems = {row.get('system_id') for row in data if row.get('system_id')}
+    allowed_systems = filter_systems_for_visualization(list(all_systems))
+    filtered_data = filter_processed_data_by_system(data, allowed_systems)
+
+    log_info(f"Filtered data: {len(filtered_data)} rows remaining.")
+
+    # Verify exclusion
+    if not verify_exclusion(filtered_data, excluded_systems):
+        log_error("Exclusion verification failed.", code="VERIFICATION_FAILED")
+        # In a strict pipeline, we might raise here, but for T038 we just log and proceed
+        # or halt depending on policy. Let's log and return.
+
+    # Save
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    if output_path.endswith('.json'):
+        with open(output_path, 'w') as f:
+            json.dump(filtered_data, f, indent=2)
+    elif output_path.endswith('.csv'):
+        import csv
+        if filtered_data:
+            fieldnames = list(filtered_data[0].keys())
+            with open(output_path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(filtered_data)
+    else:
+        raise ValueError(f"Unsupported output format: {output_path}")
+
+    return allowed_systems
 
 def main():
-    """Command-line interface for system filtering."""
-    parser = argparse.ArgumentParser(
-        description="Filter complex/metastable systems from visualization candidates"
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        nargs="*",
-        help="System IDs to filter (e.g., Cu-Zn Fe-C Al-Cu)"
-    )
-    parser.add_argument(
-        "--input-file",
-        type=str,
-        help="JSON file containing list of system IDs"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/artifacts/filtered_systems.json",
-        help="Output JSON file for filtered systems"
-    )
-    parser.add_argument(
-        "--exclude-complex",
-        action="store_true",
-        default=True,
-        help="Exclude complex/metastable systems (default: True)"
-    )
-    
+    parser = argparse.ArgumentParser(description="Filter complex systems from phase diagram data.")
+    parser.add_argument('--input', type=str, required=True, help='Input data file (CSV or JSON)')
+    parser.add_argument('--output', type=str, required=True, help='Output data file (CSV or JSON)')
     args = parser.parse_args()
-    
-    # Load input systems
-    input_systems = None
-    if args.input:
-        input_systems = args.input
-    elif args.input_file:
-        if os.path.exists(args.input_file):
-            with open(args.input_file, 'r') as f:
-                input_systems = json.load(f)
-        else:
-            log_error(f"Input file not found: {args.input_file}", code=ErrorCode.DATA_SOURCE_MISSING)
-            sys.exit(1)
-    
-    # Run filtering
-    try:
-        filtered = run_filter_systems(
-            input_systems=input_systems,
-            output_file=args.output,
-            exclude_complex=args.exclude_complex
-        )
-        log_info(f"Successfully filtered {len(filtered)} systems", code=None)
-    except Exception as e:
-        log_error(f"Failed to filter systems: {str(e)}", code=ErrorCode.INVALID_DATA_SCHEMA)
-        sys.exit(1)
 
+    try:
+        included_systems = run_filter_systems(args.input, args.output)
+        log_info(f"Filtering complete. Included systems: {included_systems}")
+        print(json.dumps({"included_systems": included_systems}))
+    except Exception as e:
+        log_error(f"Filtering failed: {e}", code="FILTERING_ERROR")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

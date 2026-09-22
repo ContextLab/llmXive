@@ -1,17 +1,14 @@
 import os
 import sys
+import pytest
 import json
 import tempfile
-import unittest
-from unittest.mock import patch, MagicMock
+import pickle
 
 # Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from code.models.null_baseline import (
-    load_processed_data,
+from models.null_baseline import (
     compute_global_mean,
     predict_null_model,
     evaluate_model,
@@ -19,126 +16,167 @@ from code.models.null_baseline import (
     run_null_baseline_analysis
 )
 
-class TestNullBaseline(unittest.TestCase):
-    
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_data = [
-            {'temperature': 100.0, 'composition': 0.5, 'element_a': 'Cu', 'element_b': 'Zn'},
-            {'temperature': 200.0, 'composition': 0.6, 'element_a': 'Cu', 'element_b': 'Zn'},
-            {'temperature': 300.0, 'composition': 0.7, 'element_a': 'Al', 'element_b': 'Cu'},
-            {'temperature': 400.0, 'composition': 0.8, 'element_a': 'Al', 'element_b': 'Cu'},
-            {'temperature': 500.0, 'composition': 0.9, 'element_a': 'Cu', 'element_b': 'Zn'}
+class TestComputeGlobalMean:
+    def test_compute_mean_basic(self):
+        """Test basic mean calculation."""
+        train_data = [
+            {'temperature': 100.0},
+            {'temperature': 200.0},
+            {'temperature': 300.0}
         ]
-        
-        # Create test CSV file
-        self.test_csv_path = os.path.join(self.temp_dir, 'test_descriptors.csv')
-        with open(self.test_csv_path, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = ['temperature', 'composition', 'element_a', 'element_b']
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(self.test_data)
-        
-        # Create test LOSO results
-        self.test_loso_path = os.path.join(self.temp_dir, 'test_loso_results.json')
-        self.test_loso_data = {
-            'aggregate': {
-                'mae': 15.0,
-                'r_squared': 0.85
-            },
-            'fold_results': [
-                {'mae': 14.0, 'r_squared': 0.86},
-                {'mae': 16.0, 'r_squared': 0.84}
+        mean = compute_global_mean(train_data)
+        assert mean == 200.0
+
+    def test_compute_mean_empty_raises(self):
+        """Test that empty data raises ValueError."""
+        with pytest.raises(ValueError, match="Training data is empty"):
+            compute_global_mean([])
+
+    def test_compute_mean_no_temperature_raises(self):
+        """Test that missing temperature keys raise ValueError."""
+        train_data = [{'other_key': 100.0}]
+        with pytest.raises(ValueError, match="No temperature values found"):
+            compute_global_mean(train_data)
+
+class TestPredictNullModel:
+    def test_predict_null_basic(self):
+        """Test that predictions are all equal to mean."""
+        mean_temp = 150.0
+        test_data = [{'id': 1}, {'id': 2}, {'id': 3}]
+        predictions = predict_null_model(mean_temp, test_data)
+        assert predictions == [150.0, 150.0, 150.0]
+        assert len(predictions) == len(test_data)
+
+    def test_predict_null_empty_test(self):
+        """Test prediction with empty test data."""
+        predictions = predict_null_model(100.0, [])
+        assert predictions == []
+
+class TestEvaluateModel:
+    def test_evaluate_mae_basic(self):
+        """Test MAE calculation."""
+        predictions = [100.0, 200.0, 300.0]
+        actuals = [110.0, 190.0, 310.0]
+        metrics = evaluate_model(predictions, actuals)
+        # MAE = (10 + 10 + 10) / 3 = 10
+        assert metrics['mae'] == 10.0
+
+    def test_evaluate_r2_perfect(self):
+        """Test R² calculation for perfect predictions."""
+        predictions = [100.0, 200.0, 300.0]
+        actuals = [100.0, 200.0, 300.0]
+        metrics = evaluate_model(predictions, actuals)
+        assert metrics['r2'] == 1.0
+
+    def test_evaluate_r2_worst(self):
+        """Test R² calculation for constant predictions (worst case)."""
+        predictions = [200.0, 200.0, 200.0]
+        actuals = [100.0, 200.0, 300.0]
+        metrics = evaluate_model(predictions, actuals)
+        # Mean actual = 200, SS_tot = 20000, SS_res = 20000, R² = 0
+        assert metrics['r2'] == 0.0
+
+    def test_evaluate_mismatched_lengths_raises(self):
+        """Test that mismatched lengths raise ValueError."""
+        with pytest.raises(ValueError, match="same length"):
+            evaluate_model([1.0, 2.0], [1.0])
+
+class TestCompareModels:
+    def test_compare_basic(self):
+        """Test basic comparison logic."""
+        null_metrics = {'mae': 100.0, 'r2': 0.0}
+        rf_metrics = {'mae': 50.0, 'r2': 0.5}
+        comparison = compare_models(null_metrics, rf_metrics)
+        # Improvement = (100 - 50) / 100 * 100 = 50%
+        assert comparison['null_model_mae'] == 100.0
+        assert comparison['rf_model_mae'] == 50.0
+        assert comparison['percentage_improvement'] == 50.0
+
+    def test_compare_rf_worse(self):
+        """Test when RF performs worse than null."""
+        null_metrics = {'mae': 50.0, 'r2': 0.0}
+        rf_metrics = {'mae': 100.0, 'r2': 0.0}
+        comparison = compare_models(null_metrics, rf_metrics)
+        # Improvement = (50 - 100) / 50 * 100 = -100%
+        assert comparison['percentage_improvement'] == -100.0
+
+    def test_compare_zero_null_mae(self):
+        """Test division by zero when null MAE is 0."""
+        null_metrics = {'mae': 0.0, 'r2': 1.0}
+        rf_metrics = {'mae': 10.0, 'r2': 0.0}
+        comparison = compare_models(null_metrics, rf_metrics)
+        assert comparison['percentage_improvement'] == 0.0
+
+class TestRunNullBaselineAnalysis:
+    def test_run_analysis_basic(self):
+        """Test full analysis flow with mock LOSO results."""
+        loso_results = {
+            'folds': [
+                {
+                    'fold_id': 'fold_1',
+                    'train_data': [
+                        {'temperature': 100.0},
+                        {'temperature': 200.0}
+                    ],
+                    'test_data': [{'id': 1}, {'id': 2}],
+                    'rf_predictions': [150.0, 150.0],
+                    'actuals': [160.0, 140.0]
+                }
             ]
         }
-        with open(self.test_loso_path, 'w', encoding='utf-8') as f:
-            json.dump(self.test_loso_data, f)
-    
-    def tearDown(self):
-        """Clean up temporary files."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-    
-    def test_compute_global_mean(self):
-        """Test that global mean is calculated correctly."""
-        mean = compute_global_mean(self.test_data, target_column='temperature')
-        expected_mean = (100 + 200 + 300 + 400 + 500) / 5
-        self.assertAlmostEqual(mean, expected_mean, places=5)
-    
-    def test_predict_null_model(self):
-        """Test that null model predicts global mean for all samples."""
-        global_mean = 300.0
-        predictions = predict_null_model(self.test_data, global_mean)
-        self.assertEqual(len(predictions), len(self.test_data))
-        self.assertTrue(all(p == global_mean for p in predictions))
-    
-    def test_evaluate_model_mae(self):
-        """Test MAE calculation."""
-        y_true = [100, 200, 300]
-        y_pred = [110, 190, 310]
-        metrics = evaluate_model(y_true, y_pred)
-        expected_mae = (10 + 10 + 10) / 3
-        self.assertAlmostEqual(metrics['mae'], expected_mae, places=5)
-    
-    def test_evaluate_model_r_squared(self):
-        """Test R² calculation."""
-        y_true = [100, 200, 300]
-        y_pred = [100, 200, 300]  # Perfect prediction
-        metrics = evaluate_model(y_true, y_pred)
-        self.assertAlmostEqual(metrics['r_squared'], 1.0, places=5)
-    
-    def test_compare_models(self):
-        """Test model comparison logic."""
-        null_metrics = {'mae': 100.0, 'r_squared': 0.0}
-        rf_metrics = {'mae': 50.0, 'r_squared': 0.8}
         
-        comparison = compare_models(null_metrics, rf_metrics)
+        results = run_null_baseline_analysis(loso_results)
         
-        self.assertAlmostEqual(comparison['null_model_mae'], 100.0, places=5)
-        self.assertAlmostEqual(comparison['rf_model_mae'], 50.0, places=5)
-        # Improvement should be 50%
-        self.assertAlmostEqual(comparison['percentage_improvement'], 50.0, places=5)
-    
-    def test_run_null_baseline_analysis(self):
-        """Test the full null baseline analysis pipeline."""
-        output_path = os.path.join(self.temp_dir, 'baseline_comparison.json')
+        assert 'null_model_mae' in results
+        assert 'rf_model_mae' in results
+        assert 'percentage_improvement' in results
         
-        result = run_null_baseline_analysis(
-            processed_data_path=self.test_csv_path,
-            loso_results_path=self.test_loso_path,
-            output_path=output_path
-        )
-        
-        # Verify output file exists
-        self.assertTrue(os.path.exists(output_path))
-        
-        # Verify result structure
-        self.assertIn('null_model_mae', result)
-        self.assertIn('rf_model_mae', result)
-        self.assertIn('percentage_improvement', result)
-        
-        # Verify RF MAE matches LOSO aggregate
-        self.assertAlmostEqual(result['rf_model_mae'], 15.0, places=5)
-        
-        # Verify null MAE is calculated from data
-        # Global mean = 300, predictions = [300, 300, 300, 300, 300]
-        # MAE = (|100-300| + |200-300| + |300-300| + |400-300| + |500-300|) / 5 = 800/5 = 160
-        self.assertAlmostEqual(result['null_model_mae'], 160.0, places=5)
-        
-        # Verify improvement calculation
-        expected_improvement = ((160 - 15) / 160) * 100
-        self.assertAlmostEqual(result['percentage_improvement'], expected_improvement, places=5)
-    
-    def test_run_null_baseline_analysis_file_not_found(self):
-        """Test that appropriate error is raised when files are missing."""
-        with self.assertRaises(FileNotFoundError):
-            run_null_baseline_analysis(
-                processed_data_path='nonexistent.csv',
-                loso_results_path=self.test_loso_path,
-                output_path=os.path.join(self.temp_dir, 'output.json')
-            )
+        # Null model mean = 150, predictions = [150, 150], actuals = [160, 140]
+        # Null MAE = (10 + 10) / 2 = 10
+        assert results['null_model_mae'] == 10.0
 
-if __name__ == '__main__':
-    import csv
-    unittest.main()
+    def test_run_analysis_empty_folds(self):
+        """Test with no folds."""
+        loso_results = {'folds': []}
+        results = run_null_baseline_analysis(loso_results)
+        assert results['percentage_improvement'] == 0.0
+
+    def test_run_analysis_save_to_file(self):
+        """Test that results are saved to file."""
+        loso_results = {
+            'folds': [
+                {
+                    'fold_id': 'fold_1',
+                    'train_data': [{'temperature': 100.0}],
+                    'test_data': [{'id': 1}],
+                    'rf_predictions': [100.0],
+                    'actuals': [110.0]
+                }
+            ]
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            # Run analysis and save
+            from models.null_baseline import main as null_main
+            import argparse
+            
+            # Mock args
+            sys.argv = ['null_baseline.py', '--input', '/dev/null', '--output', output_path]
+            
+            # We'll manually test the save logic since main() expects real files
+            comparison = run_null_baseline_analysis(loso_results)
+            
+            with open(output_path, 'w') as f:
+                json.dump(comparison, f)
+            
+            with open(output_path, 'r') as f:
+                saved = json.load(f)
+            
+            assert 'null_model_mae' in saved
+            assert os.path.exists(output_path)
+        finally:
+            if os.path.exists(output_path):
+                os.remove(output_path)

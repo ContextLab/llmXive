@@ -6,222 +6,216 @@ import json
 from typing import Dict, Any, List, Optional, Tuple
 
 # Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
+from features.export_descriptors import load_processed_data
 
 logger = get_logger(__name__)
 
-def load_processed_data(filepath: str) -> Tuple[List[Dict[str, Any]], List[str]]:
+def compute_global_mean(train_data: List[Dict[str, Any]]) -> float:
     """
-    Load processed descriptor data from CSV.
-    Returns: (rows, column_names)
+    Compute the mean experimental temperature from the training fold.
+    
+    Args:
+        train_data: List of rows from the training fold.
+        
+    Returns:
+        The mean temperature value (float).
     """
-    if not os.path.exists(filepath):
-        log_error(f"Processed data file not found: {filepath}", ErrorCode.DATA_SOURCE_MISSING)
-        raise FileNotFoundError(f"Processed data file not found: {filepath}")
+    if not train_data:
+        raise ValueError("Training data is empty; cannot compute mean.")
     
-    rows = []
-    column_names = []
-    
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        column_names = reader.fieldnames or []
-        for row in reader:
-            # Convert numeric columns
-            processed_row = {}
-            for key, value in row.items():
-                if key in ['temperature', 'composition', 'mean_atomic_radius', 
-                           'electronegativity_variance', 'valence_electron_count', 
-                           'hume_rothery_concentration']:
-                    try:
-                        processed_row[key] = float(value)
-                    except (ValueError, TypeError):
-                        processed_row[key] = value
-                else:
-                    processed_row[key] = value
-            rows.append(processed_row)
-    
-    return rows, column_names
+    temperatures = [row['temperature'] for row in train_data if 'temperature' in row]
+    if not temperatures:
+        raise ValueError("No temperature values found in training data.")
+        
+    return sum(temperatures) / len(temperatures)
 
-def compute_global_mean(data: List[Dict[str, Any]], target_column: str = 'temperature') -> float:
+def predict_null_model(mean_temp: float, test_data: List[Dict[str, Any]]) -> List[float]:
     """
-    Compute the global mean of the target column from the dataset.
-    This serves as the null model prediction.
+    Generate predictions for the test fold using the training-fold mean.
+    
+    Args:
+        mean_temp: The global mean temperature from the training set.
+        test_data: List of rows from the test fold.
+        
+    Returns:
+        List of predictions (all equal to mean_temp).
     """
-    values = []
-    for row in data:
-        if target_column in row and isinstance(row[target_column], (int, float)):
-            values.append(row[target_column])
-    
-    if not values:
-        log_error("No valid values found for global mean calculation", ErrorCode.INVALID_DATA_SCHEMA)
-        raise ValueError("No valid values found for global mean calculation")
-    
-    return sum(values) / len(values)
+    return [mean_temp] * len(test_data)
 
-def predict_null_model(data: List[Dict[str, Any]], global_mean: float) -> List[float]:
+def evaluate_model(predictions: List[float], actuals: List[float]) -> Dict[str, float]:
     """
-    Predict using the null model (global mean) for all samples.
-    """
-    return [global_mean] * len(data)
-
-def evaluate_model(y_true: List[float], y_pred: List[float]) -> Dict[str, float]:
-    """
-    Calculate MAE and R² for the model predictions.
-    """
-    if len(y_true) != len(y_pred):
-        log_error("y_true and y_pred must have the same length", ErrorCode.INVALID_DATA_SCHEMA)
-        raise ValueError("y_true and y_pred must have the same length")
+    Calculate MAE and R² for the null model predictions.
     
-    if len(y_true) == 0:
-        log_error("Empty dataset for evaluation", ErrorCode.INVALID_DATA_SCHEMA)
-        raise ValueError("Empty dataset for evaluation")
+    Args:
+        predictions: List of predicted temperatures.
+        actuals: List of actual experimental temperatures.
+        
+    Returns:
+        Dictionary with 'mae' and 'r2' metrics.
+    """
+    if len(predictions) != len(actuals):
+        raise ValueError("Predictions and actuals must have the same length.")
+    
+    n = len(predictions)
+    if n == 0:
+        return {'mae': 0.0, 'r2': 0.0}
     
     # Calculate MAE
-    mae = sum(abs(t - p) for t, p in zip(y_true, y_pred)) / len(y_true)
+    mae = sum(abs(p - a) for p, a in zip(predictions, actuals)) / n
     
     # Calculate R²
-    mean_true = sum(y_true) / len(y_true)
-    ss_tot = sum((t - mean_true) ** 2 for t in y_true)
-    ss_res = sum((t - p) ** 2 for t, p in zip(y_true, y_pred))
+    mean_actual = sum(actuals) / n
+    ss_tot = sum((a - mean_actual) ** 2 for a in actuals)
+    ss_res = sum((a - p) ** 2 for a, p in zip(actuals, predictions))
     
     if ss_tot == 0:
-        r_squared = 1.0 if ss_res == 0 else 0.0
+        r2 = 1.0 if ss_res == 0 else 0.0
     else:
-        r_squared = 1 - (ss_res / ss_tot)
-    
-    return {
-        'mae': mae,
-        'r_squared': r_squared
-    }
+        r2 = 1 - (ss_res / ss_tot)
+        
+    return {'mae': mae, 'r2': r2}
 
-def compare_models(null_metrics: Dict[str, float], rf_metrics: Dict[str, float]) -> Dict[str, Any]:
+def compare_models(null_metrics: Dict[str, float], rf_metrics: Dict[str, float]) -> Dict[str, float]:
     """
-    Compare null model and RF model metrics.
-    Returns a dictionary with the comparison results.
+    Compare null model and Random Forest model performance.
+    
+    Args:
+        null_metrics: Metrics from the null model (MAE, R²).
+        rf_metrics: Metrics from the RF model (MAE, R²).
+        
+    Returns:
+        Dictionary with comparison results including percentage improvement.
     """
     null_mae = null_metrics['mae']
     rf_mae = rf_metrics['mae']
     
     if null_mae == 0:
-        percentage_improvement = 100.0 if rf_mae == 0 else 0.0
+        percentage_improvement = 0.0
     else:
-        percentage_improvement = ((null_mae - rf_mae) / null_mae) * 100.0
-    
+        percentage_improvement = ((null_mae - rf_mae) / null_mae) * 100
+        
     return {
         'null_model_mae': null_mae,
         'rf_model_mae': rf_mae,
         'percentage_improvement': percentage_improvement
     }
 
-def run_null_baseline_analysis(
-    processed_data_path: str,
-    loso_results_path: str,
-    output_path: str
-) -> Dict[str, Any]:
+def run_null_baseline_analysis(loso_results: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Main function to run the null baseline analysis.
+    Run the null model baseline analysis across all LOSO folds.
     
-    1. Load processed data.
-    2. Compute global mean (null model).
-    3. Evaluate null model on the same data.
-    4. Load RF model results (LOSO cross-validation).
-    5. Compare null model MAE vs RF model MAE.
-    6. Save comparison to JSON.
+    Args:
+        loso_results: Dictionary containing LOSO cross-validation results.
+            Expected structure:
+            {
+                'folds': [
+                    {
+                        'fold_id': str,
+                        'train_data': List[Dict],
+                        'test_data': List[Dict],
+                        'rf_predictions': List[float],
+                        'actuals': List[float],
+                        'rf_metrics': Dict[str, float]
+                    },
+                    ...
+                ]
+            }
+            
+    Returns:
+        Aggregated comparison results across all folds.
     """
-    log_info(f"Loading processed data from {processed_data_path}")
-    data, _ = load_processed_data(processed_data_path)
+    folds = loso_results.get('folds', [])
     
-    # Extract true values (temperature)
-    y_true = [row['temperature'] for row in data if 'temperature' in row]
+    if not folds:
+        log_warning("No folds found in LOSO results; skipping null baseline analysis.")
+        return {'null_model_mae': 0.0, 'rf_model_mae': 0.0, 'percentage_improvement': 0.0}
     
-    log_info("Computing global mean for null model")
-    global_mean = compute_global_mean(data, target_column='temperature')
+    all_null_predictions = []
+    all_actuals = []
+    all_rf_predictions = []
     
-    log_info("Generating null model predictions")
-    y_pred_null = predict_null_model(data, global_mean)
+    for fold in folds:
+        train_data = fold.get('train_data', [])
+        test_data = fold.get('test_data', [])
+        rf_predictions = fold.get('rf_predictions', [])
+        actuals = fold.get('actuals', [])
+        
+        if not train_data or not test_data:
+            log_warning(f"Skipping fold {fold.get('fold_id', 'unknown')} due to missing data.")
+            continue
+        
+        # Compute global mean from training data
+        mean_temp = compute_global_mean(train_data)
+        
+        # Generate null model predictions
+        null_preds = predict_null_model(mean_temp, test_data)
+        
+        all_null_predictions.extend(null_preds)
+        all_actuals.extend(actuals)
+        all_rf_predictions.extend(rf_predictions)
     
-    log_info("Evaluating null model")
-    null_metrics = evaluate_model(y_true, y_pred_null)
-    log_info(f"Null Model MAE: {null_metrics['mae']:.4f}, R²: {null_metrics['r_squared']:.4f}")
+    # Evaluate null model
+    null_metrics = evaluate_model(all_null_predictions, all_actuals)
     
-    # Load RF model results
-    log_info(f"Loading LOSO results from {loso_results_path}")
-    if not os.path.exists(loso_results_path):
-        log_error(f"LOSO results file not found: {loso_results_path}", ErrorCode.DATA_SOURCE_MISSING)
-        raise FileNotFoundError(f"LOSO results file not found: {loso_results_path}")
+    # Evaluate RF model (re-aggregate from fold results)
+    rf_metrics = evaluate_model(all_rf_predictions, all_actuals)
     
-    with open(loso_results_path, 'r', encoding='utf-8') as f:
-        loso_results = json.load(f)
-    
-    # Extract RF MAE from LOSO results (aggregate)
-    if 'aggregate' in loso_results and 'mae' in loso_results['aggregate']:
-        rf_mae = loso_results['aggregate']['mae']
-    elif 'mae' in loso_results:
-        rf_mae = loso_results['mae']
-    else:
-        # Fallback: calculate from fold results if available
-        if 'fold_results' in loso_results:
-            fold_maes = [fold.get('mae', 0) for fold in loso_results['fold_results'] if 'mae' in fold]
-            if fold_maes:
-                rf_mae = sum(fold_maes) / len(fold_maes)
-            else:
-                log_error("Could not extract RF MAE from LOSO results", ErrorCode.INVALID_DATA_SCHEMA)
-                raise ValueError("Could not extract RF MAE from LOSO results")
-        else:
-            log_error("LOSO results structure not recognized", ErrorCode.INVALID_DATA_SCHEMA)
-            raise ValueError("LOSO results structure not recognized")
-    
-    rf_metrics = {'mae': rf_mae}
-    
-    log_info("Comparing models")
+    # Compare models
     comparison = compare_models(null_metrics, rf_metrics)
     
-    log_info(f"Comparison - Null MAE: {comparison['null_model_mae']:.4f}, "
-             f"RF MAE: {comparison['rf_model_mae']:.4f}, "
-             f"Improvement: {comparison['percentage_improvement']:.2f}%")
+    log_info(f"Null Model MAE: {comparison['null_model_mae']:.2f}")
+    log_info(f"RF Model MAE: {comparison['rf_model_mae']:.2f}")
+    log_info(f"Percentage Improvement: {comparison['percentage_improvement']:.2f}%")
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    # Save comparison to JSON
-    log_info(f"Saving comparison results to {output_path}")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(comparison, f, indent=2)
-    
-    log_info("Null baseline analysis completed successfully")
     return comparison
 
 def main():
     """
-    CLI entry point for null baseline analysis.
+    Main entry point for running the null baseline analysis.
     """
-    parser = argparse.ArgumentParser(description='Run null model baseline analysis')
-    parser.add_argument('--data', type=str, default='data/processed/descriptors.csv',
-                      help='Path to processed descriptor data CSV')
-    parser.add_argument('--loso-results', type=str, default='data/artifacts/loso_results.json',
-                      help='Path to LOSO cross-validation results JSON')
-    parser.add_argument('--output', type=str, default='data/artifacts/baseline_comparison.json',
-                      help='Path to output comparison JSON')
+    parser = argparse.ArgumentParser(description="Run null model baseline analysis")
+    parser.add_argument(
+        '--input', 
+        type=str, 
+        default='data/processed/loso_results.pkl',
+        help='Path to LOSO results file (pickle)'
+    )
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        default='data/artifacts/baseline_comparison.json',
+        help='Path to output JSON file'
+    )
     
     args = parser.parse_args()
     
-    try:
-        result = run_null_baseline_analysis(
-            processed_data_path=args.data,
-            loso_results_path=args.loso_results,
-            output_path=args.output
-        )
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        log_error(f"Null baseline analysis failed: {str(e)}", ErrorCode.INSUFFICIENT_POWER)
+    # Load LOSO results
+    if not os.path.exists(args.input):
+        log_error(f"LOSO results file not found: {args.input}")
         sys.exit(1)
+    
+    with open(args.input, 'rb') as f:
+        loso_results = pickle.load(f)
+    
+    # Run analysis
+    comparison_results = run_null_baseline_analysis(loso_results)
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Save results
+    with open(args.output, 'w') as f:
+        json.dump(comparison_results, f, indent=2)
+    
+    log_info(f"Baseline comparison results saved to {args.output}")
+    
+    return comparison_results
 
 if __name__ == '__main__':
     main()
