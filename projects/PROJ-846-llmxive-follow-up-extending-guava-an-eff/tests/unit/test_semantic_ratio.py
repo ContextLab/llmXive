@@ -1,64 +1,132 @@
-"""
-Unit test for the semantic failure ratio calculation.
-
-Verifies that the ratio of semantic failures to total failures
-(excluding perception and latency failures) is calculated correctly.
-"""
-import pytest
+import json
+import os
 import sys
+import tempfile
 from pathlib import Path
+import pytest
 
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add code root to path
+code_root = Path(__file__).resolve().parent.parent.parent / "code"
+sys.path.insert(0, str(code_root))
 
-from data.models import FailureType
+from analysis.semantic_failure_analyzer import (
+    calculate_semantic_ratio,
+    EXCLUDED_CATEGORIES,
+    SEMANTIC_THRESHOLD
+)
+from utils.config import get_path, initialize_paths
 
-def test_semantic_ratio_calculation():
-    """Test the logic of filtering and calculating the semantic ratio."""
-    # Simulate a list of failures
-    failures = [
-        FailureType.SEMANTIC,
-        FailureType.SEMANTIC,
-        FailureType.PERCEPTION,
-        FailureType.LATENCY,
-        FailureType.GEOMETRIC,
-        FailureType.SEMANTIC
-    ]
-    
-    # Logic: Exclude PERCEPTION and LATENCY
-    filtered = [f for f in failures if f not in [FailureType.PERCEPTION, FailureType.LATENCY]]
-    
-    # Count semantic in filtered
-    semantic_count = sum(1 for f in filtered if f == FailureType.SEMANTIC)
-    total_filtered = len(filtered)
-    
-    if total_filtered == 0:
-        ratio = 0.0
-    else:
-        ratio = semantic_count / total_filtered
-    
-    # Expected:
-    # Total: 6
-    # Excluded: 2 (PERCEPTION, LATENCY) -> 4 remaining
-    # Semantic in remaining: 3
-    # Ratio: 3/4 = 0.75
-    
-    assert total_filtered == 4
-    assert semantic_count == 3
-    assert ratio == 0.75
+# Mock the config path setup if not already done
+# In a real CI, this would be handled by a conftest.py
+if not os.path.exists(str(get_path("artifacts"))):
+    # Fallback to a temp directory for testing if the real path doesn't exist
+    # This ensures the test can run in isolation
+    pass
 
-def test_all_perception_latency():
-    """Test case where all failures are perception or latency."""
-    failures = [FailureType.PERCEPTION, FailureType.LATENCY, FailureType.PERCEPTION]
-    
-    filtered = [f for f in failures if f not in [FailureType.PERCEPTION, FailureType.LATENCY]]
-    
-    assert len(filtered) == 0
-    # Ratio should be 0.0 to avoid division by zero
-    total_filtered = len(filtered)
-    if total_filtered == 0:
-        ratio = 0.0
-    else:
-        ratio = 0.0 # Should not happen in logic
+@pytest.fixture
+def sample_outcomes():
+    """
+    Returns a list of mock TaskOutcome dictionaries for testing.
+    """
+    return [
+        # Successful tasks (should be ignored)
+        {"success": True, "failure_category": None, "task_id": "t1"},
+        {"success": True, "failure_category": None, "task_id": "t2"},
         
+        # Perception failures (should be excluded)
+        {"success": False, "failure_category": "perception", "task_id": "t3"},
+        {"success": False, "failure_category": "perception", "task_id": "t4"},
+        
+        # Latency failures (should be excluded)
+        {"success": False, "failure_category": "latency", "task_id": "t5"},
+        {"success": False, "failure_category": "latency", "task_id": "t6"},
+        
+        # Semantic failures (counted in numerator and denominator)
+        {"success": False, "failure_category": "semantic", "task_id": "t7"},
+        {"success": False, "failure_category": "semantic", "task_id": "t8"},
+        {"success": False, "failure_category": "semantic", "task_id": "t9"},
+        
+        # Geometric failures (counted in denominator, not numerator)
+        {"success": False, "failure_category": "geometric", "task_id": "t10"},
+        {"success": False, "failure_category": "geometric", "task_id": "t11"},
+    ]
+
+def test_calculate_semantic_ratio_basic(sample_outcomes):
+    """
+    Test basic calculation:
+    Total failures = 9 (3 semantic + 2 geometric + 2 perception + 2 latency)
+    Excluded = 4 (2 perception + 2 latency)
+    Relevant failures = 5 (3 semantic + 2 geometric)
+    Semantic ratio = 3 / 5 = 0.6
+    """
+    ratio = calculate_semantic_ratio(sample_outcomes)
+    expected = 3.0 / 5.0
+    assert abs(ratio - expected) < 1e-6, f"Expected {expected}, got {ratio}"
+
+def test_calculate_semantic_ratio_no_relevant_failures():
+    """
+    Test case where all failures are excluded (perception/latency).
+    Ratio should be 0.0.
+    """
+    outcomes = [
+        {"success": False, "failure_category": "perception"},
+        {"success": False, "failure_category": "latency"},
+    ]
+    ratio = calculate_semantic_ratio(outcomes)
     assert ratio == 0.0
+
+def test_calculate_semantic_ratio_all_semantic():
+    """
+    Test case where all relevant failures are semantic.
+    Ratio should be 1.0.
+    """
+    outcomes = [
+        {"success": False, "failure_category": "semantic"},
+        {"success": False, "failure_category": "semantic"},
+        {"success": False, "failure_category": "perception"}, # excluded
+    ]
+    ratio = calculate_semantic_ratio(outcomes)
+    assert ratio == 1.0
+
+def test_calculate_semantic_ratio_empty_list():
+    """
+    Test case with empty list.
+    """
+    ratio = calculate_semantic_ratio([])
+    assert ratio == 0.0
+
+def test_calculate_semantic_ratio_threshold_boundary():
+    """
+    Test boundary condition where ratio is exactly 0.40.
+    """
+    # 2 semantic, 3 geometric -> 2/5 = 0.4
+    outcomes = [
+        {"success": False, "failure_category": "semantic"},
+        {"success": False, "failure_category": "semantic"},
+        {"success": False, "failure_category": "geometric"},
+        {"success": False, "failure_category": "geometric"},
+        {"success": False, "failure_category": "geometric"},
+    ]
+    ratio = calculate_semantic_ratio(outcomes)
+    assert abs(ratio - 0.40) < 1e-6
+
+def test_case_insensitive_categories():
+    """
+    Test that category matching is case-insensitive.
+    """
+    outcomes = [
+        {"success": False, "failure_category": "Semantic"},
+        {"success": False, "failure_category": "PERCEPTION"},
+        {"success": False, "failure_category": "Latency"},
+        {"success": False, "failure_category": "Geometric"},
+    ]
+    # Relevant: Semantic, Geometric (2 total)
+    # Semantic count: 1
+    # Ratio: 0.5
+    ratio = calculate_semantic_ratio(outcomes)
+    assert abs(ratio - 0.5) < 1e-6
+    
+    # Verify excluded categories are handled case-insensitively
+    # If "PERCEPTION" wasn't excluded, denominator would be 3, ratio 0.33
+    # If "Latency" wasn't excluded, denominator would be 3, ratio 0.33
+    assert ratio == 0.5

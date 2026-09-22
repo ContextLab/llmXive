@@ -1,67 +1,63 @@
-T001a:
+T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a .git directory, initialization log, or command output) is
-    provided to demonstrate that `git init` was run in the project root; therefore
-    the requirement is not verified.
-T001b:
+  r: No repository, commit hash, log output, or any other artifact proving that `git
+    commit -m "Initial commit"` was executed is present; the claim lacks concrete
+    evidence of an initial commit.
+T004a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file or any proof of a git commit (e.g., commit hash, repository
-    snapshot) is provided; without these artifacts the claim that the initial commit
-    was created cannot be verified. The required artifact is missing.
-T001c:
+  r: No evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/`
+    or a `.gitkeep` file within it was provided; without these artifacts the task
+    requirement is not satisfied.
+T004b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., repository state, command output, or script) showing that
-    a remote URL was added with `git remote add origin <url>` is provided; the claim
-    cannot be verified. The required evidence of a configured remote repository is
+  r: No evidence of the `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/`
+    directory or a `.gitkeep` file within it was provided; the required artifact is
     missing.
-T002a:
-  c: false
-  h: 7f04bfc3713525216f8ea2695d9330dba76a2936867812421dea9e1b4df6b6a5
-  r: The required file `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt`
-    does not exist, even though a `code/requirements.txt` with the correct contents
-    is present elsewhere. The task specifically demanded the file at the given project
-    path, which is missing.
-T002b:
+T004c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No Python version\u2011check script is present in the provided evidence; the\
-    \ claim lacks any artifact (file, code snippet, or description) that verifies\
-    \ Python\u202F3.11+ availability. The required script must be supplied and contain\
-    \ logic to check the interpreter version and exit with an error if it is below\
-    \ 3.11."
+  r: No evidence was provided showing that the directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/`
+    actually exists or contains a `.gitkeep` file; the claim cannot be verified.
+T005:
+  c: false
+  h: c2ff2f76ddcfdb33f5aa05adb0ac4cf62baef0edca530604b8384cc4e2abe47f
+  r: The `state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml` file is absent,
+    so the required state update cannot be verified. Additionally, the provided `state_manager.py`
+    snippet does not show the atomic write logic or the creation of an `artifact_hashes`
+    map with an `updated_at` timestamp. The missing YAML file and incomplete implementation
+    need to be added.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or exception definition for `DatasetUnavailableError`\
+    \ were provided; the claim lacks any tangible artifact demonstrating that error\u2011\
+    handling infrastructure was set up. The required implementation is missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, dataset files, or benchmark results were provided to demonstrate\
+    \ that a CPU\u2011only symbolic perception pipeline was built, that it transforms\
+    \ raw Guava trajectories into the required JSON format, or that it meets the \u2264\
+    150\u202Fms per\u2011frame and \u22644\u2011hour full\u2011dataset processing\
+    \ constraints. Consequently the core requirement of creating a \u201CSymbolic\u2011\
+    Guava\u201D dataset is unverified."
 T013a:
   c: false
-  h: f4c17e4f3a15505d536500ca2f308f8c33c48cadb72f65319b4c994615b03439
+  h: 3f3641ceb6c4055f4e7c4f9f6561f4f0dc3c943ec970845ab3bd149f97de446d
   r: "The repository contains `download_guava.py`, but the required output file `data/raw/guava/checksums.json`\
-    \ is absent, indicating the script has not generated the checksum manifest as\
-    \ mandated. Without this file the task\u2019s core requirement is unmet."
-T013b:
+    \ is missing, and the provided script is truncated before showing the actual download\u2011\
+    to\u2011`data/raw/guava/` and checksum\u2011generation logic. Without the generated\
+    \ checksums file (and a complete implementation that saves the dataset), the task\
+    \ is not satisfied."
+T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification and user stories unrelated
-    to checksum verification; there is no script, log file, or output showing that
-    `data/raw/guava/` was checked against `checksums.json` and that the result was
-    recorded. The required artifact (verification result/log) is missing.
-T016:
-  c: false
-  h: b27bf9a14568641d52c0f1c7fc15c981fcae54204ee48316a6f9e50b32ad6157
-  r: "The repository lacks the required `data/artifacts/perception_log.json` and the\
-    \ ground\u2011truth file `data/raw/guava/ground_truth_annotations.json`, so the\
-    \ logger cannot write or compute the needed data. Moreover, `log_perception_ground_truth`\
-    \ merely accepts an `object_missing_if_visible` flag instead of deriving it by\
-    \ comparing YOLO output to the ground\u2011truth annotations, violating the critical\
-    \ requirement."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a modified `transform_symbolic.py` file or any code implementing
-    handling of empty frames (empty object list or `"scene_empty"` flag) was provided.
-    Without the actual script or a description of the added logic, we cannot confirm
-    the requirement was met. The implementer must supply the updated file (or a diff)
-    showing the new handling logic.
+  r: No script, log file, or output showing that `data/raw/guava/` was checked against
+    `checksums.json` was provided; the required artifact (verification result) is
+    missing.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -70,12 +66,3 @@ T023:
     \ or evaluation results provided. Consequently, the required artifacts to demonstrate\
     \ LoRA fine\u2011tuning logic using the original Guava prompt templates and action\
     \ abstraction schemas are missing."
-T024b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence only describes user stories for symbolic data transformation\
-    \ and model fine\u2011tuning; there is no code, script, configuration, or documentation\
-    \ that implements a checkpoint\u2011saving mechanism for partial training runs\
-    \ (FR\u2011003). Consequently, the required artifact is missing. The next implementer\
-    \ must add a functional checkpoint\u2011saving feature (e.g., a function or training\
-    \ loop that writes model state to disk at intervals and can reload it)."

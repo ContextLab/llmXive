@@ -91,12 +91,12 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 - **SC-002**: The step efficiency (average steps per task) of the Symbolic-Guava agent is within 15% of the Baseline-Guava baseline (i.e., no more than 1.15x steps per task) (See FR-004).
 - **SC-003**: The statistical significance of the performance difference is measured using a Permutation Test with a p-value threshold of < 0.05 (See FR-005).
 - **SC-004**: Semantic failures account for ≥40% of total failures (excluding perception and latency failures), validating that the symbolic abstraction retains semantic reasoning capability (See FR-006).
-- **SC-005**: The total compute time for the fine-tuning and evaluation phases is measured against the 6-hour CPU-only runner limit to ensure feasibility (See FR-003, FR-004).
+- **SC-005**: The total compute time for the fine-tuning and evaluation phases is measured against the available CPU-only runner time limit to ensure feasibility. (See FR-003, FR-004).
 
 ## Assumptions
 
 - The original Guava dataset (<2,000 trajectories) is publicly available and contains sufficient visual data to train a YOLO-tiny model for object detection in the simulated environment.
-- A lightweight open-source LLM (e.g., Phi-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (a limited number of cores, ~7 GB RAM) within the 4-hour limit without requiring GPU acceleration.
+- A lightweight open-source LLM (e.g., Phi-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (a limited number of cores, constrained RAM) within the 4-hour limit without requiring GPU acceleration.
 - The simulated environment (e.g., Franka) used for evaluation is compatible with CPU-only execution and provides a deterministic physics engine for measuring task success.
 - The symbolic representation (bounding boxes + color histograms) is sufficient to describe the state of tasks involving geometric primitives (stacking, opening drawers) but may lack the fidelity required for texture-based tasks.
 - The YOLO-tiny model, when quantized and run via ONNX Runtime on CPU, achieves inference speeds sufficient to process the trajectory frames within a real-time time constraint.

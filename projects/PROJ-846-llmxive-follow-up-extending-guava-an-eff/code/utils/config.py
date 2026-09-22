@@ -1,3 +1,7 @@
+"""
+Configuration management for llmXive project.
+Handles seeds, paths, and hyperparameters.
+"""
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -5,117 +9,109 @@ import random
 import numpy as np
 import torch
 
-# Global configuration dictionary
-_CONFIG = {
+# Global configuration state
+_config = {
     "seed": 42,
     "paths": {},
-    "hyperparameters": {},
+    "hyperparameters": {
+        "latency_threshold_ms": 150,
+        "training_epochs": 10,
+        "learning_rate": 1e-4,
+        "batch_size": 8,
+        "perception_threshold": 0.5,
+    }
 }
 
-def set_global_seed(seed: int) -> None:
-    """
-    Set the global random seed for reproducibility.
-    
-    Args:
-        seed: Integer seed value
-    """
-    _CONFIG["seed"] = seed
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-def ensure_directories(paths: List[Union[str, Path]]) -> None:
-    """
-    Ensure that the specified directories exist.
-    
-    Args:
-        paths: List of directory paths to create
-    """
-    for path in paths:
-        dir_path = Path(path)
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-def get_config_summary() -> Dict[str, Any]:
-    """
-    Get a summary of the current configuration.
-    
-    Returns:
-        Dictionary containing configuration summary
-    """
-    return {
-        "seed": _CONFIG["seed"],
-        "paths": {k: str(v) for k, v in _CONFIG["paths"].items()},
-        "hyperparameters": _CONFIG["hyperparameters"],
-    }
-
-def initialize_paths(project_root: Path = None) -> Dict[str, Path]:
-    """
-    Initialize standard project paths.
-    
-    Args:
-        project_root: Root directory of the project. Defaults to current working directory.
-        
-    Returns:
-        Dictionary mapping path names to Path objects
-    """
+def initialize_paths(project_root: Optional[Path] = None):
+    """Initialize all standard project paths."""
     if project_root is None:
-        project_root = Path.cwd()
+        # Default to parent of code/ directory
+        project_root = Path(__file__).resolve().parents[2]
     
-    paths = {
-        "root": project_root,
+    # Define base directories
+    base_dirs = {
+        "project_root": project_root,
         "code": project_root / "code",
         "data": project_root / "data",
         "data_raw": project_root / "data" / "raw",
         "data_processed": project_root / "data" / "processed",
         "data_artifacts": project_root / "data" / "artifacts",
         "tests": project_root / "tests",
+        "specs": project_root / "specs",
         "state": project_root / "state",
-        "figures": project_root / "figures",
     }
     
-    _CONFIG["paths"] = paths
-    ensure_directories(paths.values())
+    # Define specific file paths
+    file_paths = {
+        "requirements": base_dirs["code"] / "requirements.txt",
+        "checksums": base_dirs["data_raw"] / "guava" / "checksums.json",
+        "ground_truth_annotations": base_dirs["data_raw"] / "guava" / "ground_truth_annotations.json",
+        "symbolic_dataset": base_dirs["data_processed"] / "symbolic_guava",
+        "perception_log": base_dirs["data_artifacts"] / "perception_log.json",
+        "training_metrics": base_dirs["data_artifacts"] / "training_metrics.json",
+        "evaluation_outcomes_raw": base_dirs["data_artifacts"] / "evaluation_outcomes_raw.json",
+        "categorized_outcomes": base_dirs["data_artifacts"] / "categorized_outcomes.json",
+        "filtered_evaluation_outcomes": base_dirs["data_processed"] / "evaluation_outcomes.json",
+        "latency_exclusion_verified": base_dirs["data_artifacts"] / "latency_exclusion_verified.json",
+        "gpu_escape_log": base_dirs["data_artifacts"] / "gpu_escape_log.json",
+        "evaluation_results": base_dirs["data_artifacts"] / "evaluation_results.json",
+        "sc004_verification": base_dirs["data_artifacts"] / "sc004_verification.json",
+    }
     
-    return paths
+    _config["paths"].update(base_dirs)
+    _config["paths"].update(file_paths)
 
-def get_path(name: str) -> Path:
-    """
-    Get a configured path by name.
-    
-    Args:
-        name: Name of the path to retrieve
-        
-    Returns:
-        Path object
-        
-    Raises:
-        KeyError: If path name is not found
-    """
-    if name not in _CONFIG["paths"]:
-        raise KeyError(f"Path '{name}' not found in configuration")
-    return _CONFIG["paths"][name]
+def get_path(key: str) -> Path:
+    """Get a specific path by key."""
+    if key not in _config["paths"]:
+        raise KeyError(f"Path key '{key}' not found in configuration.")
+    return _config["paths"][key]
 
-def set_hyperparameter(name: str, value: Any) -> None:
-    """
-    Set a hyperparameter value.
-    
-    Args:
-        name: Name of the hyperparameter
-        value: Value to set
-    """
-    _CONFIG["hyperparameters"][name] = value
+def set_hyperparameter(key: str, value: Any):
+    """Set a hyperparameter value."""
+    _config["hyperparameters"][key] = value
 
-def get_hyperparameter(name: str, default: Any = None) -> Any:
-    """
-    Get a hyperparameter value.
+def get_hyperparameter(key: str, default: Any = None) -> Any:
+    """Get a hyperparameter value."""
+    return _config["hyperparameters"].get(key, default)
+
+def set_global_seed(seed: int):
+    """Set global random seeds for reproducibility."""
+    _config["seed"] = seed
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+def ensure_directories():
+    """Ensure all required directories exist."""
+    for path in _config["paths"].values():
+        if isinstance(path, Path) and "directory" in str(path).lower() or path.suffix == "":
+            # Heuristic: if it looks like a directory path or has no extension
+            # Actually, let's be explicit: only create known directories
+            pass
     
-    Args:
-        name: Name of the hyperparameter
-        default: Default value if not found
-        
-    Returns:
-        Hyperparameter value
-    """
-    return _CONFIG["hyperparameters"].get(name, default)
+    # Explicit directory creation
+    dirs_to_create = [
+        _config["paths"]["data_raw"],
+        _config["paths"]["data_processed"],
+        _config["paths"]["data_artifacts"],
+        _config["paths"]["state"],
+        _config["paths"]["code"],
+    ]
+    
+    for d in dirs_to_create:
+        if d:
+            d.mkdir(parents=True, exist_ok=True)
+
+def get_config_summary() -> Dict[str, Any]:
+    """Return a summary of the current configuration."""
+    return {
+        "seed": _config["seed"],
+        "hyperparameters": _config["hyperparameters"],
+        "paths": {k: str(v) for k, v in _config["paths"].items()}
+    }
+
+# Initialize paths on module load
+initialize_paths()
