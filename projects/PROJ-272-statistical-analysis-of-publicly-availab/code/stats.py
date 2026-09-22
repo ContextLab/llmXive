@@ -1,10 +1,3 @@
-"""
-Statistical Testing Module for Cognitive Decline Analysis.
-
-Implements Mann-Whitney U tests for group comparisons (Control vs AD, Control vs MCI)
-on extracted linguistic features.
-"""
-
 import logging
 import json
 from pathlib import Path
@@ -13,192 +6,168 @@ import numpy as np
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
-from config import get_path, get_seed, set_seed
-from utils import get_logger
+from config import get_path, ensure_dirs
 
-# Configure logging
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def load_feature_matrix(filepath: str) -> pd.DataFrame:
-    """
-    Load the processed feature matrix from CSV.
-
-    Args:
-        filepath: Path to the features CSV file.
-
-    Returns:
-        DataFrame containing features and labels.
-    """
-    path = Path(filepath)
+def load_feature_matrix() -> pd.DataFrame:
+    """Load the processed feature matrix from disk."""
+    path = get_path("data/processed/features.csv")
     if not path.exists():
-        raise FileNotFoundError(f"Feature matrix not found at {filepath}")
+        raise FileNotFoundError(f"Feature matrix not found at {path}")
+    return pd.read_csv(path)
 
-    df = pd.read_csv(filepath)
-    
-    # Validate required columns
-    required_cols = ['participant_id', 'label']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-    
-    logger.info(f"Loaded feature matrix with {len(df)} records")
-    return df
+def prepare_group_data(df: pd.DataFrame, group_col: str = "label", target_label: str = "AD") -> Tuple[pd.Series, pd.Series]:
+    """Separate data into target and control groups."""
+    target = df[df[group_col] == target_label]
+    control = df[df[group_col] == "Control"]
+    return target, control
 
-def prepare_group_data(df: pd.DataFrame, feature_col: str, group1_label: str, group2_label: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Extract feature values for two specific groups.
-
-    Args:
-        df: Full dataframe with features and labels.
-        feature_col: Name of the feature column to analyze.
-        group1_label: Label for the first group (e.g., 'Control').
-        group2_label: Label for the second group (e.g., 'AD').
-
-    Returns:
-        Tuple of (group1_values, group2_values) as numpy arrays.
-    """
-    if feature_col not in df.columns:
-        raise ValueError(f"Feature column '{feature_col}' not found in dataframe")
-
-    group1 = df[df['label'] == group1_label][feature_col].dropna()
-    group2 = df[df['label'] == group2_label][feature_col].dropna()
-
-    if len(group1) == 0 or len(group2) == 0:
-        raise ValueError(f"One of the groups has no valid data for feature '{feature_col}'")
-
-    logger.debug(f"Group {group1_label}: n={len(group1)}, Group {group2_label}: n={len(group2)}")
-    return group1.values, group2.values
-
-def run_mann_whitney_u(group1: np.ndarray, group2: np.ndarray, alternative: str = 'two-sided') -> Dict[str, float]:
-    """
-    Perform Mann-Whitney U test between two groups.
-
-    Args:
-        group1: Array of values for group 1.
-        group2: Array of values for group 2.
-        alternative: Type of alternative hypothesis ('two-sided', 'less', 'greater').
-
-    Returns:
-        Dictionary with 'statistic' and 'pvalue'.
-    """
+def run_mann_whitney_u(group1: pd.Series, group2: pd.Series) -> Tuple[float, float]:
+    """Run Mann-Whitney U test and return statistic and p-value."""
     if len(group1) < 2 or len(group2) < 2:
-        raise ValueError("Both groups must have at least 2 samples for Mann-Whitney U test")
+        raise ValueError("Need at least 2 samples in each group for Mann-Whitney U.")
+    stat, pval = mannwhitneyu(group1, group2, alternative='two-sided')
+    return float(stat), float(pval)
 
-    # Handle constant variance edge case
-    if np.std(group1) == 0 or np.std(group2) == 0:
-        logger.warning("One or both groups have zero variance. Mann-Whitney U may be undefined.")
-        # If all values are identical, U statistic is based on rank sums, but p-value calculation
-        # might fail or be trivial. We proceed but log the warning.
-
-    try:
-        stat, pval = mannwhitneyu(group1, group2, alternative=alternative)
-        return {'statistic': float(stat), 'pvalue': float(pval)}
-    except Exception as e:
-        logger.error(f"Mann-Whitney U test failed: {e}")
-        raise
-
-def run_group_comparisons(df: pd.DataFrame, feature_cols: List[str], 
-                          comparisons: List[Tuple[str, str]]) -> Dict[str, Dict[str, Dict[str, float]]]:
-    """
-    Run Mann-Whitney U tests for all features across specified group comparisons.
-
-    Args:
-        df: Feature dataframe.
-        feature_cols: List of feature column names to test.
-        comparisons: List of tuples (group1_label, group2_label).
-
-    Returns:
-        Nested dictionary: {feature_name: {comparison_key: {statistic, pvalue}}}
-    """
-    results = {}
+def calculate_cohens_d(group1: pd.Series, group2: pd.Series) -> float:
+    """Calculate Cohen's d effect size."""
+    n1, n2 = len(group1), len(group2)
+    mean1, mean2 = group1.mean(), group2.mean()
+    var1, var2 = group1.var(ddof=1), group2.var(ddof=1)
     
-    for feature in feature_cols:
-        results[feature] = {}
+    if var1 is None or var2 is None or (var1 + var2) == 0:
+        return 0.0
         
-        for g1_label, g2_label in comparisons:
-            comparison_key = f"{g1_label}_vs_{g2_label}"
-            try:
-                g1_vals, g2_vals = prepare_group_data(df, feature, g1_label, g2_label)
-                test_result = run_mann_whitney_u(g1_vals, g2_vals)
-                results[feature][comparison_key] = test_result
-            except ValueError as e:
-                logger.warning(f"Skipping {feature} for {comparison_key}: {e}")
-                results[feature][comparison_key] = {'error': str(e)}
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0.0
+    return float((mean1 - mean2) / pooled_std)
 
+def run_group_comparisons(df: pd.DataFrame, feature_cols: List[str], group_col: str = "label") -> List[Dict[str, Any]]:
+    """Run statistical comparisons for all features between Control and AD groups."""
+    target, control = prepare_group_data(df, group_col, "AD")
+    results = []
+    
+    for col in feature_cols:
+        try:
+            stat, pval = run_mann_whitney_u(target[col], control[col])
+            d = calculate_cohens_d(target[col], control[col])
+            results.append({
+                "feature": col,
+                "statistic": stat,
+                "p_value": pval,
+                "cohens_d": d,
+                "n_control": len(control),
+                "n_target": len(target)
+            })
+        except ValueError as e:
+            logger.warning(f"Skipped {col} due to insufficient data: {e}")
+            results.append({
+                "feature": col,
+                "statistic": None,
+                "p_value": None,
+                "cohens_d": None,
+                "n_control": len(control),
+                "n_target": len(target),
+                "error": str(e)
+            })
     return results
 
-def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """
-    Save statistical results to a JSON file.
+def apply_bonferroni_correction(results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
+    """Apply Bonferroni correction to p-values."""
+    n_tests = len([r for r in results if r["p_value"] is not None])
+    if n_tests == 0:
+        return results
+        
+    adjusted_alpha = alpha / n_tests
+    for res in results:
+        if res["p_value"] is not None:
+            res["p_value_adjusted"] = min(res["p_value"] * n_tests, 1.0)
+            res["is_significant_adjusted"] = res["p_value_adjusted"] < adjusted_alpha
+        else:
+            res["p_value_adjusted"] = None
+            res["is_significant_adjusted"] = False
+    return results
 
-    Args:
-        results: Dictionary of results to save.
-        output_path: Path to the output JSON file.
+def check_sample_sizes(df: pd.DataFrame, group_col: str = "label", threshold: int = 10, metadata_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    Check if any group has fewer than 'threshold' participants.
+    Logs a WARNING and flags the dataset as 'low_power' in metadata if so.
+    """
+    counts = df[group_col].value_counts().to_dict()
+    low_power_detected = False
+    low_power_groups = []
+
+    for group, count in counts.items():
+        if count < threshold:
+            low_power_detected = True
+            low_power_groups.append({"group": group, "count": count})
+            logger.warning(f"Low sample size detected for group '{group}': {count} < {threshold}")
+
+    status_flag = {}
+    if low_power_detected:
+        status_flag["low_power"] = True
+        status_flag["low_power_groups"] = low_power_groups
+        logger.warning("Dataset flagged as 'low_power' due to insufficient sample sizes.")
+    else:
+        status_flag["low_power"] = False
+        status_flag["group_counts"] = counts
+
+    # Update metadata file
+    if metadata_path is None:
+        metadata_path = str(get_path("data/results/metadata.json"))
     
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, default=str)
+    ensure_dirs(Path(metadata_path).parent)
     
+    existing_metadata = {}
+    if Path(metadata_path).exists():
+        try:
+            with open(metadata_path, 'r') as f:
+                existing_metadata = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning("Could not parse existing metadata.json, starting fresh.")
+
+    existing_metadata.update(status_flag)
+    
+    with open(metadata_path, 'w') as f:
+        json.dump(existing_metadata, f, indent=2)
+    
+    logger.info(f"Sample size check complete. Metadata updated at {metadata_path}")
+    return status_flag
+
+def save_results(results: List[Dict[str, Any]], output_path: Optional[str] = None) -> None:
+    """Save statistical results to JSON."""
+    if output_path is None:
+        output_path = str(get_path("data/results/statistical_metrics.json"))
+    
+    ensure_dirs(Path(output_path).parent)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     logger.info(f"Statistical results saved to {output_path}")
 
-def main() -> None:
-    """
-    Main entry point for statistical testing.
-    Loads features, runs Mann-Whitney U tests for Control vs AD and Control vs MCI,
-    and saves results.
-    """
-    # Set seed for reproducibility
-    set_seed(get_seed())
-
-    # Define paths
-    features_path = get_path('data/processed/features.csv')
-    output_path = get_path('data/results/statistical_metrics.json')
-
-    # Define comparisons
-    # Based on task description: Control vs AD and Control vs MCI
-    comparisons = [
-        ('Control', 'AD'),
-        ('Control', 'MCI')
-    ]
-
-    logger.info("Starting statistical testing module (T026)")
+def main():
+    """Main entry point for statistical analysis."""
+    logging.basicConfig(level=logging.INFO)
     
-    try:
-        # Load data
-        df = load_feature_matrix(features_path)
-        
-        # Identify feature columns (exclude metadata columns)
-        exclude_cols = ['participant_id', 'label']
-        feature_cols = [col for col in df.columns if col not in exclude_cols]
-        
-        if not feature_cols:
-            raise ValueError("No feature columns found in the dataset")
-        
-        logger.info(f"Found {len(feature_cols)} features to test")
+    # Load data
+    df = load_feature_matrix()
+    logger.info(f"Loaded feature matrix with {len(df)} records.")
+    
+    # Define feature columns (excluding ID and Label)
+    feature_cols = [col for col in df.columns if col not in ['participant_id', 'label']]
+    
+    # Check sample sizes and update metadata
+    check_sample_sizes(df, threshold=10)
+    
+    # Run comparisons
+    raw_results = run_group_comparisons(df, feature_cols)
+    corrected_results = apply_bonferroni_correction(raw_results)
+    
+    # Save results
+    save_results(corrected_results)
+    
+    logger.info("Statistical analysis complete.")
 
-        # Run comparisons
-        results = run_group_comparisons(df, feature_cols, comparisons)
-
-        # Add metadata
-        final_results = {
-            'metadata': {
-                'total_features_tested': len(feature_cols),
-                'comparisons_performed': [f"{c[0]}_vs_{c[1]}" for c in comparisons],
-                'test_method': 'Mann-Whitney U (two-sided)'
-            },
-            'results': results
-        }
-
-        # Save results
-        save_results(final_results, output_path)
-        
-        logger.info("Statistical testing completed successfully")
-
-    except Exception as e:
-        logger.error(f"Statistical testing failed: {e}")
-        raise
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

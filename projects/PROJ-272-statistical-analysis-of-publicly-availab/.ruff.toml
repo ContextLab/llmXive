@@ -1,29 +1,28 @@
 # Ruff configuration for llmXive statistical analysis project
-line-length = 88
+line-length = 100
 target-version = "py311"
 
 [lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "ARG", # flake8-unused-arguments
-    "SIM", # flake8-simplify
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by formatter)
-    "B008", # do not perform function calls in argument defaults (common in data pipelines)
+    "B008", # do not perform function calls in argument defaults
 ]
 
 [lint.isort]
-known-first-party = ["code"]
+known-first-party = ["code", "tests"]
 force-to-top = ["code"]
 
 [format]
+line-length = 100
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false

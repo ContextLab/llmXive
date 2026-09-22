@@ -1,15 +1,73 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided; there is no evidence that FR\u2011001,\
+    \ US1, or the Edge Cases sections have been edited to remove any mention of \u201C\
+    DementiaBank.\u201D The required artifact (the amended specification) is missing."
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or file list showing the required folders (`code`, `data/raw`,\
+    \ `data/processed`, `data/interim`, `data/results`, `tests/unit`, `tests/contract`,\
+    \ `tests/integration`, `specs/001-statistical-cognitive-decline/contracts`) was\
+    \ provided; thus the claimed project structure cannot be verified. The implementer\
+    \ must supply evidence (e.g., a printed directory listing or screenshots) that\
+    \ these directories exist and are non\u2011empty where appropriate."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.flake8`,
+    or `ruff.toml`) are present, nor any evidence that ruff/flake8 and black have
+    been set up for the project. The task required delivering such configuration,
+    which is missing.
+T012b:
+  c: false
+  h: 50fc101ffe4af4b02a93ebab923eeb91c8236b9ce78b5bcf0bb49ba5563d668b
+  r: The repository contains `code/ingestion.py`, but the provided excerpt shows no
+    function that counts raw records and writes the result to `data/results/raw_record_count.json`.
+    Moreover, the expected output file `data/results/raw_record_count.json` is absent
+    from the file list. Without the JSON file (or a function that creates it), the
+    task requirement is not met.
 T012c:
   c: false
   h: c279ae8cac5f0d583df90180e266c3903e3efbf827f12ce6a8048f829636f5a5
   r: The required artifact `data/ingestion_amendment.log` does not exist, so no documentation
     of FR-001 satisfaction or DementiaBank exclusion is present. The implementer must
     create the log file with the specified entries.
-T024:
+T012d:
   c: false
-  h: 8db87c40e8f0ed9db86e4740bbb80b95d264e7e7586c02e637394a6e69d76b6a
-  r: The provided `code/features.py` is truncated and does not contain a complete
-    implementation for extracting sentence embeddings, computing cosine similarity,
-    or saving the resulting `[N, 384]` float32 array to `data/processed/embeddings.npy`.
-    Moreover, the required `embeddings.npy` file is absent from the repository. Both
-    the functional code and the saved embeddings artifact are missing, so the task
-    is not fulfilled.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact was provided that implements the required exclusion logic,\
+    \ and there is no evidence of a function or module that raises a `ConnectionError`\
+    \ with the specified message when a DementiaBank fetch is attempted. The task\u2019\
+    s core requirement is therefore not demonstrated."
+T012e:
+  c: false
+  h: 347df4255ac243ba784bc5c54ded079845f9625313337c1108abc4648f7de12a
+  r: "The provided `code/ingestion.py` does not contain any logic that counts participants\
+    \ per group, compares against the 500\u2011subject threshold, logs a warning,\
+    \ or writes a `\"low_power\"` flag to `data/results/metadata.json`. Moreover,\
+    \ the required `data/results/metadata.json` file is absent from the repository.\
+    \ Both the code change and the output artifact are missing, so the task is not\
+    \ satisfied."
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., test script, log, or output) was provided that checks the
+    feature matrix for the six required columns, nor any evidence that such a verification
+    was performed. The implementer must supply a concrete test (or its results) that
+    confirms the matrix contains exactly the columns `[TTR, MTLD, Noun_Verb_Ratio,
+    Mean_Clause_Length, T_Unit_Count, Sentence_Embedding_Cosine_Similarity]`.
+T027:
+  c: false
+  h: 952dbd52792f6cb39a0959463113f0d15f1e4324695e431501440d7e6086e3f3
+  r: "The required output file `data/results/statistical_metrics.json` does not exist,\
+    \ and the shown `code/stats.py` is truncated before any persistence logic; there\
+    \ is no evidence that Bonferroni\u2011corrected p\u2011values are written to disk.\
+    \ The task therefore remains unfinished."
+T028:
+  c: false
+  h: 88bdaee4d247df9ef33ffb9dcaedd076f70b2cb117df5a4af9667e504c150a40
+  r: "The required output file `data/results/statistical_metrics.json` is missing,\
+    \ so no Cohen's d calculations have been persisted as specified. The task\u2019\
+    s core deliverable is absent."

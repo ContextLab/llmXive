@@ -1,71 +1,177 @@
-import pytest
+"""
+Unit tests for feature extraction functions in code/features.py.
+
+Specifically covers:
+- T018: TTR and MTLD calculation
+- T019: Syntactic complexity metrics (Clause Length, T-unit)
+- T020: Semantic coherence (Sentence Embedding Cosine Similarity)
+"""
+import unittest
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import sys
 import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Ensure code/ is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from features import (
-    calculate_ttr, 
-    calculate_mtld, 
-    calculate_noun_verb_ratio, 
-    extract_semantic_features,
-    get_embedding_model
+    calculate_ttr,
+    calculate_mtld,
+    calculate_noun_verb_ratio,
+    calculate_mean_clause_length,
+    calculate_t_unit_count,
+    calculate_participant_similarity,
+    get_embedding_model,
+    get_nlp
 )
+from config import set_seed
 
-class TestSemanticFeatures:
-    """Tests for semantic feature extraction (T024)."""
+# Set seed for reproducibility in tests if needed
+set_seed(42)
 
-    def test_embedding_shape(self):
-        """Test that embeddings have the correct shape [N, 384] and dtype float32."""
-        texts = [
-            "This is a test sentence.",
-            "Another test sentence here.",
-            "Short one."
-        ]
-        
-        embeddings = extract_semantic_features(texts)
-        
-        assert embeddings.shape == (len(texts), 384), f"Expected shape (3, 384), got {embeddings.shape}"
-        assert embeddings.dtype == np.float32, f"Expected dtype float32, got {embeddings.dtype}"
 
-    def test_embedding_values(self):
-        """Test that embeddings are within valid range (cosine similarity based, but raw embeddings can vary)."""
-        texts = ["Hello world", "Hello world"]
-        embeddings = extract_semantic_features(texts)
-        
-        # Check for NaNs
-        assert not np.any(np.isnan(embeddings)), "Embeddings contain NaN values"
-        
-        # Check for Inf
-        assert not np.any(np.isinf(embeddings)), "Embeddings contain Inf values"
+class TestLexicalFeatures(unittest.TestCase):
+    """Tests for T018: Lexical feature extraction (TTR, MTLD, Noun/Verb ratio)."""
 
-    def test_identical_texts_similarity(self):
-        """Test that identical texts produce similar embeddings."""
-        texts = ["The quick brown fox", "The quick brown fox"]
-        embeddings = extract_semantic_features(texts)
-        
-        # Cosine similarity between identical embeddings should be 1.0
-        # We'll check the Euclidean distance is near zero
-        dist = np.linalg.norm(embeddings[0] - embeddings[1])
-        assert dist < 1e-5, f"Identical texts produced different embeddings: dist={dist}"
+    def test_calculate_ttr_basic(self):
+        """Test basic Type-Token Ratio calculation."""
+        tokens = ["the", "cat", "sat", "on", "the", "mat"]
+        ttr = calculate_ttr(tokens)
+        # 6 tokens, 5 unique types (the is repeated)
+        expected = 5 / 6
+        self.assertAlmostEqual(ttr, expected, places=5)
 
-    def test_empty_text_handling(self):
-        """Test that empty or invalid texts result in zero vectors."""
-        texts = ["Valid text", "", None, "Another valid"]
-        embeddings = extract_semantic_features(texts)
-        
-        # Check the second and third rows are zero vectors
-        assert np.allclose(embeddings[1], 0), "Empty string should produce zero vector"
-        assert np.allclose(embeddings[2], 0), "None should produce zero vector"
+    def test_calculate_ttr_empty(self):
+        """Test TTR with empty list."""
+        ttr = calculate_ttr([])
+        self.assertEqual(ttr, 0.0)
 
-    def test_model_loading_cpu(self):
-        """Test that the model loads and respects CPU constraints (conceptual)."""
-        model = get_embedding_model()
-        # The model should be loaded. We can't easily check device in this unit test without running,
-        # but we ensure the function returns a valid model object.
-        assert model is not None
-        assert hasattr(model, 'encode')
+    def test_calculate_ttr_single(self):
+        """Test TTR with single token."""
+        ttr = calculate_ttr(["word"])
+        self.assertEqual(ttr, 1.0)
+
+    def test_calculate_mtld_basic(self):
+        """Test Measure of Textual Lexical Diversity (MTLD) with a known segment."""
+        # A simple sentence with high diversity
+        text = "The quick brown fox jumps over the lazy dog"
+        tokens = text.lower().split()
+        mtld = calculate_mtld(tokens)
+        self.assertGreater(mtld, 0)
+        self.assertLessEqual(mtld, 100)
+
+    def test_calculate_mtld_empty(self):
+        """Test MTLD with empty text."""
+        mtld = calculate_mtld([])
+        self.assertEqual(mtld, 0.0)
+
+    def test_calculate_noun_verb_ratio_basic(self):
+        """Test Noun/Verb ratio calculation."""
+        # Mock tokens where we can infer POS via a simple heuristic if needed,
+        # but the function should handle the spacy pipeline internally.
+        # We rely on the function's internal logic here.
+        text = "The cat runs fast."
+        tokens = text.split()
+        ratio = calculate_noun_verb_ratio(tokens)
+        # We expect a non-negative number. Exact value depends on spacy parsing.
+        self.assertGreaterEqual(ratio, 0.0)
+
+    def test_calculate_noun_verb_ratio_no_verbs(self):
+        """Test ratio when no verbs are detected."""
+        # This depends on spacy, but we test for robustness
+        text = "The cat."
+        tokens = text.split()
+        ratio = calculate_noun_verb_ratio(tokens)
+        # If no verbs, ratio might be inf or handled. We check it runs.
+        self.assertIsInstance(ratio, float)
+
+
+class TestSyntacticFeatures(unittest.TestCase):
+    """Tests for T019: Syntactic feature extraction (Clause Length, T-unit)."""
+
+    @classmethod
+    def setUpClass(cls):
+        # Load spacy model once for tests
+        cls.nlp = get_nlp()
+
+    def test_calculate_mean_clause_length_basic(self):
+        """Test mean clause length calculation."""
+        text = "The cat, which is black, sat on the mat."
+        tokens = text.split()
+        # The function handles parsing internally
+        mean_len = calculate_mean_clause_length(text)
+        self.assertGreater(mean_len, 0)
+
+    def test_calculate_mean_clause_length_empty(self):
+        """Test mean clause length with empty string."""
+        mean_len = calculate_mean_clause_length("")
+        self.assertEqual(mean_len, 0.0)
+
+    def test_calculate_t_unit_count_basic(self):
+        """Test T-unit count calculation."""
+        text = "I went to the store. I bought milk."
+        count = calculate_t_unit_count(text)
+        # Expect 2 T-units (two main clauses)
+        self.assertEqual(count, 2)
+
+    def test_calculate_t_unit_count_complex(self):
+        """Test T-unit count with complex sentences."""
+        text = "Although it was raining, we went out."
+        count = calculate_t_unit_count(text)
+        # 1 main clause + 1 subordinate = 1 T-unit
+        self.assertEqual(count, 1)
+
+
+class TestSemanticFeatures(unittest.TestCase):
+    """Tests for T020: Semantic coherence (Sentence Embedding Cosine Similarity)."""
+
+    @classmethod
+    def setUpClass(cls):
+        # Load embedding model once for tests
+        cls.model = get_embedding_model()
+
+    def test_calculate_participant_similarity_identical(self):
+        """Test that identical sentences have similarity ~1.0."""
+        sentence1 = "The cat sat on the mat."
+        sentence2 = "The cat sat on the mat."
+        similarity = calculate_participant_similarity([sentence1, sentence2], self.model)
+        # Due to floating point, allow small epsilon
+        self.assertGreater(similarity, 0.99)
+        self.assertLessEqual(similarity, 1.001)
+
+    def test_calculate_participant_similarity_different(self):
+        """Test that different sentences have lower similarity."""
+        sentence1 = "The cat sat on the mat."
+        sentence2 = "The dog barked at the mailman."
+        similarity = calculate_participant_similarity([sentence1, sentence2], self.model)
+        # Should be significantly less than 1.0
+        self.assertLess(similarity, 0.9)
+        self.assertGreaterEqual(similarity, -1.0)
+
+    def test_calculate_participant_similarity_single(self):
+        """Test similarity with a single sentence (self-similarity)."""
+        sentence1 = "The cat sat on the mat."
+        similarity = calculate_participant_similarity([sentence1], self.model)
+        self.assertGreater(similarity, 0.99)
+
+    def test_calculate_participant_similarity_empty(self):
+        """Test similarity with empty list."""
+        similarity = calculate_participant_similarity([], self.model)
+        self.assertEqual(similarity, 0.0)
+
+    def test_calculate_participant_similarity_nan_handling(self):
+        """Test that NaN inputs are handled gracefully."""
+        # Simulate a case where embedding might fail (though model usually handles text)
+        # We test the logic path if a vector is invalid, though the model usually raises.
+        # Here we test the function's robustness with valid text that might result in low similarity.
+        sentence1 = "aaaaa"
+        sentence2 = "bbbbb"
+        similarity = calculate_participant_similarity([sentence1, sentence2], self.model)
+        self.assertIsInstance(similarity, float)
+        self.assertFalse(np.isnan(similarity))
+
+
+if __name__ == '__main__':
+    unittest.main()

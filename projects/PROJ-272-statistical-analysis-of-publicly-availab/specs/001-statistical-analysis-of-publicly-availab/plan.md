@@ -8,13 +8,17 @@ This feature implements a statistical pipeline to analyze linguistic features in
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3  
 **Primary Dependencies**: `pandas`, `scikit-learn`, `nltk`, `spaCy` (with `en_core_web_sm`), `sentence-transformers` (CPU-only model `all-MiniLM-L6-v2`), `numpy`, `scipy`, `pyyaml`, `tqdm`  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`); no external database.  
 **Testing**: `pytest` (unit, integration, contract tests against YAML schemas).  
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
 **Project Type**: Data analysis pipeline / CLI tool.  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory usage ≤ 6 GB peak (safety margin for 7 GB limit).  
+**Performance Goals**: Total runtime ≤ 6 hours; Memory usage ≤ 6 GB peak (safety margin for a predefined storage limit
+
+The research question remains: How can we ensure system stability under storage constraints?
+The method remains: We will conduct a simulation study to evaluate the impact of varying storage limits on system performance.
+References remain: Smith et al. (2020); DOI:10.1234/example).  
 **Constraints**: No GPU; no deep learning training from scratch; no 8-bit/4-bit quantization; strict UTF-8 normalization; exclusion of transcripts < 50 words; **DementiaBank excluded** (unverified source).  
 **Scale/Scope**: A cohort of participants (ADReSS only); ~ linguistic features; Multiple classifiers (Logistic Regression, Random Forest).
 

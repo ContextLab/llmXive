@@ -1,8 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Cognitive Decline Analysis Dataset
-description: >-
-  Schema for the cleaned and preprocessed dataset derived from the ADReSS
-  challenge. Contains participant transcripts, labels, and metadata.
+title: ADReSS Cognitive Decline Dataset Schema
+description: >
+  JSON Schema defining the structure of the cleaned ADReSS dataset
+  used for statistical analysis of cognitive decline.
 type: object
 required:
   - participant_id
@@ -11,46 +11,34 @@ required:
 properties:
   participant_id:
     type: string
-    description: >-
-      Unique identifier for the participant. Derived from the original
-      ADReSS transcript filename (e.g., 'p01', 'c05').
-    pattern: '^[a-z][0-9]+$'
-    minLength: 2
-    maxLength: 10
+    description: >
+      Unique identifier for the participant. 
+      Format: "sub-<id>" or raw ID from ADReSS corpus.
+    pattern: "^[a-zA-Z0-9_-]+$"
+    minLength: 1
   label:
     type: string
-    description: >-
-      Cognitive status label. Must be one of the controlled vocabulary
-      defined in the project specification.
+    description: >
+      Cognitive status label derived from the dataset.
+      Valid values are strictly defined to ensure consistency.
     enum:
       - Control
       - MCI
       - AD
-    minLength: 3
   text:
     type: string
-    description: >-
-      Cleaned transcript text. Non-verbal annotations (e.g., <laughter>,
-      <pause>) have been removed. Normalized to UTF-8.
+    description: >
+      Cleaned transcript text associated with the participant.
+      Must be UTF-8 encoded, with non-verbal annotations removed.
+      Minimum length enforced by preprocessing logic (>= 50 words).
     minLength: 50
-    maxLength: 100000
-  source:
-    type: string
-    description: Source dataset identifier.
-    const: ADReSS
-  version:
-    type: string
-    description: Schema version for the dataset.
-    const: "1.0"
   metadata:
     type: object
-    description: Optional additional metadata fields.
+    description: Optional metadata fields (e.g., source file, timestamp).
     properties:
-      word_count:
-        type: integer
-        minimum: 50
-      duration_seconds:
-        type: number
-        minimum: 0.0
-    additionalProperties: true
+      source_file:
+        type: string
+      processed_at:
+        type: string
+        format: date-time
 additionalProperties: false

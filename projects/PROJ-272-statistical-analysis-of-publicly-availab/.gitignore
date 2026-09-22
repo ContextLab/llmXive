@@ -21,8 +21,8 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 *.manifest
@@ -41,8 +41,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-.hypothesis/
-.pytest_cache/
+.hypothesis
+.pytest_cache
 
 # Translations
 *.mo
@@ -57,7 +57,7 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
@@ -71,9 +71,12 @@ Thumbs.db
 # Project specific
 data/raw/*.zip
 data/raw/*.tar.gz
-data/raw/*.tar
+data/interim/*.csv
 data/processed/*.npy
 data/processed/*.csv
 data/results/*.json
+data/results/*.log
 logs/
 .secrets.baseline
+.mypy_cache/
+.ruff_cache/
