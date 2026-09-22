@@ -4,134 +4,248 @@ import sys
 from pathlib import Path
 from typing import Optional
 import traceback
-import time
-
-# Ensure log directory exists
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
 
 # Configure root logger
-def configure_root_logger():
+def configure_root_logger(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
+    """
+    Configure the root logger with console and optional file handlers.
+    
+    Args:
+        log_level: Logging level (default: INFO).
+        log_file: Optional path to log file.
+    """
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(log_level)
+    
+    # Clear existing handlers
+    root_logger.handlers.clear()
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_format = logging.Formatter(
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(console_format)
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
     
-    # File handler
-    file_handler = logging.FileHandler(LOG_DIR / "pipeline.log")
-    file_handler.setLevel(logging.DEBUG)
-    file_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(file_format)
-    
-    if not root_logger.handlers:
-        root_logger.addHandler(console_handler)
+    # File handler if specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(console_formatter)
         root_logger.addHandler(file_handler)
 
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance with the specified name."""
-    configure_root_logger()
-    logger = logging.getLogger(name)
-    return logger
-
-def fail_loudly(logger: logging.Logger, message: str, exception: Optional[Exception] = None) -> None:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Log a critical error with full context and traceback, then raise a RuntimeError.
-    
-    This function implements the "FAIL LOUDLY" principle:
-    1. Logs the error at CRITICAL level
-    2. Includes full traceback if an exception is provided
-    3. Raises a RuntimeError to ensure the failure is not silently caught
+    Get a logger with the specified name.
     
     Args:
-        logger: The logger instance to use
-        message: The error message
-        exception: Optional exception instance to include in the log
+        name: Logger name. Defaults to module name if None.
     
-    Raises:
-        RuntimeError: Always raised after logging to ensure failure is visible
+    Returns:
+        Configured logger instance.
     """
-    full_message = f"FATAL ERROR: {message}"
-    
-    if exception:
-        full_message += f"\nException: {type(exception).__name__}: {str(exception)}"
-        full_message += f"\nTraceback:\n{''.join(traceback.format_exception(type(exception), exception, exception.__traceback__))}"
-    
-    logger.critical(full_message)
-    
-    # Always raise to ensure the failure is not silently handled
-    raise RuntimeError(full_message) from exception
+    if name is None:
+        frame = sys._getframe(1)
+        name = frame.f_globals.get('__name__', 'root')
+    return logging.getLogger(name)
 
 class DataFetchLogger:
-    """Specialized logger for data fetching operations with fail-loudly semantics."""
+    """
+    Specialized logger for data fetching operations.
     
-    def __init__(self, name: str = "data_fetch"):
-        self.logger = get_logger(name)
-        self.fetch_count = 0
-        self.failure_count = 0
-        self.start_time = None
+    Ensures that data fetch failures are logged with high visibility
+    and that the "FAIL LOUDLY" pattern is followed.
+    """
     
-    def start_fetch(self, source: str):
-        """Log the start of a data fetch operation."""
-        self.start_time = time.time()
-        self.fetch_count += 1
-        self.logger.info(f"Starting data fetch from: {source}")
-    
-    def success(self, source: str, size_bytes: int, elapsed: float):
-        """Log a successful data fetch."""
-        self.logger.info(
-            f"Successfully fetched {size_bytes:,} bytes from {source} "
-            f"in {elapsed:.2f}s (Total fetches: {self.fetch_count})"
-        )
-    
-    def failure(self, source: str, error: Exception, retry_count: int = 0):
-        """Log a data fetch failure with full context."""
-        self.failure_count += 1
-        self.logger.warning(
-            f"Data fetch failed from {source} (Attempt {retry_count + 1}): {str(error)}"
-        )
-    
-    def fail_loudly(self, source: str, error: Exception, context: str = ""):
+    def __init__(self, source_name: str):
         """
-        Log a critical data fetch failure and raise an exception.
-        
-        This is the primary entry point for "FAIL LOUDLY" behavior in data fetching.
-        It ensures that:
-        1. All failure context is logged
-        2. The exception is raised to stop execution
-        3. No synthetic fallback is attempted
+        Initialize the data fetch logger.
         
         Args:
-            source: The data source that failed
-            error: The exception that occurred
-            context: Additional context about the failure
+            source_name: Name of the data source.
         """
-        message = f"Data fetch from {source} failed permanently"
-        if context:
-            message += f": {context}"
-        
-        fail_loudly(self.logger, message, error)
+        self.logger = get_logger(f"data_fetch.{source_name}")
+        self.source_name = source_name
     
-    def get_stats(self) -> dict:
-        """Return fetch statistics."""
-        return {
-            "total_fetches": self.fetch_count,
-            "failures": self.failure_count,
-            "success_rate": (self.fetch_count - self.failure_count) / max(1, self.fetch_count)
-        }
+    def fetch_start(self) -> None:
+        """Log the start of a data fetch operation."""
+        self.logger.info(f"Starting data fetch for {self.source_name}")
+    
+    def fetch_success(self, size_info: Optional[str] = None) -> None:
+        """
+        Log successful data fetch.
+        
+        Args:
+            size_info: Optional information about data size.
+        """
+        msg = f"Successfully fetched data for {self.source_name}"
+        if size_info:
+            msg += f" ({size_info})"
+        self.logger.info(msg)
+    
+    def fetch_retry(self, attempt: int, max_attempts: int, error: Exception) -> None:
+        """
+        Log a retry attempt.
+        
+        Args:
+            attempt: Current attempt number.
+            max_attempts: Maximum number of attempts.
+            error: The exception that triggered the retry.
+        """
+        self.logger.warning(
+            f"Attempt {attempt}/{max_attempts} failed for {self.source_name}: {error}. "
+            f"Retrying..."
+        )
+    
+    def fetch_failure(self, error: Exception) -> None:
+        """
+        Log a final fetch failure.
+        
+        This method logs the failure with maximum severity and ensures
+        the error is visible.
+        
+        Args:
+            error: The exception that caused the failure.
+        """
+        self.logger.critical(
+            f"CRITICAL: Failed to fetch data from {self.source_name} after all retries. "
+            f"Error: {error}. No synthetic fallback will be attempted."
+        )
+        self.logger.debug(traceback.format_exc())
+    
+    def fail_loudly(self, message: str, error: Optional[Exception] = None) -> None:
+        """
+        Fail loudly with a clear error message.
+        
+        Args:
+            message: The error message.
+            error: Optional underlying exception.
+        """
+        self.logger.critical(f"FAIL LOUDLY: {message}")
+        if error:
+            self.logger.debug(traceback.format_exc())
+            raise RuntimeError(message) from error
+        raise RuntimeError(message)
 
-def configure_data_fetch_logger() -> DataFetchLogger:
-    """Create and return a configured DataFetchLogger instance."""
-    return DataFetchLogger("data_fetch")
+def configure_data_fetch_logger(source_name: str) -> DataFetchLogger:
+    """
+    Configure and return a data fetch logger for a specific source.
+    
+    Args:
+        source_name: Name of the data source.
+    
+    Returns:
+        Configured DataFetchLogger instance.
+    """
+    return DataFetchLogger(source_name)
 
-# Initialize root logger on module import
-configure_root_logger()
+def fail_loudly(message: str, logger_name: Optional[str] = None, error: Optional[Exception] = None) -> None:
+    """
+    Fail loudly with a clear error message.
+    
+    This function logs a critical error and raises an exception to ensure
+    the failure is immediately visible and stops execution.
+    
+    Args:
+        message: The error message.
+        logger_name: Optional logger name. Defaults to 'fail_loudly'.
+        error: Optional underlying exception.
+    
+    Raises:
+        RuntimeError: Always raises this exception.
+    """
+    logger = get_logger(logger_name or 'fail_loudly')
+    logger.critical(f"FAIL LOUDLY: {message}")
+    if error:
+        logger.debug(traceback.format_exc())
+        raise RuntimeError(message) from error
+    raise RuntimeError(message)
+
+def log_simulation_error(error: Exception, clip_id: str, context: str = "") -> None:
+    """
+    Log a physics simulation error.
+    
+    Args:
+        error: The exception that occurred.
+        clip_id: ID of the clip being processed.
+        context: Additional context about the error.
+    """
+    logger = get_logger('simulation')
+    logger.error(f"Simulation failed for clip {clip_id}: {error}. Context: {context}")
+    logger.debug(traceback.format_exc())
+
+def log_excluded_sample(clip_id: str, reason: str, confidence_score: float) -> None:
+    """
+    Log an excluded sample.
+    
+    Args:
+        clip_id: ID of the excluded clip.
+        reason: Reason for exclusion.
+        confidence_score: Confidence score that led to exclusion.
+    """
+    logger = get_logger('simulation')
+    logger.info(f"Excluding clip {clip_id}: {reason} (confidence: {confidence_score:.3f})")
+
+def log_simulation_batch_stats(total: int, excluded: int, failed: int) -> None:
+    """
+    Log statistics for a batch of simulation results.
+    
+    Args:
+        total: Total number of samples processed.
+        excluded: Number of samples excluded due to low confidence.
+        failed: Number of samples that failed simulation.
+    """
+    logger = get_logger('simulation')
+    logger.info(f"Simulation batch stats: total={total}, excluded={excluded}, failed={failed}")
+    if total > 0:
+        logger.info(f"  Success rate: {(total - excluded - failed) / total * 100:.1f}%")
+
+def log_feature_extraction_progress(clip_id: str, frame_idx: int, total_frames: int, memory_usage_mb: float) -> None:
+    """
+    Log feature extraction progress.
+    
+    Args:
+        clip_id: ID of the clip being processed.
+        frame_idx: Current frame index.
+        total_frames: Total number of frames.
+        memory_usage_mb: Current memory usage in MB.
+    """
+    logger = get_logger('feature_extraction')
+    progress = (frame_idx + 1) / total_frames * 100
+    logger.debug(
+        f"Extracting features for {clip_id}: {frame_idx + 1}/{total_frames} frames "
+        f"({progress:.1f}%), Memory: {memory_usage_mb:.1f}MB"
+    )
+
+def log_label_generation_progress(clip_id: str, step: str, status: str) -> None:
+    """
+    Log label generation progress.
+    
+    Args:
+        clip_id: ID of the clip being processed.
+        step: Current step in the process.
+        status: Status of the step (e.g., 'started', 'completed', 'failed').
+    """
+    logger = get_logger('label_generation')
+    logger.info(f"Label generation for {clip_id}: {step} - {status}")
+
+def log_prior_audit_result(audit_passed: bool, correlation: float, threshold: float) -> None:
+    """
+    Log the result of a prior audit.
+    
+    Args:
+        audit_passed: Whether the audit passed.
+        correlation: The calculated correlation value.
+        threshold: The threshold used for the audit.
+    """
+    logger = get_logger('prior_audit')
+    status = "PASSED" if audit_passed else "FAILED"
+    logger.info(
+        f"Prior Audit {status}: correlation={correlation:.4f}, threshold={threshold:.4f}. "
+        f"Shared priors detected: {not audit_passed}"
+    )

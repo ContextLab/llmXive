@@ -1,30 +1,50 @@
-T015:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation was provided showing that download failures
-    are now wrapped with exponential backoff and that the process fails gracefully
-    without using a synthetic fallback. The required implementation artifact is missing,
-    so the task is not verified as completed.
-T017:
+  r: No directory tree or file list was provided showing that the required folders
+    (`code`, `code/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,
+    `docs/figures`, `state`) actually exist; the claim is unsupported by any artifact.
+    The task remains undone.
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or log files were presented that implement logging of
-    extraction progress or memory usage. The evidence consists only of the task description
-    and project context, without any concrete artifact demonstrating the required
-    logging functionality.
-T021:
+  r: "The provided evidence contains only high\u2011level feature specifications for\
+    \ video extraction and labeling; there is no `.pre-commit-config.yaml`, `pyproject.toml`,\
+    \ or any configuration files/scripts for ruff, black, or pre\u2011commit hooks.\
+    \ Consequently, the required linting/formatting setup is missing."
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or data artifacts were provided that implement 3D state reconstruction
-    from depth maps, nor any generated position/velocity outputs or validation results.
-    The claim lacks the required implementation files and output files described in
-    the specification.
-T023:
+  r: "The only information provided is the high\u2011level feature specification and\
+    \ user stories; there are no code, configuration files, or documentation showing\
+    \ that error handling and logging (especially a \u201CFAIL LOUDLY\u201D mechanism\
+    \ for data fetch) have been set up. Consequently, the required artifact \u2013\
+    \ a configured error\u2011handling and logging infrastructure \u2013 is missing."
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data file was provided that implements the required \u201C\
-    valid/invalid\u201D labeling logic using physics constraints (e.g., gravity, collision)\
-    \ as described in the specification. The evidence consists only of the task description\
-    \ and spec excerpt, without any actual artifact to verify. The missing deliverable\
-    \ is the implementation (e.g., a Python module or script) that performs the reconstruction,\
-    \ runs a physics engine, and outputs the binary labels."
+  r: No extraction script, model download code, or resulting NumPy files containing
+    latent vectors and binary expert masks are present. The claim lacks any concrete
+    artifact (code, data files, or output) that demonstrates `torch.no_grad()` inference
+    on CPU and the generation of the required intermediate DiT layer outputs.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required frame\u2011subsampling\
+    \ and temporal\u2011chunking logic was provided, nor any test output showing that\
+    \ clips are processed within the 7\u202FGB RAM limit. Consequently the task\u2019\
+    s core requirement cannot be verified."
+T024:
+  c: false
+  h: 71e52952eba06ea01fc159b5db09a7a9b981816f91609dc793d5deee9bb46477
+  r: "Both required artifacts (`data/processed/labels.csv` and `data/processed/excluded_samples.log`)\
+    \ are missing from the repository, so the labeling step and logging side\u2011\
+    effect have not been provided. The task therefore remains unfinished."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for \u201CAdd logging for simulation\
+    \ errors and excluded samples\u201D was provided; the only artifacts described\
+    \ relate to feature extraction and labeling, not to logging. The required logging\
+    \ implementation (e.g., log statements, log file output, handling of error cases)\
+    \ is missing."

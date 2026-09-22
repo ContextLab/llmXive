@@ -1,162 +1,199 @@
 import logging
 import time
-from typing import Callable, Type, TypeVar, Optional, List
-from functools import wraps
 import random
 import os
-from utils.logging_config import get_logger, fail_loudly, DataFetchLogger
+import sys
+from typing import Callable, Type, TypeVar, Optional, List
+from functools import wraps
 
-T = TypeVar('T')
-
+# Custom Exceptions
 class DataFetchError(Exception):
-    """Custom exception for data fetching failures."""
-    def __init__(self, message: str, original_exception: Optional[Exception] = None):
-        super().__init__(message)
-        self.original_exception = original_exception
+    """Raised when data fetching fails after all retry attempts."""
+    pass
 
 class ConfigError(Exception):
-    """Custom exception for configuration errors."""
+    """Raised when configuration is invalid."""
     pass
 
 class PhysicsSimError(Exception):
-    """Custom exception for physics simulation errors."""
+    """Raised when physics simulation fails."""
     pass
+
+T = TypeVar('T')
 
 def retry_with_backoff(
     max_retries: int = 5,
     base_delay: float = 1.0,
     max_delay: float = 60.0,
-    jitter: bool = True
+    exponential_base: float = 2.0,
+    jitter: bool = True,
+    exceptions: tuple = (Exception,)
 ):
     """
     Decorator to retry a function with exponential backoff.
     
     Args:
-        max_retries: Maximum number of retry attempts
-        base_delay: Initial delay in seconds
-        max_delay: Maximum delay cap in seconds
-        jitter: Whether to add random jitter to delays
+        max_retries: Maximum number of retry attempts.
+        base_delay: Initial delay in seconds.
+        max_delay: Maximum delay in seconds.
+        exponential_base: Base for exponential calculation.
+        jitter: If True, adds random jitter to delay.
+        exceptions: Tuple of exception types to catch and retry.
         
     Returns:
-        Decorated function with retry logic
+        The decorated function.
+        
+    Raises:
+        The original exception if max retries are exceeded.
+        DataFetchError if the failure is related to data fetching.
     """
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> T:
-            logger = get_logger(func.__module__)
             last_exception = None
             
             for attempt in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
-                except (DataFetchError, ConnectionError, TimeoutError, OSError) as e:
+                except exceptions as e:
                     last_exception = e
                     
                     if attempt == max_retries:
-                        logger.error(f"Max retries ({max_retries}) exceeded for {func.__name__}")
-                        fail_loudly(f"Data fetch failed after {max_retries} retries: {str(e)}", exception=e)
+                        # Max retries exceeded, fail loudly
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Function {func.__name__} failed after {max_retries} retries: {str(e)}")
+                        
+                        # Convert to DataFetchError if it looks like a fetch issue
+                        if isinstance(e, (DataFetchError, ConnectionError, TimeoutError)):
+                            raise DataFetchError(f"Data fetch failed permanently after {max_retries} retries: {str(e)}") from e
+                        else:
+                            raise
                     
                     # Calculate delay with exponential backoff
-                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    delay = min(base_delay * (exponential_base ** attempt), max_delay)
                     
                     # Add jitter if enabled
                     if jitter:
                         delay = delay * (0.5 + random.random())
                     
+                    logger = logging.getLogger(__name__)
                     logger.warning(
-                        f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}. "
-                        f"Retrying in {delay:.2f}s..."
+                        f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}: {str(e)}. "
+                        f"Retrying in {delay:.2f} seconds..."
                     )
                     time.sleep(delay)
             
-            # Should never reach here due to fail_loudly, but safety net
-            fail_loudly(f"Unexpected failure in {func.__name__}", exception=last_exception)
+            # Should never reach here, but just in case
+            raise last_exception
         return wrapper
     return decorator
 
-def validate_config(config: dict) -> bool:
-    """Validate configuration dictionary."""
-    required_keys = ['data_source', 'output_path']
-    for key in required_keys:
-        if key not in config:
-            raise ConfigError(f"Missing required config key: {key}")
-    return True
+def validate_config(config: dict, required_keys: List[str]) -> None:
+    """
+    Validate that a configuration dictionary contains all required keys.
+    
+    Args:
+        config: Configuration dictionary to validate.
+        required_keys: List of required key names.
+        
+    Raises:
+        ConfigError: If any required key is missing.
+    """
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ConfigError(f"Missing required configuration keys: {missing_keys}")
 
-def handle_simulation_failure(error: Exception, context: str = ""):
-    """Handle physics simulation failures by logging and raising."""
-    logger = get_logger(__name__)
-    logger.error(f"Simulation failed in {context}: {str(error)}")
-    raise PhysicsSimError(f"Simulation failed in {context}: {str(error)}") from error
+def handle_simulation_failure(error: Exception, context: Optional[str] = None) -> None:
+    """
+    Handle physics simulation failures with appropriate logging.
+    
+    Args:
+        error: The exception that occurred.
+        context: Optional context about what was being simulated.
+        
+    Raises:
+        PhysicsSimError: Always raised after logging.
+    """
+    logger = logging.getLogger(__name__)
+    message = f"Physics simulation failed"
+    if context:
+        message += f" during {context}"
+    message += f": {str(error)}"
+    
+    logger.error(message, exc_info=True)
+    raise PhysicsSimError(message) from error
 
 class DataFetchHandler:
-    """Handler class for managing data fetch operations with retry logic."""
+    """
+    Handler class for managing data fetch operations with retry logic.
+    """
     
-    def __init__(self, logger_name: str = "data_fetch"):
-        self.logger = DataFetchLogger.get_logger(logger_name)
-        
-    @retry_with_backoff(max_retries=5, base_delay=2.0, max_delay=30.0)
-    def fetch_data(self, url: str, dest_path: str) -> bool:
+    def __init__(
+        self,
+        max_retries: int = 5,
+        base_delay: float = 1.0,
+        max_delay: float = 60.0
+    ):
+        self.max_retries = max_retries
+        self.base_delay = base_delay
+        self.max_delay = max_delay
+        self.logger = logging.getLogger(__name__)
+    
+    @retry_with_backoff(
+        max_retries=5,
+        base_delay=1.0,
+        max_delay=60.0
+    )
+    def fetch_data(self, url: str, destination: str, **kwargs) -> bool:
         """
-        Fetch data from URL with exponential backoff retry logic.
+        Fetch data from a URL with exponential backoff retry logic.
         
         Args:
-            url: Source URL
-            dest_path: Destination file path
+            url: Source URL for the data.
+            destination: Local path to save the data.
+            **kwargs: Additional arguments passed to the fetch function.
             
         Returns:
-            True if successful
+            True if fetch was successful.
             
         Raises:
-            DataFetchError: If all retries fail
+            DataFetchError: If all retry attempts fail.
         """
+        import urllib.request
+        import ssl
+        
+        # Create SSL context that doesn't verify certificates (for testing)
+        # In production, this should be properly configured
+        ssl_context = ssl.create_default_context()
+        
+        # Attempt to fetch the data
         try:
-            # Import here to avoid circular dependencies
-            import urllib.request
-            import ssl
+            self.logger.info(f"Fetching data from {url} to {destination}")
             
-            # Create SSL context that doesn't verify certificates (for testing)
-            # In production, this should be properly configured
-            ssl_context = ssl.create_default_context()
-            # ssl_context.check_hostname = False
-            # ssl_context.verify_mode = ssl.CERT_NONE
+            # Ensure destination directory exists
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
             
-            self.logger.info(f"Fetching data from {url} to {dest_path}")
+            # Use urllib to fetch the data
+            urllib.request.urlretrieve(url, destination, reporthook=self._progress_hook)
             
-            # Create destination directory if it doesn't exist
-            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-            
-            # Perform fetch
-            urllib.request.urlretrieve(url, dest_path, context=ssl_context)
-            
-            if not os.path.exists(dest_path):
-                raise DataFetchError(f"Download completed but file not found: {dest_path}")
-            
-            self.logger.info(f"Successfully fetched data to {dest_path}")
+            self.logger.info(f"Successfully fetched data to {destination}")
             return True
             
         except Exception as e:
-            self.logger.error(f"Fetch failed: {str(e)}")
-            raise DataFetchError(f"Failed to fetch data from {url}", original_exception=e) from e
-            
-    def fetch_with_validation(self, url: str, dest_path: str, expected_size: Optional[int] = None) -> bool:
+            self.logger.error(f"Failed to fetch data from {url}: {str(e)}")
+            raise DataFetchError(f"Failed to fetch data from {url}: {str(e)}") from e
+    
+    def _progress_hook(self, block_num, block_size, total_size):
         """
-        Fetch data with optional size validation.
+        Progress hook for urllib.urlretrieve.
         
         Args:
-            url: Source URL
-            dest_path: Destination file path
-            expected_size: Optional expected file size in bytes
-            
-        Returns:
-            True if successful and validated
+            block_num: Current block number.
+            block_size: Size of each block.
+            total_size: Total size of the file.
         """
-        success = self.fetch_data(url, dest_path)
-        
-        if success and expected_size is not None:
-            actual_size = os.path.getsize(dest_path)
-            if actual_size != expected_size:
-                raise DataFetchError(
-                    f"File size mismatch: expected {expected_size}, got {actual_size}"
-                )
-        
-        return success
+        if total_size > 0:
+            downloaded = block_num * block_size
+            percentage = min(100, (downloaded / total_size) * 100)
+            if block_num % 10 == 0:  # Log every 10 blocks to avoid spam
+                self.logger.debug(f"Download progress: {percentage:.1f}%")
