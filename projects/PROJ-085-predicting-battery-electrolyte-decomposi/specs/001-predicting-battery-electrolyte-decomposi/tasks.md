@@ -58,15 +58,30 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/utils/constants.py` with:
- 1. {{claim:c_1a09f818}} (Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit) [UNRESOLVED-CLAIM: c_6ba1aa43 — status=not_enough_info])
- 2. Potentials list: `PHI_VALUES = [0, 2, 4]` (V)
- 3. Create empty schema structure for `code/utils/reactions.yaml` with keys: `molecule_id`, `potential_v`, `reactants`, `products`, `n_electrons`, `energy_products`, `energy_reactants`. (Do not populate data yet).
-- [X] T011 [P] Populate `code/utils/reactions.yaml` with hardcoded reaction data for EC, DMC, LiPF6 at potentials 0V, 2V, 4V. Include at least 3 sample rows with defined `n_electrons` and energy values to ensure T016 has data to read.
+ 1. Dalton constant: `DALTON_KG = 1.66053906660e-27` (Source: NIST, https://physics.nist.gov/cgi-bin/cuu/Value?mud [CITATION: c_1a09f818])
+ 2. Faraday constant: `FARADAY_C = 96485.33212` C/mol
+ 3. Potentials list: `PHI_VALUES` will be evaluated across a range of non-negative voltage magnitudes.
+ 4. Create empty schema structure for `code/utils/reactions.yaml` with keys: `molecule_id`, `potential_v`, `reactants`, `products`, `n_electrons`, `energy_products`, `energy_reactants`. (Do not populate data yet).
+- [X] T011a [P] Populate `code/utils/reactions.yaml` with hardcoded reference data for EC, DMC, LiPF6 at potentials 0V, 2V, 4V. **Strict Data**: Use these exact 3 sample rows for schema validation and unit tests ONLY (DO NOT use for full model training):
+ - Row 1: `molecule_id: EC-0V`, `potential_v: 0`, `reactants: [EC]`, `products: [CO2, C2H4]`, `n_electrons: 2`, `energy_products: <reference_value>`, `energy_reactants: <reference_value>`
+ - Row 2: `molecule_id: DMC-2V`, `potential_v: 2`, `reactants: [DMC]`, `products: [CH3OH, CO2]`, `n_electrons: 1`, `energy_products: -8.1`, `energy_reactants: [negative value]`
+ - Row 3: `molecule_id: LiPF6-4V`, `potential_v: 4`, `reactants: [LiPF6]`, `products: [LiF, PF5]`, `n_electrons: 1`, `energy_products: -12.3`, `energy_reactants: <energy_products>`
+ **Dependency**: T004 (Schema must exist first).
+- [X] T011c [P] [US1] **CRITICAL**: Implement `code/utils/reaction_engine.py` to generate reaction stoichiometry and energy estimates for the FULL ingested dataset. **Algorithm**: Use RDKit to identify functional groups and apply a Group Contribution Method (GCM) or query a verified chemical database (e.g., PubChem via `pubchempy`) to determine decomposition products and stoichiometry for *any* molecule in the dataset, not just the 3 samples. This engine must be callable by T016. (FR-002, FR-008).
 - [X] T005 [P] Implement data directory structure (`data/raw`, `data/processed`, `data/validation`) and checksum logic
 - [X] T006 [P] Setup pytest configuration and contract validation schema loaders
 - [X] T007 Create base `ElectrolyteMolecule` and `DecompositionEvent` dataclasses in `code/utils/models.py`
-- [ ] T008 Configure logging infrastructure to capture warnings for missing geometric data and metallic behavior outliers
-- [ ] T009 Setup environment configuration management for random seeds and dataset URLs
+- [X] T008 [P] Configure logging infrastructure to capture warnings for missing geometric data and metallic behavior outliers
+- [X] T009 [P] Setup environment configuration management for random seeds and dataset URLs
+
+### Phase 2.5: External Data Verification (Moved from Phase 7)
+
+**Purpose**: Resolve the critical data gap for external validation BEFORE modeling begins.
+
+- [X] T050 [P] [US3] **CRITICAL**: Implement `code/data/external_search.py` to programmatically search for and validate access to experimental onset potentials. **Action**: Query verified sources (NOMAD API, Materials Project experimental logs, PubChem) using keywords 'electrolyte', 'onset potential', 'cyclic voltammetry'. Check specific DOIs cited in `research.md`. **Constraint**: If no real source is found, set `external_data_available = False` in `data/validation/data_status.json`. **DO NOT** generate synthetic data.
+- [ ] T051 [P] [US3] **CRITICAL**: Update `code/models/evaluator.py` to read `data/validation/data_status.json`. **Logic**: If `external_data_available` is False, set `validation_mode = 'internal_fallback'` and log a warning. **DO NOT** halt the pipeline. (FR-006).
+- [X] T052 [P] [US3] **Contingency**: If T050 fails to find a dataset, implement `code/reports/limitations.md` to formally document the data gap, citing the specific search methods and sources checked. **Action**: This report must be generated automatically if `validation_mode = 'internal_fallback'`.
+- [X] T053 [P] [US3] Update `docs/research.md` to explicitly state the final status of the experimental data search (Found: [URL/DOI] OR Not Found: [Reason]). **Constraint**: This update is mandatory before any further modeling work.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,19 +97,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`
-- [X] T011 [P] [US1] Integration test for data ingestion pipeline on sample subset in `tests/integration/test_ingestion.py` <!-- ATOMIZE: requested -->
+- [ ] T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`
+- [ ] T045 [P] [US1] Integration test for data ingestion pipeline on sample subset in `tests/integration/test_ingestion.py`. **Dependency**: T004 (constants), T011a (reactions.yaml), T011c (reaction engine). **Note**: Renumbered from duplicate T011 to resolve ID collision.
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/data/ingestion.py` to fetch and filter DFT data from HuggingFace dataset ID: `materialsproject/mp-dft-electrolytes`. **Fallback**: If fetch fails, use local mock CSV `data/raw/mock_electrolytes.csv` with schema matching the expected DFT output (FR-001, FR-008). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T013 [P] [US1] Implement deduplication logic in `code/data/ingestion.py` based on molecule ID and potential
-- [X] T014 [US1] Implement `code/data/descriptors.py` to extract HOMO, LUMO, band gap, bond lengths, angles, dihedrals using `pymatgen`/`RDKit` (FR-003)
-- [X] T015 [US1] Implement logic in `code/data/descriptors.py` to extract specific geometric features (including bond lengths, bond angles, and dihedral angles) to meet FR-003 minimum count. Flag/exclude metallic (zero/negative gap) outliers.
-- [X] T016 [US1] Implement `code/data/target_calc.py` to calculate $E_{decomp}$ using `code/utils/reactions.yaml` (populated in T011) and stoichiometry heuristic for $\phi \in \{0, 2, 4\}$ V (FR-002, FR-008). The heuristic selects the correct reaction entry from the YAML based on molecule ID and potential. <!-- FAILED: unspecified -->
-- [ ] T017 [US1] Add validation logic to ensure feature matrix has no missing values before output
-- [X] T018 [US1] Split data into Train/Validation/Held-Out sets (e.g., a majority portion for training with smaller portions for validation and held-out evaluation) and save processed feature matrix, targets, and the held-out set to `data/processed/electrolyte_features.csv` and `data/processed/electrolyte_heldout.csv`
-- [X] T019 [US1] Implement stratification logic to split data into 'Low' (using low-voltage data) and 'High' (using high-voltage data) bins. **Deviation**: Explicitly map the spec's '3-5V' range requirement to the available 4V data point due to data constraints. Save bin assignments to `data/processed/bins.csv`.
+- [ ] T012 [P] [US1] Implement `code/data/ingestion.py` to fetch and filter DFT data from HuggingFace dataset ID: `materialsproject/mp-dft-electrolytes`. **STRICT**: If fetch fails, raise `DataNotFoundError` with a clear message. **DO NOT** use mock CSV or synthetic data. **Coverage Check**: Explicitly verify the dataset contains entries for EC, DMC, AND LiPF6; raise `CoverageError` if any are missing. (FR-001, FR-008).
+- [ ] T013 [P] [US1] Implement deduplication logic in `code/data/ingestion.py` based on molecule ID and potential
+- [ ] T014 [US1] Implement `code/data/descriptors.py` to extract HOMO, LUMO, band gap, bond lengths, angles, dihedrals using `pymatgen`/`RDKit` (FR-003)
+- [ ] T015 [US1] Implement logic in `code/data/descriptors.py` to extract specific geometric features (including bond lengths, bond angles, and dihedral angles) to meet FR-003 minimum count. Flag/exclude metallic (zero/negative gap) outliers.
+- [ ] T016 [US1] Implement `code/data/target_calc.py` to calculate $E_{decomp}$ using the **Reaction Stoichiometry Engine** (T011c) for $\phi \in \{0, 2, 4\}$ V (FR-002, FR-008). The engine generates reaction data for all ingested molecules, not just the hardcoded samples.
+- [X] T017 [US1] Add validation logic to ensure feature matrix has no missing values before output
+- [ ] T018 [US1] Split data into Train/Validation/Held-Out sets using a fixed random seed. **Ratios**: A majority proportion for Train, with smaller, equal proportions for Validation and Held-Out (standard split). Save processed feature matrix, targets, and the held-out set to `data/processed/electrolyte_features.csv` and `data/processed/electrolyte_heldout.csv`.
+- [ ] T019 [US1] Implement stratification logic to split data into 'Low' (0-2V) and 'High' (3-5V) bins. **Note**: Explicitly map spec's '3-5V' range to the available 4V data point. Save bin assignments to `data/processed/bins.csv`.
+- [X] T019b [US1] **CRITICAL**: Implement bin validity check. If the 'High' potential bin (mapped to a designated high voltage level) contains an insufficient number of samples, set `high_bin_valid = False`. in `data/validation/bin_statistics.json` and log a warning. **Action**: This flag will prevent invalid model training in T022/T023.
+- [X] T019c [US1] **CRITICAL**: Implement 'Single-Point Analysis' logic. If `high_bin_valid` is False, the system must flag that statistical shift analysis is invalid and prepare to run models in a 'single-point' mode (no ranking comparison) rather than attempting a false statistical comparison.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,16 +125,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for Random Forest training with 5-fold CV in `tests/unit/test_trainer.py`
+- [ ] T020 [P] [US2] Unit test for Random Forest training with 5-fold CV in `tests/unit/test_trainer.py`
 - [X] T021 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement `code/models/trainer.py` to train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV (search space: n_estimators=[low, medium, high], max_depth=[10, 20, None] [UNRESOLVED-CLAIM: c_effcd87a — status=not_enough_info]). **Bin Logic**: Explicitly map all requests for the 'High-potential (3-5V)' range to the available 4V data point by filtering data where `potential == 4`. **Deviation**: Note that the spec's 3-5V range is approximated by the single 4V point due to data constraints. (FR-004)
-- [X] T023 [US2] Implement `code/models/evaluator.py` to calculate permutation importance for each bin (FR-005). **Dependency**: Requires model artifact from T022.
-- [ ] T024 [US2] Implement logic to identify descriptors entering top 3 in high-potential (4V) but absent in low-potential (0-2V). **Deviation**: Explicitly reference spec's 3-5V range and note the mapping to 4V data point as a known limitation.
-- [ ] T025 [US2] Generate heatmap visualization of top features per bin using `seaborn` and save to `data/validation/feature_importance_heatmap.png`
-- [X] T026 [US2] Save model artifacts, R² scores, and importance maps to `data/processed/model_run.json`
+- [ ] T022 [US2] Implement `code/models/trainer.py` to train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV. **Search Space**: `n_estimators=[100, 200, 500]`, `max_depth=[10, 20, None]`. **Bin Logic**: Explicitly map all requests for the 'High-potential (3-5V)' range to the available 4V data point. **Conditional**: If `high_bin_valid` is False (from T019b), run the model in 'single-point mode' (no cross-validation if n<3) and log a warning. (FR-004)
+- [ ] T023 [US2] Implement `code/models/evaluator.py` to calculate permutation importance for each bin (FR-005). **Dependency**: Requires model artifact from T022. **Conditional**: If `high_bin_valid` is False, skip importance calculation for the 'High' bin or report "Insufficient data for ranking".
+- [X] T024 [US2] Implement logic to identify descriptors entering top 3 in high-potential (4V) but absent in low-potential (0-2V). **Note**: Explicitly reference spec's 3-5V range and note the mapping to 4V data point as a known limitation. **Conditional**: If `high_bin_valid` is False, report "Insufficient data for high-potential comparison" in the final report.
+- [X] T024b [US2] Perform 'Representativeness Check' on the single 4V data point. If the sample size for the high-potential bin is < 10, flag this as a statistical power limitation in `data/validation/bin_statistics.json` AND append a section to `docs/research.md`. **Action**: This flag must be visible in the final report.
+- [X] T025 [US2] Generate heatmap visualization of top features per bin using `seaborn` and save to `data/validation/feature_importance_heatmap.png`. **Conditional**: If `high_bin_valid` is False, generate a heatmap showing only the 'Low' bin and annotate the missing 'High' bin.
+- [ ] T026 [US2] Save model artifacts, R² scores, and importance maps to `data/processed/model_run.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,9 +143,9 @@
 
 ## Phase 5: User Story 3 - Experimental Validation and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Validate predictions against held-out DFT data (internal consistency due to lack of external experimental data) and perform sensitivity analysis on decomposition energy threshold.
+**Goal**: Validate predictions against independent experimental onset potentials from literature and perform a sensitivity analysis on the decomposition energy threshold.
 
-**Independent Test**: Calculate MAE against held-out DFT set; verify top 3 descriptor ranks change by ≤1 position when threshold sweeps {0.45, 0.50, 0.55} eV.
+**Independent Test**: Calculate MAE against experimental set; verify top 3 descriptor ranks change by ≤1 position when threshold sweeps {0.45, 0.50, 0.55} eV.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -136,14 +154,15 @@
 
 ### Implementation for User Story 3
 
-- [X] T029 [P] [US3] Implement internal validation logic in `code/models/evaluator.py` to compare predictions against held-out DFT data (FR-006 Fallback). **Deviation**: Explicitly log that FR-006 (External Validation) is unmet due to missing experimental dataset (Plan Check: Data Gap).
-- [X] T030 [US3] Implement calculation of MAE and R² for the internal validation set. **Deviation**: Label metric as 'Internal Consistency MAE' and flag that SC-003 (Experimental MAE) is unmet due to data gap. **Dependency**: Read model artifact from `data/processed/model_run.json` generated in T026.
-- [X] T031 [US3] Implement `code/models/evaluator.py` sensitivity analysis: sweep 'decomposition energy stability cutoff' threshold $\{0.45, 0.50, 0.55\}$ eV (FR-007)
-- [ ] T032 [US3] Implement rank stability check: verify top 3 descriptors change by no more than 1 position across the sweep [UNRESOLVED-CLAIM: c_02dcc86b — status=not_enough_info]
+- [ ] T042 [US3] **STRICT GATE**: Implement external data validation logic in `code/models/evaluator.py`. **Action**: Check `data/validation/data_status.json`. If `external_data_available` is True, load external data and calculate MAE/R² (FR-006). If `external_data_available` is False, **PROCEED** to internal validation (T044), log a warning "External validation skipped: data not found; using internal fallback", and generate the limitation report. **DO NOT** raise a blocking error.
+- [X] T043 [US3] Implement calculation of MAE and R² for the external experimental validation set. **Dependency**: Requires successful completion of T042 (external data present). **Note**: This task is skipped if T042 determines data is missing.
+- [X] T044 [US3] **Fallback**: If external data is missing (T042), perform internal validation against held-out DFT data and calculate internal MAE/R². Log this as "Internal Validation (Fallback)".
+- [X] T045 [US3] **Reporting**: Generate a `data/validation/validation_report.md` that explicitly states: "External Validation: [SUCCESS/FAILED]". If FAILED, include the limitation report from T052.
+- [ ] T031 [US3] Implement `code/models/evaluator.py` sensitivity analysis: sweep 'decomposition energy stability cutoff' threshold across a representative range of values (FR-007)
+- [X] T032 [US3] Implement rank stability check: Verify that the top 3 descriptors change by no more than 1 position across the sweep. **Logic**: Calculate the absolute difference in rank position for each of the top descriptors. between the baseline (0.50 eV) and the swept values (0.45, 0.55 eV). Assert that `max(abs(rank_diff)) <= 1`. (FR-007, SC-004)
 - [X] T033 [US3] Generate sensitivity analysis report and save to `data/validation/sensitivity_report.md`
-- [ ] T034 [US3] Add warning flag to final report stating: "FR-006 and SC-003 (External Validation) could not be fulfilled due to unavailability of experimental onset potential datasets. Internal DFT validation was used as a fallback."
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional (pending external data)
 
 ---
 
@@ -152,13 +171,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035a [P] Update `docs/quickstart.md` with setup, data fetching, and run instructions
-- [ ] T035b [P] Update `docs/research.md` with methodology, data sources (HuggingFace ID), and the deviation note regarding FR-006/SC-003 <!-- FAILED: unspecified -->
-- [ ] T036 Code cleanup and refactoring of `code/` modules
-- [ ] T037 Performance optimization for data loading and model training on CPU
-- [ ] T038 [P] Update `specs/001-battery-electrolyte-decomposition/spec.md` to explicitly remove FR-006 and SC-003, and update Constitution Check to reflect the fallback to internal validation. This formally amends the spec to match the implementation plan.
-- [ ] T039 [P] Update `docs/research.md` to reference the spec amendment (T038) and the specific deviation notes in T024, T029, T030.
-- [ ] T040 [P] Additional unit tests for edge cases (duplicate handling, metallic outliers) in `tests/unit/`
-- [ ] T041 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T035b [P] Update `docs/research.md` with methodology, data sources (HuggingFace ID), and the note regarding the external validation status (Found/Not Found).
+- [X] T036 [P] Code cleanup and refactoring of `code/` modules
+- [X] T037 [P] Performance optimization for data loading and model training on CPU
+- [X] T039 [P] Update `docs/research.md` to reference the strict validation logic and the specific deviation notes in T019b, T022, T024, T042.
+- [X] T040 [P] Additional unit tests for edge cases (duplicate handling, metallic outliers) in `tests/unit/`
+- [X] T041 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -168,6 +186,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Phase 2.5 (Data Verification)**: Depends on Phase 2. Must complete before Phase 5.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -177,7 +196,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data output from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model output from US2
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model output from US2 AND resolution of Phase 2.5 (Data Source)
 
 ### Within Each User Story
 
@@ -218,9 +237,10 @@ Task: "Implement code/data/descriptors.py to extract HOMO/LUMO/geometry"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+3. Complete Phase 2.5: Data Verification
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
@@ -238,7 +258,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer C: User Story 3 (including Phase 2.5 data search)
 3. Stories complete and integrate independently
 
 ---
@@ -254,4 +274,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on CPU-only CI with limited computational resources; no GPU or 8-bit quantization.
 - **Data**: Use only real, verified HuggingFace/NOMAD datasets; no synthetic data fabrication.
-- **Deviation Note**: External experimental validation (FR-006, SC-003) is unfulfillable due to missing data. Internal DFT validation is used as a fallback. Spec amendment (T038) is required to formally remove these requirements.
+- **Validation**: External experimental validation (FR-006) is MANDATORY. If data is missing, the pipeline performs internal validation and flags the limitation (T042, T044, T045).
+- **Statistical Validity**: If the 'High' potential bin has <30 samples, modeling for that bin is skipped or run in single-point mode (T019b, T022, T023).
+- **Reaction Data**: Reaction energies for the full dataset are generated using a Group Contribution Method (GCM) implemented in T011c.

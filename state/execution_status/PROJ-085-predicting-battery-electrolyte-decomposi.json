@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-085-predicting-battery-electrolyte-decomposi",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/data/ingestion.py (rc=1); python code/data/descriptors.py (rc=1); python code/data/target_calc.py (rc=1); 3 declared deliverable(s) absent: data/processed/bins.csv; data/processed/electrolyte_features.csv; data/processed/model_run.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/data/ingestion.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/data/descriptors.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/data/descriptors.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/data/target_calc.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/data/target_calc.py\", line 7, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/models/trainer.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/trainer.py\", line 12, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models/evaluator.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/evaluator.py\", line 8, in <module>\n    from config import get_project_root, get_validation_dir, get_processed_dir\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/config.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/models/evaluator.py --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/evaluator.py\", line 8, in <module>\n    from config import get_project_root, get_validation_dir, get_processed_dir\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/config.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-22T06:49:37Z"
+}

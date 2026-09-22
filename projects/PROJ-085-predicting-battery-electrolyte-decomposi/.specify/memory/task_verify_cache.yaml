@@ -1,9 +1,3 @@
-T011#1:
-  c: false
-  h: edcdbdb6594ecf02f2889568900891dd003b0525a7142704ed8dff98ad44b429
-  r: "The required file `tests/integration/test_ingestion.py` does not exist, so no\
-    \ integration test is present to verify the data ingestion pipeline. The task\u2019\
-    s core artifact is missing, making the claim of completion invalid."
 T012:
   c: false
   h: 468bcac03552b61e23a2976d939c95be4d2fc36b9c0320d83a5984cab6bfe15d
@@ -19,13 +13,6 @@ T032:
     \ check is present; the claim provides no evidence that the top\u20113 descriptor\
     \ rankings are verified to shift by \u22641 position across the sweep. The required\
     \ implementation and its validation are missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a final report file or snippet) containing the required warning
-    flag is provided; without evidence of the statement being added to the report,
-    the task is not satisfied. The implementer must supply the updated report showing
-    the exact warning text.
 T035b:
   c: false
   h: decc946541c5b8e8412ff0238a826a4670ac7386e31581b5ecf0df3d0d220b32
@@ -39,3 +26,21 @@ T036:
     there is no evidence of changes, documentation, or tests that would demonstrate
     the claimed cleanup. The implementer must supply the updated `code/` modules (e.g.,
     revised .py files, a changelog, or a diff) showing the refactoring work.
+T050:
+  c: false
+  h: 5b7bd11c18ca6f7613189870cc5a3bce1cfb28714e91765175e4706856ce744f
+  r: "The required `data/validation/data_status.json` file is missing, so the script\
+    \ cannot record the `external_data_available` flag as required. Additionally,\
+    \ the provided `external_search.py` is truncated and does not show complete implementations\
+    \ of the NOMAD, Materials Project, or PubChem queries or DOI verification. The\
+    \ task\u2019s core requirement\u2014to perform real searches and update the status\
+    \ file\u2014is therefore not met."
+T051:
+  c: false
+  h: d02a74fd3637b3a6fbbcbd8ef7f6eb1e30b44734ffcc762a8a990ee2118be510
+  r: "The `evaluator.py` file defines `load_data_status` but does not show any code\
+    \ that sets a `validation_mode` variable to `'internal_fallback'` when `external_data_available`\
+    \ is False, nor does it log the required warning in that case. Moreover, the required\
+    \ `data/validation/data_status.json` file is missing, so the module cannot actually\
+    \ read the expected JSON. The implementation must add the validation\u2011mode\
+    \ logic and provide the missing JSON file."
