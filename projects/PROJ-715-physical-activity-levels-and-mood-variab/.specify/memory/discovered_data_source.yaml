@@ -1,12 +1,15 @@
 status: none
-intent: StudentLife dataset OSF DOI download HuggingFace mirror checksum python package
-  dataset
+intent: StudentLife dataset download OSF DOI HuggingFace mirror python package dataset
 required_fields:
 - participant_id
+- timestamp
+- step_count
+- ema_timestamp
+- mood_rating
 - date
-- total_steps
+- step_total
 - mean_mood
 - mood_variability
-cache_key: c348141efdac55f57386cab81f73b4743cd588ed6e0ddaf0edbbfa326a01da62
-searched_at: '2026-08-25T07:48:31.523856+00:00'
+cache_key: 9254b1b53388a447ea113c9ed362a006d41984b1d4114da1b7e914d05a2a48d3
+searched_at: '2026-09-22T03:52:35.290064+00:00'
 retry_count: 1

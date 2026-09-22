@@ -1,19 +1,21 @@
 {
   "project_id": "PROJ-715-physical-activity-levels-and-mood-variab",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/save_results.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026sn't exist, as we cannot fake data.         # But wait, the\u2026\u201d; 4 command(s) failed: python code/ingest.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 4 declared deliverable(s) absent: data/processed/daily_aggregates.csv; data/processed/model_results.json; data/processed/preprocess_stats.json",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/save_results.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026sn't exist, as we cannot fake data.         # But wait, the\u2026\u201d; 4 command(s) failed: python code/ingest.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/daily_aggregates.csv; data/processed/model_results.json; data/raw/bronze.parquet",
   "artifacts": [],
   "failures": [
-    "python code/ingest.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/ingest.py\", line 16, in <module>\n    logger = init_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/config.py\", line 46, in init_logger\n    handler = logging.StreamHandler(sys.stdout)\n                                    ^^^\nNameError: name 'sys' is not defined",
-    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py\", line 17, in <module>\n    from ingest import download_and_verify\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/ingest.py\", line 16, in <module>\n    logger = init_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/config.py\", line 46, in in",
-    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py\", line 20, in <module>\n    logger = init_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/config.py\", line 46, in init_logger\n    handler = logging.StreamHandler(sys.stdout)\n                                    ^^^\nNameError: name 'sys' is not defined",
+    "python code/ingest.py -> rc=1\n    ownload/5b1a9f1b9ad5a10018669804/\n2026-09-22 03:51:45,601 - __main__ - WARNING - OSF download failed. Attempting HuggingFace fallback.\n2026-09-22 03:51:45,601 - __main__ - INFO - Downloading from https://huggingface.co/datasets/mlfoundations/studentlife/resolve/main/studentlife_ema_steps.zip...\n2026-09-22 03:51:45,755 - __main__ - ERROR - Download failed: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/mlfoundations/studentlife/resolve/main/studentlife_ema_steps.zip\n2026-09-22 03:51:45,755 - __main__ - ERROR - HuggingFace download also ",
+    "python code/preprocess.py -> rc=1\n    g preprocess stats...\n2026-09-22 03:51:46,292 - __main__ - ERROR - Preprocessing failed: [Errno 21] Is a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/preprocess_stats.json'\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py\", line 264, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py\", l",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py\", line 17, in <module>\n    from config import get_path, set_random_seed, BOOTSTRAP_ITERATIONS, RANDOM_SEED, init_logger\nImportError: cannot import name 'RANDOM_SEED' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/config.py)",
     "python code/report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py\", line 73, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py\", line 70, in main\n    generate_report()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py\", line 59, in generate_report\n    results = load_model_results()\n              ^^^^^^^^^^^^^^^^^^^^\n  File \""
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-08-25T07:47:34Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/ingest.py"
+  ],
+  "updated_at": "2026-09-22T03:51:48Z"
 }
