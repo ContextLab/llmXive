@@ -1,0 +1,3 @@
+# Root data directory for the llmXive project.
+# Subdirectories: raw, filtered, traces, results, validation, pilot.
+# Created as part of the project setup (T001).

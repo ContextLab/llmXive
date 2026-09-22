@@ -1,0 +1,4 @@
+# Standalone black config if needed, though pyproject.toml is preferred
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'

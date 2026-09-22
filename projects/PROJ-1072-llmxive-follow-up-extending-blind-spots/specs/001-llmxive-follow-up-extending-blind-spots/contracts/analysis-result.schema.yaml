@@ -1,45 +1,113 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalResult"
-description: "Schema for the final statistical analysis output"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Result Schema
+description: >
+  Defines the structure of the final statistical analysis report.
+  Aggregates error rates and hypothesis test results.
+type: object
 required:
-  - "test_type"
-  - "p_value"
-  - "statistic"
-  - "contingency_table"
-  - "significant"
+  - analysis_id
+  - timestamp
+  - framing
+  - category_stats
+  - hypothesis_tests
+  - corrections
 properties:
-  test_type:
-    type: "string"
-    enum:
-      - "Chi-squared"
-      - "Fisher's Exact"
-    description: "The statistical test performed"
-  p_value:
-    type: "number"
-    description: "The p-value from the test"
-    minimum: 0
-    maximum: 1
-  statistic:
-    type: "number"
-    description: "The test statistic (Chi-squared value or odds ratio)"
-  contingency_table:
-    type: "object"
-    description: "The matrix of counts"
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis.
+  framing:
+    type: string
+    enum: [Associational]
+    description: The statistical framing used (FR-007).
+  category_stats:
+    type: object
+    description: Statistics broken down by task category.
     additionalProperties:
-      type: "object"
-      additionalProperties:
-        type: "integer"
-  correction_applied:
-    type: "string"
-    enum:
-      - "None"
-      - "Bonferroni"
-      - "Benjamini-Hochberg"
-    description: "Multiple comparison correction method"
-  significant:
-    type: "boolean"
-    description: "True if p < 0.05"
-  effect_size:
-    type: ["number", "null"]
-    description: "Cramér's V or similar effect size"
+      type: object
+      properties:
+        total_tasks:
+          type: integer
+        correct_count:
+          type: integer
+        perceptual_count:
+          type: integer
+        procedural_count:
+          type: integer
+        error_rate:
+          type: number
+          format: float
+          description: Proportion of errors.
+        perceptual_rate:
+          type: number
+          format: float
+        procedural_rate:
+          type: number
+          format: float
+  hypothesis_tests:
+    type: array
+    description: List of hypothesis tests performed.
+    items:
+      type: object
+      required:
+        - test_name
+        - test_type
+        - statistic
+        - p_value
+        - significant
+      properties:
+        test_name:
+          type: string
+          description: Name of the comparison (e.g., "Abstract vs Object-Centric").
+        test_type:
+          type: string
+          enum: [Chi-squared, Fisher's Exact]
+          description: Type of statistical test used.
+        statistic:
+          type: number
+          description: The calculated test statistic.
+        p_value:
+          type: number
+          format: float
+          description: The raw p-value.
+        significant:
+          type: boolean
+          description: Whether the result is significant at alpha=0.05.
+        contingency_table:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+          description: The 2x2 contingency table used.
+  corrections:
+    type: object
+    description: Details of multiple comparison corrections applied.
+    properties:
+      method:
+        type: string
+        enum: [Bonferroni, Benjamini-Hochberg, None]
+        description: The correction method used.
+      adjusted_p_values:
+        type: array
+        items:
+          type: object
+          properties:
+            test_name:
+              type: string
+            raw_p_value:
+              type: number
+            adjusted_p_value:
+              type: number
+            significant:
+              type: boolean
+  sample_size:
+    type: integer
+    description: Total number of valid traces analyzed.
+  power_analysis_note:
+    type: string
+    description: Note on statistical power if applicable.
+additionalProperties: false

@@ -1,0 +1,11 @@
+datasets
+transformers
+torch
+sentence-transformers
+scikit-learn
+scipy
+pandas
+statsmodels
+bitsandbytes
+accelerate
+psutil
