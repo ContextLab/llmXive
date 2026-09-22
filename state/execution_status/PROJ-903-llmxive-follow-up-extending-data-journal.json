@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-903-llmxive-follow-up-extending-data-journal",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/data_loader.py --dataset uci_har --mode download (rc=1); python code/main.py --dataset uci_har --seed 42 (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/data_loader.py --dataset uci_har --mode download -> rc=1\n    2026-09-22 10:41:35,071 - __main__ - INFO - Starting download for dataset: uci_har\n2026-09-22 10:41:35,071 - __main__ - ERROR - Failed to download uci_har: fetch_and_save_dataset() got an unexpected keyword argument 'dataset_name'\n2026-09-22 10:41:35,071 - __main__ - ERROR - DataFetchError: Download failed for uci_har: fetch_and_save_dataset() got an unexpected keyword argument 'dataset_name'",
+    "python code/main.py --dataset uci_har --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/main.py\", line 32, in <module>\n    from narrative.synthesizer import run_synthesis_pipeline\nModuleNotFoundError: No module named 'narrative.synthesizer'"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data_loader.py --dataset uci_har --mode download"
+  ],
+  "updated_at": "2026-09-22T10:41:44Z"
+}

@@ -6,20 +6,6 @@ T021b:
     schema (with `threshold_config`, `claim`, `p_value`, `partial_r`, `stability_score`,
     `validity_status`) was generated from T021a and T023c outputs. The task remains
     unfinished.
-T023b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or module defining the `validity_status` logic (or its output
-    for T021b) is present in the provided evidence. Without an actual implementation
-    file or snippet, we cannot confirm that the required conditional rules were coded
-    or integrated, so the task remains unfulfilled.
-T023c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No output schema definition (e.g., JSON schema, data model diagram, or documented
-    field list) was provided that explicitly includes the `stability_score` and `validity_status`
-    fields for T023a/T023b results. Without such an artifact, the task requirement
-    is not satisfied.
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

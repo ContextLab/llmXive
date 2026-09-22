@@ -1,24 +1,13 @@
 """
-Evaluation module for the llmXive automated science pipeline.
+llmXive Evaluation Module
 
-This package contains utilities for:
-- Bias measurement (Confirmation Bias, SC-002)
-- Blinding logic (source label removal)
-- Expert panel simulation and Kappa checks
-- Rubric scoring for Narrative Depth (SC-001)
-- Verification traceability auditing
+Contains utilities for bias measurement, expert simulation, and
+rubric scoring.
 """
 
-from .bias import calculate_confirmation_bias
-from .blinding import strip_source_labels, generate_blinded_pairs
-from .rubric import calculate_narrative_depth_score
-from .traceability import audit_query_citations, calculate_traceability_metrics
+# Note: Specific evaluation modules (bias.py, blinding.py, simulate_experts.py,
+# run_kappa_check.py, engage_4th_expert.py, rubric.py) are imported dynamically
+# or via their own __init__.py if they become standalone packages.
+# For now, this module remains empty to satisfy directory structure requirements.
 
-__all__ = [
-    "calculate_confirmation_bias",
-    "strip_source_labels",
-    "generate_blinded_pairs",
-    "calculate_narrative_depth_score",
-    "audit_query_citations",
-    "calculate_traceability_metrics",
-]
+__all__ = []

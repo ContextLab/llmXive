@@ -16,7 +16,7 @@ This feature extends the `llmXive` data journalism pipeline by introducing a **C
 **Target Platform**: GitHub Actions free-tier runner (ubuntu-latest, 2 vCPU, 7GB RAM, 6h limit)  
 **Project Type**: Data Science Pipeline / CLI Tool  
 **Performance Goals**: Complete pipeline run per dataset ≤ 15 mins (LLM) + statistical compute time; total batch run ≤ 6 hours.  
-**Constraints**: CPU-only execution for statistical logic; LLM fallback to Phi-3-mini if Llama-3-8B exceeds 15 mins; strict adherence to 7GB RAM limit via streaming/chunking.  
+**Constraints**: CPU-only execution for statistical logic; LLM fallback to Phi-mini if Llama-3-8B exceeds 15 mins; strict adherence to a constrained RAM limit via streaming/chunking.  
 **Scale/Scope**: Processing multiple public policy datasets (e.g., California Housing, Adult Income, NYC Crime) drawn from the verified dataset list.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -103,7 +103,7 @@ projects/PROJ-903-llmxive-follow-up-extending-data-journal/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Separate Query Retrier Service** | Spec requires 2-attempt retry with timeout for SQL/Python generation (Edge Cases). | A simple `try/except` block is insufficient for robust timeout handling and structured logging required for traceability (SC-004). |
+| **Separate Query Retrier Service** | Spec requires a limited-attempt retry with timeout for SQL/Python generation (Edge Cases). | A simple `try/except` block is insufficient for robust timeout handling and structured logging required for traceability (SC-004). |
 | **Static Threshold Logic with Bonferroni** | FR-003 mandates specific p < 0.05, |r| > 0.15, but statistical rigor requires correction for multiple comparisons. | A "sweep" approach (T021a) was rejected as it violates the deterministic output requirement of FR-003 and complicates the downstream schema. Bonferroni correction is applied to the static threshold. |
 | **Low Power Flag Propagation** | FR-006 requires flagging, not halting. | Raising an exception (T005b) breaks the pipeline and prevents baseline story generation, violating US-1. |
 | **Collinearity Check** | To prevent tautological rejection of valid counterfactuals that are correlated with baseline drivers. | Skipping this check leads to false negatives for valid hypotheses. |

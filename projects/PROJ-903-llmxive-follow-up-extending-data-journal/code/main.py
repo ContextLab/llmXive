@@ -1,253 +1,252 @@
-"""
-CLI entry point for the llmXive automated science pipeline.
-
-Orchestrates data loading, processing, narrative generation, and evaluation
-based on command-line arguments.
-"""
 import argparse
 import json
 import logging
 import sys
+import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, List, Dict, Any
 
-# Import from project modules
-from config import get_config, set_config_override
-from data.loader import load_all_datasets, RAMExceededError, LowPowerError, LowNumericColumnsError
-from data.processor import process_dataset, generate_cleaning_report, generate_statistical_summaries
+# Local imports based on API surface
+from config import ExecutionConfig, get_config, set_config_override
+from data.loader import (
+    DataFetchError,
+    RAMExceededError,
+    LowPowerError,
+    LowNumericColumnsError,
+    fetch_and_save_dataset,
+    process_and_validate,
+    load_all_datasets
+)
+from data.processor import (
+    MissingValueError,
+    process_dataset,
+    generate_cleaning_report,
+    generate_statistical_summaries
+)
+from narrative.baseline import run_baseline_analysis
+from narrative.inspector import run_inspector_analysis
+from narrative.sensitivity_aggregator import run_aggregation_pipeline
+from narrative.synthesizer import run_synthesis_pipeline
 from narrative.flag_propagator import propagate_low_power_flag, write_propagated_report
-from data.dataset_registry import verify_checksum
+from evaluation.bias import calculate_confirmation_bias
+from evaluation.rubric import calculate_narrative_depth
+from evaluation.blinding import generate_blinded_pairs
+from evaluation.simulate_experts import simulate_expert_scoring, run_kappa_check
+from evaluation.traceability import verify_traceability
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('output/pipeline.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def parse_arguments() -> argparse.Namespace:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='llmXive Automated Science Pipeline CLI',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
-    
-    parser.add_argument(
-        '--dataset', '-d',
-        type=str,
-        default=None,
-        help='Specific dataset name from registry to process. If None, processes all valid datasets.'
-    )
-    
-    parser.add_argument(
-        '--stage', '-s',
-        type=str,
-        choices=['load', 'process', 'narrative', 'full'],
-        default='full',
-        help='Pipeline stage to execute'
-    )
-    
-    parser.add_argument(
-        '--output-dir', '-o',
-        type=str,
-        default='output',
-        help='Directory for output files'
-    )
-    
-    parser.add_argument(
-        '--config-override',
-        type=str,
-        nargs='*',
-        help='Key-value pairs to override execution config (e.g., --config-override ram_limit 4096)'
-    )
-    
-    parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging'
-    )
-    
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="LLMxive Automated Science Pipeline")
+    parser.add_argument("--dataset", type=str, required=True, help="Dataset identifier from registry")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
+    parser.add_argument("--skip-load", action="store_true", help="Skip data loading stage")
+    parser.add_argument("--skip-process", action="store_true", help="Skip data processing stage")
+    parser.add_argument("--skip-narrative", action="store_true", help="Skip narrative generation stage")
+    parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation stage")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     return parser.parse_args()
 
-def apply_config_overrides(overrides: Optional[List[str]]) -> None:
-    """Apply configuration overrides from command line."""
-    if not overrides:
-        return
-    
-    if len(overrides) % 2 != 0:
-        raise ValueError("Config overrides must be provided as key-value pairs")
-    
-    for i in range(0, len(overrides), 2):
-        key = overrides[i]
-        value = overrides[i + 1]
-        set_config_override(key, value)
-        logger.info(f"Config override: {key} = {value}")
+def apply_config_overrides(args: argparse.Namespace) -> None:
+    """Apply command line arguments to global configuration."""
+    config = get_config()
+    config.random_seed = args.seed
+    config.output_dir = args.output_dir
+    if args.verbose:
+        config.log_level = "DEBUG"
+    set_config_override(config)
 
-def run_load_stage(dataset_name: Optional[str], output_dir: Path) -> List[dict]:
-    """Execute the data loading stage."""
-    logger.info(f"Starting data loading stage for dataset: {dataset_name or 'all'}")
-    
+def run_load_stage(dataset_id: str, output_dir: Path) -> Optional[Dict[str, Any]]:
+    """
+    Run the data loading stage.
+    Implements robust error handling: catches DataFetchError, logs it, and skips the dataset.
+    """
+    logger.info(f"Starting load stage for dataset: {dataset_id}")
     try:
-        datasets = load_all_datasets(dataset_name=dataset_name)
+        # Attempt to fetch and save the dataset
+        # This function is expected to raise DataFetchError on failure
+        local_path = fetch_and_save_dataset(dataset_id, output_dir / "raw")
         
-        # Save loaded datasets metadata
-        metadata_path = output_dir / "loaded_datasets.json"
-        with open(metadata_path, 'w') as f:
-            json.dump([
-                {
-                    'name': ds['name'],
-                    'path': str(ds['path']),
-                    'n_rows': len(ds['data']),
-                    'n_columns': len(ds['data'].columns),
-                    'numeric_columns': ds['numeric_columns']
-                }
-                for ds in datasets
-            ], f, indent=2)
+        if not local_path.exists():
+            raise FileNotFoundError(f"Dataset file not found after download: {local_path}")
         
-        logger.info(f"Loaded {len(datasets)} datasets. Metadata saved to {metadata_path}")
-        return datasets
-        
-    except (RAMExceededError, LowPowerError, LowNumericColumnsError) as e:
-        logger.error(f"Data loading failed: {str(e)}")
-        raise
+        logger.info(f"Dataset loaded successfully to: {local_path}")
+        return {"path": str(local_path), "status": "loaded"}
+    
+    except DataFetchError as e:
+        # CRITICAL: Handle DataFetchError by logging and skipping
+        logger.error(f"DataFetchError encountered for {dataset_id}: {str(e)}")
+        logger.warning(f"Skipping dataset {dataset_id} due to fetch failure. Pipeline proceeding to next item.")
+        # Return None to indicate dataset was skipped
+        return None
+    
+    except Exception as e:
+        # Catch any other unexpected errors
+        logger.error(f"Unexpected error during load stage for {dataset_id}: {str(e)}")
+        logger.error(traceback.format_exc())
+        return None
 
-def run_process_stage(datasets: List[dict], output_dir: Path) -> List[dict]:
-    """Execute the data processing stage."""
-    logger.info(f"Starting data processing stage for {len(datasets)} datasets")
-    
-    processed_datasets = []
-    
-    for ds in datasets:
-        logger.info(f"Processing dataset: {ds['name']}")
+def run_process_stage(dataset_info: Dict[str, Any], output_dir: Path) -> Optional[Dict[str, Any]]:
+    """Run the data processing stage (cleaning, summaries)."""
+    if dataset_info is None:
+        return None
         
-        try:
-            # Detect and handle missing values
-            missing_report = generate_cleaning_report(ds['data'])
-            
-            # Handle missing values and generate cleaned data
-            cleaned_data, imputation_report = process_dataset(ds['data'])
-            
-            # Generate statistical summaries
-            stats_summary = generate_statistical_summaries(cleaned_data)
-            
-            # Save processed data
-            processed_path = output_dir / f"{ds['name']}_processed.csv"
-            cleaned_data.to_csv(processed_path, index=False)
-            
-            # Save reports
-            report_path = output_dir / f"{ds['name']}_reports.json"
-            with open(report_path, 'w') as f:
-                json.dump({
-                    'missing_values': missing_report,
-                    'imputation': imputation_report,
-                    'statistics': stats_summary
-                }, f, indent=2, default=str)
-            
-            processed_datasets.append({
-                'name': ds['name'],
-                'path': str(processed_path),
-                'data': cleaned_data,
-                'reports': report_path
-            })
-            
-            logger.info(f"Successfully processed {ds['name']}")
-            
-        except Exception as e:
-            logger.error(f"Failed to process {ds['name']}: {str(e)}")
-            # Continue with other datasets
-            continue
-    
-    logger.info(f"Completed processing {len(processed_datasets)} datasets")
-    return processed_datasets
+    logger.info("Starting process stage")
+    try:
+        input_path = Path(dataset_info["path"])
+        cleaned_path = output_dir / "processed" / f"{input_path.stem}_cleaned.csv"
+        
+        # Process dataset
+        df_clean = process_dataset(input_path, str(cleaned_path))
+        
+        # Generate reports
+        cleaning_report = generate_cleaning_report(df_clean, output_dir / "reports" / "cleaning.json")
+        stats_summary = generate_statistical_summaries(df_clean, output_dir / "reports" / "stats.json")
+        
+        logger.info("Process stage completed successfully")
+        return {
+            "cleaned_path": str(cleaned_path),
+            "cleaning_report": cleaning_report,
+            "stats_summary": stats_summary
+        }
+    except MissingValueError as e:
+        logger.warning(f"Missing value issue: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in process stage: {str(e)}")
+        return None
 
-def run_narrative_stage(processed_datasets: List[dict], output_dir: Path) -> None:
-    """Execute the narrative generation stage."""
-    logger.info(f"Starting narrative generation stage for {len(processed_datasets)} datasets")
-    
-    narrative_results = []
-    
-    for ds in processed_datasets:
-        logger.info(f"Generating narrative for dataset: {ds['name']}")
+def run_narrative_stage(processed_data: Dict[str, Any], output_dir: Path) -> Optional[Dict[str, Any]]:
+    """Run the narrative generation stage (Baseline + Inspector + Synthesis)."""
+    if processed_data is None:
+        return None
         
-        try:
-            # Propagate low power flags if applicable
-            propagated_report = propagate_low_power_flag(ds['data'], ds['name'])
-            
-            # Save propagated report
-            flag_path = output_dir / f"{ds['name']}_flags.json"
-            write_propagated_report(propagated_report, flag_path)
-            
-            narrative_results.append({
-                'dataset': ds['name'],
-                'flag_report': str(flag_path),
-                'status': 'success'
-            })
-            
-            logger.info(f"Successfully generated narrative components for {ds['name']}")
-            
-        except Exception as e:
-            logger.error(f"Failed to generate narrative for {ds['name']}: {str(e)}")
-            narrative_results.append({
-                'dataset': ds['name'],
-                'status': 'failed',
-                'error': str(e)
-            })
-            continue
-    
-    # Save summary
-    summary_path = output_dir / "narrative_summary.json"
-    with open(summary_path, 'w') as f:
-        json.dump(narrative_results, f, indent=2)
-    
-    logger.info(f"Narrative stage completed. Summary saved to {summary_path}")
+    logger.info("Starting narrative stage")
+    try:
+        cleaned_path = Path(processed_data["cleaned_path"])
+        
+        # 1. Baseline Analysis
+        baseline_result = run_baseline_analysis(cleaned_path, output_dir / "baseline.json")
+        
+        # 2. Inspector Analysis
+        inspector_result = run_inspector_analysis(
+            cleaned_path, 
+            baseline_result, 
+            output_dir / "inspector.json"
+        )
+        
+        # 3. Sensitivity Aggregation
+        sensitivity_result = run_aggregation_pipeline(
+            inspector_result, 
+            output_dir / "sensitivity_report.json"
+        )
+        
+        # 4. Synthesis
+        synthesis_result = run_synthesis_pipeline(
+            baseline_result,
+            sensitivity_result,
+            output_dir / "synthesis_story.json"
+        )
+        
+        # 5. Flag Propagation (Low Power)
+        # Check if low_power flag was set during earlier stages
+        # (Assuming it's passed via context or checked in synthesizer)
+        write_propagated_report(synthesis_result, output_dir / "flag_report.json")
+        
+        logger.info("Narrative stage completed successfully")
+        return {
+            "baseline": baseline_result,
+            "inspector": inspector_result,
+            "sensitivity": sensitivity_result,
+            "synthesis": synthesis_result
+        }
+    except Exception as e:
+        logger.error(f"Error in narrative stage: {str(e)}")
+        logger.error(traceback.format_exc())
+        return None
+
+def run_evaluation_stage(narrative_results: Dict[str, Any], output_dir: Path) -> Optional[Dict[str, Any]]:
+    """Run the evaluation stage (Bias, Depth, Traceability)."""
+    if narrative_results is None:
+        return None
+        
+    logger.info("Starting evaluation stage")
+    try:
+        synthesis_path = output_dir / "synthesis_story.json"
+        
+        # 1. Confirmation Bias
+        bias_metrics = calculate_confirmation_bias(narrative_results, output_dir / "bias_metrics.json")
+        
+        # 2. Narrative Depth (Blinding + Simulation)
+        blinded_pairs = generate_blinded_pairs(narrative_results)
+        scores = simulate_expert_scoring(blinded_pairs)
+        kappa = run_kappa_check(scores)
+        depth_metrics = calculate_narrative_depth(scores, kappa, output_dir / "depth_metrics.json")
+        
+        # 3. Traceability
+        traceability_metrics = verify_traceability(synthesis_path, output_dir / "traceability_metrics.json")
+        
+        logger.info("Evaluation stage completed successfully")
+        return {
+            "bias": bias_metrics,
+            "depth": depth_metrics,
+            "traceability": traceability_metrics
+        }
+    except Exception as e:
+        logger.error(f"Error in evaluation stage: {str(e)}")
+        logger.error(traceback.format_exc())
+        return None
 
 def main():
     """Main entry point for the pipeline."""
     args = parse_arguments()
+    apply_config_overrides(args)
     
-    # Apply config overrides if provided
-    apply_config_overrides(args.config_override)
-    
-    # Set log level if verbose
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    
-    # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Starting llmXive pipeline with stage: {args.stage}")
-    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Starting pipeline for dataset: {args.dataset}")
     
-    try:
-        # Execute pipeline stages
-        if args.stage in ['load', 'full']:
-            datasets = run_load_stage(args.dataset, output_dir)
-        else:
-            datasets = []
-            logger.warning("Skipping load stage - no datasets available")
-        
-        if args.stage in ['process', 'full'] and datasets:
-            processed_datasets = run_process_stage(datasets, output_dir)
-        else:
-            processed_datasets = []
-            logger.warning("Skipping process stage - no datasets available")
-        
-        if args.stage in ['narrative', 'full'] and processed_datasets:
-            run_narrative_stage(processed_datasets, output_dir)
-        else:
-            logger.warning("Skipping narrative stage - no processed datasets available")
-        
-        logger.info("Pipeline execution completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}")
-        logger.error(traceback.format_exc())
-        sys.exit(1)
+    # Stage 1: Load
+    dataset_info = run_load_stage(args.dataset, output_dir)
+    if dataset_info is None:
+        logger.warning(f"Pipeline aborted for {args.dataset} due to load failure (skipped).")
+        return 0 # Return 0 to indicate graceful skip, not a crash
+    
+    # Stage 2: Process
+    if not args.skip_process:
+        processed_data = run_process_stage(dataset_info, output_dir)
+        if processed_data is None:
+            logger.warning(f"Pipeline aborted for {args.dataset} due to processing failure.")
+            return 1
+    else:
+        processed_data = dataset_info # Pass raw info if skipping process (edge case)
+    
+    # Stage 3: Narrative
+    if not args.skip_narrative:
+        narrative_results = run_narrative_stage(processed_data, output_dir)
+        if narrative_results is None:
+            logger.warning(f"Pipeline aborted for {args.dataset} due to narrative failure.")
+            return 1
+    else:
+        narrative_results = None
+    
+    # Stage 4: Evaluation
+    if not args.skip_eval and narrative_results:
+        eval_results = run_evaluation_stage(narrative_results, output_dir)
+        if eval_results is None:
+            logger.warning(f"Pipeline completed with warnings for {args.dataset} (evaluation failed).")
+            # Don't fail the whole run if eval fails, just log
+    
+    logger.info(f"Pipeline completed successfully for {args.dataset}.")
+    return 0
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

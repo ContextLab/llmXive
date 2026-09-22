@@ -1,16 +1,14 @@
 """
-Analysis module for the llmXive Counterfactual Inspector pipeline.
+llmXive Analysis Module
 
-This package contains statistical analysis utilities, correlation computation,
-and partial correlation logic used by the baseline narrative and counterfactual
-inspector agents.
+This module provides statistical analysis utilities that are not covered by
+the narrative or data processing modules. It serves as a central location for
+specialized statistical computations and exploratory data analysis tools.
 
-Exports:
-    - correlation_utils: Module for pairwise and partial correlations
-    - stats_helpers: Module for statistical significance testing and validation
+Currently, it exports an empty list as the core analysis logic is distributed
+across narrative (baseline, inspector) and data processing (processor) modules.
+Future tasks may populate this with specialized statistical tests, visualizations,
+or exploratory data analysis utilities.
 """
 
-from . import correlation_utils
-from . import stats_helpers
-
-__all__ = ["correlation_utils", "stats_helpers"]
+__all__ = []

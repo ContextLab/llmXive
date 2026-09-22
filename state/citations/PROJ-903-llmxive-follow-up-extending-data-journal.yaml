@@ -42,3 +42,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up
   verified_at: '2026-09-18T08:53:51.900593Z'
+- artifact_hash: 23f3c9585a9a6576e2c307c5a6af82951932cbe5ff91d250abbe1f8a7c074985
+  artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Principal component analysis - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Principal_component_analysis
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Principal_component_analysis
+  verified_at: '2026-09-22T10:51:00.530186Z'

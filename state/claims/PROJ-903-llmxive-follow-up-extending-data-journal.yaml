@@ -351,3 +351,751 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T09:46:29Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Pipeline skips dataset and proceeds on DataFetchError
+  claim_id: c_b70ceae6
+  context: 'Task T005a specifies error handling for the loader: ''On fetch failure,
+    the loader MUST raise a DataFetchError exception. The pipeline orchestration (main.py)
+    MUST catch this exception, log the error, and skip the dataset, proceeding to
+    the next one.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_skips_dataset_and_proceeds_on_DataFetchError
+  kind: entity_fact
+  raw_text: The pipeline orchestration (main.py) MUST catch the DataFetchError exception,
+    log the error, and skip the dataset, proceeding to the next one.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:26:34Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Dataset sample size validation detects n less than 30
+  claim_id: c_1625d0fc
+  context: 'Task T005b states: ''Implement dataset sample size validation in code/data/loader.py
+    to detect if n < 30. If invalid, set a low_power_flag in the global context and
+    log a warning, but SKIP downstream counterfactual generation.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_validation_detects_n_less_than_30
+  kind: magnitude
+  raw_text: Dataset sample size validation detects if n < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:27:35Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis applies Bonferroni correction to p-value threshold
+  claim_id: c_5994a4ad
+  context: 'Task T021a states: ''Apply Bonferroni correction to the p-value threshold
+    based on the number of candidate variables tested.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_applies_Bonferroni_correction_to_p-valu
+  kind: entity_fact
+  raw_text: The sensitivity analysis applies Bonferroni correction to the p-value
+    threshold based on the number of candidate variables tested.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:28:24Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Sensitivity output schema requires threshold_config, claim, p_value,
+    and partial_r
+  claim_id: c_222133be
+  context: 'Task T021a states: ''Mandatory Schema: Each object MUST contain threshold_config
+    (string, fixed to FR-003), claim (string or the literal string NO_SIGNIFICANT_COUNTERFACTUAL),
+    p_value (float), and partial_r (float).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_output_schema_requires_threshold_config,_claim,
+  kind: entity_fact
+  raw_text: Each object in the sensitivity analysis output MUST contain threshold_config,
+    claim, p_value, and partial_r.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:29:30Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Counterfactual query generation includes 2-retry logic
+  claim_id: c_532a1f46
+  context: 'Notes section states: ''Retry Logic: T024 includes 2-retry logic for query
+    generation.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The counterfactual query generation includes retry logic with a limited
+    number of retries (2-retry logic).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:30:04Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Simulation triggers 4th expert if Kappa less than 0.6
+  claim_id: c_a9a7c9be
+  context: 'Task T032b_sim states: ''Run run_kappa_check.py on the scores. If Kappa
+    < 0.6, trigger engage_4th_expert.py (simulation), re-calculate.'''
+  evidence:
+    candidates:
+    - - Simulation triggers
+      - 4.0
+    - - Kappa less than
+      - 0.6
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Simulation_triggers_4th_expert_if_Kappa_less_than_0.6
+  kind: magnitude
+  raw_text: The deterministic simulation interface triggers engage_4th_expert.py if
+    Kappa < 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T10:30:42Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 2
+  canonical: Simulation halts with Kappa Failure if Kappa less than 0.6 after 2 re-runs
+  claim_id: c_093fa663
+  context: 'Task T032b_sim states: ''If Kappa < 0.6 after 2 re-runs, halt with Kappa
+    Failure.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_halts_with_Kappa_Failure_if_Kappa_less_than_0.6_a
+  kind: magnitude
+  raw_text: The deterministic simulation interface halts with Kappa Failure if Kappa
+    < 0.6 after 2 re-runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:31:01Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Report aggregates metrics across 50 datasets
+  claim_id: c_c6bf1609
+  context: 'Task T034 states: ''Implement report generation to aggregate metrics (SC-001,
+    SC-002, SC-003, SC-004) across the 50 datasets.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report generation aggregates metrics across 50 datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:31:19Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Verification Traceability audits claims for SELECT corr or pd.corr regex
+    matches
+  claim_id: c_512449c0
+  context: 'Task T035 states: ''Calculate Verification Traceability (SC-004) by auditing
+    counterfactual claims... for valid, executable data query citations. Valid means
+    matching regex SELECT corr(...) or pd.corr(...).'''
+  evidence:
+    entailment_evidence: Verification Traceability audits claims for SELECT corr or
+      p
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verification_Traceability_audits_claims_for_SELECT_corr_or_p
+  kind: entity_fact
+  raw_text: Verification Traceability is calculated by auditing counterfactual claims
+    for valid, executable data query citations matching regex SELECT corr or pd.corr.
+  resolved_value: Verification Traceability audits claims for SELECT corr or pd.corr
+    regex matches
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T10:31:21Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 2
+  canonical: Computational feasibility verified with runtime less than 6 hours and
+    RAM less than 7GB
+  claim_id: c_74d0e6a3
+  context: 'Task T036 states: ''Verify computational feasibility (runtime < 6h, RAM
+    < 7GB) on GitHub Actions free-tier runner for the full batch.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computational_feasibility_verified_with_runtime_less_than_6
+  kind: magnitude
+  raw_text: Computational feasibility is verified with runtime < 6 hours and RAM <
+    7GB on GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:31:53Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: missing value handling implemented in code/data/processor.py
+  claim_id: c_4a73bd64
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Missing_value_handling_implemented_in_code/data/processor.py
+  kind: entity_fact
+  raw_text: Implement `code/data/processor.py` cleaning logic (missing value handling)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:32:48Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: imputation logic implemented in code/data/processor.py per llmXive protocol
+  claim_id: c_02ff52c7
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006b'
+  evidence:
+    entailment_evidence: Imputation logic implemented in code/data/processor.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Imputation_logic_implemented_in_code/data/processor.py_per_l
+  kind: entity_fact
+  raw_text: Implement `code/data/processor.py` imputation logic (per `llmXive` protocol)
+  resolved_value: imputation logic implemented in code/data/processor.py per llmXive
+    protocol
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T10:32:49Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: basic statistical summaries implemented in code/data/processor.py
+  claim_id: c_39494cc3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006c'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Basic_statistical_summaries_implemented_in_code/data/process
+  kind: entity_fact
+  raw_text: Implement `code/data/processor.py` basic statistical summaries
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:33:12Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: sample size validation detects n < 30 in code/data/loader.py
+  claim_id: c_200c6c48
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement dataset sample size validation in `code/data/loader.py` to detect
+    if `n < 30`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:33:12Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to p-value threshold for candidate variables
+  claim_id: c_a7072d60
+  context: 'Phase 4: User Story 2 - T021a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_p-value_threshold_for_candi
+  kind: entity_fact
+  raw_text: 'Implement sensitivity analysis: Apply Bonferroni correction to the p-value
+    threshold based on the number of candidate variables tested'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:33:40Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: report 'No significant counterfactuals found' when no valid alternative
+    correlations exist
+  claim_id: c_5a6f22f2
+  context: 'Phase 4: User Story 2 - T025'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_%27No_significant_counterfactuals_found%27_when_no_valid
+  kind: entity_fact
+  raw_text: Implement logic to explicitly report 'No significant counterfactuals found'
+    when no valid alternative correlations exist
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:34:05Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: LLM inference fallback switches to phi3-mini or batched API calls on
+    timeout
+  claim_id: c_802ddf40
+  context: 'Phase 4: User Story 2 - T045'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LLM_inference_fallback_switches_to_phi3-mini_or_batched_API
+  kind: entity_fact
+  raw_text: 'Implement LLM inference fallback mechanism in `code/narrative/llm_client.py`:
+    wrap inference calls in a reasonable timeout. If exceeded, automatically switch
+    to `phi3-mini` (local) or batched API calls'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:34:22Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Kappa check triggers 4th expert simulation if Kappa < 0.6; halts after
+    2 failures
+  claim_id: c_2295c08e
+  context: 'Phase 5: User Story 3 - T032b_sim'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `run_kappa_check.py` on the scores. If Kappa < 0.6, trigger `engage_4th_expert.py`
+    (simulation), re-calculate. If Kappa < 0.6 after 2 re-runs, halt with 'Kappa Failure'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:34:22Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: computational feasibility verified as runtime < 6h and RAM < 7GB on GitHub
+    Actions free-tier
+  claim_id: c_dbc32317
+  context: 'Phase 6: Evaluation & Reporting - T036'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/computational_feasibility_verified_as_runtime_%3C_6h_and_RAM_%3C
+  kind: entity_fact
+  raw_text: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:34:43Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: story explicitly states 'Low Power - Interpret with Caution' when low
+    power flag is set
+  claim_id: c_3cf17e27
+  context: T005d [P] Implement logic to propagate the 'Low Power' flag from T005b
+    into the final story structure and report (Edge Cases). This task ensures the
+    story explicitly states 'Low Power - Interpret with Caution' when the flag is
+    set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Story_explicitly_states_%27Low_Power_-_Interpret_with_Caution%27
+  kind: entity_fact
+  raw_text: Implement logic to propagate the 'Low Power' flag from T005b into the
+    final story structure and report (Edge Cases). This task ensures the story explicitly
+    states 'Low Power - Interpret with Caution' when the flag is set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:39:04Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: compute partial correlation controlling for top-2 baseline drivers
+  claim_id: c_65afaee5
+  context: 'T021a [US2] Implement sensitivity analysis in code/narrative/inspector.py:
+    Compute partial correlation controlling for the top-2 baseline drivers for each
+    candidate variable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute partial correlation controlling for the top-2 baseline drivers
+    for each candidate variable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:39:23Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: halt with Kappa Failure if Kappa less than 0.6 after 2 re-runs
+  claim_id: c_f19aebd5
+  context: T032b_sim [US3] ... Run run_kappa_check.py on the scores. If Kappa < 0.6,
+    trigger engage_4th_expert.py (simulation), re-calculate. If Kappa < 0.6 after
+    2 re-runs, halt with 'Kappa Failure'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_Kappa_Failure_if_Kappa_less_than_0.6_after_2_re-ru
+  kind: magnitude
+  raw_text: Run run_kappa_check.py on the scores. If Kappa < 0.6, trigger engage_4th_expert.py
+    (simulation), re-calculate. If Kappa < 0.6 after 2 re-runs, halt with 'Kappa Failure'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:39:40Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: verify computational feasibility runtime less than 6 hours and RAM less
+    than 7GB on GitHub Actions free-tier
+  claim_id: c_ef2ff753
+  context: T036 Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub
+    Actions free-tier runner for the full batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_computational_feasibility_runtime_less_than_6_hours_a
+  kind: magnitude
+  raw_text: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:39:43Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Story explicitly states 'Low Power - Interpret with Caution' when low
+    power flag is set
+  claim_id: c_6083379d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005d'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Story_explicitly_states_'Low_Power_-_Interpret_with_Caution'
+  kind: entity_fact
+  raw_text: Implement logic to propagate the 'Low Power' flag from T005b into the
+    final story structure and report (Edge Cases). This task ensures the story explicitly
+    states 'Low Power - Interpret with Caution' when the flag is set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:44:05Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Loader validates numeric columns with count greater than or equal to
+    5
+  claim_id: c_4d79ce36
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005a'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Loader_validates_numeric_columns_with_count_greater_than_or
+  kind: magnitude
+  raw_text: "Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF\
+    \ URLs, validate numeric columns (\u22655), and checksum raw files."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:44:21Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Dataset sample size validation detects if n is less than 30
+  claim_id: c_524fc0c5
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005b'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "PCA was invented in 1901 by Karl Pearson, as an analogue of the principal\
+        \ axis theorem in mechanics; it was later independently developed and named\
+        \ by Harold Hotelling in the 1930s. Depending on the field of application,\
+        \ it is also named the discrete Karhunen\u2013Lo\xE8ve transform (KLT) in\
+        \ signal processing, the Hotelling transform in multivariate quality control,\
+        \ proper orthogonal decomposition (POD) in mechanical engineering, singular\
+        \ value decomposition (SVD) of X (invented in the last quarter of the 19th\
+        \ century), eigenvalue decomposition (EVD) of XTX in linear algebra, factor\
+        \ analysis (for a discussion of the differences between PCA and factor analysis\
+        \ see Ch. 7 of Jolliffe's Principal Component Analysis), Eckart\u2013Young\
+        \ theorem (Harman, 1960), or empirical orthogonal functions (EOF) in meteorological\
+        \ science (Lorenz, 1956), empirical eigenfunction decomposition (Sirovich,\
+        \ 1987), quasiharmonic modes (Brooks et al., 1988), spectral decomposition\
+        \ in noise and vibration, and empirical modal analysis in structural dynamics."
+      source_id: Principal component analysis
+      url: https://en.wikipedia.org/wiki/Principal_component_analysis
+      value: '30'
+    filled: true
+  kind: magnitude
+  raw_text: Implement dataset sample size validation in `code/data/loader.py` to detect
+    if `n < 30`.
+  resolved_value: '30'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T10:44:32Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Partial correlation computed controlling for top-2 baseline drivers
+  claim_id: c_d9e76046
+  context: 'Phase 4: User Story 2 - Counterfactual Angle Generation - T021a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute partial correlation controlling for the top-2 baseline drivers
+    for each candidate variable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:44:32Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: System reports 'No significant counterfactuals found' when no valid alternative
+    correlations exist
+  claim_id: c_190855c8
+  context: 'Phase 4: User Story 2 - Counterfactual Angle Generation - T025'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_reports_'No_significant_counterfactuals_found'_when_n
+  kind: entity_fact
+  raw_text: Implement logic to explicitly report 'No significant counterfactuals found'
+    when no valid alternative correlations exist, avoiding hallucination
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:44:57Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Loader raises exception and does not return synthetic data on fetch failure
+  claim_id: c_90b516da
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T053'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Loader_raises_exception_and_does_not_return_synthetic_data_o
+  kind: entity_fact
+  raw_text: Add unit tests in `tests/unit/test_loader.py` to verify that `loader.py`
+    raises an exception (does not return synthetic data) when a mock `requests.get`
+    or `datasets.load_dataset` call is forced to fail.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:45:17Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Streaming loader produces aggregate statistics matching full in-memory
+    version within floating point tolerance
+  claim_id: c_a29c4c98
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T054'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_loader_produces_aggregate_statistics_matching_full
+  kind: entity_fact
+  raw_text: Add integration tests in `tests/integration/test_streaming.py` to verify
+    that the streaming loader processes a large CSV in chunks and produces the same
+    aggregate statistics as the full in-memory version (within floating point tolerance).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:45:35Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Full batch pipeline runtime under 6 hours and RAM under 7GB on GitHub
+    Actions free-tier
+  claim_id: c_0409aa0d
+  context: 'Phase 6: Evaluation & Reporting (Research Phase) - T036'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:45:35Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: streaming loader produces same aggregate statistics as full in-memory
+    version within floating point tolerance
+  claim_id: c_539885e8
+  context: 'T054 [P] Add integration tests in `tests/integration/test_streaming.py`
+    to verify that the streaming loader processes a large CSV in chunks and produces
+    the same aggregate statistics as the full in-memory version (within floating point
+    tolerance). (Addresses ''Large real datasets: STREAM'' rule).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_loader_produces_same_aggregate_statistics_as_full
+  kind: entity_fact
+  raw_text: Verify the streaming loader processes a large CSV in chunks and produces
+    the same aggregate statistics as the full in-memory version (within floating point
+    tolerance).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:47:13Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: compute partial correlation controlling for top-2 baseline drivers
+  claim_id: c_3bf28958
+  context: 'T021a [US2] Implement sensitivity analysis in `code/narrative/inspector.py`:
+    **Compute** partial correlation controlling for the top-2 baseline drivers for
+    each candidate variable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute partial correlation controlling for the top-2 baseline drivers
+    for each candidate variable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:47:14Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: trigger engage 4th expert simulation if kappa less than 0.6
+  claim_id: c_1f52f87b
+  context: T032b_sim [US3] ... Run `run_kappa_check.py` on the scores. If Kappa <
+    0.6, trigger `engage_4th_expert.py` (simulation), re-calculate.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_engage_4th_expert_simulation_if_kappa_less_than_0.6
+  kind: magnitude
+  raw_text: If Kappa < 0.6, trigger `engage_4th_expert.py` (simulation), re-calculate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:47:39Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: halt with kappa failure if kappa less than 0.6 after 2 re-runs
+  claim_id: c_d5a6fbe1
+  context: T032b_sim [US3] ... If Kappa < 0.6 after 2 re-runs, halt with 'Kappa Failure'.
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - 0.6
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Halt_with_kappa_failure_if_kappa_less_than_0.6_after_2_re-ru
+  kind: magnitude
+  raw_text: If Kappa < 0.6 after 2 re-runs, halt with 'Kappa Failure'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T10:47:59Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: verify computational feasibility runtime less than 6 hours and ram less
+    than 7gb on github actions free-tier
+  claim_id: c_7c999ba0
+  context: T036 Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub
+    Actions free-tier runner for the full batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_computational_feasibility_runtime_less_than_6_hours_a
+  kind: magnitude
+  raw_text: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:48:01Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: validate numeric columns greater than or equal to 5
+  claim_id: c_704ef839
+  context: "T005a [P] Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF\
+    \ URLs, validate numeric columns (\u22655), and checksum raw files."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1733: 1319850'
+      source_id: Q116756691
+      url: https://www.wikidata.org/wiki/Q116756691
+      value: '1319850'
+    filled: true
+  kind: magnitude
+  raw_text: "Validate numeric columns (\u22655)."
+  resolved_value: '1319850'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T10:48:10Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: sample size checks for n less than 30 performed before any analysis
+  claim_id: c_91982992
+  context: 'Notes: ... **Validation**: Sample size checks (n < 30) are performed in
+    Phase 2 (T005b) before any analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_checks_for_n_less_than_30_performed_before_any_a
+  kind: magnitude
+  raw_text: Sample size checks (n < 30) are performed in Phase 2 (T005b) before any
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T10:49:59Z'
