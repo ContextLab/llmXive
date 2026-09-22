@@ -9,6 +9,7 @@ seaborn
 pyyaml
 jupyter
 s3fs
-fsspec
-botocore
-pyarrow
+boto3
+pytest
+pytest-cov
+psutil

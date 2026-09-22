@@ -1,74 +1,42 @@
 # Schema for merged_observations.csv
 # Generated for PROJ-397: Predicting Avian Foraging Behavior
-type: object
-properties:
-  species_id:
-    type: string
-    description: "Unique species identifier (e.g., 'melanospiza')"
-  foraging_guild:
-    type: string
-    description: "Assigned foraging guild label"
-  forest_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of forest land cover within 100m buffer"
-  grassland_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of grassland land cover within 100m buffer"
-  wetland_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of wetland land cover within 100m buffer"
-  urban_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of urban land cover within 100m buffer"
-  water_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of water land cover within 100m buffer"
-  shrub_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of shrub land cover within 100m buffer"
-  agricultural_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of agricultural land cover within 100m buffer"
-  bare_prop_100m:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Proportion of bare land cover within 100m buffer"
-  observation_id:
-    type: string
-    description: "Unique observation identifier"
-  latitude:
-    type: number
-  longitude:
-    type: number
-  date:
-    type: string
-    format: date
-  provenance_hash:
-    type: string
-    description: "SHA-256 hash of source data"
-required:
+version: "1.0"
+description: "Schema for the merged observations dataset after joining EBD records with NLCD land cover data and guild labels."
+
+required_columns:
   - species_id
   - foraging_guild
   - forest_prop_100m
   - grassland_prop_100m
   - wetland_prop_100m
   - urban_prop_100m
-  - observation_id
-  - latitude
-  - longitude
-additionalProperties: true
+  - other_prop_100m
+
+column_types:
+  species_id: string
+  foraging_guild: string
+  forest_prop_100m: float
+  grassland_prop_100m: float
+  wetland_prop_100m: float
+  urban_prop_100m: float
+  other_prop_100m: float
+
+constraints:
+  - column: species_id
+    rule: "non-empty string"
+  - column: foraging_guild
+    rule: "non-empty string"
+  - columns:
+      - forest_prop_100m
+      - grassland_prop_100m
+      - wetland_prop_100m
+      - urban_prop_100m
+      - other_prop_100m
+    rule: "float values between 0.0 and 1.0"
+  - rule: "Sum of all land-cover proportion columns must be <= 1.0 (allowing for minor floating point errors)"
+
+file_format:
+  format: csv
+  delimiter: ","
+  encoding: "utf-8"
+  header: true

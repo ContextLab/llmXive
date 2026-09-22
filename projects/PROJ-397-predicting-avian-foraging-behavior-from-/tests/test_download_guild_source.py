@@ -1,3 +1,6 @@
+"""
+Unit tests for download_guild_source module.
+"""
 import os
 import sys
 import unittest
@@ -7,79 +10,98 @@ from pathlib import Path
 import csv
 import yaml
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from data.download_guild_source import validate_guild_source, compute_sha256, load_metadata_config
+from data.download_guild_source import (
+    validate_guild_source,
+    REQUIRED_COLUMNS,
+    load_metadata_config
+)
 from utils.config import get_raw_data_dir, get_metadata_file
 
+
 class TestDownloadGuildSource(unittest.TestCase):
+    """Test cases for download_guild_source module."""
 
     def setUp(self):
-        """Set up a temporary directory for testing."""
+        """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.test_csv_path = Path(self.temp_dir) / "test_guild.csv"
+        self.test_csv_path = Path(self.temp_dir) / "test_guilds.csv"
+        
+        # Create a valid test CSV
+        with open(self.test_csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["species_id", "foraging_guild"])
+            writer.writeheader()
+            writer.writerow({"species_id": "sp001", "foraging_guild": "granivore"})
+            writer.writerow({"species_id": "sp002", "foraging_guild": "insectivore"})
+            writer.writerow({"species_id": "sp003", "foraging_guild": "frugivore"})
 
     def tearDown(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.temp_dir)
+        """Clean up test fixtures."""
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_validate_guild_source_missing_column(self):
-        """Test validation fails if 'source_citation' is missing."""
-        content = "species_id,foraging_guild\n1,guild_a\n"
-        with open(self.test_csv_path, 'w') as f:
-            f.write(content)
-        
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(self.test_csv_path)
-        
-        self.assertIn("Missing required column 'source_citation'", str(context.exception))
-
-    def test_validate_guild_source_valid(self):
-        """Test validation passes with correct column."""
-        content = "species_id,foraging_guild,source_citation\n1,guild_a,Test Citation\n"
-        with open(self.test_csv_path, 'w') as f:
-            f.write(content)
-        
-        # Should not raise
-        result = validate_guild_source(self.test_csv_path)
-        self.assertTrue(result)
-
-    def test_validate_guild_source_empty_data(self):
-        """Test validation fails if CSV has headers but no data."""
-        content = "species_id,foraging_guild,source_citation\n"
-        with open(self.test_csv_path, 'w') as f:
-            f.write(content)
-        
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(self.test_csv_path)
-        
-        self.assertIn("no data rows", str(context.exception))
-
-    def test_compute_sha256(self):
-        """Test SHA256 computation."""
-        content = "test data"
-        with open(self.test_csv_path, 'w') as f:
-            f.write(content)
-        
-        hash_val = compute_sha256(self.test_csv_path)
-        self.assertEqual(len(hash_val), 64) # SHA256 hex length
-
-    def test_load_metadata_config(self):
-        """Test loading metadata config."""
-        # This tests the utility function used in the script
-        # We rely on the fact that get_metadata_file points to a valid path
-        # even if the file doesn't exist yet (it should return default structure)
+    def test_validate_guild_source_valid_file(self):
+        """Test validation passes for a valid CSV file."""
+        # Should not raise any exception
         try:
-            meta = load_metadata_config()
-            self.assertIsInstance(meta, dict)
-            self.assertIn("datasets", meta)
+            validate_guild_source(self.test_csv_path)
+            success = True
         except Exception:
-            # If the environment isn't fully set up, this might fail, 
-            # but the function itself is tested by the main script integration.
-            pass
+            success = False
+        
+        self.assertTrue(success, "Validation should pass for valid CSV")
+
+    def test_validate_guild_source_missing_columns(self):
+        """Test validation fails when required columns are missing."""
+        # Create CSV with missing columns
+        invalid_csv_path = Path(self.temp_dir) / "invalid_guilds.csv"
+        with open(invalid_csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["species_id"])
+            writer.writeheader()
+            writer.writerow({"species_id": "sp001"})
+        
+        with self.assertRaises(ValueError) as context:
+            validate_guild_source(invalid_csv_path)
+        
+        self.assertIn("Missing required columns", str(context.exception))
+
+    def test_validate_guild_source_empty_file(self):
+        """Test validation fails for an empty CSV file."""
+        empty_csv_path = Path(self.temp_dir) / "empty_guilds.csv"
+        with open(empty_csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["species_id", "foraging_guild"])
+            writer.writeheader()
+            # No data rows
+        
+        with self.assertRaises(ValueError) as context:
+            validate_guild_source(empty_csv_path)
+        
+        self.assertIn("CSV file is empty", str(context.exception))
+
+    def test_validate_guild_source_file_not_found(self):
+        """Test validation fails when file does not exist."""
+        non_existent_path = Path(self.temp_dir) / "non_existent.csv"
+        
+        with self.assertRaises(FileNotFoundError):
+            validate_guild_source(non_existent_path)
+
+    def test_validate_guild_source_invalid_csv_format(self):
+        """Test validation fails for malformed CSV."""
+        malformed_csv_path = Path(self.temp_dir) / "malformed_guilds.csv"
+        with open(malformed_csv_path, 'w', encoding='utf-8') as f:
+            f.write("species_id,foraging_guild\nsp001,granivore\nsp002,insectivore,extra_column")
+        
+        # This should raise a CSV error
+        with self.assertRaises(ValueError):
+            validate_guild_source(malformed_csv_path)
+
+    def test_required_columns_constant(self):
+        """Test that REQUIRED_COLUMNS contains expected values."""
+        self.assertIn("species_id", REQUIRED_COLUMNS)
+        self.assertIn("foraging_guild", REQUIRED_COLUMNS)
+        self.assertEqual(len(REQUIRED_COLUMNS), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

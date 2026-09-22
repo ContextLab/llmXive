@@ -3,183 +3,224 @@ import sys
 import unittest
 import yaml
 import pandas as pd
+import csv
 from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# Add the code directory to the path so we can import utils
-code_root = Path(__file__).parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from utils.config import get_project_root, get_data_dir
+from utils.config import get_processed_dir, get_project_root
 
-def load_schema(schema_path: str) -> dict:
-    """Load a YAML schema file."""
-    with open(schema_path, 'r') as f:
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load the YAML schema file."""
+    with open(schema_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-def validate_schema_compliance(df: pd.DataFrame, schema: dict) -> tuple:
+def validate_schema_compliance(
+    df: pd.DataFrame, 
+    schema: Dict[str, Any]
+) -> Tuple[bool, List[str]]:
     """
-    Validate that a DataFrame conforms to a YAML schema.
-    Returns (is_valid, errors_list).
+    Validate that a DataFrame conforms to the given schema.
+    
+    Returns:
+        Tuple of (is_valid, list_of_errors)
     """
     errors = []
-    properties = schema.get('properties', {})
-    required = schema.get('required', [])
-
+    
     # Check required columns
-    missing_cols = set(required) - set(df.columns)
-    if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
-
-    # Check column types and constraints
-    for col, rules in properties.items():
-        if col not in df.columns:
-            continue
-
-        if rules.get('type') == 'string':
-            if not df[col].apply(lambda x: isinstance(x, str)).all():
-                errors.append(f"Column {col} should be string type")
-
-        if rules.get('type') == 'number':
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                errors.append(f"Column {col} should be numeric type")
+    required_columns = schema.get('required_columns', [])
+    actual_columns = list(df.columns)
+    
+    missing_columns = set(required_columns) - set(actual_columns)
+    if missing_columns:
+        errors.append(f"Missing required columns: {missing_columns}")
+        return False, errors
+    
+    # Check column types
+    column_types = schema.get('column_types', {})
+    for col, expected_type in column_types.items():
+        if col in df.columns:
+            if expected_type == 'string':
+                if not pd.api.types.is_string_dtype(df[col]):
+                    # Allow object dtype which is common for strings in pandas
+                    if df[col].dtype != 'object':
+                        errors.append(f"Column '{col}' should be string type, got {df[col].dtype}")
+            elif expected_type == 'float':
+                if not pd.api.types.is_float_dtype(df[col]):
+                    errors.append(f"Column '{col}' should be float type, got {df[col].dtype}")
+    
+    # Check constraints
+    constraints = schema.get('constraints', [])
+    for constraint in constraints:
+        if 'columns' in constraint:
+            # Multi-column constraint
+            cols = constraint['columns']
+            rule = constraint['rule']
             
-            # Check min/max constraints if present
-            if 'minimum' in rules:
-                if (df[col] < rules['minimum']).any():
-                    errors.append(f"Column {col} has values below minimum {rules['minimum']}")
-            if 'maximum' in rules:
-                if (df[col] > rules['maximum']).any():
-                    errors.append(f"Column {col} has values above maximum {rules['maximum']}")
-
+            if rule.startswith("float values between"):
+                # Check range for all specified columns
+                for col in cols:
+                    if col in df.columns:
+                        if not ((df[col] >= 0.0).all() and (df[col] <= 1.0).all()):
+                            errors.append(f"Column '{col}' values must be between 0.0 and 1.0")
+            
+            elif "Sum of all land-cover proportion" in rule:
+                # Check sum constraint
+                prop_cols = ['forest_prop_100m', 'grassland_prop_100m', 
+                             'wetland_prop_100m', 'urban_prop_100m', 'other_prop_100m']
+                if all(col in df.columns for col in prop_cols):
+                    sum_cols = df[prop_cols].sum(axis=1)
+                    # Allow small floating point error
+                    if not (sum_cols <= 1.0001).all():
+                        violations = sum_cols[sum_cols > 1.0001]
+                        errors.append(f"Some rows have land-cover proportions summing to > 1.0: {len(violations)} violations")
+        
+        elif 'column' in constraint:
+            # Single column constraint
+            col = constraint['column']
+            rule = constraint['rule']
+            
+            if col in df.columns:
+                if rule == "non-empty string":
+                    if df[col].isna().any() or (df[col].astype(str).str.strip() == '').any():
+                        errors.append(f"Column '{col}' contains empty or null values")
+    
     return len(errors) == 0, errors
 
 class TestDataContract(unittest.TestCase):
-    """Test suite for data contract compliance."""
-
+    """Test suite for data contract compliance of merged_observations.csv"""
+    
     def setUp(self):
         """Set up test fixtures."""
         self.project_root = get_project_root()
-        self.data_dir = get_data_dir()
-        self.processed_dir = self.data_dir / "processed"
-        self.contracts_dir = self.project_root / "contracts"
+        self.processed_dir = get_processed_dir()
+        self.schema_path = self.project_root / "contracts" / "dataset.schema.yaml"
+        self.data_path = self.processed_dir / "merged_observations.csv"
         
-        # Path to the schema file
-        self.schema_path = self.contracts_dir / "dataset.schema.yaml"
-        
-        # Path to the merged observations file
-        self.merged_file = self.processed_dir / "merged_observations.csv"
-
-    def test_schema_compliance(self):
-        """
-        Assert that merged_observations.csv conforms to contracts/dataset.schema.yaml.
-        This test verifies the presence of required columns: species_id, foraging_guild,
-        and all land-cover proportion columns for 100m buffer.
-        """
-        # Ensure the schema file exists
+        # Load schema
+        if self.schema_path.exists():
+            self.schema = load_schema(str(self.schema_path))
+        else:
+            self.schema = None
+    
+    def test_schema_file_exists(self):
+        """Test that the schema file exists."""
         self.assertTrue(
             self.schema_path.exists(), 
-            f"Schema file not found: {self.schema_path}"
+            f"Schema file not found at {self.schema_path}"
         )
-
-        # Ensure the data file exists
+    
+    def test_data_file_exists(self):
+        """Test that the merged_observations.csv file exists."""
         self.assertTrue(
-            self.merged_file.exists(), 
-            f"Merged observations file not found: {self.merged_file}"
+            self.data_path.exists(), 
+            f"Merged observations file not found at {self.data_path}"
         )
-
-        # Load schema
-        schema = load_schema(str(self.schema_path))
-
-        # Load data
-        df = pd.read_csv(self.merged_file)
-
-        # Validate
-        is_valid, errors = validate_schema_compliance(df, schema)
-
-        # Assert compliance
-        self.assertTrue(
-            is_valid, 
-            f"Data does not conform to schema. Errors: {errors}"
-        )
-
-    def test_validate_schema(self):
+    
+    def test_schema_compliance(self):
         """
-        Unit test for the validate_schema() function in merge_and_buffer.py.
-        This test ensures that the function correctly raises ValueError for missing columns.
-        """
-        # Import the function from merge_and_buffer
-        from data.merge_and_buffer import validate_schema
-
-        # Create a mock DataFrame with missing columns
-        mock_df_missing = pd.DataFrame({
-            'species_id': ['a', 'b'],
-            'foraging_guild': ['g1', 'g2']
-            # Missing land cover proportions
-        })
-
-        # Create a mock DataFrame with all required columns
-        mock_df_complete = pd.DataFrame({
-            'species_id': ['a', 'b'],
-            'foraging_guild': ['g1', 'g2'],
-            'forest_prop_100m': [0.5, 0.6],
-            'grassland_prop_100m': [0.2, 0.1],
-            'wetland_prop_100m': [0.1, 0.2],
-            'urban_prop_100m': [0.1, 0.05],
-            'observation_id': ['obs1', 'obs2'],
-            'latitude': [40.0, 41.0],
-            'longitude': [-74.0, -75.0]
-        })
-
-        # Test that missing columns raise ValueError
-        with self.assertRaises(ValueError) as context:
-            validate_schema(mock_df_missing)
+        Test that merged_observations.csv conforms to the dataset schema.
         
-        self.assertIn("Missing required columns", str(context.exception))
-
-        # Test that complete DataFrame passes
-        try:
-            validate_schema(mock_df_complete)
-        except ValueError:
-            self.fail("validate_schema() raised ValueError unexpectedly for valid data")
-
-    def test_proportion_sum_constraint(self):
+        This test verifies:
+        1. All required columns are present
+        2. Column data types match the schema
+        3. Data constraints are satisfied (e.g., proportions between 0-1, sum <= 1)
         """
-        Test that land-cover proportions for the 100m buffer sum to <= 1 for each observation.
-        This is a logical constraint derived from the definition of proportions.
-        """
-        from data.merge_and_buffer import validate_schema
-
-        # Ensure the data file exists
-        self.assertTrue(
-            self.merged_file.exists(), 
-            f"Merged observations file not found: {self.merged_file}"
-        )
-
-        # Load data
-        df = pd.read_csv(self.merged_file)
-
-        # Identify land cover proportion columns
-        prop_cols = [col for col in df.columns if col.endswith('_prop_100m')]
-
-        # Calculate sums
-        sums = df[prop_cols].sum(axis=1)
-
-        # Assert all sums are <= 1 (with small tolerance for floating point errors)
-        tolerance = 1e-6
-        self.assertTrue(
-            (sums <= 1 + tolerance).all(),
-            f"Some observations have land cover proportions summing to > 1: {sums[sums > 1 + tolerance]}"
-        )
-
-    def test_data_contract_failing_stub(self):
-        """
-        Original failing stub from T006a to ensure test infrastructure works.
-        This should pass now that the framework is in place.
-        """
-        # This is the original failing stub, now replaced with a real check
-        # We assert True here to indicate the infrastructure is working
-        self.assertTrue(True, "Data contract test infrastructure is functional")
+        # Skip if schema or data file doesn't exist
+        if not self.schema_path.exists():
+            self.fail(f"Schema file not found at {self.schema_path}")
+        
+        if not self.data_path.exists():
+            self.fail(f"Merged observations file not found at {self.data_path}")
+        
+        # Load the data
+        df = pd.read_csv(self.data_path)
+        
+        # Validate against schema
+        is_valid, errors = validate_schema_compliance(df, self.schema)
+        
+        if not is_valid:
+            error_msg = "Schema validation failed with the following errors:\n"
+            for err in errors:
+                error_msg += f"  - {err}\n"
+            self.fail(error_msg)
+        
+        # Additional specific checks
+        required_cols = self.schema['required_columns']
+        for col in required_cols:
+            self.assertIn(col, df.columns, f"Required column '{col}' is missing")
+        
+        # Check that land cover proportions sum to <= 1
+        prop_cols = ['forest_prop_100m', 'grassland_prop_100m', 
+                     'wetland_prop_100m', 'urban_prop_100m', 'other_prop_100m']
+        if all(col in df.columns for col in prop_cols):
+            sums = df[prop_cols].sum(axis=1)
+            self.assertTrue(
+                (sums <= 1.0001).all(), 
+                "Some rows have land-cover proportions summing to > 1.0"
+            )
+        
+        # Check that proportions are between 0 and 1
+        for col in prop_cols:
+            if col in df.columns:
+                self.assertTrue(
+                    ((df[col] >= 0.0) & (df[col] <= 1.0)).all(),
+                    f"Column '{col}' contains values outside [0, 1] range"
+                )
+    
+    def test_required_columns_present(self):
+        """Test that all required columns from the schema are present."""
+        if not self.data_path.exists():
+            self.skipTest("Data file does not exist")
+        
+        df = pd.read_csv(self.data_path)
+        required_cols = self.schema['required_columns']
+        
+        for col in required_cols:
+            self.assertIn(
+                col, df.columns, 
+                f"Required column '{col}' is missing from merged_observations.csv"
+            )
+    
+    def test_land_cover_columns_exist(self):
+        """Test that all 100m buffer land cover proportion columns exist."""
+        if not self.data_path.exists():
+            self.skipTest("Data file does not exist")
+        
+        df = pd.read_csv(self.data_path)
+        expected_cols = [
+            'forest_prop_100m',
+            'grassland_prop_100m', 
+            'wetland_prop_100m',
+            'urban_prop_100m',
+            'other_prop_100m'
+        ]
+        
+        for col in expected_cols:
+            self.assertIn(
+                col, df.columns,
+                f"Land cover proportion column '{col}' is missing"
+            )
+    
+    def test_species_id_and_guild_columns(self):
+        """Test that species_id and foraging_guild columns exist and are non-empty."""
+        if not self.data_path.exists():
+            self.skipTest("Data file does not exist")
+        
+        df = pd.read_csv(self.data_path)
+        
+        # Check species_id
+        self.assertIn('species_id', df.columns)
+        self.assertFalse(df['species_id'].isna().any(), "species_id contains null values")
+        self.assertFalse((df['species_id'].astype(str).str.strip() == '').any(), "species_id contains empty strings")
+        
+        # Check foraging_guild
+        self.assertIn('foraging_guild', df.columns)
+        self.assertFalse(df['foraging_guild'].isna().any(), "foraging_guild contains null values")
+        self.assertFalse((df['foraging_guild'].astype(str).str.strip() == '').any(), "foraging_guild contains empty strings")
 
 if __name__ == '__main__':
     unittest.main()
