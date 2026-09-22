@@ -1,12 +1,15 @@
 status: none
-intent: download PubGraph dataset as pip installable python package dataset
+intent: download PubGraph OpenAlex citation graph dataset python package dataset
 required_fields:
 - node_id
-- source
-- target
-- degree
-- cluster_id
-- bridging_coefficient
-cache_key: 6df7f67a634fbf0561af28109c2310c7d7deb57f85488187c5cdb92f4e73fd48
-searched_at: '2026-09-18T07:33:25.428675+00:00'
+- paper_title
+- publication_year
+- citation_count
+- list_of_reference_ids
+- list_of_fields_of_study
+- primary_discipline_label
+- edge_source_id
+- edge_target_id
+cache_key: 17be8fa08ee67451daf45d79b541d3081057ee454dd84782b5763db6b08cc8eb
+searched_at: '2026-09-22T17:31:24.244771+00:00'
 retry_count: 1

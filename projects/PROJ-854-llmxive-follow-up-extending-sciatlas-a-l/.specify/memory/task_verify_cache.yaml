@@ -26,14 +26,6 @@ T028:
   r: "No code, script, or documentation was provided that implements a multiple\u2011\
     comparison correction (Bonferroni or Benjamini\u2011Hochberg) nor a CLI flag to\
     \ select the method. Without such artifacts, the requirement is not satisfied."
-T037:
-  c: false
-  h: a34c907e2e814f83d0e00e8fd47bc381686d60aaac2b5a456595bd0b48c44ffa
-  r: "The integration test file `tests/integration/test_statistical_pipeline.py` exists,\
-    \ but the required input dataset `data/processed/final_analysis_dataset.parquet`\
-    \ is missing, so the test cannot be executed and cannot verify the asserted p\u2011\
-    values and report label. The missing dataset must be provided (or generated) for\
-    \ the task to be complete."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

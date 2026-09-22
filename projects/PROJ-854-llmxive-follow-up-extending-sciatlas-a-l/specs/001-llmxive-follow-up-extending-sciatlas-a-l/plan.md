@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to test whether the density of cross-disciplinary connections (interdisciplinary bridging coefficient) in a scientific knowledge graph predicts future citation impact and novelty. The approach involves ingesting a representative subgraph of the OpenAlex-derived dataset, assigning structural communities via Louvain, computing a bridging coefficient for each node, deriving novelty scores from text embeddings (independent of topology), and performing Spearman correlation and linear regression with multiple-comparison correction. The pipeline is designed to run entirely on CPU within the 6-hour, 7GB RAM constraint of the GitHub Actions free tier, utilizing streaming for data ingestion and batched processing for embeddings.
+This feature implements a statistical analysis pipeline to test whether the density of cross-disciplinary connections (interdisciplinary bridging coefficient) in a scientific knowledge graph predicts future citation impact and novelty. The approach involves ingesting a representative subgraph of the OpenAlex-derived dataset, assigning structural communities via Louvain, computing a bridging coefficient for each node, deriving novelty scores from text embeddings (independent of topology), and performing Spearman correlation and linear regression with multiple-comparison correction. The pipeline is designed to run entirely on CPU within the multi-hour, gigabyte-scale RAM constraint of the GitHub Actions free tier., utilizing streaming for data ingestion and batched processing for embeddings.
 
 ## Technical Context
 

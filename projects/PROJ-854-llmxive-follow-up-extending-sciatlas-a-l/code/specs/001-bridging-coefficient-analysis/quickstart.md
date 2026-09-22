@@ -1,88 +1,67 @@
-# Quickstart Guide: Interdisciplinary Bridging Coefficient Analysis
+# Quickstart Guide: Bridging Coefficient Analysis
 
 ## Prerequisites
 
 - Python 3.9+
-- `pip install -r requirements.txt`
-- **Data Access**: The pipeline requires access to OpenAlex data via `pyalex`.
- - Install: `pip install pyalex>=1.0`
- - Install: `pip install sentence-transformers`
-- Ensure you have write permissions to `data/` and `artifacts/`.
+- pip
+- Virtual environment (recommended)
+- Required packages: `networkx`, `scikit-learn`, `sentence-transformers`, `pandas`, `numpy`, `scipy`, `pyarrow`, `datasets`, `memory-profiler`, `pytest`, `ruff`, `black`
 
 ## Installation
 
-1. Clone the repository.
+1. Create and activate virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
+
 2. Install dependencies:
  ```bash
- pip install -e.
- ```
-3. Verify installation:
- ```bash
- python -c "import src; print('Installation OK')"
+ pip install -r requirements.txt
  ```
 
-## Running the Pipeline
+## Run the Pipeline
 
-The full analysis pipeline consists of several stages. You can run them individually or all at once.
+The pipeline can be executed step-by-step or end-to-end using the CLI:
 
-### Option 1: Run Full Pipeline (Recommended for Validation)
-
-Execute the main script with a sample size:
 ```bash
+# Run the full pipeline with a sample size of 1000 nodes
 python -m src.cli.main --sample-size 1000
+
+# Run individual steps
+python -m src.cli.main --step ingest --sample-size 1000
+python -m src.cli.main --step embeddings --batch-size 64
+python -m src.cli.main --step analysis
+python -m src.cli.main --step report
 ```
 
-### Option 2: Run Individual Stages
-
-1. **Ingest Data**:
- ```bash
- python code/scripts/save_graph_pipeline.py
- ```
- *Output*: `data/processed/subgraph_with_clusters.parquet`
-
-2. **Compute Embeddings & Novelty**:
- (Handled automatically by the main script or `save_final_dataset.py`)
-
-3. **Save Final Dataset**:
- ```bash
- python code/scripts/save_final_dataset.py
- ```
- *Output*: `data/processed/final_analysis_dataset.parquet`
-
-4. **Run Statistical Analysis**:
- ```bash
- python code/scripts/save_statistical_metrics.py --correction-method bh
- ```
- *Output*: `artifacts/results/statistical_metrics.json`, `artifacts/results/corrected_pvalues.json`
-
-5. **Generate Report**:
- ```bash
- python code/scripts/generate_analysis_report.py
- ```
- *Output*: `artifacts/results/analysis_report.md`
-
-### Validation Mode
-
-Run the validation suite to check artifacts:
+For the final dataset generation:
 ```bash
-python code/scripts/run_validation.py
+python code/scripts/save_final_dataset.py
 ```
-*Output*: `artifacts/validation_report.md`
 
-## Expected Artifacts
+## Validation
 
-After a successful run, you should find:
+To validate the pipeline and artifacts:
 
-- `data/processed/subgraph_with_clusters.parquet`
-- `data/processed/final_analysis_dataset.parquet`
-- `artifacts/results/analysis_report.md`
-- `artifacts/results/statistical_metrics.json`
-- `artifacts/results/corrected_pvalues.json`
-- `artifacts/results/binned_analysis.json`
-- `artifacts/validation_report.md`
+```bash
+python -m src.cli.main --run-validation
+```
+
+This will generate a validation report at `artifacts/validation_report.md`.
+
+## Output Artifacts
+
+The pipeline produces the following key artifacts:
+
+- `data/processed/subgraph_with_clusters.parquet`: Processed graph with topological clusters and bridging coefficients
+- `data/processed/final_analysis_dataset.parquet`: Final dataset with citations, novelty scores, and all cluster assignments
+- `artifacts/results/analysis_report.md`: Final analysis report
+- `artifacts/results/statistical_metrics.json`: Statistical metrics and p-values
+- `artifacts/results/corrected_pvalues.json`: Multiple-comparison corrected p-values
 
 ## Troubleshooting
 
-- **OpenAlex Unreachable**: Check your internet connection. The API is free but requires network access.
-- **Memory Errors**: Reduce `--sample-size` if you encounter memory issues.
-- **Import Errors**: Ensure you are running from the project root and `pip install -e.` was successful.
+- If you encounter memory issues, reduce the `--sample-size` parameter
+- For embedding speed issues, ensure you're using CPU mode as specified
+- Check `artifacts/results/memory_profile.log` for memory usage details
