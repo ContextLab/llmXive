@@ -12,6 +12,23 @@ T003:
     in the provided evidence. Consequently, the requirement to configure ruff/flake8
     and black is not demonstrated. The task needs the actual configuration artifacts
     and evidence that they are active in the project.
+T011a:
+  c: false
+  h: e84ff552859c4c94fe86ad5e754d4ab46266c88d88debf317ac49d35f796420d
+  r: "The repository contains a large `simulation.py` file, but it does not include\
+    \ a utility that computes the minimum iteration count to reach power\u202F\u2265\
+    \u202F0.8 for a KS deviation\u202F>\u202F0.05, nor does it write the required\
+    \ `data/sweep/power_analysis_result.json`. The JSON output file is absent, indicating\
+    \ the task\u2019s output artifact was not produced."
+T017:
+  c: false
+  h: a7fcde266259f2bab56fe70c199e5e3e944d2da130138178a86546cb33a34f62
+  r: "The repository lacks the required `data/sweep/power_analysis_result.json` (so\
+    \ the script cannot read the iteration count) and the expected output `data/sweep/params.csv`\
+    \ is not present. Moreover, the provided `code/generate_data.py` is truncated\
+    \ and does not demonstrate the full Cartesian\u2011product sweep, the deterministic\
+    \ seed formula, or the required error\u2011handling calls. These essential artifacts\
+    \ are missing, so the task is not genuinely completed."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,6 +36,13 @@ T018:
     execution scripts, p\u2011value collections, KS statistics, QQ\u2011plots) were\
     \ supplied; the claim provides only the specification text, so the required artifacts\
     \ are missing."
+T019d:
+  c: false
+  h: d285b1dac0cecdc99c70babfc1dd14e894b23fe297f74454adc52347b9a39d7e
+  r: "The required `data/sweep/seed_map.json` file does not exist, and the supporting\
+    \ `data/sweep/power_analysis_result.json` (which provides the iteration counts\
+    \ needed to generate and verify the seed map) is also missing. Without these artifacts,\
+    \ the task\u2019s core output and verification step cannot be satisfied."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

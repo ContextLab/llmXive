@@ -1,9 +1,12 @@
 status: none
-intent: synthetic high-dimensional data python package specify correlation matrix
-  heavy-tailed marginals python package dataset
+intent: synthetic high-dimensional dataset generation python package with correlation
+  matrix Gene Expression Omnibus TCGA python package dataset
 required_fields:
 - sample_id
-- features
-cache_key: 244ed2b0547424b92d55285569d49271db4b378a9f81cd372f7e6d433e2e50c1
-searched_at: '2026-08-11T02:47:30.933635+00:00'
+- feature_1
+- feature_2
+- '...'
+- feature_p
+cache_key: dfd5cda885897a6437b7b0f6b4c541d3bfd01aa93f035bfee6a28a8b5b5368ba
+searched_at: '2026-09-22T15:23:08.305699+00:00'
 retry_count: 1

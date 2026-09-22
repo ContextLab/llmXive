@@ -1,8 +1,6 @@
 """
-Data generation module for high-dimensional p-value validity assessment.
-
-Implements parameter sweep logic to generate synthetic datasets with controlled
-correlation structures and distributional properties.
+Data generation script for high-dimensional p-value validity assessment.
+Implements parameter sweep logic for n, p, rho, and distribution_type.
 """
 import numpy as np
 import json
@@ -12,343 +10,365 @@ import logging
 import argparse
 import csv
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Iterator, Callable
-from dataclasses import dataclass, asdict
+from typing import List, Dict, Any, Iterator, Tuple
 
-from utils.simulation import RNGWrapper, SimulationConfig, SyntheticDataset
-from utils.regularization import regularize_covariance, is_condition_number_acceptable, HighDimensionalInstabilityError
+# Import from local utils
+from utils.exceptions import HighDimensionalInstabilityError
+from utils.regularization import is_condition_number_acceptable, regularize_covariance
+from utils.simulation import RNGWrapper
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-@dataclass
+# Constants
+RHO_VALUES = [0.0, 0.1, 0.3, 0.5, 0.7, 0.9]
+N_VALUES = [50, 100, 200, 500]
+P_VALUES = [500, 1000, 2000, 5000]
+DISTRIBUTION_TYPES = ["Normal", "t-dist(df=3)", "Skewed Normal(skew=2.0)"]
+MASTER_SEED_FILE = "data/sweep/master_seed.txt"
+POWER_ANALYSIS_FILE = "data/sweep/power_analysis_result.json"
+PARAMS_OUTPUT_FILE = "data/sweep/params.csv"
+
 class SweepConfig:
     """Configuration for the parameter sweep."""
-    n_values: List[int]
-    p_values: List[int]
-    rho_values: List[float]
-    distribution_types: List[str]
-    required_iterations: int
-    seed_start: int
+    def __init__(self, n_values: List[int], p_values: List[int], 
+                 rho_values: List[float], dist_types: List[str]):
+        self.n_values = n_values
+        self.p_values = p_values
+        self.rho_values = rho_values
+        self.dist_types = dist_types
 
 def load_required_iterations() -> int:
     """
-    Load required_iterations from power analysis result or use default.
+    Load the required iteration count from the power analysis result.
     
     Returns:
-        int: The number of iterations required for the sweep.
+        int: The number of iterations required for statistical power >= 0.8.
+        
+    Raises:
+        FileNotFoundError: If the power analysis result file is missing.
+        ValueError: If the file is malformed or missing the 'iterations' key.
     """
-    power_analysis_path = Path("data/sweep/power_analysis_result.json")
+    power_file = Path(POWER_ANALYSIS_FILE)
+    if not power_file.exists():
+        raise FileNotFoundError(
+            f"Power analysis result not found at {POWER_ANALYSIS_FILE}. "
+            f"Please run T011a first to generate this file."
+        )
     
-    if power_analysis_path.exists():
-        try:
-            with open(power_analysis_path, 'r') as f:
-                data = json.load(f)
-                required_iterations = data.get('required_iterations', 1000)
-                logger.info(f"Loaded required_iterations: {required_iterations} from power analysis result.")
-                return required_iterations
-        except (json.JSONDecodeError, KeyError) as e:
-            logger.warning(f"Failed to parse power analysis result: {e}. Using default 1000.")
-    
-    logger.info("Power analysis result not found or invalid. Using default required_iterations = 1000.")
-    return 1000
+    try:
+        with open(power_file, 'r') as f:
+            data = json.load(f)
+        
+        if 'iterations' not in data:
+            raise ValueError("Power analysis result missing 'iterations' key.")
+        
+        iterations = data['iterations']
+        if not isinstance(iterations, int) or iterations <= 0:
+            raise ValueError(f"Iterations must be a positive integer, got {iterations}")
+        
+        logger.info(f"Loaded required iterations: {iterations}")
+        return iterations
+        
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in power analysis file: {e}")
 
-def generate_correlated_data(
-    n: int,
-    p: int,
-    rho: float,
-    rng: np.random.Generator
-) -> Tuple[np.ndarray, np.ndarray]:
+def load_master_seed() -> int:
     """
-    Generate a covariance matrix with specified correlation structure.
+    Load the master seed from the seed file, creating it if it doesn't exist.
+    
+    Returns:
+        int: The master seed value.
+    """
+    seed_file = Path(MASTER_SEED_FILE)
+    
+    # Create the file if it doesn't exist with default seed 42
+    if not seed_file.exists():
+        logger.info(f"Master seed file not found. Creating with default value 42.")
+        seed_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(seed_file, 'w') as f:
+            f.write("42")
+        return 42
+    
+    try:
+        with open(seed_file, 'r') as f:
+            content = f.read().strip()
+            master_seed = int(content)
+            logger.info(f"Loaded master seed: {master_seed}")
+            return master_seed
+    except ValueError as e:
+        raise ValueError(f"Invalid master seed in {MASTER_SEED_FILE}: {e}")
+
+def generate_correlated_data(n: int, p: int, rho: float, rng: RNGWrapper) -> np.ndarray:
+    """
+    Generate a high-dimensional dataset with controlled correlation structure.
     
     Args:
-        n: Number of samples.
-        p: Number of features.
-        rho: Correlation coefficient for the AR(1) structure.
-        rng: Random number generator.
+        n: Number of samples
+        p: Number of features
+        rho: Correlation coefficient for the equicorrelation matrix
+        rng: RNGWrapper instance for deterministic randomness
         
     Returns:
-        Tuple of (data matrix, covariance matrix).
+        np.ndarray: Data matrix of shape (n, p)
+        
+    Raises:
+        HighDimensionalInstabilityError: If p/n > 10 or covariance matrix is singular
     """
+    # Check p/n ratio constraint
     if p / n > 10:
-        raise HighDimensionalInstabilityError(f"p/n ratio ({p/n}) exceeds threshold of 10.")
+        raise HighDimensionalInstabilityError(
+            f"p/n ratio {p/n} exceeds threshold of 10. "
+            f"Configuration: n={n}, p={p}"
+        )
     
-    # Create AR(1) correlation matrix
-    cov = np.full((p, p), rho ** np.abs(np.arange(p)[:, None] - np.arange(p)))
-    
-    # Ensure positive definiteness
-    cov = regularize_covariance(cov)
+    # Generate equicorrelation matrix
+    # Sigma_ij = rho if i != j, 1 if i == j
+    Sigma = np.full((p, p), rho)
+    np.fill_diagonal(Sigma, 1.0)
     
     # Check condition number
-    if not is_condition_number_acceptable(cov):
-        raise HighDimensionalInstabilityError(f"Covariance matrix condition number too high after regularization.")
+    try:
+        cond_num = np.linalg.cond(Sigma)
+        if not is_condition_number_acceptable(cond_num):
+            raise HighDimensionalInstabilityError(
+                f"Covariance matrix condition number {cond_num} exceeds "
+                f"threshold of 1e12. Regularization failed."
+            )
+    except np.linalg.LinAlgError as e:
+        raise HighDimensionalInstabilityError(
+            f"Failed to compute condition number: {e}"
+        )
     
     # Generate multivariate normal data
-    mean = np.zeros(p)
-    data = rng.multivariate_normal(mean, cov, size=n)
+    # Use Cholesky decomposition for efficiency
+    try:
+        L = np.linalg.cholesky(Sigma)
+        # Generate standard normal data
+        Z = rng.standard_normal((n, p))
+        # Transform to correlated data
+        X = Z @ L.T
+    except np.linalg.LinAlgError:
+        # Try regularization if Cholesky fails
+        logger.warning("Cholesky decomposition failed. Attempting regularization.")
+        try:
+            Sigma_reg = regularize_covariance(Sigma)
+            L = np.linalg.cholesky(Sigma_reg)
+            Z = rng.standard_normal((n, p))
+            X = Z @ L.T
+        except Exception as e:
+            raise HighDimensionalInstabilityError(
+                f"Regularization failed to produce a valid covariance matrix: {e}"
+            )
     
-    return data, cov
+    return X
 
-def generate_distribution_violations(
-    data: np.ndarray,
-    distribution_type: str,
-    rng: np.random.Generator
-) -> np.ndarray:
+def generate_distribution_violations(X: np.ndarray, dist_type: str, rng: RNGWrapper) -> np.ndarray:
     """
-    Transform data to violate normality assumptions.
+    Apply distributional violations to the generated data.
     
     Args:
-        data: Base multivariate normal data.
-        distribution_type: Type of distribution violation ('t-dist', 'skew_normal', 'normal').
-        rng: Random number generator.
+        X: Base correlated data matrix
+        dist_type: Type of distribution violation to apply
+        rng: RNGWrapper instance
         
     Returns:
-        Transformed data matrix.
+        np.ndarray: Data with applied distributional violations
     """
-    if distribution_type == 'normal':
-        return data
+    if dist_type == "Normal":
+        return X
     
-    n, p = data.shape
+    elif dist_type == "t-dist(df=3)":
+        # Transform to t-distribution with df=3
+        # Use inverse CDF method: transform normal to uniform, then to t
+        # Since X is already normal, we can use the probability integral transform
+        from scipy import stats
+        # Convert normal to uniform
+        U = stats.norm.cdf(X)
+        # Convert uniform to t-distribution
+        X_t = stats.t.ppf(U, df=3)
+        return X_t
     
-    if distribution_type == 't-dist':
-        # Heavy-tailed distribution (t-distribution with low df)
-        df = 3.0
-        # Standardize then apply t-distribution
-        data_standardized = (data - data.mean(axis=0)) / (data.std(axis=0) + 1e-8)
-        t_samples = rng.standard_t(df, size=(n, p))
-        # Scale to match variance approximately
-        scale = np.sqrt(df / (df - 2)) if df > 2 else 1.0
-        return t_samples * scale
-    
-    elif distribution_type == 'skew_normal':
-        # Skewed distribution
-        # Using a simple skew transformation
-        alpha = 5.0  # Skewness parameter
-        data_standardized = (data - data.mean(axis=0)) / (data.std(axis=0) + 1e-8)
-        # Apply skew-normal transformation: X = alpha * |Z| + Z where Z ~ N(0,1)
-        # Simplified: use skewnorm from scipy if available, otherwise approximate
-        try:
-            from scipy.stats import skewnorm
-            samples = skewnorm.rvs(a=alpha, size=(n, p), random_state=rng.integers(0, 2**31-1))
-            return samples
-        except ImportError:
-            # Fallback approximation
-            z = rng.standard_normal((n, p))
-            return alpha * np.abs(z) + z
+    elif dist_type == "Skewed Normal(skew=2.0)":
+        # Apply skew-normal transformation
+        from scipy import stats
+        # Convert normal to uniform
+        U = stats.norm.cdf(X)
+        # Convert to skew-normal with alpha=2.0
+        X_skew = stats.skewnorm.ppf(U, a=2.0)
+        return X_skew
     
     else:
-        raise ValueError(f"Unknown distribution type: {distribution_type}")
+        raise ValueError(f"Unknown distribution type: {dist_type}")
 
-def write_dataset_metadata(
-    params: Dict[str, Any],
-    seed: int,
-    output_path: Path
-) -> None:
+def build_parameter_sweep(config: SweepConfig, iterations: int, master_seed: int) -> List[Dict[str, Any]]:
     """
-    Write metadata for a generated dataset.
+    Build the full Cartesian product of parameters with deterministic seeds.
     
     Args:
-        params: Parameter dictionary.
-        seed: Random seed used.
-        output_path: Path to write metadata JSON.
-    """
-    # Serialize params with sorted keys for deterministic hashing
-    param_str = json.dumps(params, sort_keys=True)
-    sha256_hash = hashlib.sha256(param_str.encode()).hexdigest()
-    
-    metadata = {
-        'seed': seed,
-        'sha256': sha256_hash,
-        **params
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    
-    logger.info(f"Wrote metadata to {output_path} with hash {sha256_hash}")
-
-def build_parameter_sweep(
-    n_values: List[int],
-    p_values: List[int],
-    rho_values: List[float],
-    distribution_types: List[str],
-    required_iterations: int,
-    seed_start: int
-) -> SweepConfig:
-    """
-    Build the parameter sweep configuration.
-    
-    Args:
-        n_values: List of n values.
-        p_values: List of p values.
-        rho_values: List of rho values.
-        distribution_types: List of distribution types.
-        required_iterations: Number of iterations per parameter combination.
-        seed_start: Starting seed.
+        config: Sweep configuration
+        iterations: Number of iterations per parameter combination
+        master_seed: Base seed for deterministic generation
         
     Returns:
-        SweepConfig object.
+        List of parameter dictionaries with seeds
     """
-    return SweepConfig(
-        n_values=n_values,
-        p_values=p_values,
-        rho_values=rho_values,
-        distribution_types=distribution_types,
-        required_iterations=required_iterations,
-        seed_start=seed_start
-    )
+    params_list = []
+    index = 0
+    
+    # Create a mapping for rho to index
+    rho_to_idx = {rho: i for i, rho in enumerate(sorted(RHO_VALUES))}
+    
+    for n in config.n_values:
+        for p in config.p_values:
+            for rho in config.rho_values:
+                for dist_type in config.dist_types:
+                    for iteration in range(iterations):
+                        # Calculate deterministic seed
+                        # seed = master_seed + (index * 10000) + (n*100 + p*10 + rho_idx)
+                        rho_idx = rho_to_idx[rho]
+                        seed = master_seed + (index * 10000) + (n*100 + p*10 + rho_idx)
+                        
+                        params_list.append({
+                            'seed': seed,
+                            'n': n,
+                            'p': p,
+                            'rho': rho,
+                            'distribution_type': dist_type,
+                            'iteration': iteration
+                        })
+                        
+                        index += 1
+    
+    logger.info(f"Generated {len(params_list)} parameter combinations")
+    return params_list
 
-def streaming_data_generator(
-    params_csv_path: Path,
-    callback: Callable[[np.ndarray, Dict], bool]
-) -> None:
+def write_params_csv(params_list: List[Dict[str, Any]], output_path: str):
     """
-    Streaming data generator that reads parameters from CSV and yields data.
+    Write parameter sweep results to CSV.
     
     Args:
-        params_csv_path: Path to the parameters CSV file.
-        callback: Function to call with (data, params). 
-                 If callback returns False, generation stops.
-                
-    Raises:
-        HighDimensionalInstabilityError: If p/n > 10 or covariance is near-singular.
+        params_list: List of parameter dictionaries
+        output_path: Path to output CSV file
     """
-    with open(params_csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            n = int(row['n'])
-            p = int(row['p'])
-            rho = float(row['rho'])
-            distribution_type = row['distribution_type']
-            seed = int(row['seed'])
-            iteration = int(row['iteration'])
-            
-            # Check p/n ratio before generation
-            if p / n > 10:
-                raise HighDimensionalInstabilityError(
-                    f"p/n ratio ({p/n}) exceeds threshold of 10 for n={n}, p={p}."
-                )
-            
-            # Initialize RNG with specific seed
-            rng = np.random.default_rng(seed)
-            
-            try:
-                # Generate correlated data
-                data, cov = generate_correlated_data(n, p, rho, rng)
-                
-                # Apply distribution violations
-                data = generate_distribution_violations(data, distribution_type, rng)
-                
-                # Call callback with data and params
-                params = {
-                    'n': n,
-                    'p': p,
-                    'rho': rho,
-                    'distribution_type': distribution_type,
-                    'seed': seed,
-                    'iteration': iteration
-                }
-                
-                if not callback(data, params):
-                    logger.info("Callback requested stop. Stopping generation.")
-                    break
-                    
-            except HighDimensionalInstabilityError:
-                raise
-            except Exception as e:
-                logger.error(f"Error generating data for seed {seed}: {e}")
-                raise
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['seed', 'n', 'p', 'rho', 'distribution_type', 'iteration']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(params_list)
+    
+    logger.info(f"Wrote {len(params_list)} rows to {output_path}")
+
+def streaming_data_generator(params_list: List[Dict[str, Any]]) -> Iterator[Tuple[np.ndarray, Dict[str, Any]]]:
+    """
+    Generate data matrices one at a time based on parameters.
+    
+    Args:
+        params_list: List of parameter dictionaries
+        
+    Yields:
+        Tuple of (data_matrix, params_dict)
+    """
+    for params in params_list:
+        seed = params['seed']
+        n = params['n']
+        p = params['p']
+        rho = params['rho']
+        dist_type = params['distribution_type']
+        
+        # Initialize RNG with specific seed
+        rng = RNGWrapper()
+        rng.reset(seed)
+        
+        # Generate correlated data
+        X = generate_correlated_data(n, p, rho, rng)
+        
+        # Apply distribution violations
+        X = generate_distribution_violations(X, dist_type, rng)
+        
+        yield X, params
 
 def main():
-    """
-    Main entry point for parameter sweep generation.
+    """Main entry point for data generation sweep."""
+    parser = argparse.ArgumentParser(
+        description="Generate high-dimensional datasets for p-value validity assessment"
+    )
+    parser.add_argument(
+        '--out', 
+        type=str, 
+        default=PARAMS_OUTPUT_FILE,
+        help='Output path for parameters CSV'
+    )
+    parser.add_argument(
+        '--n-values', 
+        type=int, 
+        nargs='+', 
+        default=N_VALUES,
+        help='Sample sizes to sweep'
+    )
+    parser.add_argument(
+        '--p-values', 
+        type=int, 
+        nargs='+', 
+        default=P_VALUES,
+        help='Feature counts to sweep'
+    )
+    parser.add_argument(
+        '--rho-values', 
+        type=float, 
+        nargs='+', 
+        default=RHO_VALUES,
+        help='Correlation coefficients to sweep'
+    )
+    parser.add_argument(
+        '--dist-types', 
+        type=str, 
+        nargs='+', 
+        default=DISTRIBUTION_TYPES,
+        help='Distribution types to sweep'
+    )
     
-    Generates data for the full Cartesian product of parameters and writes
-    params.csv to data/sweep/params.csv.
-    """
-    parser = argparse.ArgumentParser(description='Generate parameter sweep CSV')
-    parser.add_argument('--out', type=str, default='data/sweep/params.csv',
-                      help='Output path for params.csv')
-    parser.add_argument('--n-values', type=int, nargs='+', default=[50, 100, 200, 500],
-                      help='List of n values')
-    parser.add_argument('--p-values', type=int, nargs='+', default=[500, 1000, 2000, 5000],
-                      help='List of p values')
-    parser.add_argument('--rho-values', type=float, nargs='+', default=[0, 0.1, 0.3, 0.5, 0.7, 0.9],
-                      help='List of rho values')
-    parser.add_argument('--dist-types', type=str, nargs='+', 
-                      default=['Normal', 't-dist', 'Skewed Normal'],
-                      help='List of distribution types')
     args = parser.parse_args()
     
-    logger.info("Starting parameter sweep generation...")
-    
-    # Load required iterations
-    required_iterations = load_required_iterations()
-    logger.info(f"Using required_iterations: {required_iterations}")
-    
-    # Define parameter sets
-    n_values = args.n_values
-    p_values = args.p_values
-    rho_values = args.rho_values
-    distribution_types = args.dist_types
-    
-    # Create output directory
-    output_path = Path(args.out)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Read master seed
-    master_seed_path = Path('data/sweep/master_seed.txt')
-    if master_seed_path.exists():
-        with open(master_seed_path, 'r') as f:
-            seed_start = int(f.read().strip())
-    else:
-        seed_start = 42
-        master_seed_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(master_seed_path, 'w') as f:
-            f.write(str(seed_start))
-    logger.info(f"Starting seed: {seed_start}")
-    
-    # Generate full Cartesian product
-    seeds = []
-    current_seed = seed_start
-    
-    # Ensure we have enough seeds
-    total_combinations = len(n_values) * len(p_values) * len(rho_values) * len(distribution_types)
-    total_rows = total_combinations * required_iterations
-    
-    logger.info(f"Total parameter combinations: {total_combinations}")
-    logger.info(f"Required iterations per combination: {required_iterations}")
-    logger.info(f"Total rows to generate: {total_rows}")
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['seed', 'n', 'p', 'rho', 'distribution_type', 'iteration'])
+    try:
+        # Load required iterations from power analysis
+        iterations = load_required_iterations()
         
-        for n in n_values:
-            for p in p_values:
-                for rho in rho_values:
-                    for dist_type in distribution_types:
-                        for i in range(required_iterations):
-                            writer.writerow([
-                                current_seed,
-                                n,
-                                p,
-                                rho,
-                                dist_type,
-                                i
-                            ])
-                            seeds.append(current_seed)
-                            current_seed += 1
-    
-    logger.info(f"Generated {len(seeds)} parameter rows to {output_path}")
-    
-    # Update master seed for next run
-    with open(master_seed_path, 'w') as f:
-        f.write(str(current_seed))
+        # Load or create master seed
+        master_seed = load_master_seed()
         
-    logger.info("Parameter sweep generation complete.")
+        # Build sweep configuration
+        config = SweepConfig(
+            n_values=args.n_values,
+            p_values=args.p_values,
+            rho_values=args.rho_values,
+            dist_types=args.dist_types
+        )
+        
+        # Build full parameter sweep
+        params_list = build_parameter_sweep(config, iterations, master_seed)
+        
+        # Write to CSV
+        write_params_csv(params_list, args.out)
+        
+        logger.info("Parameter sweep completed successfully")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required file: {e}")
+        sys.exit(1)
+    except HighDimensionalInstabilityError as e:
+        logger.error(f"High-dimensional instability detected: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
