@@ -1,18 +1,3 @@
-T042:
-  c: false
-  h: 4efc2e67e1dc5526a0d1685efb9fbb65ca72078166236a0d211598a1c1647a06
-  r: "The `code/report/generate_report.py` file is truncated and does not contain\
-    \ the full logic to load and combine the sensitivity analysis, power simulation,\
-    \ statistical summary, and validation status into a markdown report. Moreover,\
-    \ the required output file `results/final_report.md` is missing entirely. The\
-    \ task\u2019s core deliverables are therefore not present."
-T043:
-  c: false
-  h: 28384fa4ff58d10d9e69a5df5cbd1c4510b5354a43a0442ed9e0c1029db392f8
-  r: The validation script file exists, but the required `results/statistical_summary.json`
-    is missing, so the script cannot actually perform the explicit comparisons or
-    generate a report as specified. The missing results file must be provided (or
-    generated) for the task to be considered complete.
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

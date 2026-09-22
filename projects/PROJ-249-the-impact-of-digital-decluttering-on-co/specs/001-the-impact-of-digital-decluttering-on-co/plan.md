@@ -91,7 +91,7 @@ projects/PROJ-249-the-impact-of-digital-decluttering-on-co/
   1. **ID Generation**: Generate pseudonymous IDs (FR-001) strictly matching the `Participant` entity pattern `P\d{3}` defined in `data-model.md`.
   2. **Instrument Verification (Verified Accuracy)**: Download and verify the OSF instrument code (SART/Ospan v2.1+) against a known reference hash or logic test. Ensure scoring logic matches the reference implementation before any data generation.
   3. **Synthetic Data Generation**: Generate synthetic baseline data for pipeline validation (SART, Ospan, PSS-10, PANAS) adhering to `dataset.schema.yaml`. *Note: This validates code execution, not instrument sensitivity.*
-  4. **Instrument Logic Validation**: Run synthetic data through scoring functions to ensure they produce values within expected psychometric ranges (e.g., SART commission errors > 0, PSS-10 0-40).
+  4. **Instrument Logic Validation**: Run synthetic data through scoring functions to ensure they produce values within expected psychometric ranges (e.g., SART commission errors > 0, PSS 0-40).
   5. **Data Plausibility Validation**: Validate SART/Ospan response times (100ms - 5000ms) and social media time entries (0 ≤ minutes ≤ 1440) against synthetic inputs (FR-009, FR-010).
   6. **Monte Carlo Power Simulation**: Run a simulation study (1,000 iterations) to estimate the probability of detecting a medium effect size (d=0.5) given the expected noise profile and Holm-Bonferroni correction for outcomes. Document the estimated power in the final report.
   7. **Missing Data Handling**: Validate logic for participants dropping out after Day 3 (exclude from paired tests, retain baseline for descriptive stats).
