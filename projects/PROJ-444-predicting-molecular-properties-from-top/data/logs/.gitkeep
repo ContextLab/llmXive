@@ -1,0 +1,2 @@
+# This directory stores logs for invalid SMILES and other pipeline errors.
+# The .gitkeep file ensures the directory is tracked by git.

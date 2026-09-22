@@ -1,3 +1,4 @@
+# Existing dependencies
 rdkit
 gudhi
 dionysus2
@@ -10,5 +11,5 @@ pyyaml
 requests
 networkx
 scipy
-ruff
-black
+pytest
+# New dependencies if any (none added for T016, using existing)

@@ -1,2 +1,1 @@
-# This file ensures the metrics directory exists
-# Metric files will be generated during pipeline execution
+# This directory holds metric reports.

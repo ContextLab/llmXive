@@ -20,13 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Data & Logs
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/logs/
-state/
+# Virtual Environment
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
@@ -35,11 +32,20 @@ state/
 *.swo
 *~
 
+# Data (Raw and Processed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Logs and State
+data/logs/*
+!data/logs/.gitkeep
+state/
+
+# Reports
+reports/
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/

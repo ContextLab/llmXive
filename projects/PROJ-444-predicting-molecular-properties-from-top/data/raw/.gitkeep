@@ -1,2 +1,2 @@
-# This file ensures the raw directory exists
-# Actual data will be downloaded by 01_data_ingestion.py
+# This directory holds raw data files.
+# Do not commit actual data files here.

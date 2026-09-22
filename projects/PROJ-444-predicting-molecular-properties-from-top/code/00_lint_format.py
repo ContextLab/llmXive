@@ -1,118 +1,62 @@
 """
-Linting and Formatting Runner for llmXive Pipeline.
-
-This script executes ruff (linting) and black (formatting) checks
-and fixes based on the project's pyproject.toml configuration.
-
-Usage:
-    python code/00_lint_format.py check   # Run checks only (fail on error)
-    python code/00_lint_format.py fix     # Auto-fix issues and format
+Linting and Formatting Script.
+Runs ruff check and black formatting on the project codebase.
 """
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-
-def run_command(cmd: list[str], check: bool = True) -> bool:
-    """
-    Run a shell command and return True if successful.
-
-    Args:
-        cmd: List of command arguments.
-        check: If True, raise SystemExit on failure.
-
-    Returns:
-        True if the command succeeded.
-    """
+def run_command(cmd: list[str]) -> int:
+    """Run a shell command and return the exit code."""
     print(f"Running: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            cmd,
-            check=check,
-            capture_output=False,
-            text=True,
-        )
-        return result.returncode == 0
+        result = subprocess.run(cmd, check=True, capture_output=False)
+        return result.returncode
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}")
-        if not check:
-            return False
-        raise SystemExit(e.returncode)
-
+        print(f"Command failed with exit code {e.returncode}")
+        return e.returncode
 
 def main() -> None:
-    """Main entry point for linting and formatting."""
-    if len(sys.argv) < 2:
-        print("Usage: python code/00_lint_format.py [check|fix]")
-        sys.exit(1)
-
-    mode = sys.argv[1].lower()
+    """Entry point for linting and formatting."""
     project_root = Path(__file__).resolve().parent.parent
-
-    # Ensure tools are installed
-    try:
-        import ruff
-        import black
-    except ImportError:
-        print("Error: Linting tools not found. Installing dev dependencies...")
-        run_command([sys.executable, "-m", "pip", "install", "-e", ".[dev]"], check=True)
-
     code_dir = project_root / "code"
     tests_dir = project_root / "tests"
 
-    if mode == "check":
-        print("--- Running Linting Checks (Ruff) ---")
-        ruff_cmd = [
-            sys.executable, "-m", "ruff", "check",
-            str(code_dir), str(tests_dir),
-        ]
-        run_command(ruff_cmd, check=True)
-
-        print("\n--- Running Formatting Checks (Black) ---")
-        black_cmd = [
-            sys.executable, "-m", "black",
-            "--check",
-            str(code_dir), str(tests_dir),
-        ]
-        run_command(black_cmd, check=True)
-
-        print("\n✅ All checks passed!")
-
-    elif mode == "fix":
-        print("--- Running Linting Fixes (Ruff) ---")
-        ruff_cmd = [
-            sys.executable, "-m", "ruff", "check",
-            "--fix",
-            str(code_dir), str(tests_dir),
-        ]
-        run_command(ruff_cmd, check=False) # Ruff might exit non-zero if it can't fix everything, but we proceed to format
-
-        print("\n--- Running Formatting (Black) ---")
-        black_cmd = [
-            sys.executable, "-m", "black",
-            str(code_dir), str(tests_dir),
-        ]
-        run_command(black_cmd, check=True)
-
-        print("\n--- Re-checking after fix ---")
-        # Final verification
-        ruff_check = [sys.executable, "-m", "ruff", "check", str(code_dir), str(tests_dir)]
-        if not run_command(ruff_check, check=False):
-            print("⚠️  Ruff still reports issues that could not be auto-fixed.")
-            print("    Please review the output above.")
-        else:
-            print("✅ Linting clean.")
-
-        black_check = [sys.executable, "-m", "black", "--check", str(code_dir), str(tests_dir)]
-        if not run_command(black_check, check=False):
-            print("⚠️  Black still reports formatting issues.")
-        else:
-            print("✅ Formatting clean.")
-    else:
-        print(f"Unknown mode: {mode}. Use 'check' or 'fix'.")
+    if not code_dir.exists() and not tests_dir.exists():
+        print("Error: Neither 'code/' nor 'tests/' directory found in project root.")
         sys.exit(1)
 
+    target_dirs = []
+    if code_dir.exists():
+        target_dirs.append(str(code_dir))
+    if tests_dir.exists():
+        target_dirs.append(str(tests_dir))
+
+    # 1. Run Linter (Ruff)
+    # --fix attempts to auto-fix issues, --exit-non-zero-on-fix ensures we fail if fixes were needed but not applied immediately
+    lint_cmd = [
+        sys.executable, "-m", "ruff", "check",
+        "--fix",
+        "--exit-non-zero-on-fix",
+        *target_dirs
+    ]
+    lint_exit_code = run_command(lint_cmd)
+
+    # 2. Run Formatter (Black)
+    format_cmd = [
+        sys.executable, "-m", "black",
+        "--check", # Check only, do not modify files
+        *target_dirs
+    ]
+    format_exit_code = run_command(format_cmd)
+
+    if lint_exit_code != 0 or format_exit_code != 0:
+        print("\nLinting or Formatting failed. Please fix issues and re-run.")
+        sys.exit(1)
+
+    print("\nLinting and Formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

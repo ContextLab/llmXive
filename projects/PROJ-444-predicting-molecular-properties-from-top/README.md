@@ -1,57 +1,28 @@
-# Molecular Property Prediction using Topological Data Analysis
+# PROJ-444: Predicting Molecular Properties from Topological Data Analysis
 
-This project implements a pipeline for predicting molecular properties (specifically logP) from topological data analysis (TDA) features derived from molecular graphs.
+## Overview
+This project implements a pipeline to predict molecular properties (specifically LogP from the ESOL dataset) using Topological Data Analysis (TDA) features derived from molecular graphs.
 
-## Setup
+## Structure
+- `code/`: Source code for the pipeline (ingestion, TDA computation, modeling, diagnostics)
+- `data/`:
+ - `raw/`: Original dataset files
+ - `processed/`: Feature matrices, splits, and intermediate results
+- `data/logs/`: Execution logs
+- `state/`: Pipeline state tracking
+- `reports/`: Final metrics and analysis reports
+- `tests/`: Unit and integration tests
 
-1. Ensure Python 3.11+ is installed
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\\Scripts\\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -e.
- pip install -e ".[dev]" # For development tools
- ```
+## Prerequisites
+- Python 3.11+
+- `pip install -r requirements.txt`
 
-## Linting and Formatting
-
-This project uses `ruff` for linting and `black` for formatting.
-
-To check code quality:
-```bash
-python code/00_lint_format.py
-```
-
-To auto-fix formatting issues:
-```bash
-python code/00_lint_format.py --fix
-```
-
-## Running the Pipeline
-
-Follow the instructions in `quickstart.md` to run the full pipeline.
-
-## Project Structure
-
-```
-.
-├── code/ # Implementation scripts
-│ ├── utils/ # Utility modules
-│ └── *.py # Pipeline scripts
-├── data/ # Data directory
-│ ├── raw/ # Raw input data
-│ └── processed/ # Processed data
-├── reports/ # Generated reports
-│ └── metrics/ # Model metrics and diagnostics
-├── tests/ # Test suite
-├── docs/ # Documentation
-├── pyproject.toml # Project configuration
-└── README.md
-```
+## Quick Start
+1. Set up the data directory structure: `python code/setup_data_structure.py`
+2. Ingest data: `python code/01_data_ingestion.py`
+3. Compute TDA features: `python code/02_tda_computation.py`
+4. Train models: `python code/04_model_training.py`
+5. Run diagnostics: `python code/06_diagnostics.py`
 
 ## License
-
-MIT License
+MIT

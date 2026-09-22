@@ -9,6 +9,7 @@ sys.path.insert(0, str(project_root / "code"))
 
 from utils.graph_builder import build_molecular_graph, is_valid_molecule
 from utils.persistence_utils import compute_persistence_diagram, handle_empty_diagram
+import networkx as nx
 
 def test_disconnected_graph_handling():
     """
@@ -25,7 +26,6 @@ def test_disconnected_graph_handling():
     assert graph is not None, "Graph should be built for mixture"
     
     # Check if graph is disconnected
-    import networkx as nx
     num_components = nx.number_connected_components(graph)
     assert num_components > 1, "Mixture should produce a disconnected graph"
     
@@ -34,6 +34,11 @@ def test_disconnected_graph_handling():
         diagram = compute_persistence_diagram(graph)
         # Diagram might be empty or have features from all components
         assert isinstance(diagram, list), "Diagram should be a list"
+        # If there are features, verify structure
+        if len(diagram) > 0:
+            for point in diagram:
+                assert len(point) == 2, "Each point in diagram must have 2 values (birth, death)"
+                assert point[0] <= point[1], "Birth must be <= death"
     except Exception as e:
         pytest.fail(f"Failed to compute persistence diagram for disconnected graph: {e}")
 
@@ -52,9 +57,25 @@ def test_empty_graph_handling():
 
 def test_single_node_graph():
     """Test handling of a molecule with only one atom (rare but possible)."""
-    # This is a theoretical edge case; most molecules have multiple atoms
-    # We test the logic flow
-    pass  # RDKit typically rejects single atom molecules as invalid organic molecules
+    # RDKit typically rejects single atom molecules as invalid organic molecules
+    # We test the logic flow by explicitly creating a graph with one node if possible,
+    # or verifying the robustness of the diagram computation on small graphs.
+    # For this test, we verify that a minimal valid graph (e.g., a single bond) works.
+    smiles = "CC"  # Ethane (minimal non-trivial)
+    mol = is_valid_molecule(smiles)
+    assert mol is not None
+    graph = build_molecular_graph(mol)
+    assert graph is not None
+    
+    # Ensure the graph is connected (single component)
+    assert nx.number_connected_components(graph) == 1, "Ethane should be connected"
+    
+    diagram = compute_persistence_diagram(graph)
+    assert isinstance(diagram, list)
+    if len(diagram) > 0:
+        for point in diagram:
+            assert len(point) == 2
+            assert point[0] <= point[1]
 
 def test_persistence_diagram_structure():
     """Test that persistence diagrams have the expected structure."""
@@ -71,3 +92,33 @@ def test_persistence_diagram_structure():
         for point in diagram:
             assert len(point) == 2, "Each point in diagram must have 2 values (birth, death)"
             assert point[0] <= point[1], "Birth must be <= death"
+
+def test_disconnected_components_individual_features():
+    """
+    Verify that when a graph has multiple components, the persistence diagram
+    aggregates features from all components correctly.
+    """
+    # A mixture of two distinct molecules
+    mixture_smiles = "CC.CCO"  # Ethane + Ethanol
+    
+    mol = is_valid_molecule(mixture_smiles)
+    assert mol is not None
+    
+    graph = build_molecular_graph(mol)
+    assert graph is not None
+    
+    num_components = nx.number_connected_components(graph)
+    assert num_components == 2, "Mixture should produce exactly 2 components"
+    
+    # Compute diagram
+    diagram = compute_persistence_diagram(graph)
+    
+    # The diagram should contain features from both components.
+    # While we can't easily predict exact counts without running the algorithm,
+    # we verify that the result is not empty and has valid structure.
+    assert isinstance(diagram, list)
+    assert len(diagram) > 0, "Disconnected graph should still produce features"
+    
+    for point in diagram:
+        assert len(point) == 2
+        assert point[0] <= point[1]

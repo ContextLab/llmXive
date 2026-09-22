@@ -1,11 +1,59 @@
-T010#1:
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-444-predicting-molecular-properties-from-top/`
+    directory (or any files within it) is present; without a visible project structure
+    we cannot confirm the task was fulfilled. The implementer must provide the actual
+    folder and its contents.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository contains no linting or formatting configuration files (e.g.,\
+    \ `pyproject.toml` entries for Black, a `.ruff.toml` or `ruff.toml`, or any scripts/CI\
+    \ steps invoking ruff/black). Consequently, the required artifact for task T003\
+    \ \u2013 a functional setup of ruff and Black \u2013 is missing. Adding the appropriate\
+    \ configuration files and integration steps is needed to satisfy the task."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/` directory with the required `raw/` and `processed/` subfolders, nor\
+    \ a `state/` tracking component or script that checks their existence on exit,\
+    \ was presented. Without these artifacts the task\u2019s requirement cannot be\
+    \ confirmed."
+T007:
+  c: false
+  h: 0500daa97a6c934931a8bdc046107d3397d82bf0bebb1533897801d4e944a436
+  r: "The repository contains a partially\u2011implemented `code/00_checksum_verify.py`\
+    \ (the file ends abruptly and never calls `write_checksums` or computes hashes\
+    \ for the raw files). Moreover, the required output `data/checksums.txt` is absent,\
+    \ so the script cannot be run to produce or verify the SHA256 list. The task\u2019\
+    s core deliverable \u2013 a non\u2011empty checksum file covering all files in\
+    \ `data/raw/` \u2013 is missing."
+T008b:
+  c: false
+  h: 589516936ad7f5c4bbd94c13816cbf2a7ecae9270201d909f876e04861437bc2
+  r: "The provided `code/01_data_ingestion.py` stops after a partially\u2011implemented\
+    \ `perform_power_analysis` function and never shows any logic for counting unique\
+    \ Bemis\u2011Murcko scaffolds, performing a `ScaffoldSplitter` with multiple folds,\
+    \ or writing split indices to `data/processed/splits.json`. Moreover, the expected\
+    \ `splits.json` file does not exist in the repository. Consequently, the script\
+    \ does not satisfy the task\u2019s requirements."
+T010:
   c: true
   h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
-  r: "The repository contains a non\u2011empty `tests/contract/test_tda_schema.py`\
-    \ (\u22484\u202FKB) that defines the expected columns, data types, and checks\
-    \ for nulls and feature vector length, fulfilling the contract\u2011test requirement.\
-    \ The missing `data/processed/tda_features.csv` is not part of the deliverable;\
-    \ the test itself handles its absence via a fixture and a separate existence assertion."
+  r: "The `tests/contract/test_tda_schema.py` file exists, is non\u2011empty, and\
+    \ defines contract tests that verify the existence, column set, data types, null\u2011\
+    value absence, and feature vector length of `data/processed/tda_features.csv`\
+    \ as required. No further artifacts are needed for this task."
+T013:
+  c: false
+  h: a261f84c2283b1e5aca106ca496315f4f21bcc9d97dc46654e502439f3329208
+  r: "The required output file `data/processed/persistence_images_10x10.csv` is absent,\
+    \ so the deliverable is not produced. Additionally, the provided `code/02_tda_computation.py`\
+    \ is truncated and does not show a complete implementation (e.g., the `vectorize_diagram_to_image`\
+    \ function is cut off), leaving doubt that the 10\xD710 vectorization and zero\u2011\
+    vector fallback are correctly handled. The task must generate the CSV with the\
+    \ correct schema and no NaNs."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

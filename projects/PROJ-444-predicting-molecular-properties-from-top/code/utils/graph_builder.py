@@ -5,116 +5,199 @@ import logging.handlers
 from pathlib import Path
 import rdkit
 from rdkit import Chem
-from rdkit.Chem import AllChem, Descriptors
-import networkx as nx
+from rdkit.Chem import Descriptors
 
-def setup_invalid_smiles_logger(log_path: str) -> logging.Logger:
-    """Setup a logger specifically for invalid SMILES."""
-    logger = logging.getLogger('invalid_smiles')
-    logger.setLevel(logging.WARNING)
+def setup_invalid_smiles_logger(log_file: str) -> logging.Logger:
+    """
+    Setup a dedicated logger for invalid SMILES.
     
-    # Avoid adding handlers multiple times
-    if not logger.handlers:
-        log_dir = Path(log_path).parent
-        log_dir.mkdir(parents=True, exist_ok=True)
+    Args:
+        log_file: Path to the log file.
         
-        handler = logging.FileHandler(log_path)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+    Returns:
+        Configured logger instance.
+    """
+    logger = logging.getLogger("invalid_smiles")
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        # Ensure directory exists
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     
     return logger
 
-def log_invalid_smiles(logger: logging.Logger, smiles: str, reason: str):
-    """Log an invalid SMILES string."""
-    logger.warning(f"Invalid SMILES: {smiles} | Reason: {reason}")
+def log_invalid_smiles(smiles: str, reason: str, logger: Optional[logging.Logger] = None):
+    """
+    Log an invalid SMILES string.
+    
+    Args:
+        smiles: The invalid SMILES string.
+        reason: Reason for invalidity.
+        logger: Logger instance (uses default if None).
+    """
+    if logger is None:
+        logger = logging.getLogger("invalid_smiles")
+    
+    if not logger.handlers:
+        # Setup default logger if none exists
+        setup_invalid_smiles_logger("data/logs/invalid_smiles.log")
+        logger = logging.getLogger("invalid_smiles")
+    
+    logger.info(f"Invalid SMILES: {smiles} - Reason: {reason}")
 
-def is_valid_molecule(smiles: str) -> Optional[Chem.Mol]:
-    """Check if SMILES is valid and return RDKit Mol object."""
+def is_valid_molecule(smiles: str) -> bool:
+    """
+    Check if a SMILES string represents a valid molecule.
+    
+    Args:
+        smiles: SMILES string to validate.
+        
+    Returns:
+        True if valid, False otherwise.
+    """
     if not smiles or not isinstance(smiles, str):
-        return None
+        return False
+    
     try:
         mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return None
-        # Basic sanity check
-        if mol.GetNumAtoms() == 0:
-            return None
-        return mol
+        return mol is not None
+    except Exception:
+        return False
+
+def build_molecular_graph(mol: Chem.Mol) -> Optional[Any]:
+    """
+    Build a NetworkX graph from an RDKit molecule.
+    
+    Args:
+        mol: RDKit molecule object.
+        
+    Returns:
+        NetworkX graph or None if invalid.
+    """
+    if mol is None:
+        return None
+    
+    import networkx as nx
+    
+    graph = nx.Graph()
+    
+    # Add atoms as nodes
+    for atom in mol.GetAtoms():
+        graph.add_node(
+            atom.GetIdx(),
+            symbol=atom.GetSymbol(),
+            atomic_num=atom.GetAtomicNum(),
+            degree=atom.GetDegree(),
+            formal_charge=atom.GetFormalCharge()
+        )
+    
+    # Add bonds as edges with weight (inverse of bond order)
+    for bond in mol.GetBonds():
+        start_idx = bond.GetBeginAtomIdx()
+        end_idx = bond.GetEndAtomIdx()
+        bond_order = bond.GetBondTypeAsDouble()
+        
+        # Weight is inverse of bond order (higher order = shorter distance)
+        weight = 1.0 / bond_order if bond_order > 0 else 1.0
+        
+        graph.add_edge(start_idx, end_idx, weight=weight, bond_type=bond.GetBondType())
+    
+    return graph
+
+def get_molecular_weight(mol: Chem.Mol) -> Optional[float]:
+    """
+    Calculate molecular weight of an RDKit molecule.
+    
+    Args:
+        mol: RDKit molecule object.
+        
+    Returns:
+        Molecular weight or None if invalid.
+    """
+    if mol is None:
+        return None
+    
+    try:
+        return Descriptors.MolWt(mol)
     except Exception:
         return None
 
-def build_molecular_graph(mol: Chem.Mol) -> nx.Graph:
+def build_graphs_from_smiles_list(
+    smiles_list: List[str],
+    logger: Optional[logging.Logger] = None
+) -> List[Tuple[str, Optional[Any], Optional[float]]]:
     """
-    Convert an RDKit molecule to a NetworkX graph.
-    Nodes are atoms, edges are bonds.
-    Attributes include atomic number, formal charge, etc.
-    """
-    G = nx.Graph()
+    Build graphs from a list of SMILES strings.
     
-    for atom in mol.GetAtoms():
-        G.add_node(
-            atom.GetIdx(),
-            atomic_num=atom.GetAtomicNum(),
-            formal_charge=atom.GetFormalCharge(),
-            num_hs=atom.GetNumExplicitHs() + atom.GetNumImplicitHs(),
-            aromatic=atom.GetIsAromatic(),
-            hybridization=str(atom.GetHybridization())
-        )
-    
-    for bond in mol.GetBonds():
-        G.add_edge(
-            bond.GetBeginAtomIdx(),
-            bond.GetEndAtomIdx(),
-            bond_type=bond.GetBondType(),
-            conjugated=bond.GetIsConjugated()
-        )
-    
-    return G
-
-def get_molecular_weight(mol: Chem.Mol) -> float:
-    """Get molecular weight."""
-    return Descriptors.MolWt(mol)
-
-def build_graphs_from_smiles_list(smiles_list: List[str]) -> List[Tuple[str, Optional[nx.Graph], Optional[str]]]:
-    """
-    Build graphs for a list of SMILES.
-    Returns list of (smiles, graph, error_msg).
+    Args:
+        smiles_list: List of SMILES strings.
+        logger: Logger instance for invalid SMILES.
+        
+    Returns:
+        List of (smiles, graph, molecular_weight) tuples.
     """
     results = []
-    logger = setup_invalid_smiles_logger("data/logs/invalid_smiles.log")
+    
+    if logger is None:
+        logger = logging.getLogger("graph_builder")
     
     for smiles in smiles_list:
-        mol = is_valid_molecule(smiles)
-        if mol is None:
-            log_invalid_smiles(logger, smiles, "RDKit parsing failed")
-            results.append((smiles, None, "Invalid SMILES"))
+        if not is_valid_molecule(smiles):
+            log_invalid_smiles(smiles, "Failed SMILES validation", logger)
+            results.append((smiles, None, None))
             continue
         
-        try:
-            graph = build_molecular_graph(mol)
-            results.append((smiles, graph, None))
-        except Exception as e:
-            log_invalid_smiles(logger, smiles, str(e))
-            results.append((smiles, None, str(e)))
+        mol = Chem.MolFromSmiles(smiles)
+        graph = build_molecular_graph(mol)
+        mw = get_molecular_weight(mol)
+        
+        results.append((smiles, graph, mw))
     
     return results
 
-def validate_graph_structure(G: nx.Graph) -> bool:
-    """Validate that the graph has nodes and edges."""
-    if G.number_of_nodes() == 0:
+def validate_graph_structure(graph: Any) -> bool:
+    """
+    Validate the structure of a molecular graph.
+    
+    Args:
+        graph: NetworkX graph to validate.
+        
+    Returns:
+        True if valid, False otherwise.
+    """
+    if graph is None:
         return False
-    return True
+    
+    try:
+        # Check for nodes
+        if graph.number_of_nodes() == 0:
+            return False
+        
+        # Check for self-loops (should not exist in valid molecular graphs)
+        if graph.number_of_selfloops() > 0:
+            return False
+        
+        # Check edge weights exist
+        for u, v, data in graph.edges(data=True):
+            if 'weight' not in data:
+                return False
+        
+        return True
+    except Exception:
+        return False
 
 def main():
-    # Example usage
-    smiles = "CCO"
-    mol = is_valid_molecule(smiles)
-    if mol:
-        G = build_molecular_graph(mol)
-        print(f"Molecule: {smiles}, Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}")
-    else:
-        print(f"Invalid SMILES: {smiles}")
+    """Main entry point for graph builder utilities."""
+    print("Graph builder utilities module loaded successfully.")
 
 if __name__ == "__main__":
     main()

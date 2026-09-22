@@ -101,7 +101,7 @@ projects/PROJ-444-predicting-molecular-properties-from-top/
 | ID | Plan Phase/Step | Description |
 |----|-----------------|-------------|
 | **FR-001** | `02_tda_computation.py` | Computes persistent homology via shortest-path distance filtration using GUDHI/Dionysus. |
-| **FR-002** | `02_tda_computation.py` | Vectorizes diagrams to 10x10 persistence images as primary baseline. |
+| **FR-002** | `02_tda_computation.py` | Vectorizes diagrams to fixed-size persistence images as primary baseline. |
 | **FR-003** | `04_model_training.py` | Trains LR (alpha=1.0) and RF (100 trees, max_depth=10) on 3 feature sets. |
 | **FR-004** | `01_data_ingestion.py` | Implements 5-fold scaffold split (Bemis-Murcko) with seed=42; **enforces min 20 scaffolds per fold**. Calculates R²/RMSE. |
 | **FR-005** | `06_diagnostics.py` | Applies **Holm-Bonferroni** correction to p-values from model comparisons (replaces Bonferroni to address correlated tests). *Note: Spec text "Bonferroni" is flagged for amendment; plan implements robust method.* |
