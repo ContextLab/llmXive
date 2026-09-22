@@ -1,7 +1,3 @@
-"""
-Configuration management for the Doomscrolling Anxiety study.
-Handles environment variables, seeds, and directory setup.
-"""
 import os
 import random
 import logging
@@ -12,129 +8,96 @@ import yaml
 logger = logging.getLogger(__name__)
 
 class ConfigError(Exception):
-    """Custom exception for configuration errors."""
+    """Raised when configuration is invalid."""
     pass
 
-def load_config(config_path: str = 'config.yaml') -> Dict[str, Any]:
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"CONFIG: {message}")
+
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Loads configuration from a YAML file.
-
-    Args:
-        config_path: Path to the config file.
-
-    Returns:
-        Dict containing configuration.
-
-    Raises:
-        ConfigError: If file not found or invalid.
+    Load configuration from YAML file.
     """
-    if not os.path.exists(config_path):
-        # Default config if file missing
-        logger.warning(f"Config file {config_path} not found. Using defaults.")
-        return {
-            'paths': {
-                'raw_data': 'data/raw',
-                'processed_data': 'data/processed',
-                'outputs': 'outputs'
-            },
-            'dataset_url': os.getenv('DATASET_URL', 'https://example.com/data.csv'),
-            'seed': None
-        }
+    _log_step("Loading configuration")
+    
+    if config_path is None:
+        config_path = Path("config.yaml")
+    
+    if not config_path.exists():
+        logger.warning(f"Config file not found: {config_path}. Using defaults.")
+        return {}
     
     try:
         with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        raise ConfigError(f"Failed to load config: {e}") from e
+            config = yaml.safe_load(f)
+        return config if config else {}
+    except yaml.YAMLError as e:
+        raise ConfigError(f"Failed to parse config file: {e}") from e
 
-def set_seed(seed: Optional[int]) -> None:
-    """
-    Sets the random seed for reproducibility.
-
-    Args:
-        seed: The seed value.
-    """
-    if seed is not None:
-        random.seed(seed)
-        np.random.seed(seed) # Assuming numpy is used
-        logger.info(f"Random seed set to: {seed}")
-    else:
-        logger.warning("No random seed provided. Results may not be reproducible.")
+def set_seed(seed: int) -> None:
+    """Set random seed for reproducibility."""
+    _log_step(f"Setting seed to {seed}")
+    random.seed(seed)
+    np.random.seed(seed)
 
 def verify_and_apply_seed(config: Dict[str, Any]) -> int:
     """
-    Verifies seed exists in config and applies it.
-
-    Args:
-        config: Configuration dictionary.
-
-    Returns:
-        The seed value used.
-
-    Raises:
-        ValueError: If seed is missing.
+    Verify seed is set in config and apply it.
+    Raises ValueError if seed is missing.
     """
-    seed = config.get('seed')
+    _log_step("Verifying and applying seed")
+    
+    seed = config.get("seed")
     if seed is None:
-        raise ValueError("Seed is missing in configuration. Reproducibility cannot be guaranteed.")
+        logger.warning("Seed not set in config")
+        raise ValueError("Seed variable is missing from config")
     
     set_seed(seed)
     return seed
 
 def log_seed_status(seed: Optional[int]) -> None:
-    """
-    Logs the status of the random seed.
-
-    Args:
-        seed: The seed value.
-    """
-    if seed is None:
-        logger.warning("WARNING: Random seed not set. Execution is non-deterministic.")
+    """Log seed status for reproducibility tracking."""
+    if seed is not None:
+        logger.info(f"LOG: SEED={seed} (INFO)")
     else:
-        logger.info(f"INFO: Random seed set to {seed}.")
+        logger.warning("LOG: SEED NOT SET (WARNING)")
 
-def get_dataset_url(config: Optional[Dict[str, Any]] = None) -> str:
-    """
-    Retrieves the dataset URL from config or environment.
+def get_dataset_url(config: Dict[str, Any]) -> str:
+    """Get dataset URL from config."""
+    url = config.get("dataset_url")
+    if not url:
+        raise ConfigError("Dataset URL not found in config")
+    return url
 
-    Args:
-        config: Optional config dict.
+def ensure_directories() -> None:
+    """Ensure necessary directories exist."""
+    dirs = [
+        "data/raw",
+        "data/processed",
+        "outputs",
+        "figures",
+        "tests"
+    ]
+    for dir_path in dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        _log_step(f"Ensured directory: {dir_path}")
 
-    Returns:
-        Dataset URL.
-    """
-    if config:
-        return config.get('dataset_url', os.getenv('DATASET_URL', ''))
-    return os.getenv('DATASET_URL', '')
-
-def ensure_directories(config: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Ensures all required directories exist.
-
-    Args:
-        config: Optional config dict.
-    """
-    if config is None:
-        config = load_config()
+def main() -> None:
+    """Main entry point for config script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    paths = config.get('paths', {})
-    for key, path_str in paths.items():
-        p = Path(path_str)
-        p.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory: {p}")
-
-def main():
-    """
-    Main entry point for config verification.
-    """
     config = load_config()
     try:
         seed = verify_and_apply_seed(config)
         log_seed_status(seed)
-        ensure_directories(config)
-        logger.info("Configuration verified and applied successfully.")
-    except ValueError as e:
-        logger.error(str(e))
+        ensure_directories()
+        logger.info("Configuration loaded and applied successfully")
+    except (ConfigError, ValueError) as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import sys
+    import numpy as np
     main()

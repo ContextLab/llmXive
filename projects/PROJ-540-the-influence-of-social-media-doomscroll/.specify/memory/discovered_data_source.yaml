@@ -1,0 +1,14 @@
+status: none
+intent: General Social Survey news exposure anxiety dataset download python package
+  dataset
+required_fields:
+- negative_news_consumption_frequency
+- anxiety_score
+- baseline_anxiety
+- age
+- gender
+- education
+- income
+cache_key: a37e4d880ed46a96e51d8698cd3c82e444e4efa6a25be3ace8bb947d6a6a0154
+searched_at: '2026-09-22T14:36:27.464973+00:00'
+retry_count: 1

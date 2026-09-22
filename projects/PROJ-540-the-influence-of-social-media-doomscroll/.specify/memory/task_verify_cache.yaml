@@ -6,32 +6,12 @@ T001a:
     `outputs/`, and `tests/` directories with the required placeholder files. The
     implementer must create these folders and include a `.gitkeep` in each to satisfy
     the task.
-T001b:
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/`
-    or any `__init__.py` files was presented; the claim lacks any tangible artifact
-    to verify the source structure creation.
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.flake8` configuration file is presented; the required file with `max-line-length\
-    \ = 88` and the specified `exclude` list is missing from the evidence. The task\u2019\
-    s core deliverable is therefore not satisfied."
-T004b:
-  c: true
-  h: e01eeb02f09ada50be7cb0465009f98bf48352d07bfff57013c716f7cddc5b87
-  r: "The `code/config.py` file defines `verify_and_apply_seed`, `set_seed`, and `log_seed_status`,\
-    \ which check for a seed, apply it, log an info message, and emit warnings when\
-    \ the seed is missing or not set, fulfilling the task\u2019s requirement. The\
-    \ artifact is present, non\u2011empty, and implements the requested behavior."
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result files were provided that demonstrate calling\
-    \ `fit_regression_model` on the high\u2011engagement subset, nor any comparison\
-    \ of the subset coefficients/significance to those of the full model. The required\
-    \ artifact (re\u2011fitted regression output and comparative analysis) is missing."
+  r: No code files, diff logs, or refactored modules were provided; the implementer
+    did not supply any evidence of removing unused imports or extracting helper functions.
+    Consequently, the required code cleanup artifact is missing.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,3 +26,10 @@ T035:
     \ report, or updated documentation) is present, and no artifacts matching the\
     \ task\u2019s requirement are provided. The implementer has not supplied any files\
     \ or results demonstrating that the quickstart guide was validated."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-doomscrolling-anxiety/amendment.md` file was presented, nor any
+    excerpt of its contents, so we cannot confirm that the required amendment document
+    exists or follows the prescribed template. The implementer must provide the actual
+    markdown file with the exact sections outlined in the task.

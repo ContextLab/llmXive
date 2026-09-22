@@ -1,30 +1,61 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisDatasetSchema"
-description: "Schema for the cleaned, analysis-ready dataset for the Doomscrolling Anxiety study."
+title: "Cleaned Survey Response Dataset"
 type: "object"
 properties:
+  participant_id:
+    type: "string"
+    description: "Unique anonymized identifier for the participant."
   news_exposure_freq:
     type: "number"
-    description: "Frequency of negative news consumption (numeric)."
+    description: "Frequency of negative news consumption on social media."
+    minimum: 0
   anxiety_score:
     type: "number"
-    description: "Outcome anxiety score (numeric)."
+    description: "Outcome anxiety score (anticipatory or general proxy)."
+    minimum: 0
   baseline_anxiety:
     type: "number"
-    description: "Baseline anxiety measure (numeric)."
+    description: "Baseline or trait anxiety score."
+    minimum: 0
+    nullable: true
   age:
     type: "integer"
-    description: "Participant age."
+    description: "Participant age in years."
+    minimum: 18
+    maximum: 100
   gender:
     type: "string"
-    description: "Participant gender (categorical)."
+    enum:
+      - "Male"
+      - "Female"
+      - "Non-binary"
+      - "Other"
+    description: "Categorical gender."
   social_media_engagement:
     type: "number"
-    description: "Social media engagement metric (numeric)."
+    description: "Proxy for social media engagement (used in robustness check)."
+    minimum: 0
+    nullable: true
+  instrument_source:
+    type: "string"
+    description: "Name of the anxiety instrument used."
+  measurement_timepoint:
+    type: "string"
+    description: "Timepoint of measurement (e.g., 'pre', 'post', 'trait')."
+  proxy_flag:
+    type: "boolean"
+    description: "True if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety'."
+  coupling_risk:
+    type: "boolean"
+    description: "True if baseline and outcome anxiety risk mathematical coupling."
 required:
-  - "news_exposure_freq"
-  - "anxiety_score"
-  - "baseline_anxiety"
-  - "age"
-  - "gender"
-additionalProperties: true
+  - participant_id
+  - news_exposure_freq
+  - anxiety_score
+  - age
+  - gender
+  - instrument_source
+  - measurement_timepoint
+  - proxy_flag
+  - coupling_risk
+additionalProperties: false

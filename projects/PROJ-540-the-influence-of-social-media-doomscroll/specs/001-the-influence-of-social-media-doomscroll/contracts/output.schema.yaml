@@ -1,103 +1,90 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "RegressionOutputSchema"
-description: "Schema for the statistical model output and diagnostics."
+title: "Regression Analysis Output"
 type: "object"
 properties:
-  model_summary:
-    type: "object"
-    properties:
-      r_squared:
-        type: "number"
-        description: "R-squared value of the model."
-      adj_r_squared:
-        type: "number"
-        description: "Adjusted R-squared value."
-      n_obs:
-        type: "integer"
-        description: "Number of observations used."
-    required:
-      - "r_squared"
-      - "n_obs"
+  model_type:
+    type: "string"
+    const: "OLS"
+  n_samples:
+    type: "integer"
+    minimum: 30
+  r_squared:
+    type: "number"
+  adj_r_squared:
+    type: "number"
+  f_statistic:
+    type: "number"
+  f_pvalue:
+    type: "number"
   coefficients:
     type: "object"
-    description: "Dictionary of predictor names to their coefficients."
+    description: "Map of variable names to coefficient values."
     additionalProperties:
-      type: "object"
-      properties:
-        coef:
-          type: "number"
-        pvalue:
-          type: "number"
-        std_err:
-          type: "number"
-      required:
-        - "coef"
-        - "pvalue"
-        - "std_err"
-  diagnostics:
+      type: "number"
+  std_errors:
+    type: "object"
+    description: "Map of variable names to standard errors."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Map of variable names to p-values."
+    additionalProperties:
+      type: "number"
+  vif_scores:
+    type: "object"
+    description: "Map of variable names to VIF scores."
+    additionalProperties:
+      type: "number"
+  assumption_checks:
     type: "object"
     properties:
       linearity:
         type: "string"
-        enum:
-          - "PASS"
-          - "FAIL"
-          - "WARNING"
-        description: "Linearity assumption check result."
+        enum: ["PASS", "FAIL", "WARNING"]
       homoscedasticity:
         type: "string"
-        enum:
-          - "PASS"
-          - "FAIL"
-          - "WARNING"
-        description: "Homoscedasticity assumption check result."
+        enum: ["PASS", "FAIL", "WARNING"]
       normality:
         type: "string"
-        enum:
-          - "PASS"
-          - "FAIL"
-          - "WARNING"
-        description: "Normality of residuals check result."
-      vif_max:
+        enum: ["PASS", "FAIL", "WARNING"]
+      shapiro_wilk_p_value:
         type: "number"
-        description: "Maximum Variance Inflation Factor."
-      shapiro_w:
-        type: "number"
-        description: "Shapiro-Wilk W statistic."
-      shapiro_p:
-        type: "number"
-        description: "Shapiro-Wilk p-value."
     required:
-      - "linearity"
-      - "homoscedasticity"
-      - "normality"
-      - "vif_max"
-      - "shapiro_w"
-      - "shapiro_p"
+      - linearity
+      - homoscedasticity
+      - normality
+  robustness_result:
+    type: "object"
+    nullable: true
+    properties:
+      subset_n:
+        type: "integer"
+      coefficient:
+        type: "number"
+      p_value:
+        type: "number"
+      status:
+        type: "string"
+        enum: ["RUN", "SKIPPED_LOW_N", "SKIPPED_NO_DATA"]
+    required:
+      - status
   flags:
     type: "array"
     items:
       type: "string"
-    description: "List of flags (e.g., 'PROXY_ANXIETY_USED', 'LOW_POWER')."
-  significance:
-    type: "object"
-    properties:
-      primary_predictor:
-        type: "string"
-        description: "Name of the primary predictor."
-      p_value:
-        type: "number"
-        description: "P-value for the primary predictor."
-      significant:
-        type: "boolean"
-        description: "True if p < 0.05."
-    required:
-      - "primary_predictor"
-      - "p_value"
-      - "significant"
+    description: "List of warnings (e.g., 'Low Power', 'Proxy Used: General Anxiety', 'No Baseline Control')."
+  runtime:
+    type: "number"
+    description: "Execution time in seconds (for SC-005)."
 required:
-  - "model_summary"
-  - "coefficients"
-  - "diagnostics"
-  - "flags"
-  - "significance"
+  - model_type
+  - n_samples
+  - r_squared
+  - coefficients
+  - p_values
+  - vif_scores
+  - assumption_checks
+  - flags
+  - runtime
+additionalProperties: false

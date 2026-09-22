@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T17:26:15.530296Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-540-the-influence-of-social-media-doomscroll
-last_run_id: 12dd1a83-aff2-4d18-b445-59c72c7eca71
+last_run_id: ced3cdb0-fcd3-4f0f-b814-b35996421a09
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-540-the-influence-of-social-media-doomscroll/specs/001-the-influence-of-social-media-doomscroll
 title: "The Influence of Social Media \u201CDoomscrolling\u201D on Anticipatory Anxiety"
-updated_at: '2026-09-20T23:58:55.856605Z'
+updated_at: '2026-09-22T14:51:10.263568Z'

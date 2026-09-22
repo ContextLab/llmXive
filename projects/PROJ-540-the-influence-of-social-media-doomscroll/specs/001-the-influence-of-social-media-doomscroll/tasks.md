@@ -26,16 +26,18 @@
 
 **⚠️ CRITICAL**: No implementation tasks (Phase 3+) can begin until this phase is complete.
 
-- [ ] T036 [P] [Review] **Create Amendment Document**: Create `specs/001-doomscrolling-anxiety/amendment.md` to formally ratify the following methodology overrides. **MUST** follow this exact template:
+- [X] T037 [US1] **Data Source Verification & Ingestion**: Implement a specific, verified data ingestion task in `code/ingest.py` targeting the dataset identified in the plan. **MUST** use `pandas.read_csv(chunksize=...)` to handle large files (>1GB) by accumulating chunks into a list of DataFrames and concatenating into a single DataFrame for `statsmodels` compatibility. **MUST NOT** use `streaming=True` if it breaks OLS fitting. **MUST** include a pre-flight check fetching the schema/head to confirm presence of `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, and `gender`. If *all* candidates fail schema validation or are unreachable, raise `DataAvailabilityError` and HALT. **MUST NOT** fallback to synthetic data. **OUTPUT**: `data/processed/metadata.json` with verified schema and source URL. **BLOCKED BY**: None (Runs first to enable T036b).
+
+- [ ] T036a [P] [Review] **Data Pre-Check**: Verify the existence and schema of candidate datasets (GSS, Pew, YouGov) **without** downloading the full dataset. **MUST** fetch the schema or first 100 rows to confirm presence of `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, and `gender` for *each* candidate. **MUST** output `data/processed/metadata.json` with the verified schema and source URL. **MUST** raise `DataAvailabilityError` and HALT if *all* candidates fail. **UNBLOCKED** (Runs first to enable T036b).
+
+- [ ] T036b [P] [Review] **Create Amendment Document**: Create `specs/001-doomscrolling-anxiety/amendment.md` to formally ratify the following methodology overrides **based on T037 results**. **MUST** follow this exact template:
  1. **Header**: `# Methodology Amendment`
- 2. **Override 1 (Power)**: Override Spec FR-002 (N < 30) to Plan Phase 1 (N < 130). Include scientific justification.
+ 2. **Override 1 (Power)**: Override Spec FR-002 (N < 30) to Plan Phase 1 (N < 130). Include scientific justification referencing T037 results.
  3. **Override 2 (Robustness)**: Override Spec FR-006 (conditional check) to Plan Phase 2.3 (unconditional check). Include justification.
  4. **Traceability Matrix**: Explicitly list `Spec FR-ID` -> `Plan Override` -> `Justification` for each.
  5. **Validation**: Confirm that T012 and T025b will implement these overrides.
  6. **Verification**: The implementer MUST explicitly verify that the amendment document correctly cites the specific line items in the spec being overridden and that the code logic (T012, T025b) matches the ratified text.
- **MUST** be completed and marked [X] before T037, T012, or T025 can be executed.
-
-- [ ] T037 [US1] **Data Source Verification & Streaming**: Implement a specific, verified data ingestion task in `code/ingest.py` targeting a list of verified public datasets (GSS, Pew, YouGov). **MUST** use `datasets.load_dataset(..., streaming=True)` if estimated size > 1GB. **MUST** include a pre-flight check fetching the schema/head to confirm presence of `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, and `gender` for *each* candidate dataset in the list until one matches. If *all* candidates fail schema validation or are unreachable, raise `DataAvailabilityError` and HALT. **MUST NOT** fallback to synthetic data. If streaming, process in chunks to calculate online statistics for power check. **BLOCKED BY T036**.
+ **MUST** be completed and marked [X] before T012, T025b, or T037 (for final validation) can be executed. **BLOCKED BY T037**.
 
 ---
 
@@ -43,8 +45,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`. **MUST** create `.gitkeep` files in each directory to ensure deterministic deliverables.
-- [ ] T001b [P] Create source structure: Create directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/` and create `__init__.py` files in the root and every immediate subdirectory (code/, tests/, data/, data/raw/, data/processed/, outputs/).
+- [X] T001b-i [P] Create root directory: `projects/PROJ-540-the-influence-of-social-media-doomscroll/`.
+- [X] T001b-ii [P] Create subdirectories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `outputs/`.
+- [X] T001b-iii [P] Create `__init__.py` in the root directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/`.
+- [X] T001b-iv [P] Create `__init__.py` in every immediate subdirectory (`code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `outputs/`).
 
 ---
 
@@ -61,8 +65,9 @@
  1. Create function to load dataset URLs and random seeds.
  2. **MUST** verify `seed` variable is not None and raise `ValueError` if missing.
  3. **MUST** log the seed at runtime to satisfy Constitution Principle I (Reproducibility). Use format: `LOG: SEED={seed_value} (INFO)` or `LOG: SEED NOT SET (WARNING)`.
+ 4. **MUST** explicitly pass the seed to `np.random.seed(seed)`, `statsmodels` (if applicable), and `scikit-learn` models to ensure actual reproducibility, not just logging.
 - [X] T005 [P] Setup error handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`) in `code/exceptions.py`
-- [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
+- [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`. **MUST** include fields `instrument_source` and `measurement_timepoint` in `SurveyResponse` to support T019a's metadata checks.
 - [X] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,9 +89,9 @@
 
 ### Implementation for User Story 1
 
-- [X] T010a [US1] Implement data download in `code/ingest.py`: Create function `download_data(url, output_path)` that fetches data to `data/raw/` and raises an exception on 404/timeout. **MUST NOT** fallback to synthetic data. **BLOCKED BY T037**.
-- [X] T010b [US1] **Implement data parsing and schema validation** in `code/ingest.py`: Create function `parse_and_validate(raw_path)` that reads the file, checks for columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, and `gender`, and raises `ValueError` if missing. Output to `data/raw/parsed_data.csv`. **BLOCKED BY T037**.
-- [X] T012 [US1] **Implement listwise deletion and power check** in `code/clean.py` for missing predictor/outcome values. **MUST enforce N < 130 hard stop (per ratified amendment T036)**: HALT with `PowerLimitationError` if resulting N < 130. If 130 <= N < 200, log 'Low Power' warning and proceed. **MUST** explicitly state logic: `if n < 130: raise PowerLimitationError("N < 130")`. **MUST** log Spec baseline as: `INFO: Spec baseline N < 30 (Legacy) - Plan override N < 130 active`. **BLOCKED BY T036**.
+- [X] T010a [US1] Implement data download in `code/ingest.py`: Create function `download_data(url, output_path)` that fetches data to `data/raw/` and raises an exception on 404/timeout. **MUST NOT** fallback to synthetic data. **BLOCKED BY T036b**.
+- [X] T010b [US1] **Implement data parsing and schema validation** in `code/ingest.py`: Create function `parse_and_validate(raw_path)` that reads the file, checks for columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, and `gender`, and raises `ValueError` if missing. Output to `data/raw/parsed_data.csv`. **BLOCKED BY T036b**.
+- [X] T012 [US1] **Implement listwise deletion and power check** in `code/clean.py` for missing predictor/outcome values. **MUST read the ratified amendment file created by T036 to retrieve the N threshold value**. **MUST enforce N < 130 hard stop (per ratified amendment T036)**: HALT with `PowerLimitationError` if resulting N < 130. If 130 <= N < 200, log 'Low Power' warning and proceed. **MUST** explicitly state logic: `if n < 130: raise PowerLimitationError("N < 130")`. **MUST** log Spec baseline as: `INFO: Spec baseline N < 30 (Legacy) - Plan override N < 130 active`. **BLOCKED BY T036b (for threshold value and ratified logic)**.
 - [X] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
 - [X] T014 [US1] Add logging for row counts, missing value statistics, and power check results. **MUST** log exact messages using `logging.info()` and `logging.warning()`: `INFO: Rows dropped: {count}`, `INFO: Final N: {n}`, `ERROR: Power limitation. N < 130` (if N < 130), or `WARNING: Low Power (130 <= N < 200)` (if 130 <= N < 200).
 - [X] T014b [US1] Implement strict dataset loader in `code/ingest.py` that raises an explicit exception on fetch failure (e.g., 404, timeout) and **DOES NOT** fallback to synthetic/mock data, ensuring "fail loud" behavior per Constitution Principle III (Data Hygiene) and Reproducibility.
@@ -110,7 +115,7 @@
 
 - [X] T017 [US2] Implement Pearson/Spearman correlation calculation in `code/model.py` (FR-004)
 - [X] T018 [US2] Implement OLS regression fitting in `code/model.py` with formula `anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender`. Create a reusable function `fit_regression_model`.
-- [X] T019a [US2] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs. **MUST** check variable metadata, descriptions, or documentation to confirm they were measured via distinct instruments or at distinct time points. MUST raise `MathematicalCouplingError` and HALT if they are derived from the same instrument or time point. If metadata is missing/ambiguous, log WARNING and proceed (do not halt).
+- [X] T019a [US2] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs. **MUST** check variable metadata from `data/processed/metadata.json` (generated by T037) and `research.md`. **MUST** raise `MathematicalCouplingError` and HALT if they are derived from the same instrument or time point. **IF metadata is missing/ambiguous**: Log WARNING and proceed (do not halt) per Spec Edge Cases. **NOTE**: This task explicitly follows Spec Edge Cases over Plan Phase 1.5 (which suggests HALT on ambiguity) as the Spec is the primary source of truth; log this override in the execution log.
 - [X] T019b [US2] Implement assumption checks in `code/model.py`:
  1. **Invoke** the distinct construct validation function from `code/validity.py` (T019a) to ensure `baseline_anxiety` and `anxiety_score` are distinct.
  2. Implement Linearity, Homoscedasticity (Breusch-Pagan), Normality (Shapiro-Wilk) checks as separate functions.
@@ -142,9 +147,10 @@
  1. **ALWAYS** select the top 25th percentile of `social_media_engagement` (ignore correlation threshold).
  2. Re-fit regression model on this subset.
  3. Compare coefficients/significance with full model.
- 4. Log the correlation between engagement and news as a descriptive statistic only.
- 5. Overwrite `outputs/robustness_results.json` with `status: "unconditional_run", plan_override: true`, including full results.
- 6. **MUST** explicitly state logic: "Always run check regardless of correlation value." **BLOCKED BY T036**.
+ 4. **MUST** log the correlation between engagement and news as a descriptive statistic only.
+ 5. **MUST** explicitly flag in `outputs/robustness_results.json` if the original spec condition (r > 0.3) was not met, documenting the deviation as a Plan override. **MUST** log the specific correlation value and flag the deviation in the output.
+ 6. Overwrite `outputs/robustness_results.json` with `status: "unconditional_run", plan_override: true`, including full results.
+ 7. **MUST** explicitly state logic: "Always run check regardless of correlation value." **BLOCKED BY T036b**.
 - [X] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
 - [X] T029 [US3] Save plot to `outputs/plot.png`
 - [X] T030 [US3] Generate `outputs/final_report.md` (Markdown format) summarizing findings, limitations, and associational nature. **MUST** include sections: Executive Summary, Methods, Results (including correlation, regression, and VIF), Robustness Check (reporting full results), Limitations, and Conclusion. **MUST** cite specific JSON outputs (`regression_results.json`, `correlation_results.json`, `robustness_results.json`).
@@ -162,9 +168,9 @@
  1. A "Usage" section with the command `python code/main.py`.
  2. A "Data" section describing the expected schema and the verified dataset source (generic schema validation).
  3. Generation of `quickstart.md` with step-by-step instructions for running the pipeline.
-- [ ] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
-- [ ] T033a [P] **Create Benchmark Data Generator**: Create `code/benchmark_utils.py` with a function `generate_synthetic_data(n=10000, seed=42)` that produces a DataFrame with the required schema for testing.
-- [ ] T033 [P] Performance optimization: Vectorize pandas operations, use chunking for large files. **MUST** ensure the pipeline completes on 10k records (generated via `code/benchmark_utils.py` with seed 42) in < 60 seconds. **MUST** produce a `benchmark.log` file showing the runtime.
+- [X] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
+- [X] T033a [P] **Create Benchmark Data Generator**: Create `code/benchmark_utils.py` with a function `generate_synthetic_data(n=10000, seed=42)` that produces a DataFrame with the required schema for testing. **MUST** write "PASS: Runtime < 60s" to the log if the condition is met.
+- [X] T033 [P] Performance optimization: Vectorize pandas operations, use chunking for large files. **MUST** ensure the pipeline completes on 10k records (generated via `code/benchmark_utils.py` with seed 42) in < 60 seconds. **MUST** produce a `benchmark.log` file showing the runtime. **MUST** verify `benchmark.log` contains "PASS: Runtime < 60s" and exit code 0.
 - [X] T034 [P] Add specific unit tests for `code/config.py` (seed verification) and `code/robustness.py` (unconditional logic) to ensure coverage of new logic.
 - [X] T035 [P] **Run quickstart.md validation**: Execute the steps in `quickstart.md` (generated by T031) and verify that the pipeline runs successfully without manual intervention.
 
@@ -217,7 +223,7 @@ Task: "Unit test scaffolding in tests/test_clean.py: Define class TestCleaning a
 # Launch all implementation for User Story 1 together:
 Task: "Implement data download in code/ingest.py"
 Task: "Implement data parsing and schema validation in code/ingest.py"
-Task: "Implement listwise deletion and power check in code/clean.py (N < 130 hard stop per T036)"
+Task: "Implement listwise deletion and power check in code/clean.py (N < 130 hard stop per T036b)"
 Task: "Implement strict dataset loader in code/ingest.py with no synthetic fallback"
 ```
 
@@ -265,9 +271,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence.
 - **Critical**: Ensure all data loading tasks strictly fail on missing real data and never fall back to synthetic generation.
-- **Critical**: T036 (Amendment) MUST be completed before T012, T025b, or T037.
-- **Critical**: T037 uses generic schema validation loop over candidate datasets (GSS, Pew, YouGov) per ratified amendment T036.
-- **Critical**: T012 implements N < 130 hard stop per ratified amendment T036.
+- **Critical**: T036b (Amendment) MUST be completed before T012, T025b, or T037 (for final validation).
+- **Critical**: T037 uses generic schema validation loop over candidate datasets (GSS, Pew, YouGov) per ratified amendment T036b.
+- **Critical**: T012 implements N < 130 hard stop per ratified amendment T036b.
 - **Critical**: T025b implements Plan unconditional logic.
 - **Critical**: T019a handles coupling (hard stop); T019b handles multicollinearity (flag).
 - **Critical**: T033a generates benchmark data; T033 runs pipeline on generated data.

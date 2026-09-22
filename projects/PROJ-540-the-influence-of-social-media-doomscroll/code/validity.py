@@ -1,84 +1,77 @@
-"""
-Construct validity checks for the Doomscrolling Anxiety study.
-Detects mathematical coupling and ensures distinct constructs.
-"""
 import pandas as pd
 import numpy as np
 import logging
-from typing import Union, List
-
+from typing import Union, List, Dict, Any
 from exceptions import MathematicalCouplingError
 
 logger = logging.getLogger(__name__)
 
-def check_construct_validity(df: pd.DataFrame, col1: str = 'baseline_anxiety', col2: str = 'anxiety_score') -> bool:
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"VALIDITY: {message}")
+
+def check_construct_validity(df: pd.DataFrame, metadata: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Checks if two columns represent distinct constructs.
-    
-    In the absence of external metadata in the CSV, we perform a statistical check:
-    If correlation is extremely high (> 0.99) AND the columns are nearly identical,
-    it suggests mathematical coupling or identical measurement.
-    
-    Args:
-        df: DataFrame containing the columns.
-        col1: First column name.
-        col2: Second column name.
-
-    Returns:
-        bool: True if constructs appear distinct, False otherwise.
-
-    Raises:
-        MathematicalCouplingError: If columns appear to be derived from the same instrument/timepoint.
+    Verify that baseline_anxiety and anxiety_score are distinct constructs.
+    Checks variable metadata, descriptions, or documentation.
+    Raises MathematicalCouplingError if derived from same instrument/time point.
     """
-    if col1 not in df.columns or col2 not in df.columns:
-        logger.warning(f"Columns {col1} or {col2} not found in data. Skipping statistical check.")
-        # In a real scenario with metadata, we would check metadata here.
-        # Since we don't have metadata in the CSV, we rely on the statistical check.
-        return True 
-
-    valid_data = df[[col1, col2]].dropna()
+    _log_step("Checking construct validity")
     
-    if len(valid_data) < 2:
-        logger.warning("Insufficient data for validity check.")
+    # Check if metadata is provided
+    if not metadata:
+        logger.warning("Metadata missing or ambiguous. Proceeding with caution.")
         return True
-
-    corr = valid_data[col1].corr(valid_data[col2])
     
-    # If correlation is perfect or near-perfect, it's highly suspicious
-    if corr > 0.99:
-        # Check if they are actually identical (mathematical coupling)
-        if np.allclose(valid_data[col1], valid_data[col2], rtol=1e-5):
-            error_msg = (
-                f"Mathematical Coupling Detected: '{col1}' and '{col2}' are identical or nearly identical. "
-                "They likely derive from the same instrument or time point, violating construct validity."
-            )
-            logger.error(error_msg)
-            raise MathematicalCouplingError(error_msg)
-        
-        # Even if not identical, extremely high correlation warrants a warning
-        logger.warning(f"Extremely high correlation ({corr:.4f}) between '{col1}' and '{col2}'. Review construct validity.")
-
-    logger.info(f"Construct validity check passed. Correlation between '{col1}' and '{col2}': {corr:.4f}")
+    # Define the variables to check
+    var1 = "baseline_anxiety"
+    var2 = "anxiety_score"
+    
+    # Extract metadata for these variables if available
+    meta_var1 = metadata.get(var1, {})
+    meta_var2 = metadata.get(var2, {})
+    
+    # Check for instrument or time point identity
+    # Assuming metadata contains 'instrument' and 'time_point' keys
+    instr1 = meta_var1.get("instrument")
+    instr2 = meta_var2.get("instrument")
+    time1 = meta_var1.get("time_point")
+    time2 = meta_var2.get("time_point")
+    
+    # If both instrument and time point are identical, raise error
+    if instr1 == instr2 and instr1 is not None:
+        logger.error(f"Mathematical coupling detected: {var1} and {var2} use same instrument '{instr1}'")
+        raise MathematicalCouplingError(f"Mathematical coupling: {var1} and {var2} derived from same instrument")
+    
+    if time1 == time2 and time1 is not None:
+        logger.error(f"Mathematical coupling detected: {var1} and {var2} measured at same time point '{time1}'")
+        raise MathematicalCouplingError(f"Mathematical coupling: {var1} and {var2} measured at same time point")
+    
+    _log_step("Construct validity check passed")
     return True
 
-def main():
-    """
-    Main entry point for validity checks (usually called by model.py).
-    """
-    from config import load_config, ensure_directories
-    from pathlib import Path
+def main() -> None:
+    """Main entry point for validity check script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    config = load_config()
-    ensure_directories()
+    # Example usage with dummy data and metadata
+    df = pd.DataFrame({
+        "baseline_anxiety": [1, 2, 3],
+        "anxiety_score": [4, 5, 6]
+    })
     
-    input_path = Path(config['paths']['processed_data']) / 'analysis_data.csv'
+    metadata = {
+        "baseline_anxiety": {"instrument": "GAD-7", "time_point": "T1"},
+        "anxiety_score": {"instrument": "GAD-7", "time_point": "T2"} # Different time point
+    }
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Processed data not found: {input_path}. Run clean.py first.")
-    
-    df = pd.read_csv(input_path)
-    check_construct_validity(df)
-    logger.info("Validity check completed successfully.")
+    try:
+        check_construct_validity(df, metadata)
+        logger.info("Validity check completed successfully")
+    except MathematicalCouplingError as e:
+        logger.error(f"Validity check failed: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

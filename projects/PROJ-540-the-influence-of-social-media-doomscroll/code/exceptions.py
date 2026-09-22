@@ -1,13 +1,13 @@
 """
-Custom exceptions for the Doomscrolling Anxiety study.
+Custom exceptions for the doomscrolling anxiety analysis pipeline.
 """
 
 class PowerLimitationError(Exception):
-    """Raised when the sample size is insufficient for statistical power."""
+    """Raised when the sample size is below the required power threshold."""
     pass
 
 class MathematicalCouplingError(Exception):
-    """Raised when mathematical coupling or multicollinearity is detected."""
+    """Raised when mathematical coupling is detected between variables."""
     pass
 
 class DataValidationError(Exception):

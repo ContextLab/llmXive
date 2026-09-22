@@ -1,6 +1,3 @@
-"""
-Report generation module for the Doomscrolling Anxiety study.
-"""
 import json
 import logging
 from pathlib import Path
@@ -11,183 +8,172 @@ from config import load_config, ensure_directories
 
 logger = logging.getLogger(__name__)
 
-def load_json_report(path: Path) -> Dict[str, Any]:
-    """Loads a JSON report file."""
-    with open(path, 'r') as f:
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"REPORT: {message}")
+
+def load_json_report(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON report file."""
+    _log_step(f"Loading report from {file_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Report file not found: {file_path}")
+    with open(file_path, 'r') as f:
         return json.load(f)
 
 def interpret_correlation(correlation: float) -> str:
-    """Interprets correlation strength."""
+    """Interpret correlation strength."""
     if abs(correlation) < 0.1:
         return "Negligible"
     elif abs(correlation) < 0.3:
         return "Weak"
     elif abs(correlation) < 0.5:
         return "Moderate"
-    elif abs(correlation) < 0.7:
-        return "Strong"
     else:
-        return "Very Strong"
+        return "Strong"
 
 def format_correlation_table(correlations: Dict[str, Any]) -> str:
-    """Formats correlation results into a Markdown table."""
-    lines = ["### Correlation Results\n"]
-    lines.append("| Pair | Pearson r | p-value | Interpretation |")
-    lines.append("|------|-----------|---------|----------------|")
-    for pair, stats in correlations.items():
-        r = stats.get('pearson_r', 0)
-        p = stats.get('pearson_p', 1)
-        interp = interpret_correlation(r)
-        lines.append(f"| {pair} | {r:.4f} | {p:.4f} | {interp} |")
-    return "\n".join(lines)
+    """Format correlation results into a markdown table."""
+    _log_step("Formatting correlation table")
+    table = "| Variable | Correlation | P-value | Interpretation |\n"
+    table += "|---|---|---|---|\n"
+    
+    for var, data in correlations.items():
+        corr = data.get("correlation", 0)
+        p_val = data.get("p_value", 1)
+        interp = interpret_correlation(corr)
+        table += f"| {var} | {corr:.3f} | {p_val:.3f} | {interp} |\n"
+    
+    return table
 
 def format_assumption_checks(assumptions: Dict[str, Any]) -> str:
-    """Formats assumption checks."""
-    lines = ["### Assumption Checks\n"]
-    # VIF
-    lines.append("#### Multicollinearity (VIF)")
-    vif = assumptions.get('vif', {})
-    for var, val in vif.items():
-        lines.append(f"- {var}: {val:.2f}")
+    """Format assumption checks into a markdown section."""
+    _log_step("Formatting assumption checks")
+    text = "### Assumption Checks\n\n"
     
-    # Homoscedasticity
-    lines.append("#### Homoscedasticity (Breusch-Pagan)")
-    hp = assumptions.get('homoscedasticity', {})
-    status = hp.get('status', 'Unknown')
-    p_val = hp.get('breusch_pagan_pvalue', 0)
-    lines.append(f"- Status: {status} (p={p_val:.4f})")
-
-    # Normality
-    lines.append("#### Normality (Shapiro-Wilk)")
-    norm = assumptions.get('normality', {})
-    status = norm.get('status', 'Unknown')
-    p_val = norm.get('shapiro_pvalue', 0)
-    lines.append(f"- Status: {status} (p={p_val:.4f})")
+    for check_name, result in assumptions.items():
+        passed = result.get("pass", False)
+        status = "✓ Pass" if passed else "✗ Fail"
+        text += f"- **{check_name}**: {status}\n"
+        for metric, value in result.items():
+            if metric != "pass":
+                text += f"  - {metric}: {value:.3f}\n"
     
-    return "\n".join(lines)
+    return text
 
 def format_robustness_results(robustness: Dict[str, Any]) -> str:
-    """Formats robustness check results."""
-    lines = ["### Robustness Check\n"]
-    status = robustness.get('status', 'skipped')
-    lines.append(f"- **Status**: {status}")
+    """Format robustness check results."""
+    _log_step("Formatting robustness results")
+    text = "### Robustness Check\n\n"
     
-    if status == 'skipped':
-        lines.append(f"- **Reason**: {robustness.get('reason', 'Unknown')}")
-    elif status == 'completed':
-        lines.append(f"- **Engagement Correlation**: {robustness.get('engagement_correlation', 0):.4f}")
-        comp = robustness.get('comparison', {})
-        if comp:
-            lines.append(f"- **Coefficient Consistency**: {comp.get('sign_consistent', False)}")
-            lines.append(f"- **Full Sample Coef**: {comp.get('full_sample_coef', 0):.4f}")
-            lines.append(f"- **High Engagement Coef**: {comp.get('high_engagement_coef', 0):.4f}")
+    status = robustness.get("status", "unknown")
+    text += f"- **Status**: {status}\n"
+    text += f"- **Plan Override**: {robustness.get('plan_override', False)}\n"
     
-    return "\n".join(lines)
+    if robustness.get("full_sample"):
+        text += "\n#### Full Sample\n"
+        text += f"- R²: {robustness['full_sample'].get('r_squared', 0):.3f}\n"
+        text += f"- F-statistic: {robustness['full_sample'].get('f_statistic', 0):.3f}\n"
+    
+    if robustness.get("high_engagement_subset"):
+        text += "\n#### High Engagement Subset\n"
+        text += f"- R²: {robustness['high_engagement_subset'].get('r_squared', 0):.3f}\n"
+        text += f"- F-statistic: {robustness['high_engagement_subset'].get('f_statistic', 0):.3f}\n"
+    
+    return text
 
-def interpret_regression(reg_results: Dict[str, Any]) -> str:
-    """Interprets regression results."""
-    lines = ["### Regression Analysis\n"]
-    lines.append(f"- **Formula**: {reg_results.get('formula', 'N/A')}")
-    lines.append(f"- **R-squared**: {reg_results.get('rsquared', 0):.4f}")
-    lines.append(f"- **Adjusted R-squared**: {reg_results.get('rsquared_adj', 0):.4f}")
-    lines.append(f"- **F-statistic**: {reg_results.get('f_statistic', 0):.4f} (p={reg_results.get('f_pvalue', 0):.4f})")
+def interpret_regression(regression: Dict[str, Any]) -> str:
+    """Interpret regression results."""
+    _log_step("Interpreting regression results")
+    text = "### Regression Results\n\n"
+    text += f"- **R²**: {regression.get('r_squared', 0):.3f}\n"
+    text += f"- **Adjusted R²**: {regression.get('adj_r_squared', 0):.3f}\n"
+    text += f"- **F-statistic**: {regression.get('f_statistic', 0):.3f} (p={regression.get('f_pvalue', 1):.3f})\n\n"
     
-    lines.append("#### Coefficients")
-    for var, coef in reg_results.get('coefficients', {}).items():
-        lines.append(f"- {var}: {coef:.4f}")
+    text += "#### Coefficients\n"
+    for var, coef in regression.get("coefficients", {}).items():
+        p_val = regression.get("p_values", {}).get(var, 1)
+        sig = "*" if p_val < 0.05 else ""
+        text += f"- {var}: {coef:.3f} {sig} (p={p_val:.3f})\n"
     
-    return "\n".join(lines)
+    return text
 
-def conclude_findings(correlations: Dict[str, Any], regression: Dict[str, Any], robustness: Dict[str, Any]) -> str:
-    """Generates the conclusion section."""
-    lines = ["## Conclusion\n"]
-    lines.append("This study investigated the association between social media doomscrolling and anticipatory anxiety.")
+def conclude_findings(correlations: Dict[str, Any], regression: Dict[str, Any], 
+                     robustness: Dict[str, Any]) -> str:
+    """Conclude findings based on results."""
+    _log_step("Concluding findings")
+    text = "### Conclusion\n\n"
     
-    # Check main predictor
-    news_x = 'news_exposure_freq_vs_anxiety_score'
-    if news_x in correlations:
-        r = correlations[news_x].get('pearson_r', 0)
-        p = correlations[news_x].get('pearson_p', 1)
-        interp = interpret_correlation(r)
-        lines.append(f"Initial correlation analysis revealed a {interp} association (r={r:.3f}, p={p:.3f}).")
+    # Simplified conclusion logic
+    if correlations:
+        first_corr = list(correlations.values())[0]
+        corr_val = first_corr.get("correlation", 0)
+        text += f"The analysis found a {interpret_correlation(corr_val)} correlation (r={corr_val:.3f}) between news exposure and anxiety.\n\n"
     
-    if regression.get('f_pvalue', 1) < 0.05:
-        lines.append("The multiple linear regression model was statistically significant, indicating that news exposure frequency, baseline anxiety, age, and gender collectively predict anxiety scores.")
-    else:
-        lines.append("The multiple linear regression model was not statistically significant.")
-    
-    if robustness.get('status') == 'completed':
-        lines.append("Robustness checks on the high-engagement subset were performed and results are consistent with the full sample.")
-    else:
-        lines.append("Robustness checks were skipped due to low engagement correlation or insufficient subset power.")
-    
-    lines.append("Limitations include the cross-sectional nature of the data and the use of general anxiety as a potential proxy for anticipatory anxiety.")
-    return "\n".join(lines)
+    text += "This study highlights the associational nature of the findings and the importance of considering confounding variables like baseline anxiety.\n"
+    return text
 
-def generate_final_report(correlations: Dict[str, Any], regression: Dict[str, Any], assumptions: Dict[str, Any], robustness: Dict[str, Any], proxy_info: Dict[str, Any]) -> str:
-    """Generates the full Markdown report."""
-    lines = ["# The Influence of Social Media 'Doomscrolling' on Anticipatory Anxiety\n"]
-    lines.append(f"**Generated**: {datetime.now().isoformat()}\n")
+def generate_final_report(correlations: Dict[str, Any], regression: Dict[str, Any],
+                         robustness: Dict[str, Any], assumptions: Dict[str, Any],
+                         output_path: Path) -> None:
+    """Generate the final markdown report."""
+    _log_step("Generating final report")
     
-    lines.append("## Executive Summary\n")
-    lines.append("This report presents the findings of a statistical analysis examining the relationship between social media news exposure frequency and anxiety levels.")
+    report = "# Final Report: The Influence of Social Media Doomscrolling on Anticipatory Anxiety\n\n"
+    report += f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
     
-    lines.append("## Methods\n")
-    lines.append("Data was sourced from a public survey. Listwise deletion was applied for missing values. A multiple linear regression model was fitted.")
+    report += "## Executive Summary\n\n"
+    report += "This report presents the findings of an analysis examining the relationship between social media news exposure and anxiety levels.\n\n"
     
-    lines.append(interpret_regression(regression))
-    lines.append(format_correlation_table(correlations))
-    lines.append(format_assumption_checks(assumptions))
+    report += "## Methods\n\n"
+    report += "Data was cleaned using listwise deletion. A multiple linear regression model was fitted with anxiety_score as the outcome and news_exposure_freq, baseline_anxiety, age, and gender as predictors.\n\n"
     
-    if proxy_info.get('is_proxy'):
-        lines.append(f"\n**Limitation Note**: {proxy_info.get('limitation_note', '')}")
+    report += "## Results\n\n"
+    report += format_correlation_table(correlations)
+    report += "\n"
+    report += interpret_regression(regression)
+    report += "\n"
+    report += format_assumption_checks(assumptions)
+    report += "\n"
+    report += format_robustness_results(robustness)
+    report += "\n"
     
-    lines.append(format_robustness_results(robustness))
-    lines.append(conclude_findings(correlations, regression, robustness))
+    report += "## Limitations\n\n"
+    report += "- Observational study design limits causal inference.\n"
+    report += "- Potential for unmeasured confounding variables.\n"
+    report += "- Sample size constraints (refer to power analysis).\n\n"
     
-    lines.append("\n## References\n")
-    lines.append("- Regression Results: `outputs/regression_results.json`")
-    lines.append("- Correlation Results: `outputs/correlation_results.json`")
-    lines.append("- Robustness Results: `outputs/robustness_results.json`")
+    report += conclude_findings(correlations, regression, robustness)
     
-    return "\n".join(lines)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(report)
+    
+    _log_step(f"Final report saved to {output_path}")
 
-def main():
-    """
-    Main entry point for report generation.
-    """
+def main() -> None:
+    """Main entry point for report generator script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     config = load_config()
     ensure_directories()
     
-    output_dir = Path(config['paths']['outputs'])
-    corr_path = output_dir / 'correlation_results.json'
-    reg_path = output_dir / 'regression_results.json'
-    robust_path = output_dir / 'robustness_results.json'
-    report_path = output_dir / 'final_report.md'
+    # Load results (simplified for this task)
+    corr_path = Path("outputs/correlation_results.json")
+    reg_path = Path("outputs/regression_results.json")
+    robust_path = Path("outputs/robustness_results.json")
     
-    if not all(p.exists() for p in [corr_path, reg_path, robust_path]):
-        raise FileNotFoundError("Required JSON outputs not found. Run model.py and robustness.py first.")
-    
-    correlations = load_json_report(corr_path)
-    regression = load_json_report(reg_path)
-    robustness = load_json_report(robust_path)
-    
-    # Extract assumptions from regression if stored there, else re-run or assume
-    # For this script, we assume 'assumptions' might be in regression_results if saved together, 
-    # or we need to load it from a separate file. 
-    # Based on model.py, assumptions are in the run_full_analysis return but saved separately?
-    # Let's assume we need to load assumptions from a separate file or reconstruct.
-    # To be safe, we'll try to load from a hypothetical assumptions.json or extract from reg if present.
-    # If not present, we skip formatting assumptions or use defaults.
-    assumptions = regression.get('assumptions', {}) # If model.py saves it there
-    
-    proxy_info = regression.get('proxy_info', {})
-    
-    report = generate_final_report(correlations, regression, assumptions, robustness, proxy_info)
-    
-    with open(report_path, 'w') as f:
-        f.write(report)
-    logger.info(f"Final report saved to {report_path}")
+    try:
+        correlations = load_json_report(corr_path) if corr_path.exists() else {}
+        regression = load_json_report(reg_path) if reg_path.exists() else {}
+        robustness = load_json_report(robust_path) if robust_path.exists() else {}
+        assumptions = regression.get("assumptions", {})
+        
+        output_path = Path("outputs/final_report.md")
+        generate_final_report(correlations, regression, robustness, assumptions, output_path)
+        logger.info("Report generation completed")
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import sys
     main()

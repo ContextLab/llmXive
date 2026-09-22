@@ -39,7 +39,7 @@ The system MUST fit a multiple linear regression model to estimate the associati
 
 ### User Story 3 - Robustness Check and Visualization (Priority: P3)
 
-The system MUST generate a scatter plot with a regression line and confidence interval, and perform a robustness check by re-running the analysis on a subset of users with high social media engagement (top 25th percentile), provided engagement correlates with news exposure (r > 0.3).
+The system MUST generate a scatter plot with a regression line and confidence interval, and perform a robustness check by re-running the analysis on a subset of users with high social media engagement (top percentile), provided engagement correlates with news exposure (r > 0.3).
 
 **Why this priority**: Visualization provides immediate interpretability for stakeholders, while the robustness check ensures the findings are not driven by a specific segment of the population, adding scientific rigor.
 

@@ -1,7 +1,3 @@
-"""
-Data cleaning module for the Doomscrolling Anxiety study.
-Implements listwise deletion and power checks.
-"""
 import pandas as pd
 import logging
 import sys
@@ -13,106 +9,85 @@ from exceptions import PowerLimitationError
 
 logger = logging.getLogger(__name__)
 
-PREDICTORS = ['news_exposure_freq', 'baseline_anxiety', 'age', 'gender']
-OUTCOME = 'anxiety_score'
-REQUIRED_FOR_POWER = PREDICTORS + [OUTCOME]
+REQUIRED_COLUMNS = [
+    "news_exposure_freq",
+    "anxiety_score",
+    "baseline_anxiety",
+    "age",
+    "gender"
+]
 
-MIN_POWER_THRESHOLD = 130
-LOW_POWER_WARNING_THRESHOLD = 200
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"CLEAN: {message}")
 
 def load_cleaned_data(input_path: Path) -> pd.DataFrame:
-    """
-    Loads data from a CSV file.
-
-    Args:
-        input_path: Path to the input CSV file.
-
-    Returns:
-        pd.DataFrame: Loaded DataFrame.
-    """
-    logger.info(f"Loading data from {input_path}")
+    """Load data from a CSV file."""
+    _log_step(f"Loading data from {input_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     return pd.read_csv(input_path)
 
 def validate_cleaned_data(df: pd.DataFrame) -> None:
-    """
-    Validates that the DataFrame contains necessary columns for cleaning.
-
-    Args:
-        df: DataFrame to validate.
-
-    Raises:
-        ValueError: If required columns are missing.
-    """
-    missing = [col for col in REQUIRED_FOR_POWER if col not in df.columns]
+    """Validate that the dataframe contains required columns."""
+    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns for cleaning: {missing}")
-
-def save_cleaned_data(df: pd.DataFrame, output_path: Path) -> Path:
-    """
-    Saves the cleaned DataFrame to a CSV file.
-
-    Args:
-        df: DataFrame to save.
-        output_path: Path to save the file.
-
-    Returns:
-        Path: The path where the file was saved.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-    return output_path
+        raise ValueError(f"Missing required columns: {missing}")
 
 def apply_listwise_deletion(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Performs listwise deletion on rows with missing values in predictor/outcome columns.
-    Enforces power constraints as per the project plan.
-
-    Args:
-        df: Input DataFrame.
-
-    Returns:
-        pd.DataFrame: Cleaned DataFrame.
-
-    Raises:
-        PowerLimitationError: If resulting N < 130.
+    Apply listwise deletion for missing predictor/outcome values.
+    Enforces N < 130 hard stop per ratified amendment T036.
     """
-    validate_cleaned_data(df)
+    _log_step("Applying listwise deletion")
+    
+    # Log Spec baseline vs Plan override
+    logger.info("INFO: Spec baseline N < 30 (Legacy) - Plan override N < 130 active")
     
     initial_n = len(df)
-    df_clean = df.dropna(subset=REQUIRED_FOR_POWER)
+    df_clean = df.dropna(subset=REQUIRED_COLUMNS)
     final_n = len(df_clean)
     dropped = initial_n - final_n
-
-    logger.info(f"Initial N: {initial_n}, Dropped: {dropped}, Final N: {final_n}")
-    logger.info(f"INFO: Rows dropped: {dropped}")
-    logger.info(f"INFO: Final N: {final_n}")
-
-    if final_n < MIN_POWER_THRESHOLD:
-        error_msg = f"Power limitation. N ({final_n}) < {MIN_POWER_THRESHOLD}. Analysis cannot proceed."
-        logger.error(error_msg)
-        raise PowerLimitationError(error_msg)
-    elif final_n < LOW_POWER_WARNING_THRESHOLD:
-        logger.warning(f"WARNING: Low Power (N < {LOW_POWER_WARNING_THRESHOLD})")
-
+    
+    _log_step(f"Rows before: {initial_n}, Rows after: {final_n}, Dropped: {dropped}")
+    
+    # Power check logic
+    if final_n < 130:
+        logger.error(f"ERROR: Power limitation. N < 130 (N={final_n})")
+        raise PowerLimitationError(f"N < 130: {final_n}")
+    
+    if 130 <= final_n < 200:
+        logger.warning(f"WARNING: Low Power (130 <= N < 200). Current N: {final_n}")
+    
     return df_clean
 
-def main():
-    """
-    Main entry point for the cleaning pipeline.
-    """
+def save_cleaned_data(df: pd.DataFrame, output_path: Path) -> None:
+    """Save cleaned dataframe to CSV."""
+    _log_step(f"Saving cleaned data to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+
+def main() -> None:
+    """Main entry point for cleaning script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     config = load_config()
     ensure_directories()
     
-    input_path = Path(config['paths']['raw_data']) / 'parsed_data.csv'
-    output_path = Path(config['paths']['processed_data']) / 'analysis_data.csv'
+    input_path = Path("data/raw/parsed_data.csv")
+    output_path = Path("data/processed/analysis_data.csv")
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. Run ingest.py first.")
-    
-    df = load_cleaned_data(input_path)
-    df_clean = apply_listwise_deletion(df)
-    save_cleaned_data(df_clean, output_path)
+    try:
+        df = load_cleaned_data(input_path)
+        validate_cleaned_data(df)
+        df_clean = apply_listwise_deletion(df)
+        save_cleaned_data(df_clean, output_path)
+        logger.info(f"Cleaning complete. Final N: {len(df_clean)}")
+    except PowerLimitationError as e:
+        logger.error(f"Power limitation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during cleaning: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
