@@ -7,10 +7,11 @@ required:
   - num_objectives
   - window_ratio
   - regression_slope
+  - r_squared
   - slope_ci_lower
   - slope_ci_upper
-  - t_test_p_value
-  - fdr_q_value
+  - scaling_slope_t_p_value
+  - heuristic_bias_t_p_value
   - mean_bias
   - pareto_distance
   - convergence_status
@@ -35,20 +36,23 @@ properties:
   regression_slope:
     type: number
     description: "Slope beta from log-log regression of sample count vs N."
+  r_squared:
+    type: number
+    description: "R-squared value of the regression fit."
   slope_ci_lower:
     type: number
     description: "Lower bound of 95% CI for slope."
   slope_ci_upper:
     type: number
     description: "Upper bound of 95% CI for slope."
-  t_test_p_value:
+  scaling_slope_t_p_value:
     type: number
-    description: "P-value from the one-sample t-test comparing Heuristic vs. Known Variance (sanity check)."
+    description: "P-value from the t-test on the regression slope (validating scaling law)."
     minimum: 0.0
     maximum: 1.0
-  fdr_q_value:
+  heuristic_bias_t_p_value:
     type: number
-    description: "Adjusted p-value from Benjamini-Hochberg FDR."
+    description: "P-value from the one-sample t-test comparing Heuristic vs. Known Variance (sanity check)."
     minimum: 0.0
     maximum: 1.0
   mean_bias:

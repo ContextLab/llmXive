@@ -1,19 +1,14 @@
 status: none
-intent: MORL benchmark multi-objective reinforcement learning environments OpenAI
-  Gym Mujoco python package dataset
+intent: download MORL-Bench multi objective RL dataset MOPED python package dataset
 required_fields:
 - environment_id
-- environment_name
-- state_dim
-- action_dim
-- action_space_type
 - num_objectives
-- reward_vector
-- noise_std_per_objective
-- episode_length
-- optimal_pareto_front
-- observation_space
+- state_features
 - action_space
-cache_key: 0e18da80e028f8b885fb1262465313f3d693efea8f7a75dd4866eb42b7968ea5
-searched_at: '2026-09-14T12:52:47.906532+00:00'
+- reward_vector
+- transition_function
+- noise_parameters
+- pareto_optimal_labels
+cache_key: 79d0f6f560a17e2cc24fef091c7c0d7a15716156fc98b7e2158b9c1b360545f4
+searched_at: '2026-09-22T05:11:02.962777+00:00'
 retry_count: 1

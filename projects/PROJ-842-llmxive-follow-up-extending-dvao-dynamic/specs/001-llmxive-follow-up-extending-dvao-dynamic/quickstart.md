@@ -1,50 +1,70 @@
-# Quickstart: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
+# Quickstart: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar"
 
 ## Prerequisites
 
-*   Python 3.11
-*   NumPy, SciPy, Matplotlib, scikit-learn (install with `pip install -r requirements.txt`)
+- Python 3.11+
+- pip
+- Git
 
-## Running the Analysis
+## Installation
 
-1.  **Clone the repository:**
-
+1.  **Clone the repository** (if not already done):
     ```bash
-    git clone https://github.com/your-org/llmxive.git
-    cd llmxive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic
+    git clone <repo-url>
+    cd projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code
     ```
 
-2.  **Install dependencies:**
-
+2.  **Create a virtual environment**:
     ```bash
-    pip install -r code/requirements.txt
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Run the analysis:**
-
+3.  **Install dependencies**:
     ```bash
-    python code/run_analysis.py
+    pip install -r requirements.txt
     ```
 
-    This script will:
+## Running the Experiments
 
-    *   Derive the theoretical lower bound on sample complexity.
-    *   Generate synthetic environments.
-    *   Implement the moving-window heuristic.
-    *   Perform statistical validation and sensitivity analysis.
-    *   Generate reports and visualizations.
+### 1. Verify Theoretical Derivation
+Run the symbolic math verification to ensure the theoretical bound is correct.
+```bash
+python src/derivation/verify_symbolic.py
+```
+*Output*: `data/processed/symbolic_verification.json`
 
-## Output
+### 2. Generate Synthetic Environments
+Generate environments for a specific $N$ and correlation $\rho$.
+```bash
+python src/environment/synthetic_mdp.py --n 50 --rho 0.0 --seed 42
+```
+*Output*: `data/processed/noise_properties.json`
 
-The results will be stored in the `data/processed/` directory. Key files include:
+### 3. Run Full Experiment Suite
+Execute the full training and analysis pipeline.
+```bash
+python src/main.py --config configs/default.yaml
+```
+*Output*:
+- `data/processed/empirical_results.json`
+- `data/processed/construct_validity_results.json`
+- Console logs with t-test and slope analysis results.
 
-*   `noise_properties.json`:  Noise properties used in the synthetic environments.
-*   `heuristic_results.json`: Results of the heuristic evaluation.
-*   `statistical_analysis.json`: Statistical analysis results (p-values, deviations).
-*   `scaling_law_plot.png`: Plot of the scaling law comparison.
+### 4. Sensitivity Analysis (Window Size)
+Run a sweep over different window sizes $k$.
+```bash
+python src/analysis/statistics.py --sweep window_size --values 0.01,0.05,0.1
+```
+
+### 5. Validate Construct Validity
+Test different reward distributions.
+```bash
+python scripts/validate_construct_validity.py --distributions Linear,Sparse,Non-Convex
+```
 
 ## Troubleshooting
 
-*   If you encounter resource issues, reduce the number of objectives ($N$) or the window size ($k$).
-*   Ensure that all dependencies are installed correctly.
-*   Check the logs for error messages.
+- **Memory Error**: If the script fails with OOM, check `N`. If $N > 50$, the system should automatically reduce the state space via `reduce_state_space()`. If it still fails, reduce $N$ manually.
+- **Correlation Mismatch**: If the achieved correlation in `noise_properties.json` differs significantly from the target, check the noise generation logic in `src/environment/reward_generators.py`.
+- **Symbolic Verification Failure**: If `verify_symbolic.py` fails, check the algebraic derivation in `src/derivation/sample_complexity.py`.

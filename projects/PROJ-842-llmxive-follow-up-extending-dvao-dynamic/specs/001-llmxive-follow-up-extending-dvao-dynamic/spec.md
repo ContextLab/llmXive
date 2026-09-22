@@ -40,17 +40,17 @@ As an experimenter, I want the system to generate synthetic multi-objective tabu
 
 ### User Story 3 - Statistical Validation & Sensitivity Analysis (Priority: P3)
 
-As a reviewer, I want the system to perform a one-sample t-test comparing the mean deviation of the heuristic's variance from the theoretical bound against zero, and sweep the window size $k$ to test sensitivity, so that I can confirm the robustness of the findings and the validity of the noise scaling law.
+As a reviewer, I want the system to perform a regression analysis comparing the empirical sample count against $N$ to validate the scaling law slope, and sweep the window size $k$ to test sensitivity, so that I can confirm the robustness of the findings and the validity of the noise scaling law.
 
 **Why this priority**: This ensures the results are statistically significant and not artifacts of specific hyperparameters. It addresses the "multiplicity" and "threshold justification" requirements of the methodology panel.
 
-**Independent Test**: The system outputs a statistical report containing p-values from the one-sample t-tests and a table showing how convergence rates change as $k$ varies, demonstrating the sensitivity of the heuristic to window size.
+**Independent Test**: The system outputs a statistical report containing regression coefficients, p-values for the slope, and a table showing how convergence rates change as $k$ varies, demonstrating the sensitivity of the heuristic to window size.
 
 **Acceptance Scenarios**:
 
-1. **Given** the empirical variance data from multiple training runs for a specific $N$, **When** the system performs a one-sample t-test on the deviation from the theoretical bound, **Then** it reports a p-value indicating whether the null hypothesis (mean deviation = 0) is rejected at $\alpha = 0.05$.
+1. **Given** the empirical sample count data from multiple training runs for a specific $N$, **When** the system performs a linear regression of sample count vs $N$, **Then** it reports the slope coefficient and a p-value indicating whether the slope matches the theoretical slope at $\alpha = 0.05$.
 2. **Given** a decision cutoff (window size $k$), **When** the system sweeps $k$ over a set $\{0.01, 0.05, 0.1\}$ of the rollout size, **Then** it reports the variation in false-positive/negative rates or inconsistency rates across the sweep.
-3. **Given** the statistical failure point (smallest $N$ where $p < 0.05$), **When** the system compares this to the distance to the true Pareto frontier (calculated per FR-017), **Then** the failure point coincides (within a small objective count tolerance) with the point where the distance to the true Pareto frontier exceeds 5%.
+3. **Given** the statistical failure point (smallest $N$ where the slope deviates significantly), **When** the system compares this to the distance to the true Pareto frontier (calculated per FR-017), **Then** the failure point coincides (within a small objective count tolerance) with the point where the distance to the true Pareto frontier exceeds 5%.
 
 ---
 
@@ -72,16 +72,16 @@ As a scientific reviewer, I want the system to generate a held-out set of reward
 
 ### User Story 5 - Sensitivity Analysis on Noise Correlation (Priority: P5)
 
-As a researcher, I want the system to perform a sensitivity analysis on the noise correlation structure by introducing controlled correlations ($\rho \in \{\text{zero}, 0.2, 0.5\}$) and verifying if the scaling law holds, so that I can confirm the robustness of the independence assumption.
+As a researcher, I want the system to perform a sensitivity analysis on the noise correlation structure by introducing controlled correlations ($\rho \in \{0, 0.2, 0.5\}$) and verifying if the scaling law holds, so that I can confirm the robustness of the independence assumption.
 
 **Why this priority**: This is essential rigor to prove the 'independence' assumption. If the goal is to find the *lower bound* under independence, testing correlated noise is a secondary robustness check, not a primary requirement for the bound itself, but it is necessary to justify the assumption.
 
-**Independent Test**: The system outputs a report showing the results of a Kolmogorov-Smirnov goodness-of-fit test for the slope of sample complexity vs N for each $\rho$ value, with a pass criterion of $p > 0.05$ for $\rho=0$.
+**Independent Test**: The system outputs a report showing the results of a t-test on the regression coefficient for the slope of sample complexity vs N for each $\rho$ value, with a pass criterion of $p > 0.05$ for $\rho=0$.
 
 **Acceptance Scenarios**:
 
 1. **Given** a target correlation $\rho$, **When** the system generates the synthetic environment with correlated noise, **Then** it logs the actual correlation achieved.
-2. **Given** the generated environment, **When** the system runs the training and validation, **Then** it calculates the slope of sample complexity vs N and performs a Kolmogorov-Smirnov goodness-of-fit test against the theoretical bound.
+2. **Given** the generated environment, **When** the system runs the training and validation, **Then** it calculates the slope of sample complexity vs N and performs a t-test on the regression coefficient against the theoretical slope.
 3. **Given** the test results, **Then** the system reports if the scaling law holds (p > 0.05) for $\rho=0$ and flags deviations for $\rho > 0$.
 
 ---
@@ -97,14 +97,14 @@ As a system administrator, I want the system to enforce strict resource constrai
 **Acceptance Scenarios**:
 
 1. **Given** a training run, **When** the system monitors resource usage, **Then** it ensures the total memory footprint remains ≤ 7 GB RAM and CPU usage is limited to 2 cores.
-2. **Given** a target objective count N > 50, **When** the system detects the limit, **Then** it reduces the state space size by a significant factor and logs the effective N and state space size used.
+2. **Given** a target objective count N > 50, **When** the system detects the limit, **Then** it reduces the state space size by a factor of 2 and logs the effective N and state space size used.
 3. **Given** the degradation logic, **When** the system completes the run, **Then** it outputs the effective N and reduced state space size in the final report.
 
 ---
 
 ### Edge Cases
 
-- What happens when the number of objectives $N$ exceeds 50, causing the synthetic state space to become too large for the 7GB RAM limit? (System MUST detect $N > 50$, reduce the state space size by a significant factor, log the effective $N$ and state space size used, and output these values in the final report).
+- What happens when the number of objectives $N$ exceeds 50, causing the synthetic state space to become too large for the 7GB RAM limit? (System MUST detect $N > 50$, reduce the state space size by a factor of 2, log the effective $N$ and state space size used, and output these values in the final report).
 - How does the system handle the case where the Moving-Window Heuristic window size $k$ is smaller than the minimum required for a stable variance estimate? (System must enforce a minimum $k$ or report a convergence failure).
 - What occurs if the noise distribution is non-Gaussian (e.g., heavy-tailed), violating the independence assumption? (The theoretical bound may not hold; the system must log this deviation and report it in the final analysis).
 
@@ -114,20 +114,21 @@ As a system administrator, I want the system to enforce strict resource constrai
 
 - **FR-001**: System MUST derive a closed-form mathematical equation for the variance of the weighted advantage function as a function of the number of objectives $N$ and independent noise $\epsilon_i$ (See US-1).
 - **FR-002**: System MUST calculate the theoretical lower bound on sample complexity required to identify a Pareto-optimal policy based on the derived variance equation, explicitly stating the assumption of independent, identically distributed noise (See US-1).
-- **FR-003**: System MUST generate synthetic tabular MDPs with a varying number of objectives, starting from a small scale. using random linear combinations of state features (See US-2).
-- **FR-004**: System MUST implement the "Moving-Window Heuristic" to estimate variance using only the last $k$ steps, where $k$ is configurable and strictly less than the rollout group size (See US-2).
-- **FR-005**: System MUST execute training runs on a CPU-only environment with exactly 2 CPU cores and a maximum memory footprint of ≤ 7 GB RAM (See US-6).
-- **FR-006**: System MUST count the number of episodes required to reach a Pareto-optimal reward threshold and compare this empirical sample count against the theoretical lower bound derived in FR-002, performing a one-sample t-test on the mean of multiple runs (≥ 30) against the theoretical bound at $\alpha = 0.05$ (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis by sweeping the window size $k$ over a concrete set of values (e.g., a range of fractions of the rollout size) and reporting the variation in convergence rates and the deviation from the theoretical bound (See US-3).
+- **FR-003**: System MUST generate synthetic tabular MDPs with a varying number of objectives, starting from a small scale, using random linear combinations of state features with coefficients drawn from a standard normal distribution N(0,1) (See US-2).
+- **FR-004**: System MUST implement the "Moving-Window Heuristic" to estimate variance using only the last $k$ steps, where $k$ is configurable, strictly less than the rollout group size, and MUST be swept over the set {0.01, 0.05, 0.1} of the rollout size (See US-2).
+- **FR-005**: System MUST execute training runs on a CPU-only environment with exactly 2 CPU cores and a maximum memory footprint of ≤ 7 GB RAM, failing gracefully if limits are exceeded (See US-6).
+- **FR-006**: System MUST perform a linear regression of 'Empirical Sample Count' vs 'N' across multiple runs (≥ 30) and test if the slope matches the theoretical slope using a t-test on the regression coefficient at $\alpha = 0.05$ (See US-3).
+- **FR-007**: System MUST perform a sensitivity analysis by sweeping the window size $k$ over the set {0.01, 0.05, 0.1} of the rollout size and reporting the variation in convergence rates and the deviation from the theoretical bound (See US-3).
 - **FR-008**: System MUST log the distance of the final policy from the theoretical Pareto frontier for each configuration (See US-2).
-- **FR-009**: System MUST perform a sensitivity analysis on the noise correlation structure by introducing controlled correlations (e.g., $\rho \in \{, 0.2, 0.5\}$) and verifying if the scaling law holds (p > 0.05 in a Kolmogorov-Smirnov goodness-of-fit test for the slope of sample complexity vs N) for the $\rho=0$ case, with $\rho > 0$ cases being exploratory (See US-5).
+- **FR-009**: System MUST perform a sensitivity analysis on the noise correlation structure by introducing controlled correlations ($\rho \in \{0, 0.2, 0.5\}$) and verifying if the scaling law holds (p > 0.05 in a t-test on the regression coefficient for the slope of sample complexity vs N) for the $\rho=0$ case, with $\rho > 0$ cases being exploratory (See US-5).
 - **FR-010**: System MUST perform a sensitivity analysis on the reward generation distribution by testing at least three distinct distributions (Linear, Sparse, Non-Convex) to validate construct validity (See US-4).
-- **FR-012**: System MUST generate a held-out set of reward functions with a different noise distribution (e.g., heavy-tailed) to satisfy validation independence (See US-4).
+- **FR-011**: System MUST perform a linear regression of 'Empirical Sample Count' vs 'N' across multiple runs (≥ 30) and test if the slope matches the theoretical slope using a t-test on the regression coefficient at $\alpha = 0.05$ to explicitly validate the scaling law hypothesis (See US-3).
+- **FR-012**: System MUST generate a held-out set of reward functions with a heavy-tailed noise distribution (Student's t with df=3) to satisfy US-4 acceptance scenario 1 (See US-4).
 - **FR-013**: System MUST calculate the theoretical variance of the injected noise parameters ($\sigma^2$) and use this known value as the ground truth for validating the heuristic, rather than an empirical estimator (See US-3).
-- **FR-014**: System MUST perform a sanity check to verify that the empirical variance of the injected noise matches the theoretical noise variance ($\sigma^2$) before any advantage function analysis begins (See US-3).
-- **FR-015**: System MUST perform a one-sample t-test comparing the mean of the heuristic's error (Heuristic Estimate - Known $\sigma^2$) against zero to validate accuracy (See US-3).
-- **FR-016**: System MUST detect if $N > 50$ and, if so, reduce the state space size by a factor of 2, log the effective $N$ and state space size used, and output these values in the final report (See US-6).
-- **FR-017**: System MUST calculate the distance of the final policy from the theoretical Pareto frontier for each configuration using a defined oracle or approximation method (See US-3).
+- **FR-014**: System MUST perform a sanity check to verify that the empirical variance of the injected noise matches the theoretical noise variance ($\sigma^2$) before any advantage function analysis begins, with a pass criterion of relative error ≤ 5% (See US-3).
+- **FR-015**: System MUST perform a one-sample t-test comparing the mean of (Heuristic Estimate - Known $\sigma^2$) against zero to validate accuracy, with a pass criterion of p > 0.05 (See US-3).
+- **FR-016**: System MUST detect if $N > 50$ and, if so, reduce the state space size by a factor of 2 (standard binary reduction to meet memory limits), log the effective $N$ and state space size used, and output these values in the final report (See US-6).
+- **FR-017**: System MUST calculate the distance of the final policy from the theoretical Pareto frontier for each configuration using the weighted sum scalarization method with step 0.01 and MUST document this method in the output (See US-3).
 
 ### Key Entities
 
@@ -144,11 +145,11 @@ As a system administrator, I want the system to enforce strict resource constrai
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The derived theoretical lower bound is verified by a symbolic math engine or peer review checklist confirming algebraic consistency (See FR-002).
-- **SC-002**: The empirical convergence failure point is defined as the smallest $N$ in the sweep $\{5, 10, 20, 50\}$ (with ≥ 30 independent runs) where the empirical sample count exceeds the theoretical bound by a factor of 1.5, and this point must coincide (within $\pm 1$) with the point where the distance to the true Pareto frontier (calculated per FR-017) exceeds 5% (See FR-006, FR-008, FR-017).
-- **SC-003**: The stability of the Moving-Window Heuristic is confirmed if the ratio of heuristic variance to known injected noise variance ($\sigma^2$) remains within [0.9, 1.1] for ≥ 95% of steps across the post-burn-in phase (steps to end) of the training trajectory (See FR-013).
-- **SC-004**: The sensitivity of the heuristic to window size $k$ is measured by the variation in false-positive rates, where a false positive is defined as the heuristic reporting stable (ratio $\in [0.9, 1.1]$) while the deviation from the theoretical bound > 5% (See FR-007).
+- **SC-002**: The empirical convergence failure point is defined as the smallest $N$ in the sweep $\{5, 10, 20, 50\}$ (with ≥ 30 independent runs) where the empirical sample count exceeds the theoretical bound (evaluated at N with ε=0.01) by a factor of 1.5, and this point must coincide (within $\pm 1$) with the point where the distance to the true Pareto frontier (calculated per FR-017) exceeds 5% (See FR-006, FR-008, FR-017).
+- **SC-003**: The stability of the Moving-Window Heuristic is confirmed if the ratio of heuristic variance to known injected noise variance ($\sigma^2$) remains within [0.9, 1.1] for ≥ 95% of steps across the post-burn-in phase (steps to end) of the training trajectory, with the injected $\sigma^2$ logged for each run (See FR-013).
+- **SC-004**: The sensitivity of the heuristic to window size $k$ is measured by the variation in false-positive rates, where a false positive is defined as the heuristic reporting stable (ratio $\in [0.9, 1.1]$) while the deviation from the theoretical bound > 5%, validated by a binomial test on the failure rate (See FR-007).
 - **SC-005**: The computational feasibility is measured by the successful completion of the full experiment suite within the GitHub Actions free-tier limit on a minimal CPU core configuration (See FR-005).
-- **SC-006**: The construct validity is confirmed if the scaling law holds (deviation < 10%) across all three tested reward distributions (Linear, Sparse, Non-Convex) (See FR-010).
+- **SC-006**: The construct validity is confirmed if the scaling law holds (deviation < 10% defined as relative error in the estimated slope coefficient) across all three tested reward distributions (Linear, Sparse, Non-Convex) (See FR-010).
 
 ## Assumptions
 
