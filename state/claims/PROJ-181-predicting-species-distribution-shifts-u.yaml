@@ -2318,3 +2318,650 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T22:24:51Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Download WorldClim v2 historical climate rasters 1970-2000 for 19 Bioclim
+    variables
+  claim_id: c_9179bbeb
+  context: T015 [P] [US1] Implement code/download.py to download WorldClim v2 historical
+    climate rasters (1970-2000) for all 19 Bioclim variables (bio1 through bio19),
+    saving as individual rasters
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download WorldClim v2 historical climate rasters (1970-2000) for all 19
+    Bioclim variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:37:36Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Download CMIP6 SSP2-4.5 future climate rasters 2050 for 19 Bioclim variables
+  claim_id: c_c79b4db2
+  context: T015b [P] [US1] Implement code/download.py to download CMIP6 SSP2-4.5 future
+    climate rasters (2050) for all 19 Bioclim variables (bio1 through bio19)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download CMIP6 SSP2-4.5 future climate rasters (2050) for all 19 Bioclim
+    variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:39:14Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Spatial thinning minimum distance 10km
+  claim_id: c_254831de
+  context: T013 [US1] Implement code/preprocess.py to filter records by breeding season,
+    remove duplicates, spatially thin points to a minimum distance of 10km (FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_thinning_minimum_distance_10km
+  kind: entity_fact
+  raw_text: Spatially thin points to a minimum distance of 10km
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:39:59Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use scikit-learn version 1.5.0
+  claim_id: c_ee872e33
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    scikit-learn==1.5.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scikit-learn==1.5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:40:29Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use geopandas version 0.14.2
+  claim_id: c_a51e67ee
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... geopandas==0.14.2 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use geopandas==0.14.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:40:49Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use rasterio version 1.3.9
+  claim_id: c_61cb4b57
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... rasterio==1.3.9 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use rasterio==1.3.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:41:05Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use pandas version 2.2.2
+  claim_id: c_04e68133
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... pandas==2.2.2 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas==2.2.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:41:29Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use numpy version 1.26.4
+  claim_id: c_d375c77e
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... numpy==1.26.4 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:41:51Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use requests version 2.32.3
+  claim_id: c_f0acf79e
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... requests==2.32.3 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use requests==2.32.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:42:09Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use matplotlib version 3.9.0
+  claim_id: c_f0f45c30
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... matplotlib==3.9.0 ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use matplotlib==3.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:42:30Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Use seaborn version 0.13.2
+  claim_id: c_9bd2bebb
+  context: 'T002 [P] Initialize project with pinned dependencies (requirements.txt:
+    ... seaborn==0.13.2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:42:46Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Total compute time within 6 hours
+  claim_id: c_cb7d39d0
+  context: T037 [US3] Verify total compute time stays within 6-hour limit (SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total compute time stays within 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:43:10Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction at alpha 0.05
+  claim_id: c_b53516eb
+  context: T034 [P] [US3] Implement code/sensitivity.py to sweep suitability thresholds
+    and apply Holm-Bonferroni correction at alpha=0.05 for the family of tests
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Holm-Bonferroni correction at alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:43:29Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Flag species with less than 100 records as insufficient data
+  claim_id: c_f0109a2b
+  context: T033b [US3] Implement validation in code/evaluate.py to flag species with
+    <100 records in the 2005-2020 test period (from T029b) as 'INSUFFICIENT_DATA'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_species_with_less_than_100_records_as_insufficient_data
+  kind: magnitude
+  raw_text: Flag species with less than 100 records in the 2005-2020 test period as
+    INSUFFICIENT_DATA
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:44:10Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with n_jobs 2 on CPU
+  claim_id: c_bd6a0009
+  context: T021 [US2] Implement code/train.py to train Random Forest (sklearn.ensemble.RandomForestClassifier)
+    with n_jobs=2 on CPU
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with n_jobs=2 on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:45:08Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Train three SDM algorithms Random Forest Bioclim Regularized Logistic
+    Regression
+  claim_id: c_b94d81b7
+  context: 'Goal: Train three SDM algorithms (Random Forest, Bioclim, Regularized
+    Logistic Regression PB) using spatial block cross-validation on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_three_SDM_algorithms_Random_Forest_Bioclim_Regularized
+  kind: entity_fact
+  raw_text: 'Train three SDM algorithms: Random Forest, Bioclim, Regularized Logistic
+    Regression PB'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:45:42Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Fetch North American bird occurrence data 1970-2000 via GBIF API
+  claim_id: c_6e0c125c
+  context: T010 [P] [US1] Implement code/download.py to fetch North American bird
+    occurrence data (1970-2000) via GBIF API
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch North American bird occurrence data from 1970 to 2000 via GBIF API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:46:12Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Fetch recent occurrence data 2005-2020 for evaluation
+  claim_id: c_fc0c1a82
+  context: T011 [P] [US1] Implement code/download.py to fetch recent occurrence data
+    (-2020) for evaluation, saving to data/raw/occurrence_2005_2020.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch recent occurrence data from 2005 to 2020 for evaluation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:46:38Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Download historical climate rasters 1970-2000
+  claim_id: c_2c6f336a
+  context: 'Goal: Download historical occurrence records (1970-2000) and climate rasters'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download historical climate rasters for the period 1970 to 2000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:46:57Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Project models onto CMIP6 SSP2-4.5 2050 climate scenarios
+  claim_id: c_818e68af
+  context: 'Goal: Project models onto CMIP6 SSP2-4.5 (2050) climate scenarios and
+    evaluate against recent records (2005-2020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Project models onto CMIP6 SSP2-4.5 (2050) climate scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:47:12Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Evaluate against recent records 2005-2020
+  claim_id: c_e6cd280d
+  context: 'Goal: Project models onto CMIP6 SSP2-4.5 (2050) climate scenarios and
+    evaluate against recent records (2005-2020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Evaluate against recent records from 2005 to 2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:47:32Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: WorldClim v2 historical climate rasters 1970-2000 contain 19 Bioclim
+    variables
+  claim_id: c_6137dd72
+  context: T015 [P] [US1] Implement code/download.py to download WorldClim v2 historical
+    climate rasters (1970-2000) for all 19 Bioclim variables (bio1 through bio19)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download WorldClim v2 historical climate rasters (1970-2000) for all 19
+    Bioclim variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:49:54Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: CMIP6 SSP2-4.5 future climate rasters 2050 contain 19 Bioclim variables
+  claim_id: c_125e795f
+  context: T015b [P] [US1] Implement code/download.py to download CMIP6 SSP2-4.5 future
+    climate rasters (2050) for all 19 Bioclim variables (bio1 through bio19)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download CMIP6 SSP2-4.5 future climate rasters (2050) for all 19 Bioclim
+    variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:49:54Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Spatial thinning minimum distance 10km
+  claim_id: c_6dc5cc5b
+  context: T013 [US1] Implement code/preprocess.py to filter records by breeding season,
+    remove duplicates, spatially thin points to a minimum distance of 10km...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_thinning_minimum_distance_10km
+  kind: entity_fact
+  raw_text: Spatially thin points to a minimum distance of 10km
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:49:56Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Species with fewer than 100 records in 2005-2020 flagged as INSUFFICIENT_DATA
+  claim_id: c_7dc997f2
+  context: T029b [US3] ... First count raw records for each species to check FR-006
+    threshold (<100); flag as 'INSUFFICIENT_DATA' if raw count < 100.
+  evidence:
+    candidates:
+    - - Species with fewer than 100 records in
+      - 2005.0
+    - - Log in Species with fewer than
+      - 100.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Species_with_fewer_than_100_records_in_2005-2020_flagged_as
+  kind: magnitude
+  raw_text: Flag species with less than 100 records in the 2005-2020 test period as
+    'INSUFFICIENT_DATA'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T19:49:58Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied at alpha 0.05
+  claim_id: c_7b6975c8
+  context: T034 [P] [US3] ... apply Holm-Bonferroni correction at alpha=0.05 for the
+    family of tests...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Holm-Bonferroni correction at alpha=0.05 for the family of tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:50:21Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Total compute time limit 6 hours
+  claim_id: c_174b911e
+  context: T037 [US3] Verify total compute time stays within 6-hour limit (SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total compute time stays within 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:50:21Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Fetch North American bird occurrence data 1970-2000 via GBIF API
+  claim_id: c_3e0ff9e6
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing. Task T010
+    implements download.py to fetch data using maxResults pagination and year filters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch North American bird occurrence data
+    (1970-2000) via GBIF API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:55:45Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Download WorldClim v2 historical climate rasters 1970-2000 for 19 Bioclim
+    variables
+  claim_id: c_76ff9a9f
+  context: Task T015 requires downloading historical climate rasters for all 19 Bioclim
+    variables to ensure all required predictor variables are present.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to download WorldClim v2 historical climate
+    rasters (1970-2000) for all 19 Bioclim variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:56:01Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Download CMIP6 SSP2-4.5 future climate rasters 2050 for 19 Bioclim variables
+  claim_id: c_922c4cf2
+  context: Task T015b requires downloading future climate rasters for all 19 Bioclim
+    variables to data/raw/cmip6_future/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to download CMIP6 SSP2-4.5 future climate rasters
+    (2050) for all 19 Bioclim variables (bio1 through bio19)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:56:14Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Spatial thinning minimum distance 10km
+  claim_id: c_43f8fa38
+  context: Task T013 implements preprocessing to filter records and spatially thin
+    points to a minimum distance of 10km as defined in FR-002.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_thinning_minimum_distance_10km
+  kind: entity_fact
+  raw_text: Spatially thin points to a minimum distance of 10km
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:56:16Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Train Random Forest Bioclim and Regularized Logistic Regression SDM algorithms
+  claim_id: c_f1ecc96c
+  context: 'Phase 4: User Story 2 - Model Training and Validation. Goal is to train
+    three specific algorithms using spatial block cross-validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_Bioclim_and_Regularized_Logistic_Regress
+  kind: entity_fact
+  raw_text: 'Train three SDM algorithms: Random Forest, Bioclim, and Regularized Logistic
+    Regression (Presence-Background)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:56:44Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with n_jobs=2 on CPU using sklearn
+  claim_id: c_5a3decb5
+  context: Task T021 specifies implementing Random Forest training with n_jobs=2 on
+    CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest using sklearn.ensemble.RandomForestClassifier with
+    n_jobs=2 on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:57:04Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Train Regularized Logistic Regression with L2 regularization using sklearn
+  claim_id: c_2b2af7d5
+  context: Task T023 specifies implementing Presence-Background Logistic Regression
+    with L2 regularization.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Regularized_Logistic_Regression_with_L2_regularization
+  kind: entity_fact
+  raw_text: Train Regularized Logistic Regression using sklearn.linear_model.LogisticRegression
+    with L2 regularization
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:57:23Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Exclude species with less than 100 records from 2005-2020 test period
+  claim_id: c_5f747622
+  context: Task T033b implements validation to flag and exclude species with fewer
+    than 100 records in the test period, referencing FR-006.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_species_with_less_than_100_records_from_2005-2020_te
+  kind: magnitude
+  raw_text: Flag species with less than 100 records in the 2005-2020 test period as
+    'INSUFFICIENT_DATA' and exclude from aggregation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:57:48Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction at alpha=0.05
+  claim_id: c_e4713c92
+  context: Task T034 mandates sweeping suitability thresholds and applying Holm-Bonferroni
+    correction at alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Holm-Bonferroni correction at alpha=0.05 for the family of tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:57:48Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Verify total compute time stays within 6-hour limit
+  claim_id: c_1a805c9d
+  context: Task T037 requires verifying that the total compute time for the pipeline
+    does not exceed 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total compute time stays within 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:57:48Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Project dependencies scikit-learn 1.5.0 geopandas 0.14.2 rasterio 1.3.9
+    pandas 2.2.2 numpy 1.26.4 requests 2.32.3 matplotlib 3.9.0 seaborn 0.13.2
+  claim_id: c_e50d61a5
+  context: Task T002 initializes the project with pinned dependencies in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scikit-learn==1.5.0, geopandas==0.14.2, rasterio==1.3.9, pandas==2.2.2,
+    numpy==1.26.4, requests==2.32.3, matplotlib==3.9.0, and seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T19:58:11Z'

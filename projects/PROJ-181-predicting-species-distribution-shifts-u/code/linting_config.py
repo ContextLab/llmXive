@@ -15,13 +15,15 @@ def get_flake8_config_path() -> Path:
 def setup_black_config() -> None:
     """Create or update pyproject.toml with black configuration."""
     config_path = get_black_config_path()
-    config_content = """[tool.black]
+    black_config = """
+[tool.black]
 line-length = 88
 target-version = ['py310']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
+    \\.eggs
+  | \\.git
   | \\.hg
   | \\.mypy_cache
   | \\.tox
@@ -33,29 +35,38 @@ exclude = '''
 )/
 '''
 """
+    # Check if file exists and has [tool.black] section
+    if config_path.exists():
+        content = config_path.read_text()
+        if "[tool.black]" in content:
+            print("Black configuration already exists.")
+            return
+
     with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Black configuration created at {config_path}")
+        f.write(black_config)
+    print(f"Black configuration written to {config_path}")
 
 def setup_flake8_config() -> None:
-    """Create or update .flake8 with flake8 configuration."""
+    """Create .flake8 configuration file."""
     config_path = get_flake8_config_path()
-    config_content = """[flake8]
+    flake8_config = """
+[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
+    .eggs,
     build,
     dist,
-    .tox,
-    .venv
+    *.egg-info
 per-file-ignores =
-    __init__.py: F401
+    # Allow unused imports in __init__.py
+    */__init__.py:F401
 """
     with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Flake8 configuration created at {config_path}")
+        f.write(flake8_config)
+    print(f"Flake8 configuration written to {config_path}")
 
 def install_tools() -> None:
     """Install black and flake8 if not already installed."""
@@ -65,40 +76,60 @@ def install_tools() -> None:
             subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
             print(f"{tool} installed successfully.")
         except subprocess.CalledProcessError:
-            print(f"Failed to install {tool}. Please install it manually.")
-            sys.exit(1)
+            print(f"Failed to install {tool}. Please install manually.")
 
 def run_formatting() -> None:
-    """Run black formatting on the code directory."""
-    code_dir = PROJECT_ROOT / "code"
+    """Run black formatter on the codebase."""
     try:
-        subprocess.check_call(["black", str(code_dir)])
+        subprocess.check_call(
+            [sys.executable, "-m", "black", str(PROJECT_ROOT / "code")]
+        )
         print("Formatting completed successfully.")
-    except subprocess.CalledProcessError:
-        print("Formatting failed. Please check the code for errors.")
-        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        print(f"Formatting failed: {e}")
+        raise
 
 def run_linting() -> None:
-    """Run flake8 linting on the code directory."""
-    code_dir = PROJECT_ROOT / "code"
+    """Run flake8 linter on the codebase."""
     try:
-        subprocess.check_call(["flake8", str(code_dir)])
-        print("Linting completed successfully.")
-    except subprocess.CalledProcessError:
-        print("Linting failed. Please fix the reported issues.")
-        sys.exit(1)
+        result = subprocess.run(
+            [sys.executable, "-m", "flake8", str(PROJECT_ROOT / "code")],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            print("No linting issues found.")
+        else:
+            print("Linting issues found:")
+            print(result.stdout)
+            print(result.stderr)
+            raise SystemExit(1)
+    except subprocess.CalledProcessError as e:
+        print(f"Linting failed: {e}")
+        raise
 
 def main() -> None:
-    """Main function to set up and run linting and formatting."""
-    print("Setting up linting and formatting tools...")
+    """Main entry point for linting configuration and execution."""
+    print("Setting up linting tools...")
     install_tools()
     setup_black_config()
     setup_flake8_config()
-    print("\nRunning formatting...")
-    run_formatting()
-    print("\nRunning linting...")
-    run_linting()
-    print("\nAll tasks completed.")
+
+    print("\nRunning formatter...")
+    try:
+        run_formatting()
+    except SystemExit:
+        print("Formatting encountered errors. Please fix them.")
+        return
+
+    print("\nRunning linter...")
+    try:
+        run_linting()
+    except SystemExit:
+        print("Linting encountered errors. Please fix them.")
+        return
+
+    print("\nAll linting checks passed!")
 
 if __name__ == "__main__":
     main()

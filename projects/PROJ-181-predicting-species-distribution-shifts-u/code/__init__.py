@@ -1,1 +1,5 @@
-# Code package for PROJ-181
+"""
+llmXive Project: Predicting Species Distribution Shifts
+Code package initialization.
+"""
+from . import utils

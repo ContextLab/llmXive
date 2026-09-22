@@ -2,6 +2,7 @@
 Configuration module for the Species Distribution Shifts project.
 
 Defines all paths, thresholds, random seeds, and parallelism settings.
+This module is the single source of truth for project configuration.
 """
 import os
 from pathlib import Path
@@ -26,7 +27,7 @@ STATE_DIR = PROJECT_ROOT / "state"
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
 # Ensure directories exist (optional safety check, but good for config)
-# We do not create them here to avoid side effects on import, 
+# We do not create them here to avoid side effects on import,
 # but we define the paths correctly.
 
 # --- Random Seeds ---

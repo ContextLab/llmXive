@@ -1,1 +1,3 @@
-# Tests package for PROJ-181
+"""
+Test package initialization.
+"""

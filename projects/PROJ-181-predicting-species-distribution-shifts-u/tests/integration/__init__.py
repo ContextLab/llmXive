@@ -1,1 +1,3 @@
-# Integration tests package
+"""
+Integration tests for the species distribution shifts project.
+"""

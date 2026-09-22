@@ -4,51 +4,72 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the project directory structure for PROJ-181.
-    Creates the root project folder and all required subdirectories.
+    Initialize the project directory structure for PROJ-181-predicting-species-distribution-shifts-u.
+    Creates the required Data, Code, and Reports directory trees.
     """
     # Define the project root relative to the script location or current working directory
-    # The task specifies the project is at projects/PROJ-181-predicting-species-distribution-shifts-u/
-    project_root = Path("projects/PROJ-181-predicting-species-distribution-shifts-u")
-    
-    # Define the directory structure to create
+    # Assuming the script is run from the project root or code/ directory
+    current_path = Path(__file__).resolve().parent
+    project_root = current_path.parent
+
+    project_name = "PROJ-181-predicting-species-distribution-shifts-u"
+    project_dir = project_root / "projects" / project_name
+
+    # Phase 1: Data Directories
+    data_root = project_dir / "data"
+    data_raw = data_root / "raw"
+    data_processed = data_root / "processed"
+    data_artifacts = data_root / "artifacts"
+
+    # Phase 1: Code Directories
+    code_root = project_dir / "code"
+    code_utils = code_root / "utils"
+    tests_unit = project_dir / "tests" / "unit"
+    tests_integration = project_dir / "tests" / "integration"
+
+    # Phase 1: Reports/Metrics Directories
+    metrics_root = project_dir / "metrics"
+    reports_root = project_dir / "reports"
+    logs_root = project_dir / "logs"
+    state_root = project_dir / "state"
+    contracts_root = project_dir / "contracts"
+
+    # Define all directories to create
     directories = [
-        "code",
-        "data",
-        "tests",
-        "metrics",
-        "reports",
-        "logs",
-        "state",
-        "data/raw",
-        "data/processed",
-        "data/artifacts",
-        "tests/unit",
-        "tests/integration",
-        "contracts"
+        # Data
+        data_root,
+        data_raw,
+        data_processed,
+        data_artifacts,
+        
+        # Code
+        code_root,
+        code_utils,
+        tests_unit,
+        tests_integration,
+        
+        # Reports/Metrics
+        metrics_root,
+        reports_root,
+        logs_root,
+        state_root,
+        contracts_root,
     ]
-    
-    print(f"Initializing project structure at: {project_root.absolute()}")
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {full_path}")
-        except OSError as e:
-            print(f"  Error creating {full_path}: {e}")
-            sys.exit(1)
-    
-    # Create a .gitkeep file in each directory to ensure they are tracked by git
-    # This is a common practice for empty directories in version control
-    for dir_path in directories:
-        full_path = project_root / dir_path / ".gitkeep"
-        try:
-            full_path.touch(exist_ok=True)
-        except OSError as e:
-            print(f"  Warning: Could not create .gitkeep in {full_path}: {e}")
-    
-    print("Project structure initialization complete.")
+
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {directory}")
+            created_count += 1
+        else:
+            print(f"Exists: {directory}")
+
+    print(f"\nProject structure initialization complete.")
+    print(f"Created {created_count} new directories under {project_dir}")
+
+    # Return the project path for potential downstream usage
+    return project_dir
 
 if __name__ == "__main__":
     main()

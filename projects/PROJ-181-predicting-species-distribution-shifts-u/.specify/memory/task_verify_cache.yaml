@@ -1,25 +1,41 @@
-T010:
+T001a:
   c: false
-  h: 1781ba93a882168019228b4467ea7be97005f678362b2c7024ad2d522b373007
-  r: The `code/download.py` file is present but does not contain logic that writes
-    the fetched records to `data/raw/occurrence_1970_2000.csv`, and the file `data/raw/occurrence_1970_2000.csv`
-    is missing. Consequently the required output artifact is not produced, so the
-    task is not fulfilled.
-T010c:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided to confirm that the required
+    folders (`projects/PROJ-181-predicting-species-distribution-shifts-u/data/`, `data/raw/`,
+    `data/processed/`, `data/artifacts/`) actually exist; thus the claim cannot be
+    verified. The implementer must supply evidence (e.g., a directory tree output)
+    showing these paths have been created.
+T001b:
   c: false
-  h: c061bd3552f30557980c88a8e9578a3991ac00cfaca4fe2f1302975a859f78cc
-  r: "The required `data/raw/effort_data.csv` file is absent, and the provided `code/download.py`\
-    \ is incomplete (truncated) and only sketches a GBIF API fetch; it does not compute\
-    \ or save the all\u2011observer density bias proxy as specified. The task\u2019\
-    s core output is therefore missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file listings were provided showing that `projects/PROJ-181-predicting-species-distribution-shifts-u/code/`,
+    `code/utils/`, `tests/unit/`, or `tests/integration/` actually exist (or contain
+    any files). Without concrete evidence of these paths, the requirement is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`projects/PROJ-181-predicting-species-distribution-shifts-u/metrics/`,
+    `reports/`, `logs/`, `state/`, `contracts/`) actually exist, so the claim cannot
+    be verified. The implementer must supply proof (e.g., a directory tree snapshot)
+    that these directories have been created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, pre\u2011commit hooks, or CI scripts) are present in the provided\
+    \ evidence, so the requirement to configure flake8 and black is not demonstrated.\
+    \ The implementer must add the appropriate configuration files and show they are\
+    \ integrated into the project (e.g., via a Makefile target or CI step)."
 T011:
   c: false
-  h: d1f9ed9e3bca085726bb2a1db2f17931a037f294c248f26739b76e306ad2256e
-  r: "The required output file `data/raw/occurrence_2005_2020.csv` does not exist,\
-    \ and the provided `code/download.py` is incomplete (truncated) and contains no\
-    \ logic that writes fetched data to that specific CSV file. Consequently the task\u2019\
-    s core requirement\u2014fetching recent occurrence data and saving it to the designated\
-    \ file\u2014is not satisfied."
+  h: 888403cbc6d60b7863c91aff8ca972e340b668c6ef6b836d8bb3fc4b1c5b279e
+  r: "The provided `code/download.py` contains logic for downloading WorldClim climate\
+    \ files, not recent occurrence records, and does not create or write `data/raw/occurrence_2005_2020.csv`.\
+    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
+    s core requirement\u2014fetching occurrence data (2005\u20112020) with the specified\
+    \ metadata columns and saving it to the indicated path\u2014is therefore not satisfied."
 T013:
   c: false
   h: 6966478272f285e639d8e283be7f8d257fafb835a56bca7aae7dff906148941a

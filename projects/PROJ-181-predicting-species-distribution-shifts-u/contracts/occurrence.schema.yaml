@@ -1,83 +1,125 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Species Occurrence Record Schema
-description: Schema for validating occurrence records (raw and processed) including metadata requirements from Constitution Principle VI.
+title: Occurrence Record Schema
+description: |
+  JSON Schema for validating occurrence data files (raw and processed).
+  Ensures compliance with Constitution Principle VI (metadata columns) 
+  and data integrity requirements (FR-001, FR-002).
 type: object
 required:
-  - species
-  - decimalLatitude
-  - decimalLongitude
-  - year
-  - source_identifier
-  - download_timestamp
-  - original_dataset_name
+  - records
 properties:
-  species:
-    type: string
-    description: Scientific name of the species
-    minLength: 1
-  decimalLatitude:
-    type: number
-    description: Latitude in decimal degrees (WGS84)
-    minimum: -90
-    maximum: 90
-  decimalLongitude:
-    type: number
-    description: Longitude in decimal degrees (WGS84)
-    minimum: -180
-    maximum: 180
-  year:
-    type: integer
-    description: Year of occurrence
-    minimum: 1900
-    maximum: 2099
-  month:
-    type: integer
-    description: Month of occurrence (optional)
-    minimum: 1
-    maximum: 12
-  day:
-    type: integer
-    description: Day of occurrence (optional)
-    minimum: 1
-    maximum: 31
-  basisOfRecord:
-    type: string
-    description: Basis of record (e.g., 'HUMAN_OBSERVATION', 'OBSERVATION')
-  individualCount:
-    type: integer
-    description: Number of individuals observed (optional)
-    minimum: 1
-  sex:
-    type: string
-    description: Sex of the individual (optional)
-  lifeStage:
-    type: string
-    description: Life stage (optional)
-  coordinateUncertaintyInMeters:
-    type: number
-    description: Coordinate uncertainty in meters (optional)
-    minimum: 0
-  source_identifier:
-    type: string
-    description: Unique identifier for the source record (Constitution Principle VI)
-    minLength: 1
-  download_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the data was downloaded (Constitution Principle VI)
-  original_dataset_name:
-    type: string
-    description: Name of the original dataset from which the record was sourced (Constitution Principle VI)
-    minLength: 1
-  bias_weight:
-    type: number
-    description: Calculated bias weight from effort data (optional, for processed data)
-    minimum: 0.0
-  climate_1970_2000_bio1:
-    type: number
-    description: Extracted climate variable BIO1 (Annual Mean Temperature) for 1970-2000 (optional)
-  climate_1970_2000_bio12:
-    type: number
-    description: Extracted climate variable BIO12 (Annual Precipitation) for 1970-2000 (optional)
-  # Additional climate variables can be added as needed
-additionalProperties: true
+  records:
+    type: array
+    description: List of occurrence records.
+    items:
+      type: object
+      required:
+        - species
+        - latitude
+        - longitude
+        - source_identifier
+        - download_timestamp
+        - original_dataset_name
+      properties:
+        species:
+          type: string
+          description: Scientific name of the species.
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: Decimal latitude (WGS84).
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: Decimal longitude (WGS84).
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+          description: Year of observation.
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Month of observation (optional).
+        source_identifier:
+          type: string
+          description: Unique identifier from the source dataset (GBIF key or dataset ID).
+        download_timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the data was downloaded.
+        original_dataset_name:
+          type: string
+          description: Name of the original dataset from which this record was sourced.
+        event_date:
+          type: string
+          format: date
+          description: Full date of the event (YYYY-MM-DD).
+        coordinate_uncertainty_in_meters:
+          type: number
+          minimum: 0
+          description: Estimated uncertainty of the coordinate in meters.
+        basis_of_record:
+          type: string
+          description: Basis of record (e.g., 'HumanObservation', 'MachineObservation').
+        individual_count:
+          type: integer
+          minimum: 1
+          description: Number of individuals observed.
+        climate_bio1:
+          type: number
+          description: Annual Mean Temperature (extracted from raster).
+        climate_bio12:
+          type: number
+          description: Annual Precipitation (extracted from raster).
+        # Allow other bio variables (bio2-bio19) as optional numeric fields
+        climate_bio2:
+          type: number
+        climate_bio3:
+          type: number
+        climate_bio4:
+          type: number
+        climate_bio5:
+          type: number
+        climate_bio6:
+          type: number
+        climate_bio7:
+          type: number
+        climate_bio8:
+          type: number
+        climate_bio9:
+          type: number
+        climate_bio10:
+          type: number
+        climate_bio11:
+          type: number
+        climate_bio13:
+          type: number
+        climate_bio14:
+          type: number
+        climate_bio15:
+          type: number
+        climate_bio16:
+          type: number
+        climate_bio17:
+          type: number
+        climate_bio18:
+          type: number
+        climate_bio19:
+          type: number
+        thinning_distance_km:
+          type: number
+          minimum: 0
+          description: Distance used for spatial thinning if applicable.
+        data_quality_flag:
+          type: string
+          enum:
+            - VALID
+            - IMPUTED
+            - OUT_OF_BOUNDS
+            - INSUFFICIENT_DATA
+          description: Flag indicating data quality status.
+additionalProperties: false

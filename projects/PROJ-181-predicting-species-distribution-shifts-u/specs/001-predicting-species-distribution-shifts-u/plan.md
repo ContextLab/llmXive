@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pipeline to predict distribution shifts in North American birds. The system downloads historical occurrence data (mid-to-late 20th century) and climate rasters (WorldClim), preprocesses them (filtering, thinning, bias correction), trains three algorithms (Random Forest, Bioclim, Regularized Logistic Regression (Presence-Background)), projects them onto future climate scenarios (CMIP SSP‑4.5, 2050), and evaluates against recent records while adhering to the project constitution.
+This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pipeline to predict distribution shifts in North American birds. The system downloads historical occurrence data (mid-to-late th century) and climate rasters (WorldClim), preprocesses them (filtering, thinning, bias correction), trains three algorithms (Random Forest, Bioclim, Regularized Logistic Regression (Presence-Background)), projects them onto future climate scenarios (CMIP SSP‑4.5, 2050), and evaluates against recent records while adhering to the project constitution.
 
 **Critical Methodological Correction**: The "MaxEnt-Style" algorithm is explicitly identified as **Regularized Logistic Regression (Presence-Background)**. It is *not* the Maximum Entropy algorithm. The plan and contracts have been updated to reflect this accurately, eliminating construct validity failures.
 
@@ -53,7 +53,7 @@ specs/001-predicting-species-distribution-shifts/
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-181-predicting-species-distribution-shifts-u/
+projects/PROJ-predicting-species-distribution-shifts-u/
 ├── data/
 │   ├── raw/                 # Immutable downloads (GBIF, WorldClim, CMIP6)
 │   ├── processed/           # Thinned, bias‑corrected CSVs; bias raster
@@ -106,13 +106,22 @@ projects/PROJ-181-predicting-species-distribution-shifts-u/
 
 | Phase | Tasks (script) | FRs addressed | Artifacts produced |
 | :--- | :--- | :--- | :--- |
-| **0 – Data Acquisition** | `download.py` | FR‑001 | `data/raw/occurrence_1970_2000.csv`, `data/raw/occurrence_2005_2020.csv`, `data/raw/climate_historical.tif`, `data/raw/cmip6_future.tif` |
+| **0 – Data Acquisition** | `download.py` | FR‑001 | `data/raw/occurrence_20th_century.csv
+
+The specific value to remove/generalize: '20th century'
+
+Rewritten passage:`, `data/raw/occurrence_early_21st_century.csv
+
+The specific value to remove/generalize: 'early 21st century'
+
+Rewritten passage:
+The study investigates [Research Question] using [Method] (Citation).`, `data/raw/climate_historical.tif`, `data/raw/cmip6_future.tif` |
 | **1 – Preprocessing** | `bias_correction.py` → `preprocess.py` | FR‑002, FR‑006, FR‑007, FR‑008 | `data/processed/occurrence_clean.csv`, `data/processed/bias_layer.tif`, **`logs/preprocess_counts.yaml`** |
 | **2 – Baseline Computation** | `baseline.py` | SC‑001 (baseline) | `metrics/baseline_performance.csv` |
 | **2b – Bias Null Model** | `bias_null.py` | Scientific Soundness | `metrics/bias_null_metrics.csv` |
 | **3 – Power Analysis** | `power_analysis.py` | Methodology (Power) | `metrics/power_analysis_report.json` |
 | **4 – Model Training** | `train.py` | FR‑003, FR‑004, FR‑007 | `data/artifacts/model_{species}_{algo}.pkl`, `metrics/training_metrics.csv` |
-| **5 – Future Projection** | `project.py` | FR‑009 | `data/artifacts/projection_{species}_{algo}_2050.tif` |
+| **5 – Future Projection** | `project.py` | FR‑009 | `data/artifacts/projection_{species}_{algo}_{future_year}.tif` |
 | **6 – Evaluation** | `evaluate.py` (fixed threshold, bias-corrected background) | FR‑005, FR‑009, FR‑010, FR‑008 | `metrics/final_results.csv` |
 | **7 – Sensitivity Analysis** | `sensitivity.py` | FR‑005, SC‑003 | `metrics/sensitivity_report.csv` |
 | **8 – Reporting** | Assemble `final_results.csv`, copy `reports/associational_disclaimer.txt` into manuscript generation step. | FR‑008 | `reports/associational_disclaimer.txt` |
@@ -122,7 +131,7 @@ All phases are ordered so that data is downloaded before any downstream task, mo
 ## Compute Feasibility
 
 - **Memory**: Raster reads are streamed; species subset limited to keep RAM < 6 GB.  
-- **Runtime**: Empirical benchmark on a GitHub Actions runner shows ~4 h total for 15 species.  
+- **Runtime**: Empirical benchmark on a GitHub Actions runner shows a multi-hour total for 15 species.  
 - **No GPU**: All libraries are CPU‑only; `n_jobs` limited to 2.
 
 ## Decision Rationale

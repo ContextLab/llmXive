@@ -1,1 +1,3 @@
-# Unit tests package
+"""
+Unit tests for the species distribution shifts project.
+"""
