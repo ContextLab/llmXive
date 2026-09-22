@@ -1,41 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SymbolicState
-description: >
-  Schema for the symbolic state representation used in the RoboDojo extension.
-  This state captures discrete predicates, affordances, connectivity, and replanning capabilities.
+description: Schema for the symbolic state representation used in the RoboDojo planner.
 type: object
 properties:
   state_id:
     type: string
-    description: Unique identifier for this symbolic state instance.
+    description: Unique identifier for the state.
   predicates:
     type: array
-    description: List of logical predicates true in the current state.
     items:
       type: string
+    description: List of active logical predicates in this state.
   affordances:
     type: object
-    description: >
-      Dictionary mapping object identifiers to their available affordances.
-      Keys are object IDs (string), values are lists of action strings.
     additionalProperties:
       type: array
       items:
         type: string
+    description: Mapping from object identifiers to lists of available actions (affordances).
   connectivity:
     type: array
-    description: List of connectivity graph edges or neighbors for the current state.
     items:
       type: string
+    description: List of state IDs that are directly reachable from this state.
   replan_support:
     type: boolean
-    description: >
-      Flag indicating whether the current state/task supports dynamic replanning
-      based on execution feedback.
+    description: Flag indicating whether this state supports dynamic replanning.
 required:
   - state_id
   - predicates
   - affordances
   - connectivity
   - replan_support
-additionalProperties: false

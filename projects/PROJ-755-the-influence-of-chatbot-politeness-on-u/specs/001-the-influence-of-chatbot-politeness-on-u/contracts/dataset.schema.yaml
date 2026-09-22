@@ -1,44 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Dialogue Dataset Schema"
-description: "Schema for the processed dialogue dataset containing politeness scores and quality ratings."
+title: "Politeness Analysis Dataset Schema"
+description: "Schema for the processed dialogue dataset used in CLMM analysis."
 type: object
 properties:
   dialogue_id:
     type: string
     description: "Unique identifier for the dialogue."
-  user_id:
+  annotator_id:
     type: string
-    description: "Identifier for the user who participated in the dialogue."
+    description: "Anonymized annotator identifier."
   quality_rating:
     type: integer
+    description: "User-reported quality rating (1-5)."
     minimum: 1
     maximum: 5
-    description: "User-reported quality rating (1-5 Likert scale)."
   mean_politeness_score:
     type: number
-    description: "Z-scored mean politeness score of chatbot utterances in the dialogue."
+    description: "Z-scored mean politeness score of chatbot utterances (within-dataset)."
   conversation_length:
     type: integer
-    description: "Total word count of the dialogue."
-  user_sentiment:
-    type: number
-    description: "Average sentiment score of user utterances."
+    description: "Word count of chatbot utterances in the dialogue."
+    minimum: 0
+  dataset_source:
+    type: string
+    description: "Source dataset name."
+    enum:
+      - "EmpatheticDialogues"
+      - "HCI_P2"
   utterance_count:
     type: integer
-    description: "Number of utterances in the dialogue."
-  is_complete:
-    type: boolean
-    description: "Flag indicating if the dialogue passed all filtering criteria."
-  source_dataset:
-    type: string
-    description: "Source dataset name (e.g., 'HCI_P2')."
+    description: "Number of chatbot utterances."
+    minimum: 1
 required:
   - dialogue_id
-  - user_id
+  - annotator_id
   - quality_rating
   - mean_politeness_score
   - conversation_length
+  - dataset_source
   - utterance_count
-  - is_complete
-  - source_dataset
 additionalProperties: false

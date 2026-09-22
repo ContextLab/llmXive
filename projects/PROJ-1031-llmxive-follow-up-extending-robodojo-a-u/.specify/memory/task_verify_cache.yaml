@@ -22,11 +22,11 @@ T006b:
     file must be present for the test to be functional.
 T006c:
   c: false
-  h: cd8876eba5d52e7f0df8695e5ea5a89f7ea964f8dc793768376f40ed803dba2e
-  r: The test file `code/tests/contract/test_compute_metric.py` exists but is truncated
-    (the final test method is incomplete) and it depends on `specs/001-symbolic-dojo-extend/contracts/compute_metric.schema.yaml`,
-    which is missing from the repository. Without the schema file and a complete test
-    suite, the contract validation cannot be performed.
+  h: 42ea4beb4d5405f1938e9200902bcd61aa8c058f1b3173d5c9b5d1c62df30ed0
+  r: The test file `code/tests/contract/test_compute_metric.py` exists, but the required
+    schema `specs/001-symbolic-dojo-extend/contracts/compute_metric.schema.yaml` is
+    missing, so the jsonschema validation cannot be performed. Add the missing schema
+    file (and ensure it matches the contract) to satisfy the task.
 T006d:
   c: false
   h: 65fad0712e2299a2750cda8abdf862e1ffa8c91ae901d9e96475113f8d419156
@@ -36,9 +36,30 @@ T006d:
     artifact must be added for the task to be complete.
 T010:
   c: false
-  h: 6e4e01da122577b79b5fd345baf7072bf6419128b55c2c7ad1f85b9d8a9f921c
-  r: The provided `controller_adapter.py` only defines the Linear Probe class and
-    some utility functions; it does not implement the required data split, training
-    loop, validation logic, conditional saving of interim and final weights, nor does
-    it raise `ValidationFailedError`. Moreover, the expected weight files `data/processed/adapter_weights_interim.pt`
-    and `data/processed/adapter_weights.pt` are absent.
+  h: 64fc30d1cad00eb26c30564dcb22820317f4514a1a87aa2b74de2aa457e8eeda
+  r: "The provided `controller_adapter.py` defines a LinearProbe class but does not\
+    \ contain the required data\u2011splitting, training loop, validation logic, threshold\
+    \ check, or weight\u2011saving steps, and the expected weight files (`data/processed/adapter_weights_interim.pt`\
+    \ and `data/processed/adapter_weights.pt`) are absent. The task\u2019s core atomic\
+    \ flow is therefore not implemented."
+T024:
+  c: false
+  h: cc8aba6c21afe30bb2c8e522d2d60a91a0bc6e40cb0799ae4e15286825146915
+  r: The provided `executor.py` only defines data structures and a mock controller;
+    it contains no logic that detects planner or controller failures nor code that
+    appends any label or outcome to a Parquet file. Moreover, the required `data/interim/execution_logs.parquet`
+    file is absent from the repository. Both the implementation and the output artifact
+    are missing.
+T026:
+  c: false
+  h: 3b6be3551625853ac6bd1b41ebbbbc3322621f1331c7507f3653cf0788f80155
+  r: The required artifact `data/interim/execution_logs.parquet` is missing, so no
+    execution metrics have been logged as specified. The task therefore is not satisfied.
+T032:
+  c: true
+  h: 77f666f5af545b58e9cda70fa9a716402c2c2ad86a9f1fc14db23b3ae295834e
+  r: "The `code/src/stats_analysis.py` file exists, is non\u2011empty, and defines\
+    \ `load_baseline_results` and `load_symbolic_results` functions that read the\
+    \ required Parquet files (raising clear errors if they are missing). This matches\
+    \ the task\u2019s requirement to implement loading of the baseline and symbolic\
+    \ results."

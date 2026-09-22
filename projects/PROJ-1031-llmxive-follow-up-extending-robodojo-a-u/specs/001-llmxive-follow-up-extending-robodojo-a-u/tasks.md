@@ -121,7 +121,7 @@
  - **Implementation**: Use `jsonschema.validate` to test against the YAML schema.
 - [X] T003 [P] Implement `code/src/data_loader.py` to stream RoboDojo parquet files from HuggingFace without loading full dataset into RAM
  - **Implementation**: Use `datasets.load_dataset(..., streaming=True)` to iterate over the RoboDojo dataset shards. Do NOT load the full dataset into memory. Accumulate statistics online or process frame-by-frame. Explicitly raise an error if the stream fails to open a verified real source; do NOT fall back to synthetic data. Use dataset ID `RoboDojo/RoboDojo-v1` and commit `v.1`.
-- [ ] T000 [US2] Execute the original RoboDojo Neural Policy on all real-world RoboDojo tasks to generate `data/interim/baseline_results.parquet` labeled as 'Real-Baseline'. <!-- FAILED: unspecified -->
+- [ ] T000 [US2] Execute the original RoboDojo Neural Policy on all real-world RoboDojo tasks to generate `data/interim/baseline_results.parquet` labeled as 'Real-Baseline'. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Implementation**: Load the original RoboDojo Neural Policy weights from HuggingFace dataset `RoboDojo/RoboDojo-v1`, commit `v.1`, file `weights/baseline_policy.pt`. Run the baseline model on each of the real-world tasks. **MUST execute on real-world robot hardware**. If real-world hardware is unavailable, the process MUST raise a `HardwareUnavailableError` and abort immediately. Do NOT substitute simulation or generate a 'Sim-Baseline' result. Log the source ('Real') along with the results. **Dependencies**: Depends on T003 (data ingestion) and T005 (schema definitions).
 - [X] T004 [P] Implement `code/src/metrics_logger.py` to record CPU cycles, RAM usage, and wall-clock time for every task
 - [ ] T007 Implement `code/src/main.py` orchestration script to chain data loading, planning, and logging
@@ -156,11 +156,11 @@
 - [X] T014 [P] [US1] Implement `code/src/state_mapper.py` to map embeddings to discrete `SymbolicState` predicates (affordances, connectivity) explicitly excluding continuous physics dynamics (friction, mass).
  - **Implementation**: Ensure the mapping logic explicitly filters out continuous physics variables. **Depends on T046**.
 - [X] T015 [US1] Implement `code/src/planner.py` with A* algorithm to generate `ActionSequence` of sub-goals
-- [ ] T016 [US1] Add validation in `code/src/planner.py` to ensure generated sequences respect object affordances defined in the input graph
-- [ ] T017 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
-- [ ] T022 [US1] Implement memory-efficient streaming in `code/src/metrics_logger.py` to ensure total RAM usage remains ≤ 6 GB during planning. If RAM exceeds 6 GB, **raise `ResourceLimitExceeded` error and halt the entire process immediately.**
+- [X] T016 [US1] Add validation in `code/src/planner.py` to ensure generated sequences respect object affordances defined in the input graph
+- [X] T017 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
+- [X] T022 [US1] Implement memory-efficient streaming in `code/src/metrics_logger.py` to ensure total RAM usage remains ≤ 6 GB during planning. If RAM exceeds 6 GB, **raise `ResourceLimitExceeded` error and halt the entire process immediately.**
  - **Implementation**: Monitor RAM. If > 6 GB, raise error and halt execution. Do NOT continue to the next task.
-- [ ] T022 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
+- [X] T022 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -174,17 +174,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for `ExecutionOutcome` schema in `code/tests/contract/test_execution_outcome.py`
-- [ ] T020 [P] [US2] Integration test for failure mode logging in `code/tests/integration/test_failure_logging.py`
+- [X] T019 [P] [US2] Contract test for `ExecutionOutcome` schema in `code/tests/contract/test_execution_outcome.py`
+- [X] T020 [P] [US2] Integration test for failure mode logging in `code/tests/integration/test_failure_logging.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T010).
+- [X] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T010).
  - **Implementation**: Use ROS topic `/robot/cmd_pose` and `rosbridge_library` for connection. If connection fails, raise `ConnectionError` and abort.
-- [ ] T023 [US2] Implement logic in `code/src/executor.py` to detect task completion (pose deviation ≤ 5cm, orientation ≤ 15°) and record `ExecutionOutcome`.
+- [X] T023 [US2] Implement logic in `code/src/executor.py` to detect task completion (pose deviation ≤ 5cm, orientation ≤ 15°) and record `ExecutionOutcome`.
 - [ ] T024 [US2] Implement failure detection in `code/src/executor.py` to label failures as "Planner Infeasibility" or "Controller Execution Failure" and explicitly append this label and the outcome to `data/interim/execution_logs.parquet`.
  - **Implementation**: Ensure `failure_mode` column is written to the parquet file.
-- [ ] T025 [US2] Implement conditional check in `code/src/executor.py` to attempt to replan from the last known valid state ONLY IF the `replan_support` flag in `SymbolicState` is true (per T046). If false, record as a hard failure. **Do not implement a new replanning algorithm.**
+- [X] T025 [US2] Implement conditional check in `code/src/executor.py` to attempt to replan from the last known valid state ONLY IF the `replan_support` flag in `SymbolicState` is true (per T046). If false, record as a hard failure. **Do not implement a new replanning algorithm.**
  - **Implementation**: Check `replan_support` flag from `SymbolicState`. If true, attempt replan. If false, log hard failure.
 - [ ] T026 [US2] Log all execution metrics (time, success/failure, failure mode) to `data/interim/execution_logs.parquet`.
 
@@ -200,12 +200,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `code/tests/unit/test_stats.py`
-- [ ] T031 [P] [US3] Integration test for full statistical report generation in `code/tests/integration/test_report.py`
+- [X] T030 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `code/tests/unit/test_stats.py`
+- [X] T031 [P] [US3] Integration test for full statistical report generation in `code/tests/integration/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/src/stats_analysis.py` to load baseline results from `data/interim/baseline_results.parquet` (from T000) and symbolic results from `data/interim/execution_logs.parquet`.
+- [X] T032 [US3] Implement `code/src/stats_analysis.py` to load baseline results from `data/interim/baseline_results.parquet` (from T000) and symbolic results from `data/interim/execution_logs.parquet`.
  - **Implementation**: Load data from T000 and T026.
 - [ ] T033 [US3] Implement Wilcoxon signed-rank test in `code/src/stats_analysis.py` (null hypothesis: median difference = 0).
 - [ ] T033b [US3] Calculate rank-biserial correlation effect size in `code/src/stats_analysis.py`.

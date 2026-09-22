@@ -166,3 +166,114 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T16:56:15Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: p-values remained significant after Benjamini-Hochberg correction
+  claim_id: c_e509e5a9
+  context: 'Multiple Testing: All p-values remained significant after Benjamini-Hochberg
+    correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P-values_remained_significant_after_Benjamini-Hochberg_corre
+  kind: entity_fact
+  raw_text: All p-values remained significant after Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:20Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: correlation coefficient stable across VAF thresholds 0.5% 1.0% 2.0%
+  claim_id: c_d68e140b
+  context: 'Threshold Robustness: The correlation coefficient remained stable across
+    VAF thresholds of 0.5%, 1.0%, and 2.0%, with a range of [X.XX, X.XX] and a standard
+    deviation of X.XX.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation coefficient remained stable across VAF thresholds of 0.5%,
+    1.0%, and 2.0%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:20Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: significant correlations in continental ancestry groups AMR to AFR
+  claim_id: c_ab6a7844
+  context: 'Ancestry Subgroups: Significant correlations were observed in all continental
+    ancestry groups, with coefficients ranging from X.XX (AMR) to X.XX (AFR).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significant_correlations_in_continental_ancestry_groups_AMR
+  kind: entity_fact
+  raw_text: Significant correlations were observed in all continental ancestry groups,
+    with coefficients ranging from X.XX (AMR) to X.XX (AFR).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:52Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: percentage of samples successfully assigned to a haplogroup
+  claim_id: c_4d0138a2
+  context: 'Haplogroup Success Rate: XX% of samples were successfully assigned to
+    a haplogroup.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Percentage_of_samples_successfully_assigned_to_a_haplogroup
+  kind: entity_fact
+  raw_text: XX% of samples were successfully assigned to a haplogroup.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:05:23Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: variations in heteroplasmy burden across haplogroups
+  claim_id: c_15f488ce
+  context: 'Haplogroup-Specific Effects: Significant variations in heteroplasmy burden
+    were observed across haplogroups, with some haplogroups showing higher burden
+    at younger ages.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variations_in_heteroplasmy_burden_across_haplogroups
+  kind: entity_fact
+  raw_text: Significant variations in heteroplasmy burden were observed across haplogroups,
+    with some haplogroups showing higher burden at younger ages.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:05:47Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: percentage of samples failed haplogroup assignment
+  claim_id: c_99781d0d
+  context: 'Haplogroup Assignment: XX% of samples failed haplogroup assignment, which
+    may limit the power of haplogroup-specific analyses.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Percentage_of_samples_failed_haplogroup_assignment
+  kind: entity_fact
+  raw_text: XX% of samples failed haplogroup assignment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:06:11Z'

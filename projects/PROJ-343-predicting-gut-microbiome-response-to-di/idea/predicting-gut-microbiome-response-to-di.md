@@ -9,54 +9,77 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does baseline gut microbial composition determine the magnitude of taxonomic shift following high-fiber dietary intervention in healthy adults?
+Does baseline gut microbial composition (specifically taxonomic abundance and alpha diversity) predict the magnitude of community shift in healthy adults following a high-fiber dietary intervention?
 
 ## Motivation
 
-Personalized nutrition relies on the ability to forecast how an individual's microbiome will respond to specific dietary changes, yet inter-individual variation remains poorly understood. Current evidence suggests diet drives microbiome composition, but predictive models based on baseline features are scarce, particularly in human cohorts. This study addresses the gap by quantifying the relationship between pre-intervention microbial states and subsequent response magnitude.
+Personalized nutrition requires forecasting how an individual's microbiome responds to specific dietary changes, yet the predictive power of baseline states remains unquantified in large human cohorts. While diet-microbiome links are established, few studies isolate the *magnitude* of response as a function of pre-intervention features in healthy adults, often conflating disease states or animal models. This study addresses that gap by determining if baseline diversity and specific taxa serve as reliable predictors of intervention efficacy.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-Searches were performed on Semantic Scholar and OpenAlex using queries including "gut microbiome diet prediction", "baseline microbiome response intervention", and "American Gut dietary shift". The literature block provided yielded 5 results, but most focused on specific disease states, animal models, or trial protocols rather than human predictive modeling of dietary response.
-
-### What is known
-
-- [Individualized Responses of Gut Microbiota to Dietary Intervention Modeled in Humanized Mice (2016)](https://www.semanticscholar.org/paper/0cfff5f97e6ebeb2953c22afa7a282df4b33c782) — Establishes that dietary modification can alter microbiota in controlled settings, though primarily demonstrated in mouse models rather than human prediction.
-- [Pediatric Digestive Health and the Gut Microbiome: Existing Therapies and a Look to the Future. (2021)](https://www.semanticscholar.org/paper/496b94c45c34b2fb0b17fddc27c9c9abc030af8e) — Notes that the gut microbiome shapes critical human functions and interacts with the immune system, supporting the biological plausibility of diet-microbiome links.
-
-### What is NOT known
-
-There is no published work using large-scale public human cohorts to quantify how much baseline diversity or specific taxa predict the *magnitude* of change after a defined fiber intervention. Existing studies focus on disease-specific cohorts (e.g., CLL) or protocol designs rather than generalizable predictive relationships in healthy adults.
-
-### Why this gap matters
-
-Filling this gap would enable evidence-based personalized nutrition recommendations, moving beyond empirical trial-and-error for dietary changes. Identifying baseline predictors could help clinicians target interventions to individuals most likely to benefit, improving adherence and health outcomes.
-
-### How this project addresses the gap
-
-This project will download and analyze public 16S rRNA and metadata from the American Gut Project to correlate baseline features with observed post-intervention shifts. By applying regression modeling on CPU-optimized pipelines, it will produce the first baseline-response map for fiber intervention in a public human dataset.
+- [Microbiome Intervention Analysis with Transfer Functions and Mirror Statistics (2023)](https://arxiv.org/abs/2306.06364) — Proposes rigorous statistical frameworks for analyzing intervention data, providing a methodological precedent for defining and measuring response magnitude in microbiome time-series.
+- [A Bayesian model of microbiome data for simultaneous identification of covariate associations and prediction of phenotypic outcomes (2020)](https://arxiv.org/abs/2004.14817) — Demonstrates the feasibility of using baseline microbiome features to predict phenotypic outcomes, supporting the hypothesis that compositional data contains predictive signal for intervention responses.
 
 ## Expected results
 
-We expect to identify specific baseline taxa (e.g., Prevotella copri) that correlate with larger shifts in alpha diversity following fiber intake, though a null result indicating high stochasticity would also be scientifically valuable. The measurement confirming the hypothesis will be a significant cross-validated R² value (>0.1) in predicting response magnitude from baseline composition. Evidence will be considered sufficient if the model outperforms a null permutation baseline across at least two independent public cohorts.
+We expect to identify a subset of baseline taxa (e.g., *Prevotella* or *Bacteroides* ratios) and alpha diversity metrics that significantly correlate with the magnitude of community shift (measured as Aitchison distance) post-intervention. A null result indicating that response magnitude is stochastic or driven by unmeasured host factors would also be scientifically valuable, constraining the limits of personalized nutrition models. Evidence will be considered sufficient if a cross-validated Random Forest model outperforms a null permutation baseline (p < 0.05) in predicting response magnitude.
 
 ## Methodology sketch
 
-- Download raw 16S amplicon sequences and metadata from the American Gut Project and NCBI SRA (publicly available).
-- Filter samples to include only participants with documented dietary intervention records (pre- and post-samples).
-- Process sequences using QIIME2 or DADA2 on CPU, subsampling to 10,000 reads per sample to fit 7 GB RAM limits.
-- Calculate baseline diversity metrics (Shannon, Faith's PD) and taxonomic abundances at the genus level.
-- Define the response variable as the Euclidean distance in community composition between pre- and post-intervention timepoints.
-- Train a Random Forest regressor using scikit-learn (CPU mode) to predict response distance from baseline features.
-- Apply 5-fold cross-validation to estimate generalization error and prevent overfitting.
-- Perform permutation testing (1000 iterations) to assess statistical significance of feature importance.
-- Generate summary figures (feature importance plots, predicted vs. observed scatter) using matplotlib.
-- Archive code and processed data in a public repository for reproducibility.
+- **Data Acquisition**: Download 16S rRNA amplicon sequences and associated metadata from the American Gut Project (AGP) via the Qiita database or NCBI SRA, filtering specifically for participants with documented high-fiber intervention records (pre- and post-samples).
+- **Preprocessing & Quality Control**: Process sequences using DADA2 on CPU, performing strict quality filtering and chimera removal; subsample all samples to a uniform depth of **10,000 reads** to ensure comparability and fit within 7 GB RAM constraints.
+- **Feature Engineering**: Calculate baseline alpha diversity (Shannon index, Faith's Phylogenetic Diversity) and genus-level relative abundances; apply Centered Log-Ratio (CLR) transformation to abundance data to handle compositionality.
+- **Response Variable Definition**: Compute the response magnitude for each participant as the **Aitchison distance** (Euclidean distance on CLR-transformed data) between their pre-intervention and post-intervention community profiles.
+- **Model Training**: Train a Random Forest regressor (using `scikit-learn` with CPU-only execution) to predict the Aitchison distance response variable using baseline CLR-abundances and diversity metrics as features.
+- **Validation Strategy**: Perform 5-fold cross-validation to estimate generalization error ($R^2$); ensure the validation target (post-intervention shift) is **independent** of the baseline predictors (pre-intervention state) to avoid circularity.
+- **Statistical Significance**: Conduct permutation testing (1,000 iterations) on the response variable to generate a null distribution and determine if the observed model performance exceeds chance.
+- **Robustness Check**: Repeat the analysis on a secondary public cohort (if available) or via bootstrapping within the AGP to verify that predictors are not dataset-specific artifacts.
+- **Output Generation**: Generate feature importance plots, observed vs. predicted scatter plots, and a summary table of significant baseline predictors using `matplotlib` and `seaborn`.
+- **Reproducibility**: Archive the complete analysis pipeline (scripts, environment file) and processed data in a public repository (e.g., Zenodo or GitHub) with a DOI.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in input context.
 - Closest match: N/A (No corpus available for comparison).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-22T01:20:54Z
+**Outcome**: exhausted
+**Original term**: Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data biology
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data biology | 0 |
+| 1 | gut microbiota response to diet | 4 |
+| 2 | dietary modulation of gut microbiome | 0 |
+| 3 | personalized nutrition microbiome prediction | 0 |
+| 4 | machine learning gut microbiome diet | 0 |
+| 5 | meta-analysis diet microbiome intervention | 0 |
+| 6 | fecal microbiota diet response prediction | 0 |
+| 7 | nutritional intervention microbiome composition | 0 |
+| 8 | public microbiome datasets diet | 0 |
+| 9 | microbiome dietary intervention modeling | 0 |
+| 10 | gut ecosystem response to nutrition | 0 |
+| 11 | diet-induced microbiome shifts | 0 |
+| 12 | microbiome-based dietary response biomarkers | 0 |
+| 13 | supervised learning gut microbiome prediction | 0 |
+| 14 | integrative analysis diet microbiome data | 0 |
+| 15 | gut microbiome variability diet | 0 |
+| 16 | computational prediction microbiome diet | 0 |
+| 17 | diet-microbiome-host interaction modeling | 0 |
+| 18 | open-access microbiome diet studies | 0 |
+| 19 | longitudinal microbiome diet analysis | 0 |
+| 20 | microbial community response to dietary changes | 0 |
+
+### Verified citations
+
+1. **Microbiome Intervention Analysis with Transfer Functions and Mirror Statistics** (2023). Kris Sankaran, Pratheepa Jeganathan. arXiv. [2306.06364](https://arxiv.org/abs/2306.06364). PDF-sampled: No.
+2. **A Bayesian model of microbiome data for simultaneous identification of covariate associations and prediction of phenotypic outcomes** (2020). Matthew D. Koslovsky, Kristi L. Hoffman, Carrie R. Daniel, Marina Vannucci. arXiv. [2004.14817](https://arxiv.org/abs/2004.14817). PDF-sampled: No.
+3. **DiMB-RE: Mining the Scientific Literature for Diet-Microbiome Associations** (2024). Gibong Hong, Veronica Hindle, Nadine M. Veasley, Hannah D. Holscher, Halil Kilicoglu. arXiv. [2409.19581](https://arxiv.org/abs/2409.19581). PDF-sampled: No.
+4. **Information content of high-order associations of the human gut microbiota network** (2020). Weston D. Viles, Juliette C. Madan, Hongzhe Li, Jason C. Moore, Margaret R. Karagas, et al.. arXiv. [2005.08107](https://arxiv.org/abs/2005.08107). PDF-sampled: No.

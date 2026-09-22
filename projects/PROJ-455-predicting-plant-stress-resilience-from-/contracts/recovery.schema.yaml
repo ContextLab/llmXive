@@ -1,37 +1,37 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: RecoveryMetric
-description: Schema for recovery metrics derived from biomass or survival data.
+description: Schema for plant recovery metrics post-stress.
 type: object
 required:
   - sample_id
-  - metric_type
-  - value
-  - normalized_index
+  - recovery_index
+  - biomass_change
 properties:
   sample_id:
     type: string
-    description: Reference to the sample this metric belongs to.
-  metric_type:
-    type: string
-    description: Original type of measurement.
-    enum:
-      - biomass
-      - survival_rate
-      - chlorophyll_content
-      - root_length
-  value:
+    description: Unique identifier for the sample.
+    minLength: 1
+  recovery_index:
     type: number
-    description: Raw measured value.
-  normalized_index:
-    type: number
-    description: Normalized Recovery Index (0.0 to 1.0).
-    minimum: 0.0
-    maximum: 1.0
-  timepoint:
-    type: integer
-    description: Days post-stress for this measurement.
+    description: Normalized recovery index (0-1 scale).
     minimum: 0
+    maximum: 1
+  biomass_change:
+    type: number
+    description: Percentage change in biomass compared to control.
+    nullable: true
+  survival_rate:
+    type: number
+    description: Survival rate percentage (0-100).
+    minimum: 0
+    maximum: 100
+    nullable: true
+  days_to_recovery:
+    type: number
+    description: Days taken to reach baseline or recovery threshold.
+    minimum: 0
+    nullable: true
   metadata:
     type: object
-    description: Optional context for the measurement.
+    description: Optional additional metadata.
     additionalProperties: true

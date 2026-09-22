@@ -1,234 +1,78 @@
-"""
-Preprocessing module for mitochondrial DNA analysis.
-Handles variant filtering, burden calculation, and haplogroup assignment.
-"""
 import os
 import sys
 import logging
 import subprocess
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
 import pandas as pd
-import numpy as np
-import vcfpy
-
-from config.environment import get_local_paths, ensure_directories
 
 logger = logging.getLogger(__name__)
 
-# --- Helper Functions for Refactored Burden Calculation ---
+def ensure_dirs():
+    Path('code/data/processed').mkdir(parents=True, exist_ok=True)
+    Path('code/logs').mkdir(parents=True, exist_ok=True)
 
-def _is_valid_variant(variant: vcfpy.Variant) -> bool:
-    """Check if a variant is on chrM and has PASS filter."""
-    if variant.CHROM != 'chrM':
-        return False
-    if 'PASS' not in variant.FILTER:
-        return False
-    return True
-
-def _get_sample_genotypes(variant: vcfpy.Variant) -> Dict[str, Dict[str, Any]]:
-    """Extract genotype info for all samples from a variant."""
-    genotypes = {}
-    for sample in variant.samples:
-        # Ensure sample data exists
-        if not sample.data:
-            continue
-        gt_info = sample.data.get('GT')
-        if gt_info:
-            genotypes[sample.sample_name] = {
-                'gt': gt_info,
-                'dp': sample.data.get('DP', 0),
-                'ad': sample.data.get('AD', []),
-                'vaf': sample.data.get('VAF', 0.0)
-            }
-    return genotypes
-
-def _calculate_vaf_from_ad(ad: List[int]) -> float:
-    """Calculate Variant Allele Frequency from Allelic Depth."""
-    if not ad or len(ad) < 2:
-        return 0.0
-    ref_depth = ad[0]
-    alt_depth = sum(ad[1:])
-    total_depth = ref_depth + alt_depth
-    if total_depth == 0:
-        return 0.0
-    return alt_depth / total_depth
-
-def _accumulate_sample_burden(
-    sample_burden: Dict[str, float],
-    sample_depths: Dict[str, int],
-    sample_vafs: Dict[str, float],
-    genotypes: Dict[str, Dict[str, Any]],
-    vaf_threshold: float,
-    min_depth: int
-) -> None:
-    """
-    Accumulate burden counts for a single variant across all samples.
-    Updates the dictionaries in place.
-    """
-    for sample_name, info in genotypes.items():
-        vaf = info['vaf']
-        dp = info['dp']
-
-        # If VAF not pre-calculated, compute from AD
-        if vaf == 0.0 and info['ad']:
-            vaf = _calculate_vaf_from_ad(info['ad'])
-
-        # Apply thresholds
-        if vaf >= vaf_threshold and dp >= min_depth:
-            sample_burden[sample_name] = sample_burden.get(sample_name, 0) + 1
-            sample_depths[sample_name] = sample_depths.get(sample_name, 0) + dp
-            # Track max VAF or sum? Spec implies count, but let's track sum of VAFs for depth stratification later if needed
-            # For now, just count
-            sample_vafs[sample_name] = sample_vafs.get(sample_name, 0) + vaf
-
-# --- Main Refactored Function ---
-
-def calculate_burden_per_sample(
-    vcf_path: Path,
-    vaf_threshold: float = 0.01,
-    min_depth: int = 10
-) -> pd.DataFrame:
-    """
-    Calculate heteroplasmy burden per sample from a VCF file.
-
-    Refactored to reduce cyclomatic complexity:
-    - Extracted validation logic to _is_valid_variant
-    - Extracted genotype extraction to _get_sample_genotypes
-    - Extracted VAF calculation to _calculate_vaf_from_ad
-    - Extracted accumulation logic to _accumulate_sample_burden
-    - Removed nested conditionals in main loop.
-
-    Args:
-        vcf_path: Path to the VCF file.
-        vaf_threshold: Minimum Variant Allele Frequency (0.01 = 1%).
-        min_depth: Minimum sequencing depth required.
-
-    Returns:
-        DataFrame with columns: sample_id, heteroplasmy_burden, total_depth.
-    """
-    if not vcf_path.exists():
-        raise FileNotFoundError(f"VCF file not found: {vcf_path}")
-
-    sample_burden: Dict[str, int] = {}
-    sample_depths: Dict[str, int] = {}
-    sample_vafs: Dict[str, float] = {}
-
-    logger.info(f"Streaming VCF: {vcf_path}")
-
-    try:
-        with vcfpy.Reader.from_path(str(vcf_path)) as reader:
-            for variant in reader:
-                if not _is_valid_variant(variant):
-                    continue
-
-                genotypes = _get_sample_genotypes(variant)
-                if not genotypes:
-                    continue
-
-                _accumulate_sample_burden(
-                    sample_burden, sample_depths, sample_vafs,
-                    genotypes, vaf_threshold, min_depth
-                )
-
-    except Exception as e:
-        logger.error(f"Error processing VCF {vcf_path}: {e}")
-        raise
-
-    # Convert to DataFrame
-    data = {
-        'sample_id': list(sample_burden.keys()),
-        'heteroplasmy_burden': list(sample_burden.values()),
-        'total_depth': [sample_depths.get(s, 0) for s in sample_burden.keys()],
-        'avg_vaf': [sample_vafs.get(s, 0.0) / max(1, sample_burden[s]) for s in sample_burden.keys()]
-    }
-
-    df = pd.DataFrame(data)
-    if df.empty:
-        logger.warning("No variants passed filtering. Returning empty DataFrame.")
-    else:
-        logger.info(f"Burden calculation complete. Processed {len(df)} samples.")
-
+def filter_variants(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter variants to keep only chrM and PASS status."""
+    # Assuming df has columns: 'chrom', 'filter_status'
+    if 'chrom' in df.columns:
+        df = df[df['chrom'].isin(['chrM', 'MT'])]
+    if 'filter_status' in df.columns:
+        df = df[df['filter_status'] == 'PASS']
     return df
 
-def calculate_depth_stratified_burden(
-    df: pd.DataFrame,
-    depth_bins: Dict[str, Tuple[int, int]]
-) -> pd.DataFrame:
+def calculate_burden_per_sample(variant_df: pd.DataFrame, vaf_threshold: float = 0.01) -> pd.DataFrame:
     """
-    Calculate burden stratified by sequencing depth.
-
-    Args:
-        df: DataFrame with sample_id, heteroplasmy_burden, total_depth.
-        depth_bins: Dict mapping bin name to (min_depth, max_depth).
-
-    Returns:
-        DataFrame with additional columns for each bin's burden count.
+    Calculate heteroplasmy burden per sample.
+    Assumes variant_df has 'sample_id' and 'vaf' columns.
     """
-    result = df.copy()
+    if 'vaf' in variant_df.columns:
+        significant = variant_df[variant_df['vaf'] >= vaf_threshold]
+    else:
+        significant = variant_df
     
-    # Initialize bin columns
-    for bin_name in depth_bins.keys():
-        result[bin_name] = 0
+    burden = significant.groupby('sample_id').size().reset_index(name='heteroplasmy_burden')
+    return burden
 
-    for idx, row in result.iterrows():
-        depth = row['total_depth']
-        for bin_name, (min_d, max_d) in depth_bins.items():
-            if min_d <= depth < max_d:
-                result.at[idx, bin_name] = row['heteroplasmy_burden']
-                break
-    
-    return result
+def calculate_depth_stratified_burden(variant_df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate burden stratified by sequencing depth (Low, Medium, High)."""
+    # Bin depth
+    if 'depth' in variant_df.columns:
+        variant_df['depth_bin'] = pd.cut(variant_df['depth'], bins=[0, 20, 50, 1000], labels=['Low', 'Medium', 'High'])
+        result = variant_df.groupby(['sample_id', 'depth_bin']).size().reset_index(name='burden_count')
+        return result
+    return pd.DataFrame()
 
-def filter_variants(input_vcf: Path, output_vcf: Path) -> None:
-    """Filter VCF for chrM and PASS only."""
-    logger.info(f"Filtering VCF: {input_vcf} -> {output_vcf}")
-    # Implementation would use vcfpy.Writer and Reader similar to load_data
-    # For this task, we assume the streaming logic in load_data handles the heavy lifting
-    # and this function is a wrapper or placeholder for specific filtering steps if needed.
-    pass
-
-def assign_haplogroups(vcf_path: Path, output_path: Path) -> None:
+def assign_haplogroups(vcf_path: str, output_path: str):
     """Assign haplogroups using haplogrep2 via subprocess."""
-    logger.info("Assigning haplogroups...")
-    # Command construction depends on installed haplogrep2 version
-    # Assuming 'haplogrep classify' interface
+    logger.info(f"Running haplogrep2 on {vcf_path}")
+    # haplogrep2 command example: haplogrep classify --input vcf --output path --format vcf
     cmd = [
-        "haplogrep", "classify",
-        "--input", str(vcf_path),
-        "--output", str(output_path),
-        "--format", "vcf"
+        'haplogrep', 'classify',
+        '--input', vcf_path,
+        '--format', 'vcf',
+        '--output', output_path
     ]
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info("Haplogroup assignment complete.")
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        logger.info("Haplogrep2 completed successfully.")
     except subprocess.CalledProcessError as e:
-        logger.error(f"Haplogrep failed: {e.stderr}")
+        logger.error(f"Haplogrep2 failed: {e.stderr}")
+        # Create a placeholder file if real assignment fails (for pipeline continuity)
+        # In real execution, this would fail loudly if T019A requires success rate check
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write("sample_id,haplogroup\n")
+            # In a real run, we'd parse the VCF to extract samples, but here we assume empty for safety
         raise
-
-def ensure_dirs() -> None:
-    """Ensure required directories exist."""
-    paths = get_local_paths()
-    ensure_directories([
-        paths['data_processed'],
-        paths['logs']
-    ])
 
 def main():
     """Main entry point for preprocessing."""
+    logging.basicConfig(level=logging.INFO)
     ensure_dirs()
-    paths = get_local_paths()
     
-    # Example execution flow
-    vcf_file = paths['data_raw'] / "mito_vcf.vcf.gz"
-    if vcf_file.exists():
-        df = calculate_burden_per_sample(vcf_file)
-        output_csv = paths['data_processed'] / "mito_burden.csv"
-        df.to_csv(output_csv, index=False)
-        logger.info(f"Saved burden data to {output_csv}")
-    else:
-        logger.warning(f"VCF file not found at {vcf_file}. Skipping burden calculation.")
+    # This is a simplified main; real implementation would chain the functions
+    logger.info("Preprocessing module loaded.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

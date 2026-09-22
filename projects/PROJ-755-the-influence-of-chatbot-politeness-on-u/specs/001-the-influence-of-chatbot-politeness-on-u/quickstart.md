@@ -1,37 +1,111 @@
-# Quickstart: Chatbot Politeness and User Trust
+# Quickstart: The Influence of Chatbot Politeness on User-Perceived Quality
 
 ## Prerequisites
 
-*   Python 3.11
-*   GitHub Actions account
-*   Access to the Persona-Chat and EmpatheticDialogues datasets on Hugging Face Datasets.
+- Python 3.11+
+- R 4.3+ (for CLMM)
+- Git
+- HuggingFace CLI (optional, for manual downloads)
+- `HF_TOKEN` (if datasets require authentication, though verified ones are public)
 
 ## Installation
 
-1.  Clone the repository: `git clone <repository_url>`
-2.  Navigate to the project directory: `cd <project_directory>`
-3.  Create a virtual environment: `python3 -m venv venv`
-4.  Activate the virtual environment: `source venv/bin/activate`
-5.  Install dependencies: `pip install -r requirements.txt`
+1. **Clone the Repository**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-755-the-influence-of-chatbot-politeness-on-u
+   ```
 
-## Running the Analysis
+2. **Set Up Python Environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
+   ```
 
-1.  Execute the main script: `python src/main.py` (This will download the data, compute politeness scores, fit the CLMM, and generate results.)
-2.  The results will be saved in the `results/` directory.
+3. **Set Up R Environment**
+   ```bash
+   # Install R packages (if not pre-installed in CI)
+   Rscript -e 'install.packages(c("ordinal", "lme4", "lmerTest", "car", "pryr"))'
+   ```
 
-## Data Access
+4. **Configure Environment Variables**
+   Create a `.env.template` file in the root (T010b):
+   ```bash
+   HF_TOKEN=your_token_here
+   ```
+   Copy to `.env` and fill in your token.
 
-The datasets will be automatically downloaded from Hugging Face Datasets. Ensure you have sufficient disk space (approximately 7GB).
+5. **Create Directory Structure** (T001a, T001b, T001c, T001d)
+   Ensure the following directories exist:
+   - `data/raw`, `data/processed`, `data/models`
+   - `code`, `code/utils`
+   - `tests`, `tests/contract`, `tests/unit`, `tests/integration`
+   - `docs`, `docs/reports`, `state`
 
-## Code Structure
+6. **Configure Linting** (T003)
+   Create `pyproject.toml` with Black and Ruff settings:
+   ```toml
+   [tool.black]
+   line-length = 88
 
-*   `src/main.py`: Main script for running the analysis.
-*   `src/data_processing.py`: Functions for downloading, validating, and filtering the datasets.
-*   `src/politeness_scoring.py`: Functions for computing politeness scores.
-*   `src/statistical_analysis.py`: Functions for fitting the CLMM and conducting subgroup analyses.
+   [tool.ruff]
+   select = ["E", "F", "I"]
+   ```
+
+## Running the Pipeline
+
+### 1. Data Download and Scoring (US1)
+```bash
+python code/download_and_score.py
+# Output: data/processed/dialogues_scored.parquet
+```
+*Note: This step may take 1-3 hours on CPU. It will automatically stream data to avoid OOM.*
+
+### 2. Primary Analysis (US2)
+```bash
+Rscript code/analysis_clmm.R
+# Output: results/clmm_results.csv
+```
+
+### 3. Robustness Analysis (US3)
+```bash
+python code/robustness_analysis.py
+# Output: results/robustness_results.csv
+```
+
+### 4. Generate Report
+```bash
+python code/generate_report.py
+# Output: docs/reports/final_report.md
+```
+
+## Verification
+
+To verify the installation and data integrity:
+```bash
+pytest tests/unit/
+pytest tests/contract/
+```
+
+## CI Configuration (T004, T004b)
+
+The `.github/workflows/ci.yml` file must include:
+- Python 3.11 installation.
+- R 4.3 installation.
+- Installation of R packages: `lme4`, `ordinal`.
+- Execution of `pytest` and `testthat`.
+- Memory and runtime checks.
+
+Example snippet:
+```yaml
+- name: Install R packages
+  run: |
+    Rscript -e 'install.packages(c("ordinal", "lme4", "lmerTest"))'
+```
 
 ## Troubleshooting
 
-*   If you encounter errors during installation, ensure that you have the correct version of Python and that your virtual environment is activated.
-*   If the analysis takes too long, reduce the size of the dataset or simplify the model.
-*   If you encounter issues with the datasets, check the Hugging Face Datasets documentation.
+- **OOM Error**: Ensure `streaming=True` is used in the data loader.
+- **CLMM Convergence Failure**: The script will automatically log the failure and attempt a simplified fixed-effects model.
+- **LIWC Missing**: The script will fall back to the `textstat` politeness lexicon and log the deviation.

@@ -160,11 +160,11 @@ expected alphabetic or numeric character, but found '*'
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T037 [P] Implement `tests/benchmark/test_pipeline_timing.py` that runs the full pipeline and asserts `execution_time <= 6 hours`.
-- [ ] T038 [P] Implement `code/analysis/sensitivity.py::sensitivity_rejection_threshold(thresholds=[0.08, 0.10, 0.12])` to analyze model robustness by varying the *rejection* threshold for missing values, satisfying the Assumptions section without violating the hard >10% constraint.
+- [X] T038 [P] Implement `code/analysis/sensitivity.py::sensitivity_rejection_threshold(thresholds=[0.08, 0.10, 0.12])` to analyze model robustness by varying the *rejection* threshold for missing values, satisfying the Assumptions section without violating the hard >10% constraint.
 - [X] T039 Refactor `code/data/ingest.py` to use a factory pattern for adapters (MockAdapter, RealAdapter, ExternalDatasetManager).
 - [X] T040 [P] Implement `tests/unit/test_edge_cases.py` with tests for: >10% missing, <50 samples, and missing individual pairing.
 - [ ] T041 Update `README.md` with sections: Installation, Data Generation (Synthetic), Execution Command, and Expected Output.
-- [ ] T042 Execute `quickstart.md` instructions in a fresh environment and verify success, logging any errors.
+- [ ] T042 Execute `quickstart.md` instructions in a fresh environment and verify success, logging any errors. <!-- FAILED: unspecified -->
 
 ---
 

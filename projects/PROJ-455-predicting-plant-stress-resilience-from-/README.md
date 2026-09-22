@@ -1,118 +1,87 @@
 # Predicting Plant Stress Resilience from Publicly Available Metabolomic Data
 
-This project implements a pipeline to predict plant stress resilience using metabolomic data.
-It supports data ingestion (synthetic and real), preprocessing, model training (Random Forest, SVM),
-and cross-stress validation.
-
-## Prerequisites
-
-- Python 3.11+
-- pip
+This project implements a mechanism-guided pipeline to predict plant stress resilience using metabolomic data. It supports both synthetic data generation (for development and validation) and ingestion of real-world datasets from public repositories.
 
 ## Installation
 
-1. Clone the repository and navigate to the project root.
-2. Install dependencies:
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd projects/PROJ-455-predicting-plant-stress-resilience
+ ```
 
-```bash
-pip install -r requirements.txt
-```
+2. **Create a virtual environment** (Python 3.11 recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-**Dependencies**:
-- `pandas==2.0.3`
-- `scikit-learn==1.3.0`
-- `numpy==1.24.0`
-- `requests==2.31.0`
-- `biopython==1.81`
-- `pyyaml==6.0.1`
-- `pytest==7.4.0`
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Data Generation (Synthetic)
 
-For development and testing, synthetic metabolomic data can be generated.
-This data includes embedded ground-truth pathways for validation.
+For development and testing, synthetic metabolomic data with embedded ground-truth pathways can be generated using the `code/data/generator.py` module.
 
-Run the generator script:
-
+**Generate a single synthetic dataset**:
 ```bash
-python code/data/generator.py
+python -c "from data.generator import generate_synthetic_data; generate_synthetic_data(n_samples=1000, stress_type='drought')"
 ```
+This will create a Parquet file in `data/raw/synthetic_*.parquet`.
 
-This will produce a Parquet file in `data/raw/synthetic_*.parquet`.
-
-**Note**: For production runs, use the `ExternalDatasetManager` in `code/data/ingest.py` to fetch
-real data from NCBI GEO or Zenodo.
+**Generate LODO (Leave-One-Dataset-Out) synthetic datasets**:
+```bash
+python -c "from data.generator import generate_lodo_synthetic_datasets; generate_lodo_synthetic_datasets(n_datasets=5, stress_types=['drought', 'salt', 'heat'])"
+```
+This creates multiple distinct Parquet files in `data/raw/` simulating external datasets for cross-validation.
 
 ## Execution Command
 
-To run the full pipeline (Ingestion -> Preprocessing -> Training -> Validation):
+The full pipeline can be executed to ingest data, preprocess, train models, and validate results.
 
+**Run the full pipeline** (uses synthetic data by default if no real data is configured):
 ```bash
-python code/run_pipeline.py
+python -m code.analysis.pipeline
 ```
 
-**Configuration**:
-- Ensure `data/raw/synthetic_*.parquet` exists if running with synthetic data.
-- Adjust adapter settings in `code/data/ingest.py` to switch between `MockAdapter` and `RealAdapter`.
-
-**Output**:
-- Processed data: `data/processed/preprocessed_data.parquet`
-- Model results: `data/results/model_metrics.json`
-- Validation reports: `data/results/validation_report.json`
+**Run specific stages**:
+- **Ingest & Preprocess**:
+ ```bash
+ python -c "from data.ingest import get_adapter; from data.preprocess import normalize_recovery, normalize_tic_and_log; adapter = get_adapter('mock'); df = adapter.fetch(); df = normalize_tic_and_log(df)"
+ ```
+- **Train Models**:
+ ```bash
+ python -c "from models.train import train_random_forest, get_top_features; model, metrics = train_random_forest(X, y); print(get_top_features(model, n=20))"
+ ```
+- **Validate (LODO & Cross-Stress)**:
+ ```bash
+ python -c "from models.validate import lodo_cv, cross_stress_eval; scores = lodo_cv(models, datasets)"
+ ```
 
 ## Expected Output
 
-Upon successful execution, the following artifacts will be generated:
+Upon successful execution, the pipeline produces the following artifacts:
 
-1. **Preprocessed Data**: A Parquet file containing normalized metabolomic profiles and recovery indices.
-2. **Model Metrics**: A JSON file containing R² or Pearson correlation scores for Random Forest and SVM models.
-3. **Feature Importance**: Top 20 predictive metabolites listed in the model results.
-4. **Validation Report**: Cross-stress generalizability scores and permutation test p-values.
+1. **Processed Data**:
+ - `data/processed/normalized_profiles.parquet`: Cleaned and normalized metabolomic profiles.
+ - `data/processed/recovery_indices.csv`: Mapped recovery metrics (0-1 scale).
 
-Example `model_metrics.json`:
+2. **Model Artifacts**:
+ - `data/results/model_rf.pkl`: Trained Random Forest model.
+ - `data/results/model_svm.pkl`: Trained SVM model.
+ - `data/results/metrics.json`: Performance metrics (R², Pearson r) and feature importance rankings.
 
-```json
-{
- "model": "RandomForest",
- "metric": "R2",
- "score": 0.85,
- "top_features": ["Metabolite_A", "Metabolite_B",...]
-}
-```
+3. **Validation Reports**:
+ - `data/results/lodo_scores.json`: Leave-One-Dataset-Out cross-validation scores.
+ - `data/results/pathway_enrichment.json`: KEGG pathway alignment and enrichment p-values.
 
-## Project Structure
+4. **Logs**:
+ - `logs/pipeline.log`: Detailed execution logs including data rejection reasons and training progress.
 
-```text
-.
-├── code/
-│ ├── data/ # Ingestion, generation, and preprocessing modules
-│ ├── models/ # Training and validation logic
-│ ├── analysis/ # Pathway analysis and sensitivity checks
-│ ├── utils/ # Logging and error handling
-│ └── run_pipeline.py # Main entry point
-├── data/
-│ ├── raw/ # Raw input data (synthetic or downloaded)
-│ ├── processed/ # Normalized and imputed data
-│ └── results/ # Model outputs and reports
-├── contracts/ # Data schemas (YAML)
-├── tests/ # Unit, integration, and contract tests
-└── README.md
-```
-
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-Specific test groups:
-- `tests/unit/`: Unit tests for individual functions.
-- `tests/integration/`: End-to-end pipeline tests.
-- `tests/contract/`: Schema validation tests.
-- `tests/benchmark/`: Performance timing tests.
-
-## License
-
-MIT License
+**Success Criteria**:
+- No `DataRejectionError` for missing thresholds >10%.
+- Model R² or Pearson r > 0.5 on held-out test sets.
+- Pathway enrichment p-value < 0.05 or Jaccard similarity ≥ 0.3.
+- Execution time < 6 hours (as per `tests/benchmark/test_pipeline_timing.py`).

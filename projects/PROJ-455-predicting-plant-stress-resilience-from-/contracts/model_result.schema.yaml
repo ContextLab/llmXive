@@ -1,47 +1,55 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ModelResult
-description: Schema for model training results including metrics and top features.
+description: Schema for model training results and metrics.
 type: object
 required:
   - model_type
-  - training_time_sec
   - cv_folds
-  - metric_value
-  - metric_name
+  - metrics
   - top_features
+  - training_time_seconds
 properties:
   model_type:
     type: string
-    description: The type of model trained (e.g., RandomForest, SVM).
-  training_time_sec:
-    type: number
-    description: Time taken to train the model in seconds.
-  n_estimators:
-    type: integer
-    description: Number of estimators (only for tree-based models).
-    nullable: true
-  kernel:
-    type: string
-    description: Kernel type (only for SVM).
-    nullable: true
+    description: Type of model trained (e.g., 'RandomForest', 'SVM').
   cv_folds:
     type: integer
     description: Number of cross-validation folds used.
-  metric_value:
-    type: number
-    description: The performance metric value (R² or Pearson r).
-  metric_name:
-    type: string
-    description: Name of the metric (e.g., R2, Pearson_r).
+  metrics:
+    type: object
+    description: Dictionary of evaluation metrics.
+    required:
+      - r2
+      - rmse
+      - mean_absolute_error
+    properties:
+      r2:
+        type: number
+        description: R-squared value or Pearson correlation coefficient.
+      rmse:
+        type: number
+        description: Root Mean Squared Error.
+      mean_absolute_error:
+        type: number
+        description: Mean Absolute Error.
   top_features:
     type: array
-    description: List of top features with their importance scores.
+    description: List of top N features with importance scores.
     items:
-      type: array
-      maxItems: 2
-      minItems: 2
-      items:
-        - type: string
-          description: Feature name.
-        - type: number
-          description: Importance score.
+      type: object
+      required:
+        - feature_name
+        - importance
+      properties:
+        feature_name:
+          type: string
+        importance:
+          type: number
+  training_time_seconds:
+    type: number
+    description: Total time taken for training in seconds.
+  feature_names:
+    type: array
+    description: List of all feature names used in the model.
+    items:
+      type: string

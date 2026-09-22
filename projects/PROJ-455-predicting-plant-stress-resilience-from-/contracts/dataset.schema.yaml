@@ -1,39 +1,55 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MetabolomicProfile
-description: Schema for plant metabolomic dataset matching the project's data model.
+title: MetabolomicProfile Dataset
+description: Schema for the metabolomic profile dataset used in plant stress resilience prediction.
 type: object
-required:
-  - sample_id
-  - stress_type
-  - recovery_days
-  - biomass_change
-  - metabolites
-  - timestamp
 properties:
   sample_id:
     type: string
     description: Unique identifier for the sample.
+  accession_id:
+    type: string
+    description: External dataset accession identifier.
   stress_type:
     type: string
-    enum:
-      - DROUGHT
-      - HEAT
-      - COLD
-      - SALT
+    enum: [drought, heat, cold, salinity, pathogen]
     description: Type of stress applied.
-  recovery_days:
-    type: number
-    minimum: 0
-    description: Number of days post-stress for recovery measurement.
-  biomass_change:
-    type: number
-    description: Relative change in biomass (post/pre).
-  metabolites:
+  pre_stress_metabolites:
     type: object
-    description: Key-value pairs of metabolite names to concentrations.
     additionalProperties:
       type: number
-  timestamp:
+    description: Dictionary of metabolite concentrations before stress.
+  post_stress_metabolites:
+    type: object
+    additionalProperties:
+      type: number
+    description: Dictionary of metabolite concentrations after stress.
+  recovery_days:
+    type: number
+    description: Time in days for recovery.
+  recovery_index:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Normalized recovery metric (0-1 scale).
+  biomass_change:
+    type: number
+    description: Relative change in biomass.
+  survival_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Survival rate of the plant population.
+  experiment_date:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the measurement.
+    description: Date of the experiment.
+  source_dataset:
+    type: string
+    description: Name of the source dataset.
+required:
+  - sample_id
+  - stress_type
+  - pre_stress_metabolites
+  - post_stress_metabolites
+  - recovery_days
+  - recovery_index

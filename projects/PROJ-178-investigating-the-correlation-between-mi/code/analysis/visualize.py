@@ -4,104 +4,62 @@ import logging
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
-def load_sensitivity_results():
-    """Load sensitivity analysis results."""
-    path = Path("code/data/processed/sensitivity_results.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Sensitivity results not found at {path}")
-    return pd.read_csv(path)
+logger = logging.getLogger(__name__)
 
-def plot_threshold_sensitivity(results_df):
+def load_sensitivity_results(filepath: str) -> pd.DataFrame:
+    """Load sensitivity results."""
+    return pd.read_csv(filepath)
+
+def plot_threshold_sensitivity(df: pd.DataFrame, output_path: str):
     """Plot threshold sensitivity results."""
-    logger = logging.getLogger(__name__)
-    logger.info("Generating threshold sensitivity plot...")
-
-    if results_df.empty or results_df['coefficient'].isna().all():
-        logger.warning("No valid data to plot for threshold sensitivity.")
-        return
-
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-
-    plt.figure(figsize=(8, 6))
-    plt.errorbar(
-        results_df['threshold'],
-        results_df['coefficient'],
-        yerr=0.01,  # Placeholder error
-        fmt='o-',
-        capsize=5
-    )
+    plt.figure(figsize=(10, 6))
+    plt.plot(df['threshold'], df['coefficient'], marker='o')
     plt.xlabel('VAF Threshold')
     plt.ylabel('Correlation Coefficient')
     plt.title('Threshold Sensitivity Analysis')
-    plt.grid(True, alpha=0.3)
-
-    output_path = Path("paper/figures/threshold_sensitivity.png")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=150)
+    plt.grid(True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
-    logger.info(f"Threshold sensitivity plot saved to {output_path}")
+    logger.info(f"Threshold plot saved to {output_path}")
 
-def plot_subgroup_comparison(subgroup_df):
+def plot_subgroup_comparison(df: pd.DataFrame, output_path: str):
     """Plot subgroup comparison results."""
-    logger = logging.getLogger(__name__)
-    logger.info("Generating subgroup comparison plot...")
-
-    if subgroup_df.empty or subgroup_df['coefficient'].isna().all():
-        logger.warning("No valid data to plot for subgroup comparison.")
-        return
-
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-
-    plt.figure(figsize=(8, 6))
-    plt.bar(subgroup_df['ancestry'], subgroup_df['coefficient'], color='skyblue')
-    plt.xlabel('Ancestry Group')
+    plt.figure(figsize=(10, 6))
+    plt.bar(df['ancestry'], df['coefficient'])
+    plt.xlabel('Ancestry')
     plt.ylabel('Correlation Coefficient')
     plt.title('Subgroup Comparison')
-    plt.grid(axis='y', alpha=0.3)
-
-    output_path = Path("paper/figures/subgroup_comparison.png")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=150)
+    plt.xticks(rotation=45)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
-    logger.info(f"Subgroup comparison plot saved to {output_path}")
+    logger.info(f"Subgroup plot saved to {output_path}")
 
-def generate_all_plots():
+def generate_all_plots(threshold_file: str, subgroup_file: str, output_dir: str):
     """Generate all required plots."""
-    logger = logging.getLogger(__name__)
-    logger.info("Generating all plots...")
-
-    try:
-        sensitivity_df = load_sensitivity_results()
-        plot_threshold_sensitivity(sensitivity_df)
-
-        subgroup_path = Path("code/data/processed/subgroup_results.csv")
-        if subgroup_path.exists():
-            subgroup_df = pd.read_csv(subgroup_path)
-            plot_subgroup_comparison(subgroup_df)
-
-        logger.info("All plots generated successfully.")
-    except Exception as e:
-        logger.error(f"Error generating plots: {e}")
-        raise
+    threshold_df = load_sensitivity_results(threshold_file)
+    subgroup_df = load_sensitivity_results(subgroup_file)
+    
+    plot_threshold_sensitivity(threshold_df, str(Path(output_dir) / 'threshold_sensitivity.png'))
+    plot_subgroup_comparison(subgroup_df, str(Path(output_dir) / 'subgroup_comparison.png'))
 
 def main():
-    """
-    Main entry point for visualization.
-    Generates all plots and saves them to paper/figures/.
-    """
+    """Main entry point for visualization."""
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    try:
-        generate_all_plots()
-    except Exception as e:
-        logger.error(f"Error in main visualization: {e}")
+    paths = get_local_paths()
+    
+    threshold_file = paths['processed'] / 'sensitivity_results.csv'
+    subgroup_file = paths['processed'] / 'subgroup_results.csv'
+    output_dir = 'paper/figures'
+    
+    if not threshold_file.exists() or not subgroup_file.exists():
+        logger.error("Missing data files for plotting.")
         sys.exit(1)
+    
+    generate_all_plots(str(threshold_file), str(subgroup_file), output_dir)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.08107",
+  "judged_at": "2026-09-22T01:20:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting gut microbiome response to dietary interventions using publicly available data biology",
+  "rationale": "This paper satisfies criterion (a) and (b) as it measures the fundamental biological mechanism (high-order statistical associations and ecological relationships) and domain (human gut microbiota composition) central to the user's question, providing the necessary baseline for understanding how microbial networks function before modeling their response to interventions. Although it focuses on infants and network complexity rather than dietary interventions specifically, it establishes the canonic",
+  "relevant": true
+}

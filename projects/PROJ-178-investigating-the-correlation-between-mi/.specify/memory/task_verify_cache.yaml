@@ -28,9 +28,3 @@ T050:
     \ evidence (e.g., diff, lint report, or cleaned script contents) showing that\
     \ unused imports have been removed. The required artifact \u2013 the updated scripts\
     \ without unused imports \u2013 is missing."
-T055:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No figures are present in the `paper/figures/` directory; the required Rank\u2011\
-    OLS fit, threshold\u2011sensitivity, and subgroup\u2011comparison plots are missing,\
-    \ so the task\u2019s deliverable is not satisfied."
