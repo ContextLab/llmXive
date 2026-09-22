@@ -1,26 +1,47 @@
-# Ruff configuration for llmxive-arcane
-# Extends pyproject.toml settings if needed, or provides specific overrides
-
 [lint]
-# Enable specific rules if not covered in pyproject.toml
-extend-select = [
-    "ANN", # flake8-annotations (optional, can be noisy)
-    "SIM", # flake8-simplify
-    "RET", # flake8-return
-]
-# Ignore specific rules that might be too strict for research code
-ignore = [
-    "ANN001", # Missing type annotation for function argument
-    "ANN201", # Missing return type annotation for public function
-    "ANN002", # Missing type annotation for *args
-    "ANN003", # Missing type annotation for **kwargs
-    "ANN202", # Missing return type annotation for private function
-    "ANN204", # Missing return type annotation for special method
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) by default
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM", "ARG"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
-[format]
-# Ensure ruff format aligns with black
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Same as `per-file-ignores` but for a specific file pattern
+per-file-ignores = {}
+
+# Allow unused variables when they start with an underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target version
+target-version = "py310"
+
+[lint.isort]
+known-first-party = ["src", "scripts", "tests", "setup_project_structure", "setup_data_dirs"]
+force-single-line = false
+lines-after-imports = 2

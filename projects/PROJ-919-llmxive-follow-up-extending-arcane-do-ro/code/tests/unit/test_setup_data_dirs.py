@@ -4,104 +4,78 @@ import shutil
 from pathlib import Path
 import pytest
 import sys
-import importlib
 
-# We need to mock the path resolution to test in a temp directory
-# because setup_data_dirs.py calculates paths relative to __file__
+# Import the function from the script
+# The script is at code/scripts/setup_data_dirs.py
+# We need to add the parent directory to sys.path if not already
+# But since we are in code/tests/unit/, and the script is in code/scripts/,
+# we might need to adjust the import.
+# However, the task says "import only names that exist (in the standard library, declared dependencies, or sibling files shown to you)".
+# The script is a sibling of the test? No, it's in scripts/.
+# Let's assume the test can import from scripts if we add the path.
+# Or we can import the logic directly if we refactor, but we are extending, not re-authoring.
+# We will import the main function and setup_directories from the script.
+# To do this, we add the 'code' directory to sys.path.
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project structure for testing."""
-    # Create the expected structure: code/scripts/ inside tmp_path
-    scripts_dir = tmp_path / "code" / "scripts"
-    scripts_dir.mkdir(parents=True)
-    
-    # Create the actual script file in the temp location
-    script_content = """
-import os
-import sys
-from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def setup_directories():
-    base_path = Path(__file__).resolve().parent.parent
-    project_root = base_path / "data"
-    
-    directories = [
-  "raw",
-  "derived",
-  "gold_standard",
-  "../artifacts"
-    ]
-    
-    created_count = 0
-    for dir_name in directories:
-  target_path = project_root / dir_name if dir_name != "../artifacts" else base_path.parent / "artifacts"
-  target_path = target_path.resolve()
-  
-  try:
-      target_path.mkdir(parents=True, exist_ok=True)
-      created_count += 1
-  except Exception:
-      return False
-      
-    return True
+from scripts.setup_data_dirs import setup_directories, main, REQUIRED_DIRS
 
-def main():
-    success = setup_directories()
-    sys.exit(0 if success else 1)
+class TestDataDirectories:
+    @pytest.fixture
+    def temp_project_root(self):
+        """Create a temporary directory to act as the project root."""
+        temp_dir = tempfile.mkdtemp()
+        yield Path(temp_dir)
+        # Cleanup after test
+        shutil.rmtree(temp_dir)
 
-if __name__ == "__main__":
-    main()
-"""
-    script_file = scripts_dir / "setup_data_dirs.py"
-    script_file.write_text(script_content)
-    
-    # Add a marker file to indicate test root
-    (tmp_path / "code").touch()
-    
-    return tmp_path
-
-def test_setup_directories_creates_structure(temp_project_root):
-    """Test that setup_directories creates all required directories."""
-    # Add the temp root to sys.path so we can import
-    sys.path.insert(0, str(temp_project_root / "code" / "scripts"))
-    
-    try:
-        # Import the module dynamically
-        spec = importlib.util.spec_from_file_location("setup_data_dirs", temp_project_root / "code" / "scripts" / "setup_data_dirs.py")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+    def test_setup_directories_creates_structure(self, temp_project_root):
+        """Test that setup_directories creates all required directories."""
+        # Call the function
+        created_dirs = setup_directories(temp_project_root)
         
-        # Run the setup
-        result = module.setup_directories()
+        # Check that all required directories were created
+        for dir_name in REQUIRED_DIRS:
+            full_path = temp_project_root / dir_name
+            assert full_path.exists(), f"Directory {full_path} was not created."
+            assert full_path.is_dir(), f"{full_path} is not a directory."
         
-        assert result is True, "setup_directories should return True"
-        
-        # Verify directories exist
-        data_dir = temp_project_root / "data"
-        assert (data_dir / "raw").exists(), "data/raw should exist"
-        assert (data_dir / "derived").exists(), "data/derived should exist"
-        assert (data_dir / "gold_standard").exists(), "data/gold_standard should exist"
-        assert (temp_project_root / "artifacts").exists(), "artifacts should exist"
-        
-    finally:
-        sys.path.remove(str(temp_project_root / "code" / "scripts"))
+        # Check that the returned list contains the correct paths
+        for expected_dir in REQUIRED_DIRS:
+            assert str(temp_project_root / expected_dir) in created_dirs
 
-def test_setup_directories_idempotent(temp_project_root):
-    """Test that running setup_directories multiple times doesn't fail."""
-    sys.path.insert(0, str(temp_project_root / "code" / "scripts"))
-    
-    try:
-        spec = importlib.util.spec_from_file_location("setup_data_dirs", temp_project_root / "code" / "scripts" / "setup_data_dirs.py")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        
+    def test_setup_directories_idempotent(self, temp_project_root):
+        """Test that running setup_directories multiple times does not raise errors."""
         # Run twice
-        result1 = module.setup_directories()
-        result2 = module.setup_directories()
+        first_run = setup_directories(temp_project_root)
+        second_run = setup_directories(temp_project_root)
         
-        assert result1 is True
-        assert result2 is True
+        # Both should succeed and create the same directories
+        assert len(first_run) == len(second_run)
         
-    finally:
-        sys.path.remove(str(temp_project_root / "code" / "scripts"))
+        # Check that directories still exist
+        for dir_name in REQUIRED_DIRS:
+            full_path = temp_project_root / dir_name
+            assert full_path.exists()
+
+    def test_nested_directories_created(self, temp_project_root):
+        """Test that nested directories (e.g., data/raw) are created with parents=True."""
+        # The function should create data/raw even if data/ doesn't exist
+        created_dirs = setup_directories(temp_project_root)
+        
+        # Check that data/raw exists
+        raw_path = temp_project_root / "data" / "raw"
+        assert raw_path.exists()
+        
+        # Check that data/derived exists
+        derived_path = temp_project_root / "data" / "derived"
+        assert derived_path.exists()
+        
+        # Check that data/gold_standard exists
+        gold_path = temp_project_root / "data" / "gold_standard"
+        assert gold_path.exists()
+        
+        # Check that artifacts/ exists
+        artifacts_path = temp_project_root / "artifacts"
+        assert artifacts_path.exists()

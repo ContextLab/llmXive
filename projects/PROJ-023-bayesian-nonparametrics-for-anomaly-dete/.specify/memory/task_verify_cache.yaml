@@ -7,52 +7,24 @@ T014:
     \ does not fulfill the task\u2019s core requirement of calling the anomaly injector\
     \ and producing the two processed CSV files. The missing `code/lib/anomaly_injector.py`\
     \ must be added (or the import removed) for the task to be complete."
-T021:
-  c: false
-  h: e8663569401e1d1f321a68ce28e62310bfeec8afeec5e2cab5957bec142eb3aa
-  r: The `baseline_cusum.py` script is present but its code is truncated (the `run_cusum_detection`
-    loop ends abruptly) and thus does not implement a full CUSUM detection pipeline
-    nor write predictions to a CSV. Moreover, the required output file `data/results/cusum_predictions.csv`
-    is missing. The task therefore remains unfinished.
-T022:
-  c: false
-  h: 9e0c2d6bdb107f44027d55ee90550c907dc0e43c348b7a926d60bb2cf33b7ea3
-  r: "The provided `baseline_vae.py` uses a custom NumPy implementation rather than\
-    \ scikit-learn or pytorch\u2011lightning as mandated, and the script is incomplete\
-    \ (truncated). Moreover, the required output file `data/results/vae_predictions.csv`\
-    \ does not exist. Both the correct implementation and the expected result artifact\
-    \ are missing."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation showing that the baseline algorithms have\
-    \ been wired into the shared data loader and anomaly\u2011injection pipeline is\
-    \ present. The required integration artifact is missing, so the task is not satisfied."
-T027:
-  c: false
-  h: d003eefee235dfb30ef17a790703f29e921c250d1fda9b6651c5ba3b00096e29
-  r: The `code/scripts/sensitivity_analysis.py` file exists but the provided excerpt
-    does not show any logic that writes the results to `data/results/sensitivity_analysis.json`,
-    and that JSON file is absent from the repository. Consequently the required output
-    artifact is missing, so the task is not fully satisfied.
-T028:
-  c: false
-  h: d0e9f7347ff8d3a1ea6444de61a50d2bc6cef9c8d464bdda3cf6b9853cee8e96
-  r: "The repository contains `code/scripts/render_fig1.py`, but the file is only\
-    \ partially shown and we cannot confirm it writes the figure to `paper/figures/fig1_timeseries.png`.\
-    \ Moreover, the required output image `paper/figures/fig1_timeseries.png` is absent\
-    \ from the project. The missing figure means the task\u2019s core requirement\
-    \ is not satisfied."
 T029:
   c: false
-  h: e41731408c90d3c2a1191d74ab292d9d832a00aecf53fbbf6de0ff806760fbc5
-  r: The provided `render_fig2.py` is only partially shown and ends abruptly inside
-    `plot_f1_vs_shift`, indicating the script is incomplete and does not generate
-    or save the required figure. Additionally, the expected output file `paper/figures/fig2_method_comparison.png`
-    is absent. The task therefore remains unfinished.
+  h: b89906910e854e2f25b0d5da469dd795ba59b4c2309cc4f770b2e7c3a5a48f0e
+  r: The repository contains a `code/scripts/render_fig2.py` file, but the shown excerpt
+    ends abruptly and provides no evidence that it actually creates the plot or writes
+    `paper/figures/fig2_method_comparison.png`. Moreover, the expected PNG file is
+    absent from the `paper/figures` directory. The required output artifact is missing,
+    so the task is not fully satisfied.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `paper/results.md` file is present in the provided evidence, and thus no\
     \ summary of findings, p\u2011values, or associational claims (with causal language\
     \ avoided) can be verified. The required artifact is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (report, script output, diff, or documentation) was provided showing
+    that file paths in the code were checked against the `tasks.md` specifications,
+    nor any evidence that mismatches (e.g., `scripts/` vs `code/scripts/`) were identified
+    and corrected. The required verification evidence is missing.

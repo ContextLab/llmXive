@@ -784,3 +784,461 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T08:30:00Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: UCR Time Series Archive ECG200 and Heartbeat datasets used for analysis
+  claim_id: c_a1f02300
+  context: The analysis utilizes real time series data from the **UCR Time Series
+    Archive** (specifically the `ECG200` and `Heartbeat` datasets, selected for their
+    variability and relevance to anomaly detection benchmarks).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCR_Time_Series_Archive_ECG200_and_Heartbeat_datasets_used_f
+  kind: entity_fact
+  raw_text: The analysis utilizes real time series data from the UCR Time Series Archive
+    (specifically the ECG200 and Heartbeat datasets).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:02:43Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: 'Synthetic anomalies injected: 2.5 sigma mean shift, 3x variance spike,
+    5-15 point gradual drift'
+  claim_id: c_1e845416
+  context: "Synthetic anomalies were injected using `code/lib/anomaly_injector.py`\
+    \ with parameters: Mean Shift: 2.5 standard deviations (\u03C3), Variance Spike:\
+    \ 3x baseline variance, Gradual Drift: Linear trend over 5-15 time points."
+  evidence:
+    asserted: '2.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Synthetic anomalies were injected with parameters: Mean Shift: 2.5 standard\
+    \ deviations (\u03C3), Variance Spike: 3x baseline variance, Gradual Drift: Linear\
+    \ trend over 5-15 time points."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T04:02:43Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bootstrap confidence intervals computed with 1000 resamples and 95% CI
+  claim_id: c_9dd21a33
+  context: Confidence intervals were computed using the Bootstrap method (1000 resamples,
+    95% CI).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals were computed using the Bootstrap method with 1000
+    resamples and 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:02:49Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian Gaussian Process F1-Score 0.828 with 95% CI
+  claim_id: c_e0e24692
+  context: "| **Bayesian GP** | **0.842 \xB1 0.012** | **0.815 \xB1 0.015** | **0.828\
+    \ \xB1 0.011** | **0.912 \xB1 0.008** |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Bayesian Gaussian Process achieved an F1-Score of 0.828 \xB1 0.011."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:02:52Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian Gaussian Process AUC-ROC 0.912 with 95% CI
+  claim_id: c_c1c74e00
+  context: "| **Bayesian GP** | **0.842 \xB1 0.012** | **0.815 \xB1 0.015** | **0.828\
+    \ \xB1 0.011** | **0.912 \xB1 0.008** |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Bayesian Gaussian Process achieved an AUC-ROC of 0.912 \xB1 0.008."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:02:54Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Variational Autoencoder F1-Score 0.777 with 95% CI
+  claim_id: c_fbf2abd3
+  context: "| VAE | 0.795 \xB1 0.018 | 0.760 \xB1 0.021 | 0.777 \xB1 0.016 | 0.865\
+    \ \xB1 0.012 |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Variational Autoencoder (VAE) achieved an F1-Score of 0.777 \xB1\
+    \ 0.016."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:02:57Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM baseline F1-Score 0.699 with 95% CI
+  claim_id: c_fdfb6c27
+  context: "| CUSUM | 0.680 \xB1 0.025 | 0.720 \xB1 0.022 | 0.699 \xB1 0.019 | 0.785\
+    \ \xB1 0.015 |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CUSUM baseline achieved an F1-Score of 0.699 \xB1 0.019."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:00Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart baseline F1-Score 0.578 with 95% CI
+  claim_id: c_597908f7
+  context: "| Shewhart | 0.610 \xB1 0.030 | 0.550 \xB1 0.028 | 0.578 \xB1 0.025 |\
+    \ 0.690 \xB1 0.020 |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Shewhart baseline achieved an F1-Score of 0.578 \xB1 0.025."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:04Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP outperforms Shewhart with adjusted p-value less than 0.001
+  claim_id: c_c2db18bc
+  context: '| **GP vs. Shewhart** | 1450 | < 0.001 | < 0.001 | **Yes** |'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_GP_outperforms_Shewhart_with_adjusted_p-value_less
+  kind: magnitude
+  raw_text: The Bayesian GP significantly outperforms the Shewhart baseline with an
+    adjusted p-value < 0.001.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:10Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP outperforms CUSUM with adjusted p-value 0.009
+  claim_id: c_3120df19
+  context: '| **GP vs. CUSUM** | 1120 | 0.003 | 0.009 | **Yes** |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian GP significantly outperforms the CUSUM baseline with an adjusted
+    p-value of 0.009.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:12Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP vs VAE difference not statistically significant with adjusted
+    p-value 0.135
+  claim_id: c_de841262
+  context: '| **GP vs. VAE** | 420 | 0.045 | 0.135 | No |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The difference between the Bayesian GP and the VAE is not statistically
+    significant with an adjusted p-value of 0.135.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:14Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP strongest association for mean shifts greater than 2.0 sigma
+  claim_id: c_77dd0f76
+  context: "**Mean Shifts**: The Bayesian GP shows the strongest association with\
+    \ high detection rates for shifts > 2.0\u03C3."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_GP_strongest_association_for_mean_shifts_greater_th
+  kind: magnitude
+  raw_text: "The Bayesian GP shows the strongest association with high detection rates\
+    \ for mean shifts greater than 2.0\u03C3."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:17Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP higher recall for gradual drifts shorter than 10 time points
+  claim_id: c_1c42dad1
+  context: '**Gradual Drifts**: CUSUM shows a moderate association with drift detection,
+    but the Bayesian GP maintains higher recall for drifts shorter than 10 time points.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian GP maintains higher recall for gradual drifts shorter than
+    10 time points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:03:19Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP nonparametric F1-score 0.89 for mean shift anomalies
+  claim_id: c_968de1c5
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian GP (Nonparametric) achieved an F1-Score of 0.89 for Mean Shift
+    anomalies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:09:54Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP nonparametric F1-score 0.82 for variance spike anomalies
+  claim_id: c_4ac48289
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Bayesian GP (Nonparametric) achieved an F1-Score of 0.82 for Variance
+    Spike anomalies.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T04:09:54Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP nonparametric F1-score 0.76 for gradual drift anomalies
+  claim_id: c_0fc929ad
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian GP (Nonparametric) achieved an F1-Score of 0.76 for Gradual Drift
+    anomalies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:10:13Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP nonparametric average F1-score 0.82
+  claim_id: c_bcb9d3b1
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian GP (Nonparametric) achieved an average F1-Score of 0.82 across
+    all tested anomaly types.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:10:29Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP parametric average F1-score 0.70
+  claim_id: c_16f1f5df
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian GP (Parametric) achieved an average F1-Score of 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:10:48Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart average F1-score 0.55
+  claim_id: c_0e608328
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shewhart method achieved an average F1-Score of 0.55.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:11:06Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM average F1-score 0.66
+  claim_id: c_ad4a7a3d
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CUSUM method achieved an average F1-Score of 0.66.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:11:26Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: VAE average F1-score 0.72
+  claim_id: c_0abc9b40
+  context: Results table showing F1-Scores for various methods and anomaly types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VAE method achieved an average F1-Score of 0.72.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:11:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: F1-scores averaged over 10 bootstrap samples
+  claim_id: c_d3db497d
+  context: Note below the results table stating the averaging method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: F1-scores were averaged over 10 bootstrap samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:12:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Nonparametric Bayesian GP peak memory usage 4.2 GB
+  claim_id: c_0396c74f
+  context: Computational Efficiency section listing resource metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nonparametric Bayesian GP model reached a peak memory usage of 4.2
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:12:23Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Nonparametric Bayesian GP runtime 2.5 hours
+  claim_id: c_fe1911bd
+  context: Computational Efficiency section listing resource metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nonparametric Bayesian GP model runtime was 2.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:12:37Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: ELBO stabilized after 3500 steps for nonparametric Bayesian GP
+  claim_id: c_2e9cf714
+  context: Computational Efficiency section listing convergence metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ELBO for the nonparametric Bayesian GP model stabilized after approximately
+    3,500 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:12:51Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: ESS greater than 200 for all latent variables in nonparametric Bayesian
+    GP
+  claim_id: c_ad106b64
+  context: Computational Efficiency section listing convergence metrics.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ESS_greater_than_200_for_all_latent_variables_in_nonparametr
+  kind: magnitude
+  raw_text: Effective Sample Size (ESS) was greater than 200 for all latent variables
+    in the nonparametric Bayesian GP model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:13:15Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Nonparametric model runtime 2 times parametric variant
+  claim_id: c_99b3aeb8
+  context: Discussion section comparing computational overhead.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nonparametric model incurred approximately 2x runtime compared to
+    the parametric variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T04:13:39Z'

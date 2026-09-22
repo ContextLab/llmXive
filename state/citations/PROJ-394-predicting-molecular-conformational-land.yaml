@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet%60
   verified_at: '2026-06-30T09:42:41.328043Z'
-- artifact_hash: 112923cb8c7147e95282b66e838755757f9f59ef2a810ce7ab575f2aa20a5f35
+- artifact_hash: 0e0876c735917ec56e71ea552a82a74d9d4842672eda8976b57b74754739943e
   artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://en.wikipedia.org/wiki/Statistical_significance
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Statistical_significance
-  verified_at: '2026-09-17T15:56:33.245806Z'
+  verified_at: '2026-09-22T03:52:41.984619Z'

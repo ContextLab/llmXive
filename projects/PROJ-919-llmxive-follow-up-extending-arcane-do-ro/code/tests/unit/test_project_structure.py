@@ -1,65 +1,90 @@
+"""
+Unit tests for project structure setup.
+"""
 import os
 import tempfile
 import pytest
 from pathlib import Path
 import sys
 
-# Import the setup logic
-# Note: The import path assumes this test file is run from the project root or
-# the code directory is in sys.path. The setup_project_structure.py is in code/.
-# We need to adjust sys.path to import from code/setup_project_structure
+# Add the code directory to the path to import the setup script
+code_dir = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(code_dir))
+
 import setup_project_structure
 
+
 class TestProjectStructure:
-    """Tests to verify that the project directory structure is created correctly."""
+    """Tests for the project structure setup functionality."""
 
-    def test_setup_directories_creates_structure(self, tmp_path):
-        """Verify that setup_directories creates all required directories."""
-        # Create a temporary directory to act as the project root
-        root = tmp_path / "test_project"
-        root.mkdir()
+    def test_setup_directories_creates_structure(self):
+        """Verify that setup_directories creates the required folders."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Temporarily override PROJECT_ROOT for the test
+            original_root = setup_project_structure.PROJECT_ROOT
+            setup_project_structure.PROJECT_ROOT = Path(tmp_dir)
 
-        # Call the setup function
-        setup_project_structure.setup_directories(root)
+            try:
+                created, skipped = setup_project_structure.setup_directories()
+                
+                # Verify at least some directories were created
+                assert created > 0, "Expected at least one directory to be created"
+                
+                # Verify specific critical directories exist
+                for dir_name in ["src", "tests", "data", "specs"]:
+                    path = Path(tmp_dir) / dir_name
+                    assert path.exists(), f"Directory {dir_name} should exist"
+                    assert path.is_dir(), f"{dir_name} should be a directory"
+                
+                # Verify nested structures
+                assert (Path(tmp_dir) / "data" / "raw").exists()
+                assert (Path(tmp_dir) / "data" / "derived").exists()
+                assert (Path(tmp_dir) / "specs" / "001-gene-regulation").exists()
+                
+            finally:
+                # Restore original root
+                setup_project_structure.PROJECT_ROOT = original_root
 
-        # Verify that all expected directories exist
-        expected_dirs = [
-            "src",
-            "src/lib",
-            "src/services",
-            "src/analysis",
-            "src/cli",
-            "src/models",
-            "src/scripts",
-            "tests",
-            "tests/unit",
-            "tests/integration",
-            "data",
-            "data/raw",
-            "data/derived",
-            "data/gold_standard",
-            "artifacts",
-            "specs",
-            "specs/001-gene-regulation",
-            "specs/001-gene-regulation/contracts",
-            "config",
-        ]
+    def test_setup_directories_idempotent(self):
+        """Verify that running setup twice doesn't fail and skips existing dirs."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            original_root = setup_project_structure.PROJECT_ROOT
+            setup_project_structure.PROJECT_ROOT = Path(tmp_dir)
 
-        for dir_name in expected_dirs:
-            dir_path = root / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created."
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
+            try:
+                # First run
+                created_1, skipped_1 = setup_project_structure.setup_directories()
+                
+                # Second run
+                created_2, skipped_2 = setup_project_structure.setup_directories()
+                
+                # Second run should create nothing
+                assert created_2 == 0, "Second run should create no new directories"
+                # Second run should skip all
+                assert skipped_2 > 0, "Second run should skip existing directories"
+                
+            finally:
+                setup_project_structure.PROJECT_ROOT = original_root
 
-    def test_setup_directories_idempotent(self, tmp_path):
-        """Verify that running setup_directories multiple times does not cause errors."""
-        root = tmp_path / "test_project_idempotent"
-        root.mkdir()
+    def test_init_files_created(self):
+        """Verify that __init__.py files are created in src and tests directories."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            original_root = setup_project_structure.PROJECT_ROOT
+            setup_project_structure.PROJECT_ROOT = Path(tmp_dir)
 
-        # Run setup twice
-        setup_project_structure.setup_directories(root)
-        setup_project_structure.setup_directories(root)
-
-        # Verify structure still exists
-        assert (root / "src").exists()
-        assert (root / "data/raw").exists()
-        assert (root / "specs/001-gene-regulation/contracts").exists()
+            try:
+                setup_project_structure.setup_directories()
+                
+                # Check for __init__.py in src subdirectories
+                src_init = Path(tmp_dir) / "src" / "__init__.py"
+                assert src_init.exists(), "__init__.py should exist in src"
+                
+                tests_init = Path(tmp_dir) / "tests" / "__init__.py"
+                assert tests_init.exists(), "__init__.py should exist in tests"
+                
+                # Check nested __init__.py
+                analysis_init = Path(tmp_dir) / "src" / "analysis" / "__init__.py"
+                assert analysis_init.exists(), "__init__.py should exist in src/analysis"
+                
+            finally:
+                setup_project_structure.PROJECT_ROOT = original_root

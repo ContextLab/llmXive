@@ -566,45 +566,6 @@
   updated_at: '2026-09-04T03:24:32Z'
 - artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
   attempts: 1
-  canonical: Average cosine similarity to source text is less than 0.3
-  claim_id: c_068c658c
-  context: 'Independent Test: The system generates a batch of probes, and a sample
-    check confirms none contain direct quotes/plot points and average cosine similarity
-    to source text is < 0.3.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_is_less_than_0.3
-  kind: magnitude
-  raw_text: The system generates a batch of probes, and a sample check confirms none
-    contain direct quotes/plot points and average cosine similarity to source text
-    is < 0.3.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-04T03:25:36Z'
-- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
-  attempts: 2
-  canonical: Generate at least 50 unique Out-of-World scenario prompts per character
-  claim_id: c_f4c3e479
-  context: 'Goal: Generate at least 50 unique ''Out-of-World'' scenario prompts per
-    character that are semantically distant from the source text.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_Out-of-World_scenario_prompts_pe
-  kind: magnitude
-  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-04T03:26:23Z'
-- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
-  attempts: 1
   canonical: Retry count limit is 150 for probe generation
   claim_id: c_04233114
   context: 'Step 4: If retry count > 150, log ''Generation Limit Exceeded'' and proceed
@@ -840,3 +801,233 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T03:33:45Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Gold standard dataset contains 20 manually annotated samples
+  claim_id: c_e1a93f1e
+  context: "T009 Load external Gold Standard dataset from data/gold_standard/human_annotations.json\
+    \ (no code\u2011generated data). This file must be a version-controlled JSON artifact\
+    \ containing 20 manually annotated samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This file must be a version-controlled JSON artifact containing 20 manually
+    annotated samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:28:48Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 2
+  canonical: Average cosine similarity to source text is less than 0.3
+  claim_id: c_068c658c
+  context: 'Independent Test: The system generates a batch of probes, and a sample
+    check confirms none contain direct quotes/plot points and average cosine similarity
+    to source text is < 0.3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_is_less_than_0.3
+  kind: magnitude
+  raw_text: The system generates a batch of probes, and a sample check confirms none
+    contain direct quotes/plot points and average cosine similarity to source text
+    is < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:28:52Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Set character status to invalid if valid probes are less than 50 after
+    150 attempts
+  claim_id: c_00727233
+  context: 'Step 4: If retry count > 150, log ''Generation Limit Exceeded'' and proceed
+    with available valid probes (if >= 50) or mark character as invalid.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_character_status_to_invalid_if_valid_probes_are_less_tha
+  kind: magnitude
+  raw_text: If valid_probes < 50 after 150 attempts, set character_status to 'invalid'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:29:12Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if Kappa is less than or equal to 0.6
+  claim_id: c_d7c88ae2
+  context: "If Kappa \u2264 0.6, raise a RuntimeError and halt execution. If the gold\
+    \ standard file is missing or malformed, raise a clear error."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_RuntimeError_if_Kappa_is_less_than_or_equal_to_0.6
+  kind: magnitude
+  raw_text: "If Kappa \u2264 0.6, raise a RuntimeError and halt execution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:29:15Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Adherence flag requires at least 2 phase-specific keywords
+  claim_id: c_6183e588
+  context: "Implement src/services/judge_service.py for LLM\u2011based consistency\
+    \ scoring using a standard Likert scale, with output validation, clamping, and\
+    \ adherence flag determined by checking that the response contains at least 2\
+    \ phase\u2011specific keywords from the prompt."
+  evidence:
+    entailment_evidence: Adherence flag requires at least 2 phase-specific keywords
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Adherence_flag_requires_at_least_2_phase-specific_keywords
+  kind: magnitude
+  raw_text: "adherence flag determined by checking that the response contains at least\
+    \ 2 phase\u2011specific keywords from the prompt"
+  resolved_value: Adherence flag requires at least 2 phase-specific keywords
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T03:29:17Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Perform Shapiro-Wilk test on judge_score residuals
+  claim_id: c_ba640196
+  context: "Implement check_normality(scores) in src/analysis/stats_engine.py to perform\
+    \ Shapiro\u2011Wilk test on the residuals of the judge_score field from data/derived/results_final.jsonl\
+    \ and return is_normal (bool)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Shapiro-Wilk_test_on_judge_score_residuals
+  kind: entity_fact
+  raw_text: "Perform Shapiro\u2011Wilk test on the residuals of the judge_score field"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:29:28Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Execute ANOVA or Friedman test and write p-value, effect size, mean scores,
+    and variance to stats_results.json
+  claim_id: c_52c748c4
+  context: "Implement run_statistical_test(scores, test_type) in src/analysis/stats_engine.py\
+    \ to execute the chosen statistical test (ANOVA or Friedman) and write the p\u2011\
+    value, effect size, mean scores, and variance to data/derived/stats_results.json\
+    \ (FR\u2011005, SC\u2011004)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_ANOVA_or_Friedman_test_and_write_p-value,_effect_siz
+  kind: entity_fact
+  raw_text: "Execute the chosen statistical test (ANOVA or Friedman) and write the\
+    \ p\u2011value, effect size, mean scores, and variance to data/derived/stats_results.json"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:29:39Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Gold standard dataset contains 20 manually annotated samples
+  claim_id: c_a90ac8eb
+  context: "T009 Load external Gold Standard dataset from `data/gold_standard/human_annotations.json`\
+    \ (no code\u2011generated data). This file must be a version-controlled JSON artifact\
+    \ containing 20 manually annotated samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This file must be a version-controlled JSON artifact containing 20 manually
+    annotated samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:30:42Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 4
+  canonical: Generate at least 50 unique Out-of-World scenario prompts per character
+  claim_id: c_f4c3e479
+  context: 'Goal: Generate at least 50 unique ''Out-of-World'' scenario prompts per
+    character that are semantically distant from the source text.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_Out-of-World_scenario_prompts_pe
+  kind: magnitude
+  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:30:44Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation limit set to 150 attempts with minimum 50 valid probes required
+  claim_id: c_09ae1bd7
+  context: 'Step 4: If retry count > 150, log ''Generation Limit Exceeded'' and proceed
+    with available valid probes (if >= 50) or mark character as invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retry count > 150, log 'Generation Limit Exceeded' and proceed with
+    available valid probes (if >= 50) or mark character as invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:34:02Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Character status marked invalid if fewer than 50 valid probes after 150
+    attempts
+  claim_id: c_6483f760
+  context: T022 [US2] Implement error handling for 'Generation Limit Exceeded'...
+    If `valid_probes < 50` after 150 attempts, set `character_status` to 'invalid'
+    in `data/derived/probes.jsonl`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Character_status_marked_invalid_if_fewer_than_50_valid_probe
+  kind: magnitude
+  raw_text: If valid_probes < 50 after 150 attempts, set `character_status` to 'invalid'
+    in `data/derived/probes.jsonl`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:37:36Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Judge calibration fails if Cohen's kappa is less than or equal to 0.6
+  claim_id: c_b43cd6ce
+  context: "T029 [US3] Implement Judge Calibration step... If Kappa \u2264 0.6, raise\
+    \ a RuntimeError and halt execution."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Judge_calibration_fails_if_Cohen's_kappa_is_less_than_or_equ
+  kind: magnitude
+  raw_text: "If Kappa \u2264 0.6, raise a RuntimeError and halt execution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T03:37:39Z'

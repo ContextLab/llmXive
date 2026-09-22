@@ -1,226 +1,265 @@
 """
-Baseline CUSUM (Cumulative Sum) Anomaly Detection Script.
+CUSUM (Cumulative Sum) Baseline for Anomaly Detection.
 
-This script implements the CUSUM algorithm for change point detection
-in time series data. It outputs predictions in a CSV format compatible
-with the evaluation pipeline.
-
-Author: Research Team
-Date: 2026-04-29
+Implements the CUSUM algorithm for change point detection in time series.
+Outputs anomaly scores and binary flags to data/results/cusum_predictions.csv.
 """
-
 import os
 import sys
 import logging
 import argparse
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-
 import numpy as np
 import pandas as pd
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Project root path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "series_with_anomalies.csv"
+GROUND_TRUTH_PATH = PROJECT_ROOT / "data" / "processed" / "ground_truth.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "results" / "cusum_predictions.csv"
 
-def load_and_validate_data(input_path: Path) -> pd.DataFrame:
+def load_and_validate_data(data_path: Path = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load and validate the input time series data.
+    Load the preprocessed time series and ground truth data.
 
     Args:
-        input_path (Path): Path to the input CSV file.
+        data_path: Path to the processed time series CSV. Defaults to project standard.
 
     Returns:
-        pd.DataFrame: The loaded and validated DataFrame.
+        Tuple of (time_series_df, ground_truth_df)
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if data_path is None:
+        data_path = PROCESSED_DATA_PATH
 
-    df = pd.read_csv(input_path)
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"Processed data not found at {data_path}. "
+            "Please run inject_anomalies.py first."
+        )
 
-    required_columns = ['timestamp', 'value']
-    if not all(col in df.columns for col in required_columns):
-        raise ValueError(f"Input data must contain columns: {required_columns}")
+    logger.info(f"Loading data from {data_path}")
+    df = pd.read_csv(data_path)
 
-    # Handle missing values
+    # Validate required columns
+    required_cols = ['timestamp', 'value']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
+    # Handle missing values via interpolation
     df['value'] = df['value'].interpolate(method='linear')
     df['value'] = df['value'].fillna(method='bfill').fillna(method='ffill')
 
-    logger.info(f"Loaded data from {input_path}: {len(df)} rows")
+    logger.info(f"Loaded {len(df)} data points")
     return df
 
-
-def calculate_cusum_parameters(data: np.ndarray) -> Tuple[float, float]:
+def calculate_cusum_parameters(series: np.ndarray) -> Tuple[float, float, float]:
     """
-    Calculate the mean and standard deviation for CUSUM thresholding.
+    Calculate CUSUM parameters based on the data statistics.
+
+    Uses a standard approach:
+    - Threshold (h): 5.0 * sigma (adjustable)
+    - Drift (k): 0.5 * sigma (adjustable)
 
     Args:
-        data (np.ndarray): The time series data.
+        series: The time series values as a numpy array.
 
     Returns:
-        Tuple[float, float]: (mean, std_dev)
+        Tuple of (mean, std, sigma)
     """
-    mean_val = np.mean(data)
-    std_dev = np.std(data)
-    logger.info(f"Calculated parameters: mean={mean_val:.4f}, std_dev={std_dev:.4f}")
-    return mean_val, std_dev
-
+    mean_val = np.mean(series)
+    std_val = np.std(series)
+    sigma = std_val
+    return mean_val, std_val, sigma
 
 def run_cusum_detection(
-    data: np.ndarray,
-    mean_val: float,
-    std_dev: float,
+    series: np.ndarray,
     threshold: float = 5.0,
-    slack: float = 0.5
-) -> np.ndarray:
+    drift: float = 0.5,
+    sigma: float = 1.0
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Run CUSUM anomaly detection.
+    Run the CUSUM algorithm to detect anomalies.
+
+    The CUSUM statistic is updated as:
+    S_t = max(0, S_{t-1} + (x_t - mean) - drift)
+
+    An anomaly is flagged if S_t > threshold * sigma.
 
     Args:
-        data (np.ndarray): The time series data.
-        mean_val (float): Mean of the data.
-        std_dev (float): Standard deviation of the data.
-        threshold (float): Threshold for anomaly detection.
-        slack (float): Slack parameter to reduce sensitivity.
+        series: Time series values.
+        threshold: Multiplier for sigma to determine the detection threshold.
+        drift: Drift parameter (k) in the CUSUM update.
+        sigma: Standard deviation of the series.
 
     Returns:
-        np.ndarray: Binary anomaly flags (1 = anomaly, 0 = normal).
+        Tuple of (scores, binary_flags, cusum_statistics)
     """
-    n = len(data)
-    anomalies = np.zeros(n, dtype=int)
+    mean_val = np.mean(series)
+    n = len(series)
 
-    # Standardize data
-    z_scores = (data - mean_val) / (std_dev + 1e-8)
+    # Initialize arrays
+    cusum_stats = np.zeros(n)
+    scores = np.zeros(n)
+    binary_flags = np.zeros(n, dtype=int)
 
-    # Initialize CUSUM statistics
-    S_pos = np.zeros(n)
-    S_neg = np.zeros(n)
+    # Detection threshold in absolute units
+    detection_threshold = threshold * sigma
 
-    for i in range(1, n):
-        S_pos[i] = max(0, S_pos[i-1] + z_scores[i] - slack)
-        S_neg[i] = max(0, S_neg[i-1] - z_scores[i] - slack)
+    # Run CUSUM
+    for t in range(1, n):
+        # Update CUSUM statistic
+        # One-sided CUSUM for upward shifts
+        cusum_stats[t] = max(0, cusum_stats[t-1] + (series[t] - mean_val) - (drift * sigma))
+        
+        # Calculate anomaly score (normalized CUSUM value)
+        scores[t] = cusum_stats[t] / sigma if sigma > 0 else 0.0
 
-        if S_pos[i] > threshold or S_neg[i] > threshold:
-            anomalies[i] = 1
+        # Flag anomaly if threshold exceeded
+        if cusum_stats[t] > detection_threshold:
+            binary_flags[t] = 1
+        
+        # Reset CUSUM if it drops significantly to avoid accumulation of old anomalies
+        # (Optional: can be tuned, here we keep standard implementation)
 
-    # Apply a simple smoothing to reduce noise (optional)
-    # An anomaly is confirmed if it persists for at least 2 steps
-    smoothed = np.zeros(n, dtype=int)
-    for i in range(1, n-1):
-        if anomalies[i] and (anomalies[i-1] or anomalies[i+1]):
-            smoothed[i] = 1
-        elif anomalies[i] and i == n-1 and anomalies[i-1]:
-            smoothed[i] = 1
+    # Handle the first point (no history)
+    scores[0] = 0.0
+    binary_flags[0] = 0
 
-    logger.info(f"Detected {smoothed.sum()} anomalies using CUSUM")
-    return smoothed
-
+    logger.info(f"CUSUM detection complete. Found {np.sum(binary_flags)} anomalies.")
+    return scores, binary_flags, cusum_stats
 
 def save_predictions(
     df: pd.DataFrame,
-    predictions: np.ndarray,
-    output_path: Path
+    scores: np.ndarray,
+    binary_flags: np.ndarray,
+    output_path: Path = None
 ) -> None:
     """
-    Save predictions to a CSV file.
+    Save the predictions to a CSV file.
 
     Args:
-        df (pd.DataFrame): The original DataFrame with timestamps.
-        predictions (np.ndarray): Binary anomaly flags.
-        output_path (Path): Path to save the output CSV.
+        df: Original dataframe with timestamp and value.
+        scores: Anomaly scores.
+        binary_flags: Binary anomaly flags.
+        output_path: Path to save the CSV.
     """
+    if output_path is None:
+        output_path = OUTPUT_PATH
+
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    result_df = df.copy()
-    result_df['is_anomaly'] = predictions
-    result_df.to_csv(output_path, index=False)
+    # Create result dataframe
+    result_df = pd.DataFrame({
+        'timestamp': df['timestamp'],
+        'value': df['value'],
+        'cusum_score': scores,
+        'is_anomaly': binary_flags
+    })
 
+    # Save to CSV
+    result_df.to_csv(output_path, index=False)
     logger.info(f"Saved predictions to {output_path}")
 
-
-def print_summary(predictions: np.ndarray) -> None:
+def print_summary(df: pd.DataFrame, scores: np.ndarray, binary_flags: np.ndarray) -> None:
     """
-    Print a summary of the detection results.
+    Print a summary of the CUSUM detection results.
 
     Args:
-        predictions (np.ndarray): Binary anomaly flags.
+        df: Original dataframe.
+        scores: Anomaly scores.
+        binary_flags: Binary anomaly flags.
     """
-    total = len(predictions)
-    anomalies = predictions.sum()
-    rate = anomalies / total * 100
+    total_points = len(df)
+    anomaly_count = int(np.sum(binary_flags))
+    anomaly_rate = (anomaly_count / total_points) * 100 if total_points > 0 else 0
 
-    logger.info("Detection Summary:")
-    logger.info(f"  Total points: {total}")
-    logger.info(f"  Anomalies detected: {anomalies}")
-    logger.info(f"  Anomaly rate: {rate:.2f}%")
+    logger.info("=" * 50)
+    logger.info("CUSUM Detection Summary")
+    logger.info("=" * 50)
+    logger.info(f"Total data points: {total_points}")
+    logger.info(f"Anomalies detected: {anomaly_count} ({anomaly_rate:.2f}%)")
+    logger.info(f"Mean CUSUM score: {np.mean(scores):.4f}")
+    logger.info(f"Max CUSUM score: {np.max(scores):.4f}")
+    logger.info("=" * 50)
 
-
-def main() -> None:
+def main():
     """
     Main entry point for the CUSUM baseline script.
     """
-    parser = argparse.ArgumentParser(description="CUSUM Anomaly Detection")
+    parser = argparse.ArgumentParser(description="Run CUSUM anomaly detection baseline.")
     parser.add_argument(
-        "--input",
+        "--data-path",
         type=str,
-        default="data/processed/series_with_anomalies.csv",
-        help="Path to input CSV file"
+        default=None,
+        help="Path to the processed time series CSV (default: data/processed/series_with_anomalies.csv)"
     )
     parser.add_argument(
-        "--output",
+        "--output-path",
         type=str,
-        default="data/results/cusum_predictions.csv",
-        help="Path to output CSV file"
+        default=None,
+        help="Path to save predictions CSV (default: data/results/cusum_predictions.csv)"
     )
     parser.add_argument(
         "--threshold",
         type=float,
         default=5.0,
-        help="CUSUM threshold"
+        help="CUSUM threshold multiplier (default: 5.0)"
     )
     parser.add_argument(
-        "--slack",
+        "--drift",
         type=float,
         default=0.5,
-        help="CUSUM slack parameter"
+        help="CUSUM drift parameter (default: 0.5)"
     )
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
     try:
         # Load data
-        df = load_and_validate_data(input_path)
-        data = df['value'].values
-
-        # Calculate parameters
-        mean_val, std_dev = calculate_cusum_parameters(data)
-
-        # Run detection
-        predictions = run_cusum_detection(
-            data, mean_val, std_dev,
-            threshold=args.threshold, slack=args.slack
+        df = load_and_validate_data(
+            Path(args.data_path) if args.data_path else None
         )
 
-        # Save results
-        save_predictions(df, predictions, output_path)
+        # Extract series
+        series = df['value'].values
+
+        # Calculate parameters
+        mean_val, std_val, sigma = calculate_cusum_parameters(series)
+        logger.info(f"Data statistics: mean={mean_val:.4f}, std={std_val:.4f}")
+
+        # Run CUSUM detection
+        scores, binary_flags, _ = run_cusum_detection(
+            series,
+            threshold=args.threshold,
+            drift=args.drift,
+            sigma=sigma
+        )
+
+        # Save predictions
+        save_predictions(
+            df,
+            scores,
+            binary_flags,
+            Path(args.output_path) if args.output_path else None
+        )
 
         # Print summary
-        print_summary(predictions)
+        print_summary(df, scores, binary_flags)
+
+        logger.info("CUSUM baseline completed successfully.")
 
     except Exception as e:
-        logger.error(f"CUSUM detection failed: {e}")
+        logger.error(f"Error running CUSUM baseline: {e}", exc_info=True)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

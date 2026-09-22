@@ -14,7 +14,7 @@ import sys
 import logging
 import argparse
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 import numpy as np
 import pandas as pd
@@ -60,6 +60,12 @@ def load_and_align_data(
     df_series = df_series.iloc[:min_len]
     df_pred = df_pred.iloc[:min_len]
 
+    # Ensure timestamp alignment if possible, otherwise rely on index order
+    if 'timestamp' in df_series.columns and 'timestamp' in df_pred.columns:
+        # If timestamps are numeric or datetime, we assume they are aligned by index
+        # after truncation.
+        pass
+
     logger.info(f"Loaded and aligned {min_len} rows")
     return df_series, df_pred
 
@@ -89,11 +95,12 @@ def plot_timeseries_with_anomalies(
     # Highlight anomalies
     if 'is_anomaly' in df_series.columns:
         anomaly_mask = df_series['is_anomaly'] == 1
-        ax1.scatter(
-            df_series.loc[anomaly_mask, 'timestamp'],
-            df_series.loc[anomaly_mask, 'value'],
-            color='red', label='Injected Anomalies', s=50, zorder=5
-        )
+        if anomaly_mask.any():
+            ax1.scatter(
+                df_series.loc[anomaly_mask, 'timestamp'],
+                df_series.loc[anomaly_mask, 'value'],
+                color='red', label='Injected Anomalies', s=50, zorder=5
+            )
 
     ax1.set_xlabel('Time', fontsize=12)
     ax1.set_ylabel('Value', fontsize=12)

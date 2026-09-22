@@ -147,13 +147,13 @@
 **Purpose**: Improvements that affect multiple user stories and address prior review concerns.
 
 - [X] T031 [P] [Review] Generate `docs/research_config.md` documenting the configurable parameter ranges used for the study (deferred in spec) and the Bootstrap CI methodology (Plan.md override); do NOT edit spec.md or plan.md
-- [~] T032 [P] [Review] Verify all file paths in code match `tasks.md` specifications (e.g., `code/scripts/` not `scripts/`)
+- [ ] T032 [P] [Review] Verify all file paths in code match `tasks.md` specifications (e.g., `code/scripts/` not `scripts/`)
 - [X] T033 [P] [Review] Add `requirements-dev.txt` with test dependencies and pin all versions in `requirements.txt`
 - [~] T034 [P] [Review] Ensure all scripts include type hints and docstrings for reproducibility
-- [ ] T035 [P] [Review] Validate that `data/results/shewhart_predictions.csv` and `bayesian_predictions.csv` have consistent dimensions and serialization formats
-- [ ] T036 [P] [Review] Add `README.md` to root documenting project structure, usage, and data provenance
-- [ ] T037 [P] Run full pipeline end-to-end to verify all outputs are generated and match task completion markers
-- [ ] T038 [P] Run `quickstart.md` validation to ensure documentation matches implementation
+- [X] T035 [P] [Review] Validate that `data/results/shewhart_predictions.csv` and `bayesian_predictions.csv` have consistent dimensions and serialization formats
+- [~] T036 [P] [Review] Add `README.md` to root documenting project structure, usage, and data provenance
+- [~] T037 [P] Run full pipeline end-to-end to verify all outputs are generated and match task completion markers
+- [~] T038 [P] Run `quickstart.md` validation to ensure documentation matches implementation
 
 ---
 
@@ -165,7 +165,7 @@
 
 ### Remediation: Methodological Rigor & Creativity (Addressing Reviewer Concerns: Idea Quality, Creativity)
 
-- [ ] T047 [P] [Review] Refactor `code/scripts/bayesian_gp.py` to explicitly utilize nonparametric priors (e.g., Dirichlet Process Mixture or Hierarchical GP) where feasible; **IF** a standard parametric GP is used, **MUST** clearly document the parametric GP limitations and justify the approach in `paper/results.md` to address creativity gaps without weakening FR-002
+- [X] T047 [P] [Review] Refactor `code/scripts/bayesian_gp.py` to explicitly utilize nonparametric priors (e.g., Dirichlet Process Mixture or Hierarchical GP) where feasible; **IF** a standard parametric GP is used, **MUST** clearly document the parametric GP limitations and justify the approach in `paper/results.md` to address creativity gaps without weakening FR-002
 - [ ] T048 [P] [Review] Extend `code/lib/anomaly_injector.py` to support novel anomaly types (e.g., context-dependent or regime shifts) beyond standard mean/variance shifts to address creativity gaps
 - [ ] T049 [P] [Review] Add uncertainty calibration metrics (e.g., Brier score) to `code/lib/metrics.py` to evaluate the quality of probability scores, not just binary classification
 

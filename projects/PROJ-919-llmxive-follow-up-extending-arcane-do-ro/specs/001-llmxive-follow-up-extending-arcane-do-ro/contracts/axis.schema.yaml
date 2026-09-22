@@ -1,4 +1,41 @@
-character: string
-axis_name: string
-description: string
-source_observation: string
+# Schema for Character Axis Definitions
+# This file defines the YAML structure for both Coarse and Fine Character Axis objects.
+# Used by the axis generator and validation services.
+
+Coarse:
+  type: object
+  required:
+    - character
+    - axis_name
+    - description
+  properties:
+    character:
+      type: string
+      description: "The name of the character being analyzed."
+    axis_name:
+      type: string
+      description: "The name of the psychological or behavioral axis."
+    description:
+      type: string
+      description: "A high-level description of the axis."
+
+Fine:
+  type: object
+  required:
+    - character
+    - axis_name
+    - description
+    - source_observation
+  properties:
+    character:
+      type: string
+      description: "The name of the character being analyzed."
+    axis_name:
+      type: string
+      description: "The name of the specific behavioral or psychological axis."
+    description:
+      type: string
+      description: "A detailed description of the axis."
+    source_observation:
+      type: string
+      description: "A specific observation or quote from the source text that supports this axis definition."

@@ -21,12 +21,13 @@ T007:
     \ stated requirement."
 T013:
   c: false
-  h: e23a8915a5a0b7816369fe668540ec5eaaa6066dd750a78528179e11e6c78e3f
-  r: "The `code/data/download_zinc.py` script exists and begins to download the dataset\
-    \ and compute a checksum, but the provided code is truncated and never writes\
-    \ any checksum data to `data/checksums.json`. Moreover, the required `data/checksums.json`\
-    \ file is missing from the repository. The task\u2019s core requirement of persisting\
-    \ checksums is therefore not satisfied."
+  h: ad635fe78f60fc6867a4a9c0f12244d32482238fa545f359e83c3fa916c2b893
+  r: "The `code/data/download_zinc.py` script is present but its implementation is\
+    \ truncated (the `load_dataset` call is incomplete) and it never writes any checksums\
+    \ to `data/checksums.json`. Moreover, the required `data/checksums.json` file\
+    \ does not exist. The task\u2019s core requirements\u2014downloading via `datasets.load_dataset('zinc15',\
+    \ split='train')`, verifying the canonical source, and saving checksums\u2014\
+    are therefore not fulfilled."
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

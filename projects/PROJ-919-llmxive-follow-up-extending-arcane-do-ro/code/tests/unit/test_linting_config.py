@@ -1,77 +1,82 @@
-"""
-Unit tests to verify that linting and formatting configurations are valid.
-These tests ensure that ruff and black can parse their configuration files
-and that the project structure adheres to basic linting rules.
-"""
 import subprocess
 import tempfile
 import os
 from pathlib import Path
 import pytest
 
-
 class TestLintingConfiguration:
-    """Tests for linting and formatting tool configuration."""
+    """Tests to verify that ruff and black configurations are valid and functional."""
 
-    def test_ruff_config_exists(self):
-        """Verify that ruff configuration file exists."""
-        root = Path(__file__).parent.parent.parent
-        config_path = root / "pyproject.toml"
-        assert config_path.exists(), "pyproject.toml must exist for ruff config"
+    def test_ruff_config_exists_and_valid(self, tmp_path):
+        """Ensure .ruff.toml exists and ruff can parse it without errors."""
+        # Create a minimal python file to lint
+        test_file = tmp_path / "test_file.py"
+        test_file.write_text("x=1+2\n")
 
-    def test_ruff_check_project(self):
-        """Run ruff check on the project to ensure no critical errors in config."""
-        root = Path(__file__).parent.parent.parent
-        # We run ruff check on a dummy file or the config itself to ensure it parses
-        # Since we can't guarantee all code is perfect yet, we check if ruff can parse the config
-        try:
-            result = subprocess.run(
-                ["ruff", "check", "--config", str(root / "pyproject.toml"), "--isolated"],
-                cwd=root,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            # We expect it to run without crashing. Exit code 1 is OK if there are lint errors.
-            # Exit code != 0 and not 1 usually means a config error or crash.
-            # However, for this test, we primarily care that the config is valid enough to run.
-            # If ruff crashes, it returns an error code that isn't just "found issues".
-            # Let's just ensure it doesn't raise a FileNotFoundError or similar.
-            assert result.returncode is not None, "Ruff check should return a code"
-        except FileNotFoundError:
-            pytest.skip("Ruff not installed in environment")
-        except subprocess.TimeoutExpired:
-            pytest.fail("Ruff check timed out")
+        # Copy config to tmp
+        ruff_config = Path(__file__).parent.parent.parent / ".ruff.toml"
+        assert ruff_config.exists(), ".ruff.toml must exist in project root"
 
-    def test_black_check_project(self):
-        """Run black --check on the project to ensure formatting config is valid."""
-        root = Path(__file__).parent.parent.parent
-        try:
-            result = subprocess.run(
-                ["black", "--config", str(root / "pyproject.toml"), "--check", "--diff", "."],
-                cwd=root,
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-            # Black returns 0 if all good, 1 if formatting needed.
-            # We just want to ensure it runs without crashing due to config errors.
-            assert result.returncode is not None, "Black check should return a code"
-        except FileNotFoundError:
-            pytest.skip("Black not installed in environment")
-        except subprocess.TimeoutExpired:
-            pytest.fail("Black check timed out")
+        # Run ruff check on the test file using the project config
+        result = subprocess.run(
+            ["ruff", "check", "--config", str(ruff_config), str(test_file)],
+            capture_output=True,
+            text=True,
+        )
+        # We expect ruff to run without crashing (return code 0 or 1 is fine, 2 is error)
+        assert result.returncode != 2, f"Ruff configuration error: {result.stderr}"
 
-    def test_pyproject_has_black_section(self):
-        """Verify pyproject.toml contains [tool.black] section."""
-        root = Path(__file__).parent.parent.parent
-        config_path = root / "pyproject.toml"
-        content = config_path.read_text()
-        assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
+    def test_black_config_exists_and_valid(self, tmp_path):
+        """Ensure pyproject.toml exists with black config and black can check it."""
+        pyproject = Path(__file__).parent.parent.parent / "pyproject.toml"
+        assert pyproject.exists(), "pyproject.toml must exist in project root"
 
-    def test_pyproject_has_ruff_section(self):
-        """Verify pyproject.toml contains [tool.ruff] section."""
-        root = Path(__file__).parent.parent.parent
-        config_path = root / "pyproject.toml"
-        content = config_path.read_text()
-        assert "[tool.ruff]" in content, "pyproject.toml must contain [tool.ruff] section"
+        # Create a minimal python file to format
+        test_file = tmp_path / "test_file.py"
+        test_file.write_text("x=1+2\n")
+
+        # Run black check (check mode)
+        result = subprocess.run(
+            ["black", "--check", "--config", str(pyproject), str(test_file)],
+            capture_output=True,
+            text=True,
+        )
+        # We expect black to run without crashing (return code 0 or 1 is fine, 2 is error)
+        # Return code 1 means "would reformat", which is expected for "x=1+2"
+        assert result.returncode != 2, f"Black configuration error: {result.stderr}"
+
+    def test_ruff_enforces_style(self, tmp_path):
+        """Verify ruff actually catches style errors based on our config."""
+        test_file = tmp_path / "bad_style.py"
+        # Intentionally bad style: missing whitespace around operator, unused import
+        test_file.write_text("import os\nx=1+2\n")
+
+        ruff_config = Path(__file__).parent.parent.parent / ".ruff.toml"
+
+        result = subprocess.run(
+            ["ruff", "check", "--config", str(ruff_config), str(test_file)],
+            capture_output=True,
+            text=True,
+        )
+
+        # Should find errors (return code 1)
+        assert result.returncode == 1, "Ruff should detect style violations in bad_style.py"
+        assert "E" in result.stdout or "F" in result.stdout or "W" in result.stdout, \
+            "Ruff output should indicate specific error codes"
+
+    def test_black_enforces_style(self, tmp_path):
+        """Verify black actually catches format errors."""
+        test_file = tmp_path / "bad_format.py"
+        # Intentionally bad format: no spaces around operator
+        test_file.write_text("x=1+2\n")
+
+        pyproject = Path(__file__).parent.parent.parent / "pyproject.toml"
+
+        result = subprocess.run(
+            ["black", "--check", "--config", str(pyproject), str(test_file)],
+            capture_output=True,
+            text=True,
+        )
+
+        # Should find errors (return code 1)
+        assert result.returncode == 1, "Black should detect format violations in bad_format.py"
