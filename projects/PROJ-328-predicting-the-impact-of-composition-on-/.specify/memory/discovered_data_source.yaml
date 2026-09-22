@@ -1,0 +1,15 @@
+status: none
+intent: solder alloy Vickers hardness dataset Materials Project NIST OpenAlloy python
+  package dataset
+required_fields:
+- alloy_id
+- elemental_composition
+- element_percentages
+- vickers_hardness_rt
+- hardness_units
+- measurement_temperature
+- source_database
+- reference_citation
+cache_key: 6344c9d41532b13bfef7167e86575eb9faece9b1e842fc9624c5b31dedaf3fa5
+searched_at: '2026-09-22T08:29:06.194142+00:00'
+retry_count: 1

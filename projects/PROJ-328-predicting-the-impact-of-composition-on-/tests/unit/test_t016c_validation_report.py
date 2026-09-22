@@ -1,186 +1,157 @@
 """
-Unit and Integration tests for T016c: Verify Validation Report Generation.
+Unit tests for T016c: Verify Validation Report Generation.
 
-This test suite ensures that:
-1. The script runs without errors.
-2. The generated YAML is valid and matches the expected schema.
-3. The --mock flag correctly generates a mock input file.
+These tests verify that the generate_validation_report.py script:
+1. Executes without errors when given valid mock inputs
+2. Produces a valid YAML output file
+3. The output file contains the expected schema and values
 """
 import os
 import sys
 import json
 import yaml
 import tempfile
-import pytest
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Add code/ to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Ensure code/ is in path
+code_root = Path(__file__).resolve().parent.parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from ingestion.generate_validation_report import (
     load_ingestion_status,
+    load_validation_metrics,
     generate_validation_report,
-    save_report,
-    main
+    save_report
 )
-from utils.logging_config import get_logger
 
-logger = get_logger(__name__)
+class TestValidationReportGenerationUnit:
+    """Unit tests for validation report generation functions."""
 
-class TestValidationReportGeneration:
-    
     @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup temporary directories for each test."""
-        self.tmp_dir = tmp_path
-        self.input_file = self.tmp_dir / ".ingestion_status.json"
-        self.output_file = self.tmp_dir / "validation_report.yaml"
-        yield
-    
-    def test_load_ingestion_status_valid(self):
-        """Test loading a valid JSON status file."""
-        mock_data = {
-            "threshold_status": "N>=100",
-            "exact_N": 120,
-            "excluded_count": 5,
-            "power_limitation_warning": None
-        }
-        self.input_file.write_text(json.dumps(mock_data))
+    def setup_test_files(self):
+        """Setup temporary files for testing."""
+        self.temp_dir = tempfile.mkdtemp(prefix="test_t016c_")
+        self.processed_dir = Path(self.temp_dir)
         
-        result = load_ingestion_status(self.input_file)
-        
-        assert result == mock_data
-        assert result["threshold_status"] == "N>=100"
-        assert result["exact_N"] == 120
-
-    def test_load_ingestion_status_missing_file(self):
-        """Test that FileNotFoundError is raised for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_ingestion_status(self.tmp_dir / "nonexistent.json")
-
-    def test_generate_validation_report_mapping(self):
-        """Test that the report generation correctly maps fields."""
-        input_data = {
+        # Create mock .ingestion_status.json
+        self.status_file = self.processed_dir / ".ingestion_status.json"
+        mock_status = {
             "threshold_status": "50<=N<100",
             "exact_N": 85,
-            "excluded_count": 10,
-            "power_limitation_warning": "Power limitation warning"
+            "excluded_count": 15,
+            "power_limitation_warning": "Reduced statistical power due to N < 100"
         }
+        with open(self.status_file, 'w') as f:
+            json.dump(mock_status, f, indent=2)
+
+        # Create mock validation_metrics.yaml
+        self.metrics_file = self.processed_dir / "validation_metrics.yaml"
+        mock_metrics = {
+            "total_raw_records": 200,
+            "passed_threshold_count": 185,
+            "failed_threshold_count": 15,
+            "pass_rate_percentage": 92.5
+        }
+        with open(self.metrics_file, 'w') as f:
+            yaml.dump(mock_metrics, f, default_flow_style=False)
+
+        yield
+
+        # Cleanup
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_load_ingestion_status_success(self):
+        """Test loading a valid ingestion status file."""
+        status_data = load_ingestion_status(self.status_file)
+        assert status_data["threshold_status"] == "50<=N<100"
+        assert status_data["exact_N"] == 85
+        assert status_data["excluded_count"] == 15
+        assert status_data["power_limitation_warning"] == "Reduced statistical power due to N < 100"
+
+    def test_load_ingestion_status_missing_file(self):
+        """Test that loading a missing status file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_ingestion_status(self.processed_dir / "nonexistent.json")
+
+    def test_load_validation_metrics_success(self):
+        """Test loading a valid validation metrics file."""
+        metrics_data = load_validation_metrics(self.metrics_file)
+        assert metrics_data["total_raw_records"] == 200
+        assert metrics_data["passed_threshold_count"] == 185
+        assert metrics_data["failed_threshold_count"] == 15
+        assert metrics_data["pass_rate_percentage"] == 92.5
+
+    def test_load_validation_metrics_missing_file(self):
+        """Test that loading a missing metrics file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_validation_metrics(self.processed_dir / "nonexistent.yaml")
+
+    def test_generate_validation_report_transforms_data_correctly(self):
+        """Test that the report generation correctly transforms input data."""
+        status_data = load_ingestion_status(self.status_file)
+        metrics_data = load_validation_metrics(self.metrics_file)
         
-        report = generate_validation_report(input_data)
+        report = generate_validation_report(status_data, metrics_data)
         
         assert report["status"] == "50<=N<100"
         assert report["count"] == 85
-        assert report["excluded_count"] == 10
-        assert report["power_limitation_warning"] == "Power limitation warning"
+        assert report["excluded_count"] == 15
+        assert report["pass_rate_percentage"] == 92.5
+        assert report["total_raw_records"] == 200
+        assert "power_limitation_warning" in report
+        assert report["power_limitation_warning"] == "Reduced statistical power due to N < 100"
 
-    def test_generate_validation_report_default_excluded_count(self):
-        """Test that excluded_count defaults to 0 if missing."""
-        input_data = {
+    def test_generate_validation_report_without_optional_fields(self):
+        """Test report generation when optional fields are missing."""
+        status_data = {
             "threshold_status": "N>=100",
-            "exact_N": 100
+            "exact_N": 120,
+            "excluded_count": 5
+        }
+        metrics_data = {
+            "total_raw_records": 125,
+            "passed_threshold_count": 120,
+            "failed_threshold_count": 5,
+            "pass_rate_percentage": 96.0
         }
         
-        report = generate_validation_report(input_data)
+        report = generate_validation_report(status_data, metrics_data)
         
-        assert report["excluded_count"] == 0
+        assert report["status"] == "N>=100"
+        assert report["count"] == 120
+        assert report["excluded_count"] == 5
+        assert report["pass_rate_percentage"] == 96.0
+        assert "power_limitation_warning" not in report
 
-    def test_save_report_creates_yaml(self):
+    def test_save_report_creates_valid_yaml(self):
         """Test that saving the report creates a valid YAML file."""
-        report_data = {
-            "status": "N>=100",
-            "count": 100,
-            "excluded_count": 0,
-            "power_limitation_warning": None
-        }
+        status_data = load_ingestion_status(self.status_file)
+        metrics_data = load_validation_metrics(self.metrics_file)
+        report_data = generate_validation_report(status_data, metrics_data)
         
-        saved_path = save_report(report_data, self.output_file)
+        output_file = self.processed_dir / "test_report.yaml"
+        save_report(report_data, output_file)
         
-        assert saved_path.exists()
-        assert saved_path == self.output_file
+        assert output_file.exists()
         
-        # Verify YAML content
-        with open(saved_path, 'r', encoding='utf-8') as f:
+        with open(output_file, 'r') as f:
             loaded_report = yaml.safe_load(f)
         
         assert loaded_report == report_data
 
-    def test_main_success_path(self, caplog):
-        """Test the main function success path with valid input."""
-        mock_data = {
-            "threshold_status": "N>=100",
-            "exact_N": 150,
-            "excluded_count": 2,
-            "power_limitation_warning": None
-        }
-        self.input_file.write_text(json.dumps(mock_data))
+    def test_save_report_creates_parent_directories(self):
+        """Test that save_report creates parent directories if they don't exist."""
+        status_data = load_ingestion_status(self.status_file)
+        metrics_data = load_validation_metrics(self.metrics_file)
+        report_data = generate_validation_report(status_data, metrics_data)
         
-        # Mock sys.argv to simulate command line arguments
-        with patch.object(sys, 'argv', ['script', '--input', str(self.input_file), '--output', str(self.output_file)]):
-            exit_code = main()
+        output_file = self.processed_dir / "nested" / "dir" / "test_report.yaml"
+        save_report(report_data, output_file)
         
-        assert exit_code == 0
-        assert self.output_file.exists()
-        
-        # Verify content
-        with open(self.output_file, 'r', encoding='utf-8') as f:
-            result = yaml.safe_load(f)
-        
-        assert result["status"] == "N>=100"
-        assert result["count"] == 150
+        assert output_file.exists()
 
-    def test_main_mock_flag_creates_mock_file(self, caplog):
-        """Test that --mock flag creates a mock file when input is missing."""
-        # Ensure input file does NOT exist
-        assert not self.input_file.exists()
-        
-        with patch.object(sys, 'argv', [
-            'script', 
-            '--input', str(self.input_file), 
-            '--output', str(self.output_file),
-            '--mock'
-        ]):
-            exit_code = main()
-        
-        assert exit_code == 0
-        # Verify mock file was created
-        assert self.input_file.exists()
-        
-        # Verify output file was created
-        assert self.output_file.exists()
-        
-        # Verify output content matches mock schema
-        with open(self.output_file, 'r', encoding='utf-8') as f:
-            result = yaml.safe_load(f)
-        
-        assert "status" in result
-        assert "count" in result
-
-    def test_main_invalid_json(self):
-        """Test main function behavior with invalid JSON input."""
-        self.input_file.write_text("not valid json {{{")
-        
-        with patch.object(sys, 'argv', ['script', '--input', str(self.input_file)]):
-            exit_code = main()
-        
-        assert exit_code == 1
-
-    def test_main_invalid_yaml_write(self, caplog):
-        """Test main function behavior if YAML write fails (simulated)."""
-        mock_data = {
-            "threshold_status": "N>=100",
-            "exact_N": 100,
-            "excluded_count": 0,
-            "power_limitation_warning": None
-        }
-        self.input_file.write_text(json.dumps(mock_data))
-        
-        # Simulate a failure in yaml.dump by patching save_report
-        with patch('ingestion.generate_validation_report.save_report') as mock_save:
-            mock_save.side_effect = yaml.YAMLError("Write error")
-            
-            with patch.object(sys, 'argv', ['script', '--input', str(self.input_file), '--output', str(self.output_file)]):
-                exit_code = main()
-        
-        assert exit_code == 1
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

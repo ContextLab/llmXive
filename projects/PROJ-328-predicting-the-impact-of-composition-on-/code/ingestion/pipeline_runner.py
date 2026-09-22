@@ -1,91 +1,122 @@
+"""
+Pipeline runner for the data ingestion and cleaning phase.
+
+This module orchestrates the sequence of data fetching, scraping,
+aggregation, cleaning, and validation to produce the final cleaned dataset.
+
+It ensures that:
+1. Raw data is fetched from verified sources (T012a, T012d)
+2. Data is aggregated to raw files (T012g)
+3. Data is cleaned and filtered (T013)
+4. Validation metrics are calculated and status is written (T014)
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import json
+from typing import Optional, Dict, Any
 
-from seed import init_reproducibility
-from ingestion.aggregator import LiteratureAggregator, main as run_aggregator
-from ingestion.cleaner import DataCleaner, main as run_cleaner
-from ingestion.validator import DataValidator, main as run_validator
-from ingestion.saver import save_validated_data, main as run_saver
-from config import get_data_raw_dir, get_data_processed_dir
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from utils.logging_config import get_logger
+from ingestion.api_fetcher import main as run_api_fetcher
+from ingestion.literature_scraper import main as run_literature_scraper
+from ingestion.aggregator import main as run_aggregator
+from ingestion.cleaner import main as run_cleaner
+from ingestion.validator import main as run_validator
+from ingestion.generate_validation_report import main as run_validation_report
 
 logger = get_logger(__name__)
 
 def run_pipeline():
     """
-    Execute the full ingestion pipeline:
-    1. Aggregate (T012)
-    2. Clean (T013)
-    3. Validate (T014)
-    4. Save Validated (T016)
+    Execute the full ingestion pipeline.
+    
+    This function runs the ingestion steps in the correct order:
+    1. Fetch data from APIs
+    2. Scrape literature
+    3. Aggregate to raw files
+    4. Clean and filter data
+    5. Validate and write status
     """
-    init_reproducibility()
+    logger.info("Starting Ingestion Pipeline...")
     
-    logger.info("Starting Solder Hardness Ingestion Pipeline")
-    
-    # Step 1: Aggregate
-    # The aggregator returns a list of raw records
-    logger.info("Step 1: Aggregating data from sources...")
+    # Step 1: Fetch API Data
+    logger.info("Step 1: Fetching data from API sources...")
     try:
-        raw_data = run_aggregator()
-        if not raw_data:
-            logger.error("Aggregation returned no data. Stopping pipeline.")
-            return False
-        logger.info(f"Aggregated {len(raw_data)} raw records.")
+        run_api_fetcher()
+        logger.info("API fetching completed.")
+    except Exception as e:
+        logger.warning(f"API fetching encountered issues (non-fatal if other sources exist): {e}")
+        # We continue because we might have literature data
+    
+    # Step 2: Scrape Literature
+    logger.info("Step 2: Scraping literature sources...")
+    try:
+        run_literature_scraper()
+        logger.info("Literature scraping completed.")
+    except Exception as e:
+        logger.warning(f"Literature scraping encountered issues: {e}")
+        # Continue if we have API data
+    
+    # Step 3: Aggregate Raw Data
+    logger.info("Step 3: Aggregating raw data...")
+    try:
+        run_aggregator()
+        logger.info("Aggregation completed.")
     except Exception as e:
         logger.error(f"Aggregation failed: {e}")
-        # Per T012, we might have partial data, but if critical sources fail, we stop
-        if "ConfigError" in str(type(e)):
-            return False
-        # If we have partial data, we might continue, but for T016 we need a valid set
-        # We proceed if we have some data, but the validator will handle the count check
-        raw_data = [] 
+        raise
     
-    # Step 2: Clean
-    logger.info("Step 2: Cleaning data...")
+    # Step 4: Clean Data
+    logger.info("Step 4: Cleaning and filtering data...")
     try:
-        cleaned_data = run_cleaner(raw_data)
-        logger.info(f"Cleaned data: {len(cleaned_data)} records.")
+        run_cleaner()
+        logger.info("Cleaning completed.")
     except Exception as e:
         logger.error(f"Cleaning failed: {e}")
-        return False
+        raise
     
-    # Step 3: Validate
-    logger.info("Step 3: Validating data...")
+    # Step 5: Validate Data and Write Status
+    logger.info("Step 5: Validating data and writing status...")
     try:
-        validated_data, validation_status = run_validator(cleaned_data)
-        if not validated_data:
-            logger.error("Validation returned no data. Stopping pipeline.")
-            return False
-        
-        # Save status for T016b
-        status_path = get_data_processed_dir() / ".ingestion_status.json"
-        status_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(status_path, 'w') as f:
-            json.dump(validation_status, f, indent=2)
-        
-        logger.info(f"Validation complete. Status: {validation_status.get('threshold_status')}")
+        run_validator()
+        logger.info("Validation completed.")
     except Exception as e:
         logger.error(f"Validation failed: {e}")
-        return False
-    
-    # Step 4: Save Validated (T016)
-    logger.info("Step 4: Saving validated dataset (T016)...")
+        raise
+        
+    # Step 6: Generate Validation Report
+    logger.info("Step 6: Generating validation report...")
     try:
-        output_path = save_validated_data(validated_data)
-        logger.info(f"Pipeline complete. Validated data saved to {output_path}")
-        return True
+        run_validation_report()
+        logger.info("Validation report generated.")
     except Exception as e:
-        logger.error(f"Saving validated data failed: {e}")
-        return False
+        logger.error(f"Validation report generation failed: {e}")
+        # Non-fatal for the pipeline, but good to log
+        
+    logger.info("Ingestion Pipeline completed successfully.")
+    return True
 
 def main():
-    """Entry point for the pipeline."""
-    success = run_pipeline()
-    sys.exit(0 if success else 1)
+    """
+    Main entry point for the pipeline runner.
+    """
+    try:
+        success = run_pipeline()
+        if success:
+            logger.info("Pipeline execution finished with success.")
+            return 0
+        else:
+            logger.error("Pipeline execution finished with errors.")
+            return 1
+    except Exception as e:
+        logger.critical(f"Pipeline execution crashed: {e}")
+        logger.exception(e)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

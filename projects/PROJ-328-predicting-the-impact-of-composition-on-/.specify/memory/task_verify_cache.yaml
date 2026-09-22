@@ -1,18 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure was provided or shown in the evidence; the required `data/`
-    (with `raw`, `processed`, `outputs`), `code/` (with the six subfolders), and `tests/`
-    (with `contract`, `integration`) under `projects/PROJ-328-predicting-the-impact-of-composition-on-/`
-    are not present in the supplied artifacts. The implementer must create and display
-    these directories to satisfy the task.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing the results of `ls -R data/`, `ls -R code/`,
-    or `ls -R tests/`, nor any confirmation that those directories actually exist
-    in the project root. The required artifact (directory verification output) is
-    missing.
 T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -66,14 +51,13 @@ T014:
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
 T016b:
-  c: false
-  h: df2e0af2bb585b0006d03eb015aac053aa33a39ed3bbf0f6b3e27749a8ab9843
-  r: "The provided `generate_validation_report.py` is truncated (ends mid\u2011line)\
-    \ and lacks the final logic to actually save the report and invoke the script,\
-    \ so it does not fully implement the required functionality. Additionally, the\
-    \ referenced `.ingestion_status.json` and the generated `validation_report.yaml`\
-    \ are absent, indicating the pipeline has not been demonstrated to work. The script\
-    \ must be completed and verified to read the JSON and produce the YAML file."
+  c: true
+  h: f4d181442720aa95f983038fd42ca9f78813f69206fd9a3d9953704bfea3b38f
+  r: "The repository contains the required `code/ingestion/generate_validation_report.py`\
+    \ script (\u22484\u202FKB) which implements loading of `.ingestion_status.json`\
+    \ and `validation_metrics.yaml`, builds a combined report dictionary, and writes\
+    \ it to `validation_report.yaml`. The script file is present and non\u2011empty,\
+    \ fulfilling the task\u2019s deliverable."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

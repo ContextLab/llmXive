@@ -4,6 +4,9 @@ Verify CPU Execution for Model Training.
 This module implements T024c: Verify that model training runs on CPU only
 and no GPU/CUDA devices are detected or used. This ensures compliance
 with FR-010 (CPU-only execution constraint).
+
+CRITICAL: This script loads REAL data from the ingestion pipeline to verify
+the CPU constraint on actual data structures, not synthetic dummy data.
 """
 
 import os
@@ -18,6 +21,7 @@ from utils.logging_config import get_logger
 from models.config_cpu import get_cpu_config, get_xgboost_params, get_linear_params
 from seed import init_reproducibility
 from utils.error_handlers import ConfigurationError
+from config import get_data_processed_dir
 
 # Attempt to import torch and xgboost for device checks
 try:
@@ -35,8 +39,8 @@ except ImportError:
     logging.warning("XGBoost not installed. Skipping XGBoost-specific device checks.")
 
 from sklearn.linear_model import LinearRegression
-from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
+import pandas as pd
 
 def check_no_cuda_available() -> bool:
     """
@@ -73,15 +77,50 @@ def check_xgboost_device_log(params: Dict[str, Any]) -> bool:
     logging.info("XGBoost configuration appears safe for CPU execution.")
     return True
 
+def load_real_data_for_verification() -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Load the cleaned solder hardness dataset to verify CPU execution on REAL data.
+    This replaces the synthetic 'make_regression' call to satisfy the fabrication guard.
+    """
+    processed_dir = get_data_processed_dir()
+    cleaned_file = processed_dir / "solder_hardness_cleaned.csv"
+    
+    if not cleaned_file.exists():
+        raise FileNotFoundError(
+            f"Real data file not found at {cleaned_file}. "
+            "Ensure T013 (Data Cleaning) has been executed successfully before running T024c."
+        )
+    
+    df = pd.read_csv(cleaned_file)
+    
+    # Identify feature columns (exclude target and metadata)
+    # Based on T023b output, we expect CLR features and descriptors
+    # We assume the target is 'hardness_hv' and features are numeric columns excluding it
+    feature_cols = [col for col in df.columns if col not in ['hardness_hv', 'alloy_family', 'source_citation']]
+    
+    if len(feature_cols) == 0:
+        raise ValueError("No feature columns found in the cleaned dataset.")
+    
+    X = df[feature_cols].dropna(axis=0)
+    y = X.pop('hardness_hv') if 'hardness_hv' in X.columns else df.loc[X.index, 'hardness_hv']
+    
+    # Ensure we have valid data
+    if X.empty or y.empty:
+        raise ValueError("Data is empty after filtering NaNs.")
+        
+    return X, y
+
 def run_dummy_training_loop() -> Dict[str, Any]:
     """
-    Run a small dummy training loop to verify CPU execution constraints.
+    Run a training loop on REAL data to verify CPU execution constraints.
     Returns a status dictionary.
     """
     results = {
         "cuda_available": False,
         "xgboost_cpu_safe": False,
         "training_success": False,
+        "data_source": "real",
+        "data_path": "",
         "message": ""
     }
 
@@ -98,30 +137,40 @@ def run_dummy_training_loop() -> Dict[str, Any]:
     else:
         results["xgboost_cpu_safe"] = True
 
-    # 3. Run a dummy training loop
+    # 3. Load REAL data and run training
     try:
-        # Generate dummy data
-        X, y = make_regression(n_samples=50, n_features=5, noise=0.1, random_state=42)
+        processed_dir = get_data_processed_dir()
+        results["data_path"] = str(processed_dir / "solder_hardness_cleaned.csv")
+        
+        logging.info("Loading REAL data for CPU verification...")
+        X, y = load_real_data_for_verification()
+        
+        # Split data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         # Train Linear Regression (CPU only by default)
-        logging.info("Running dummy Linear Regression training...")
+        logging.info("Running Linear Regression training on REAL data (CPU)...")
         lr_model = LinearRegression()
         lr_model.fit(X_train, y_train)
-        _ = lr_model.score(X_test, y_test)
-        logging.info("Linear Regression training completed successfully.")
+        lr_score = lr_model.score(X_test, y_test)
+        logging.info(f"Linear Regression training completed. R²: {lr_score:.4f}")
 
         # Train XGBoost (with CPU config)
         if XGBOOST_AVAILABLE:
-            logging.info("Running dummy XGBoost training...")
+            logging.info("Running XGBoost training on REAL data (CPU)...")
+            # Use a small number of estimators for speed verification
             xgb_model = xgb.XGBRegressor(**xgb_params, random_state=42, n_estimators=2)
             xgb_model.fit(X_train, y_train)
-            _ = xgb_model.score(X_test, y_test)
-            logging.info("XGBoost training completed successfully.")
+            xgb_score = xgb_model.score(X_test, y_test)
+            logging.info(f"XGBoost training completed. R²: {xgb_score:.4f}")
         
         results["training_success"] = True
-        results["message"] = "Dummy training loop completed. CPU execution verified."
+        results["message"] = "Training loop completed on REAL data. CPU execution verified."
 
+    except FileNotFoundError as fnf:
+        results["training_success"] = False
+        results["message"] = f"Data file missing: {str(fnf)}"
+        logging.error(f"Data file missing: {str(fnf)}")
     except Exception as e:
         results["training_success"] = False
         results["message"] = f"Training loop failed: {str(e)}"
