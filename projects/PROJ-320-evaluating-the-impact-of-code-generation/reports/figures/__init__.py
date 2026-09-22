@@ -1,1 +1,1 @@
-"""Figures and visualizations package."""
+# Reports figures package

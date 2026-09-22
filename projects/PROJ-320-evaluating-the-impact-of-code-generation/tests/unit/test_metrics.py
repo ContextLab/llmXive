@@ -12,7 +12,7 @@ import sys
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.data.extract_metrics import calculate_comment_count, calculate_time_to_merge, calculate_review_cycles
+from code.data.extract_metrics import extract_comment_count, calculate_time_to_merge_minutes, calculate_review_cycles
 
 
 class TestCommentCountCalculation:
@@ -21,14 +21,14 @@ class TestCommentCountCalculation:
     def test_empty_comments_list(self):
         """Asserts comment count is 0 for empty list."""
         comments = []
-        result = calculate_comment_count(comments)
+        result = extract_comment_count(comments)
         assert result == 0
         assert isinstance(result, int)
 
     def test_single_comment(self):
         """Asserts comment count is 1 for single item list."""
         comments = [{"id": 1, "body": "Test comment"}]
-        result = calculate_comment_count(comments)
+        result = extract_comment_count(comments)
         assert result == 1
 
     def test_multiple_comments(self):
@@ -38,7 +38,7 @@ class TestCommentCountCalculation:
             {"id": 2, "body": "Comment 2"},
             {"id": 3, "body": "Comment 3"}
         ]
-        result = calculate_comment_count(comments)
+        result = extract_comment_count(comments)
         assert result == 3
 
     def test_comments_with_none_values(self):
@@ -50,7 +50,7 @@ class TestCommentCountCalculation:
         ]
         # Assuming the implementation filters out None or handles it
         # Based on typical data cleaning, we expect 2 valid comments
-        result = calculate_comment_count(comments)
+        result = extract_comment_count(comments)
         assert result == 2
 
     def test_mixed_valid_invalid(self):
@@ -60,7 +60,7 @@ class TestCommentCountCalculation:
             {"no_id": 2, "body": "Bad structure"}, # Missing id
             {"id": 3, "body": "Good"}
         ]
-        result = calculate_comment_count(comments)
+        result = extract_comment_count(comments)
         # Should count only items with expected structure
         assert result >= 1
 
@@ -72,28 +72,28 @@ class TestTimeToMergeCalculation:
         """Asserts time to merge is 0 for identical timestamps."""
         created = datetime(2023, 10, 1, 12, 0, 0)
         merged = datetime(2023, 10, 1, 12, 0, 0)
-        result = calculate_time_to_merge(created, merged)
+        result = calculate_time_to_merge_minutes(created, merged)
         assert result == 0.0
 
     def test_one_hour_duration(self):
         """Asserts time to merge is 60 minutes for 1 hour duration."""
         created = datetime(2023, 10, 1, 10, 0, 0)
         merged = datetime(2023, 10, 1, 11, 0, 0)
-        result = calculate_time_to_merge(created, merged)
+        result = calculate_time_to_merge_minutes(created, merged)
         assert result == 60.0
 
     def test_multi_day_duration(self):
         """Asserts time to merge calculates correctly for multi-day PRs."""
         created = datetime(2023, 10, 1, 0, 0, 0)
         merged = datetime(2023, 10, 2, 0, 0, 0) # 24 hours later
-        result = calculate_time_to_merge(created, merged)
+        result = calculate_time_to_merge_minutes(created, merged)
         assert result == 1440.0
 
     def test_created_after_merged(self):
         """Asserts negative time is handled or raises error."""
         created = datetime(2023, 10, 2, 0, 0, 0)
         merged = datetime(2023, 10, 1, 0, 0, 0)
-        result = calculate_time_to_merge(created, merged)
+        result = calculate_time_to_merge_minutes(created, merged)
         # Typically this should be 0 or negative, depending on spec
         # Assuming we return 0 for invalid data or the raw negative value
         assert result <= 0.0
@@ -102,7 +102,7 @@ class TestTimeToMergeCalculation:
         """Asserts function handles missing merge time (unmerged PR)."""
         created = datetime(2023, 10, 1, 0, 0, 0)
         merged = None
-        result = calculate_time_to_merge(created, merged)
+        result = calculate_time_to_merge_minutes(created, merged)
         assert result == 0.0 # Or np.nan, depending on implementation choice
 
 
@@ -146,3 +146,44 @@ class TestReviewCyclesCalculation:
         result = calculate_review_cycles(review_events)
         # Based on standard definition, 'MERGED' is not a review cycle
         assert result == 2
+
+    def test_review_cycles_with_duplicate_events(self):
+        """Asserts duplicate timestamps or events are counted individually."""
+        review_events = [
+            {"event": "COMMENTED", "timestamp": "2023-10-01T10:00:00Z"},
+            {"event": "COMMENTED", "timestamp": "2023-10-01T10:00:00Z"},
+            {"event": "APPROVED", "timestamp": "2023-10-01T11:00:00Z"}
+        ]
+        result = calculate_review_cycles(review_events)
+        assert result == 3
+
+    def test_review_cycles_with_invalid_event_type(self):
+        """Asserts invalid event types are ignored."""
+        review_events = [
+            {"event": "COMMENTED", "timestamp": "2023-10-01T10:00:00Z"},
+            {"event": "INVALID_EVENT", "timestamp": "2023-10-01T11:00:00Z"},
+            {"event": "APPROVED", "timestamp": "2023-10-01T12:00:00Z"}
+        ]
+        result = calculate_review_cycles(review_events)
+        # Should count only valid review events
+        assert result == 2
+
+    def test_review_cycles_with_empty_event_string(self):
+        """Asserts empty event string is handled gracefully."""
+        review_events = [
+            {"event": "", "timestamp": "2023-10-01T10:00:00Z"},
+            {"event": "APPROVED", "timestamp": "2023-10-01T11:00:00Z"}
+        ]
+        result = calculate_review_cycles(review_events)
+        # Should count only valid review events
+        assert result == 1
+
+    def test_review_cycles_with_none_event(self):
+        """Asserts None event is handled gracefully."""
+        review_events = [
+            {"event": None, "timestamp": "2023-10-01T10:00:00Z"},
+            {"event": "APPROVED", "timestamp": "2023-10-01T11:00:00Z"}
+        ]
+        result = calculate_review_cycles(review_events)
+        # Should count only valid review events
+        assert result == 1

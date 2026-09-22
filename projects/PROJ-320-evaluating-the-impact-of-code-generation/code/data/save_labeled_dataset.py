@@ -38,6 +38,11 @@ def load_classified_prs(raw_data_dir: Path) -> List[Dict[str, Any]]:
     Returns a list of dictionaries containing classification results.
     """
     logger = get_logger("save_labeled_dataset")
+    
+    if not raw_data_dir.exists():
+        logger.error(f"Raw data directory does not exist: {raw_data_dir}")
+        return []
+    
     prs = load_prs_from_raw(raw_data_dir)
     
     if not prs:
@@ -80,21 +85,29 @@ def save_labeled_dataset(prs: List[Dict[str, Any]], output_path: Path):
         
         for pr in prs:
             # Ensure all required fields exist, use defaults if missing
+            pr_id = pr.get("pr_id")
+            if not pr_id:
+                repo = pr.get("repo", "unknown")
+                pr_num = pr.get("pr_number", "unknown")
+                pr_id = f"{repo}_{pr_num}"
+            
+            source_type = pr.get("source_type", "unknown")
+            confidence_score = pr.get("confidence_score", 0.0)
+            flagged = pr.get("flagged", False)
+            detector_score = pr.get("detector_score", 0.0)
+            
             row = {
-                "pr_id": pr.get("pr_id", f"{pr.get('repo', 'unknown')}_{pr.get('pr_number', 'unknown')}"),
-                "source_type": pr.get("source_type", "unknown"),
-                "confidence_score": pr.get("confidence_score", 0.0),
-                "flagged": pr.get("flagged", False),
-                "detector_score": pr.get("detector_score", 0.0),
+                "pr_id": pr_id,
+                "source_type": source_type,
+                "confidence_score": float(confidence_score),
+                "flagged": str(flagged).lower(),
+                "detector_score": float(detector_score),
                 "repo": pr.get("repo", ""),
                 "pr_number": pr.get("pr_number", ""),
                 "author": pr.get("author", ""),
                 "merged_at": pr.get("merged_at", ""),
                 "created_at": pr.get("created_at", "")
             }
-            
-            # Convert boolean to string for CSV
-            row["flagged"] = str(row["flagged"]).lower()
             
             writer.writerow(row)
             rows_written += 1

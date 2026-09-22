@@ -1,148 +1,273 @@
+"""
+Unit tests for statistical analysis functions in code/analysis/statistical_tests.py.
+
+This module validates the implementation of statistical tests, including
+Mann-Whitney U tests and independent t-tests, ensuring correct calculation
+of p-values, statistics, and effect sizes.
+"""
+
 import pytest
 import math
-import os
+import numpy as np
+from pathlib import Path
 import sys
 import json
-from pathlib import Path
-import tempfile
 import csv
+import tempfile
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add the project root to the path to allow imports from code/
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from code.analysis.statistical_tests import (
+from analysis.statistical_tests import (
     load_metrics_data,
     group_by_source_type,
     calculate_cohens_d,
+    verify_alpha_assumption,
     perform_independent_t_test,
     run_analysis_for_metric,
-    run_statistical_tests
 )
 
-# Sample data fixture
-SAMPLE_DATA = [
-    {"pr_id": 1, "source_type": "llm", "comment_count": 5.0, "time_to_merge_minutes": 100.0, "complexity_score": 10.0},
-    {"pr_id": 2, "source_type": "llm", "comment_count": 6.0, "time_to_merge_minutes": 120.0, "complexity_score": 12.0},
-    {"pr_id": 3, "source_type": "llm", "comment_count": 4.0, "time_to_merge_minutes": 90.0, "complexity_score": 8.0},
-    {"pr_id": 4, "source_type": "human", "comment_count": 10.0, "time_to_merge_minutes": 200.0, "complexity_score": 15.0},
-    {"pr_id": 5, "source_type": "human", "comment_count": 12.0, "time_to_merge_minutes": 250.0, "complexity_score": 20.0},
-    {"pr_id": 6, "source_type": "human", "comment_count": 9.0, "time_to_merge_minutes": 180.0, "complexity_score": 14.0},
-]
 
-@pytest.fixture
-def temp_csv_file(tmp_path):
-    """Create a temporary CSV file with sample data."""
-    file_path = tmp_path / "test_metrics.csv"
-    with open(file_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["pr_id", "source_type", "comment_count", "time_to_merge_minutes", "complexity_score"])
-        writer.writeheader()
-        writer.writerows(SAMPLE_DATA)
-    return str(file_path)
+class TestIndependentTTestImplementation:
+    """
+    Tests for the independent two-sample t-test implementation.
 
-def test_group_by_source_type():
-    """Test that data is correctly split into LLM and Human groups."""
-    llm_vals, human_vals = group_by_source_type(SAMPLE_DATA, "comment_count")
-    
-    assert len(llm_vals) == 3
-    assert len(human_vals) == 3
-    
-    # Check values
-    assert set(llm_vals) == {5.0, 6.0, 4.0}
-    assert set(human_vals) == {10.0, 12.0, 9.0}
+    These tests verify that the t-test correctly calculates:
+    - p-value
+    - t-statistic
+    - effect size (Cohen's d)
+    """
 
-def test_group_by_source_type_missing_metric():
-    """Test behavior when metric is missing."""
-    data_with_missing = SAMPLE_DATA + [{"pr_id": 7, "source_type": "llm", "comment_count": None, "time_to_merge_minutes": 50.0}]
-    llm_vals, human_vals = group_by_source_type(data_with_missing, "comment_count")
-    
-    # Should skip the None value
-    assert len(llm_vals) == 3
+    @pytest.fixture
+    def sample_data_file(self, tmp_path):
+        """Create a temporary CSV file with sample metrics data."""
+        data = [
+            ["pr_id", "source_type", "comment_count", "time_to_merge_minutes", "review_cycles", "complexity_score"],
+            [1, "llm", 5, 120.5, 2, 10.5],
+            [2, "llm", 3, 90.0, 1, 8.2],
+            [3, "llm", 7, 150.0, 3, 12.1],
+            [4, "llm", 4, 100.0, 2, 9.0],
+            [5, "llm", 6, 130.0, 2, 11.0],
+            [6, "human", 10, 200.0, 4, 15.0],
+            [7, "human", 8, 180.0, 3, 14.0],
+            [8, "human", 12, 250.0, 5, 16.0],
+            [9, "human", 9, 190.0, 4, 15.5],
+            [10, "human", 11, 220.0, 4, 16.5],
+        ]
 
-def test_calculate_cohens_d():
-    """Test Cohen's d calculation with known values."""
-    # Group 1: [1, 2, 3] -> mean=2, var=1
-    # Group 2: [4, 5, 6] -> mean=5, var=1
-    # Pooled var = 1, pooled std = 1
-    # d = (2 - 5) / 1 = -3
-    g1 = [1.0, 2.0, 3.0]
-    g2 = [4.0, 5.0, 6.0]
-    
-    d = calculate_cohens_d(g1, g2)
-    assert math.isclose(d, -3.0, abs_tol=1e-5)
+        file_path = tmp_path / "sample_metrics.csv"
+        with open(file_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
 
-def test_calculate_cohens_d_zero_variance():
-    """Test Cohen's d when variance is zero."""
-    g1 = [1.0, 1.0, 1.0]
-    g2 = [2.0, 2.0, 2.0]
-    
-    # Pooled std will be 1.0 (diff in means) / 0? No, pooled var is 0.
-    # Actually, if both groups have 0 variance, pooled var is 0.
-    # The function should return 0.0 or handle gracefully.
-    d = calculate_cohens_d(g1, g2)
-    # With zero pooled std, our implementation returns 0.0
-    assert d == 0.0
+        return str(file_path)
 
-def test_perform_independent_t_test():
-    """Test t-test function returns expected structure."""
-    g1 = [1.0, 2.0, 3.0, 4.0, 5.0]
-    g2 = [10.0, 11.0, 12.0, 13.0, 14.0]
-    
-    result = perform_independent_t_test(g1, g2)
-    
-    assert "t_statistic" in result
-    assert "p_value" in result
-    assert isinstance(result["t_statistic"], float)
-    assert isinstance(result["p_value"], float)
-    assert result["p_value"] < 0.05 # Should be significant
+    @pytest.fixture
+    def small_sample_data_file(self, tmp_path):
+        """Create a temporary CSV file with a small sample for edge case testing."""
+        # Small groups to test t-test with limited data
+        data = [
+            ["pr_id", "source_type", "comment_count", "time_to_merge_minutes", "review_cycles", "complexity_score"],
+            [1, "llm", 5, 120.5, 2, 10.5],
+            [2, "llm", 3, 90.0, 1, 8.2],
+            [3, "human", 10, 200.0, 4, 15.0],
+            [4, "human", 8, 180.0, 3, 14.0],
+        ]
 
-def test_run_analysis_for_metric(temp_csv_file):
-    """Test full analysis pipeline for a single metric."""
-    result = run_analysis_for_metric(SAMPLE_DATA, "comment_count", alpha=0.05)
-    
-    assert result["metric"] == "comment_count"
-    assert result["status"] != "skipped"
-    assert "t_test" in result
-    assert "effect_size" in result
-    assert "group_sizes" in result
-    assert result["group_sizes"]["llm"] == 3
-    assert result["group_sizes"]["human"] == 3
-    
-    # Check significance logic
-    assert "significant_at_alpha_0_05" in result["t_test"]
+        file_path = tmp_path / "small_sample_metrics.csv"
+        with open(file_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
 
-def test_run_statistical_tests_integration(temp_csv_file):
-    """Test the main integration function writes output file."""
-    output_file = str(Path(temp_csv_file).parent / "results.json")
-    
-    results = run_statistical_tests(
-        input_file=temp_csv_file,
-        output_file=output_file,
-        alpha=0.05
-    )
-    
-    # Verify file exists
-    assert os.path.exists(output_file)
-    
-    # Verify content
-    with open(output_file, 'r') as f:
-        saved_results = json.load(f)
-    
-    assert "config" in saved_results
-    assert "results" in saved_results
-    assert len(saved_results["results"]) == 2 # comment_count and time_to_merge_minutes
-    
-    # Check specific metric results
-    metrics_found = [r["metric"] for r in saved_results["results"]]
-    assert "comment_count" in metrics_found
-    assert "time_to_merge_minutes" in metrics_found
+        return str(file_path)
 
-def test_insufficient_data_raises_error():
-    """Test that running analysis with only one group raises ValueError."""
-    single_group_data = [
-        {"pr_id": 1, "source_type": "llm", "comment_count": 5.0, "time_to_merge_minutes": 100.0},
-    ]
-    
-    with pytest.raises(ValueError) as exc_info:
-        group_by_source_type(single_group_data, "comment_count")
-    
-    assert "Insufficient data" in str(exc_info.value)
+    def test_perform_independent_t_test_returns_required_outputs(self, sample_data_file):
+        """
+        Test that perform_independent_t_test returns a dictionary with:
+        - p_value (float)
+        - t_statistic (float)
+        - effect_size (float)
+        """
+        # Load and group data
+        metrics = load_metrics_data(sample_data_file)
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        # Perform t-test
+        result = perform_independent_t_test(llm_group, human_group)
+
+        # Verify output structure
+        assert isinstance(result, dict), "Result must be a dictionary"
+        assert "p_value" in result, "Result must contain 'p_value' key"
+        assert "t_statistic" in result, "Result must contain 't_statistic' key"
+        assert "effect_size" in result, "Result must contain 'effect_size' key"
+
+        # Verify types
+        assert isinstance(result["p_value"], float), "p_value must be a float"
+        assert isinstance(result["t_statistic"], float), "t_statistic must be a float"
+        assert isinstance(result["effect_size"], float), "effect_size must be a float"
+
+    def test_perform_independent_t_test_calculates_correct_statistics(self, sample_data_file):
+        """
+        Test that the t-test calculates correct statistics for a known dataset.
+        We use numpy's ttest_ind to verify the implementation.
+        """
+        # Load and group data
+        metrics = load_metrics_data(sample_data_file)
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        # Perform t-test
+        result = perform_independent_t_test(llm_group, human_group)
+
+        # Verify against numpy implementation
+        from scipy import stats
+        numpy_result = stats.ttest_ind(llm_group, human_group)
+
+        # Check that p-value is approximately correct (allowing for minor floating point differences)
+        assert math.isclose(result["p_value"], numpy_result.pvalue, rel_tol=1e-5), \
+            f"p_value mismatch: got {result['p_value']}, expected {numpy_result.pvalue}"
+
+        # Check that t-statistic is approximately correct
+        assert math.isclose(result["t_statistic"], numpy_result.statistic, rel_tol=1e-5), \
+            f"t_statistic mismatch: got {result['t_statistic']}, expected {numpy_result.statistic}"
+
+    def test_cohens_d_calculation(self, sample_data_file):
+        """
+        Test that Cohen's d is calculated correctly.
+        Cohen's d = (mean1 - mean2) / pooled_std
+        """
+        # Load and group data
+        metrics = load_metrics_data(sample_data_file)
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        # Calculate Cohen's d using our implementation
+        effect_size = calculate_cohens_d(llm_group, human_group)
+
+        # Calculate expected value manually
+        mean1 = np.mean(llm_group)
+        mean2 = np.mean(human_group)
+        std1 = np.std(llm_group, ddof=1)
+        std2 = np.std(human_group, ddof=1)
+        n1 = len(llm_group)
+        n2 = len(human_group)
+
+        # Pooled standard deviation
+        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+        expected_d = (mean1 - mean2) / pooled_std
+
+        # Verify
+        assert math.isclose(effect_size, expected_d, rel_tol=1e-5), \
+            f"Cohen's d mismatch: got {effect_size}, expected {expected_d}"
+
+    def test_perform_independent_t_test_with_small_sample(self, small_sample_data_file):
+        """
+        Test t-test implementation with a small sample size (2 per group).
+        This ensures the function handles edge cases gracefully.
+        """
+        metrics = load_metrics_data(small_sample_data_file)
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        # Should not raise an exception
+        result = perform_independent_t_test(llm_group, human_group)
+
+        # Verify outputs exist
+        assert "p_value" in result
+        assert "t_statistic" in result
+        assert "effect_size" in result
+
+        # Values should be finite numbers
+        assert math.isfinite(result["p_value"])
+        assert math.isfinite(result["t_statistic"])
+        assert math.isfinite(result["effect_size"])
+
+    def test_run_analysis_for_metric_returns_complete_result(self, sample_data_file):
+        """
+        Test that run_analysis_for_metric returns a complete result dictionary
+        including all required fields for t-test analysis.
+        """
+        metrics = load_metrics_data(sample_data_file)
+
+        result = run_analysis_for_metric(metrics, "comment_count", "t_test")
+
+        # Verify structure
+        assert isinstance(result, dict)
+        assert "p_value" in result
+        assert "t_statistic" in result
+        assert "effect_size" in result
+        assert "is_significant" in result
+        assert "metric_name" in result
+        assert "test_type" in result
+
+        # Verify types
+        assert isinstance(result["p_value"], float)
+        assert isinstance(result["t_statistic"], float)
+        assert isinstance(result["effect_size"], float)
+        assert isinstance(result["is_significant"], bool)
+        assert result["metric_name"] == "comment_count"
+        assert result["test_type"] == "t_test"
+
+    def test_effect_size_magnitude_interpretation(self, sample_data_file):
+        """
+        Test that effect sizes are calculated with reasonable magnitudes.
+        Cohen's d guidelines:
+        - 0.2: small effect
+        - 0.5: medium effect
+        - 0.8: large effect
+        """
+        metrics = load_metrics_data(sample_data_file)
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        effect_size = calculate_cohens_d(llm_group, human_group)
+
+        # Effect size should be a finite number
+        assert math.isfinite(effect_size)
+
+        # In our sample data, human group has higher comment counts,
+        # so we expect a negative effect size (llm - human)
+        # The magnitude should be reasonable (not extremely large or small)
+        assert abs(effect_size) < 10, "Effect size magnitude seems unreasonably large"
+
+    def test_t_test_with_identical_groups(self, tmp_path):
+        """
+        Test t-test behavior when both groups have identical values.
+        This should result in a t-statistic of 0 and p-value of 1.0.
+        """
+        data = [
+            ["pr_id", "source_type", "comment_count", "time_to_merge_minutes", "review_cycles", "complexity_score"],
+            [1, "llm", 5, 120.5, 2, 10.5],
+            [2, "llm", 5, 120.5, 2, 10.5],
+            [3, "human", 5, 120.5, 2, 10.5],
+            [4, "human", 5, 120.5, 2, 10.5],
+        ]
+
+        file_path = tmp_path / "identical_groups.csv"
+        with open(file_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
+
+        metrics = load_metrics_data(str(file_path))
+        llm_group, human_group = group_by_source_type(metrics, "comment_count")
+
+        result = perform_independent_t_test(llm_group, human_group)
+
+        # With identical groups, t-statistic should be 0 and p-value should be 1.0
+        assert math.isclose(result["t_statistic"], 0.0, abs_tol=1e-10)
+        assert math.isclose(result["p_value"], 1.0, abs_tol=1e-10)
+
+    def test_alpha_assumption_verification(self):
+        """
+        Test that verify_alpha_assumption correctly validates the alpha threshold.
+        """
+        # Valid alpha values
+        assert verify_alpha_assumption(0.05) is True
+        assert verify_alpha_assumption(0.01) is True
+        assert verify_alpha_assumption(0.10) is True
+
+        # Invalid alpha values (outside 0-1 range)
+        assert verify_alpha_assumption(1.5) is False
+        assert verify_alpha_assumption(-0.1) is False
+
+        # Edge cases
+        assert verify_alpha_assumption(0.0) is False  # Alpha should be > 0
+        assert verify_alpha_assumption(1.0) is False  # Alpha should be < 1

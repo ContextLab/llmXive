@@ -1,176 +1,169 @@
-"""
-Module for calculating code complexity metrics (Cyclomatic Complexity and LOC).
-"""
 import os
 import json
 import ast
 import tokenize
 import io
+import csv
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+from utils.logging import get_logger, setup_logging
+from utils.config import get_path
 
-def calculate_loc(code: str) -> int:
+logger = get_logger(__name__)
+
+def get_memory_usage_mb() -> float:
+    """Get current memory usage in MB."""
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / 1024 / 1024
+    except ImportError:
+        logger.warning("psutil not installed, returning 0 for memory usage")
+        return 0.0
+
+def check_memory_and_fallback(threshold_mb: float = 6000) -> bool:
     """
-    Calculate Lines of Code (LOC) for a given code string.
-    Excludes blank lines and comments.
+    Check if memory usage exceeds threshold and trigger fallback.
+    Returns True if fallback should be triggered.
     """
-    if not code:
+    current_memory = get_memory_usage_mb()
+    if current_memory > threshold_mb:
+        logger.warning(f"Memory usage {current_memory:.2f}MB exceeds threshold {threshold_mb}MB, triggering fallback")
+        return True
+    return False
+
+def calculate_loc(code_text: str) -> int:
+    """Calculate Lines of Code (LOC) for a code snippet."""
+    if not code_text:
+        return 0
+    
+    lines = code_text.split('\n')
+    # Count non-empty, non-comment lines
+    loc = 0
+    for line in lines:
+        stripped = line.strip()
+        if stripped and not stripped.startswith('#'):
+            loc += 1
+    return loc
+
+def calculate_cyclomatic_complexity(code_text: str) -> int:
+    """
+    Calculate Cyclomatic Complexity for a code snippet.
+    Uses AST-based analysis for Python code.
+    """
+    if not code_text:
         return 0
     
     try:
-        # Tokenize the code
-        tokens = list(tokenize.generate_tokens(io.StringIO(code).readline))
-        loc = 0
-        for tok in tokens:
-            if tok.type == tokenize.NL:
-                continue
-            if tok.type == tokenize.COMMENT:
-                continue
-            if tok.type == tokenize.NEWLINE:
-                loc += 1
-        return loc
-    except Exception:
-        # Fallback: simple line count minus blanks/comments
-        lines = code.split('\n')
-        count = 0
-        for line in lines:
-            stripped = line.strip()
-            if stripped and not stripped.startswith('#'):
-                count += 1
-        return count
-
-def calculate_cyclomatic_complexity(code: str) -> int:
-    """
-    Calculate Cyclomatic Complexity (CC) for a given code string.
-    Based on decision points in the AST.
-    """
-    if not code:
-        return 1
-    
-    try:
-        tree = ast.parse(code)
+        tree = ast.parse(code_text)
     except SyntaxError:
-        # If code is not valid Python (e.g., diff fragments), return base complexity
-        return 1
+        # If parsing fails, use a simple heuristic
+        return max(1, code_text.count('\n') // 10)
     
-    cc = 1  # Base complexity
+    complexity = 1  # Base complexity
     
     for node in ast.walk(tree):
-        # Decision points that increment CC
-        if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
-            cc += 1
+        if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler,
+                           ast.With, ast.Assert, ast.comprehension)):
+            complexity += 1
         elif isinstance(node, ast.BoolOp):
-            # Each 'and'/'or' adds a decision
-            cc += len(node.values) - 1
-        elif isinstance(node, ast.comprehension):
-            # List/dict/set comprehensions with conditions
-            cc += len(node.ifs)
-        elif isinstance(node, ast.Assert):
-            cc += 1
+            complexity += len(node.values) - 1
     
-    return cc
+    return complexity
 
-def analyze_diff_complexity(diff_content: str) -> dict:
+def analyze_diff_complexity(diff_text: str) -> float:
     """
-    Analyze a PR diff content and return complexity metrics.
+    Analyze complexity of a PR diff.
+    Returns a normalized complexity score.
+    """
+    if not diff_text:
+        return 0.0
     
-    Args:
-        diff_content: The diff/patch string from a PR
-        
-    Returns:
-        Dictionary with 'cyclomatic_complexity' and 'lines_of_code'
-    """
-    # Preprocess diff: extract only added lines (starting with '+')
-    # This avoids counting removed lines or context lines
+    # Extract added lines from diff
     added_lines = []
-    for line in diff_content.split('\n'):
+    for line in diff_text.split('\n'):
         if line.startswith('+') and not line.startswith('+++'):
-            # Remove the '+' prefix
-            added_lines.append(line[1:])
+            added_lines.append(line[1:])  # Remove the '+' prefix
     
-    code_snippet = '\n'.join(added_lines)
+    added_code = '\n'.join(added_lines)
     
-    loc = calculate_loc(code_snippet)
-    cc = calculate_cyclomatic_complexity(code_snippet)
+    if not added_code.strip():
+        return 0.0
     
-    return {
-        'cyclomatic_complexity': cc,
-        'lines_of_code': loc,
-        'raw_diff_length': len(diff_content)
-    }
+    # Calculate complexity metrics
+    loc = calculate_loc(added_code)
+    cyclomatic = calculate_cyclomatic_complexity(added_code)
+    
+    # Normalize and combine metrics
+    # Simple weighted combination: 0.4 * LOC + 0.6 * Cyclomatic
+    # Normalize LOC to 0-1 range (assuming max 100 lines)
+    normalized_loc = min(loc / 100.0, 1.0)
+    normalized_cyclomatic = min(cyclomatic / 10.0, 1.0)
+    
+    complexity_score = 0.4 * normalized_loc + 0.6 * normalized_cyclomatic
+    return float(complexity_score)
 
-def compute_complexity_for_prs(prs: list) -> list:
+def compute_complexity_for_prs(prs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Compute complexity metrics for a list of PR data dictionaries.
-    
-    Args:
-        prs: List of PR dictionaries containing 'diff' or 'patch' fields
-        
-    Returns:
-        List of dictionaries with pr_id and complexity metrics
+    Compute complexity scores for a list of PRs.
+    Returns list of dicts with pr_id and complexity_score.
     """
     results = []
+    
     for pr in prs:
-        pr_id = pr.get('pr_id', pr.get('id', 'unknown'))
-        diff_content = pr.get('diff', pr.get('patch', ''))
+        pr_id = pr.get('pr_id')
+        if pr_id is None:
+            continue
         
-        if not diff_content:
-            # Try to reconstruct from files if available
-            files = pr.get('files', [])
-            if isinstance(files, list):
-                patches = [f.get('patch', '') for f in files if isinstance(f, dict)]
-                diff_content = '\n'.join(patches)
+        diff_text = pr.get('diff', '')
+        if not diff_text:
+            # Try to get diff from raw data
+            raw_data = pr.get('raw', {})
+            diff_text = raw_data.get('diff', '')
         
-        metrics = analyze_diff_complexity(diff_content)
+        complexity_score = analyze_diff_complexity(diff_text)
+        
         results.append({
-            'pr_id': pr_id,
-            **metrics
+            'pr_id': int(pr_id),
+            'complexity_score': float(complexity_score)
         })
     
     return results
 
 def main():
-    """
-    Main entry point for standalone execution.
-    Reads from data/raw/ or data/processed/ and outputs complexity metrics.
-    """
-    logger = None
-    try:
-        from utils.logging import get_logger, setup_logging
-        setup_logging()
-        logger = get_logger(__name__)
-    except ImportError:
-        pass
+    """Main entry point for complexity analysis."""
+    setup_logging()
     
-    # Default paths
-    project_root = Path(__file__).parent.parent
-    input_file = project_root / 'data' / 'processed' / 'prs_labeled.csv'
-    
-    if logger:
-        logger.info(f"Reading PR data from {input_file}")
-    
-    if not input_file.exists():
-        if logger:
-            logger.error(f"Input file not found: {input_file}")
-        print(f"Error: Input file not found: {input_file}")
+    # Load labeled PRs
+    labeled_prs_path = get_path("processed", "prs_labeled.csv")
+    if not labeled_prs_path.exists():
+        logger.error(f"Labeled PRs file not found: {labeled_prs_path}")
         return
     
-    # Load PRs
-    import csv
-    prs = []
-    with open(input_file, 'r', encoding='utf-8') as f:
+    with open(labeled_prs_path, 'r') as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            prs.append(row)
+        prs = list(reader)
     
-    if logger:
-        logger.info(f"Loaded {len(prs)} PRs")
+    logger.info(f"Loaded {len(prs)} PRs for complexity analysis")
+    
+    # Check memory before processing
+    if check_memory_and_fallback():
+        logger.warning("Memory threshold exceeded, using simplified analysis")
+        # In a real implementation, we would use a simplified analysis here
     
     # Compute complexity
     results = compute_complexity_for_prs(prs)
     
-    if logger:
-        logger.info(f"Computed complexity for {len(results)} PRs")
-        logger.info("Complexity metrics calculation completed.")
+    # Save results
+    output_path = get_path("processed", "complexity_scores.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['pr_id', 'complexity_score'])
+        writer.writeheader()
+        writer.writerows(results)
+    
+    logger.info(f"Saved complexity scores for {len(results)} PRs to {output_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

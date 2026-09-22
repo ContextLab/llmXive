@@ -1,3 +1,1 @@
-"""
-Integration tests for end-to-end pipeline functionality.
-"""
+# Integration tests package

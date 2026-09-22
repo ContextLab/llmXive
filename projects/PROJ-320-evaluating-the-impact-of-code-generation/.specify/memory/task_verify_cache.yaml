@@ -1,29 +1,42 @@
-T017:
+T003:
   c: true
-  h: fd8010e664ec58a6e89b39c4a87ea3b9d3ac9f080647efe6de5c36692f444974
-  r: "The repository contains the required `code/data/save_labeled_dataset.py` script\
-    \ (5\u202FKB) which defines `save_labeled_dataset` and writes a CSV with the columns\
-    \ `source_type`, `confidence_score`, `flagged`, `detector_score` plus metadata,\
-    \ satisfying the task specification. The output CSV itself need not pre\u2011\
-    exist for the task to be considered fulfilled."
+  h: 5783926b1e9bef56f020962833de16d8b4d63ae238399df6ba857e7cfc2c0924
+  r: "The `pyproject.toml` file contains full `[tool.black]` and `[tool.ruff]` configuration\
+    \ sections, satisfying the requirement to provide project\u2011specific linting\
+    \ and formatting settings (the separate `ruff.toml` and `black.toml` files are\
+    \ optional)."
+T017:
+  c: false
+  h: bbd14ac44e30b253886d10b943a88993b1800fca568c2e50102d1903f90d31a7
+  r: The `code/data/save_labeled_dataset.py` file is truncated and does not contain
+    a complete implementation (it ends abruptly at `pr_i`). Moreover, the required
+    output file `data/processed/prs_labeled.csv` is missing. The task therefore is
+    not fulfilled.
 T019a:
   c: false
-  h: c470e3be292eb46051fe4220cde69b33579de822acde7e950411b1753872080f
-  r: "The `manual_validation.py` script is present and includes sample\u2011size calculation\
-    \ and stratified sampling, but the `execute_human_judgment_checklist` function\
-    \ is only a simulated placeholder and does not contain code to write results to\
-    \ `data/audit/manual_audit_results.json`. Moreover, the required `data/audit/manual_audit_results.json`\
-    \ file is missing. The implementation must perform the actual checklist (or a\
-    \ complete simulation) and persist the audit records to the specified JSON file."
+  h: a4c502fcbf90f08f7720be82aaa296ccd5fd7e36bd98825b530b18a59e0a6b81
+  r: "The `code/audit/manual_validation.py` file exists, but the required output file\
+    \ `data/audit/manual_audit_results.json` is missing, indicating that the script\
+    \ either was not run or did not produce the expected audit results log. Without\
+    \ this JSON file, the task\u2019s requirement to log the manual\u2011validation\
+    \ results is not satisfied."
 T019b:
   c: false
-  h: 0a66dc642a0428bee97a14ae88242a36116d4dbc38a9562492de875273808c01
-  r: "The repository contains a partially shown `code/audit/manual_validation.py`,\
-    \ but it does not include any code that computes an overall labeling error rate,\
-    \ writes it to `data/audit/error_rate.json`, or raises a `RuntimeError` when the\
-    \ rate exceeds 0.05. Moreover, the required output file `data/audit/error_rate.json`\
-    \ is absent. The implementer must add the error\u2011rate calculation, JSON output,\
-    \ and the threshold\u2011check exception, and ensure the file is created."
+  h: 41f7df1bc7c1690fc5ca4a393b8981d9383aa5545b601c6983372c7b18c4dacc
+  r: "The `data/audit/error_rate.json` file does not exist, and the provided excerpt\
+    \ of `code/audit/manual_validation.py` stops before any error\u2011rate calculation\
+    \ or file\u2011writing logic is shown. Consequently, the required error\u2011\
+    rate computation, JSON output, and threshold\u2011exceeding `ValueError` are not\
+    \ present. The next implementer must add the error\u2011rate logic, ensure it\
+    \ writes to `data/audit/error_rate.json`, and raise the specified exception when\
+    \ the rate exceeds the configured limit."
+T022:
+  c: false
+  h: 0eb9db584eb640524bf3266b693f4fe062755f44f2efa731e71632823c3ab80b
+  r: The provided `extract_metrics.py` exists but its implementation is truncated
+    and never reaches the joining or output steps, and the required input files `data/processed/prs_labeled.csv`
+    and `data/processed/complexity_scores.csv` are missing, so the script cannot produce
+    the specified `prs_metrics.csv` with the required schema.
 T028:
   c: false
   h: 771b3ad1afb30ddce1c9f49ae29fc2567c57adb67b2ad662883e5b73fa8c3460
@@ -48,6 +61,14 @@ T030b:
     \ required test `test_histogram_generation` (which should assert that `reports/figures/histograms.pdf`\
     \ exists) is absent, and the `histograms.pdf` file itself is missing. The task\u2019\
     s specific artifact and test are not present."
+T033:
+  c: false
+  h: b8438cf2311b6a2f915a17dd01f3660d25686301f88c59595b7b2b33a9e802e8
+  r: The repository contains `code/analysis/save_complexity_scores.py`, but the required
+    output file `data/processed/complexity_scores.csv` is missing, and the prerequisite
+    input `data/processed/prs_labeled.csv` does not exist, so the script cannot be
+    executed to produce the expected CSV with the correct columns. The task is therefore
+    not fulfilled.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
