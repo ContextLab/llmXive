@@ -82,36 +82,142 @@ def retrieve_diff_aware_snippets(query: str, file_history: List[Dict[str, Any]],
     snippets.sort(key=lambda x: x.score, reverse=True)
     return snippets[:5]
 
+def _extract_first_sentences(text: str) -> List[str]:
+    """
+    Extract the first sentence of every paragraph.
+    Paragraphs are separated by double newlines.
+    """
+    paragraphs = text.split('\n\n')
+    sentences = []
+    # Simple sentence splitter: split on ., !, ?
+    sentence_enders = re.compile(r'([.!?])\s+')
+    
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+        # Find the first sentence
+        match = sentence_enders.search(para)
+        if match:
+            first_sent = para[:match.end()].strip()
+            if first_sent:
+                sentences.append(first_sent)
+        else:
+            # If no sentence ender, take the whole paragraph as a "sentence"
+            if para:
+                sentences.append(para)
+    return sentences
+
+def _extract_last_function_sentences(text: str) -> List[str]:
+    """
+    Extract the last sentence of every function block.
+    Function blocks are defined by 'def ' keyword and indentation.
+    """
+    lines = text.split('\n')
+    function_blocks = []
+    current_block = []
+    in_function = False
+    base_indent = 0
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if in_function:
+                current_block.append(line)
+            continue
+
+        # Detect function definition
+        if re.match(r'^def\s+\w+\s*\(', line):
+            if in_function and current_block:
+                function_blocks.append('\n'.join(current_block))
+            in_function = True
+            current_block = [line]
+            # Determine base indent (though 'def' usually starts at 0 or module level)
+            base_indent = len(line) - len(line.lstrip())
+        elif in_function:
+            # Check if we are still inside the function (indentation > base)
+            current_indent = len(line) - len(line.lstrip())
+            if current_indent > base_indent or stripped.startswith('def '):
+                # If we hit a new 'def' at same level, it's a new function (handled above)
+                # If indentation is greater, we are inside
+                current_block.append(line)
+            else:
+                # Indentation dropped, function ended
+                if current_block:
+                    function_blocks.append('\n'.join(current_block))
+                in_function = False
+                current_block = []
+                # Re-evaluate current line if it's code
+                if stripped:
+                    # This line belongs to the next block (not function)
+                    pass
+
+    if in_function and current_block:
+        function_blocks.append('\n'.join(current_block))
+
+    last_sentences = []
+    sentence_enders = re.compile(r'([.!?])\s+')
+
+    for block in function_blocks:
+        block_text = block.strip()
+        if not block_text:
+            continue
+        
+        # Find the last sentence in the block
+        # We look for the last occurrence of a sentence ender
+        matches = list(sentence_enders.finditer(block_text))
+        if matches:
+            last_match = matches[-1]
+            last_sent = block_text[last_match.start():last_match.end()].strip()
+            if last_sent:
+                last_sentences.append(last_sent)
+        else:
+            # If no sentence ender, take the last line or whole block
+            lines_in_block = block_text.split('\n')
+            if lines_in_block:
+                last_sentences.append(lines_in_block[-1].strip())
+
+    return last_sentences
+
 def retrieve_semantic_summaries(query: str, file_history: List[Dict[str, Any]], max_tokens: int = 1000) -> List[ContextSnippet]:
     """
     Retrieve snippets using rule-based semantic summarization.
-    Extracts variable definitions, function signatures, and control flow blocks.
-    Does NOT use first/last sentence heuristic.
+    Logic:
+    1. Extract the first sentence of every paragraph.
+    2. Extract the last sentence of every function block (defined by indentation or 'def').
+    3. Concatenate with '...' separator.
+    4. Truncate to context window (max_tokens approximated by word count).
     """
     summaries = []
+    
     for file_info in file_history:
         content = file_info.get("content", "")
         if not content:
             continue
 
-        # Extract function definitions
-        func_pattern = r'(\s*def\s+\w+\s*\([^)]*\)\s*:)'
-        func_matches = re.findall(func_pattern, content, re.MULTILINE)
+        # 1. First sentences of paragraphs
+        first_sents = _extract_first_sentences(content)
+        
+        # 2. Last sentences of function blocks
+        last_func_sents = _extract_last_function_sentences(content)
+        
+        # Combine
+        all_parts = first_sents + last_func_sents
+        
+        if not all_parts:
+            continue
 
-        # Extract class definitions
-        class_pattern = r'(\s*class\s+\w+\s*:)'
-        class_matches = re.findall(class_pattern, content, re.MULTILINE)
-
-        # Extract control flow
-        flow_pattern = r'(\s*(if|for|while|try|except)\s+[^:]*:)'
-        flow_matches = re.findall(flow_pattern, content, re.MULTILINE)
-
-        # Build summary
-        summary_parts = func_matches + class_matches + flow_matches
-        summary = "...\n".join(summary_parts[:20])  # Limit to 20 blocks
-
-        if summary:
-            summaries.append(ContextSnippet(content=summary, score=1.0))
+        # Join with '...'
+        summary_text = "...".join(all_parts)
+        
+        # Truncate to max_tokens (approximate: 1 token ~ 1 word for this heuristic)
+        words = summary_text.split()
+        if len(words) > max_tokens:
+            words = words[:max_tokens]
+            summary_text = " ".join(words)
+        
+        if summary_text.strip():
+            summaries.append(ContextSnippet(content=summary_text, score=1.0))
 
     return summaries
 

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 73acf198a7c427d1f1ad9aa716caee959105a244840f6ced6feb61d3183b23a0
+  artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Cyclomatic complexity - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+  verified_at: '2026-09-22T18:55:32.867347Z'

@@ -12,15 +12,6 @@ T005:
     \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
     \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
     \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
-T012:
-  c: false
-  h: c8426c29c55821dfc941c49791f25df6bd5d846c8f1843669ae8a58f979b61e2
-  r: "The `loader.py` defines a streaming fetch but the file is truncated and does\
-    \ not show the required static\u2011analysis, >500\u2011line filtering, parquet\
-    \ writing, or checksum/YAML recording logic. Moreover, the expected output file\
-    \ `data/filtered_swe_bench_v1.parquet` and the state file `state/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben.yaml`\
-    \ are absent. These essential artifacts must be added for the task to be considered\
-    \ complete."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,12 +19,6 @@ T016b:
     \ and thus there is no evidence of implemented per\u2011instance hard timeout\
     \ or a total wall\u2011clock limit of \u226472\u202Fhours. The required artifact\
     \ is missing."
-T017b:
-  c: false
-  h: 91066ef87c5be85a521911d3343c2bff94672bfa0fd790a96ec894b3679676ff
-  r: "The required input file `data/intermediate/baseline_run.jsonl` is missing, so\
-    \ the failure classifier could not be applied and no annotated output was produced.\
-    \ The task\u2019s core artifact is absent."
 T017c:
   c: false
   h: 0a89c117c130271ec9c4c6ae68b00bdd51c7449db7a53f3ad05ba22b480af761
@@ -41,13 +26,6 @@ T017c:
     \ is no evidence that `failure_classifier.py` was run or that any annotated failure\u2011\
     mode output was produced. Without the source data and resulting annotations, the\
     \ task is not satisfied."
-T023:
-  c: false
-  h: 376e4d0fdbde172f6b5a401efc5d296fd0a27b2bbac0e6f0c654904b041c5aa3
-  r: The repository lacks the required output file `data/intermediate/hf_run_1b.jsonl`
-    (it is missing), and the provided `run_high_fidelity.py` does not show an implemented
-    `run_strategy()` function (the file is truncated before such a function appears).
-    Consequently the core functionality and output mandated by the task are not present.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,9 +33,3 @@ T029:
     \ and there is no code snippet or description showing a GLM with a binomial link\
     \ that tests the interaction between \u201Ccontext strategy\u201D and \u201Cmodel\
     \ size\u201D. The required artifact is missing, so the task is not satisfied."
-T029a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `glm_analyzer.py` file or diff showing the fallback implementation is provided,
-    and there is no evidence that a `firth=True` (or similar) argument is conditionally
-    passed to the GLM constructor. The required code changes are missing.
