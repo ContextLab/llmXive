@@ -1,23 +1,33 @@
 # Implementation Plan: Predicting the Solubility of Pharmaceutical Compounds in Water Using Graph Neural Networks
 
-**Branch**: `001-predict-solubility-gnn` | **Date**: 2026-06-28 | **Spec**: [link]
+**Branch**: `001-predict-solubility-gnn` | **Date**: 2026-06-28 | **Spec**: `specs/001-predict-solubility-gnn/spec.md`
 **Input**: Feature specification from `/specs/001-predict-solubility-gnn/spec.md`
 
 ## Summary
 
-This project implements a comparative study of Random Forest (baseline) and Message Passing Neural Networks (MPNN/GNN) for predicting aqueous solubility (logS) using the ESOL dataset. The implementation strictly adheres to CPU-only execution constraints (limited cores, constrained RAM) to ensure reproducibility on free-tier CI. The plan covers data ingestion, RDKit-based graph construction, baseline training, GNN training with early stopping, statistical significance testing (paired t-test, power analysis), and interpretability visualization.
+This project implements a comparative study between a Random Forest (RF) baseline using Morgan fingerprints and a Message Passing Neural Network (MPNN) for predicting aqueous solubility (logS) of pharmaceutical compounds. The implementation strictly adheres to the ESOL dataset, uses RDKit for graph construction, and enforces CPU-only execution for the GNN to ensure feasibility on GitHub Actions free-tier runners.
+
+**Critical Methodological Update**: To address previous panel concerns regarding data leakage and statistical validity, this plan implements a **Nested Cross-Validation (NCV)** protocol.
+1. **Outer Loop (5-Fold)**: Provides an unbiased estimate of generalization performance. The test set in each outer fold is held out completely from the inner loop.
+2. **Inner Loop (5-Fold)**: Used for hyperparameter tuning and model selection.
+3. **Statistical Comparison**: The final comparison uses the aggregated predictions from all Outer Loop test folds, applying Nadeau's corrected resampled t-test to account for the overlapping training data in the inner loop.
+
+**Key Clarifications**:
+- **Stratification**: The Outer Loop splits are **Stratified 5-Fold** based on `logS` (using 10 quantile bins) to ensure distribution balance in each fold.
+- **Statistical Test**: The t-test is performed on the **concatenated absolute errors** from all Outer Loop test predictions (N ~ 1100), not on fold-level means, ensuring sufficient power.
+- **No Data Leakage**: No model is re-trained on the full dataset for final evaluation. The comparison is strictly between the aggregated Outer Loop predictions.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10 (compatible with RDKit/PyG CPU wheels)  
-**Primary Dependencies**: `rdkit`, `torch` (CPU-only), `torch-geometric` (CPU-only), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `scipy`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`)  
-**Testing**: `pytest` (unit tests for data cleaning, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data Science / Research Pipeline  
-**Performance Goals**: Full pipeline (download → train RF → train GNN → evaluate) ≤ 6 hours on 2 vCPU.  
-**Constraints**: No GPU/CUDA; no 8-bit quantization; no large-LLM inference; strict memory limits (limited RAM); dataset subset if necessary to fit RAM.  
-**Scale/Scope**: ESOL dataset (a collection of molecules); /10/10 split; visualization samples.
+**Language/Version**: Python 3.10
+**Primary Dependencies**: `pandas`, `rdkit`, `scikit-learn`, `torch`, `torch-geometric` (CPU wheel), `matplotlib`, `seaborn`, `pytest`
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `artifacts/`)
+**Testing**: `pytest` with contract-based validation
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7GB RAM)
+**Project Type**: Research/Data Science Pipeline
+**Performance Goals**: Full pipeline (download, clean, train RF, train GNN, evaluate, report) must complete within 6 hours on CPU.
+**Constraints**: No GPU calls in code (unless explicitly offloaded to Kaggle for specific deep learning tasks, but here we target CPU-tractable GNNs). No synthetic data; real ESOL dataset only.
+**Scale/Scope**: [deferred] molecules (ESOL dataset).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,15 +35,17 @@ This project implements a comparative study of Random Forest (baseline) and Mess
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Strategy |
-|-----------|--------|-----------------------|
-| **I. Reproducibility** | ✅ PASS | All seeds pinned in `code/`; dataset fetched from canonical HuggingFace URL; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | ✅ PASS | Citations in `research.md` restricted to URLs in the `# Verified datasets` block. No hallucinated sources. |
-| **III. Data Hygiene** | ✅ PASS | Raw data checksummed; invalid SMILES logged and excluded; derived data written to new files. |
-| **IV. Single Source of Truth** | ✅ PASS | Metrics (RMSE, R², p-value) generated by code and logged to JSON; paper/table values derived programmatically from these logs. |
-| **V. Versioning Discipline** | ✅ PASS | Artifacts tracked with content hashes; `updated_at` timestamps managed by Advancement-Evaluator. |
-| **VI. Chemical Preprocessing Integrity** | ✅ PASS | RDKit validity checks implemented; invalid entries excluded *before* split; exclusion counts logged. |
-| **VII. Statistical Significance** | ✅ PASS | Paired t-test and power analysis mandated for model comparison; claims of superiority require p < 0.05. |
+- **I. Reproducibility**: Plan mandates pinned `requirements.txt` and deterministic random seeds (`torch.manual_seed`, `numpy.random.seed`) in all scripts. Data source is fixed to verified URLs.
+- **II. Verified Accuracy**: All citations in `research.md` will be validated against the primary source (MoleculeNet/DeepChem) before acceptance.
+- **III. Data Hygiene**: Raw data is downloaded once, checksummed, and stored in `data/raw/`. Preprocessing scripts output new files in `data/processed/` without modifying raw inputs. Invalid SMILES are logged and excluded, not modified in place.
+- **IV. Single Source of Truth**: Final metrics (RMSE, R², p-value) are generated by code and written to JSON; no manual entry in reports.
+- **V. Versioning Discipline**: All artifacts (models, plots, data) will carry content hashes in the state manifest.
+- **VI. Chemical Preprocessing Integrity**: RDKit validity checks are a mandatory step. Rows failing valency/connectivity are excluded *before* splitting, with counts logged.
+- **VII. Statistical Significance Requirement**: The plan explicitly includes a paired t-test on absolute errors between RF and GNN, with post-hoc power analysis, as a blocking acceptance criterion.
+
+**Gap Resolution (Previous Kickback)**:
+- **Concern**: Missing 5-fold cross-validation loop and data leakage.
+- **Resolution**: **Phase 2** now implements a full **Nested Cross-Validation** loop. The Outer Loop provides the test set; the Inner Loop handles tuning. Statistical tests use aggregated Outer Loop predictions with Nadeau's correction.
 
 ## Project Structure
 
@@ -41,49 +53,145 @@ This project implements a comparative study of Random Forest (baseline) and Mess
 
 ```text
 specs/001-predict-solubility-gnn/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+└── tasks.md # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── data/
-│   │   ├── download_esol.py
-│   │   ├── preprocess.py
-│   │   └── split.py
-│   ├── models/
-│   │   ├── baseline_rf.py
-│   │   └── gnn_mpnn.py
-│   ├── training/
-│   │   ├── train_baseline.py
-│   │   └── train_gnn.py
-│   ├── evaluation/
-│   │   ├── metrics.py
-│   │   ├── statistical_test.py
-│   │   └── interpretability.py
-│   └── main.py          # Orchestration script
+code/
 ├── data/
-│   ├── raw/             # Downloaded CSV (checksummed)
-│   ├── processed/       # Cleaned, featurized, split data
-│   └── logs/            # Exclusion logs, training logs
-├── models/              # Saved model artifacts (.pkl, .pt)
-├── results/             # JSON reports, PNG visualizations
+│ ├── download_esol.py # Downloads and checksums raw data
+│ ├── clean_and_split.py # RDKit cleaning, graph construction, stratified split
+│ └── datasets.py # PyTorch Geometric Dataset classes
+├── models/
+│ ├── rf_baseline.py # Random Forest with Morgan fingerprints
+│ ├── mpnn.py # Message Passing Neural Network (CPU optimized)
+│ └── trainer.py # Unified training loop with Nested CV support
+├── analysis/
+│ ├── evaluate.py # Metrics calculation (RMSE, R²)
+│ ├── statistical_test.py # Paired t-test & power analysis (Nadeau)
+│ └── interpretability.py # Feature importance & visualization
+├── utils/
+│ ├── rdkit_utils.py # SMILES to Graph conversion
+│ └── logging.py # Logging configuration
+├── main_pipeline.py # Orchestrator script
+├── requirements.txt # Pinned dependencies
 └── tests/
-    ├── unit/
-    └── integration/
+ ├── test_data_integrity.py
+ ├── test_models.py
+ └── test_statistics.py
+
+data/
+├── raw/
+│ └── delaney-processed.csv # Downloaded raw data
+├── processed/
+│ ├── graphs.pkl # Preprocessed molecular graphs
+│ ├── splits.json # Stratified split indices
+│ ├── rf_outer_predictions.json # Aggregated RF predictions from Outer Loop
+│ └── gnn_outer_predictions.json # Aggregated GNN predictions from Outer Loop
+└── artifacts/
+ ├── rf_model.pkl # Trained RF (best from Inner Loop)
+ ├── gnn_model.pt # Trained GNN (best from Inner Loop)
+ └── results.json # Final metrics
+
+docs/
+├── README.md # Project overview and setup
+└── reports/
+ └── final_report.md # Generated analysis report
 ```
 
-**Structure Decision**: Single-project structure (`code/`) chosen to minimize overhead for a research pipeline. Separation of concerns (data, models, training, evaluation) ensures modularity and testability.
+**Structure Decision**: Single-project structure (`code/`, `data/`, `docs/`) chosen to minimize overhead for a research pipeline. All logic is modularized for testability.
 
 ## Complexity Tracking
 
-No violations detected. The plan strictly adheres to the spec and constitution without introducing unnecessary architectural complexity.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Nested Cross-Validation** | Required to prevent data leakage during hyperparameter tuning and to provide an unbiased estimate of generalization error. | Single split or simple 5-fold CV leads to optimistic bias when tuning hyperparameters. |
+| **Nadeau's Corrected t-test** | Required because the models are trained on overlapping data (Inner Loop) but evaluated on disjoint Outer Loop folds. Standard t-test assumes independence which is violated here. | Standard t-test would yield inflated Type I error rates. |
+| **Stratified Splitting (10 bins for 5-fold)** | Ensures distribution balance in each fold. **Note**: 10 bins are used *only* for the stratification logic to ensure each of the 5 folds has a representative distribution of logS. | Random splitting could lead to imbalanced solubility ranges in test sets, biasing evaluation. |
+| **CPU-Only GNN** | Required by CI constraints (no GPU on free tier). | GPU-based GNNs would require a separate offload mechanism (Kaggle) which adds complexity not needed for this small dataset; a simplified MPNN fits comfortably on CPU. |
+
+## Phases & Tasks
+
+### Phase 0: Data Acquisition & Verification
+- **P0.1**: Download ESOL dataset from verified URL (`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`).
+- **P0.2**: Verify checksum and column presence (`smiles`, `measured log solubility`).
+- **P0.3**: Log invalid SMILES count (pre-cleaning) and exclude them.
+
+### Phase 1: Data Processing & Graph Construction
+- **P1.1**: Implement `RDKit` converter: extract atom/bond features (atomic number, hybridization, charge, bond type, conjugation).
+- **P1.2**: Validate graph topology (valency checks). Log excluded molecules.
+- **P1.3**: Implement **Stratified Splitting** logic: Use **10 bins** on `logS` to ensure distribution balance, then generate **5-fold** indices (Outer Loop). This ensures each fold has a representative distribution of solubility values.
+- **P1.4**: Save processed graphs and split indices to `data/processed/`.
+
+### Phase 2: Model Training (Nested Cross-Validation)
+- **P2.1**: **Random Forest Baseline**:
+ - **T2.1.1**: Implement Morgan fingerprint generation (radius=2, 2048 bits).
+ - **T2.1.2**: Implement `NestedCrossValidationRunner` class. Outer Loop: 5 folds (Stratified). Inner Loop: 5 folds for hyperparameter search.
+ - **T2.1.3**: Execute training loop. For each Outer Fold, train on Inner Train/Val, select best model, predict on Outer Test.
+ - **T2.1.4**: **Aggregate Metrics**: Construct the `fold_metrics` array (array of 5 objects) and save aggregated predictions to `data/processed/rf_outer_predictions.json`. Ensure structure matches `contracts/model_output.schema.yaml`.
+
+- **P2.2**: **Message Passing Neural Network (MPNN)**:
+ - **T2.2.1**: Implement MPNN architecture (a few layers, moderate hidden dimension, CPU-optimized).
+ - **T2.2.2**: Implement `NestedCrossValidationRunner` class (reused logic) with Early Stopping (patience=10) on Inner Validation.
+ - **T2.2.3**: Execute training loop. For each Outer Fold, train on Inner Train/Val, select best model, predict on Outer Test.
+ - **T2.2.4**: **Aggregate Metrics**: Construct the `fold_metrics` array (array of 5 objects) and save aggregated predictions to `data/processed/gnn_outer_predictions.json`. Ensure structure matches `contracts/model_output.schema.yaml`.
+
+### Phase 3: Evaluation & Statistical Analysis
+- **P3.1**: **Data Preparation for Statistics**:
+ - Concatenate absolute errors from all Outer Loop test folds for both RF and GNN into single vectors (N ~ substantial).
+ - Verify independence of these vectors (they come from disjoint test sets).
+
+- **P3.2**: **Statistical Significance**:
+ - **T3.2.1**: Implement `statistical_test.py` to:
+ 1. Perform Shapiro-Wilk normality test on error differences.
+ 2. Calculate **Nadeau's Corrected Resampled t-test** (using k=5 folds ratio) on the concatenated error vectors.
+ 3. Calculate post-hoc statistical power and Cohen's d effect size.
+ 4. **Validate Output**: Ensure the resulting JSON object contains `normality_test`, `effect_size_cohens_d`, and `p_value` keys as defined in `contracts/model_output.schema.yaml`.
+ - **T3.2.4**: Aggregate results into `results.json` and include in `final_report.md`.
+
+- **P3.3**: **Interpretability**:
+ - **T3.3.1**: Implement `interpretability.py` to:
+ 1. Select **5 representative molecules** via stratified random sampling from the **aggregated Outer Loop predictions** (ensuring coverage of low, mid, and high logS).
+ 2. Generate feature importance visualizations (attention heatmaps or node importance) for these 5 molecules.
+ 3. Save PNG files to `docs/reports/interpretability_plots/` and verify file size > 1KB (SC-004).
+
+### Phase 4: Reporting & Documentation
+- **P4.1**: Generate `final_report.md` with all metrics, statistical results, and visualizations.
+- **P4.2**: Update `docs/README.md` with usage instructions.
+- **P4.3**: Ensure all code is commented and reproducible.
+
+## Compute Feasibility Strategy
+
+- **CPU-First**: The MPNN architecture is designed to be lightweight (small hidden dimensions, few layers) to ensure convergence within 6 hours on 2 vCPUs.
+- **No GPU Fabrication**: No synthetic CPU approximations of GPU-only tasks are used. The GNN is a real, scaled-down model that runs natively on CPU.
+- **Data Streaming**: The dataset is small, so full download into memory is feasible. No streaming logic is required for this specific dataset, but the loader is designed to handle larger datasets if substituted in the future.
+
+## Data Availability Strategy
+
+- **Source**: ESOL dataset from `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` (Verified).
+- **Access**: Direct HTTP GET. No authentication required.
+- **Fallback**: If S3 is unavailable, the plan will use the HuggingFace mirror ` (Verified).
+- **No Gated Data**: The plan does not rely on ADNI, HCP, or any data requiring credentials.
+
+## Risk Mitigation
+
+- **Risk**: GNN fails to converge on CPU.
+ - **Mitigation**: Use a simplified architecture (fewer layers) and early stopping. If convergence is impossible, the report will explicitly state the failure and rely on the RF baseline, noting the limitation.
+- **Risk**: Statistical power is too low.
+ - **Mitigation**: The power analysis will be calculated. If power < 0.8, the report will explicitly state this limitation and interpret results with caution.
+- **Risk**: Invalid SMILES count is high.
+ - **Mitigation**: Log the count. If >10% of data is invalid, the report will flag data quality issues.
+
+## Success Criteria Mapping
+
+- **SC-001**: Measured by comparing RMSE from P2.1 and P2.2 (aggregated Outer Loop metrics).
+- **SC-002**: Measured by P3.2 (Nadeau's t-test and power analysis).
+- **SC-003**: Measured by total runtime log in P2.1/P2.2 (must be < 6h).
+- **SC-004**: Measured by P3.3 (PNG generation for 5 molecules, file size > 1KB).

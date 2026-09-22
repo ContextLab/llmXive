@@ -1,69 +1,96 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Evaluation Output Schema"
-description: "Schema for the JSON report generated after model training and evaluation."
-type: object
+title: "Model Output Schema"
+description: "Schema for the final metrics and statistical analysis results."
+type: "object"
 properties:
-  baseline:
-    type: object
-    description: "Random Forest model metrics."
+  baseline_rf:
+    type: "object"
     properties:
-      type:
-        type: string
-        const: "RandomForest"
       rmse:
-        type: number
-        description: "Root Mean Squared Error."
+        type: "number"
+        description: "Root Mean Squared Error on the aggregated test set."
       r2:
-        type: number
-        description: "R-squared coefficient."
-      mae:
-        type: number
-        description: "Mean Absolute Error."
-  gnn:
-    type: object
-    description: "Message Passing Neural Network model metrics."
+        type: "number"
+        description: "R-squared coefficient on the aggregated test set."
+      training_time_seconds:
+        type: "number"
+        description: "Time taken to train the model."
+      model_path:
+        type: "string"
+        description: "Relative path to the saved model file."
+  gnn_mpnn:
+    type: "object"
     properties:
-      type:
-        type: string
-        const: "MPNN"
       rmse:
-        type: number
-        description: "Root Mean Squared Error."
+        type: "number"
+        description: "Root Mean Squared Error on the aggregated test set."
       r2:
-        type: number
-        description: "R-squared coefficient."
-      mae:
-        type: number
-        description: "Mean Absolute Error."
-  statistical_test:
-    type: object
-    description: "Results of the paired t-test on absolute errors."
+        type: "number"
+        description: "R-squared coefficient on the aggregated test set."
+      training_time_seconds:
+        type: "number"
+        description: "Time taken to train the model."
+      epochs_trained:
+        type: "integer"
+        description: "Average number of epochs trained before early stopping."
+      best_val_loss:
+        type: "number"
+        description: "Average best validation loss achieved."
+      model_path:
+        type: "string"
+        description: "Relative path to the saved model file."
+  statistical_analysis:
+    type: "object"
     properties:
+      test_name:
+        type: "string"
+        description: "Name of the statistical test used (e.g., 'Nadeau Corrected Resampled t-test')."
       p_value:
-        type: number
-        description: "P-value from the paired t-test."
+        type: "number"
+        description: "P-value from the test."
       t_statistic:
-        type: number
-        description: "T-statistic value."
-      significance:
-        type: boolean
-        description: "True if p_value < 0.05."
-      power:
-        type: number
-        description: "Post-hoc statistical power (Cohen's d based)."
-  comparison:
-    type: object
-    description: "Delta metrics between GNN and Baseline."
+        type: "number"
+        description: "T-statistic value (if applicable)."
+      w_statistic:
+        type: "number"
+        description: "W-statistic value (if applicable)."
+      null_hypothesis_rejected:
+        type: "boolean"
+        description: "True if p-value < 0.05."
+      statistical_power:
+        type: "number"
+        description: "Post-hoc statistical power of the test (descriptive only)."
+      effect_size_cohens_d:
+        type: "number"
+        description: "Cohen's d effect size."
+      normality_test:
+        type: "object"
+        properties:
+          test_name:
+            type: "string"
+            const: "Shapiro-Wilk"
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          is_normal:
+            type: "boolean"
+  interpretability:
+    type: "object"
     properties:
-      delta_rmse:
-        type: number
-        description: "GNN RMSE minus Baseline RMSE."
-      delta_r2:
-        type: number
-        description: "GNN R2 minus Baseline R2."
+      molecules_visualized:
+        type: "integer"
+        description: "Number of molecules for which visualizations were generated."
+      plot_files:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of paths to generated PNG files."
+      min_file_size_bytes:
+        type: "integer"
+        description: "Minimum file size of generated plots (must be > 1024)."
 required:
-  - baseline
-  - gnn
-  - statistical_test
-  - comparison
-additionalProperties: false
+  - "baseline_rf"
+  - "gnn_mpnn"
+  - "statistical_analysis"
+  - "interpretability"

@@ -1,0 +1,31 @@
+status: verified
+kind: data_url
+ref: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
+access_python: "import pandas as pd\nurl = 'https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv'\n\
+  df = pd.read_csv(url)\nfields = []\n# SMILES column may have different capitalizations\n\
+  for col in df.columns:\n    if col.lower() == 'smiles':\n        fields.append('SMILES')\n\
+  \        break\n# logS column\nfor col in df.columns:\n    if col.lower() in ('logs',\
+  \ 'measured log solubility (logs)', 'log_solubility'):\n        fields.append('logS')\n\
+  \        break\n# Compound ID column\nfor col in df.columns:\n    if col.lower()\
+  \ in ('compound_id', 'compound id', 'cid'):\n        fields.append('Compound_ID')\n\
+  \        break\nprint(f'RECORDS={len(df)}')\nprint('FIELDS=' + ','.join(fields))"
+record_count: 1128
+sample_fields:
+- Compound ID
+- ESOL predicted log solubility in mols per litre
+- Minimum Degree
+- Molecular Weight
+- Number of H-Bond Donors
+- Number of Rings
+- Number of Rotatable Bonds
+- Polar Surface Area
+- measured log solubility in mols per litre
+- smiles
+field_coverage: 0.667
+required_fields:
+- SMILES
+- logS
+- Compound_ID
+intent: download ESOL dataset MoleculeNet python package deepchem open source python
+  package dataset
+cache_key: 163d87aee721fdfd3844b6bcf8a18cca990ccda8a6a64e56d574a5b37356c0a1

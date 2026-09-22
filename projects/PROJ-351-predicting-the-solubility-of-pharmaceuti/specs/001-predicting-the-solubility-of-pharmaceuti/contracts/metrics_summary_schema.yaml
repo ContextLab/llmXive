@@ -1,0 +1,34 @@
+type: object
+properties:
+  model_type:
+    type: string
+    enum: ["RandomForest", "MPNN"]
+  rmse:
+    type: number
+  r_squared:
+    type: number
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+  statistical_power:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+  fold_metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        fold_id:
+          type: integer
+        rmse:
+          type: number
+        r_squared:
+          type: number
+required:
+  - model_type
+  - rmse
+  - r_squared
+  - p_value
+  - statistical_power
