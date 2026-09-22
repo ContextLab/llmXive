@@ -1,36 +1,3 @@
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "gproud/Cutout_Men_Standing \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/gproud/Cutout_Men_Standing/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/gproud/Cutout_Men_Standing
-  verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "udayl/UCI_HAR \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR
-  verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: AdityaMayukhSom (Aditya Mayukh Som)
-  kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/AdityaMayukhSom/datasets
-  verified_at: '2026-07-14T00:30:32.253913Z'
 - artifact_hash: 1d5f19195837dd129124c54fb4e2e31fd95f8ffe59763c20b5b1d4edf45dd58c
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
   cite_id: c-001
@@ -43,15 +10,80 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.addma.2020.101456
   verified_at: '2026-09-04T13:32:37.249584Z'
-- artifact_hash: b95b46791db977dad3dfe543e053e7521d01268af4e4b08f2ff0e04299f9c62a
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Additive batch electrospinning patterning of tethered gelatin hydrogel
-    fibres with swelling-induced fibre curling
-  kind: doi
-  value: 10.1016/j.addma.2020.101456
+  fetched_title: man_standing_captioned.csv
+  kind: url
+  value: https://huggingface.co/datasets/gproud/Cutout_Men_Standing/resolve/main/man_standing_captioned.csv`
   verification_status: pending
-  verified_against_url: https://doi.org/10.1016/j.addma.2020.101456
-  verified_at: '2026-09-04T13:47:27.504475Z'
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/gproud/Cutout_Men_Standing/4d3bf5f075ba3eeada38ea90640af3dff1734aa5/man_standing_captioned.csv?%2Fdatasets%2Fgproud%2FCutout_Men_Standing%2Fresolve%2Fmain%2Fman_standing_captioned.csv=&etag=%223c4ae78fa801ec12f0507f38fc87da0f8722c94f%22
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 1per.csv
+  kind: url
+  value: https://huggingface.co/datasets/guanine/gpra_c/resolve/main/1per/1per.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654314925670dd57b76fa76e/99a48a8ec7fcbf67b5607dc1d89c427d76f0c147f0f00635dbeb0b3c8f6dcb55?user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%271per.csv%3B+filename%3D%221per.csv%22%3B&Expires=1790076419&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0MzE0OTI1NjcwZGQ1N2I3NmZhNzZlLzk5YTQ4YThlYzdmY2JmNjdiNTYwN2RjMWQ4OWM0MjdkNzZmMGMxNDdmMGYwMDYzNWRiZWIwYjNjOGY2ZGNiNTVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyNzFwZXIuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyMXBlci5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MDA3NjQxOX19fV19&Signature=MEQCIAr%7EB6MErLYSBNT2RhlLNWVWS9MSiPoswb7X2o32zeGPAiA2wo4xHl8GeIqu4u5Isa1gcROWJAGpnpEz4wNgu%7EvEhA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 1per.csv
+  kind: url
+  value: https://huggingface.co/datasets/guanine/gpra_d/resolve/main/1per/1per.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65431628d292675f293091bb/4f2907317e3cab12fad9d2f0f2e9630e62ee992ee026df13880ecb419d331ca5?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%271per.csv%3B+filename%3D%221per.csv%22%3B&Expires=1790076420&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0MzE2MjhkMjkyNjc1ZjI5MzA5MWJiLzRmMjkwNzMxN2UzY2FiMTJmYWQ5ZDJmMGYyZTk2MzBlNjJlZTk5MmVlMDI2ZGYxMzg4MGVjYjQxOWQzMzFjYTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyNzFwZXIuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyMXBlci5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MDA3NjQyMH19fV19&Signature=MEYCIQD8bf5PJS3d%7EkEwPHrGTQW8H28ANX-3EEPQYLCOTyn2JAIhAO4ol0Ga6OFEXg8OtVtcY3PikJhAqRjcJvvmF7QpwHWM&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test.csv
+  kind: url
+  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&Expires=1790076421&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QuY3N2JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MDA3NjQyMX19fV19&Signature=MEUCIQDQVxL%7EQ71%7EpbthwpiXdgAPRJO2z6j-9Hrz%7En-NHr98QQIgSuNpQn1Tfe8w-d4%7Eq%7EdkmCdr0zes%7ENxRJc%7E0DCSwcWU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: rbf_kan_transformer_2026-08-08.json
+  kind: url
+  value: https://huggingface.co/datasets/P2SAMAPA/p2-rbf-kan-transformer-results/resolve/main/rbf_kan_transformer_2026-08-08.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/P2SAMAPA/p2-rbf-kan-transformer-results/6ae76505981f6d22af06bbe98c3ad7329f4f65fc/rbf_kan_transformer_2026-08-08.json?%2Fdatasets%2FP2SAMAPA%2Fp2-rbf-kan-transformer-results%2Fresolve%2Fmain%2Frbf_kan_transformer_2026-08-08.json=&etag=%225898896a29aeeaad761431de9ad160e4d6999bb5%22
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: doe.csv
+  kind: url
+  value: https://huggingface.co/datasets/RBFMorph/Digipad-dataset/resolve/main/doe.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/RBFMorph/Digipad-dataset/4cb681649c869d0d54f74b596084631a96e5cea3/doe.csv?%2Fdatasets%2FRBFMorph%2FDigipad-dataset%2Fresolve%2Fmain%2Fdoe.csv=&etag=%220fab1bb5d797a430ed8b18d346cfce7dfbb8ee9a%22
+  verified_at: '2026-09-22T10:26:59.085830Z'
+- artifact_hash: b0fd4453614666289730309ccfd0e85a3682eb6ee0562afb3fbfc43510a7f926
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub \xB7 Change is constant. GitHub keeps you ahead. \xB7 GitHub"
+  kind: url
+  value: https://github.com/...`
+  verification_status: pending
+  verified_against_url: https://github.com/
+  verified_at: '2026-09-22T10:26:59.085830Z'

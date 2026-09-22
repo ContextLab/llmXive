@@ -1,84 +1,85 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AM Dataset Schema"
-description: "Schema for raw and processed AM alloy datasets"
-type: "object"
+title: "AM Alloy Dataset Schema"
+description: "Schema for the processed AM alloy dataset used in GPR training."
+type: object
 properties:
-  raw:
-    type: "object"
-    description: "Schema for raw input CSV"
-    required:
-      - "laser_power"
-      - "scan_speed"
-      - "layer_thickness"
-      - "yield_strength"
-      - "ductility"
+  header:
+    type: array
+    items:
+      type: string
+    description: "Column names of the processed dataset."
+    minItems: 5
+  rows:
+    type: array
+    items:
+      type: object
+      properties:
+        laser_power_norm:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Normalized laser power."
+        scan_speed_norm:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Normalized scan speed."
+        layer_thickness_norm:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Normalized layer thickness."
+        energy_density_norm:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Normalized energy density (if collinearity detected)."
+        yield_strength_norm:
+          type: number
+          description: "Normalized yield strength."
+        ductility_norm:
+          type: number
+          description: "Normalized ductility (optional)."
+        fatigue_life_norm:
+          type: number
+          description: "Normalized fatigue life (optional)."
+        is_Ti-6Al-4V:
+          type: integer
+          enum: [0, 1]
+          description: "One-hot encoded alloy type (optional)."
+        is_Inconel_718:
+          type: integer
+          enum: [0, 1]
+          description: "One-hot encoded alloy type (optional)."
+      required:
+        - laser_power_norm
+        - scan_speed_norm
+        - layer_thickness_norm
+        - yield_strength_norm
+    minItems: 50
+  metadata:
+    type: object
     properties:
-      laser_power:
-        type: "number"
-        description: "Laser power in Watts (W)"
-      scan_speed:
-        type: "number"
-        description: "Scan speed in mm/s"
-      layer_thickness:
-        type: "number"
-        description: "Layer thickness in mm"
-      yield_strength:
-        type: "number"
-        description: "Yield strength in MPa"
-      ductility:
-        type: "number"
-        description: "Ductility in % elongation"
-      alloy_type:
-        type: "string"
-        description: "Alloy name (optional)"
-  processed:
-    type: "object"
-    description: "Schema for normalized and encoded CSV"
+      source:
+        type: string
+        description: "Source of the raw data (e.g., 'local', 'huggingface/...')."
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw input file."
+      sample_count:
+        type: integer
+        minimum: 50
+      imputation_log:
+        type: string
+        description: "Summary of imputation steps taken."
+      collinearity_handling:
+        type: string
+        description: "Description of collinearity handling (e.g., 'energy_density_constructed')."
     required:
-      - "laser_power_norm"
-      - "scan_speed_norm"
-      - "layer_thickness_norm"
-      - "yield_strength_norm"
-      - "ductility_norm"
-    properties:
-      laser_power_norm:
-        type: "number"
-        description: "Normalized laser power [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      scan_speed_norm:
-        type: "number"
-        description: "Normalized scan speed [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      layer_thickness_norm:
-        type: "number"
-        description: "Normalized layer thickness [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      yield_strength_norm:
-        type: "number"
-        description: "Normalized yield strength [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      ductility_norm:
-        type: "number"
-        description: "Normalized ductility [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      is_Ti6Al4V:
-        type: "integer"
-        description: "One-hot encoded alloy type (0 or 1)"
-        enum:
-          - 0
-          - 1
-      is_Inconel718:
-        type: "integer"
-        description: "One-hot encoded alloy type (0 or 1)"
-        enum:
-          - 0
-          - 1
-      row_id:
-        type: "integer"
-        description: "Original row index for traceability"
-additionalProperties: false
+      - source
+      - checksum
+      - sample_count
+required:
+  - header
+  - rows
+  - metadata

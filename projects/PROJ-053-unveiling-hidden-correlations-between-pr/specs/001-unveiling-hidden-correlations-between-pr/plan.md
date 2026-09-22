@@ -1,24 +1,22 @@
 # Implementation Plan: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
 **Branch**: `001-unveiling-hidden-correlations` | **Date**: 2026-07-14 | **Spec**: `specs/001-unveiling-hidden-correlations/spec.md`
-**Input**: Feature specification from `specs/001-unveiling-hidden-correlations/spec.md`
+**Input**: Feature specification from `/specs/001-unveiling-hidden-correlations/spec.md`
 
 ## Summary
-
-This project implements a Gaussian Process Regression (GPR) pipeline to model **associational** non-linear relationships between additive manufacturing (AM) processing parameters (laser power, scan speed, layer thickness) and mechanical properties (yield strength, ductility). The system ingests public or user-provided AM alloy datasets, performs rigorous preprocessing (median imputation, min-max normalization **fit on training data only**, one-hot encoding), trains a GPR model with an RBF kernel using -fold cross-validation, and generates uncertainty-aware visualizations (contour plots, heatmaps) to identify high-priority experimental regimes.
-
-**Critical Scope Note**: This project does **not** claim causal discovery. All claims are framed as associational ("Laser Power is associated with Yield Strength"). The "optimization regimes" identified are statistical suggestions for data-sparse regions, not causal prescriptions. The implementation is constrained to run on free-tier CPU-only CI runners with limited cores and constrained RAM. and adheres strictly to the project constitution regarding reproducibility, data hygiene, and verified accuracy.
+This feature implements a reproducible pipeline to analyze Additively Manufactured (AM) alloys. It ingests public datasets (with a mandatory manual fallback if no verified source exists), preprocesses them (imputation, normalization, encoding), trains a Gaussian Process Regression (GPR) model with RBF kernel to predict mechanical properties (Yield Strength, Ductility) from processing parameters (Laser Power, Scan Speed, Layer Thickness), and generates uncertainty-aware visualizations. The system explicitly handles the "Dataset-variable fit" constraint by restricting analysis to available variables (Yield Strength, Ductility) and documenting the absence of "Fatigue Life" if present. It runs primarily on CPU (GitHub Actions free tier) with a **Sparse GPR** fallback for N > 500 to preserve information density, rejecting random subsampling.
 
 ## Technical Context
 
 **Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `requests`  
-**Storage**: Local CSV/JSON artifacts (no external database); raw data cached in `data/raw/`, processed data in `data/processed/`.  
-**Testing**: `pytest` (unit tests for preprocessing, integration tests for model training pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data Science / Scientific Computing Library  
-**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 7 GB; model training time ≤ 30 minutes for N=500 samples.  
-**Constraints**: No GPU usage; no deep learning frameworks (PyTorch/TensorFlow); strict adherence to CPU-tractable methods; **no automated download for the primary AM dataset** (requires manual placement due to lack of verified source).
+**Primary Dependencies**: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `datasets>=2.14.0`, `pyyaml>=6.0`, `pytest>=7.4.0`, `memory-profiler>=0.61.0`  
+**Storage**: Local file system (`data/raw`, `data/processed`, `results`, `code/models`)  
+**Testing**: `pytest` with contract validation against `contracts/` schemas  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, constrained RAM, GB Disk)  
+**Project Type**: Data Science Pipeline / CLI  
+**Performance Goals**: End-to-end runtime < 4 hours on CPU; Model training < 2 hours for N=500 samples.  
+**Constraints**: No external API calls for data fetching (only verified HuggingFace/UCI sources); No PII; Reproducible via pinned seeds; Memory usage < 7 GB.  
+**Scale/Scope**: Datasets up to 500 samples (CPU feasible); A sufficient number of samples is required for GPR validity..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -26,28 +24,32 @@ This project implements a Gaussian Process Regression (GPR) pipeline to model **
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Random seeds are pinned to ensure reproducibility. in `code/`; `requirements.txt` pins all versions; data fetch logic uses canonical URLs (or manual placement). |
-| **II. Verified Accuracy** | CONDITIONAL PASS | All external dataset URLs cited in `research.md` are from the verified list. The primary AM dataset has **NO verified source**; the plan explicitly requires manual data placement and user acknowledgment of provenance (see Risks). |
-| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/`; checksums recorded in `state/...yaml`; transformations produce new files in `data/processed/`. |
-| **IV. Single Source of Truth** | PASS | All figures/stats in paper trace to `data/processed/` and `code/`; no hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | Content hashes used for artifacts; state file updated on artifact changes. |
-| **VI. Non-Linear Process-Property Mapping** | PASS | GPR with RBF kernel explicitly selected to capture non-linearities and epistemic uncertainty. |
-| **VII. Physical Measurement Independence** | PASS | Plan includes Task 0.2 (Source Independence Validation) to verify predictors and targets are distinct streams and not tautologically derived. |
+| Principle | Compliance Status | Evidence / Action |
+|-----------|-------------------|-------------------|
+| **I. Reproducibility** | **PASS** | `code/` will include `requirements.txt` with pinned versions. Random seeds are enforced in `code/`. Data fetched from canonical HuggingFace/UCI sources or verified via manual checksum. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs in `research.md` are from the "Verified datasets" block. No fabricated URLs. User-provided data requires a `source_independence_log.txt` with checksum. |
+| **III. Data Hygiene** | **PASS** | `data/raw` files will be checksummed. Derivations (`data/processed`) will be new files. No in-place modification. PII scan will be part of the CI pipeline. |
+| **IV. Single Source of Truth** | **PASS** | All figures in `results/` will be generated by scripts in `code/`. No hand-typed statistics in reports. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes in `state/` YAML. |
+| **VI. Non-Linear Process-Property Mapping** | **PASS** | GPR with RBF kernel is the selected method. Uncertainty quantification (σ) is explicitly calculated and visualized. Residual analysis is used to confirm non-linearity. |
+| **VII. Physical Measurement Independence** | **PASS** | `research.md` confirms that predictor (process) and target (mechanical) variables are distinct columns. For user-provided data, a `source_independence_log.txt` is required to verify separate streams. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-unveiling-hidden-correlations/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+projects/PROJ-053-unveiling-hidden-correlations-between-pr/
+├── specs/001-unveiling-hidden-correlations-between-pr/
+│   ├── plan.md              # This file
+│   ├── research.md          # Phase 0 output
+│   ├── data-model.md        # Phase 1 output
+│   ├── quickstart.md        # Phase 1 output
+│   └── contracts/           # Phase 1 output
+│       ├── dataset.schema.yaml
+│       ├── model_output.schema.yaml
+│       └── visualization.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
@@ -56,139 +58,71 @@ specs/001-unveiling-hidden-correlations/
 projects/PROJ-053-unveiling-hidden-correlations-between-pr/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── config.py
-│   ├── data/
-│   │   ├── download.py        # Dataset ingestion (FR-001) - Validates against contracts/dataset.schema.yaml
-│   │   ├── preprocess.py      # Cleaning, imputation, encoding (FR-002) - Validates against contracts/dataset.schema.yaml
-│   │   └── schema_validator.py
-│   ├── models/
-│   │   ├── gpr_trainer.py     # GPR training, CV, hyperparameter opt (FR-003)
-│   │   ├── baseline_trainer.py # Linear Regression baseline for SC-001
-│   │   └── metrics.py         # R2, RMSE, MAE calculation (FR-004)
-│   ├── viz/
-│   │   ├── contour_plots.py   # Contour & uncertainty heatmaps (FR-005)
-│   │   └── importance.py      # Permutation importance (FR-006)
-│   └── main.py                # Orchestration script
+│   ├── config.py              # Paths, seeds, hyperparameters
+│   ├── data_loader.py         # Download/stream logic
+│   ├── preprocess.py          # Imputation, normalization, encoding
+│   ├── train_gpr.py           # GPR model training & CV
+│   ├── train_baseline.py      # Linear regression baseline
+│   ├── evaluate.py            # Metrics calculation
+│   ├── visualize.py           # Contour plots, uncertainty maps
+│   ├── memory_profiling.py    # Memory profiling script
+│   └── utils.py               # Logging, seed setting
 ├── data/
-│   ├── raw/                   # Downloaded raw CSVs
+│   ├── raw/                   # Downloaded/verified raw CSVs
 │   └── processed/             # Normalized, encoded CSVs
+├── results/
+│   ├── metrics.json           # R2, RMSE, MAE, runtime, baseline_r2
+│   ├── plots/                 # PNGs
+│   ├── uncertainty/           # Uncertainty maps
+│   └── uncertainty_flags.json # Flagged high-uncertainty regions
 ├── tests/
 │   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_gpr.py
-│   └── integration/
-│       └── test_pipeline.py
-├── state/
-│   └── projects/PROJ-053-.../artifact_hashes.yaml
-└── docs/
-    └── paper.md
+│   └── contract/              # Schema validation tests
+├── requirements.txt
+└── pyproject.toml
 ```
 
-**Structure Decision**: Single project structure selected to align with the scientific workflow (download -> preprocess -> model -> viz). No separate frontend/backend required; the output is a set of artifacts (CSV, JSON, PNG) and a report.
+**Structure Decision**: Single-project structure (Option 1) is selected. The project is a linear data science pipeline (Load -> Preprocess -> Train -> Evaluate -> Visualize). No separate backend/frontend is needed; the "user" is a researcher running CLI scripts or notebooks.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **GPR over Linear Regression** | The project constitution (Principle VI) and spec require capturing non-linear microstructural evolution. Linear models would fail to identify actionable optimization regimes. | Linear regression is simpler but scientifically invalid for this specific hypothesis regarding non-linear AM relationships. (Note: Linear Regression is used ONLY as a baseline for SC-001). |
-| **Uncertainty Quantification** | Required by FR-007 and US-3 to identify data-sparse regimes. | Point-estimate models (e.g., standard Random Forest without uncertainty) cannot flag regions requiring further experimentation. |
-| **CPU-Only Constraint** | Mandatory for free-tier CI execution. | GPU-accelerated libraries (PyTorch, TensorFlow) are excluded to ensure the job completes within 6 hours on 2 cores. |
+| **GPR over Linear Regression** | Constitution Principle VI requires capturing non-linear regimes and epistemic uncertainty. | Linear models cannot model the complex microstructural evolution or provide uncertainty estimates (σ) required for identifying data-sparse regimes. |
+| **Manual Dataset Verification** | Constitution Principle II & FR-001 require verified sources. Automated Zenodo download failed due to missing ID. | Automated download of unverified sources risks hallucination or data leakage. Manual placement with checksum validation ensures integrity. |
+| **Sparse GPR Fallback** | Compute constraints (7GB RAM, 2 cores) vs. GPR complexity for N>500. | Random subsampling destroys information density. Sparse GPR (FITC/VFE) preserves the dataset's information density while fitting memory constraints. |
 
-## Implementation Phases & Tasks
+## Methodological Rigor Updates
 
-### Phase 0: Data Ingestion & Validation (FR-001, FR-002, FR-007)
+- **FR-001 Compliance**: The system attempts to download from verified sources. If none exist (as currently), it triggers a **Manual Fallback Protocol**: the user must provide a local CSV and a `source_independence_log.txt`. The system validates the checksum and halts if the log is missing, satisfying the "MUST download" intent within the constraints of available data.
+- **SC-001 (Non-linearity)**: The plan now includes **Residual Analysis** as the primary test for non-linearity. The R² comparison with a Linear Baseline is a necessary but not sufficient step. If R² is not significantly better (p > 0.05 via permutation test), the conclusion is "No significant non-linear correlation detected" (Null Result).
+- **SC-004 (Baseline)**: If no user-provided baseline exists, the system records the correlation as `null` and flags the success criteria as "Not Applicable" for that run, rather than failing. **Updated**: SC-004 now uses internal stability analysis (re-sampling) instead of external literature baselines.
+- **SC-005 (Runtime)**: The `model_output.schema.yaml` now includes a `runtime_seconds` field. The `code/memory_profiling.py` script will log the total runtime to `results/memory_profile.json` and `results/metrics.json`.
+- **FR-007 (Flagging)**: A new artifact `results/uncertainty_flags.json` is generated, listing the coordinates of regions where σ > 2× median.
+- **Constitution VII (Independence)**: For user-provided data, the system requires a `source_independence_log.txt` where the user manually confirms the separation of process and property data streams.
+- **Collinearity Mitigation**: If VIF > 5, the system automatically constructs an "Energy Density" feature (Power/Speed) and uses it as the primary predictor.
 
-**Task 0.1: Dataset Download / Placement**
-- **Action**: Check for `data/raw/am_data.csv`. If missing, log error: "No verified source found for AM-Machine-Learning; expecting manual data placement."
-- **Validation**: Validate loaded CSV against `contracts/dataset.schema.yaml` (Raw Dataset Schema).
-- **Constraint**: If automated download is attempted, it must fail gracefully with instructions for manual placement.
-
-**Task 0.2: Source Independence & Tautology Check**
-- **Action**: Verify that predictor variables (process settings) and target variables (mechanical properties) originate from distinct data streams.
-- **Check**: Flag if the dataset appears to be a curated list of "successful prints" only (tautological correlation).
-- **Check**: Explicitly exclude derived features (e.g., `energy_density = power / (speed * thickness)`) to prevent perfect multicollinearity.
-
-**Task 0.3: Column Verification**
-- **Action**: Ensure required columns (`laser_power`, `scan_speed`, `layer_thickness`, `yield_strength`, `ductility`) are present.
-- **Action**: If `alloy_type` is present, prepare for one-hot encoding.
-
-### Phase 1: Preprocessing & Data Hygiene (FR-002)
-
-**Task 1.1: Imputation**
-- **Action**: Replace `NaN` in numeric columns with column median. Log count of imputed values.
-
-**Task 1.2: Encoding**
-- **Action**: Convert `alloy_type` to binary columns (e.g., `is_Ti-6Al-4V`). Drop original column.
-
-**Task 1.3: Training-Set Normalization (CRITICAL)**
-- **Action**: **DO NOT** normalize the entire dataset before splitting.
-- **Method**: Split data into training and testing subsets with a majority-minority partition. -> Fit MinMaxScaler on **TRAIN** set -> Transform **TRAIN** and **TEST** sets separately.
-- **Metadata**: Record `min` and `max` values from the **TRAIN** set in `data/processed/normalization_bounds.json` to enable physical regime mapping later.
-
-**Task 1.4: Zero Variance Check**
-- **Action**: Detect columns with `std == 0`. Log warning and drop.
-
-**Task 1.5: Sample Count Check**
-- **Action**: If `N < 50`, halt with error: "Insufficient data for GPR training; minimum 50 samples required."
-
-### Phase 2: Modeling & Validation (FR-003, FR-004, FR-006, SC-001, SC-004)
-
-**Task 2.1: GPR Training**
-- **Action**: Train GPR with RBF kernel on training set.
-- **Optimization**: k-fold CV to maximize log marginal likelihood.
-
-**Task 2.2: Linear Regression Baseline (SC-001)**
-- **Action**: Train a Linear Regression model on the same training set.
-- **Metric**: Calculate R² and RMSE for baseline.
-- **Comparison**: Compare GPR R² vs. Baseline R² to confirm non-linear relationships (SC-001).
-
-**Task 2.3: GPR Evaluation**
-- **Action**: Predict on test set.
-- **Metric**: Calculate R², RMSE, MAE.
-- **Output**: Save results to `results/metrics.json`.
-
-**Task 2.4: Confounder Sensitivity Analysis**
-- **Action**: If `alloy_type` is available, perform stratified analysis (train/evaluate per alloy type) to assess if relationships hold across different material classes (proxy for confounders).
-
-**Task 2.5: Importance Baseline Comparison (SC-004)**
-- **Action**: Calculate permutation importance.
-- **Input**: Load `data/baseline_importance.json` (user-provided or literature-based) if available.
-- **Output**: Calculate correlation between model rankings and baseline rankings.
-
-**Task 2.6: Synthetic Data Validation (Power Analysis Proxy)**
-- **Action**: Generate synthetic non-linear data with known noise levels and sample size N=50.
-- **Goal**: Empirically verify if GPR can recover the signal at N=50. If not, flag high uncertainty in final report.
-
-**Task 2.7: Physical Regime Mapping**
-- **Action**: Load `normalization_bounds.json`.
-- **Output**: Annotate all visualizations with physical units (e.g., "Laser Power: -500W") derived from training set bounds, ensuring interpretability of "parameter regimes".
-
-### Phase 3: Visualization & Reporting (FR-005, FR-007, SC-005)
-
-**Task 3.1: Contour & Uncertainty Plots**
-- **Action**: Generate contour plots of predicted properties.
-- **Action**: Generate uncertainty heatmaps (σ > 2× median flagged in red).
-
-**Task 3.2: Partial Dependence Plots**
-- **Action**: Generate PDPs for top influential parameters.
-
-**Task 3.3: Runtime Instrumentation (SC-005)**
-- **Action**: Measure total runtime (preprocessing + training + viz).
-- **Output**: Save `total_runtime_seconds` to `results/metrics.json`.
-- **Check**: Compare against 6-hour limit.
-
-**Task 3.4: Final Report Generation**
-- **Action**: Compile metrics, plots, and data provenance acknowledgment into `docs/paper.md`.
-- **Requirement**: Explicitly state data source limitations and the "associational" nature of findings.
-
-## Risks & Mitigations
+## Risk Register
 
 | Risk | Impact | Mitigation |
 | :--- | :--- | :--- |
-| **Missing AM Dataset** | High (Pipeline cannot run) | Code halts with clear error; user must manually provide `data/raw/am_data.csv`. |
-| **Insufficient Samples (N < 50)** | High (Model fails) | Preprocessing script checks N and halts if < 50 (FR-001). |
-| **Zero Variance Features** | Medium (Singularity) | `preprocess.py` detects zero-variance columns and excludes them with a warning. |
-| **High Uncertainty Regions** | Low (Expected outcome) | These regions are the *output* of the analysis (FR-007), not a failure. |
-| **Unverified Data Source** | High (Scientific validity) | Final report MUST include a "Data Provenance Acknowledgment" section detailing the manual data source and its limitations. |
-| **Causal Misinterpretation** | High (Scientific validity) | All documentation explicitly states "associational" and "non-causal". |
+| **No Verified AM Dataset** | High | System triggers Manual Fallback Protocol. User must provide local file and `source_independence_log.txt`. |
+| **Dataset lacks Yield Strength** | High | Analysis restricted to available mechanical properties. Documented in report. |
+| **GPR Memory Overflow (N>500)** | Medium | **Sparse GPR (FITC/VFE)** is used. Random subsampling is explicitly rejected. |
+| **Collinearity** | Medium | VIF check. If high, construct "Energy Density" feature. |
+| **Runtime > 6h** | High | Limit CV folds to a small number if N is small. Cap optimizer restarts. |
+| **Memory Overflow** | High | `code/memory_profiling.py` runs before training. If memory > 7GB, system halts with recommendation to use Sparse GPR. |
+
+## Implementation Tasks (Revised)
+
+1.  **T001: Project Setup**: Create directory structure (`code/`, `data/raw`, `data/processed`, `results`, `contracts`).
+2.  **T005: Schema Creation**: Define `contracts/dataset.schema.yaml`, `contracts/model_output.schema.yaml`, `contracts/visualization.schema.yaml`. **Fatigue Life is optional**.
+3.  **T014A: Data Ingestion (Manual Fallback)**: Implement logic to load user-provided CSV from `data/raw/am_raw_data.csv`. **No automated download for primary AM dataset**.
+4.  **T015B: Source Independence Check**: Verify `source_independence_log.txt` exists in `data/raw/`. Validate checksum. **Dependency**: T014A.
+5.  **T016A: Preprocessing**: Impute missing values, normalize, encode. **Collinearity**: If VIF > 5, construct `energy_density`. **Dependency**: T015B, T005.
+6.  **T026: GPR Training**: Train GPR model. **Sparse GPR** if N > 500. **Dependency**: T016A.
+7.  **T027: Baseline Training**: Train Linear Regression baseline. **Dependency**: T016A.
+8.  **T029A: Metrics Calculation**: Calculate R², RMSE, MAE, `baseline_r2`, `runtime_seconds`. **Dependency**: T026, T027, T016A.
+9.  **T031: Uncertainty & Importance**: Calculate uncertainty flags (`uncertainty_flags.json`) and permutation importance (stability analysis). **Dependency**: T026, T016A.
+10. **T042B: Visualization**: Generate contour plots and uncertainty heatmaps. **Dependency**: T026, T031.
+11. **T047: Memory Profiling**: Run `memory-profiler` before training. Log to `results/memory_profile.json`. **Dependency**: T001, T016A. **Action**: If memory > 7GB, halt and suggest Sparse GPR.
