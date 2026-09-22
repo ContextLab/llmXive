@@ -10,6 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[S]**: Must run sequentially (data dependency)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -41,14 +42,14 @@
 - [X] T005 Implement `src/llmxive/data_loader.py` to stream GSM8K from `openai/gsm8k` with checksum verification; MUST raise `DATA_INTEGRITY_ERROR` (from T005a) on truncation (FR-006, Edge Case)
 - [X] T005b [P] Implement `src/llmxive/data_loader.py` (FR-006 compliance): Assert no overlap between training staleness queue indices and test set indices before training begins; raise `DATA_INTEGRITY_ERROR` if overlap detected. **Verification**: Run unit test in `tests/unit/test_data_loader.py` to verify overlap detection raises `DATA_INTEGRITY_ERROR`.
 - [X] T006 Implement `src/llmxive/model_factory.py` to load Phi-2 and Qwen-1.8B with 8-bit CPU quantization; MUST raise `ERR_CPU_LOAD_FAIL` (from T005a) if OOM (FR-001, Edge Case)
-- [X] T014 [P] [US1] Integrate `src/llmxive/staleness_queue.py` (T007) into the training loop logic. This task ensures the queue is correctly instantiated and configured for the trainer.
 - [X] T007 Implement `src/llmxive/staleness_queue.py` to buffer gradients; MUST clamp staleness to `buffer_size - 1` if exceeded (Edge Case)
 - [X] T008 Implement `src/utils/logging.py` for structured JSON logging to `data/processed/`
 - [X] T009 Implement `src/llmxive/metrics.py` for real-time reward and gradient norm monitoring (excluding baseline loading logic)
-- [X] T035 [P] [US1] Refactor `src/llmxive/data_loader.py` to remove any implicit `try/except` blocks that might catch `datasets` download errors and fall back to `generate_synthetic_*` or `mock_*` functions. Ensure the loader raises `DATA_INTEGRITY_ERROR` immediately on any fetch failure, allowing the execution stage to detect the issue and retry with a verified source.
-- [X] T036 [P] [US1] Add explicit unit tests in `tests/unit/test_data_loader.py` to verify that `data_loader.py` raises `DATA_INTEGRITY_ERROR` when `datasets.load_dataset` fails, ensuring no silent fallback occurs.
-- [X] T037 [P] [US1] Implement a "Verified Source" check in `src/llmxive/config.py`: If the execution environment provides a "VERIFIED REAL DATA SOURCE" block (e.g., a specific package or URL), the loader MUST adopt this source exclusively and ignore any default `openai/gsm8k` configuration.
-- [X] T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on a resource-constrained runner with limited RAM. Verify that the loader does not attempt to load the full dataset into memory.
+- [X] T014 [P] [US1] Integrate `src/llmxive/staleness_queue.py` (T007) into the training loop logic. This task ensures the queue is correctly instantiated and configured for the trainer.
+- [X] T035 [P] [US1] Refactor `src/llmxive/data_loader.py` to remove any implicit `try/except` blocks that might catch `datasets` download errors and fall back to `generate_synthetic_*` or `mock_*` functions. Ensure the loader raises `DATA_INTEGRITY_ERROR` immediately on any fetch failure, allowing the execution stage to detect the issue and retry with a verified source. **(COMPLETED - Moved from Phase 7)**
+- [X] T036 [P] [US1] Add explicit unit tests in `tests/unit/test_data_loader.py` to verify that `data_loader.py` raises `DATA_INTEGRITY_ERROR` when `datasets.load_dataset` fails, ensuring no silent fallback occurs. **(COMPLETED - Moved from Phase 7)**
+- [X] T037 [P] [US1] Implement a "Verified Source" check in `src/llmxive/config.py`: If the execution environment provides a "VERIFIED REAL DATA SOURCE" block (e.g., a specific package or URL), the loader MUST adopt this source exclusively and ignore any default `openai/gsm8k` configuration. **(COMPLETED - Moved from Phase 7)**
+- [X] T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on a resource-constrained runner with limited RAM. Verify that the loader does not attempt to load the full dataset into memory. **(COMPLETED - Moved from Phase 7)**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,18 +57,19 @@
 
 ## Phase 3: User Story 1 - Reproducible CPU-Only Training Loop with Configurable Staleness (Priority: P1) 🎯 MVP
 
-**Goal**: Execute an asynchronous RL training loop on CPU with configurable staleness for Phi-2 and Qwen1.5-1.8B.
+**Goal**: Execute an asynchronous RL training loop on CPU with configurable staleness for Phi-2 and Qwen-1.8B.
 
 **Independent Test**: The system can be tested by running a single training job with a fixed staleness value and verifying that the training log outputs a sequence of reward values and gradient norms without crashing due to OOM or CUDA errors.
 
 ### Baseline Generation & Seed Management (Critical Prerequisites for US1 Divergence Logic)
 **⚠️ CRITICAL**: These tasks MUST be completed and executed before T013 (Async Trainer) or T020/T021 (Divergence Logic).
+**⚠️ ORDERING**: T019c and T019d are marked [S] (Sequential) and MUST complete before T013 starts.
 
 - [X] T016 [P] [US1] Implement deterministic seed sequence generator and stability validator in `src/llmxive/seed_manager.py`. Logic must manage the pre-defined integer sequence (e.,g., 1-5), verify stability of the synchronous baseline for each seed, and handle the discard-and-retry logic per FR-004. **Output**: `data/processed/seed_audit.json` containing `discarded_seeds`, `reasons` (variance > 5% of mean), and `final_sequence`.
-- [X] T019a [US1/US2] Implement `src/llmxive/baseline_generator.py`: Logic to perform synchronous run, compute static mean reward/gradient of the **first initial steps**, verify stability (variance < 5% of mean calculated over the first 50 steps), and save manifest. MUST verify seed stability before saving. If unstable, **discard** and **retry** with the next seed in the pre-defined integer sequence. **Max retry limit**: Infinite (bounded only by total seed pool size) to guarantee 5 valid runs per FR-004. **Output Artifact**: `data/processed/baseline_manifests/{seed}.json` containing `mean_reward`, `mean_grad_norm`, `status`, `seed_id`.
-- [X] T019b [US1/US2] Implement `src/llmxive/baseline_orchestrator.py`: Logic to orchestrate the generation of baseline manifests for all required seeds. This task implements the loop that calls `baseline_generator.py` (T019a) for each seed in the sequence, handles the retry logic defined in T019a, and ensures all 5 valid manifests are generated before proceeding. This task provides the *orchestration logic* but does NOT execute the runs itself; T019c/T019d execute the runs.
-- [X] T019c [US1/US2] [P] Execute synchronous baseline runs for a small-scale language model across multiple seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/phi2_{seed}.json`.
-- [X] T019d [US1/US2] [P] Execute synchronous baseline runs for Qwen across multiple seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/qwen15_{seed}.json`.
+- [X] T019a [US1/US2] Implement `src/llmxive/baseline_generator.py`: Logic to perform synchronous run, compute static mean reward/gradient of the **first initial steps**, verify stability (variance < 5% of mean calculated over the initial steps), and save manifest. MUST verify seed stability before saving. If unstable, **discard** and **retry** with the next seed in the pre-defined integer sequence. **Max retry limit**: Infinite (bounded only by total seed pool size) to guarantee A statistically significant number of valid runs per FR-004. **Output Artifact**: `data/processed/baseline_manifests/{seed}.json` containing `mean_reward`, `mean_grad_norm`, `status`, `seed_id`. **Retry Log**: MUST log retry attempts to `data/processed/baseline_retry_log.json`.
+- [X] T019b [US1/US2] [P] Implement `src/llmxive/baseline_orchestrator.py`: Logic to orchestrate the generation of baseline manifests for all required seeds. This task implements the loop that calls `baseline_generator.py` (T019a) for each seed in the sequence, handles the retry logic defined in T019a, and ensures all 5 valid manifests are generated before proceeding. This task provides the *orchestration logic* but does NOT execute the runs itself; T019c/T019d execute the runs.
+- [X] T019c [S] [US1/US2] Execute synchronous baseline runs for Phi (1.4B) across multiple seeds using `src/llmxive/baseline_orchestrator.py`. **MUST include inline stability check**: If `variance >= 5% of mean` for the first 50 steps, **halt** the run, log failure to `data/processed/baseline_retry_log.json`, and **trigger retry** with the next seed immediately. Generates `data/processed/baseline_manifests/phi2_{seed}.json`.
+- [X] T019d [S] [US1/US2] Execute synchronous baseline runs for Qwen1.5-1.8B across multiple seeds using `src/llmxive/baseline_orchestrator.py`. **MUST include inline stability check**: If `variance >= 5% of mean` for the first 50 steps, **halt** the run, log failure to `data/processed/baseline_retry_log.json`, and **trigger retry** with the next seed immediately. Generates `data/processed/baseline_manifests/qwen15_{seed}.json`.
 - [X] T020 [US1/US2] Implement `src/llmxive/baseline_loader.py`: Logic to load and validate the pre-computed manifest from `data/processed/baseline_manifests/{seed}.json` (generated by T019a/T019b).
 - [X] T021 [US1/US2] Implement `src/llmxive/baseline_loader.py` (FR-004 compliance): Read the manifest from T019a for the current seed and verify `variance < 5% of mean` before proceeding with async runs; discard seed if unstable.
 - [X] T022 [US1/US2] Implement the discard-and-retry loop logic: Handle unstable seeds by selecting the next seed in the sequence (incrementing integer index) and calling the generation logic in `src/llmxive/baseline_generator.py` (T019a) for that specific seed. **Constraint**: Max attempts per seed slot removed; infinite retry until A set of valid seeds is identified. (FR-004). **Input**: `data/processed/baseline_manifests/{seed}.json`. **Output**: Updated manifest or `DATA_INTEGRITY_ERROR` if pool exhausted.
@@ -76,8 +78,8 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `src/llmxive/trainer.py` main RL loop with `device="cpu"`, `bitsandbytes` quantization, and integrated `staleness_queue` (FR-001, FR-002).
- *Dependency*: T007, T014, T020 (Baseline Loading), T021 (Stability Check), T022 (Retry Logic), **T019a (Baseline Generator)**, and **T019b (Orchestrator)** MUST be completed first to provide thresholds and valid seeds for FR-003.
+- [X] T013 [S] [US1] Implement `src/llmxive/trainer.py` main RL loop with `device="cpu"`, `bitsandbytes` quantization, and integrated `staleness_queue` (FR-001, FR-002).
+ *Dependency*: T007, T014, T020 (Baseline Loading), T021 (Stability Check), T022 (Retry Logic), **T019a (Baseline Generator)**, **T019b (Orchestrator)**, and **T019c/T019d (Baseline Runs - ARTIFACTS MUST EXIST)** MUST be completed first to provide thresholds and valid seeds for FR-003.
  *Note*: This task includes the integration of the staleness queue as the trainer cannot function without it.
 - [X] T015 [US1] Add memory monitoring in `trainer.py` to log peak RAM usage and abort if > 6.5 GB (FR-001, SC-004)
 - [X] T017 [US1] Add logging for `model_id`, `staleness_level`, `seed`, and `reward_curve` to JSON manifests (FR-003)
@@ -92,7 +94,7 @@
 
 - [X] T010 [P] [US1] Unit test for `staleness_queue.py` in `tests/unit/test_staleness_queue.py` (verify clamping logic)
 - [X] T011 [P] [US1] Integration test for CPU model loading in `tests/integration/test_cpu_load.py` (verify no CUDA fallback)
-- [X] T012 [P] [US1] Integration test for training loop with `staleness=0` in `tests/integration/test_sync_loop.py` (verify 500 steps < 45 mins, no OOM)
+- [X] T012 [US1] Implement and Execute Integration test for training loop with `staleness=0` in `tests/integration/test_sync_loop.py` (verify 500 steps < 45 mins, no OOM). **Execution Command**: `pytest tests/integration/test_sync_loop.py -v --junitxml=pytest.xml`. **Artifact**: `pytest.xml`.
 
 **Checkpoint**: At this point, User Story 1 (including baseline generation) should be fully functional and testable independently
 
@@ -107,14 +109,15 @@
 ### Implementation for User Story 2
 
 - [X] T020b [US2] Implement `src/llmxive/divergence_detector.py`: Class structure and initialization for divergence detection logic.
-- [X] T020c [US2] Implement `src/llmxive/divergence_detector.py` (Static Mean Baseline): MUST implement Spec FR-003 as the primary method: Flag if reward < `baseline_mean_reward` (from T020) for A fixed number of consecutive steps OR gradient norm > 2x `baseline_mean_grad_norm` (from T020) for A consecutive sequence of steps.
- *Input*: `data/processed/baseline_manifests/{seed}.json`.
+- [X] T020c [US2] Implement `src/llmxive/divergence_detector.py` (Static Mean Baseline): MUST implement Spec FR-003 as the primary method: Flag if reward < `baseline_mean_reward` (from T020) for A fixed number of consecutive steps OR gradient norm > x `baseline_mean_grad_norm` (from T020) for A consecutive sequence of steps.
+ *Input*: `data/processed/baseline_manifests/{seed}.json`. **Hard Dependency**: This task requires the manifest artifact from T019c/T019d to be present.
  *Note*: This task implements the Spec's mandatory static mean approach.
 - [X] T020d [US2] Implement `src/llmxive/divergence_detector.py` (Consecutive-Step Check): Implement the consecutive-step check logic for both reward and gradient norm thresholds.
 - [X] T018 [P] [US2] Unit test for divergence logic in `tests/unit/test_divergence_logic.py` (verify -step drop detection for static mean method)
-- [X] T023 [US2] Create `src/cli/analyze_divergence.py` to aggregate logs from executed US1 runs and identify max stable staleness threshold per model (US-2, SC-002).
- *Input*: JSON logs from T017 (T013b-g). **Dependency**: Execution of T013 (Async Trainer) must be complete.
+- [X] T023 [S] [US2] Create `src/cli/analyze_divergence.py` to aggregate logs from executed US1 runs and identify max stable staleness threshold per model (US-2, SC-002).
+ *Input*: JSON logs from T017 (T013b-g). **Dependency**: Execution of T013 (Async Trainer) AND completion of T019c/T019d (Baseline Runs) must be complete.
  *Output Artifact*: `data/processed/threshold_map.json` containing `model_id`, `max_stable_staleness`, `status`.
+ *Execution Command*: `python src/cli/analyze_divergence.py --input 'data/processed/logs/*.json' --output data/processed/threshold_map.json`.
 - [X] T023b [US2] [P] Execute divergence analysis for Qwen1.5-1.8B across varying staleness levels to generate the necessary data for the 1.8B model comparison.
 - [X] T024 [US2] Implement output formatting for `status: DIVERGED/STABLE` and `divergence_point` (US-2, AC-1)
 
@@ -140,6 +143,7 @@
  *Output Artifact*: `data/processed/stats_report.json` containing `p_value`, `significant`, `hypothesis_status`.
 - [X] T029 [US3] Implement calculation of reward variance ratio (Low vs High staleness) and log confirmation status if ratio > 1.5 to confirm hypothesis (SC-001).
  *Behavior*: If ratio <= 1.5, log "HYPOTHESIS_NOT_CONFIRMED: ratio <= 1.5" at INFO level and continue; do NOT assert/fail.
+- [X] T025 [US3] Implement and Execute Statistical Integration Test in `tests/integration/test_stats_execution.py`. This task verifies the t-test logic against known mock distributions and generates the `pytest.xml` artifact. **Execution Command**: `pytest tests/integration/test_stats_execution.py -v --junitxml=pytest.xml`. **Artifact**: `pytest.xml`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,131 +155,12 @@
 
 - [X] T030 [P] Generate final plots using `src/llmxive/plot_generator.py` from `data/processed/` logs (US-2, US-3)
 - [X] T034 [P] [US2] Implement cross-model comparison script in `src/cli/compare_models.py` to aggregate thresholds from T023 for both models and generate the "non-linear trend" plot required by SC-002 (threshold 1.8B > 1.4B).
-- [X] T034b [US2] [P] Verify Non-Linear Trend: Programmatically assert that `threshold(larger model) > threshold(smaller model)` and log success/failure to `data/processed/trend_verification.json`.
+- [X] T034b [US2] [P] Verify Non-Linear Trend: Programmatically assert that the increase in threshold between models is **non-linear** (i.e., the ratio of thresholds is NOT proportional to the ratio of parameter counts). If the trend is strictly linear, the task must fail. Log result to `data/processed/trend_verification.json`.
 - [X] T031 [P] Validate `requirements.txt` and `quickstart.md` for reproducibility
 - [X] T032a [P] Define "sampled dataset" for integration tests (e.g., first rows of GSM8K train split) in `tests/integration/conftest.py`.
 - [X] T032b [P] Define "full integration test suite" selection (e.g., T012, T018, T025) in `pytest.ini`.
-- [ ] T032c1 [P] Execute integration test T012 (Sync Loop) and generate `pytest.xml` artifact; verify exit code 0.
-- [ ] T032c2 [P] Execute integration test T018 (Divergence Logic) and generate `pytest.xml` artifact; verify exit code 0.
-- [ ] T032c3 [P] Execute integration test T025 (Stats) and generate `pytest.xml` artifact; verify exit code 0.
+- [X] T032c1 [P] [US1] Verify Execution of T012: Ensure `tests/integration/test_sync_loop.py` has been executed and `pytest.xml` exists with exit code 0.
+- [X] T032c2 [P] [US2] Verify Execution of T018: Run `pytest tests/unit/test_divergence_logic.py -v --junitxml=pytest.xml` and verify exit code 0.
+- [X] T032c3 [P] [US3] Verify Execution of T025: Run `pytest tests/integration/test_stats_execution.py -v --junitxml=pytest.xml` and verify exit code 0.
 
 **Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 7: Execution Safety & Data Integrity (Revision)
-
-**Purpose**: Address execution gate concerns regarding data loading robustness and synthetic fallback prevention.
-**Note**: Phase 7 tasks (T035-T038) were moved to Phase 2 (Foundational) to ensure data integrity before training logic implementation.
-
-- [ ] (Moved to Phase 2) T035 [P] [US1] Refactor `src/llmxive/data_loader.py` to remove any implicit `try/except` blocks that might catch `datasets` download errors and fall back to `generate_synthetic_*` or `mock_*` functions. Ensure the loader raises `DATA_INTEGRITY_ERROR` immediately on any fetch failure, allowing the execution stage to detect the issue and retry with a verified source.
-- [ ] (Moved to Phase 2) T036 [P] [US1] Add explicit unit tests in `tests/unit/test_data_loader.py` to verify that `data_loader.py` raises `DATA_INTEGRITY_ERROR` when `datasets.load_dataset` fails, ensuring no silent fallback occurs.
-- [ ] (Moved to Phase 2) T037 [P] [US1] Implement a "Verified Source" check in `src/llmxive/config.py`: If the execution environment provides a "VERIFIED REAL DATA SOURCE" block (e.g., a specific package or URL), the loader MUST adopt this source exclusively and ignore any default `openai/gsm8k` configuration.
-- [ ] (Moved to Phase 2) T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on the GB RAM runner. Verify that the loader does not attempt to load the full dataset into memory.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **Critical Dependency**: T019a (Baseline Gen Impl), T019b (Orchestrator Impl), T019c/T019d (Baseline Runs), T020 (Loader Impl), T021 (Stability Check), T022 (Retry Logic), T016 (Seed Manager), T007 (Queue Impl), and T014 (Queue Integration) MUST complete before T013 (Async Trainer).
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Execution Safety (Phase 7)**: Moved to Phase 2 to ensure data integrity before training.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2). **T019a, T019b, T019c, T019d, T020, T021, T022, T016, T007, T014 are part of US1 flow and must precede T013.**
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for training logs (T013) and Baseline Manifests (T019a/T019b).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1/US2 for aggregated results from executed runs.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Config before services
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for staleness_queue.py in tests/unit/test_staleness_queue.py"
-Task: "Integration test for CPU model loading in tests/integration/test_cpu_load.py"
-Task: "Integration test for training loop in tests/integration/test_sync_loop.py"
-
-# Launch Baseline Generation (T019a/T019b) AND Stability Check (T022) BEFORE Async Trainer (T013):
-Task: "Implement and execute synchronous baseline generation (T019a, T019b, T019c, T019d)"
-Task: "Implement stability check and retry loop (T022)"
-# THEN:
-Task: "Implement src/llmxive/trainer.py (T013)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Including T019a/T019b Baseline Gen, T019c/T019d Baseline Runs, T020/T021/T022 Stability/Retry, T016 Seed Manager, T014 Queue Integration)
-4. **STOP and VALIDATE**: Test User Story 1 independently (including divergence detection using generated manifests)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 (including Baseline Gen, Stability, Retry, Seed Manager, Baseline Runs) → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (T019a/T019b Baseline Gen, T019c/T019d Baseline Runs, T020/T021/T022 Stability/Retry, T016 Seed Manager, T013 Async Trainer)
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Hygiene**: Ensure `data_loader.py` strictly raises on failure; no synthetic fallbacks allowed (T035, T036).
-- **Hardware**: All training tasks must explicitly target `device="cpu"` and 8-bit quantization.
-- **Critical Data Flow**: T019a, T019b, T019c, T019d, T020, T021, T022, T016, T007, and T014 MUST execute before T013 (Async Training) to provide the seed-specific thresholds required by FR-003.
-- **Statistical Method**: Only Two-Sample T-Test (Spec FR-005) is implemented (T026). Survival Analysis is excluded per Spec constraints.
-- **Divergence Method**: Only Static Mean Baseline (Spec FR-003) is implemented (T020c). Intrinsic Variance is excluded per Spec constraints.
-- **Spec vs Plan**: Tasks implement Spec requirements. Where Plan contradicts Spec (e.g., Survival Analysis, Intrinsic Variance), Spec takes precedence and Plan requirements are excluded to prevent constraint violation.
-- **Execution Safety**: Phase 7 tasks (T035-T038) moved to Phase 2 to ensure data integrity before training.
-- **Seed Audit**: T016 explicitly logs discarded seeds to `data/processed/seed_audit.json` to satisfy Constitution Principle IV.
-- **Trend Verification**: T034b programmatically verifies the non-linear trend (SC-002).
-- **Plan vs Spec Note**: `plan.md` Summary and Complexity Tracking contain contradictory text regarding "intrinsic variance" and "Survival Analysis". `tasks.md` correctly implements `spec.md` (Static Mean, T-Test). `plan.md` requires a separate revision to align with `spec.md`.

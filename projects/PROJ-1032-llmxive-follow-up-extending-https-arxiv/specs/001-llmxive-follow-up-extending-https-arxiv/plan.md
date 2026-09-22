@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a CPU-optimized asynchronous Reinforcement Learning (RL) training loop to empirically determine the staleness tolerance of low-capacity language models (Phi 1.4B and Qwen1.5-1.8B) on the GSM8K dataset. The system simulates network latency via a configurable "staleness queue," monitors for divergence based on **intrinsic variance thresholds** (variance > 2 * mean), and performs **Survival Analysis (Log-Rank test)** to compare stability regimes. The implementation strictly adheres to GitHub Actions free-tier constraints (2 CPU, 7GB RAM, <6h runtime) using 8-bit quantization and streaming data access.
+This feature implements a CPU-optimized asynchronous Reinforcement Learning (RL) training loop to empirically determine the staleness tolerance of low-capacity language models (Phi and Qwen1.5-1.8B) on the GSM8K dataset. The system simulates network latency via a configurable "staleness queue," monitors for divergence based on **intrinsic variance thresholds** (variance > 2 * mean), and performs **Survival Analysis (Log-Rank test)** to compare stability regimes. The implementation strictly adheres to GitHub Actions free-tier constraints (2 CPU, 7GB RAM, <6h runtime) using 8-bit quantization and streaming data access.
 
 ## Technical Context
 
