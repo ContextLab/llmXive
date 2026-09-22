@@ -1,4 +1,4 @@
-- artifact_hash: 7f95308dffda237df410fe416c3c1686c871e8c507c8e57e137a2c5c39487de5
+- artifact_hash: 19f8767388ec5bc911f3d96db4e05adde0e1b3265b9ba53d578a7a2d6120cbef
   artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q2795484
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q2795484
-  verified_at: '2026-09-13T06:49:49.713341Z'
+  verified_at: '2026-09-22T06:51:12.645647Z'

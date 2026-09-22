@@ -54,10 +54,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj [UNRESOLVED-CLAIM: c_140f571d — status=not_enough_info]
+- [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt`
-- [ ] T005 [P] Create base configuration loader for environment variables and paths [UNRESOLVED-CLAIM: c_59afdfd8 — status=not_enough_info]
+- [ ] T005 [P] Create base configuration loader for environment variables and paths
 - [X] T006 [P] Create base logging infrastructure (`code/utils.py`) with file and console handlers
 - [ ] T007 [P] Create schema definition files (`contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`)
 - [X] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`
@@ -82,7 +82,7 @@
 - [ ] T013 [US1] Implement `code/ingestion.py` to load raw CSVs, validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008a utilities
 - [X] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within a 10 (Wikidata Q2795484, https://www.wikidata.org/wiki/Q2795484) km radius of coordinates and applying species-range mapping (since WorldClim lacks species_id)
 - [X] T014a [US1] Implement species-range mapping logic in `code/ingestion.py` to map species IDs to geographic regions for the join
-- [X] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates [UNRESOLVED-CLAIM: c_c092a199 — status=not_enough_info] in `code/ingestion.py`
+- [X] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
 - [X] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`
 - [ ] T017 [US1] Save the unified `AnalysisDataset` to `data/processed/analysis_dataset.csv` and update `data/checksums.txt`
 

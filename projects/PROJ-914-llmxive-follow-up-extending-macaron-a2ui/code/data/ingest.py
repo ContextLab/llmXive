@@ -1,8 +1,6 @@
 """
-Data Ingestion Module for Macaron-A2UI Project.
-
-Handles loading raw data from Hugging Face datasets with strict
-adherence to Data Hygiene principles: no synthetic fallbacks.
+Data ingestion module for Macaron-A2UI dataset.
+Handles streaming downloads and large dataset chunking to prevent OOM.
 """
 import os
 import sys
@@ -10,210 +8,236 @@ import argparse
 import time
 import hashlib
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Iterator
 
 import pandas as pd
-from datasets import load_dataset
 
-from config import get_raw_data_path, ensure_dirs
-from utils.logging import get_experiment_logger, log_error, log_info
+# Import shared config
+try:
+    from config import get_raw_data_path, ensure_dirs, RANDOM_SEED
+except ImportError:
+    # Fallback for direct execution in code/
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config import get_raw_data_path, ensure_dirs, RANDOM_SEED
 
 # Constants
 DATASET_ID = "macaron-data/a2ui-bench"
-MAX_RETRIES = 3
-RETRY_DELAY = 5  # seconds
+STREAMING_CHUNK_SIZE = 1000  # Rows per chunk for processing
+MAX_MEMORY_ROWS = 50000  # Safety limit to prevent OOM on small machines
 
-logger = get_experiment_logger("ingest")
+logger = None
+
+def _get_logger():
+    global logger
+    if logger is None:
+        import logging
+        logger = logging.getLogger(__name__)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+    return logger
 
 def load_dataset_from_hf(
     dataset_id: str = DATASET_ID,
+    split: str = "train",
     streaming: bool = True,
     sample_size: Optional[int] = None
-) -> pd.DataFrame:
+) -> Iterator[pd.DataFrame]:
     """
-    Load dataset from Hugging Face Hub.
+    Load dataset from Hugging Face Hub with streaming support.
     
     Args:
-        dataset_id: The Hugging Face dataset identifier (namespace/name).
-        streaming: If True, stream the dataset to save memory.
-        sample_size: Optional number of rows to sample if streaming.
+        dataset_id: Hugging Face dataset identifier (namespace/name)
+        split: Dataset split to load
+        streaming: If True, loads in chunks to save memory
+        sample_size: Optional limit on number of rows to process
         
     Returns:
-        pd.DataFrame: The loaded dataset.
+        Iterator of pandas DataFrames (chunks) or a single DataFrame if not streaming
         
     Raises:
-        RuntimeError: If the dataset cannot be loaded from a real source.
-        FileNotFoundError: If the dataset ID is invalid or inaccessible.
+        RuntimeError: If the dataset cannot be loaded from the real source.
+        ValueError: If the dataset ID is invalid or inaccessible.
     """
+    logger = _get_logger()
     logger.info(f"Attempting to load dataset: {dataset_id} (streaming={streaming})...")
     
-    start_time = time.time()
-    
     try:
-        # Attempt to load the dataset with strict error handling
-        # No trust_remote_code as per modern HF standards
-        ds = load_dataset(
-            dataset_id,
-            streaming=streaming,
-            trust_remote_code=False  # Explicitly disabled per HF 3.0+ requirements
-        )
-        
-        # Determine which split to use (prefer 'train' or first available)
-        split_name = 'train' if 'train' in ds else list(ds.keys())[0]
-        logger.info(f"Using split: {split_name}")
-        
-        if streaming:
-            # Convert iterator to list if sample_size is specified
-            if sample_size:
-                logger.info(f"Sampling {sample_size} rows from stream...")
-                # Use islice to get exactly sample_size rows
-                from itertools import islice
-                data_iter = islice(ds[split_name], sample_size)
-                df = pd.DataFrame(list(data_iter))
-            else:
-                # Materialize entire stream (risky for large datasets, but explicit)
-                logger.warning("Streaming without sample_size will materialize entire dataset.")
-                df = pd.DataFrame(list(ds[split_name]))
-        else:
-            # Load full dataset into memory
-            df = ds[split_name].to_pandas()
-            if sample_size and sample_size < len(df):
-                logger.info(f"Sampling {sample_size} rows from loaded dataset...")
-                df = df.head(sample_size)
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Successfully loaded {len(df)} rows in {elapsed:.2f}s")
-        
-        return df
-        
+        from datasets import load_dataset
+    except ImportError:
+        raise ImportError("The 'datasets' library is required. Install with: pip install datasets")
+
+    # Verify the dataset exists and is accessible BEFORE attempting to load
+    # This prevents hanging on invalid IDs
+    try:
+        # Attempt a quick head request or info fetch to validate existence
+        # We use streaming=True here to avoid downloading metadata if possible
+        ds_info = load_dataset(dataset_id, split=split, streaming=True, trust_remote_code=False)
     except Exception as e:
+        # Specific error handling for common HuggingFace issues
         error_msg = str(e)
-        logger.error(f"CRITICAL: Failed to load real dataset from {dataset_id}. Error: {error_msg}")
-        
-        # Explicitly check for common failure modes and raise clear errors
-        if "doesn't exist" in error_msg or "not found" in error_msg:
-            raise FileNotFoundError(
-                f"Dataset '{dataset_id}' does not exist on the Hub or is inaccessible. "
-                "Per Data Hygiene Principle, no synthetic fallback is allowed. "
-                "Please verify the dataset ID and network connectivity."
+        if "doesn't exist" in error_msg or "404" in error_msg:
+            raise RuntimeError(
+                f"FATAL ERROR: CRITICAL: Failed to load real dataset from {dataset_id}. "
+                f"Error: {error_msg}. Per Data Hygiene Principle, this script does NOT support synthetic fallback. "
+                f"Please check your internet connection, dataset ID, or HuggingFace access."
             ) from e
         elif "trust_remote_code" in error_msg:
             raise RuntimeError(
-                f"Dataset '{dataset_id}' requires legacy loading scripts which are no longer supported. "
-                "Per Data Hygiene Principle, no synthetic fallback is allowed. "
-                "The dataset must be converted to a standard format (Parquet/Arrow) by the author."
+                f"FATAL ERROR: The dataset {dataset_id} requires 'trust_remote_code' which is no longer supported. "
+                f"Please check the dataset repository for a standard format (Parquet/CSV) or a fixed loading script. "
+                f"Error: {error_msg}"
             ) from e
         else:
             raise RuntimeError(
-                f"Failed to fetch real data from {dataset_id}. "
-                "Per Data Hygiene Principle, no synthetic fallback is allowed. "
-                "Check network connection and dataset availability."
+                f"FATAL ERROR: Failed to load real dataset from {dataset_id}. "
+                f"Error: {error_msg}. Per Data Hygiene Principle, this script does NOT support synthetic fallback."
             ) from e
 
-def validate_dataframe(df: pd.DataFrame, required_columns: list) -> bool:
+    logger.info(f"Dataset connection established. Fetching data...")
+
+    if streaming:
+        # Return an iterator that yields chunks
+        count = 0
+        for batch in ds_info:
+            # Convert batch to DataFrame
+            df = pd.DataFrame(batch)
+            yield df
+            count += len(df)
+            if sample_size and count >= sample_size:
+                logger.info(f"Reached sample size limit of {sample_size}. Stopping.")
+                break
+    else:
+        # Load full dataset into memory (risky for large datasets)
+        ds = load_dataset(dataset_id, split=split, trust_remote_code=False)
+        df = ds.to_pandas()
+        if sample_size:
+            df = df.head(sample_size)
+        yield df
+
+def validate_dataframe(df: pd.DataFrame) -> bool:
     """
-    Validate that the DataFrame has the required columns and non-null values.
+    Validate that the dataframe has required columns and no missing critical values.
     
     Args:
-        df: The DataFrame to validate.
-        required_columns: List of column names that must exist.
+        df: DataFrame to validate
         
     Returns:
-        bool: True if valid, raises ValueError otherwise.
+        True if valid, raises ValueError otherwise
     """
-    if df.empty:
-        raise ValueError("Loaded dataset is empty.")
-        
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    logger = _get_logger()
+    
+    # Expected columns based on Macaron-A2UI schema
+    required_cols = ["query", "intent", "response", "latency_ms"]
+    
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Dataset missing required columns: {missing_cols}")
+    
+    # Check for empty dataset
+    if df.empty:
+        raise ValueError("Dataset is empty after loading.")
         
-    # Check for critical nulls in key fields (query/intent)
-    if 'query' in df.columns and df['query'].isnull().any():
-        raise ValueError("Dataset contains null values in 'query' column.")
+    # Check for missing critical values
+    if df["query"].isna().any():
+        raise ValueError("Dataset contains missing values in 'query' column.")
         
-    logger.info(f"Validation passed: {df.shape[0]} rows, {df.shape[1]} columns")
+    logger.info(f"Validation passed: {len(df)} rows, {len(df.columns)} columns.")
     return True
 
 def save_raw_csv(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
     """
-    Save the raw dataset to a CSV file.
+    Save the dataframe to a CSV file.
     
     Args:
-        df: The DataFrame to save.
-        output_path: Optional custom path. Defaults to config.
+        df: DataFrame to save
+        output_path: Optional path to save to. Defaults to config path.
         
     Returns:
-        str: The path to the saved file.
+        Path to the saved file
     """
+    logger = _get_logger()
+    
     if output_path is None:
         output_path = str(get_raw_data_path())
         
-    output_file = Path(output_path)
+    output_path = Path(output_path)
     ensure_dirs()
     
-    # Ensure parent directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Calculate hash for versioning
+    content_hash = hashlib.sha256(df.to_csv(index=False).encode()).hexdigest()[:16]
+    final_path = output_path.parent / f"raw_data_{content_hash}.csv"
     
-    df.to_csv(output_file, index=False)
-    logger.info(f"Saved raw data to {output_file}")
+    df.to_csv(final_path, index=False)
+    logger.info(f"Saved raw data to: {final_path}")
     
-    # Compute hash for versioning
-    with open(output_file, 'rb') as f:
-        file_hash = hashlib.sha256(f.read()).hexdigest()
-    logger.info(f"Data hash: {file_hash}")
-    
-    return str(output_file)
+    return str(final_path)
 
 def main():
-    """CLI entry point for data ingestion."""
+    """
+    CLI entry point for data ingestion.
+    Usage: python -m code.data.ingest --sample-size 500
+    """
     parser = argparse.ArgumentParser(description="Ingest Macaron-A2UI dataset")
-    parser.add_argument(
-        "--annotate",
-        action="store_true",
-        help="Prepare data for annotation (sample N=500)"
-    )
-    parser.add_argument(
-        "--sample-size",
-        type=int,
-        default=500,
-        help="Number of rows to sample (default: 500)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Custom output path"
-    )
+    parser.add_argument("--dataset-id", type=str, default=DATASET_ID, help="HuggingFace dataset ID")
+    parser.add_argument("--split", type=str, default="train", help="Dataset split")
+    parser.add_argument("--streaming", action="store_true", default=True, help="Use streaming mode (default)")
+    parser.add_argument("--sample-size", type=int, default=None, help="Limit number of rows")
+    parser.add_argument("--output", type=str, default=None, help="Output file path")
     
     args = parser.parse_args()
     
+    logger = _get_logger()
+    logger.info("Starting data ingestion...")
+    
     try:
-        # Load dataset
-        df = load_dataset_from_hf(
-            dataset_id=DATASET_ID,
-            streaming=True,
-            sample_size=args.sample_size if args.annotate else None
-        )
+        # Load data in streaming chunks
+        # Note: We accumulate into a list for the CLI to save, but for very large
+        # datasets, the downstream process should handle the iterator directly.
+        # Here we respect the sample_size to keep memory usage low for the CLI demo.
         
-        # Validate
-        required_cols = ['query'] # Minimum requirement
-        validate_dataframe(df, required_cols)
+        all_chunks = []
+        total_rows = 0
+        
+        for chunk in load_dataset_from_hf(
+            dataset_id=args.dataset_id,
+            split=args.split,
+            streaming=args.streaming,
+            sample_size=args.sample_size
+        ):
+            # Validate each chunk immediately
+            validate_dataframe(chunk)
+            all_chunks.append(chunk)
+            total_rows += len(chunk)
+            
+            if args.sample_size and total_rows >= args.sample_size:
+                break
+        
+        if not all_chunks:
+            raise RuntimeError("No data was loaded from the source.")
+        
+        # Concatenate chunks
+        full_df = pd.concat(all_chunks, ignore_index=True)
+        
+        # Final validation
+        validate_dataframe(full_df)
         
         # Save
-        output_path = save_raw_csv(df, args.output)
+        output_file = save_raw_csv(full_df, args.output)
         
-        logger.info(f"Ingestion complete. Output: {output_path}")
+        logger.info(f"Ingestion complete. Total rows: {total_rows}")
+        logger.info(f"Output saved to: {output_file}")
         
-        if args.annotate:
-            logger.info(f"Ready for annotation with {len(df)} rows.")
-            
-    except (FileNotFoundError, RuntimeError, ValueError) as e:
-        log_error(f"Ingestion failed: {str(e)}")
+    except RuntimeError as e:
+        # Re-raise runtime errors (data source issues) as is
+        logger.error(str(e))
         sys.exit(1)
     except Exception as e:
-        log_error(f"Unexpected error during ingestion: {str(e)}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during ingestion: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

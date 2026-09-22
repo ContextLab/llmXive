@@ -1,63 +1,66 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: SongRecord
-description: >
-  Schema for avian song metadata records fetched from Xeno-Canto.
-  Contains acoustic features and geographic coordinates.
+title: Song Record Schema
+description: Schema for validating Xeno-Canto avian acoustic metadata records.
 type: object
 required:
-  - recording_id
+  - record_id
   - species_id
   - species_name
-  - latitude
-  - longitude
+  - lat
+  - lon
   - file_url
-  - date_recorded
 properties:
-  recording_id:
+  record_id:
     type: string
-    description: Unique identifier for the recording (e.g., XC12345)
+    description: Unique identifier for the recording (e.g., XC12345).
+    minLength: 1
   species_id:
     type: string
-    description: Xeno-Canto species code (e.g., XC234)
+    description: Species identifier (e.,g., Xeno-Canto species ID or Wikidata QID).
+    minLength: 1
   species_name:
     type: string
-    description: Scientific name of the species
-  latitude:
+    description: Scientific name of the species (e.,g., Turdus merula).
+    minLength: 1
+  lat:
     type: number
+    description: Latitude in decimal degrees (WGS84).
     minimum: -90
     maximum: 90
-    description: Latitude in WGS84 (decimal degrees)
-  longitude:
+  lon:
     type: number
+    description: Longitude in decimal degrees (WGS84).
     minimum: -180
     maximum: 180
-    description: Longitude in WGS84 (decimal degrees)
   file_url:
     type: string
+    description: Direct URL to the audio file.
     format: uri
-    description: Direct URL to the audio file
-  date_recorded:
+  species_common_name:
     type: string
-    format: date
-    description: Date of recording (YYYY-MM-DD)
-  duration_sec:
-    type: number
-    minimum: 0
-    description: Duration of the recording in seconds
-  file_format:
+    description: Common name of the species (optional).
+  recording_date:
     type: string
-    description: Audio file format (e.g., wav, mp3)
-  quality_score:
-    type: string
-    description: Xeno-Canto quality rating (A, B, C, etc.)
+    description: Date of recording in ISO 8601 format (YYYY-MM-DD).
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
   country:
     type: string
-    description: Country of recording
-  continent:
+    description: Country where the recording was made.
+  latitude_error:
+    type: number
+    description: Estimated error margin for latitude.
+    minimum: 0
+  longitude_error:
+    type: number
+    description: Estimated error margin for longitude.
+    minimum: 0
+  quality:
     type: string
-    description: Continent of recording
-  additional_fields:
-    type: object
-    description: Any additional metadata fields not explicitly defined
-    additionalProperties: true
-additionalProperties: true
+    description: Quality rating of the recording (e.g., A, B, C, D).
+    enum:
+      - A
+      - B
+      - C
+      - D
+      - E
+additionalProperties: false

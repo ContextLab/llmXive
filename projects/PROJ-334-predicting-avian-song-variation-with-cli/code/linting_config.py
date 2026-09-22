@@ -1,55 +1,103 @@
-"""
-Configuration management for linting (ruff) and formatting (black) tools.
-Ensures project-level configuration files exist and are consistent.
-"""
 import os
 from pathlib import Path
 
+
 def get_black_config_path() -> Path:
-    """Return the path to the Black configuration."""
+    """Return the path to the black configuration file."""
     return Path("pyproject.toml")
 
+
 def get_ruff_config_path() -> Path:
-    """Return the path to the Ruff configuration."""
+    """Return the path to the ruff configuration file."""
     return Path("pyproject.toml")
+
 
 def write_config_files() -> None:
     """
-    Ensure configuration files for Black and Ruff exist.
-    For this project, both are configured in pyproject.toml.
-    This function validates that the file exists and contains the necessary sections.
+    Write configuration files for black and ruff to pyproject.toml.
+    This ensures consistent linting and formatting across the project.
     """
-    project_root = Path.cwd()
-    pyproject_path = project_root / "pyproject.toml"
+    config_content = """
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = 'code/'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | tests
+)/
+'''
 
-    if not pyproject_path.exists():
-        raise FileNotFoundError(
-            f"pyproject.toml not found at {pyproject_path}. "
-            "Please run the project initialization first."
-        )
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "tests",
+]
 
-    content = pyproject_path.read_text()
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
-    required_sections = ["[tool.black]", "[tool.ruff]"]
-    missing_sections = [section for section in required_sections if section not in content]
+[tool.ruff.isort]
+known-first-party = ["config", "data_setup", "fetch_worldclim", "fetch_xeno_canto", "ingestion", "linting_config", "logging_config", "main", "schema_validator", "setup_dependencies", "setup_dirs", "state_manager", "utils"]
+"""
+    pyproject_path = Path("pyproject.toml")
 
-    if missing_sections:
-        raise ValueError(
-            f"pyproject.toml is missing required sections: {missing_sections}. "
-            "Please ensure Black and Ruff configurations are present."
-        )
+    if pyproject_path.exists():
+        current_content = pyproject_path.read_text()
+        if "[tool.black]" in current_content and "[tool.ruff]" in current_content:
+            print("Configuration files already exist and contain black/ruff settings.")
+            return
+        # Append if they don't exist but file does (simple strategy)
+        with open(pyproject_path, "a") as f:
+            f.write(config_content)
+    else:
+        pyproject_path.write_text(config_content)
 
-    print(f"Linting and formatting configuration validated at {pyproject_path}")
+    print("Successfully wrote black and ruff configurations to pyproject.toml.")
 
-def main() -> int:
-    """Entry point for linting configuration validation."""
-    try:
-        write_config_files()
-        print("SUCCESS: Linting (ruff) and formatting (black) tools are configured.")
-        return 0
-    except (FileNotFoundError, ValueError) as e:
-        print(f"ERROR: {e}")
-        return 1
+
+def main() -> None:
+    """Main entry point for configuring linting and formatting tools."""
+    write_config_files()
+    print("Linting and formatting configuration complete.")
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

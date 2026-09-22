@@ -1,113 +1,234 @@
-"""
-Tests for fetch_xeno_canto.py module.
-"""
-
-import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
-import sys
 import os
+import sys
+import csv
+import tempfile
+import hashlib
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+import pytest
 
-from code.fetch_xeno_canto import (
+# Add parent directory to path for imports if running from tests/
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from fetch_xeno_canto import (
+    fetch_xeno_canto_data,
     extract_metadata,
+    save_to_csv,
     calculate_sha256,
-    SAMPLE_SIZE
+    update_checksums_file,
+    main
 )
+from config import Config
 
-class TestExtractMetadata(unittest.TestCase):
-    """Tests for the extract_metadata function."""
-
-    def test_extract_valid_record(self):
-        """Test extraction of a valid recording."""
-        recordings = [
+@pytest.fixture
+def mock_api_response():
+    return {
+        "numRecordings": 2,
+        "numPages": 1,
+        "recordings": [
             {
-                'sp': 'Turdus_migratorius',
-                'lat': '40.7128',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
+                "id": "654321",
+                "species": "XC12345",
+                "sp": "Robin",
+                "lat": "51.5074",
+                "lon": "-0.1278",
+                "file": "https://example.com/rec1.mp3",
+                "dur": "10.5",
+                "freq": "2000",
+                "date": "2023-05-01",
+                "cnt": "UK",
+                "loc": "London"
+            },
+            {
+                "id": "654322",
+                "species": "XC67890",
+                "sp": "Eagle",
+                "lat": "40.7128",
+                "lon": "-74.0060",
+                "file": "https://example.com/rec2.mp3",
+                "dur": "15.2",
+                "freq": "1500",
+                "date": "2023-06-01",
+                "cnt": "USA",
+                "loc": "New York"
             }
         ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['species_id'], 'Turdus_migratorius')
-        self.assertEqual(result[0]['lat'], 40.7128)
-        self.assertEqual(result[0]['lon'], -74.0060)
-        self.assertEqual(result[0]['recording_id'], '12345')
+    }
 
-    def test_skip_invalid_lat(self):
-        """Test that records with invalid lat are skipped."""
-        recordings = [
+@pytest.fixture
+def mock_api_response_missing_coords():
+    return {
+        "numRecordings": 2,
+        "numRecordings": 2,
+        "recordings": [
             {
-                'sp': 'Turdus_migratorius',
-                'lat': 'invalid',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
+                "id": "654323",
+                "species": "XC11111",
+                "sp": "Bad Bird",
+                "lat": "", # Missing lat
+                "lon": "-74.0060",
+                "file": "https://example.com/rec3.mp3",
+                "dur": "10.0",
+                "freq": "1000",
+                "date": "2023-01-01",
+                "cnt": "USA",
+                "loc": "Test"
+            },
+            {
+                "id": "654324",
+                "species": "XC22222",
+                "sp": "Good Bird",
+                "lat": "34.0522",
+                "lon": "-118.2437",
+                "file": "https://example.com/rec4.mp3",
+                "dur": "12.0",
+                "freq": "1200",
+                "date": "2023-02-01",
+                "cnt": "USA",
+                "loc": "LA"
             }
         ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
+    }
 
-    def test_skip_missing_species(self):
-        """Test that records with missing species are skipped."""
-        recordings = [
-            {
-                'sp': None,
-                'lat': '40.7128',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
-        ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
+def test_fetch_xeno_canto_data_success(mock_api_response):
+    with patch('fetch_xeno_canto.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_api_response
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
 
-    def test_skip_missing_coordinates(self):
-        """Test that records with missing coordinates are skipped."""
-        recordings = [
-            {
-                'sp': 'Turdus_migratorius',
-                'lat': None,
-                'lon': None,
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
-        ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
+        result = fetch_xeno_canto_data(limit=10)
+        
+        assert len(result) == 2
+        assert result[0]["species"] == "XC12345"
+        mock_get.assert_called_once()
 
-class TestCalculateSha256(unittest.TestCase):
-    """Tests for the calculate_sha256 function."""
+def test_fetch_xeno_canto_data_timeout():
+    with patch('fetch_xeno_canto.requests.get') as mock_get:
+        mock_get.side_effect = Exception("Timeout") # Simulating a generic exception that raises
+        
+        with pytest.raises(Exception):
+            fetch_xeno_canto_data()
 
-    def test_calculate_checksum(self):
-        """Test checksum calculation for a known string."""
-        # Create a temporary file with known content
-        test_file = Path("test_checksum.txt")
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+def test_extract_metadata_valid(mock_api_response):
+    records = mock_api_response["recordings"]
+    result = extract_metadata(records)
+    
+    assert len(result) == 2
+    assert result[0]["species_id"] == "XC12345"
+    assert result[0]["lat"] == 51.5074
+    assert result[0]["lon"] == -0.1278
+    assert result[0]["duration_sec"] == 10.5
 
-        try:
-            checksum = calculate_sha256(test_file)
-            # Expected SHA256 for "Hello, World!"
-            expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-            self.assertEqual(checksum, expected)
-        finally:
-            if test_file.exists():
-                test_file.unlink()
+def test_extract_metadata_invalid_coords(mock_api_response_missing_coords):
+    records = mock_api_response_missing_coords["recordings"]
+    result = extract_metadata(records)
+    
+    # Should filter out the one with missing lat
+    assert len(result) == 1
+    assert result[0]["species_id"] == "XC22222"
 
-    def test_nonexistent_file(self):
-        """Test that calculating checksum for non-existent file raises error."""
-        with self.assertRaises(FileNotFoundError):
-            calculate_sha256(Path("nonexistent_file.txt"))
+def test_extract_metadata_missing_species():
+    records = [
+        {
+            "id": "123",
+            "species": "", # Missing species
+            "lat": "1.0",
+            "lon": "1.0",
+            "file": "url",
+            "dur": "1.0",
+            "freq": "1.0"
+        }
+    ]
+    result = extract_metadata(records)
+    assert len(result) == 0
 
-if __name__ == '__main__':
-    unittest.main()
+def test_save_to_csv(tmp_path):
+    data = [
+        {"species_id": "XC1", "lat": 1.0, "lon": 2.0},
+        {"species_id": "XC2", "lat": 3.0, "lon": 4.0}
+    ]
+    output_file = tmp_path / "test.csv"
+    
+    save_to_csv(data, output_file)
+    
+    assert output_file.exists()
+    with open(output_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 2
+        assert rows[0]["species_id"] == "XC1"
+
+def test_calculate_sha256(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("Hello World")
+    
+    checksum = calculate_sha256(file_path)
+    expected = hashlib.sha256(b"Hello World").hexdigest()
+    
+    assert checksum == expected
+
+def test_update_checksums_file(tmp_path):
+    # Setup
+    checksums_file = tmp_path / "checksums.txt"
+    checksums_file.write_text("existing_file.txt  abc123\n")
+    
+    new_file = tmp_path / "new_file.csv"
+    new_file.write_text("data")
+    checksum = "def456"
+    
+    # Mock config
+    config = Config()
+    # Override checksums file path for test
+    config._checksums_file = str(checksums_file)
+    
+    update_checksums_file(str(new_file), checksum, config)
+    
+    content = checksums_file.read_text()
+    assert "new_file.csv" in content
+    assert "def456" in content
+
+@patch('fetch_xeno_canto.fetch_xeno_canto_data')
+@patch('fetch_xeno_canto.extract_metadata')
+@patch('fetch_xeno_canto.save_to_csv')
+@patch('fetch_xeno_canto.calculate_sha256')
+@patch('fetch_xeno_canto.update_checksums_file')
+@patch('fetch_xeno_canto.ensure_directory')
+@patch('fetch_xeno_canto.initialize_checksums_file')
+def test_main_success(
+    mock_init_checksums, mock_ensure_dir, mock_update, mock_calc, mock_save, mock_extract, mock_fetch, tmp_path
+):
+    # Setup mocks
+    mock_fetch.return_value = [{"id": "1", "species": "XC1", "lat": "1.0", "lon": "1.0", "file": "u", "dur": "1", "freq": "1"}]
+    mock_extract.return_value = [{"species_id": "XC1", "lat": 1.0, "lon": 1.0}]
+    mock_calc.return_value = "abc123"
+    
+    # Mock Config to use tmp_path
+    with patch('fetch_xeno_canto.Config') as MockConfig:
+        mock_config = MagicMock()
+        mock_config.RAW_DATA_DIR = tmp_path
+        mock_config.CHECKSUMS_FILE = str(tmp_path / "checksums.txt")
+        MockConfig.return_value = mock_config
+        
+        # Run main
+        main()
+        
+        mock_fetch.assert_called_once()
+        mock_extract.assert_called_once()
+        mock_save.assert_called_once()
+        mock_calc.assert_called_once()
+        mock_update.assert_called_once()
+        mock_init_checksums.assert_called_once()
+
+@patch('fetch_xeno_canto.fetch_xeno_canto_data')
+def test_main_fetch_failure(mock_fetch):
+    mock_fetch.side_effect = Exception("Network Error")
+    
+    with patch('fetch_xeno_canto.Config') as MockConfig:
+        mock_config = MagicMock()
+        MockConfig.return_value = mock_config
+        
+        # Should raise SystemExit
+        with pytest.raises(SystemExit):
+            main()

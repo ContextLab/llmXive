@@ -164,7 +164,7 @@
 
 ### Tests for User Story 3
 
-- [ ] T029 [P] [US3] Unit test for statistical correction (FDR/Bonferroni) in `tests/unit/test_stats.py`
+- [X] T029 [P] [US3] Unit test for statistical correction (FDR/Bonferroni) in `tests/unit/test_stats.py`
 - [X] T030 [P] [US3] Unit test for Pareto frontier calculation in `tests/unit/test_metrics.py`
 - [X] T031 [P] [US3] Unit test for rubric validation against N=50 hold-out set in `tests/unit/test_rubric_validation.py`
 
@@ -192,11 +192,11 @@
 
 - [X] T045a [US2] Implement `code/models/router.py` load check: attempt to load the B parameter model; if it fails, **attempt to load a smaller distilled model** (Addressing Edge Case: Model Load Failure - Fallback Path).
 - [X] T045b [US2] Implement `code/models/router.py` abort logic: if both the B parameter model and the smaller distilled model fail to load, **abort with a clear `RuntimeError`** specifying the memory constraint (Addressing Edge Case: Model Load Failure - Abort Path).
-- [ ] T046 [US2] Enhance `code/simulation/runner.py` to explicitly log `router_confidence_score` for every query, specifically for cases where the score is within ±0.05 of the decision boundary, to support post-hoc sensitivity analysis (Addressing Edge Case: Borderline Confidence).
+- [X] T046 [US2] Enhance `code/simulation/runner.py` to explicitly log `router_confidence_score` for every query, specifically for cases where the score is within ±0.05 of the decision boundary, to support post-hoc sensitivity analysis (Addressing Edge Case: Borderline Confidence).
 - [X] T047 [US2] Update `code/models/fallback.py` to ensure that when no ontology match is found for an "Ambiguous" query, the system returns a specific "no-match" flag in the `RoutingDecision` object and logs the event with `event_type="no_match"` for safety analysis (Addressing Edge Case: Ontology Mismatch).
-- [ ] T048 [US3] **Statistical Power & Control**: Implement `calculate_power(n, effect_size)` function in `code/analysis/stats.py` and integrate into `code/analysis/rubric_validation.py` to abort if sample size is insufficient (Addressing Assumption: Rubric Validation Power); **Merged T048a and T048b**
-- [ ] T049 [US1] Update `code/data/ingest.py` to include a specific `streaming=True` check or chunked download strategy if the Macaron-AUI dataset exceeds the available RAM limit, ensuring the task fails loudly if the real source is unreachable rather than attempting a synthetic fallback (Addressing Data Hygiene: Large Dataset Streaming; authorized by Data Hygiene principle).
-- [ ] T050 [US2] Implement a "dry-run" mode in `code/simulation/runner.py` that executes a single trial with all logging enabled but no actual model inference, to verify the latency injection and patience modeling logic before committing to full simulation runs (Addressing Execution: Latency Injection Verification).
+- [X] T048 [US3] **Statistical Power & Control**: Implement `calculate_power(n, effect_size)` function in `code/analysis/stats.py` and integrate into `code/analysis/rubric_validation.py` to abort if sample size is insufficient (Addressing Assumption: Rubric Validation Power); **Merged T048a and T048b**
+- [X] T049 [US1] Update `code/data/ingest.py` to include a specific `streaming=True` check or chunked download strategy if the Macaron-AUI dataset exceeds the available RAM limit, ensuring the task fails loudly if the real source is unreachable rather than attempting a synthetic fallback (Addressing Data Hygiene: Large Dataset Streaming; authorized by Data Hygiene principle).
+- [X] T050 [US2] Implement a "dry-run" mode in `code/simulation/runner.py` that executes a single trial with all logging enabled but no actual model inference, to verify the latency injection and patience modeling logic before committing to full simulation runs (Addressing Execution: Latency Injection Verification).
 
 ---
 

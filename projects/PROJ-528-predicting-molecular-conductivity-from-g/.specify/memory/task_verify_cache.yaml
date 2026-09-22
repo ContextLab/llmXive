@@ -77,11 +77,3 @@ T050:
     `analysis_summary.json`) and the descriptor schema (`contracts/descriptor_schema.yaml`)
     are absent, and there is no evidence of a validation script being run or its results.
     The task cannot be considered fulfilled.
-T064:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, logs, or result files showing that the full VIF loop (T039a\u2011\
-    d) and model training (T029) were re\u2011executed with the `huckel_resonance_energy`\
-    \ feature are present. The claim lacks any artifact (e.g., updated descriptor\
-    \ CSV, training scripts, performance metrics) to verify that the new feature was\
-    \ incorporated and evaluated."

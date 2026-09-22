@@ -139,3 +139,197 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-13T06:49:49Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: spatial join within 10 km radius
+  claim_id: c_7a1da6de
+  context: Implement spatial join logic in `code/ingestion.py` to merge `SongRecord`
+    and `ClimateSnapshot` by performing a spatial join within a 10 (Wikidata Q2795484,
+    https://www.wikidata.org/wiki/Q2795484) km radius of coordinates and applying
+    species-range mapping
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: performing a spatial join within a 10 km radius of coordinates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:43:38Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: multicollinearity threshold default 0.8
+  claim_id: c_20ad3016
+  context: Implement multicollinearity threshold check (default 0.8) and flagging
+    in `code/eda.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:44:01Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: sweep p-value thresholds across 0.01, 0.05, and 0.10
+  claim_id: c_70281298
+  context: 'Implement sensitivity analysis: sweep p-value thresholds across {0.01,
+    0.05, 0.10}, track significant predictors, calculate Jaccard index of significant
+    predictors for each threshold pair'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep p-value thresholds across {0.01, 0.05, 0.10}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:44:32Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: cyclomatic complexity target less than 10
+  claim_id: c_5cd02c74
+  context: Cyclomatic complexity check (target < 10) across all functions
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_target_less_than_10
+  kind: magnitude
+  raw_text: target < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:45:13Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: spatial join within 10 km radius for merging SongRecord and ClimateSnapshot
+  claim_id: c_cd0b4e5a
+  context: T014 [US1] Implement spatial join logic in code/ingestion.py to merge SongRecord
+    and ClimateSnapshot by performing a spatial join within a 10 (Wikidata Q2795484,
+    https://www.wikidata.org/wiki/Q2795484) km radius of coordinates and applying
+    species-range mapping (since WorldClim lacks species_id)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement spatial join logic in code/ingestion.py to merge SongRecord
+    and ClimateSnapshot by performing a spatial join within a 10 km radius of coordinates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:47:32Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: climate variables downloaded from WorldClim v2.1
+  claim_id: c_4cc0176c
+  context: T012 [US1] Implement fetch_worldclim.py to download real climate variables
+    (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version), record
+    SHA256 checksum immediately to data/checksums.txt, and abort on fetch failure
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download real climate variables (temp, precip, elev) from WorldClim v2.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:48:06Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: avian metadata downloaded from Xeno-Canto API
+  claim_id: c_6b8d37b0
+  context: T011 [US1] Implement fetch_xeno_canto.py to download real metadata (species_id,
+    lat, lon) from Xeno-Canto API (referencing T009 for URL/version), record SHA256
+    checksum immediately to data/checksums.txt, and abort on fetch failure
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avian_metadata_downloaded_from_Xeno-Canto_API
+  kind: entity_fact
+  raw_text: Download real metadata (species_id, lat, lon) from Xeno-Canto API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:48:34Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps p-value thresholds at 0.01, 0.05, and 0.10
+  claim_id: c_228fc301
+  context: 'T031 [US3] Implement sensitivity analysis: sweep p-value thresholds across
+    {0.01, 0.05, 0.10}, track significant predictors, calculate Jaccard index of significant
+    predictors for each threshold pair, and save results (including Jaccard values)
+    to data/sensitivity_report.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep p-value thresholds across 0.01, 0.05, and 0.10 for sensitivity analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:49:08Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: multicollinearity flagged at default threshold of 0.8
+  claim_id: c_1f167b53
+  context: T023 [US2] Implement multicollinearity threshold check (default 0.8) and
+    flagging in code/eda.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag multicollinearity with a default threshold of 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:49:27Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: VIF values greater than 5 flagged for multicollinearity
+  claim_id: c_630199bf
+  context: T025 [US2] Implement VIF > 5 flagging logic and reporting in code/eda.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_values_greater_than_5_flagged_for_multicollinearity
+  kind: magnitude
+  raw_text: Flag Variance Inflation Factor (VIF) values greater than 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:49:49Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: spatial join within 10 km radius of coordinates for merging SongRecord
+    and ClimateSnapshot
+  claim_id: c_022de57a
+  context: T014 [US1] Implement spatial join logic in code/ingestion.py to merge SongRecord
+    and ClimateSnapshot by performing a spatial join within a 10 (Wikidata Q2795484,
+    https://www.wikidata.org/wiki/Q2795484) km radius of coordinates and applying
+    species-range mapping (since WorldClim lacks species_id)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement spatial join logic in code/ingestion.py to merge SongRecord
+    and ClimateSnapshot by performing a spatial join within a 10 km radius of coordinates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T06:50:25Z'

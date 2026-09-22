@@ -1,9 +1,10 @@
-95|confidence coverage interval nominal target:
-  quote: '0.95'
-  source_id: Binomial proportion confidence interval
-  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+95|confidence coverage interval nominal target verification:
+  quote: "for \u201Cparallelism\u201D. We show that the naive 0.95 con\uFB01dence\
+    \ interval ha s minimum"
+  source_id: '1003.2439'
+  url: https://arxiv.org/abs/1003.2439
   value: '0.95'
-'|aromatic bond estimated order':
+'|aromatic assigned bond estimated order':
   quote: "In molecules which have resonance, bond order may not be an integer. In\
     \ benzene, the delocalized molecular orbitals contain 6 pi electrons over six\
     \ carbons, essentially yielding half a pi bond together with the sigma bond for\
@@ -16,9 +17,38 @@
   source_id: Bond order
   url: https://en.wikipedia.org/wiki/Bond_order
   value: '1.5'
-'|boosting gradient learning model rate use':
-  quote: "rate (\U0001D702) is the same for all trees and is set to 0.1. Note that\U0001D702\
-    \ is"
-  source_id: '2304.07537'
-  url: https://arxiv.org/abs/2304.07537
-  value: '0.1'
+'|assigned bond double estimated order':
+  quote: Bond order gives a rough indication of the stability of a bond. Isoelectronic
+    species, such as CO and N2, have the same bond order.
+  source_id: Bond order
+  url: https://en.wikipedia.org/wiki/Bond_order
+  value: '2'
+'|assigned bond estimated order single':
+  quote: "The bond order itself is the number of electron pairs (covalent bonds) between\
+    \ two atoms. For example, in diatomic nitrogen N\u2261N, the bond order between\
+    \ the two nitrogen atoms is 3 (triple bond). In acetylene H\u2013C\u2261C\u2013\
+    H, the bond order between the two carbon atoms is also 3, and the C\u2013H bond\
+    \ order is 1 (single bond). In carbon monoxide, \u2212C\u2261O+, the bond order\
+    \ between carbon and oxygen is 3. In thiazyl trifluoride N\u2261SF3, the bond\
+    \ order between sulfur and nitrogen is 3, and between sulfur and fluorine is 1.\
+    \ In diatomic oxygen O=O the bond order is 2 (double bond). In ethylene H2C=CH2\
+    \ the bond order between the two carbon atoms is also 2. The bond order between\
+    \ carbon and oxygen in carbon dioxide O=C=O is also 2. In phosgene O=CCl2, the\
+    \ bond order between carbon and oxygen is 2, and between carbon and chlorine is\
+    \ 1."
+  source_id: Bond order
+  url: https://en.wikipedia.org/wiki/Bond_order
+  value: '1'
+'|benzene consistent energy kcal literature localized mol positive reference relative resonance value yield':
+  quote: "Based on the enthalpy of hydrogenation, the overall resonance energy has\
+    \ been estimated to be 37 kcal/mol. This is about the same as that of benzene;\
+    \ however, this energy is spread out over 18 atoms instead of 6, so [18]annulene\
+    \ experiences a weaker stabilization than benzene. In terms of reactivity, it\
+    \ is somewhat more air- and light-stable than [14]annulene and [10]annulene, which\
+    \ are, respectively, weakly aromatic and nonaromatic due to transannular interactions.\
+    \ Nevertheless, it rapidly undergoes electrophilic additions, much like other\
+    \ polyenes, and attempts to effect Friedel\u2013Crafts type reactions on [18]annulene\
+    \ failed."
+  source_id: Cyclooctadecanonaene
+  url: https://en.wikipedia.org/wiki/Cyclooctadecanonaene
+  value: '37'

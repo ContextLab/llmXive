@@ -42,9 +42,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`, `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `contracts`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
-- [X] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
-- [X] T006b [P] **Create Configuration File**: Create `code/config.yaml` with keys `nominal_confidence_level` (default 0.95), `simulation_parameters` (replicate counts, tau2 levels). **This defines the schema.**
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`- [X] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
+- [X] T006b [P] **Create Configuration File**: Create `code/config.yaml` with keys `nominal_confidence_level` (default 0.95 (1710.08708, https://arxiv.org/abs/1710.08708)), `simulation_parameters` (replicate counts, tau2 levels). **This defines the schema.**
 - [X] T006b-verify [P] **Verify Configuration Documentation**: Verify `research.md` explicitly documents the `nominal_confidence_level` value (0.95) AND verify that `code/config.yaml` contains the exact same value. **Execute**: Python script to load `code/config.yaml` and `research.md` (via grep) and assert equality. **Fail if grep returns non-zero or values mismatch.** **Update `research.md` or `code/config.yaml` if mismatch.** **[FR-004, SC-001]**
 - [X] T006b-sync-verify [P] **Verify Config Sync**: Verify that `code/config.yaml` value for `nominal_confidence_level` exactly matches the value documented in `research.md`. **Execute**: Python script to load `code/config.yaml` and `research.md` (via grep) and assert equality. **Fail if mismatch.** **[Constitution IV]**
 - [X] T006c [P] **Implement Config Loader**: Implement `code/config_loader.py` to parse `code/config.yaml`. **Must catch `FileNotFoundError` from data fetch and trigger fallback logic.**
@@ -78,7 +77,7 @@
 
 ## Phase 3: User Story 1 - Simulation Engine Execution (Priority: P1) 🎯 MVP
 
-**Goal**: Generate synthetic meta-analysis datasets with controlled $\tau^2$ levels based on Cochrane data structures.
+**Goal**: {{claim:c_e45c8daf}} (tau, https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals)
 
 **Independent Test**: Run `code/simulation/generator.py` with $\tau^2 \in \{0, 0.1\}$ and multiple replicates; verify output JSON contains injected $\tau^2$ and generated effect sizes; process exits 0 within 10 mins.
 
@@ -141,7 +140,7 @@
 - [ ] T034a [US3] **Sensitivity Sweep CLI**: Add CLI arguments to `code/main.py` to support a secondary sensitivity sweep with levels $\{0.05, 0.1, 0.5\}$ and other standard significance thresholds. **Rationale**: These levels target the low-to-moderate transition zone (SC-004) to detect non-linearities near the homogeneity threshold, distinct from the primary sweep.
 - [ ] T034d [US3] **Execute Sensitivity Sweep**: Run `code/simulation/generator.py` with low, medium, and high levels and a sufficient number of replicates for each. **Output: `data/results/sensitivity_sweep.csv`.** **DEPENDS ON: T034a, T010.** **[SC-004]**
 - [ ] T034c [US3] **Sensitivity Sweep Verification**: Unit test `test_stats.py` or `test_pipeline.py` verifying that the sensitivity sweep generates multiple levels x 500 replicates and outputs `sensitivity_sweep.csv` with valid data conforming to `aggregated_metric.schema.yaml`. **Verify output artifact `data/results/sensitivity_sweep.csv` exists and has a sufficient record count to support statistical analysis and correct structure.** **DEPENDS ON: T034d.**
-- [ ] T034e [US3] **Stability Analysis**: Implement logic to merge `data/results/simulation_raw.json` and `data/results/sensitivity_sweep.csv` and compare coverage rates across overlapping $\tau^2$ levels. **Calculate the absolute difference in coverage rates between the primary and sensitivity sweeps for each overlapping level.** **Output**: `data/results/stability_analysis.json` reporting the difference in coverage rates. **Verify**: Output exists and contains stability metrics. **The task is considered successful if the maximum absolute difference in coverage rates across overlapping levels is < 0.01.** **DEPENDS ON: T014b, T034d.** **[SC-004]**
+- [ ] T034e [US3] **Stability Analysis**: Implement logic to merge `data/results/simulation_raw.json` and `data/results/sensitivity_sweep.csv` and compare coverage rates across overlapping $\tau^2$ levels. **Calculate the absolute difference in coverage rates between the primary and sensitivity sweeps for each overlapping level.** **Output**: `data/results/stability_analysis.json` reporting the difference in coverage rates. **Verify**: Output exists and contains stability metrics. **{{claim:c_692f6433}}** **DEPENDS ON: T014b, T034d.** **[SC-004]**
 - [ ] T034f [US3] **Verify Stability Threshold**: Verify that the stability metric (max difference in coverage rates) from T034e is < 0.01. **Execute**: Python script to load `stability_analysis.json` and assert `max_diff < 0.01`. **Output**: `data/results/stability_status.json` with pass/fail status. **Fail if threshold exceeded.** **[SC-004]**
 
 ### Tests for User Story 3
