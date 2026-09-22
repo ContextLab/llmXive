@@ -1,9 +1,11 @@
 """
-Data Ingestion Module for mTBI Study.
+Data Ingestion Module for Brain Network Reconfiguration Project.
 
-Downloads longitudinal resting-state fMRI data from OpenNeuro,
-performs minimal validation, and generates a manifest CSV.
+This module handles the download of OpenNeuro datasets, parsing of subject
+information, and generation of a manifest CSV file listing all available
+data points.
 """
+
 import os
 import sys
 import json
@@ -12,269 +14,329 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-import pandas as pd
-from huggingface_hub import hf_hub_download, list_repo_files
+# Import project-specific utilities
+from config import get_config, is_synthetic, is_methodology_validation_mode
+from logging_config import get_logger, initialize_logging
+from memory_monitor import get_current_ram_gb, is_limit_exceeded, check_and_warn
+from entities import Subject
 
-# Import shared project utilities
-from config import (
-    get_config,
-    is_synthetic,
-    is_methodology_validation_mode,
-    get_memory_limit_gb,
-    set_synthetic_mode,
-    initialize_methodology_validation_mode
-)
-from logging_config import get_logger, initialize_logging, check_memory_and_warn
-from synthetic_data import run_generator
-from memory_monitor import get_current_ram_gb, is_limit_exceeded
+# Initialize logging for this module
+logger = get_logger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-LOG_FILE = PROJECT_ROOT / "data" / "logs" / "ingestion.log"
+# Configuration constants
+MEMORY_LIMIT_GB = 6.0
+DEFAULT_DATASET_ID = "ds000006"  # Example mTBI dataset
+OUTPUT_MANIFEST_PATH = "data/results/manifest.csv"
 
-# Default dataset for mTBI (ds000006 is a generic example, using a known mTBI dataset if available)
-# ds000228 is a common open dataset for mTBI (mild TBI)
-DEFAULT_DATASET_ID = "ds000228"
-DEFAULT_DATASET_VERSION = "1.0.0"
+def check_memory_and_log(operation_name: str) -> bool:
+    """
+    Check current RAM usage and log a warning if approaching the limit.
 
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-(PROJECT_ROOT / "data" / "logs").mkdir(parents=True, exist_ok=True)
+    Args:
+        operation_name: Name of the operation being performed (for logging)
 
-logger = get_logger("data_ingestion")
-
-def check_memory_and_log():
-    """Check RAM usage and log warning if approaching limit."""
+    Returns:
+        True if memory is within limits, False otherwise.
+    """
     current_ram = get_current_ram_gb()
-    limit = get_memory_limit_gb()
     if is_limit_exceeded():
-        logger.error(f"Memory limit exceeded: {current_ram:.2f}GB > {limit}GB")
-        raise MemoryError(f"RAM usage {current_ram:.2f}GB exceeds limit of {limit}GB")
-    if current_ram > limit * 0.9:
-        logger.warning(f"Memory warning: {current_ram:.2f}GB approaching limit of {limit}GB")
-    logger.debug(f"Current RAM usage: {current_ram:.2f}GB / {limit}GB")
+        logger.error(f"Memory limit exceeded during {operation_name}: {current_ram:.2f} GB")
+        return False
+    
+    check_and_warn(MEMORY_LIMIT_GB)
+    logger.debug(f"Memory OK during {operation_name}: {current_ram:.2f} GB / {MEMORY_LIMIT_GB} GB limit")
+    return True
 
-def get_dataset_metadata(dataset_id: str) -> Optional[Dict[str, Any]]:
+def get_dataset_metadata(dataset_id: str) -> Dict[str, Any]:
     """
-    Fetch dataset metadata from OpenNeuro/HuggingFace.
-    Returns None if dataset is not found.
-    """
-    try:
-        files = list_repo_files(repo_id=f"OpenNeuroDS/{dataset_id}", repo_type="dataset")
-        if not files:
-            logger.warning(f"Dataset {dataset_id} not found or empty.")
-            return None
-        
-        # Look for dataset_description.json to get version/name
-        desc_file = next((f for f in files if f == "dataset_description.json"), None)
-        metadata = {
-            "id": dataset_id,
-            "found": True,
-            "files": files,
-            "has_description": desc_file is not None
-        }
-        if desc_file:
-            # Download temp to parse JSON
-            local_path = hf_hub_download(
-                repo_id=f"OpenNeuroDS/{dataset_id}",
-                filename="dataset_description.json",
-                repo_type="dataset"
-            )
-            with open(local_path, 'r') as f:
-                desc_data = json.load(f)
-            metadata["name"] = desc_data.get("Name", dataset_id)
-            metadata["version"] = desc_data.get("Version", "unknown")
-        return metadata
-    except Exception as e:
-        logger.error(f"Failed to fetch metadata for {dataset_id}: {e}")
-        return None
+    Fetch metadata for a specific OpenNeuro dataset.
+    
+    In a real implementation, this would query the OpenNeuro API or GraphQL endpoint.
+    For this implementation, we simulate the metadata structure based on the dataset ID
+    or attempt a lightweight fetch if the huggingface_hub is available.
 
-def download_dataset_files(dataset_id: str, output_dir: Path, version: str = "1.0.0") -> List[str]:
+    Args:
+        dataset_id: OpenNeuro dataset identifier (e.g., 'ds000006')
+
+    Returns:
+        Dictionary containing dataset metadata (name, subjects, modalities).
     """
-    Download specific necessary files for the dataset.
-    For this ingestion task, we download the dataset_description.json and a list of subject files.
-    We do NOT download the full NIfTI files to save time/bandwidth in this step,
-    instead we record the paths that WOULD be downloaded or are available.
-    """
-    downloaded_files = []
+    logger.info(f"Fetching metadata for dataset: {dataset_id}")
+    
+    # Attempt to use huggingface_hub to get dataset info if available
     try:
-        # We will simulate the download of the structure by listing available files
-        # In a real full pipeline, we would call hf_hub_download for each file.
-        # Here we just ensure the directory structure exists and record the manifest.
+        from huggingface_hub import HfApi
+        api = HfApi()
+        # OpenNeuro datasets are mirrored on HuggingFace Hub under 'openneuro'
+        repo_id = f"openneuro/{dataset_id}"
+        try:
+            info = api.dataset_info(repo_id)
+            logger.info(f"Retrieved metadata from HuggingFace Hub for {dataset_id}")
+            return {
+                "id": dataset_id,
+                "name": info.id,
+                "description": info.description or "No description available",
+                "subjects": [], # Subjects parsed later from file structure
+                "modalities": ["fMRI"] if "fmri" in str(info.id).lower() else ["unknown"]
+            }
+        except Exception as hub_err:
+            logger.warning(f"Could not fetch detailed info from HuggingFace for {dataset_id}: {hub_err}")
+            # Fallback to generic structure
+            pass
+    except ImportError:
+        logger.warning("huggingface_hub not installed, using generic metadata structure")
+    
+    # Fallback generic metadata
+    return {
+        "id": dataset_id,
+        "name": f"OpenNeuro {dataset_id}",
+        "description": f"Mild Traumatic Brain Injury dataset {dataset_id}",
+        "subjects": [],
+        "modalities": ["fMRI", "T1w"]
+    }
+
+def download_dataset_files(dataset_id: str, output_dir: Path) -> List[Path]:
+    """
+    Download dataset files from OpenNeuro using huggingface_hub.
+    
+    This function downloads the dataset in a streaming/chunked manner to respect
+    memory constraints. It does not load the full data into memory, only the
+    file paths.
+
+    Args:
+        dataset_id: OpenNeuro dataset identifier
+        output_dir: Directory to download files to
+
+    Returns:
+        List of paths to downloaded files (or expected paths if streaming).
+    """
+    logger.info(f"Starting download of {dataset_id} to {output_dir}")
+    
+    if not check_memory_and_log("dataset download start"):
+        raise MemoryError("Memory limit exceeded before download start.")
+
+    try:
+        from huggingface_hub import snapshot_download
         
-        # For the purpose of generating a manifest, we need to identify subjects.
-        # We scan the repo files for sub-*/
-        repo_files = list_repo_files(repo_id=f"OpenNeuroDS/{dataset_id}", repo_type="dataset")
+        # Ensure output directory exists
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        subjects = set()
-        for f in repo_files:
-            if f.startswith("sub-") and ("/" in f):
-                sub_id = f.split("/")[0]
-                subjects.add(sub_id)
+        # Use snapshot_download to get the dataset structure
+        # We only download the directory structure and small files (JSONs, TSVs)
+        # to avoid downloading massive NIfTI files immediately, as the task
+        # focuses on generating a manifest of *available* data.
+        # If full download is required, we would iterate and download file by file.
+        # For manifest generation, we need the file paths.
         
-        logger.info(f"Found {len(subjects)} subjects in dataset {dataset_id}")
+        # Attempt to download only the metadata and subject lists first
+        # by filtering or using streaming if the dataset is huge.
+        # Given the constraint, we will try to download the dataset structure.
+        # Note: For very large datasets, this might still be heavy.
+        # We rely on huggingface_hub's caching and partial download capabilities.
         
-        # Create a dummy local structure to represent the "downloaded" state for the manifest
-        # In a real scenario, we might download a small subset or just the JSONs.
-        # To strictly follow "download real data", we will download the dataset_description.json
-        # and perhaps one small file to prove connectivity, but the manifest is the primary output.
-        
-        desc_path = hf_hub_download(
-            repo_id=f"OpenNeuroDS/{dataset_id}",
-            filename="dataset_description.json",
-            repo_type="dataset"
+        local_path = snapshot_download(
+            repo_id=f"openneuro/{dataset_id}",
+            repo_type="dataset",
+            local_dir=str(output_dir),
+            allow_patterns=["participants.tsv", "dataset_description.json", "*/participants.tsv", "*/sub-*/ses-*/*.nii.gz", "*/sub-*/ses-*/*.tsv", "*/sub-*/ses-*/*.json"]
         )
-        downloaded_files.append(desc_path)
         
-        # Check memory
-        check_memory_and_log()
+        logger.info(f"Dataset structure downloaded to {local_path}")
+        return list(Path(local_path).rglob("*"))
         
+    except ImportError:
+        logger.error("huggingface_hub is required for downloading OpenNeuro data. Please install it.")
+        # Fallback: If we cannot download, we might need to simulate the structure
+        # for the manifest if in validation mode, but the task requires REAL data.
+        # We raise an error to fail loudly.
+        raise RuntimeError("Cannot download OpenNeuro data without huggingface_hub.")
     except Exception as e:
-        logger.error(f"Error downloading dataset {dataset_id}: {e}")
-        raise e
+        logger.error(f"Failed to download dataset {dataset_id}: {e}")
+        raise
 
-    return downloaded_files
+def parse_subject_info(file_paths: List[Path], base_dir: Path) -> List[Subject]:
+    """
+    Parse file paths to extract subject and time point information.
+    
+    Args:
+        file_paths: List of all file paths in the dataset
+        base_dir: Base directory of the dataset
 
-def parse_subject_info(dataset_id: str, output_dir: Path) -> List[Dict[str, Any]]:
+    Returns:
+        List of Subject entities with parsed metadata.
     """
-    Parse dataset files to extract subject IDs, time points, and file paths.
-    Returns a list of dicts for the manifest.
-    """
-    manifest_data = []
-    try:
-        repo_files = list_repo_files(repo_id=f"OpenNeuroDS/{dataset_id}", repo_type="dataset")
+    subjects_dict: Dict[str, Dict[str, Any]] = {}
+    
+    for file_path in file_paths:
+        if not file_path.is_file():
+            continue
         
-        # Group by subject
-        subjects = {}
-        for f in repo_files:
-            if f.startswith("sub-") and "func" in f and "nii" in f:
-                parts = f.split("/")
-                if len(parts) >= 2:
-                    sub_id = parts[0]
-                    if sub_id not in subjects:
-                        subjects[sub_id] = []
-                    subjects[sub_id].append(f)
-        
-        for sub_id, files in subjects.items():
-            # Determine time points (e.g., ses-acute, ses-chronic)
-            # For simplicity in this ingestion step, we assume one session per subject if not specified
-            # or extract session from filename if present.
+        # Look for fMRI or T1w files
+        if "sub-" in str(file_path):
+            # Parse subject ID and session
+            # Expected format: sub-<label>/ses-<label>/...
+            path_str = str(file_path)
             
-            # Check for standard mTBI timepoints in filenames
-            time_points = set()
-            for f in files:
-                if "ses-" in f:
-                    ses = f.split("/")[1].split("-")[1].split("/")[0] # crude extraction
-                    time_points.add(ses)
+            # Extract subject
+            sub_match = None
+            ses_match = None
+            
+            parts = path_str.split(os.sep)
+            for part in parts:
+                if part.startswith("sub-"):
+                    sub_match = part
+                if part.startswith("ses-"):
+                    ses_match = part
+            
+            if sub_match:
+                subject_id = sub_match.replace("sub-", "")
+                if subject_id not in subjects_dict:
+                    subjects_dict[subject_id] = {
+                        "id": subject_id,
+                        "sessions": {},
+                        "files": []
+                    }
+                
+                if ses_match:
+                    session_id = ses_match.replace("ses-", "")
+                    if session_id not in subjects_dict[subject_id]["sessions"]:
+                        # Determine time point (acute/chronic) based on session name or default
+                        # This is a heuristic; real logic would parse the session name
+                        time_point = "unknown"
+                        if "acute" in session_id.lower():
+                            time_point = "acute"
+                        elif "chronic" in session_id.lower():
+                            time_point = "chronic"
+                        
+                        subjects_dict[subject_id]["sessions"][session_id] = {
+                            "id": session_id,
+                            "time_point": time_point,
+                            "files": []
+                        }
+                    
+                    subjects_dict[subject_id]["sessions"][session_id]["files"].append(str(file_path))
                 else:
-                    time_points.add("baseline") # default
-            
-            # If no specific sessions found, treat as single timepoint
-            if not time_points:
-                time_points = {"baseline"}
-            
-            # Create manifest entries
-            for tp in time_points:
-                # Find files matching this timepoint
-                tp_files = [f for f in files if (f"ses-{tp}" in f) or (tp == "baseline" and "ses-" not in f)]
-                if not tp_files and tp != "baseline":
-                    continue # Skip if no files for this timepoint
+                    # No session found, treat as single time point
+                    if "default" not in subjects_dict[subject_id]["sessions"]:
+                        subjects_dict[subject_id]["sessions"]["default"] = {
+                            "id": "default",
+                            "time_point": "single",
+                            "files": []
+                        }
+                    subjects_dict[subject_id]["sessions"]["default"]["files"].append(str(file_path))
                 
-                # Use the first file found as representative path
-                file_path = tp_files[0] if tp_files else files[0]
-                
-                manifest_data.append({
-                    "subject_id": sub_id,
-                    "time_point": tp,
-                    "file_path": file_path,
-                    "dataset_id": dataset_id
-                })
-        
-        logger.info(f"Parsed {len(manifest_data)} entries from dataset {dataset_id}")
-    except Exception as e:
-        logger.error(f"Failed to parse subject info: {e}")
-        raise e
-    
-    return manifest_data
+                subjects_dict[subject_id]["files"].append(str(file_path))
 
-def generate_manifest(dataset_id: str, output_path: Path) -> None:
+    # Convert to Subject entities
+    subjects = []
+    for sub_id, data in subjects_dict.items():
+        # Check for required time points (acute/chronic) as per task T013 logic
+        # Here we just collect what exists
+        sessions = list(data["sessions"].values())
+        subjects.append(Subject(
+            id=sub_id,
+            sessions=sessions,
+            raw_files=data["files"]
+        ))
+    
+    logger.info(f"Parsed {len(subjects)} subjects from {len(file_paths)} files.")
+    return subjects
+
+def generate_manifest(subjects: List[Subject], output_path: Path) -> None:
     """
-    Main orchestration function to download metadata, parse structure,
-    and generate the manifest CSV.
+    Generate a CSV manifest file from the list of subjects.
+    
+    The manifest contains: subject_id, session_id, time_point, file_path.
+    
+    Args:
+        subjects: List of parsed Subject entities
+        output_path: Path to write the CSV file
     """
-    logger.info(f"Starting ingestion for dataset: {dataset_id}")
+    import csv
     
-    # 1. Check memory
-    check_memory_and_log()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # 2. Verify dataset availability
-    meta = get_dataset_metadata(dataset_id)
-    if not meta or not meta.get("found"):
-        if is_synthetic():
-            logger.warning(f"Dataset {dataset_id} not found. Switching to synthetic mode.")
-            set_synthetic_mode(True)
-            # Generate synthetic manifest
-            run_generator(output_dir=PROJECT_ROOT / "data" / "processed")
-            # Create a dummy manifest for synthetic mode
-            synthetic_manifest = [
-                {"subject_id": f"sub-synthetic-{i}", "time_point": "baseline", "file_path": f"synthetic/sub-synthetic-{i}.nii.gz", "dataset_id": "synthetic"}
-                for i in range(1, 21)
-            ]
-            df = pd.DataFrame(synthetic_manifest)
-            df.to_csv(output_path, index=False)
-            logger.info(f"Generated synthetic manifest at {output_path}")
-            return
-        else:
-            raise FileNotFoundError(f"Dataset {dataset_id} not found and not in synthetic mode.")
+    logger.info(f"Generating manifest at {output_path}")
     
-    # 3. Download minimal metadata
-    download_dataset_files(dataset_id, DATA_RAW_DIR)
+    with open(output_path, mode='w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['subject_id', 'session_id', 'time_point', 'file_path'])
+        
+        for subject in subjects:
+            for session in subject.sessions:
+                for file_path in session.files:
+                    writer.writerow([
+                        subject.id,
+                        session.id,
+                        session.time_point,
+                        file_path
+                    ])
     
-    # 4. Parse structure to build manifest
-    entries = parse_subject_info(dataset_id, DATA_RAW_DIR)
-    
-    if not entries:
-        logger.warning("No subject entries found. Manifest will be empty.")
-    
-    # 5. Write manifest
-    df = pd.DataFrame(entries)
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Manifest generated successfully at {output_path}")
-    logger.info(f"Total subjects/timepoints: {len(df)}")
-    
-    # Final memory check
-    check_memory_and_log()
+    logger.info(f"Manifest generated with {sum(len(s.sessions) for s in subjects)} session entries.")
 
 def main():
-    """Entry point for data ingestion script."""
-    initialize_logging(log_file=LOG_FILE)
-    logger.info("Data Ingestion Script Started")
+    """
+    Main entry point for data ingestion.
+    
+    Executes the pipeline:
+    1. Check memory
+    2. Get dataset metadata
+    3. Download dataset files
+    4. Parse subject info
+    5. Generate manifest
+    """
+    # Initialize logging if not already done
+    initialize_logging()
+    
+    logger.info("Starting Data Ingestion Pipeline (T011)")
+    
+    # Get dataset ID from config or default
+    config = get_config()
+    dataset_id = config.get("dataset_id", DEFAULT_DATASET_ID)
+    
+    # Determine output directory
+    # Assuming data/raw is for downloaded data, data/results for manifest
+    base_dir = Path.cwd()
+    download_dir = base_dir / "data" / "raw" / dataset_id
+    manifest_path = base_dir / "data" / "results" / "manifest.csv"
     
     try:
-        # Check if we should use a specific dataset ID from config or env
-        # Default to ds000228 if not specified
-        dataset_id = os.environ.get("OPENNEURO_DATASET_ID", DEFAULT_DATASET_ID)
+        # Step 1: Check Memory
+        if not check_memory_and_log("initialization"):
+            logger.error("Aborting: Memory limit exceeded.")
+            return 1
         
-        # Check if in methodology validation mode
-        if is_methodology_validation_mode():
-            logger.info("Methodology Validation Mode active. Using synthetic data if real unavailable.")
+        # Step 2: Get Metadata
+        metadata = get_dataset_metadata(dataset_id)
+        logger.info(f"Dataset Metadata: {metadata['name']}")
         
-        output_path = DATA_RESULTS_DIR / "manifest.csv"
+        # Step 3: Download Files
+        # Note: This might take a while and consume disk space.
+        # We assume the environment has enough disk space.
+        logger.info(f"Downloading dataset {dataset_id}...")
+        file_paths = download_dataset_files(dataset_id, download_dir)
         
-        generate_manifest(dataset_id, output_path)
+        # Step 4: Parse Subject Info
+        subjects = parse_subject_info(file_paths, download_dir)
         
-        logger.info("Data Ingestion Completed Successfully")
+        # Step 5: Generate Manifest
+        generate_manifest(subjects, manifest_path)
+        
+        logger.info("Data Ingestion Pipeline completed successfully.")
+        logger.info(f"Manifest saved to: {manifest_path}")
+        
+        # Final memory check
+        if not check_memory_and_log("completion"):
+            logger.warning("Memory usage high at completion.")
+        
+        return 0
         
     except MemoryError as e:
-        logger.critical(f"Memory Error: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline failed due to memory constraints: {e}")
+        return 1
     except Exception as e:
-        logger.critical(f"Ingestion Failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Pipeline failed with unexpected error: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

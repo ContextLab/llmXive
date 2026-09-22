@@ -65,9 +65,9 @@
 
 - [X] T005b [P] [Depends on T007] Configure logging hooks in `code/logging_config.py` to read memory state from T007 and emit "Time Limit Warning" logs when RAM usage approaches 6GB.
 
-- [ ] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
+- [X] T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`
 
-- [ ] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
+- [X] T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology Validation Mode" with seeded random states.
 
 - [X] T008b [P] [Depends on T004] Implement "Methodology Validation Mode" switch logic in `code/config.py` to set global `is_synthetic` flag based on data availability check. This task establishes the global project state for the mode.
 
@@ -87,11 +87,11 @@
 
 - [X] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
 
-- [~] T013 [US1] Add logic to skip subjects with missing time points (acute/chronic) and log exclusion reasons (Edge Case)
+- [ ] T013 [US1] Add logic to skip subjects with missing time points (acute/chronic) and log exclusion reasons (Edge Case)
 
-- [~] T014 [US1] Add logic to handle AAL atlas failure (skip subject, log error) without crashing (Edge Case)
+- [ ] T014 [US1] Add logic to handle AAL atlas failure (skip subject, log error) without crashing (Edge Case)
 
-- [~] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
+- [ ] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -115,7 +115,7 @@
 
 - [X] T019 [P] [US2] Implement `code/graph_metrics.py` to compute Global Efficiency, Local Efficiency, and Modularity (Q) from connectivity matrices using `networkx` (FR-002)
 
-- [~] T020 [US2] Implement proportional sparsity thresholding on connectivity matrices before metric calculation. (FR-008)
+- [ ] T020 [US2] Implement proportional sparsity thresholding on connectivity matrices before metric calculation. (FR-008)
 
 - [X] T021 [US2] Implement `code/statistical_model.py` to fit Linear Mixed-Effects Model: `CognitiveScore ~ Efficiency + Modularity + Time + (1|Subject)` (FR-003)
 
@@ -123,7 +123,7 @@
 
 - [ ] T022b [US2] [Depends on T022a] If PCA fails (catch `numpy.linalg.LinAlgError` for singular matrix/rank deficiency OR if cumulative variance < 60%), generate `data/results/descriptive_vif_report.json`. This report MUST contain the correlation matrix of predictors and variance decomposition to describe the joint relationship (FR-006).
 
-- [~] T023 [US2] Handle non-convergence: log warning, skip subject, continue processing batch (Edge Case)
+- [ ] T023 [US2] Handle non-convergence: log warning, skip subject, continue processing batch (Edge Case)
 
 - [~] T024a [US2] Search for real independent functional metric (e.g., Return-to-Work) by querying OpenNeuro metadata API for clinical/behavioral derivatives and checking for columns like 'ReturnToWork', 'RTW', or 'EmploymentStatus' in the manifest.
 
@@ -173,13 +173,13 @@
 
 - [~] T032 [P] Documentation updates in `docs/` and `README.md`
 
-- [ ] T033 Code cleanup and refactoring for memory efficiency
+- [~] T033 Code cleanup and refactoring for memory efficiency
 
-- [ ] T034 Performance optimization for batch processing (ensure ≤5h runtime)
+- [~] T034 Performance optimization for batch processing (ensure ≤5h runtime)
 
-- [ ] T035 [P] Additional unit tests for edge cases in `tests/unit/`
+- [~] T035 [P] Additional unit tests for edge cases in `tests/unit/`
 
-- [ ] T036 Run `quickstart.md` validation to ensure pipeline executes end-to-end
+- [~] T036 Run `quickstart.md` validation to ensure pipeline executes end-to-end <!-- FAILED: unspecified -->
 
 ---
 

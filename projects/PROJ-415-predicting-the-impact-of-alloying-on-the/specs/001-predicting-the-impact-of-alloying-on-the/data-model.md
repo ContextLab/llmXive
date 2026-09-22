@@ -1,47 +1,53 @@
 # Data Model: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
-## Entity Definitions
+## Entities
 
 ### DiffusionRecord
-Represents a single experimental or simulation data point for diffusion in an alloy.
-- `id`: Unique identifier (UUID or row index).
-- `host_element`: String (e.g., "Ni", "Cu").
-- `solute_element`: String (e.g., "Cr", "Mn").
-- `crystal_structure`: String (Enum: "FCC", "BCC", "HCP").
-- `diffusion_mode`: String (Enum: "self", "solute", "impurity").
-- `activation_energy_eV`: Float (Target variable).
-- `solute_concentration_at_pct`: Float.
-- `solute_radius_pm`: Float (Source: Metallic Radii, Pauling/Wiberg).
-- `host_radius_pm`: Float (Source: Metallic Radii, Pauling/Wiberg).
-- `source_url`: String (Original dataset reference).
+Represents a single data point of diffusion in an alloy.
+*   `host_element` (str): Symbol of the host metal (e.g., "Ni", "Cu").
+*   `solute_element` (str): Symbol of the solute (e.g., "Co", "Zn").
+*   `concentration_at_pct` (float): Solute concentration in atomic percent.
+*   `activation_energy_eV` (float): Measured activation energy in eV/atom.
+*   `crystal_structure` (str): Must be "FCC".
+*   `diffusion_mode` (str): Must be "self".
+*   `source_id` (str): Identifier for the data source (e.g., "Zenodo-001").
+*   `q_host_eV` (float): Activation energy of the pure host metal (0 at.%), retrieved from the dataset or `data/reference/pure_metals_q.csv`.
+*   `delta_q_eV` (float): Calculated shift: `activation_energy_eV - q_host_eV`.
 
 ### AtomicDescriptor
-Computed features derived from `DiffusionRecord`.
-- `size_mismatch`: Float = `(solute_radius - host_radius) / host_radius`.
-- `electronegativity_diff`: Float (Pauling scale).
-- `valence_electron_diff`: Integer.
-- `host_element_one_hot`: List of booleans (One-hot encoding for Host Metal fixed effects).
+Computed features for a solute-host pair.
+*   `host_radius` (float): Atomic radius of host (pm).
+*   `solute_radius` (float): Atomic radius of solute (pm).
+*   `size_mismatch` (float): Calculated as `(solute_radius - host_radius) / host_radius`.
+*   `electronegativity_diff` (float): Difference in Pauling electronegativity.
+*   `valence_electron_diff` (int): Difference in valence electrons.
 
 ### ModelArtifact
-Output of the training process.
-- `model_type`: String ("RandomForest", "GradientBoosting", "LinearRegression").
-- `hyperparameters`: Dict (e.g., `{"max_depth": 5, "n_estimators": 100}`).
-- `performance_metrics`: Dict (e.g., `{"R2": 0.85, "RMSE": 0.12}`).
-- `coefficients`: Dict (Only for Linear Regression, e.g., `{"size_mismatch": 0.45}`).
-- `p_values`: Dict (Only for Linear Regression).
-- `bootstrap_ci`: Dict (95% CI for coefficients).
-- `power_analysis`: Dict (Minimum Detectable Effect, achieved power).
-- `sensitivity_analysis`: Dict (Threshold sweep results).
+Output of the training phase.
+*   `model_type` (str): "RandomForest", "GradientBoosting", "LinearRegression", "MeanPredictor".
+*   `hyperparameters` (dict): JSON dict of tuned parameters.
+*   `metrics` (dict): R², RMSE, MAE.
+*   `coefficients` (dict): For Linear Regression, includes `size_mismatch`, `p_value`, `ci_lower`, `ci_upper`.
 
 ## Data Flow
-1.  **Raw Input** (`data/raw/*.csv` or API) -> **Acquisition** (`data/acquisition.py`) -> **Curated** (`data/curated/fcc_self_diffusion.csv`).
-2.  **Curated** + **Constants** -> **Features** (`data/curated/features.csv`).
-3.  **Features** -> **Model Training** -> **Artifacts** (`models/*.pkl`, `models/*.json`).
-4.  **Artifacts** + **Test Set** -> **Validation** -> **Reports** (`reports/validation_report.json`).
 
-## Constraints & Rules
-- **No Missing Values**: `solute_concentration` and radii must be present. Rows with missing values are excluded and logged.
-- **Unit Consistency**: All energies in eV; all radii in pm (Metallic).
-- **FCC Only**: Only records with `crystal_structure == "FCC"` and `diffusion_mode == "self"` are retained for the primary model.
-- **Ground Truth**: Target variable $\Delta E_a$ is calculated as $E_{alloy\_measured} - E_{pure\_host\_measured}$, using **experimentally measured** values from the dataset.
-- **Descriptor Consistency**: All descriptors must use **Metallic Radii** (Pauling/Wiberg) for FCC coordination.
+1.  **Raw Input**: `data/raw/diffusion_raw.csv` (from Zenodo/OpenKIM open subset).
+2.  **Filtering**: `data/curated/filtered.csv` (FCC + Self only).
+3.  **Baseline Retrieval**: `data/reference/pure_metals_q.csv` (used if dataset lacks 0 at.% rows).
+4.  **Enrichment**: `data/curated/enriched.csv` (with AtomicDescriptors and `delta_q_eV`).
+5.  **Training**: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
+6.  **Validation**: `results/metrics.json`, `results/sensitivity_analysis.csv`.
+
+## Storage Format
+
+*   **CSV**: UTF-8, comma-delimited, no index.
+*   **JSON**: Compact, no pretty-printing for artifacts (except logs).
+*   **Pickle**: Protocol 4 (compatible with Python 3.11).
+
+## Constraints
+
+*   `crystal_structure` must be exactly "FCC".
+*   `diffusion_mode` must be exactly "self".
+*   `activation_energy_eV` must be > 0.
+*   `size_mismatch` cannot be NaN.
+*   `q_host_eV` must be present for every record to calculate `delta_q_eV`. If not in dataset, must be retrieved from `pure_metals_q.csv`.

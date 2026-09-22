@@ -1,16 +1,17 @@
 status: none
-intent: NIST SRD 168 diffusion metals dataset python package download Materials Project
-  diffusion API python package dataset
+intent: NIST SRD 168 diffusion data python package Materials Project diffusion API
+  python package dataset
 required_fields:
 - material_id
-- composition
-- crystal_structure
+- structure
 - diffusion_mode
 - activation_energy_eV_per_atom
 - solute_concentration_at_percent
-- diffusion_coefficient
+- host_element
+- solute_element
 - temperature_K
-- source_database
-cache_key: 5a69ad5f9c018f7e41212ec5fce1009582c46dab76b9922201cc6d442c7ab03b
-searched_at: '2026-09-09T06:26:27.077135+00:00'
+- diffusion_coefficient
+- source
+cache_key: 372ac9788d76ad63d34f8acd6df09cfb3ca70be07dbe9d114978a7f2ff44d2c5
+searched_at: '2026-09-22T12:44:46.710104+00:00'
 retry_count: 1

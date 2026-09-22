@@ -1,4 +1,3 @@
 """
-llmXive research pipeline: utils package.
-Contains shared utilities for schema validation, HRV metrics, and error handling.
+Utility modules for the project.
 """

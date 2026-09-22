@@ -1,1 +1,3 @@
-# Analysis results, reports, and figures go here.
+"""
+Results directory for reports, logs, and figures.
+"""

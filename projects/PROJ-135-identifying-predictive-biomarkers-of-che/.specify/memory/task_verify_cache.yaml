@@ -87,3 +87,12 @@ T052:
     \ elastic\u2011net training implementation were provided; the only evidence is\
     \ the high\u2011level feature description, which does not contain the required\
     \ artifact. The task therefore remains unfulfilled."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a high\u2011level feature specification and user stories\
+    \ for data acquisition, cross\u2011cancer biomarker identification, and model\
+    \ training\u2014none of which include any GPU\u2011accelerated calibration code\
+    \ or a DeLong test implementation, nor any associated scripts, notebooks, or test\
+    \ results. Consequently, the required artifact (GPU\u2011accelerated calibration\
+    \ and DeLong test) is missing."

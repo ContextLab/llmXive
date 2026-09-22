@@ -1,1 +1,3 @@
-# Contract definitions (schemas) for data validation.
+"""
+Contracts directory for schemas and validation definitions.
+"""

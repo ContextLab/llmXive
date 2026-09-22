@@ -9,6 +9,7 @@ properties:
       - "RandomForest"
       - "GradientBoosting"
       - "LinearRegression"
+      - "MeanPredictor"
   hyperparameters:
     type: "object"
     description: "Hyperparameters used for training."
@@ -27,7 +28,7 @@ properties:
       - MAE
   coefficients:
     type: "object"
-    description: "Coefficients for Linear Regression (null for RF/GB)."
+    description: "Coefficients for Linear Regression (null for RF/GB/MeanPredictor)."
     additionalProperties:
       type: "number"
   p_values:
@@ -44,6 +45,22 @@ properties:
         type: "number"
       minItems: 2
       maxItems: 2
+  baseline_comparison:
+    type: "object"
+    description: "Comparison against the Mean Predictor baseline (SC-001)."
+    properties:
+      mean_predictor_r2:
+        type: "number"
+        description: "R2 of the Mean Predictor (mean of training set target)."
+      model_r2:
+        type: "number"
+      improvement:
+        type: "number"
+        description: "R2_model - R2_mean_predictor."
+    required:
+      - mean_predictor_r2
+      - model_r2
+      - improvement
   sensitivity_analysis:
     type: "object"
     description: "Results of the threshold sweep (0.45 to 0.55 eV)."
@@ -59,10 +76,14 @@ properties:
       stability_std_dev:
         type: "number"
         description: "Standard deviation of the classification rate across the threshold sweep. Measures absolute variation in stability."
+      error_source:
+        type: "string"
+        description: "Source of error estimate used: 'experimental_error_bars' or 'model_rmse'."
     required:
       - threshold_range
       - classification_rates
       - stability_std_dev
+      - error_source
   power_analysis:
     type: "object"
     description: "Statistical power analysis results."
@@ -75,10 +96,14 @@ properties:
       minimum_detectable_effect:
         type: "number"
         description: "Minimum effect size detectable with [deferred] power."
+      exploratory_flag:
+        type: "boolean"
+        description: "True if N < 50, indicating the study is exploratory."
     required:
       - sample_size
       - achieved_power
       - minimum_detectable_effect
+      - exploratory_flag
 required:
   - model_type
   - hyperparameters

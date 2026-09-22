@@ -1,67 +1,72 @@
 # Quickstart: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
 ## Prerequisites
-- Python 3.11+
-- Git
-- (Optional) Conda or venv for environment management
-- **API Access**: Ensure you have an API key for Materials Project (if used) or network access to NIST mirrors.
 
-## Installation
+*   Python 3.11+
+*   `git`
+*   Access to GitHub Actions (for CI execution)
 
-1.  **Clone the repository** (or navigate to the project directory).
+## Setup
+
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-415-predicting-the-impact-of-alloying-on-the
+    ```
+
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
 3.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
 
-## Data Preparation
-*Note: This project requires **real** data from NIST or Materials Project. Synthetic data is not supported.*
-
-1.  **Fetch Data**: Run the acquisition script to download the verified dataset.
-    ```bash
-    python code/data/acquisition.py
-    ```
-    This will fetch data from the verified NIST/Materials Project source and save it to `data/raw/`. If the fetch fails, the script will exit with an error.
-2.  **Verify**: Ensure `data/raw/diffusion_data.csv` exists and is checksummed.
-
 ## Running the Pipeline
 
-Execute the full pipeline (Acquisition -> Ingestion -> Feature Engineering -> Training -> Validation):
-
+### 1. Data Ingestion & Curation
+Downloads real data from the verified source (or halts if unavailable) and filters for FCC/Self.
 ```bash
-python code/main.py
+python code/data/ingestion.py
+python code/data/curation.py
 ```
+*Output*: `data/curated/filtered.csv`, `data/curated/data_provenance.json`
 
-This will:
-1.  Acquire data from verified sources.
-2.  Ingest and filter data (FCC, Self-diffusion).
-3.  Compute `size_mismatch` using Metallic Radii.
-4.  Train RF, GB, and Linear models (with Host Metal fixed effects).
-5.  Perform threshold sensitivity analysis and Power Analysis.
-6.  Save results to `models/` and `reports/`.
+### 2. Feature Engineering
+Computes atomic descriptors.
+```bash
+python code/features/descriptors.py
+```
+*Output*: `data/curated/enriched.csv`
 
-## Running Tests
+### 3. Model Training
+Trains RF, GB, and Linear models with Grid Search.
+```bash
+python code/models/train.py
+```
+*Output*: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`
 
-Run the unit and integration tests:
+### 4. Validation & Sensitivity
+Evaluates performance and runs threshold sensitivity analysis.
+```bash
+python code/validation/baseline.py
+python code/models/evaluate.py
+python code/validation/sensitivity.py
+```
+*Output*: `results/metrics.json`, `results/sensitivity_plot.png`
 
+## Testing
+
+Run the test suite to verify data filtering and feature calculations:
 ```bash
 pytest tests/ -v
 ```
 
-To check contract validation:
+## Expected Results
 
-```bash
-pytest tests/contract/test_schema.py -v
-```
-
-## Expected Outputs
-- `models/final_rf.pkl`: Trained Random Forest model.
-- `models/final_gb.pkl`: Trained Gradient Boosting model.
-- `models/linear_coef.json`: Linear regression coefficients and p-values.
-- `reports/validation_report.json`: Full statistical validation report (including Power Analysis).
-- `data/curated/features.csv`: Final dataset with engineered features.
+*   **Linear Model**: Should show a statistically significant negative or positive coefficient for `size_mismatch` (p < 0.05), depending on the real data trend. If N < 50, results are labeled "Exploratory".
+*   **Sensitivity**: The classification rate for "significant shift" should vary smoothly as the threshold moves from 0.45 to 0.55 eV.
+*   **Resource Usage**: Total runtime < 15 minutes on a 2-core CPU.

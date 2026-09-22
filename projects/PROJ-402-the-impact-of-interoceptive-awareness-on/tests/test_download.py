@@ -1,106 +1,158 @@
 import os
 import sys
 import tempfile
-import pytest
+import time
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import hashlib
+from unittest.mock import patch, MagicMock, mock_open
+import pytest
+import requests
+from requests.exceptions import Timeout, RequestException
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from code import download_file_with_checksum, calculate_sha256, get_wesad_download_url
+from code import download_data
+from code.download_data import (
+    get_wesad_download_url, 
+    calculate_sha256, 
+    download_file_with_checksum, 
+    write_checksums, 
+    main
+)
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+class TestGetWesadDownloadUrl:
+    @patch('code.download_data.requests.get')
+    def test_successful_url_extraction(self, mock_get):
+        # Mock response data
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            'files': [
+                {'type': 'dataset', 'filename': 'wesad.zip', 'links': {'self': 'https://zenodo.org/api/records/123/files/wesad.zip'}}
+            ]
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        url = get_wesad_download_url()
+        assert url == 'https://zenodo.org/api/records/123/files/wesad.zip'
+    
+    @patch('code.download_data.requests.get')
+    def test_no_files_in_response(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'files': []}
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        with pytest.raises(ValueError, match="No files found in Zenodo record."):
+            get_wesad_download_url()
+    
+    @patch('code.download_data.requests.get')
+    def test_api_request_fails(self, mock_get):
+        mock_get.side_effect = RequestException("Network error")
+        
+        with pytest.raises(RequestException):
+            get_wesad_download_url()
 
-def test_calculate_sha256(temp_dir):
-    """Test SHA-256 checksum calculation."""
-    test_file = temp_dir / "test.txt"
-    test_content = b"Hello, World!"
-    test_file.write_bytes(test_content)
+class TestCalculateSha256:
+    def test_calculate_checksum_valid_file(self):
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"test data")
+            tmp_path = tmp.name
+        
+        try:
+            checksum = calculate_sha256(tmp_path)
+            assert len(checksum) == 64  # SHA-256 hex length
+            # Known checksum for "test data"
+            expected = "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
+            assert checksum == expected
+        finally:
+            os.unlink(tmp_path)
     
-    expected_hash = hashlib.sha256(test_content).hexdigest()
-    actual_hash = calculate_sha256(test_file)
-    
-    assert actual_hash == expected_hash
-    assert len(actual_hash) == 64  # SHA-256 produces 64 hex characters
+    def test_calculate_checksum_nonexistent_file(self):
+        with pytest.raises(IOError):
+            calculate_sha256("nonexistent_file.txt")
 
-@patch('code.01_download_data.requests.get')
-def test_get_wesad_download_url(mock_get, temp_dir):
-    """Test fetching download URL from Zenodo API."""
-    # Mock response
-    mock_response = MagicMock()
-    mock_response.json.return_value = {
-        'files': [
-            {'key': 'wesad.zip', 'links': {'self': 'https://zenodo.org/api/records/123/files/wesad.zip'}}
-        ]
-    }
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
+class TestDownloadFileWithChecksum:
+    @patch('code.download_data.requests.get')
+    def test_successful_download(self, mock_get):
+        # Mock a streaming response
+        mock_response = MagicMock()
+        mock_response.__enter__ = MagicMock(return_value=mock_response)
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_response.iter_content.return_value = [b"chunk1", b"chunk2"]
+        mock_response.headers = {'content-length': '16'}
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test.zip")
+            checksum = download_file_with_checksum("http://example.com/test.zip", output_path)
+            
+            assert os.path.exists(output_path)
+            assert len(checksum) == 64
     
-    url = get_wesad_download_url()
-    assert url == 'https://zenodo.org/api/records/123/files/wesad.zip'
-    mock_get.assert_called_once()
+    @patch('code.download_data.requests.get')
+    def test_download_timeout(self, mock_get):
+        mock_get.side_effect = Timeout("Download timed out")
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test.zip")
+            # Create a partial file to test deletion
+            with open(output_path, 'wb') as f:
+                f.write(b"partial")
+            
+            with pytest.raises(Timeout):
+                download_file_with_checksum("http://example.com/test.zip", output_path)
+            
+            assert not os.path.exists(output_path)
+    
+    @patch('code.download_data.requests.get')
+    def test_download_request_exception(self, mock_get):
+        mock_get.side_effect = RequestException("Network error")
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test.zip")
+            with open(output_path, 'wb') as f:
+                f.write(b"partial")
+            
+            with pytest.raises(RequestException):
+                download_file_with_checksum("http://example.com/test.zip", output_path)
+            
+            assert not os.path.exists(output_path)
 
-@patch('code.01_download_data.requests.get')
-def test_download_file_with_checksum_success(mock_get, temp_dir):
-    """Test successful file download."""
-    # Mock response
-    mock_response = MagicMock()
-    mock_response.headers = {'content-length': '100'}
-    mock_response.iter_content.return_value = [b'x' * 50, b'y' * 50]
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
-    
-    output_file = temp_dir / "test.zip"
-    checksum = download_file_with_checksum("https://example.com/file.zip", output_file, timeout=30)
-    
-    assert output_file.exists()
-    assert checksum is not None
-    assert len(checksum) == 64
+class TestWriteChecksums:
+    def test_write_checksums(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checksum_file = os.path.join(tmpdir, "checksums.txt")
+            write_checksums("abc123", "test.zip", checksum_file)
+            
+            with open(checksum_file, 'r') as f:
+                content = f.read()
+            
+            assert "abc123" in content
+            assert "test.zip" in content
 
-@patch('code.01_download_data.requests.get')
-def test_download_file_with_checksum_timeout(mock_get, temp_dir):
-    """Test download timeout handling."""
-    import requests
+class TestMain:
+    @patch('code.download_data.get_wesad_download_url')
+    @patch('code.download_data.download_file_with_checksum')
+    @patch('code.download_data.write_checksums')
+    def test_main_success(self, mock_write, mock_download, mock_get_url):
+        mock_get_url.return_value = "http://example.com/wesad.zip"
+        mock_download.return_value = "checksum123"
+        
+        exit_code = main()
+        assert exit_code == 0
     
-    # Mock timeout
-    mock_get.side_effect = requests.exceptions.Timeout("Download timed out")
+    @patch('code.download_data.get_wesad_download_url')
+    def test_main_timeout(self, mock_get_url):
+        mock_get_url.side_effect = Timeout("Timeout")
+        
+        exit_code = main()
+        assert exit_code == 1
     
-    output_file = temp_dir / "test.zip"
-    temp_file = Path(str(output_file) + ".tmp")
-    
-    # Create a temporary file to simulate partial download
-    temp_file.touch()
-    
-    with pytest.raises(TimeoutError):
-        download_file_with_checksum("https://example.com/file.zip", output_file, timeout=1)
-    
-    # Verify temp file was deleted
-    assert not temp_file.exists()
-    assert not output_file.exists()
-
-@patch('code.01_download_data.requests.get')
-def test_download_file_with_checksum_network_error(mock_get, temp_dir):
-    """Test network error handling."""
-    import requests
-    
-    # Mock network error
-    mock_get.side_effect = requests.exceptions.ConnectionError("Network error")
-    
-    output_file = temp_dir / "test.zip"
-    temp_file = Path(str(output_file) + ".tmp")
-    
-    # Create a temporary file to simulate partial download
-    temp_file.touch()
-    
-    with pytest.raises(requests.exceptions.ConnectionError):
-        download_file_with_checksum("https://example.com/file.zip", output_file, timeout=1)
-    
-    # Verify temp file was deleted
-    assert not temp_file.exists()
-    assert not output_file.exists()
+    @patch('code.download_data.get_wesad_download_url')
+    def test_main_request_error(self, mock_get_url):
+        mock_get_url.side_effect = RequestException("Error")
+        
+        exit_code = main()
+        assert exit_code == 1

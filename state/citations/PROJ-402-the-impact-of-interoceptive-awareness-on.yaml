@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-08-04T18:40:16.650707Z'
-- artifact_hash: 07e781401ef0e8099da12b419ce14f852eed7e8e69ffe7ed36732516c2b843ee
+- artifact_hash: e057d52006df194dcf4718ac20cd0dfe01280afe16f449276a956d68596131a2
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://en.wikipedia.org/wiki/Pipeline_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pipeline
-  verified_at: '2026-08-07T13:17:49.425256Z'
-- artifact_hash: 07e781401ef0e8099da12b419ce14f852eed7e8e69ffe7ed36732516c2b843ee
+  verified_at: '2026-09-22T12:37:40.679460Z'
+- artifact_hash: e057d52006df194dcf4718ac20cd0dfe01280afe16f449276a956d68596131a2
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.5281/zenodo.1292932
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-08-07T13:17:49.425256Z'
+  verified_at: '2026-09-22T12:37:40.679460Z'

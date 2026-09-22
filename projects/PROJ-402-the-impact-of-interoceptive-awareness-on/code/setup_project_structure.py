@@ -1,69 +1,72 @@
 """
-Script to initialize the project directory structure.
-Creates required folders: code/, tests/, data/, results/, contracts/, state/.
+Setup script to initialize the project directory structure.
+This script creates the necessary directories and placeholder files
+as defined in T001.
 """
 import os
 from pathlib import Path
 
 def create_directories():
     """Create the core project directories."""
-    root = Path(".")
+    base_dir = Path(__file__).parent.parent
     dirs = [
-        "code",
-        "code/utils",
-        "code/derived",
-        "tests",
-        "data",
-        "data/raw",
-        "data/derived",
-        "results",
-        "contracts",
-        "state",
-        "state/projects",
-        "figures"
+        base_dir / "code",
+        base_dir / "tests",
+        base_dir / "data",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "derived",
+        base_dir / "results",
+        base_dir / "results" / "reports",
+        base_dir / "results" / "figures",
+        base_dir / "results" / "logs",
+        base_dir / "contracts",
+        base_dir / "code" / "utils",
+        base_dir / "specs",
+        base_dir / "state" / "projects",
     ]
-    
     for d in dirs:
-        path = root / d
-        if not path.exists():
-            path.mkdir(parents=True)
-            print(f"Created directory: {path}")
-        else:
-            print(f"Directory exists: {path}")
+        d.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {d}")
 
 def create_init_files():
-    """Create __init__.py files to make directories packages."""
-    root = Path(".")
-    packages = ["code", "tests", "data", "data/raw", "data/derived", "results", "contracts", "state", "state/projects"]
-    
-    for pkg in packages:
-        init_file = root / pkg / "__init__.py"
-        if not init_file.exists():
-          # Check if it's a sub-package that needs an init or just a folder
-          # We only create for logical packages listed above
-          with open(init_file, "w") as f:
-              f.write(f"# Package: {pkg}\n")
-          print(f"Created init file: {init_file}")
+    """Create __init__.py files to make directories Python packages."""
+    base_dir = Path(__file__).parent.parent
+    init_paths = [
+        base_dir / "code" / "__init__.py",
+        base_dir / "tests" / "__init__.py",
+        base_dir / "data" / "__init__.py",
+        base_dir / "results" / "__init__.py",
+        base_dir / "contracts" / "__init__.py",
+        base_dir / "code" / "utils" / "__init__.py",
+    ]
+    for p in init_paths:
+        if not p.exists():
+          p.write_text('"""Package initialization."""\n')
+          print(f"Created __init__.py: {p}")
+        else:
+          print(f"__init__.py already exists: {p}")
 
 def create_gitkeep_files():
-    """Create .gitkeep files to ensure empty directories are tracked."""
-    root = Path(".")
-    keep_dirs = [
-        "data/raw",
-        "data/derived",
-        "results",
-        "figures",
-        "state/projects"
+    """Create .gitkeep files to ensure directories are tracked by git."""
+    base_dir = Path(__file__).parent.parent
+    keep_paths = [
+        base_dir / "data" / "raw" / ".gitkeep",
+        base_dir / "data" / "derived" / ".gitkeep",
+        base_dir / "results" / "reports" / ".gitkeep",
+        base_dir / "results" / "figures" / ".gitkeep",
+        base_dir / "results" / "logs" / ".gitkeep",
     ]
-    
-    for d in keep_dirs:
-        path = root / d / ".gitkeep"
-        if not path.exists():
-            with open(path, "w") as f:
-                f.write("# Keep directory\n")
-            print(f"Created .gitkeep: {path}")
+    for p in keep_paths:
+        if not p.exists():
+          # Ensure parent dir exists
+          p.parent.mkdir(parents=True, exist_ok=True)
+          p.write_text("# This directory is tracked by git.\n")
+          print(f"Created .gitkeep: {p}")
+        else:
+          print(f".gitkeep already exists: {p}")
 
 def main():
+    """Execute the setup routine."""
     print("Initializing project structure...")
     create_directories()
     create_init_files()

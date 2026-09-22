@@ -1,0 +1,42 @@
+T011:
+  c: false
+  h: 1b4c7ad2dbd7a3976c1b63de0746d4965f186612afb8d2d36eb3526b30823f3f
+  r: "The `data_ingestion.py` file is present but appears truncated and lacks concrete\
+    \ download and manifest\u2011generation logic, and the required output file `data/results/manifest.csv`\
+    \ does not exist. Both the functional implementation and the expected CSV artifact\
+    \ are missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log files were provided showing the added logic to detect
+    missing acute/chronic time points, skip those subjects, and record the exclusion
+    reasons. Without concrete artifacts (e.g., updated ingestion/analysis script,
+    unit tests, or example logs), the claim cannot be verified.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no code, tests, or documentation showing that logic\
+    \ was added to detect an AAL atlas failure, skip the affected subject, and log\
+    \ an error without crashing. No artifact addressing this edge\u2011case is present\
+    \ in the provided materials."
+T016:
+  c: false
+  h: acbbac4551606f74ecf398db6827e77de1fbe5f2df88390dae95b2b8027e6b3b
+  r: The required output file `data/results/bootstrapped_ci.json` is absent, and the
+    provided `code/bootstrapping.py` snippet does not show the actual contingency
+    logic (checking `n < 20` and invoking bootstrapping). Both the generated result
+    and clear implementation of the switch are missing.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script, function, or notebook) implementing proportional sparsity
+    thresholding on connectivity matrices was provided, nor any documentation or test
+    output showing the thresholding being applied before metric calculation. The claim
+    lacks any concrete evidence of the required functionality.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or test output was provided that demonstrates the\
+    \ system detecting a non\u2011convergent model fit, logging a warning, skipping\
+    \ the offending subject, and continuing with the rest of the batch. Without such\
+    \ artifact the requirement cannot be verified."

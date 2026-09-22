@@ -1,86 +1,57 @@
 # Research: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
 ## Problem Statement
-Diffusion in metals is a critical process in materials science, governing phenomena like creep, sintering, and phase transformations. In FCC alloys, the presence of solute atoms alters the activation energy ($E_a$) required for diffusion. This project investigates whether atomic size mismatch (a geometric descriptor) is a statistically significant predictor of this shift, using **observational data from verified public repositories**.
+
+Diffusion in alloys is a critical process in materials science, governing phenomena like creep, precipitation, and phase transformations. The activation energy ($Q$) for diffusion is often altered by the presence of solute atoms. This project aims to predict the shift in activation energy ($\Delta Q$) for FCC metals as a function of solute properties, specifically testing the hypothesis that atomic size mismatch is a primary driver, using **real experimental data**.
 
 ## Dataset Strategy
 
-### Verified Data Sources
-The project relies on **verified** public repositories for diffusion data. Synthetic or mock data is **NOT** used for hypothesis validation.
-1.  **NIST Standard Reference Database 168 (Diffusion in Metals)**: Contains experimental diffusion coefficients and activation energies for various alloys.
-    *   *Access Strategy*: The pipeline will attempt to fetch data via the `diffusion` Python package (if available) or scrape the verified CSV mirror provided in the project's `data/raw/` directory (checksummed).
-    *   *Verification*: The dataset is verified to contain `crystal_structure`, `diffusion_mode`, `activation_energy`, and elemental identifiers.
-2.  **Materials Project (API)**: Provides calculated and experimental diffusion barriers.
-    *   *Access Strategy*: Use the `pymatgen` library to query for FCC self-diffusion events.
-    *   *Verification*: Confirmed to contain `solute_radius` and `host_radius` via periodic table integration in `pymatgen`.
-3.  **Literature Compilations**: If NIST/Materials Project data is insufficient, the pipeline will attempt to ingest specific, verified datasets from literature (e.g., "Diffusion in FCC Alloys" compilations from *Acta Materialia* or *Journal of Alloys and Compounds*).
+### Data Availability Analysis
 
-**Critical Decision**: The plan **NO LONGER** relies on synthetic or mock data. If the verified NIST/Materials Project data cannot be fetched or lacks sufficient rows (N < 50), the pipeline will halt and flag a "Data Insufficiency" error, rather than proceeding with invalid synthetic data. This ensures the hypothesis is tested against real physical observations.
+The spec requires data from "Materials Project" and "NIST" regarding FCC self-diffusion.
+**Constraint**: The provided "Verified datasets" block contains URLs for NIST 800-53 (security), FCC (regulations/comments), BCC (text), HCP (text), and CUDA (code). **None** of these verified URLs contain materials science diffusion data.
 
-### Data Schema Requirements
-To satisfy **FR-001** and **FR-002**, the input data must contain:
-- `crystal_structure`: String (must include "FCC")
-- `diffusion_mode`: String (must include "self")
-- `activation_energy_eV`: Float (Target variable)
-- `solute_element`: String
-- `host_element`: String
-- `solute_concentration`: Float (at.%)
-- `solute_radius_pm`: Float (Metallic radius)
-- `host_radius_pm`: Float (Metallic radius)
+**Resolution**:
+1.  **Real Data Hunt**: The plan **must** attempt to download a real, open-access FCC diffusion dataset from verified sources (e.g., Zenodo, OpenKIM open subset, UCI).
+2.  **No Synthetic Data**: **No synthetic data will be generated** to simulate results. If no real data is found, the project halts with a "Data Unavailable" report. This avoids the circular validation of training on a generator and testing on the same generator.
+3.  **Fallback**: If no open real data is found, the project is re-scoped to "Methodology Validation" using a **curated CSV from a verified open repository** (e.g., a specific Zenodo record containing real diffusion data). If even this is unavailable, the project is paused.
 
-### Data Handling Strategy
-1.  **Ingestion**: Load CSV/JSONL from verified sources. Filter rows where `crystal_structure == "FCC"` and `diffusion_mode == "self"`.
-2.  **Cleaning**: Exclude rows with missing `solute_concentration` (log as `MISSING_CONCENTRATION`).
-3.  **Descriptor Lookup**: If atomic radii are missing, merge with the `utils/constants.py` file which contains **Metallic Radii (Pauling/Wiberg)** specifically for FCC coordination. If still missing, exclude and log to `errors/missing_atomic_data.csv`.
+### Data Sources (Real Experimental Data)
 
-## Feature Engineering & Model Selection
+| Dataset Component | Source/Method | Justification |
+| :--- | :--- | :--- |
+| **Atomic Properties** | `periodictable` library (v1.7+) | Standard, versioned source for radii/electronegativity. |
+| **Diffusion Data** | Zenodo / OpenKIM Open Subset (Real Data Hunt) | Provides real experimental activation energies, crystal structures, and concentrations. |
+| **Baseline Reference** | `data/reference/pure_metals_q.csv` (Curated) | Standard reference for $Q_{host}$ if dataset lacks 0 at.% rows. |
+| **Validation** | `pytest` against physical constraints | Ensures data respects thermodynamic bounds (e.g., $Q > 0$). |
 
-### Features
-- **Primary Feature**: `size_mismatch` = $(r_{solute} - r_{host}) / r_{host}$, using **Metallic Radii**.
-  *   *Descriptor Consistency*: Atomic radii vary with coordination. We explicitly use **Metallic Radii** for FCC metals. A sensitivity check will be performed: if the model performance varies significantly when using Covalent Radii, the "size_mismatch" hypothesis is flagged as sensitive to descriptor choice.
-- **Secondary Features** (if data permits): Electronegativity difference (Pauling scale), valence electron count.
-- **Target**: $\Delta E_a = E_{alloy\_measured} - E_{pure\_host\_measured}$.
-  *   *Ground Truth Definition*: Both $E_{alloy}$ and $E_{pure\_host}$ are **experimentally measured** values from the dataset. This ensures the target is an independent ground truth, avoiding circular validation.
+**Decision/Rationale**:
+*   **CPU-First**: The data ingestion and subsequent models (RF, GB, Linear) are purely CPU-tractable. No GPU is required.
+*   **Data Integrity**: The real data is downloaded with a fixed seed for any stochastic sampling (if needed) to ensure reproducibility (Constitution Principle I). The "ground truth" is the **experimental measurement**, not a generator.
+*   **Risk Mitigation**: If the open dataset is too small (< 50 points), the study will be framed as an **exploratory pilot** with explicit power limitations, rather than a definitive study. This is scientifically honest and avoids the "meaningless power" fallacy of synthetic data.
 
-### Model Justification
-1.  **Random Forest (RF)**: Selected for robustness to non-linearities and outliers. It handles the small dataset size well and provides feature importance.
-2.  **Gradient Boosting (GB)**: Selected for potential higher accuracy on structured tabular data.
-3.  **Linear Regression**: Selected **solely for statistical inference** (FR-005).
-    *   *Confounding Control*: To address the observational nature of the data, the Linear Regression model will include **Host Metal** as a categorical fixed effect (One-Hot Encoding). This controls for the intrinsic properties of the host metal, isolating the effect of `size_mismatch`. The p-value will reflect the significance of size mismatch *conditional* on the host metal.
+## Statistical Rigor
 
-### Hyperparameter Tuning
-- **Method**: Grid Search with 5-fold Cross-Validation.
-- **Ranges**: `max_depth` [3, 10], `n_estimators` [50, 200].
-- **Metric**: R² (maximized).
-- **Constraint**: Must run on CPU within 15 minutes (US-2).
+### Methodology
+1.  **Multiple Comparisons**: The project runs three models (RF, GB, Linear). Since the goal is prediction vs. inference, no family-wise error correction is strictly required for the *prediction* models. However, for the Linear Regression inference (FR-005), the p-value is reported for the specific hypothesis ($\beta_{size} \neq 0$).
+2.  **Power Justification**: The power analysis will be performed on the **observed effect size** in the real dataset. If the dataset is small (N < 50), the plan will explicitly state that the study is "exploratory" and the power is limited, rather than fabricating a high-power claim. The study will not claim to "predict real-world phenomena" definitively if N is too small.
+3.  **Causal Inference**: The spec explicitly states (Assumption) that the data is observational. Claims will be framed as **associational**. The Linear Regression coefficient indicates the *association* between size mismatch and activation energy shift, not a causal effect.
+4.  **Measurement Validity**: Atomic radii from `periodictable` are standard proxies. The "size mismatch" descriptor is a well-established heuristic in materials science (Hume-Rothery rules).
+5.  **Collinearity**: Size mismatch and electronegativity difference are often correlated. The plan will check Variance Inflation Factors (VIF). If VIF > 5, the Linear model will be interpreted with caution regarding independent effects, or a regularization technique (Ridge) will be used for inference stability.
 
-## Statistical Validation Strategy
+## Compute Feasibility
 
-### Statistical Power & Sample Size
-- **Power Analysis**: With an estimated sample size of N=50-200, the study is likely underpowered to detect small effect sizes (e.g., $R^2 < 0.1$).
-- **Mitigation**: The pipeline will calculate the **Minimum Detectable Effect (MDE)** for the `size_mismatch` coefficient given the sample size and variance.
-- **Reporting**: The final report will explicitly state the achieved power and MDE. If power < 0.8, results will be framed as "exploratory" and "inconclusive" rather than definitive, preventing Type II error misinterpretation.
+*   **CPU-First**: All models (Random Forest, Gradient Boosting, Linear Regression) are available in `scikit-learn` and run efficiently on CPU.
+*   **Memory**: With N < 500, memory usage will be < 100 MB.
+*   **Time**: Grid search (5-fold CV) on < 500 points will take < 5 minutes.
+*   **GPU Escape Hatch**: Not required. No transformer or diffusion models are used.
 
-### Significance Testing (FR-005, SC-002)
-- **Hypothesis**: The `size_mismatch` coefficient in the Linear Regression model (with Host Metal fixed effects) is non-zero.
-- **Method**: Standard OLS t-test for p-value.
-- **Robustness**: 95% Confidence Interval calculated via **Bootstrap Resampling** (1000 iterations) to account for small sample size and non-normality of residuals.
-- **Correction**: If multiple predictors were tested, Bonferroni correction would be applied. Here, we focus on the primary hypothesis of size mismatch.
+## Data Availability & Handling
 
-### Sensitivity Analysis (FR-005, SC-003)
-- **Threshold Sweep**: Evaluate classification of "significant shift" ($\Delta E_a > T$) for $T \in \{0.45, 0.46, \dots, 0.55\}$.
-- **Metric**: **Standard Deviation of the Classification Rate** across the threshold sweep.
-  *   *Correction*: The previous definition involving "relative to RMSE" was dimensionally inconsistent. The new metric measures the absolute variation in classification stability (probability) across the sweep, independent of the RMSE.
-- **Goal**: Confirm that the conclusion (e.g., "alloying slows diffusion") does not flip arbitrarily with small threshold changes.
+*   **Streaming**: Not required for this dataset size (< 10 MB).
+*   **Gated Data**: No gated data is planned. If the spec required ADNI or full Materials Project, this project would fail feasibility. The plan uses **open subsets** or **Zenodo** records.
+*   **Data Hygiene**: The real data download writes a checksum to `data/curated/data_provenance.json`. No data is modified in place.
 
-## Computational Feasibility
-- **Hardware**: GitHub Actions Free Tier (limited CPU, 7 GB RAM).
-- **Dataset Size**: Verified datasets (NIST/Materials Project) are typically < 10 MB for this scope.
-- **Model Complexity**: RF/GB with `n_estimators=200` on < 200 rows is trivial for CPU. No GPU required.
-- **Runtime**: Estimated < 30 minutes for full pipeline (ingestion, tuning, training, validation).
+## Threshold Sensitivity Analysis
 
-## Limitations & Assumptions
-- **Data Availability**: The plan assumes the verified NIST/Materials Project data is accessible. If not, the pipeline halts.
-- **Causality**: Data is observational. Results will be framed as **associational**, not causal. The inclusion of Host Metal fixed effects mitigates confounding but does not eliminate it.
-- **Linearity**: The Linear model is a proxy; the true physics may be non-linear, but RF/GB will capture that.
-- **Descriptor Choice**: The use of a single "Metallic Radius" is a simplification. The sensitivity check for descriptor choice addresses this limitation.
+The sensitivity analysis defines "significant diffusion slowing" relative to the **real experimental variance** (error bars) in the dataset. If error bars are unavailable in the dataset, the plan uses the **model's RMSE** as a conservative estimate, explicitly labeled as such in the report. The threshold sweep (0.45–0.55 eV) is designed to validate that conclusions are robust to small variations in the definition of "significant," acknowledging that no universal physical threshold exists.

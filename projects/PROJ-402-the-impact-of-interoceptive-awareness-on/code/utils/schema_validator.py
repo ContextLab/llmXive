@@ -1,31 +1,55 @@
+"""
+Schema Validator Module for BIDS events.tsv files.
+
+This module provides utilities to load a JSON/YAML schema and validate
+BIDS events.tsv files against it. It enforces strict validation rules
+and exits with specific error codes for different failure modes.
+"""
+
 import os
-import json
-import yaml
 import sys
+import json
+import csv
+import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Union
-import pandas as pd
-import jsonschema
-from jsonschema import ValidationError, SchemaError
+
+try:
+    import jsonschema
+    from jsonschema import validate, ValidationError, SchemaError
+except ImportError:
+    # Fallback if jsonschema is not installed, though it should be per requirements.txt
+    print("ERROR: jsonschema library is required. Install with: pip install jsonschema")
+    sys.exit(1)
+
+
+class SchemaValidationError(Exception):
+    """Custom exception for schema validation failures."""
+    pass
+
+
+class FileLoadError(Exception):
+    """Custom exception for file loading failures."""
+    pass
+
 
 def load_schema_from_file(schema_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Load a JSON/YAML schema from a file.
-    
+    Load a JSON or YAML schema from the given file path.
+
     Args:
-        schema_path: Path to the schema file (.yaml or .json)
-        
+        schema_path: Path to the schema file (.json, .yaml, .yml).
+
     Returns:
         The loaded schema as a dictionary.
-        
+
     Raises:
-        FileNotFoundError: If the schema file does not exist.
-        ValueError: If the file format is unsupported or parsing fails.
+        FileLoadError: If the file cannot be read or parsed.
     """
     schema_path = Path(schema_path)
     if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
+        raise FileLoadError(f"Schema file not found: {schema_path}")
+
     try:
         with open(schema_path, 'r', encoding='utf-8') as f:
             if schema_path.suffix in ['.yaml', '.yml']:
@@ -33,189 +57,173 @@ def load_schema_from_file(schema_path: Union[str, Path]) -> Dict[str, Any]:
             elif schema_path.suffix == '.json':
                 return json.load(f)
             else:
-                raise ValueError(f"Unsupported schema file format: {schema_path.suffix}")
+                raise FileLoadError(f"Unsupported schema file format: {schema_path.suffix}")
     except yaml.YAMLError as e:
-        raise ValueError(f"Failed to parse YAML schema: {e}")
+        raise FileLoadError(f"Failed to parse YAML schema: {e}")
     except json.JSONDecodeError as e:
-        raise ValueError(f"Failed to parse JSON schema: {e}")
+        raise FileLoadError(f"Failed to parse JSON schema: {e}")
+    except Exception as e:
+        raise FileLoadError(f"Unexpected error loading schema: {e}")
 
 
-def validate_data_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+def validate_data_against_schema(data: List[Dict[str, Any]], schema: Dict[str, Any]) -> bool:
     """
-    Validate a dictionary of data against a schema.
-    
+    Validate a list of row dictionaries against a JSON Schema.
+
+    Note: JSON Schema validates a single object. To validate a TSV (list of objects),
+    we validate each row individually or wrap them if the schema expects an array.
+    Given the typical BIDS events.tsv structure, we validate each row against the
+    properties defined in the schema.
+
     Args:
-        data: The data to validate.
-        schema: The JSON Schema to validate against.
-        
+        data: List of dictionaries representing rows in the TSV.
+        schema: The JSON Schema dictionary.
+
     Returns:
-        True if valid.
-        
+        True if all rows are valid.
+
     Raises:
-        ValidationError: If the data does not match the schema.
+        SchemaValidationError: If validation fails.
     """
-    jsonschema.validate(instance=data, schema=schema)
+    # Adjust schema to validate a single row (the schema usually defines properties of a record)
+    # We assume the provided schema defines the structure of a single event row.
+    row_schema = schema
+
+    for i, row in enumerate(data):
+        try:
+            validate(instance=row, schema=row_schema)
+        except ValidationError as e:
+            raise SchemaValidationError(f"Row {i} validation failed: {e.message}")
+        except SchemaError as e:
+            raise SchemaValidationError(f"Schema error during validation of row {i}: {e.message}")
+
     return True
 
 
-def validate_file_against_schema(file_path: Union[str, Path], schema_path: Union[str, Path]) -> bool:
+def validate_file_against_schema(file_path: Union[str, Path], schema_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Validate a BIDS events.tsv file against a schema.
-    
-    This function:
-    1. Loads the schema from schema_path.
-    2. Loads the TSV file as a dictionary of rows.
-    3. Validates the data structure and content against the schema.
-    
+    Load a TSV file and validate its contents against a schema.
+
     Args:
         file_path: Path to the events.tsv file.
         schema_path: Path to the schema file.
-        
+
     Returns:
-        True if the file is valid.
-        
+        A dictionary with 'valid': bool and 'errors': list of error messages.
+
     Raises:
-        FileNotFoundError: If the file or schema is missing.
-        ValueError: If the file format is invalid or validation fails.
+        FileLoadError: If files cannot be loaded.
     """
     file_path = Path(file_path)
     if not file_path.exists():
-        raise FileNotFoundError(f"Input file not found: {file_path}")
-    
-    # Load Schema
+        raise FileLoadError(f"Data file not found: {file_path}")
+
+    schema = load_schema_from_file(schema_path)
+
+    # Load TSV
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            rows = list(reader)
+    except Exception as e:
+        raise FileLoadError(f"Failed to read TSV file: {e}")
+
+    if not rows:
+        # Empty file is technically valid if schema allows empty, but usually implies missing data
+        # We'll consider it valid but warn in the result if needed.
+        return {'valid': True, 'errors': [], 'rows_validated': 0}
+
+    errors = []
+    try:
+        validate_data_against_schema(rows, schema)
+    except SchemaValidationError as e:
+        errors.append(str(e))
+    except Exception as e:
+        errors.append(f"Unexpected validation error: {e}")
+
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'rows_validated': len(rows)
+    }
+
+
+def validate_contract_input(data_path: Union[str, Path], schema_path: Union[str, Path]) -> int:
+    """
+    Validate a BIDS events.tsv file against a schema and exit with appropriate code.
+
+    Exit Codes:
+        0: Validation successful.
+        1: File not found (Data or Schema).
+        2: Schema parsing error.
+        3: Data parsing error (TSV read failure).
+        4: Validation failed (Schema mismatch).
+
+    Args:
+        data_path: Path to the events.tsv file.
+        schema_path: Path to the schema file.
+
+    Returns:
+        Exit code (0 for success, non-zero for failure).
+    """
+    data_path = Path(data_path)
+    schema_path = Path(schema_path)
+
+    # Check Schema existence first
+    if not schema_path.exists():
+        print(f"ERROR: Schema file not found: {schema_path}", file=sys.stderr)
+        return 2
+
+    # Check Data existence
+    if not data_path.exists():
+        print(f"ERROR: Data file not found: {data_path}", file=sys.stderr)
+        return 1
+
     try:
         schema = load_schema_from_file(schema_path)
-    except (FileNotFoundError, ValueError) as e:
-        raise ValueError(f"Schema loading failed: {e}")
-    
-    # Load TSV Data
+    except FileLoadError as e:
+        print(f"ERROR: Schema loading failed: {e}", file=sys.stderr)
+        return 2
+
     try:
-        df = pd.read_csv(file_path, sep='\t')
+        with open(data_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            rows = list(reader)
     except Exception as e:
-        raise ValueError(f"Failed to parse TSV file: {e}")
-    
-    # Validate required columns exist
-    required_cols = schema.get('required', [])
-    # Note: In BIDS, 'task' is required by schema, but 'onset' and 'duration' 
-    # are typically required by BIDS spec even if not in our custom schema's 'required' list.
-    # We rely on the schema's property definitions for type checking.
-    
-    # Check if required columns are present in the TSV
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path.name}: {missing_cols}")
-    
-    # Validate row by row against the schema properties
-    # Since JSON Schema validates objects, we iterate rows
-    errors = []
-    for idx, row in df.iterrows():
-        row_dict = row.to_dict()
-        try:
-            jsonschema.validate(instance=row_dict, schema=schema)
-        except ValidationError as ve:
-            errors.append(f"Row {idx}: {ve.message}")
-    
-    if errors:
-        error_msg = f"Validation failed for {file_path.name}:\n" + "\n".join(errors)
-        raise ValueError(error_msg)
-    
-    return True
+        print(f"ERROR: Data file parsing failed: {e}", file=sys.stderr)
+        return 3
 
-
-def validate_contract_input(
-    file_path: Union[str, Path], 
-    schema_path: Union[str, Path] = None,
-    exit_on_error: bool = True
-) -> int:
-    """
-    Validate a file against a schema and return an exit code.
-    
-    This function is designed to be used as a standalone entry point or
-    a contract enforcement mechanism.
-    
-    Exit Codes:
-        0: Success (File is valid)
-        1: File not found
-        2: Schema not found
-        3: Schema loading/parsing error
-        4: File parsing error (invalid TSV/JSON)
-        5: Validation failed (schema mismatch)
-        99: Unexpected error
-        
-    Args:
-        file_path: Path to the file to validate.
-        schema_path: Path to the schema file. If None, defaults to 
-                     'contracts/dataset.schema.yaml'.
-        exit_on_error: If True, prints error and exits with code. 
-                       If False, returns code without exiting.
-                       
-    Returns:
-        An integer exit code.
-    """
-    if schema_path is None:
-        # Default to the project's schema location relative to project root
-        # Assuming this script is run from project root or code/utils
-        schema_path = Path("contracts/dataset.schema.yaml")
-        if not schema_path.exists():
-            # Try relative to script location
-            schema_path = Path(__file__).parent.parent.parent / "contracts" / "dataset.schema.yaml"
-    
-    schema_path = Path(schema_path)
-    file_path = Path(file_path)
-    
-    try:
-        if not file_path.exists():
-            print(f"ERROR: Input file not found: {file_path}", file=sys.stderr)
-            return 1
-        
-        if not schema_path.exists():
-            print(f"ERROR: Schema file not found: {schema_path}", file=sys.stderr)
-            return 2
-        
-        try:
-            schema = load_schema_from_file(schema_path)
-        except ValueError as e:
-            print(f"ERROR: Schema parsing failed: {e}", file=sys.stderr)
-            return 3
-        
-        try:
-            validate_file_against_schema(file_path, schema_path)
-        except ValueError as e:
-            if "Failed to parse" in str(e):
-                print(f"ERROR: File parsing failed: {e}", file=sys.stderr)
-                return 4
-            else:
-                print(f"ERROR: Validation failed: {e}", file=sys.stderr)
-                return 5
-        
-        print(f"SUCCESS: {file_path.name} is valid against the schema.")
+    if not rows:
+        print(f"WARNING: Data file {data_path} is empty.", file=sys.stderr)
+        # Empty file is not necessarily a validation failure against the schema,
+        # but depends on strictness. For now, we treat it as valid but warn.
         return 0
-        
+
+    try:
+        validate_data_against_schema(rows, schema)
+        print(f"SUCCESS: {data_path} is valid against {schema_path}.")
+        return 0
+    except SchemaValidationError as e:
+        print(f"ERROR: Validation failed for {data_path}: {e}", file=sys.stderr)
+        return 4
     except Exception as e:
-        print(f"ERROR: Unexpected error: {e}", file=sys.stderr)
-        return 99
-    finally:
-        if exit_on_error:
-            # Note: In a real script, we would call sys.exit() here.
-            # However, to allow this function to be used in tests, 
-            # we return the code. If used as a script entry point, 
-            # the caller should exit.
-            pass
+        print(f"ERROR: Unexpected error during validation: {e}", file=sys.stderr)
+        return 5
 
 
 def main():
     """
-    CLI entry point for schema validation.
-    Usage: python -m utils.schema_validator <file_path> [schema_path]
+    Command-line entry point for schema validation.
+    Expects two arguments: <data_file> <schema_file>
     """
-    if len(sys.argv) < 2:
-        print("Usage: python -m utils.schema_validator <file_path> [schema_path]")
-        sys.exit(99)
-    
-    file_path = sys.argv[1]
-    schema_path = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    exit_code = validate_contract_input(file_path, schema_path, exit_on_error=False)
+    if len(sys.argv) != 3:
+        print("Usage: python -m utils.schema_validator <data_file.tsv> <schema_file.yaml/json>", file=sys.stderr)
+        sys.exit(64) # EX_USAGE
+
+    data_path = sys.argv[1]
+    schema_path = sys.argv[2]
+
+    exit_code = validate_contract_input(data_path, schema_path)
     sys.exit(exit_code)
 
 

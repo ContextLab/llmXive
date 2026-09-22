@@ -8,224 +8,202 @@ from pathlib import Path
 @dataclass
 class Subject:
     """
-    Represents a single study participant.
-    
-    Attributes:
-        subject_id: Unique identifier for the subject (e.g., 'sub-001').
-        group: Group assignment (e.g., 'control', 'mTBI').
-        age: Age in years.
-        sex: Biological sex (e.g., 'M', 'F').
-        time_points: List of time point identifiers (e.g., ['acute', 'chronic']).
-        cognitive_scores: Dictionary mapping time points to cognitive scores.
-        metadata: Additional arbitrary metadata.
+    Represents a single participant in the study.
+    Includes demographic info, group assignment (e.g., mTBI vs Control),
+    and links to their longitudinal data.
     """
     subject_id: str
-    group: str
+    group: str  # e.g., 'mTBI', 'Control'
     age: Optional[float] = None
     sex: Optional[str] = None
-    time_points: List[str] = field(default_factory=list)
+    education_years: Optional[float] = None
+    
+    # Longitudinal data storage
+    # Keys: time_point_label (e.g., 'acute', 'chronic')
+    # Values: ConnectivityMatrix or GraphMetrics instances
+    time_points: Dict[str, Any] = field(default_factory=dict)
+    
+    # Clinical scores (optional, for correlation analysis)
     cognitive_scores: Dict[str, float] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def add_time_point(self, tp: str) -> None:
-        """Add a time point if not already present."""
-        if tp not in self.time_points:
-            self.time_points.append(tp)
-
-    def add_cognitive_score(self, time_point: str, score: float) -> None:
-        """Associate a cognitive score with a specific time point."""
-        self.cognitive_scores[time_point] = score
-
+    
+    def add_time_point(self, label: str, data: Any) -> None:
+        """Add a data point (ConnectivityMatrix or GraphMetrics) for a specific time point."""
+        self.time_points[label] = data
+    
+    def add_cognitive_score(self, label: str, score: float) -> None:
+        """Add a cognitive score for a specific assessment."""
+        self.cognitive_scores[label] = score
+    
+    def get_time_points(self) -> List[str]:
+        """Return list of available time point labels."""
+        return list(self.time_points.keys())
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the subject to a dictionary for serialization."""
+        """Serialize subject to dictionary."""
         return {
-            "subject_id": self.subject_id,
-            "group": self.group,
-            "age": self.age,
-            "sex": self.sex,
-            "time_points": self.time_points,
-            "cognitive_scores": self.cognitive_scores,
-            "metadata": self.metadata
+            'subject_id': self.subject_id,
+            'group': self.group,
+            'age': self.age,
+            'sex': self.sex,
+            'education_years': self.education_years,
+            'time_points': list(self.time_points.keys()),
+            'cognitive_scores': self.cognitive_scores
         }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Subject':
-        """Create a Subject instance from a dictionary."""
-        return cls(
-            subject_id=data["subject_id"],
-            group=data["group"],
-            age=data.get("age"),
-            sex=data.get("sex"),
-            time_points=data.get("time_points", []),
-            cognitive_scores=data.get("cognitive_scores", {}),
-            metadata=data.get("metadata", {})
-        )
 
 
 @dataclass
 class ConnectivityMatrix:
     """
-    Represents a functional connectivity matrix for a subject at a specific time point.
-    
-    Attributes:
-        subject_id: ID of the subject.
-        time_point: The time point (e.g., 'acute', 'chronic').
-        matrix_data: The 2D numpy array containing correlation values.
-        node_labels: List of labels corresponding to rows/columns (e.g., AAL regions).
-        atlas: Name of the atlas used (e.g., 'AAL').
-        path: Optional path to the saved file on disk.
+    Represents a functional connectivity matrix for a specific subject and time point.
+    Stores the matrix as a numpy array and metadata about its construction.
     """
+    matrix: np.ndarray
+    labels: List[str]  # Region names (e.g., AAL atlas labels)
     subject_id: str
     time_point: str
-    matrix_data: np.ndarray
-    node_labels: List[str]
-    atlas: str = "AAL"
-    path: Optional[Path] = None
-
+    method: str = 'pearson'  # Correlation method used
+    threshold: Optional[float] = None  # Threshold applied if any
+    
     def __post_init__(self):
-        """Validate matrix dimensions and consistency."""
-        if not isinstance(self.matrix_data, np.ndarray):
-            raise TypeError("matrix_data must be a numpy ndarray")
-        
-        if self.matrix_data.ndim != 2:
-            raise ValueError("matrix_data must be 2-dimensional")
-        
-        if self.matrix_data.shape[0] != self.matrix_data.shape[1]:
-            raise ValueError("matrix_data must be square")
-        
-        if len(self.node_labels) != self.matrix_data.shape[0]:
-            raise ValueError("Number of node_labels must match matrix dimensions")
-
+        if not isinstance(self.matrix, np.ndarray):
+            self.matrix = np.array(self.matrix)
+        if self.matrix.shape[0] != self.matrix.shape[1]:
+            raise ValueError("Connectivity matrix must be square.")
+        if len(self.labels) != self.matrix.shape[0]:
+            raise ValueError("Number of labels must match matrix dimensions.")
+    
     @property
-    def shape(self) -> tuple:
-        """Return the shape of the matrix."""
-        return self.matrix_data.shape
-
-    @property
-    def num_nodes(self) -> int:
-        """Return the number of nodes."""
-        return self.matrix_data.shape[0]
-
-    def save(self, output_path: Path) -> None:
+    def n_regions(self) -> int:
+        """Number of regions (nodes) in the network."""
+        return self.matrix.shape[0]
+    
+    def get_edge_list(self, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         """
-        Save the connectivity matrix and metadata to a JSON file.
-        Note: NumPy arrays are converted to lists for JSON serialization.
+        Convert matrix to edge list format.
+        Optionally applies a threshold to filter weak connections.
         """
-        data = {
-            "subject_id": self.subject_id,
-            "time_point": self.time_point,
-            "atlas": self.atlas,
-            "node_labels": self.node_labels,
-            "matrix_data": self.matrix_data.tolist()
+        edges = []
+        n = self.matrix.shape[0]
+        for i in range(n):
+            for j in range(i + 1, n):  # Upper triangle only (undirected)
+                val = self.matrix[i, j]
+                if threshold is None or abs(val) >= threshold:
+                    edges.append({
+                        'source': self.labels[i],
+                        'target': self.labels[j],
+                        'weight': float(val)
+                    })
+        return edges
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize to dictionary (matrix converted to list of lists)."""
+        return {
+            'subject_id': self.subject_id,
+            'time_point': self.time_point,
+            'method': self.method,
+            'threshold': self.threshold,
+            'n_regions': self.n_regions,
+            'labels': self.labels,
+            'matrix': self.matrix.tolist()
         }
-        
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=2)
-        
-        self.path = output_path
-
+    
+    def save(self, path: Path) -> None:
+        """Save connectivity matrix to a JSON file."""
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
+    
     @classmethod
-    def load(cls, file_path: Path) -> 'ConnectivityMatrix':
-        """
-        Load a connectivity matrix from a JSON file.
-        """
-        with open(file_path, 'r') as f:
+    def load(cls, path: Path) -> 'ConnectivityMatrix':
+        """Load connectivity matrix from a JSON file."""
+        path = Path(path)
+        with open(path, 'r') as f:
             data = json.load(f)
-        
-        matrix_array = np.array(data["matrix_data"])
-        
         return cls(
-            subject_id=data["subject_id"],
-            time_point=data["time_point"],
-            matrix_data=matrix_array,
-            node_labels=data["node_labels"],
-            atlas=data.get("atlas", "AAL"),
-            path=file_path
-        )
-
-    def get_submatrix(self, indices: List[int]) -> 'ConnectivityMatrix':
-        """
-        Extract a submatrix based on a list of node indices.
-        """
-        sub_matrix = self.matrix_data[np.ix_(indices, indices)]
-        sub_labels = [self.node_labels[i] for i in indices]
-        
-        return ConnectivityMatrix(
-            subject_id=self.subject_id,
-            time_point=self.time_point,
-            matrix_data=sub_matrix,
-            node_labels=sub_labels,
-            atlas=self.atlas
+            matrix=np.array(data['matrix']),
+            labels=data['labels'],
+            subject_id=data['subject_id'],
+            time_point=data['time_point'],
+            method=data.get('method', 'pearson'),
+            threshold=data.get('threshold')
         )
 
 
 @dataclass
 class GraphMetrics:
     """
-    Stores computed graph theory metrics for a connectivity matrix.
-    
-    Attributes:
-        subject_id: ID of the subject.
-        time_point: The time point.
-        global_efficiency: Global efficiency of the network.
-        local_efficiency: Local efficiency of the network.
-        modularity: Modularity (Q) of the network.
-        clustering_coefficient: Average clustering coefficient.
-        characteristic_path_length: Average shortest path length.
-        metadata: Additional metrics or parameters used (e.g., threshold value).
+    Stores graph theoretical metrics calculated from a connectivity matrix.
+    Includes global and local efficiency, modularity, clustering coefficient, etc.
     """
     subject_id: str
     time_point: str
-    global_efficiency: Optional[float] = None
-    local_efficiency: Optional[float] = None
-    modularity: Optional[float] = None
+    global_efficiency: float
+    local_efficiency: float
+    modularity: float
     clustering_coefficient: Optional[float] = None
     characteristic_path_length: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
+    small_worldness: Optional[float] = None
+    degree_centrality: Optional[Dict[str, float]] = None
+    betweenness_centrality: Optional[Dict[str, float]] = None
+    
+    # Additional metadata
+    threshold_applied: Optional[float] = None
+    n_nodes: Optional[int] = None
+    n_edges: Optional[int] = None
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert metrics to a dictionary."""
+        """Serialize to dictionary."""
         return {
-            "subject_id": self.subject_id,
-            "time_point": self.time_point,
-            "global_efficiency": self.global_efficiency,
-            "local_efficiency": self.local_efficiency,
-            "modularity": self.modularity,
-            "clustering_coefficient": self.clustering_coefficient,
-            "characteristic_path_length": self.characteristic_path_length,
-            "metadata": self.metadata
+            'subject_id': self.subject_id,
+            'time_point': self.time_point,
+            'global_efficiency': self.global_efficiency,
+            'local_efficiency': self.local_efficiency,
+            'modularity': self.modularity,
+            'clustering_coefficient': self.clustering_coefficient,
+            'characteristic_path_length': self.characteristic_path_length,
+            'small_worldness': self.small_worldness,
+            'degree_centrality': self.degree_centrality,
+            'betweenness_centrality': self.betweenness_centrality,
+            'threshold_applied': self.threshold_applied,
+            'n_nodes': self.n_nodes,
+            'n_edges': self.n_edges
         }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'GraphMetrics':
-        """Create a GraphMetrics instance from a dictionary."""
-        return cls(
-            subject_id=data["subject_id"],
-            time_point=data["time_point"],
-            global_efficiency=data.get("global_efficiency"),
-            local_efficiency=data.get("local_efficiency"),
-            modularity=data.get("modularity"),
-            clustering_coefficient=data.get("clustering_coefficient"),
-            characteristic_path_length=data.get("characteristic_path_length"),
-            metadata=data.get("metadata", {})
-        )
-
-    def save(self, output_path: Path) -> None:
-        """Save metrics to a JSON file."""
-        with open(output_path, 'w') as f:
+    
+    def save(self, path: Path) -> None:
+        """Save graph metrics to a JSON file."""
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
             json.dump(self.to_dict(), f, indent=2)
-
+    
     @classmethod
-    def load(cls, file_path: Path) -> 'GraphMetrics':
-        """Load metrics from a JSON file."""
-        with open(file_path, 'r') as f:
+    def load(cls, path: Path) -> 'GraphMetrics':
+        """Load graph metrics from a JSON file."""
+        path = Path(path)
+        with open(path, 'r') as f:
             data = json.load(f)
-        return cls.from_dict(data)
-
-    def update(self, **kwargs) -> None:
-        """Update specific metric fields dynamically."""
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                self.metadata[key] = value
+        return cls(
+            subject_id=data['subject_id'],
+            time_point=data['time_point'],
+            global_efficiency=data['global_efficiency'],
+            local_efficiency=data['local_efficiency'],
+            modularity=data['modularity'],
+            clustering_coefficient=data.get('clustering_coefficient'),
+            characteristic_path_length=data.get('characteristic_path_length'),
+            small_worldness=data.get('small_worldness'),
+            degree_centrality=data.get('degree_centrality'),
+            betweenness_centrality=data.get('betweenness_centrality'),
+            threshold_applied=data.get('threshold_applied'),
+            n_nodes=data.get('n_nodes'),
+            n_edges=data.get('n_edges')
+        )
+    
+    @property
+    def summary(self) -> Dict[str, float]:
+        """Return a summary of key metrics for quick inspection."""
+        return {
+            'global_efficiency': self.global_efficiency,
+            'local_efficiency': self.local_efficiency,
+            'modularity': self.modularity
+        }

@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelArtifact"
+description: "Schema for trained model outputs."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "GradientBoosting", "LinearRegression"]
+  hyperparameters:
+    type: "object"
+    description: "Tuned hyperparameters."
+  metrics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+      rmse:
+        type: "number"
+      mae:
+        type: "number"
+    required:
+      - r_squared
+      - rmse
+      - mae
+  coefficients:
+    type: "object"
+    description: "Present only for LinearRegression."
+    properties:
+      size_mismatch:
+        type: "number"
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      ci_lower:
+        type: "number"
+      ci_upper:
+        type: "number"
+    required:
+      - size_mismatch
+      - p_value
+      - ci_lower
+      - ci_upper
+required:
+  - model_type
+  - hyperparameters
+  - metrics
+additionalProperties: false

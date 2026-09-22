@@ -1418,43 +1418,6 @@
   status: not_enough_info
   updated_at: '2026-08-07T13:15:33Z'
 - artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
-  attempts: 2
-  canonical: WESAD dataset available at Zenodo DOI 10.5281/zenodo.1292932
-  claim_id: c_cf01a124
-  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
-    to data/raw/wesad/.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
-    to data/raw/wesad/.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-07T13:16:19Z'
-- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
-  attempts: 5
-  canonical: WESAD dataset DOI 10.5281/zenodo.1292932
-  claim_id: c_369b3a73
-  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
-    to data/raw/wesad/.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-07T13:17:20Z'
-- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   attempts: 1
   canonical: Project dependencies pandas 2.0.3, numpy 1.24.3, scikit-learn 1.3.0,
     hrv-analysis 1.1.0, pybids 0.16.5, requests 2.31.0, pyyaml 6.0.1, jsonschema 4.19.0,
@@ -1524,3 +1487,363 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T13:17:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: WESAD dataset DOI 10.5281/zenodo.1292932
+  claim_id: c_6a7d5c12
+  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/. to data/raw/wesad/. **Constraint**: Use `requests` with a
+    timeout of 10 minutes.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:27:26Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase duration limit 15 minutes
+  claim_id: c_642daba0
+  context: 'Time Constraint: Audit phase must complete within 15 minutes. (SC-001,
+    FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:28:09Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: BIDS events.tsv task enum values Schandry heartbeat TSST rest resting
+    baseline
+  claim_id: c_522fda97
+  context: 'T002a [P] Create contracts/dataset.schema.yaml... properties for task
+    (string, enum: [''Schandry'', ''heartbeat'', ''TSST'', ''rest'', ''resting'',
+    ''baseline''])...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BIDS_events.tsv_task_enum_values_Schandry_heartbeat_TSST_res
+  kind: entity_fact
+  raw_text: The BIDS events.tsv task column must include the values 'Schandry', 'heartbeat',
+    'TSST', 'rest', 'resting', or 'baseline'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:28:39Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: HRV artifact rejection threshold 5% valid beats
+  claim_id: c_8a25702c
+  context: T005 [P] Implement code/utils/hrv_utils.py for artifact rejection (threshold
+    < 5% valid beats)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HRV_artifact_rejection_threshold_5%25_valid_beats
+  kind: magnitude
+  raw_text: Artifact rejection is triggered if valid beats are less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:29:09Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD validation tolerance 1% against PhysioNet reference
+  claim_id: c_9d8bac3f
+  context: T018 [P] [US2] Unit test test_compute_rmssd_against_mitbih... asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RMSSD calculation must match PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:29:09Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 0
+  canonical: BIDS events.tsv task column validation requires Schandry or heartbeat
+  claim_id: c_d4c0a236
+  context: 'T011 [US1] Implement `code/02_audit_metadata.py` to perform a two-part
+    scan. **Validation Criteria**: The `task` column MUST contain the exact string
+    ''Schandry'' or ''heartbeat'' (case-insensitive).'
+  evidence:
+    entailment_evidence: tsv task column must contain Schandry or heartbe
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BIDS_events.tsv_task_column_must_contain_Schandry_or_heartbe
+  kind: entity_fact
+  raw_text: The `task` column MUST contain the exact string 'Schandry' or 'heartbeat'
+    (case-insensitive).
+  resolved_value: BIDS events.tsv task column must contain Schandry or heartbeat
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T12:31:10Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: WESAD dataset available at Zenodo DOI 10.5281/zenodo.1292932
+  claim_id: c_9e724213
+  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/. to `data/raw/wesad/`.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:31:13Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: BIDS events.tsv schema task column enum includes Schandry, heartbeat,
+    TSST, rest, resting, baseline
+  claim_id: c_b8243fa1
+  context: 'T002a [P] Create `contracts/dataset.schema.yaml` in Phase 1 to define
+    the BIDS `events.tsv` schema. **Schema Content**: The YAML MUST define a JSON
+    Schema for `events.tsv` with `type: object` and `properties` for `task` (string,
+    enum: [''Schandry'', ''heartbeat'', ''TSST'', ''rest'', ''resting'', ''baseline''])'
+  evidence:
+    entailment_evidence: tsv schema task column enum includes Schandry, h Add languages
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/BIDS_events.tsv_schema_task_column_enum_includes_Schandry,_h
+  kind: entity_fact
+  raw_text: 'The YAML MUST define a JSON Schema for `events.tsv` with `type: object`
+    and `properties` for `task` (string, enum: [''Schandry'', ''heartbeat'', ''TSST'',
+    ''rest'', ''resting'', ''baseline''])'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T12:32:07Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Regression results written to JSON with coefficient, p_value, r_squared,
+    n_obs, formula fields
+  claim_id: c_497462fe
+  context: 'T031 [US3] **Primary Logic**: If Interoception data exists (verified in
+    T030): Perform linear regression ... **Output Format**: Write results to `results/regression_results.json`
+    with fields: `coefficient`, `p_value`, `r_squared`, `n_obs`, `formula`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_results_written_to_JSON_with_coefficient,_p_value
+  kind: entity_fact
+  raw_text: 'Implement `code/04_analyze_regression.py` ... Write results to `results/regression_results.json`
+    with fields: `coefficient`, `p_value`, `r_squared`, `n_obs`, `formula`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:32:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 3
+  canonical: WESAD dataset available at Zenodo DOI 10.5281/zenodo.1292932
+  claim_id: c_cf01a124
+  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:34:37Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: Project dependencies include pandas 2.0.3, numpy 1.24.3, scikit-learn
+    1.3.0, hrv-analysis 1.1.0, pybids 0.16.5, requests 2.31.0, pyyaml 6.0.1, jsonschema
+    4.19.0, statsmodels 0.14.0
+  claim_id: c_55646175
+  context: T002 Initialize project with dependencies (`pandas==2.0.3`, `numpy==1.24.3`,
+    `scikit-learn==1.3.0`, `hrv-analysis==1.1.0`, `pybids==0.16.5`, `requests==2.31.0`,
+    `pyyaml==6.0.1`, `jsonschema==4.19.0`, `statsmodels==0.14.0`) in `requirements.txt`
+    with pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize project with dependencies (`pandas==2.0.3`, `numpy==1.24.3`,
+    `scikit-learn==1.3.0`, `hrv-analysis==1.1.0`, `pybids==0.16.5`, `requests==2.31.0`,
+    `pyyaml==6.0.1`, `jsonschema==4.19.0`, `statsmodels==0.14.0`)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:34:37Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: BIDS events.tsv schema requires task column
+  claim_id: c_b136326a
+  context: 'The YAML MUST define a JSON Schema for `events.tsv` with `type: object`
+    and `properties` for `task` (string, enum: [''Schandry'', ''heartbeat'', ''TSST'',
+    ''rest'', ''resting'', ''baseline'']), `onset` (number), `duration` (number),
+    `value` (number, optional), and `trial_type` (string, optional). The `task` column
+    is REQUIRED.'
+  evidence:
+    entailment_evidence: tsv schema requires task column
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BIDS_events.tsv_schema_requires_task_column
+  kind: entity_fact
+  raw_text: The task column in the BIDS events.tsv schema is REQUIRED
+  resolved_value: BIDS events.tsv schema requires task column
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T12:34:39Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: Audit phase time limit is 15 minutes
+  claim_id: c_08b8d6f4
+  context: Audit phase must complete within 15 minutes. (SC-001, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:34:39Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Artifact rejection excludes subjects with less than 5% valid beats
+  claim_id: c_26171504
+  context: T019 [P] [US2] Integration test `test_artifact_rejection_threshold` in
+    `tests/test_hrv.py` asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Artifact_rejection_excludes_subjects_with_less_than_5%25_valid
+  kind: magnitude
+  raw_text: Subjects with less than 5% valid beats are flagged and excluded during
+    artifact rejection
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T12:35:00Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: RMSSD calculation matches PhysioNet reference within 1% tolerance
+  claim_id: c_57b07c38
+  context: T018 [P] [US2] Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py`
+    asserting calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py` asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:35:00Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: WESAD dataset available at Zenodo DOI 10.5281/zenodo.1292932
+  claim_id: c_59a096e5
+  context: 'Phase 3, Task T010: Download the WESAD dataset archive from Zenodo (DOI:
+    10.5281/zenodo.1292932) to data/raw/wesad/.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:36:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD calculation tolerance within 1% of PhysioNet reference
+  claim_id: c_3edca87a
+  context: 'Phase 4, Task T018: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py
+    asserting calculated RMSSD matches PhysioNet reference within 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:36:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase time limit is 15 minutes
+  claim_id: c_36ca6a61
+  context: 'Notes section: Time Constraint: Audit phase must complete within 15 minutes.
+    (SC-001, FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:36:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 7
+  canonical: WESAD dataset DOI 10.5281/zenodo.1292932
+  claim_id: c_369b3a73
+  context: 'T010 [US1] Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+    to data/raw/wesad/.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T12:37:40Z'

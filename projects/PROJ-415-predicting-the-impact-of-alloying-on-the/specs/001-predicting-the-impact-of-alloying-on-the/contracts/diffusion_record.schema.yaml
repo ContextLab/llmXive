@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DiffusionRecord"
+description: "Schema for a single diffusion data point in the curated dataset."
+type: "object"
+properties:
+  host_element:
+    type: "string"
+    description: "Symbol of the host metal (e.g., Ni, Cu)."
+    pattern: "^[A-Z][a-z]?$"
+  solute_element:
+    type: "string"
+    description: "Symbol of the solute element."
+    pattern: "^[A-Z][a-z]?$"
+  concentration_at_pct:
+    type: "number"
+    description: "Solute concentration in atomic percent."
+    minimum: 0
+    maximum: 100
+  activation_energy_eV:
+    type: "number"
+    description: "Activation energy in eV/atom."
+    minimum: 0
+  crystal_structure:
+    type: "string"
+    description: "Crystal structure of the host."
+    enum: ["FCC"]
+  diffusion_mode:
+    type: "string"
+    description: "Type of diffusion."
+    enum: ["self"]
+  source_id:
+    type: "string"
+    description: "Identifier for the data source."
+required:
+  - host_element
+  - solute_element
+  - concentration_at_pct
+  - activation_energy_eV
+  - crystal_structure
+  - diffusion_mode
+  - source_id
+additionalProperties: false

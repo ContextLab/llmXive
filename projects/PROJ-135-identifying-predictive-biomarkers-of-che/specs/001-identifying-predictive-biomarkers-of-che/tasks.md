@@ -126,7 +126,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  **Logic**: Create the file `src/data_acquisition.py` with an empty `check_feasibility_gate` function stub.
  **Requirements**: FR-001, FR-002.
 - [X] T014_2 [US1] [P] **Data Feasibility Gate**: Implement `check_feasibility_gate()` function.
- **Logic**: Implement `def check_feasibility_gate() -> bool:` in `src/data_acquisition.py`. **Pre-Check**: Verify existence of output files from T012a and T013a. Load results from T012a and T013a. Verify ≥3 TCGA types and ≥2 GEO datasets. [UNRESOLVED-CLAIM: c_40f04c07 — status=refuted] Return `True` if valid, `False` otherwise.
+ **Logic**: Implement `def check_feasibility_gate() -> bool:` in `src/data_acquisition.py`. **Pre-Check**: Verify existence of output files from T012a and T013a. Load results from T012a and T013a. Verify ≥3 TCGA types and ≥2 GEO datasets. Return `True` if valid, `False` otherwise.
  **Dependency**: Runs after T012a AND T013a (file existence check).
  **Requirements**: FR-001, FR-002.
 - [X] T014_3 [US1] [P] **Data Feasibility Gate**: Implement logging and halting logic.
