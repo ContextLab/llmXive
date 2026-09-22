@@ -115,8 +115,8 @@ data_schema:
 - [X] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs if primary source fails (FR-012)
 - [X] T013b [US1] **Fallback Data Generation**: Create `data/raw/fallback_phase_data.csv` containing a small, verified subset of experimental binary phase data (e.g., Cu-Al, Al-Cu) with columns `temperature`, `composition`, `element_a`, `element_b`. **Requirement**: Data must be sourced from public literature or verified local files to ensure the pipeline has a viable path to execution if primary sources are missing. (FR-001, FR-012)
 - [X] T014 [US1] Implement filtering logic: 
-  1. Skip entries with missing temperature values in binary systems (handled by FR-001).
-  2. Skip entries for ternary systems lacking temperature-composition coordinates. **Requirement**: Log `MISSING_TEMP_COORDS` ONLY for the ternary case to `data/logs/pipeline.log` (JSON line format: `{"timestamp": "...", "level": "ERROR", "code": "MISSING_TEMP_COORDS", "message": "Row <id> excluded: ternary system missing temperature-composition coordinates"}`). **Depends on T008**. (FR-001, FR-008)
+ 1. Skip entries with missing temperature values in binary systems (handled by FR-001).
+ 2. Skip entries for ternary systems lacking temperature-composition coordinates. **Requirement**: Log `MISSING_TEMP_COORDS` ONLY for the ternary case to `data/logs/pipeline.log` (JSON line format: `{"timestamp": "...", "level": "ERROR", "code": "MISSING_TEMP_COORDS", "message": "Row <id> excluded: ternary system missing temperature-composition coordinates"}`). **Depends on T008**. (FR-001, FR-008)
 - [X] T015 [US1] Implement `code/features/generate_descriptors.py` to calculate: mean atomic radius, electronegativity variance, valence electron count, Hume-Rothery concentration using constants from `data/raw/elemental_properties.csv` (created by T006) (FR-002, FR-015)
 - [X] T016 [US1] Add validation in `code/features/generate_descriptors.py` to verify derived values against `data/raw/elemental_properties.csv` (SC-005, SC-007)
 - [X] T017 [US1] Implement data checksumming and state update in `code/ingest/load_data.py` after raw data load (Constitution Principle III, V)
@@ -305,3 +305,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on free CPU-only CI (cores, limited RAM, no GPU). No 8-bit/4-bit quantization or CUDA dependencies.
 - **Data Integrity**: No synthetic/fake data generation. All tasks must use real data from NIST-JANAF/SGTE or verified local CSVs.
+- **Data Streaming Requirement**: For datasets exceeding ~7GB RAM, tasks MUST implement streaming (e.g., `datasets.load_dataset(..., streaming=True)`) or explicit chunking. Do not load entire datasets into memory.
+- **Loader Failure Policy**: Data loaders MUST fail loudly (raise exception) if real data fetch fails. Do NOT implement synthetic fallbacks.
+- **Real Data Only**: All analysis tasks must consume real datasets. Synthetic or toy stand-ins are prohibited.
