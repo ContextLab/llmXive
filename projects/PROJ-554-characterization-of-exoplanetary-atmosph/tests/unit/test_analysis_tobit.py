@@ -1,5 +1,5 @@
 """
-Unit tests for analysis_tobit.py (Task T027)
+Unit tests for T027: Tobit Regression with Fallback.
 """
 import pytest
 import pandas as pd
@@ -9,83 +9,82 @@ import json
 import tempfile
 import os
 
-# Mock the config to avoid dependency on real config files during unit tests
-import sys
-from unittest.mock import patch, MagicMock
-
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from analysis_tobit import load_retrieval_data, calculate_vif, prepare_tobit_data, run_ridge_fallback
+# Import the functions to test
+from code.analysis_tobit import (
+    load_retrieval_data,
+    calculate_vif,
+    prepare_tobit_data,
+    fit_tobit_model_and_save,
+    run_ridge_fallback
+)
 
 @pytest.fixture
-def sample_df():
-    """Create a sample dataframe for testing."""
+def sample_data():
+    """Create a mock dataset for testing."""
     data = {
-        'planet_name': ['p1', 'p2', 'p3', 'p4', 'p5'],
-        'water_mixing_ratio': [-3.0, -2.5, -4.0, -3.2, -2.8],
-        'temperature': [1000, 1100, 900, 1050, 1200],
-        'mass': [1.0, 1.2, 0.8, 1.1, 1.3],
-        'metallicity': [0.5, 0.6, 0.4, 0.55, 0.7],
-        'is_upper_limit': [False, False, True, False, False]
+        'planet_name': [f'planet_{i}' for i in range(10)],
+        'water_mixing_ratio': np.random.uniform(-5, -2, 10),
+        'is_upper_limit': [False] * 10,
+        'temperature': np.random.uniform(1000, 2000, 10),
+        'mass': np.random.uniform(1, 10, 10),
+        'metallicity': np.random.uniform(-0.5, 0.5, 10)
     }
     return pd.DataFrame(data)
 
-def test_load_retrieval_data(sample_df, tmp_path):
+@pytest.fixture
+def temp_csv(sample_data):
+    """Create a temporary CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        sample_data.to_csv(f.name, index=False)
+        yield f.name
+    os.unlink(f.name)
+
+@pytest.fixture
+def temp_json():
+    """Create a temporary JSON file path."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as f:
+        yield f.name
+    os.unlink(f.name)
+
+def test_load_retrieval_data(temp_csv):
     """Test loading data from CSV."""
-    csv_path = tmp_path / "test_retrieval.csv"
-    sample_df.to_csv(csv_path, index=False)
-    
-    loaded_df = load_retrieval_data(csv_path)
-    
-    assert len(loaded_df) == 5
-    assert 'water_mixing_ratio' in loaded_df.columns
-    assert 'is_upper_limit' in loaded_df.columns
-    assert loaded_df['is_upper_limit'].dtype == bool
+    df = load_retrieval_data(temp_csv)
+    assert len(df) == 10
+    assert 'water_mixing_ratio' in df.columns
+    assert 'metallicity' in df.columns
 
-def test_calculate_vif(sample_df):
+def test_calculate_vif(sample_data):
     """Test VIF calculation."""
-    predictors = ['temperature', 'mass', 'metallicity']
-    vif_scores = calculate_vif(sample_df, predictors)
-    
-    assert len(vif_scores) == 3
-    assert all(isinstance(v, float) for v in vif_scores.values())
-    # With perfect correlation, VIF would be high. With random, it should be low.
-    # Here we just check it runs and returns values.
+    features = ['temperature', 'mass', 'metallicity']
+    vif = calculate_vif(sample_data, features)
+    assert len(vif) == 3
+    assert all(isinstance(v, float) for v in vif.values())
 
-def test_prepare_tobit_data(sample_df):
-    """Test data preparation for Tobit."""
-    features, outcome, censoring = prepare_tobit_data(sample_df)
-    
-    assert features.shape[0] == 5
-    assert outcome.shape[0] == 5
-    assert censoring.shape[0] == 5
-    assert censoring.sum() == 4 # 4 uncensored (True), 1 censored (False)
+def test_prepare_tobit_data(sample_data):
+    """Test data preparation."""
+    y, X, names = prepare_tobit_data(sample_data)
+    assert len(y) == 10
+    assert X.shape == (10, 3)
+    assert len(names) == 3
 
-def test_ridge_fallback(sample_df):
-    """Test Ridge regression fallback."""
-    # Ensure we have enough uncensored data
-    results = run_ridge_fallback(sample_df)
-    
-    assert results['fallback_triggered'] == True
-    assert 'coefficients' in results
-    assert 'temperature' in results['coefficients']
-    assert 'mass' in results['coefficients']
-    assert 'metallicity' in results['coefficients']
-    assert 'intercept' in results['coefficients']
+def test_run_ridge_fallback(sample_data):
+    """Test Ridge fallback."""
+    y, X, _ = prepare_tobit_data(sample_data)
+    result = run_ridge_fallback(y, X)
+    assert result['success'] is True
+    assert result['model_type'] == 'Ridge (L2 Penalized) Fallback'
+    assert 'coefficients' in result
 
-def test_vif_threshold_logic(sample_df, tmp_path):
-    """Test that high VIF triggers fallback."""
-    # Create a dataset with high multicollinearity
-    # T = Mass * 1000 + noise
-    high_corr_df = sample_df.copy()
-    high_corr_df['temperature'] = high_corr_df['mass'] * 1000 + 0.1 * np.random.randn(5)
+def test_fit_tobit_model_and_save(temp_csv, temp_json):
+    """Test the full pipeline."""
+    result = fit_tobit_model_and_save(temp_csv, temp_json)
     
-    vif_scores = calculate_vif(high_corr_df, ['temperature', 'mass', 'metallicity'])
-    max_vif = max(vif_scores.values())
+    assert 'vif_check' in result
+    assert 'fallback_triggered' in result
+    assert 'coefficients' in result
     
-    # If VIF is high, we expect the logic to trigger fallback in main()
-    # This test just verifies VIF calculation detects it.
-    # Note: With 5 points, VIF might not be extremely high unless perfect correlation.
-    # We just check the function runs.
-    assert isinstance(max_vif, float)
+    # Verify file was written
+    assert Path(temp_json).exists()
+    with open(temp_json, 'r') as f:
+        saved_data = json.load(f)
+    assert saved_data['vif_check'] == result['vif_check']

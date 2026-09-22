@@ -1,0 +1,10 @@
+2026-09-22 19:34:27,307 - llmXive - INFO - Starting T013a: Count unique planets
+2026-09-22 19:34:27,307 - llmXive - ERROR - T013a failed: 'dict' object has no attribute 'data_dir'
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py", line 84, in main
+    count = count_unique_planets()
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py", line 33, in count_unique_planets
+    metadata_path = str(config.data_dir / "processed" / "metadata.csv")
+                        ^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'data_dir'

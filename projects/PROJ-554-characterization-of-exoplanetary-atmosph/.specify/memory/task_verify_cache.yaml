@@ -1,10 +1,3 @@
-T013a:
-  c: false
-  h: 1248f6f8aa489a7984e214a68ef480164025346d26bde168d65d57e44b3df9ed
-  r: "The repository contains the implemented `count_unique_planets` function and\
-    \ supporting code, but the required output file `data/processed/count_report.json`\
-    \ is absent, so the deliverable is not present. The task\u2019s primary deliverable\
-    \ has not been produced."
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -19,40 +12,20 @@ T017:
   r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
     \ the repository, so the integration test for retrieval on a sample spectrum is\
     \ missing. Without this file, the task\u2019s deliverable is not provided."
-T025c:
+T020:
   c: false
-  h: 910e05b58cabbc37eea761835b3588d89c5040858730cef9274f314d34b2b0cf
-  r: "The required output files `data/processed/bootstrap_ci.json` and `data/processed/water_mixing_ratio_samples.npy`\
-    \ are absent, and the provided `code/analysis.py` excerpt does not show an implementation\
-    \ of `bootstrap_ats` that performs the 1000\u2011iteration bootstrap and writes\
-    \ those files. The deliverables are therefore not present."
+  h: 4d973949ce7241bba652dd32a5d81d73b5c4731b9588451dd86aa61c47f175c6
+  r: "The `code/retrieval.py` file does not contain a complete implementation of `save_retrieval_results`\
+    \ (the shown code ends mid\u2011function and never defines that function). Moreover,\
+    \ the required output file `data/processed/retrieval_results.csv` is absent. Both\
+    \ the core function and the deliverable CSV are missing, so the task is not satisfied."
 T030a:
   c: false
-  h: d3c396ee0d9f2682a01c5393d811b7264f119dd15c24c0516f8c22d819fed56b
-  r: The repository lacks the required `data/processed/correlation_stats.json` file,
-    and the provided `code/analysis.py` excerpt does not show an implementation of
-    a `save_correlation_stats` function. Both the artifact and the core function are
-    missing, so the task is not satisfied.
-T030b:
-  c: false
-  h: e569f286c27ddbf50a5ba3c888c2f93894b7eb07426d13e469168285ffd8002d
-  r: The repository lacks the required `data/processed/regression_stats.json` file,
-    and the provided `code/analysis.py` excerpt does not contain an implementation
-    of `save_regression_stats`. Both the deliverable file and the core function are
-    missing, so the task is not satisfied.
-T030c:
-  c: false
-  h: a42dbbcdb2185c493f1d4615449ab469dfc201057719e3e38944019560d5bf2a
-  r: The required output file `data/processed/mdc_stats.json` does not exist, and
-    the provided `code/analysis.py` excerpt shows no implementation of a `save_mdc_stats`
-    function. Both the artifact and the expected function are missing, so the task
-    is not fulfilled.
-T030d:
-  c: false
-  h: 59e4c5c9f880c9fad369f8d7e3644d71fd1f66a5118abdde55baf1cfbb16a91b
-  r: The required artifact `data/processed/analysis_results.json` does not exist in
-    the repository, so no aggregated statistics have been provided. The implementer
-    must create this JSON file containing the compiled analysis results.
+  h: ef5f03f1ae7f534ddedacb5788b6c35f5276bd10ca8002656c2a650dd4612c46
+  r: The repository lacks the required `data/processed/mdc_stats.json` file, and the
+    provided `code/analysis.py` excerpt does not show an implementation of the `save_mdc_stats`
+    function (the file is truncated before any such definition). Both the artifact
+    and the core function are missing, so the task is not fulfilled.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

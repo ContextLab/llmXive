@@ -1,186 +1,196 @@
 """
-Integration test for retrieval on a sample spectrum.
-This test verifies that the retrieval pipeline can process a single spectrum file
-and produce valid output conforming to the retrieval schema.
+Integration test for retrieval on sample spectrum (T017).
+
+This test verifies that the retrieval pipeline can process a single spectrum
+file and produce valid output according to the retrieval schema.
+
+It depends on T012 (metadata.csv) and T018c (retrieval schema contract).
 """
 
-import os
-import sys
 import json
+import os
 import tempfile
 from pathlib import Path
+from typing import Dict, Any
+
 import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-# Add code directory to path
-code_dir = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
-
+# Import from existing API surface
 from retrieval import (
+    run_single_spectrum_retrieval,
+    detect_low_snr_spectrum,
+    calculate_mdc,
+    derive_upper_limit,
     configure_petitradtrans_cpu_optimized,
     get_petitradtrans_config,
-    validate_spectrum_file,
-    detect_low_snr_spectrum,
-    derive_upper_limit,
-    calculate_mdc,
-    run_single_spectrum_retrieval,
 )
-from utils import RetrievalError, CensoredDataError, setup_logging
-from data_models import RetrievalResult, CensorshipStatus
 from config import get_config
+from utils import RetrievalError, CensoredDataError
 
 
-# Setup logging for the test
-logger = setup_logging("test_retrieval")
-
-
-def create_test_spectrum_file(temp_dir: Path) -> Path:
-    """
-    Create a minimal valid spectrum file for testing.
-    In a real scenario, this would be a downloaded spectrum file.
-    For this integration test, we create a synthetic but structurally valid file.
-    """
-    # Create a simple CSV with wavelength and flux data
+@pytest.fixture
+def temp_spectrum_file(tmp_path: Path):
+    """Create a temporary spectrum file for testing."""
+    # Create a minimal synthetic spectrum file for testing purposes only.
+    # This is allowed because it is strictly for testing the retrieval
+    # pipeline logic, not for research results.
     spectrum_data = {
-        "wavelength": np.linspace(1.0, 5.0, 50),  # microns
-        "flux": np.random.normal(1.0, 0.1, 50),  # arbitrary units
-        "error": np.abs(np.random.normal(0.05, 0.01, 50)),
+        "wavelength": np.linspace(1.0, 5.0, 50),
+        "transmission": 0.95 + 0.05 * np.random.random(50),
+        "error": 0.01 * np.ones(50),
     }
-    spectrum_df = pd.DataFrame(spectrum_data)
-
-    # Save to temp file
-    spectrum_path = temp_dir / "test_spectrum.csv"
-    spectrum_df.to_csv(spectrum_path, index=False)
-
-    return spectrum_path
+    spectrum_file = tmp_path / "test_spectrum.csv"
+    df = pd.DataFrame(spectrum_data)
+    df.to_csv(spectrum_file, index=False)
+    return str(spectrum_file)
 
 
-def test_retrieval_on_sample_spectrum():
-    """
-    Integration test: Run retrieval on a sample spectrum and verify output.
-    """
-    # Create a temporary directory for test artifacts
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-
-        # Create a test spectrum file
-        spectrum_path = create_test_spectrum_file(temp_path)
-
-        # Verify spectrum file is valid
-        assert validate_spectrum_file(spectrum_path), "Test spectrum file is invalid"
-
-        # Configure petitRADTRANS for CPU-optimized mode
-        config = configure_petitradtrans_cpu_optimized()
-        config["threads"] = 1
-        config["max_memory_gb"] = 6
-
-        # Load global config
-        global_config = get_config()
-
-        # Run retrieval on the sample spectrum
-        try:
-            result = run_single_spectrum_retrieval(
-                str(spectrum_path),
-                config,
-                global_config.get("seed", 42)
-            )
-        except (RetrievalError, CensoredDataError) as e:
-            # If retrieval fails due to convergence issues, we should still get a result
-            # with upper limit flags
-            logger.warning(f"Retrieval failed with expected error: {e}")
-            # For this test, we'll simulate a failure case
-            result = {
-                "planet_name": "test_planet",
-                "water_mixing_ratio": None,
-                "uncertainty": None,
-                "is_upper_limit": True,
-                "convergence_status": "failed",
-                "detection_limit": 1e-6,
-                "min_detectable_concentration": 1e-5
-            }
-
-        # Verify result structure
-        assert result is not None, "Retrieval result should not be None"
-        assert "water_mixing_ratio" in result or "is_upper_limit" in result, \
-            "Result must contain water mixing ratio or upper limit flag"
-        assert "uncertainty" in result or result.get("is_upper_limit", False), \
-            "Result must contain uncertainty or be an upper limit"
-        assert "convergence_status" in result, "Result must contain convergence status"
-
-        # If not an upper limit, verify numerical values
-        if not result.get("is_upper_limit", False):
-            assert result["water_mixing_ratio"] is not None, \
-                "Water mixing ratio must be present for non-upper-limit results"
-            assert result["uncertainty"] is not None, \
-                "Uncertainty must be present for non-upper-limit results"
-            assert isinstance(result["water_mixing_ratio"], (int, float)), \
-                "Water mixing ratio must be numeric"
-            assert isinstance(result["uncertainty"], (int, float)), \
-                "Uncertainty must be numeric"
-
-        # Verify upper limit flag if applicable
-        if result.get("is_upper_limit", False):
-            assert "detection_limit" in result, \
-                "Upper limit results must include detection_limit"
-            assert result["detection_limit"] is not None, \
-                "Detection limit must be present for upper limit results"
-
-        # Log success
-        logger.info(f"Integration test passed for spectrum: {spectrum_path}")
-        logger.info(f"Result: {json.dumps(result, indent=2, default=str)}")
+@pytest.fixture
+def retrieval_config():
+    """Get retrieval configuration."""
+    return configure_petitradtrans_cpu_optimized()
 
 
-def test_upper_limit_derivation():
-    """
-    Test that upper limits are correctly derived for low SNR spectra.
-    """
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
+def test_retrieval_single_spectrum_valid(temp_spectrum_file: str, retrieval_config: Dict[str, Any]):
+    """Test that retrieval runs on a valid spectrum file."""
+    result = run_single_spectrum_retrieval(temp_spectrum_file, retrieval_config)
 
-        # Create a low SNR spectrum file
-        low_snr_data = {
-            "wavelength": np.linspace(1.0, 5.0, 50),
-            "flux": np.random.normal(1.0, 0.5, 50),  # Higher noise
-            "error": np.abs(np.random.normal(0.2, 0.05, 50)),  # Large errors
-        }
-        low_snr_df = pd.DataFrame(low_snr_data)
-        spectrum_path = temp_path / "low_snr_spectrum.csv"
-        low_snr_df.to_csv(spectrum_path, index=False)
+    # Verify result structure
+    assert isinstance(result, dict)
+    assert "water_mixing_ratio" in result
+    assert "uncertainty" in result
+    assert "is_upper_limit" in result
+    assert "convergence_status" in result
+    assert "planet_name" in result
 
-        # Detect if this is a low SNR spectrum
-        is_low_snr = detect_low_snr_spectrum(str(spectrum_path), snr_threshold=5.0)
-        assert is_low_snr, "Test should identify this as a low SNR spectrum"
+    # Verify types
+    assert isinstance(result["water_mixing_ratio"], (int, float))
+    assert isinstance(result["uncertainty"], (int, float))
+    assert isinstance(result["is_upper_limit"], bool)
+    assert isinstance(result["convergence_status"], str)
 
-        # Derive upper limit
-        upper_limit = derive_upper_limit(str(spectrum_path))
-        assert upper_limit is not None, "Upper limit should be derived"
-        assert "detection_limit" in upper_limit, "Upper limit must include detection_limit"
-        assert "min_detectable_concentration" in upper_limit, \
-            "Upper limit must include min_detectable_concentration"
-
-        logger.info(f"Upper limit derivation test passed: {upper_limit}")
+    # Verify logical consistency
+    if result["is_upper_limit"]:
+        # If it's an upper limit, the value should be negative (log scale)
+        assert result["water_mixing_ratio"] < 0.0
 
 
-def test_mdc_calculation():
-    """
-    Test Minimum Detectable Concentration (MDC) calculation.
-    """
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
+def test_retrieval_handles_low_snr(temp_path: Path, retrieval_config: Dict[str, Any]):
+    """Test that low SNR spectra are handled as upper limits."""
+    # Create a low SNR spectrum
+    spectrum_data = {
+        "wavelength": np.linspace(1.0, 5.0, 50),
+        "transmission": 0.95 + 0.5 * np.random.random(50),  # High noise
+        "error": 0.1 * np.ones(50),  # High error
+    }
+    spectrum_file = temp_path / "low_snr_spectrum.csv"
+    df = pd.DataFrame(spectrum_data)
+    df.to_csv(spectrum_file, index=False)
 
-        # Create a test spectrum file
-        spectrum_path = create_test_spectrum_file(temp_path)
+    # Detect low SNR
+    is_low_snr, snr_value = detect_low_snr_spectrum(str(spectrum_file))
+    assert is_low_snr, "Should detect low SNR spectrum"
+    assert snr_value < 5.0, "SNR should be below threshold"
 
-        # Calculate MDC
-        mdc = calculate_mdc(str(spectrum_path), snr=10.0, resolution=100)
-        assert mdc is not None, "MDC should be calculated"
-        assert isinstance(mdc, (int, float)), "MDC must be numeric"
-        assert mdc > 0, "MDC must be positive"
-
-        logger.info(f"MDC calculation test passed: MDC = {mdc}")
+    # Run retrieval - should handle gracefully
+    result = run_single_spectrum_retrieval(str(spectrum_file), retrieval_config)
+    assert result is not None
+    assert "water_mixing_ratio" in result
 
 
-if __name__ == "__main__":
-    # Run tests manually if executed as script
-    pytest.main([__file__, "-v"])
+def test_retrieval_mdc_calculation(temp_spectrum_file: str):
+    """Test that MDC is calculated correctly."""
+    mdc = calculate_mdc(temp_spectrum_file)
+    assert isinstance(mdc, float)
+    assert mdc > 0.0, "MDC should be positive"
+
+
+def test_retrieval_upper_limit_derivation(temp_spectrum_file: str):
+    """Test that upper limits are derived correctly for low SNR."""
+    # Simulate a case where retrieval fails or SNR is too low
+    upper_limit = derive_upper_limit(temp_spectrum_file, snr=2.0)
+    assert isinstance(upper_limit, float)
+    assert upper_limit < 0.0, "Upper limit should be negative in log scale"
+
+
+def test_retrieval_config_cpu_optimized(retrieval_config: Dict[str, Any]):
+    """Test that retrieval config is CPU-optimized."""
+    assert retrieval_config.get("threads", 1) == 1
+    assert retrieval_config.get("max_memory_gb", 6) <= 6
+
+
+def test_retrieval_schema_compliance(temp_spectrum_file: str, retrieval_config: Dict[str, Any]):
+    """Test that retrieval output complies with the schema contract (T018c)."""
+    result = run_single_spectrum_retrieval(temp_spectrum_file, retrieval_config)
+
+    # Schema from contracts/retrieval.schema.yaml (T018c)
+    required_fields = [
+        "planet_name",
+        "water_mixing_ratio",
+        "uncertainty",
+        "is_upper_limit",
+        "convergence_status",
+    ]
+
+    for field in required_fields:
+        assert field in result, f"Missing required field: {field}"
+
+    # Type checks per schema
+    assert isinstance(result["water_mixing_ratio"], (int, float))
+    assert isinstance(result["uncertainty"], (int, float))
+    assert isinstance(result["is_upper_limit"], bool)
+    assert isinstance(result["convergence_status"], str)
+    assert result["convergence_status"] in ["converged", "failed", "upper_limit"]
+
+
+def test_retrieval_error_handling(temp_path: Path, retrieval_config: Dict[str, Any]):
+    """Test that retrieval handles invalid input gracefully."""
+    # Create an invalid spectrum file
+    invalid_file = temp_path / "invalid_spectrum.csv"
+    invalid_file.write_text("invalid,data\n1,2,3")  # Malformed
+
+    try:
+        result = run_single_spectrum_retrieval(str(invalid_file), retrieval_config)
+        # If it returns, it should be a failure result
+        assert result is not None
+        assert result.get("convergence_status") in ["failed", "upper_limit"]
+    except Exception as e:
+        # Expected to raise an error for invalid input
+        assert isinstance(e, (RetrievalError, CensoredDataError, ValueError))
+
+
+def test_retrieval_integration_with_metadata(temp_path: Path, retrieval_config: Dict[str, Any]):
+    """Test retrieval integration with metadata (T012)."""
+    # Create a mock metadata.csv
+    metadata_data = {
+        "planet_name": ["HD_209458_b"],
+        "temperature": [1300.0],
+        "metallicity": [0.0],
+        "snr": [15.0],
+        "resolution": [50.0],
+        "planet_category": ["Hot Jupiter"],
+        "instrument": ["HST"],
+        "wavelength_range": ["1.0-5.0"],
+    }
+    metadata_file = temp_path / "metadata.csv"
+    pd.DataFrame(metadata_data).to_csv(metadata_file, index=False)
+
+    # Create a corresponding spectrum file
+    spectrum_data = {
+        "wavelength": np.linspace(1.0, 5.0, 50),
+        "transmission": 0.95 + 0.05 * np.random.random(50),
+        "error": 0.01 * np.ones(50),
+    }
+    spectrum_file = temp_path / "HD_209458_b_spectrum.csv"
+    pd.DataFrame(spectrum_data).to_csv(spectrum_file, index=False)
+
+    # Run retrieval
+    result = run_single_spectrum_retrieval(str(spectrum_file), retrieval_config)
+
+    # Verify result
+    assert result is not None
+    assert result["planet_name"] == "HD_209458_b"
+    assert "water_mixing_ratio" in result
+    assert "uncertainty" in result
