@@ -1,96 +1,110 @@
+"""
+Script to verify linting and formatting tool configuration.
+This script checks if ruff and black are installed and configured correctly.
+"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
 def check_tool(tool_name: str) -> bool:
-    """Check if a specific tool is installed and available."""
+    """Check if a tool is installed and available."""
     try:
         subprocess.run(
             [tool_name, "--version"],
+            check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
         )
+        print(f"✓ {tool_name} is installed.")
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
+        print(f"✗ {tool_name} is NOT installed or not in PATH.")
         return False
 
 def check_config_files() -> bool:
-    """Verify that configuration files exist in the project root."""
+    """Check if configuration files exist."""
     config_files = [
         "pyproject.toml",
     ]
-    missing = []
+    all_exist = True
     for cfg in config_files:
-        if not Path(cfg).exists():
-            missing.append(cfg)
-    
-    if missing:
-        print(f"Missing configuration files: {', '.join(missing)}")
+        if Path(cfg).exists():
+            print(f"✓ {cfg} exists.")
+        else:
+            print(f"✗ {cfg} is missing.")
+            all_exist = False
+    return all_exist
+
+def run_lint_check() -> bool:
+    """Run ruff check on the codebase."""
+    try:
+        result = subprocess.run(
+            ["ruff", "check", "src", "code"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            print("✓ Ruff check passed.")
+            return True
+        else:
+            print("✗ Ruff check failed:")
+            print(result.stdout)
+            print(result.stderr)
+            return False
+    except FileNotFoundError:
+        print("✗ Ruff is not installed.")
         return False
-    return True
 
-def run_lint_check() -> int:
-    """Run ruff linting on the codebase."""
-    if not check_tool("ruff"):
-        print("Error: ruff is not installed. Run: pip install ruff")
-        return 1
-    
+def run_format_check() -> bool:
+    """Run black check on the codebase."""
     try:
         result = subprocess.run(
-            ["ruff", "check", "."],
-            cwd=Path(__file__).parent.parent,
+            ["black", "--check", "src", "code"],
             check=False,
+            capture_output=True,
+            text=True,
         )
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"Linting failed: {e}")
-        return 1
-
-def run_format_check() -> int:
-    """Run black formatting check on the codebase."""
-    if not check_tool("black"):
-        print("Error: black is not installed. Run: pip install black")
-        return 1
-    
-    try:
-        result = subprocess.run(
-            ["black", "--check", "."],
-            cwd=Path(__file__).parent.parent,
-            check=False,
-        )
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"Formatting check failed: {e}")
-        return 1
+        if result.returncode == 0:
+            print("✓ Black check passed.")
+            return True
+        else:
+            print("✗ Black check failed:")
+            print(result.stdout)
+            print(result.stderr)
+            return False
+    except FileNotFoundError:
+        print("✗ Black is not installed.")
+        return False
 
 def main():
-    """Main entry point for initialization and validation."""
-    print("Checking linting and formatting configuration...")
-    
-    if not check_config_files():
-        print("Configuration check failed. Please ensure pyproject.toml exists.")
+    """Main entry point for linting verification."""
+    print("=== Linting and Formatting Verification ===\n")
+
+    # Check tools
+    ruff_ok = check_tool("ruff")
+    black_ok = check_tool("black")
+
+    # Check config
+    config_ok = check_config_files()
+
+    if not (ruff_ok and black_ok and config_ok):
+        print("\n⚠ Configuration incomplete. Please install missing tools or files.")
+        print("  Install dev dependencies: pip install -e '.[dev]'")
         sys.exit(1)
-    
-    print("Configuration files found.")
-    
-    # Optional: Run checks to verify setup
-    # lint_code = run_lint_check()
-    # format_code = run_format_check()
-    
-    # if lint_code != 0:
-    #     print("Linting issues found. Run 'ruff check --fix' to fix.")
-    # if format_code != 0:
-    #     print("Formatting issues found. Run 'black .' to fix.")
-    
-    print("Linting and formatting configuration is ready.")
-    print("To run checks manually:")
-    print("  ruff check .")
-    print("  black --check .")
-    print("To auto-fix:")
-    print("  ruff check --fix .")
-    print("  black .")
+
+    # Run checks
+    print("\n=== Running Checks ===")
+    lint_ok = run_lint_check()
+    format_ok = run_format_check()
+
+    if lint_ok and format_ok:
+        print("\n✓ All checks passed successfully.")
+        sys.exit(0)
+    else:
+        print("\n✗ Some checks failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

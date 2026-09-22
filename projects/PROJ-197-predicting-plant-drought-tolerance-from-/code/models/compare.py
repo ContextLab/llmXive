@@ -4,74 +4,54 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Any
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
+# Local imports matching API surface
+from config import get_config, validate_config, ensure_directories
 from utils.logging import DataPipelineLog
-from config import get_config
+from utils.metrics_logger import log_comparison_report
 
-# Constants for Validation Logic (SC-005)
-VALIDATION_GENE_LIST = [
+# Validation Gene List (15) as specified in T029
+VALIDATION_GENES = [
     "DREB2A", "ERF1", "ABI5", "RD29A", "COR15A",
     "LEA3", "HSP70", "SOD", "APX1", "CAT1",
     "GPX1", "MDHAR", "DHAR", "GSTU", "ZAT12"
 ]
-MIN_VALIDATION_GENE_COUNT = 3
-TOP_N_FEATURES = 10
 
 def load_cv_results(metrics_path: str = "data/logs/metrics.json") -> Dict[str, Any]:
     """
-    Loads the metrics JSON file containing CV scores and model information.
+    Load the metrics JSON file containing CV results and feature importance.
     """
     if not os.path.exists(metrics_path):
-        raise FileNotFoundError(f"Metrics file not found at {metrics_path}. Run train.py and evaluate.py first.")
-    
+        raise FileNotFoundError(f"Metrics file not found at {metrics_path}. "
+                                "Run training/evaluation tasks first.")
     with open(metrics_path, 'r') as f:
         return json.load(f)
 
-def perform_rf_vs_xgb_ttest(metrics: Dict[str, Any]) -> Tuple[float, float]:
+def perform_rf_vs_xgb_ttest(rf_scores: List[float], xgb_scores: List[float]) -> Tuple[float, float]:
     """
-    Performs a paired t-test on the CV AUC scores for RF vs XGBoost.
+    Perform paired t-test on CV scores for RF vs XGBoost.
     Returns (t_statistic, p_value).
     """
-    # Assuming metrics structure: {'cv_results': {'rf': [scores...], 'xgboost': [scores...]}}
-    # This matches the output of T027 implementation logic
-    if 'cv_results' not in metrics:
-        # Fallback if structure differs, looking for specific keys
-        rf_scores = metrics.get('rf_cv_scores', [])
-        xgb_scores = metrics.get('xgboost_cv_scores', [])
-    else:
-        rf_scores = metrics['cv_results'].get('rf', [])
-        xgb_scores = metrics['cv_results'].get('xgboost', [])
-    
-    if not rf_scores or not xgb_scores:
-        raise ValueError("No CV scores found in metrics for t-test.")
-    
-    # Ensure lengths match for paired test
-    min_len = min(len(rf_scores), len(xgb_scores))
-    rf_scores = rf_scores[:min_len]
-    xgb_scores = xgb_scores[:min_len]
-
-    t_stat, p_val = stats.paired_ttest(rf_scores, xgb_scores)
+    from scipy import stats
+    t_stat, p_val = stats.ttest_rel(rf_scores, xgb_scores)
     return t_stat, p_val
 
-def calculate_permutation_importance(model_path: str, X_test: np.ndarray, y_test: np.ndarray, 
-                                    feature_names: List[str], n_repeats: int = 5, random_state: int = 42) -> pd.DataFrame:
+def calculate_permutation_importance(model: Any, X: np.ndarray, y: np.ndarray, 
+                                     feature_names: List[str], n_repeats: int = 10, 
+                                     random_state: int = 42) -> pd.DataFrame:
     """
-    Calculates permutation feature importance for the best model.
-    Returns a DataFrame with feature names and importance scores.
+    Calculate permutation feature importance.
     """
     from sklearn.inspection import permutation_importance
     
-    model = joblib.load(model_path)
-    
-    # Use sklearn's permutation_importance
-    # Note: For XGBoost/RF, this is standard.
-    result = permutation_importance(model, X_test, y_test, n_repeats=n_repeats, random_state=random_state, n_jobs=2)
+    result = permutation_importance(
+        model, X, y, 
+        n_repeats=n_repeats, 
+        random_state=random_state,
+        scoring='roc_auc'
+    )
     
     importance_df = pd.DataFrame({
         'feature': feature_names,
@@ -79,210 +59,209 @@ def calculate_permutation_importance(model_path: str, X_test: np.ndarray, y_test
         'importance_std': result.importances_std
     })
     
-    return importance_df.sort_values(by='importance_mean', ascending=False)
+    # Sort by importance descending
+    importance_df = importance_df.sort_values(by='importance_mean', ascending=False)
+    return importance_df
 
-def classify_features(feature_importance_df: pd.DataFrame) -> Dict[str, List[str]]:
+def classify_features(feature_names: List[str]) -> Dict[str, List[str]]:
     """
-    Classifies top features into 'genomic' and 'physiological' based on naming conventions.
-    Assumes genomic features contain gene names or specific prefixes, others are physiological.
-    Returns a dict: {'genomic': [...], 'physiological': [...]}
+    Classify features into 'genomic' and 'physiological' based on naming conventions.
+    Assumes genomic markers are gene names (uppercase, alphanumeric) and others are physiological.
     """
-    genomic_features = []
-    physiological_features = []
+    genomic = []
+    physiological = []
     
-    # Heuristic: If feature name is in the known gene list or looks like a gene name
-    # We rely on the synthetic generation logic where genomic features are named after genes
-    # and physiological traits have different naming (e.g., 'sl', 'sw', 'ls').
-    # Since we have the VALIDATION_GENE_LIST, we can use that as a strong indicator.
-    # Also, the synthetic genomics file (T012) uses specific gene names.
-    
-    for _, row in feature_importance_df.iterrows():
-        fname = row['feature']
-        # Check if it matches known validation genes or other synthetic gene names
-        # The synthetic data generator (T012) uses a specific list of 20 genes.
-        # We can assume any feature in the top list that matches a known gene pattern is genomic.
-        if fname in VALIDATION_GENE_LIST or fname in get_config()['gene_list']:
-            genomic_features.append(fname)
+    for name in feature_names:
+        # Heuristic: if it matches known gene patterns or is in our genomic list
+        if name in VALIDATION_GENES or (name.isupper() and name.replace('_', '').isalnum()):
+            genomic.append(name)
         else:
-            physiological_features.append(fname)
+            physiological.append(name)
             
     return {
-        'genomic': genomic_features,
-        'physiological': physiological_features
+        'genomic': genomic,
+        'physiological': physiological
     }
 
-def generate_comparison_report(metrics: Dict[str, Any], importance_df: pd.DataFrame, 
-                              classified_features: Dict[str, List[str]], 
-                              output_path: str = "docs/reports/final_analysis.md") -> Dict[str, Any]:
+def generate_comparison_report(metrics_data: Dict[str, Any], 
+                               feature_importance_df: pd.DataFrame,
+                               config: Dict[str, Any]) -> str:
     """
-    Generates the final analysis report at docs/reports/final_analysis.md.
-    Implements Validation Logic (SC-005):
-    - Check if count of Validation Genes in Top 10 >= 3.
+    Generate the final analysis report content (Markdown).
+    Includes validation logic: count of validation genes in Top 10 >= 3.
     """
-    top_10_features = importance_df.head(TOP_N_FEATURES)['feature'].tolist()
+    # Extract top 10 features
+    top_10_features = feature_importance_df.head(10)['feature'].tolist()
     
-    # Count validation genes in top 10
-    validation_genes_in_top_10 = [g for g in top_10_features if g in VALIDATION_GENE_LIST]
+    # Validation Logic
+    validation_genes_in_top_10 = [g for g in top_10_features if g in VALIDATION_GENES]
     count_validation = len(validation_genes_in_top_10)
+    validation_passed = count_validation >= 3
     
-    validation_passed = count_validation >= MIN_VALIDATION_GENE_COUNT
+    # Extract model metrics
+    best_model_name = metrics_data.get('best_model', 'Unknown')
+    best_auc = metrics_data.get('best_auc', 0.0)
+    delong_p_value = metrics_data.get('delong_p_value', 'N/A')
     
-    # Prepare report content
+    # Extract t-test results if available
+    t_stat = metrics_data.get('t_statistic', 'N/A')
+    p_val_ttest = metrics_data.get('p_value_ttest', 'N/A')
+    
+    # Classify features
+    classification = classify_features(feature_importance_df['feature'].tolist())
+    
+    # Build Report
     report_lines = [
-        "# Final Analysis Report: Drought Tolerance Prediction",
+        "# Final Analysis Report: Plant Drought Tolerance Prediction",
         "",
-        "## 1. Model Comparison",
+        "## Executive Summary",
+        f"This report summarizes the final analysis of the drought tolerance prediction pipeline.",
+        f"Best Model: **{best_model_name}**",
+        f"Test ROC-AUC: **{best_auc:.4f}**",
         "",
-        f"**Best Model**: {metrics.get('best_model_name', 'Unknown')}",
-        f"**Best AUC**: {metrics.get('best_model_auc', 0.0):.4f}",
+        "## Statistical Validation",
         "",
-        "### RF vs XGBoost Paired T-Test",
+        "### DeLong's Test (Model vs Baseline)",
+        f"- P-value: {delong_p_value}",
+        f"- Significance Threshold: p < 0.05",
+        f"- Result: {'Significant' if delong_p_value != 'N/A' and float(delong_p_value) < 0.05 else 'Not Significant or N/A'}",
         "",
-        "A paired t-test was performed on the cross-validation AUC scores to determine if the difference in performance between Random Forest and XGBoost is statistically significant.",
+        "### Paired T-Test (RF vs XGBoost)",
+        f"- T-Statistic: {t_stat}",
+        f"- P-Value: {p_val_ttest}",
         "",
-        f"- **t-statistic**: {metrics.get('t_statistic', 0.0):.4f}",
-        f"- **p-value**: {metrics.get('p_value', 0.0):.4f}",
-        "",
-        "## 2. Feature Importance Analysis",
-        "",
-        "Permutation feature importance was calculated for the best model to identify the most predictive features.",
+        "## Feature Importance Analysis",
         "",
         "### Top 10 Features",
-        "",
-        "| Rank | Feature | Mean Importance | Std Dev |",
-        "|------|---------|-----------------|---------|",
+        "Rank | Feature | Importance (Mean)",
+        "--- | --- | ---",
     ]
     
-    for i, (_, row) in enumerate(importance_df.head(10).iterrows(), 1):
-        report_lines.append(f"| {i} | {row['feature']} | {row['importance_mean']:.4f} | {row['importance_std']:.4f} |")
-        
+    for i, (_, row) in enumerate(feature_importance_df.head(10).iterrows(), 1):
+        report_lines.append(f"{i} | {row['feature']} | {row['importance_mean']:.4f}")
+    
     report_lines.extend([
         "",
         "### Feature Classification",
+        f"- **Genomic Markers**: {len(classification['genomic'])} features",
+        f"- **Physiological Traits**: {len(classification['physiological'])} features",
         "",
-        "Features were classified based on their biological origin:",
+        "## Validation Check (SC-005)",
         "",
-        f"- **Genomic Markers (Top 10)**: {', '.join(classified_features['genomic']) if classified_features['genomic'] else 'None'}",
-        f"- **Physiological Traits (Top 10)**: {', '.join(classified_features['physiological']) if classified_features['physiological'] else 'None'}",
+        f"**Validation Gene List (15)**: {', '.join(VALIDATION_GENES)}",
+        f"- Count of validation genes in Top 10 features: **{count_validation}**",
+        f"- Threshold: >= 3",
+        f"- **Result**: {'✅ PASSED' if validation_passed else '❌ FAILED'}",
         "",
-        "## 3. Validation Check (SC-005)",
+        "## Conclusion",
         "",
-        "The model's predictive power was validated against a set of known drought-responsive genes.",
+        "The pipeline successfully trained and evaluated models for drought tolerance prediction.",
+        f"The validation check {'passed' if validation_passed else 'failed'}, indicating {'strong' if validation_passed else 'weak'} predictive signal from known drought-responsive genes.",
         "",
-        f"- **Validation Gene List Count**: {len(VALIDATION_GENE_LIST)} genes",
-        f"- **Validation Genes in Top 10**: {count_validation}",
-        f"- **Threshold**: >= {MIN_VALIDATION_GENE_COUNT}",
-        f"- **Result**: {'**PASSED**' if validation_passed else '**FAILED**'}",
-        "",
-        "### Validation Genes Identified in Top 10:",
-        ""
+        "## Reproducibility",
+        f"- Config Seed: {config.get('random_seed', 42)}",
+        f"- Models saved to: `data/models/`",
+        f"- Metrics logged to: `data/logs/metrics.json`"
     ])
     
-    if validation_genes_in_top_10:
-        for gene in validation_genes_in_top_10:
-            report_lines.append(f"- {gene}")
-    else:
-        report_lines.append("- None found in Top 10.")
-        
-    report_lines.extend([
-        "",
-        "## 4. Conclusion",
-        "",
-        "This analysis confirms the predictive capability of the model using both genomic and physiological data. " +
-        ("The validation check passed, indicating the model successfully identified key drought-tolerance genes." if validation_passed else 
-         "The validation check did not meet the threshold, suggesting further feature engineering or data collection may be needed.")
-    ])
-    
-    # Write report
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(report_lines))
-    
-    return {
-        'validation_passed': validation_passed,
-        'validation_count': count_validation,
-        'top_10_features': top_10_features,
-        'validation_genes_in_top_10': validation_genes_in_top_10
-    }
+    return "\n".join(report_lines)
 
 def main():
     """
-    Main entry point for T029: Generate final analysis report.
+    Main entry point for T029.
+    1. Load metrics and feature importance from previous steps.
+    2. Calculate permutation importance if not already done (or load pre-calculated).
+    3. Generate the report content.
+    4. Write report to `docs/reports/final_analysis.md`.
+    5. Log the validation result.
     """
-    logger = DataPipelineLog()
+    config = get_config()
+    ensure_directories(config)
+    
+    logger = DataPipelineLog(config)
     logger.info("Starting Final Analysis Report Generation (T029)")
     
-    config = get_config()
-    metrics_path = "data/logs/metrics.json"
-    model_path = config.get('model_path', 'models/best_model.joblib')
-    test_data_path = "data/processed/test_set.csv"
+    # Paths
+    metrics_path = Path("data/logs/metrics.json")
+    report_path = Path("docs/reports/final_analysis.md")
+    model_path = Path("data/models/best_model.joblib")
+    test_data_path = Path("data/processed/split_test_data.npz") # Assumed output from split/evaluate
     
+    # Load Metrics
     try:
-        # 1. Load Metrics
-        metrics = load_cv_results(metrics_path)
-        logger.info(f"Loaded metrics from {metrics_path}")
-        
-        # 2. Perform T-Test (if not already in metrics, do it now)
-        # Assuming T027 might have saved this, but we re-calculate to ensure freshness if needed
-        if 'p_value' not in metrics or 't_statistic' not in metrics:
-            t_stat, p_val = perform_rf_vs_xgb_ttest(metrics)
-            metrics['t_statistic'] = t_stat
-            metrics['p_value'] = p_val
-            # Save updated metrics if needed, but for report generation we just need the values
-            logger.info(f"Performed t-test: t={t_stat:.4f}, p={p_val:.4f}")
-        
-        # 3. Load Test Data for Permutation Importance
-        if not os.path.exists(test_data_path):
-            raise FileNotFoundError(f"Test data not found at {test_data_path}. Run data/split.py first.")
-        
-        test_df = pd.read_csv(test_data_path)
-        
-        # Identify feature columns (exclude 'species_id' and 'label')
-        # The exact column names depend on the ingest pipeline. 
-        # We assume 'label' is the target and 'species_id' is an ID.
-        # All other columns are features.
-        feature_cols = [c for c in test_df.columns if c not in ['species_id', 'label', 'drought_label']]
-        if 'drought_label' not in test_df.columns and 'label' in test_df.columns:
-            # Handle potential naming variation
-            pass 
-        
-        # Determine target column name
-        target_col = 'label' if 'label' in test_df.columns else 'drought_label'
-        
-        X_test = test_df[feature_cols].values
-        y_test = test_df[target_col].values
-        
-        logger.info(f"Loaded test data with {X_test.shape[0]} samples and {len(feature_cols)} features")
-        
-        # 4. Calculate Permutation Importance
-        importance_df = calculate_permutation_importance(
-            model_path, X_test, y_test, feature_cols, n_repeats=5, random_state=42
-        )
-        logger.info("Calculated permutation importance")
-        
-        # 5. Classify Features
-        classified_features = classify_features(importance_df)
-        logger.info(f"Classified features: {len(classified_features['genomic'])} genomic, {len(classified_features['physiological'])} physiological")
-        
-        # 6. Generate Report
-        report_results = generate_comparison_report(metrics, importance_df, classified_features)
-        logger.info(f"Generated report at docs/reports/final_analysis.md")
-        logger.info(f"Validation Result: {'PASSED' if report_results['validation_passed'] else 'FAILED'}")
-        
-        # Log the validation outcome to the main log
-        logger.record_analysis_result(
-            task="T029",
-            validation_passed=report_results['validation_passed'],
-            validation_count=report_results['validation_count'],
-            top_features=report_results['top_10_features']
-        )
-        
-        print(f"Final Analysis Complete. Validation: {'PASSED' if report_results['validation_passed'] else 'FAILED'}")
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Failed to generate report: {str(e)}")
-        raise
+        metrics_data = load_cv_results(str(metrics_path))
+    except FileNotFoundError as e:
+        logger.error(f"Metrics file missing: {e}")
+        print(f"Error: {e}")
+        sys.exit(1)
+    
+    # Load Model and Test Data for Permutation Importance
+    # Note: If metrics already contains feature_importance, we can skip re-calculation.
+    # However, to be robust, we re-calculate if the model and data exist.
+    feature_importance_df = None
+    
+    if 'feature_importance' in metrics_data and isinstance(metrics_data['feature_importance'], list):
+        # Load from metrics if available (simplified representation)
+        # We expect the metrics to have been populated by T028
+        feature_importance_df = pd.DataFrame(metrics_data['feature_importance'])
+    else:
+        # Re-calculate if possible
+        if model_path.exists() and test_data_path.exists():
+            logger.info("Calculating Permutation Feature Importance...")
+            model = joblib.load(str(model_path))
+            
+            # Load test data
+            test_data = np.load(str(test_data_path), allow_pickle=True)
+            X_test = test_data['X']
+            y_test = test_data['y']
+            feature_names = test_data.get('feature_names', None)
+            
+            if feature_names is None:
+                # Fallback to column names from metrics if available, else generic
+                if 'feature_names' in metrics_data:
+                    feature_names = metrics_data['feature_names']
+                else:
+                    feature_names = [f"feature_{i}" for i in range(X_test.shape[1])]
+            
+            feature_importance_df = calculate_permutation_importance(
+                model, X_test, y_test, feature_names
+            )
+            
+            # Update metrics for logging
+            metrics_data['feature_importance'] = feature_importance_df.to_dict('records')
+            with open(metrics_path, 'w') as f:
+                json.dump(metrics_data, f, indent=2)
+        else:
+            logger.warning("Model or test data not found. Using placeholder or exiting.")
+            # If we can't calculate, we might need to fail or use dummy data if strictly required to produce a file.
+            # However, per constraints, we must produce real results. If data is missing, we fail loudly.
+            if not model_path.exists():
+                raise FileNotFoundError(f"Best model not found at {model_path}. Run training first.")
+            if not test_data_path.exists():
+                raise FileNotFoundError(f"Test data not found at {test_data_path}. Run split/evaluate first.")
+            
+    if feature_importance_df is None:
+        raise RuntimeError("Could not obtain feature importance data.")
+    
+    # Generate Report
+    report_content = generate_comparison_report(metrics_data, feature_importance_df, config)
+    
+    # Write Report
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        f.write(report_content)
+    
+    logger.info(f"Report generated at {report_path}")
+    
+    # Log Validation Result
+    validation_genes_in_top_10 = [g for g in feature_importance_df.head(10)['feature'].tolist() if g in VALIDATION_GENES]
+    log_comparison_report(
+        path="data/logs/metrics.json",
+        validation_passed=len(validation_genes_in_top_10) >= 3,
+        validation_count=len(validation_genes_in_top_10)
+    )
+    
+    print(f"Task T029 Complete. Report: {report_path}")
 
 if __name__ == "__main__":
     main()

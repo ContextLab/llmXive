@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-053-unveiling-hidden-correlations-between-pr",
+  "tasks": [
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/target_config.json, schema.yaml",
+      "first_seen": "2026-09-22T15:44:08.734122+00:00",
+      "last_seen": "2026-09-22T15:44:08.734122+00:00"
+    }
+  ],
+  "updated_at": "2026-09-22T15:44:08.734122+00:00"
+}

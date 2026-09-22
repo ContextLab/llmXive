@@ -1,31 +1,17 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (code/, data/raw/, data/processed/,\
-    \ tests/, docs/, docs/reports/) is presented; the implementer did not provide\
-    \ any file\u2011system listing, screenshots, or other proof that these folders\
-    \ exist and are non\u2011empty. The task therefore remains unverified."
-T012:
-  c: false
-  h: 56a250597654b0c86afde1088c3ed66d018b476ce6872870c25a15c240b5d9fc
-  r: "The repository contains a partially\u2011implemented `code/data/generate.py`\
-    \ (the shown portion stops after creating the DataFrame and does not show label\
-    \ computation or CSV writing). Moreover, the required output file `data/processed/synthetic_genomics.csv`\
-    \ is absent. The task\u2019s core deliverables\u2014generating labels per the\
-    \ specified rule and persisting them to the exact CSV path\u2014are therefore\
-    \ not fulfilled."
-T016:
-  c: false
-  h: 54ae9be44abe3092383c16fb5250c398668e5cf8c14550bd06f5354748986176
-  r: "The repository contains `code/data/generate.py` with a correct matrix\u2011\
-    generation function, but the script never writes the resulting array to `data/processed/synthetic_phylo_matrix.npy`,\
-    \ and that file is absent from the project. The required output file is missing,\
-    \ so the task is not fully satisfied."
 T029:
   c: false
-  h: 89c19158fd25e6ce11c9acaf56dfc5d8eb49f9eeb5200c1ce099c0e59123ca4a
-  r: "The `code/models/compare.py` file does not implement the required validation\
-    \ logic (checking the count of the 15 validation genes among the top\u201110 features)\
-    \ nor does it create/write `docs/reports/final_analysis.md`. Moreover, the `final_analysis.md`\
-    \ file is absent from the repository. Both the script and the final report are\
-    \ missing, so the task is not satisfied."
+  h: c7d27bbecaca6138fe32a5b388f4332fc47ced3093515e25fabe971bf8563b82
+  r: "The repository contains a `code/models/compare.py` file, but it is truncated\
+    \ and does not show any logic that writes a report to `docs/reports/final_analysis.md`.\
+    \ Moreover, the required `docs/reports/final_analysis.md` file is missing entirely,\
+    \ and there is no evidence that the script checks the count of validation genes\
+    \ in the top\u201110 features. The task\u2019s core deliverables are therefore\
+    \ not present."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files from `docs/reports/` were provided, nor any excerpt showing\
+    \ a limitation note about synthetic data. Without the actual updated docs, we\
+    \ cannot confirm the required artifact exists or contains the specified information.\
+    \ The implementer must add the updated report file(s) with the synthetic\u2011\
+    data limitation note."

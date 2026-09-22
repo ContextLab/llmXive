@@ -176,8 +176,8 @@ required: [laser_power, scan_speed, layer_thickness, yield_strength, ductility]
  2. Always write `total_runtime_seconds` to `results/metrics.json`.
  3. **Dynamic Limit Detection**: Check `os.environ.get('GITHUB_ACTIONS')`.
  - If `GITHUB_ACTIONS` is set (CI environment): Compare against `config.TIME_LIMIT_SECONDS` (default a standard duration of several hours).
-   - If runtime < limit: Set `feasibility_status: "PASSED"`.
-   - If runtime >= limit: **log** warning, set `feasibility_status: "FAILED"`, and **do not abort**.
+ - If runtime < limit: Set `feasibility_status: "PASSED"`.
+ - If runtime >= limit: **log** warning, set `feasibility_status: "FAILED"`, and **do not abort**.
  - If `GITHUB_ACTIONS` is NOT set: Log warning if runtime exceeds a predefined threshold. but do not set `feasibility_status` to FAILED.
  4. **Note**: This task is primarily for CI environments; local runs use the default limit as a guideline. The limit value must be sourced from `config.py`.
 - [ ] T042A [US1] [DEPENDS ON data/processed/train.csv, data/processed/test.csv, data/processed/excluded_columns.yaml] Implement `projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main_us1.py` to orchestrate ONLY User Story 1 (download -> preprocess -> validate). CLI: `--input <raw.csv>` `--output <processed.csv>`. Validate file extensions, enforce `PYTHONHASHSEED=0`. **Note**: Optional orchestration helper for independent US1 testing.

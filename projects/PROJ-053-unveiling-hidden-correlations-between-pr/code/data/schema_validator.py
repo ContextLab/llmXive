@@ -52,11 +52,11 @@ def validate_csv_schema(df: pd.DataFrame, schema: dict) -> bool:
         if col_name in df.columns:
             if col_def.get('type') == 'number':
                 if not pd.api.types.is_numeric_dtype(df[col_name]):
-                    # Attempt to coerce
+                    # Attempt to coerce strings to floats (handling scientific notation)
                     try:
                         df[col_name] = pd.to_numeric(df[col_name], errors='raise')
-                    except (ValueError, TypeError):
-                        raise ValueError(f"Column '{col_name}' is not numeric and cannot be coerced.")
+                    except (ValueError, TypeError) as e:
+                        raise ValueError(f"Column '{col_name}' is not numeric and cannot be coerced: {e}")
     
     return True
 
@@ -72,15 +72,27 @@ def validate_and_report(csv_path: str, schema_path: str = None, logger: logging.
     
     try:
         schema = load_schema(schema_path)
+        
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f"CSV file not found: {csv_path}")
+        
         df = pd.read_csv(csv_path)
         
         validate_csv_schema(df, schema)
         
         logger.info("Validation successful.")
+        logger.info(f"Columns validated: {list(df.columns)}")
+        logger.info(f"Row count: {len(df)}")
         return True
         
+    except FileNotFoundError as fnf:
+        logger.error(f"File error: {str(fnf)}")
+        raise
+    except ValueError as ve:
+        logger.error(f"Validation error: {str(ve)}")
+        raise
     except Exception as e:
-        logger.error(f"Validation failed: {str(e)}")
+        logger.error(f"Unexpected error during validation: {str(e)}")
         raise
 
 def main():
@@ -94,6 +106,7 @@ def main():
     try:
         validate_and_report(args.input, args.schema, logger)
         print("Validation Passed")
+        sys.exit(0)
     except Exception as e:
         print(f"Validation Failed: {e}")
         sys.exit(1)

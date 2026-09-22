@@ -5,5 +5,5 @@ properties:
   layer_thickness: { type: number }
   yield_strength: { type: number }
   ductility: { type: number }
-  fatigue_life: { type: number }
+  fatigue_life: { type: number } # Optional: not required for initial run (Plan Assumption: Dataset-variable fit). If missing, system MUST log scope reduction and restrict analysis.
 required: [laser_power, scan_speed, layer_thickness, yield_strength, ductility]

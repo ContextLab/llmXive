@@ -59,8 +59,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T007 Implement `src/utils/constants.py` with physical constants (c, H0 reference values) and Pantheon+ metadata
-- [ ] T008 [P] Setup logging infrastructure in `src/utils/logger.py` with audit trails for data filtering
-- [ ] T009 [P] Implement checksum verification utility in `src/utils/data_integrity.py` for raw data validation
+- [X] T008 [P] Setup logging infrastructure in `src/utils/logger.py` with audit trails for data filtering
+- [X] T009 [P] Implement checksum verification utility in `src/utils/data_integrity.py` for raw data validation
 - [ ] T010 Create base data models (Pydantic) for `SupernovaRecord`, `HEALPixPixel`, and `H0Estimate` in `src/models/`
 - [ ] T011 Configure environment variable management for Zenodo API keys and random seeds in `src/utils/config.py`
 
@@ -83,8 +83,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) [UNRESOLVED-CLAIM: c_d62b1cce — status=not_enough_info]) and verify checksum against `data/raw/pantheon_plus.csv` using T009
-- [ ] T015 [US1] Implement `src/ingestion/loader.py` to load raw CSV from T014, apply z < 0.15 cut, filter quality flags, and invoke the checksum utility from T009 for data integrity
+- [ ] T014 [US1] Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) [UNRESOLVED-CLAIM: c_152b471a — status=not_enough_info]) and verify checksum against `data/raw/pantheon_plus.csv` using T009
+- [X] T015 [US1] Implement `src/ingestion/loader.py` to load raw CSV from T014, apply z < 0.15 cut, filter quality flags, and invoke the checksum utility from T009 for data integrity
 - [ ] T016 [US1] Assign HEALPix indices (Nside=4, NESTED) to supernovae
 - [ ] T017 [US1] Add validation logic to ensure all RA/Dec coordinates are within valid celestial bounds and handle missing data
 - [ ] T018 [US1] Implement audit logging for removed rows (invalid redshift/coordinates) in `src/ingestion/loader.py`
@@ -98,7 +98,7 @@
 
 **Goal**: Calculate global and regional H₀ estimates using peculiar velocity corrections and luminosity distance fits.
 
-**Independent Test**: Run regression on synthetic data with known H₀ and verify recovery within ±67.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science) km/s/Mpc [UNRESOLVED-CLAIM: c_53eddd4f — status=verified].
+**Independent Test**: Run regression on synthetic data with known H₀ and verify recovery within ±67.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science) km/s/Mpc.
 
 ### Tests for User Story 2
 
@@ -109,10 +109,10 @@
 
 - [ ] T022 [US2] Implement `src/analysis/h0_estimator.py` with linearized Hubble diagram approximation for speed (Monte Carlo use), consuming `data/processed/pantheon_plus_corrected.parquet`
 - [ ] T023 [US2] Implement `src/analysis/h0_estimator.py` with full non-linear luminosity distance model $d_L(z) = c/H_0 \int dz'/E(z')$ for final results, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T024 [US2] Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction` in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts [UNRESOLVED-CLAIM: c_5d835e84 — status=not_enough_info]
+- [ ] T024 [US2] Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction` in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts
 - [ ] T025 [US2] Implement logic to fit global H₀ using the full sample in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T026 [US2] Implement logic to fit local H₀ for each HEALPix pixel with N ≥ 30 [UNRESOLVED-CLAIM: c_456ba479 — status=not_enough_info] in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T027 [US2] Implement logic to identify pixels with N < 30 for fallback estimation [UNRESOLVED-CLAIM: c_3cdfc01e — status=not_enough_info]
+- [ ] T026 [US2] Implement logic to fit local H₀ for each HEALPix pixel with N ≥ 30 in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
+- [ ] T027 [US2] Implement logic to identify pixels with N < 30 for fallback estimation
 - [ ] T028 [US2] Save global and local H₀ estimates with standard errors to `data/results/h0_estimates.parquet`
 - [ ] T029 [US2] {{claim:c_f42f9d04}}, with hyperprior borrowing strength from neighboring pixels (Nside=4 adjacency)
 - [ ] T030 [US2] Save Hierarchical Bayesian estimates for low-N pixels to `data/results/h0_estimates_parquet` (append)
@@ -138,8 +138,8 @@
 - [ ] T034 [US3] {{claim:c_f3094af2}}
 - [ ] T035 [US3] Implement randomization logic to shuffle supernova positions within the observed Pantheon+ selection function (survey mask)
 - [ ] T036 [US3] Implement p-value calculation comparing observed dipole/quadrupole amplitudes against the null distribution
-- [ ] T037 [US3] Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole tests [UNRESOLVED-CLAIM: c_0f9999b9 — status=not_enough_info] in `src/analysis/anisotropy.py`, including logic to report the false positive rate (SC-005) as a measurable outcome
-- [ ] T038 [US3] Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15, 0.20) [UNRESOLVED-CLAIM: c_e7130827 — status=not_enough_info] and record stability of metrics, outputting results to `data/results/sensitivity_metrics.json`
+- [ ] T037 [US3] Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole tests in `src/analysis/anisotropy.py`, including logic to report the false positive rate (SC-005) as a measurable outcome
+- [ ] T038 [US3] Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15, 0.20) and record stability of metrics, outputting results to `data/results/sensitivity_metrics.json`
 - [ ] T039 [US3] Implement generation of comparative plots and stability report for sensitivity analysis (FR-007), saving to `data/results/sensitivity_report.md`
 - [ ] T040 [US3] Save anisotropy results, null distributions, and sensitivity analysis logs to `data/results/anisotropy_metrics.json`
 
@@ -164,7 +164,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T044 Code cleanup and refactoring of `src/ingestion` and `src/analysis` modules
-- [ ] T045 Performance optimization for Monte Carlo simulations (vectorization, multiprocessing) to ensure < 6h runtime [UNRESOLVED-CLAIM: c_439f4a8a — status=not_enough_info]
+- [ ] T045 Performance optimization for Monte Carlo simulations (vectorization, multiprocessing) to ensure < 6h runtime
 - [ ] T046 [P] Additional unit tests for edge cases (N < 30 pixels, missing data) in `tests/unit/`
 - [ ] T047 [P] Complete docstrings for `src/ingestion/loader.py` and `src/ingestion/spatial.py`
 - [ ] T048 [P] Complete docstrings for `src/analysis/h0_estimator.py` and `src/analysis/anisotropy.py`

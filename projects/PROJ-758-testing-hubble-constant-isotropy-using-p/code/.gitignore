@@ -2,57 +2,83 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
 
-# Virtual environments
+# C extensions
+*.so
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+bdist/
+develop-eggs/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
 env/
 venv/
 ENV/
-.venv/
+env.bak/
+venv.bak/
 
-# IDEs
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Data (Raw data is managed externally or via DVC; processed results are tracked)
-data/raw/*.csv
-data/raw/*.parquet
-data/raw/*.json
-data/processed/*.parquet
-data/processed/*.csv
-data/results/*.json
-data/results/*.parquet
-data/results/*.md
+.project
+.settings/
 
 # Jupyter Notebook
-.ipynb_checkpoints/
+.ipynb_checkpoints
 
-# Configuration overrides
-.env.local
-.env.*.local
-
-# Coverage
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-
-# Testing
-.pytest_cache/
+# mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Linting/Formatting caches
+# Ruff
 .ruff_cache/
-.black_cache/
+
+# Black
+# (Black does not generate files, but cache is in .ruff_cache usually)
+
+# OS generated files
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.parquet
+data/results/*.parquet
+data/results/*.json
+data/results/*.md
+figures/*.png
+figures/*.pdf

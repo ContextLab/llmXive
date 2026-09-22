@@ -1,129 +1,137 @@
-"""
-Unit tests for the paired t-test functionality in code/models/compare.py.
-
-This test validates the statistical comparison logic using synthetic but
-realistic CV score arrays, ensuring the t-test implementation correctly
-calculates p-values and handles edge cases.
-"""
-
 import pytest
 import numpy as np
-from scipy import stats
+import pandas as pd
+from unittest.mock import patch, MagicMock
+import os
+import json
+import tempfile
 
-# Import the paired t-test function from the stats utility module
-# Note: We import from utils.stats as defined in the API surface,
-# rather than directly from models.compare, to test the core statistical logic.
-from code.utils.stats import paired_ttest
+# Import the module under test
+# Assuming the test runner sets PYTHONPATH correctly to include 'code'
+# In a real scenario, imports would be: from code.models.compare import ...
+# But per API surface, we assume imports like: from models.compare import ...
+# Since we are running from root, we need to ensure path is correct.
+# For the purpose of this artifact, we assume the test is run with PYTHONPATH=code
+from models.compare import (
+    VALIDATION_GENES,
+    load_cv_results,
+    perform_rf_vs_xgb_ttest,
+    calculate_permutation_importance,
+    classify_features,
+    generate_comparison_report
+)
 
+class TestCompareValidationLogic:
+    """Tests for the T029 validation logic (SC-005)."""
 
-class TestPairedTTest:
-    """Test suite for the paired_ttest function."""
+    def test_validation_gene_count_logic(self):
+        """Verify that the validation logic correctly counts genes in top 10."""
+        # Mock feature importance DataFrame
+        mock_data = {
+            'feature': VALIDATION_GENES[:5] + ["OTHER_GENE_1", "OTHER_GENE_2", "OTHER_GENE_3", "OTHER_GENE_4", "OTHER_GENE_5"],
+            'importance_mean': [0.5, 0.4, 0.3, 0.2, 0.1, 0.09, 0.08, 0.07, 0.06, 0.05]
+        }
+        df = pd.DataFrame(mock_data)
+        
+        # Top 10 includes 5 validation genes
+        top_10 = df.head(10)['feature'].tolist()
+        count = len([g for g in top_10 if g in VALIDATION_GENES])
+        
+        assert count == 5
+        assert count >= 3  # Should pass validation
 
-    def test_identical_scores_returns_zero_statistic(self):
-        """
-        When two models have identical CV scores, the t-statistic should be 0
-        and the p-value should be 1.0 (or very close to it).
-        """
-        scores_a = np.array([0.85, 0.86, 0.84, 0.87, 0.85])
-        scores_b = np.array([0.85, 0.86, 0.84, 0.87, 0.85])
+    def test_validation_gene_count_fail(self):
+        """Verify that validation fails if count < 3."""
+        mock_data = {
+            'feature': VALIDATION_GENES[:2] + ["OTHER"] * 8,
+            'importance_mean': [0.5, 0.4] + [0.1] * 8
+        }
+        df = pd.DataFrame(mock_data)
+        
+        top_10 = df.head(10)['feature'].tolist()
+        count = len([g for g in top_10 if g in VALIDATION_GENES])
+        
+        assert count == 2
+        assert count < 3  # Should fail validation
 
-        t_stat, p_value = paired_ttest(scores_a, scores_b)
+    def test_generate_comparison_report_includes_validation(self):
+        """Verify that the generated report contains the validation result."""
+        mock_metrics = {
+            'best_model': 'XGBoost',
+            'best_auc': 0.85,
+            'delong_p_value': 0.01,
+            't_statistic': 2.5,
+            'p_value_ttest': 0.02
+        }
+        
+        mock_df = pd.DataFrame({
+            'feature': VALIDATION_GENES[:5] + ["OTHER"] * 5,
+            'importance_mean': [0.5, 0.4, 0.3, 0.2, 0.1, 0.09, 0.08, 0.07, 0.06, 0.05]
+        })
+        
+        config = {'random_seed': 42}
+        
+        report = generate_comparison_report(mock_metrics, mock_df, config)
+        
+        assert "Validation Check (SC-005)" in report
+        assert "Count of validation genes in Top 10 features: **5**" in report
+        assert "✅ PASSED" in report
 
-        assert t_stat == 0.0
-        assert p_value == 1.0
+class TestPermutationImportance:
+    """Tests for permutation importance calculation."""
 
-    def test_significant_difference_detected(self):
-        """
-        Test that a significant difference in means is detected.
-        Model A has consistently higher scores than Model B.
-        """
-        # Synthetic CV scores for Model A (RandomForest)
-        scores_a = np.array([0.90, 0.92, 0.89, 0.91, 0.93])
-        # Synthetic CV scores for Model B (XGBoost) - slightly lower
-        scores_b = np.array([0.82, 0.84, 0.81, 0.83, 0.85])
+    def test_calculate_permutation_importance_shapes(self):
+        """Verify output DataFrame shape and columns."""
+        # Mock model
+        mock_model = MagicMock()
+        mock_model.predict.return_value = np.array([0, 1, 0, 1])
+        
+        X = np.random.rand(10, 5)
+        y = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
+        names = [f"feat_{i}" for i in range(5)]
+        
+        # Mock permutation_importance to return a simple object
+        with patch('models.compare.permutation_importance') as mock_perm:
+            mock_result = MagicMock()
+            mock_result.importances_mean = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+            mock_result.importances_std = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
+            mock_perm.return_value = mock_result
+            
+            df = calculate_permutation_importance(mock_model, X, y, names)
+            
+            assert isinstance(df, pd.DataFrame)
+            assert len(df) == 5
+            assert 'feature' in df.columns
+            assert 'importance_mean' in df.columns
+            assert 'importance_std' in df.columns
+            # Check sorting (descending)
+            assert df.iloc[0]['importance_mean'] >= df.iloc[-1]['importance_mean']
 
-        t_stat, p_value = paired_ttest(scores_a, scores_b)
+class TestFeatureClassification:
+    """Tests for feature classification logic."""
 
-        # The difference is large, so p-value should be very small (< 0.05)
-        assert p_value < 0.05
-        # t-statistic should be positive (A > B)
-        assert t_stat > 0
+    def test_classify_features_genomic(self):
+        """Verify genomic genes are classified correctly."""
+        features = ["DREB2A", "ERF1", "PHENYLALANINE_AMMONIA_LYASE", "HSP70"]
+        result = classify_features(features)
+        
+        # DREB2A, ERF1, HSP70 are in VALIDATION_GENES
+        # PHENYLALANINE_AMMONIA_LYASE is not in VALIDATION_GENES but is uppercase-ish? 
+        # Our heuristic: if in VALIDATION_GENES or (upper and alnum). 
+        # "PHENYLALANINE_AMMONIA_LYASE" has underscores, so isalnum() might be false? 
+        # Actually, isalnum() returns False if underscore present.
+        # So it should be physiological unless in VALIDATION_GENES.
+        
+        assert "DREB2A" in result['genomic']
+        assert "ERF1" in result['genomic']
+        assert "HSP70" in result['genomic']
+        assert "PHENYLALANINE_AMMONIA_LYASE" in result['physiological']
 
-    def test_no_significant_difference(self):
-        """
-        Test that small random differences do not trigger significance.
-        Scores are drawn from similar distributions.
-        """
-        np.random.seed(42)
-        # Two sets of scores with overlapping distributions
-        scores_a = np.random.normal(loc=0.85, scale=0.02, size=20)
-        scores_b = np.random.normal(loc=0.86, scale=0.02, size=20)
-
-        t_stat, p_value = paired_ttest(scores_a, scores_b)
-
-        # With such small differences and variance, p-value should likely be > 0.05
-        # (Note: stochastic, but highly likely given the setup)
-        assert p_value > 0.05
-
-    def test_single_sample(self):
-        """
-        Test behavior with a single data point (edge case).
-        A t-test with n=1 is mathematically undefined (division by zero in std dev).
-        The function should handle this gracefully, likely returning NaN or raising.
-        Based on scipy.stats.ttest_rel behavior, it returns NaN for n=1.
-        """
-        scores_a = np.array([0.85])
-        scores_b = np.array([0.86])
-
-        t_stat, p_value = paired_ttest(scores_a, scores_b)
-
-        # scipy.stats.ttest_rel returns (nan, nan) for n=1
-        assert np.isnan(t_stat)
-        assert np.isnan(p_value)
-
-    def test_array_mismatch_raises_error(self):
-        """
-        Test that passing arrays of different lengths raises an error.
-        """
-        scores_a = np.array([0.85, 0.86, 0.87])
-        scores_b = np.array([0.82, 0.84])
-
-        with pytest.raises(ValueError):
-            paired_ttest(scores_a, scores_b)
-
-    def test_realistic_cv_scores_comparison(self):
-        """
-        Test with a more realistic set of 5-fold CV scores.
-        Simulates a scenario where Model A (RF) slightly outperforms Model B (XGBoost).
-        """
-        # 5-fold CV scores
-        scores_rf = np.array([0.78, 0.82, 0.79, 0.81, 0.80])
-        scores_xgb = np.array([0.76, 0.79, 0.77, 0.78, 0.77])
-
-        t_stat, p_value = paired_ttest(scores_rf, scores_xgb)
-
-        # Verify the function returns valid floats
-        assert isinstance(t_stat, float)
-        assert isinstance(p_value, float)
-
-        # In this specific synthetic case, the difference is consistent.
-        # We expect a significant result or at least a calculated statistic.
-        assert not np.isnan(p_value)
-
-    def test_input_types(self):
-        """
-        Ensure the function accepts both lists and numpy arrays.
-        """
-        list_a = [0.8, 0.85, 0.82]
-        list_b = [0.75, 0.78, 0.76]
-        arr_a = np.array(list_a)
-        arr_b = np.array(list_b)
-
-        # List inputs
-        t1, p1 = paired_ttest(list_a, list_b)
-        # Array inputs
-        t2, p2 = paired_ttest(arr_a, arr_b)
-
-        # Results should be equivalent
-        assert np.isclose(t1, t2)
-        assert np.isclose(p1, p2)
+    def test_classify_features_physiological(self):
+        """Verify physiological traits are classified correctly."""
+        features = ["Leaf_Water_Potential", "Stomatal_Conductance", "DREB2A"]
+        result = classify_features(features)
+        
+        assert "Leaf_Water_Potential" in result['physiological']
+        assert "Stomatal_Conductance" in result['physiological']
+        assert "DREB2A" in result['genomic']

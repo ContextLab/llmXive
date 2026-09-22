@@ -1,9 +1,7 @@
-torch-cpu
-transformers
-scikit-learn
-pandas
-networkx
-statsmodels
-pytest
-datasets
-huggingface_hub
+torch==2.3.0+cpu
+transformers==4.40.0
+scikit-learn==1.4.2
+pandas==2.2.2
+networkx==3.3
+statsmodels==0.14.2
+pytest==8.2.0

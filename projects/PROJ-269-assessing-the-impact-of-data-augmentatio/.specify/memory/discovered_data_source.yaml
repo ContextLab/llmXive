@@ -1,34 +1,9 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: 'import openml, pandas as pd
-
-
-  ds = openml.datasets.get_dataset(''breast-w'', version=1)
-
-  X, y, _, _ = ds.get_data()
-
-  df = pd.concat([X, y], axis=1)
-
-  print(f"RECORDS={len(df)}")
-
-  print("FIELDS=" + ",".join(df.columns.tolist()))'
-record_count: 699
-sample_fields:
-- Clump_Thickness
-- Cell_Size_Uniformity
-- Cell_Shape_Uniformity
-- Marginal_Adhesion
-- Single_Epi_Cell_Size
-- Bare_Nuclei
-- Bland_Chromatin
-- Normal_Nucleoli
-- Mitoses
-- Class
-field_coverage: 0.5
+status: none
+intent: UCI Machine Learning Repository Python package for Breast Cancer Wisconsin
+  Ionosphere Heart Disease python package dataset
 required_fields:
-- numeric feature columns
-- binary class label column
-intent: UCI Machine Learning Repository Breast Cancer Wisconsin Ionosphere Heart Disease
-  OpenML python package dataset
-cache_key: 0cf197e98901a45a04c37b1286ee25e484acda8daa0c38afbf6749aecefbf1d8
+- numeric_feature_columns
+- binary_target_column
+cache_key: e5dadf47c93394927932371f0f9af35dfabc6db56d8748f0638e5bd02158ede2
+searched_at: '2026-09-22T15:22:22.106140+00:00'
+retry_count: 1

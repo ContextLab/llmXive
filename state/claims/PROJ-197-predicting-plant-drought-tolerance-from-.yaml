@@ -669,3 +669,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T00:34:53Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: synthetic genomic feature list contains 20 specific genes
+  claim_id: c_a135f4a8
+  context: 'T012 [US1] Implement code/data/generate.py to generate synthetic genomic
+    features and synthetic drought labels. Logic: Use random_state=42. Gene List (20):
+    NCED3, ABF3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The gene list for synthetic genomic features contains 20 genes: NCED3,
+    ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1,
+    MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:27:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: validation gene list contains 15 specific genes
+  claim_id: c_659f6c6b
+  context: 'T029 [US3] Implement code/models/compare.py to generate a final report...
+    Validation Logic: Use Validation Gene List (15): DREB2A, ERF1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The validation gene list contains 15 genes: DREB2A, ERF1, ABI5, RD29A,
+    COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:28:14Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: KNN Baseline K value is 5
+  claim_id: c_d32524a6
+  context: T021 [P] [US2] Implement code/models/train.py to train KNN Baseline (K=5)
+    using the synthetic phylogenetic distance matrix...
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The KNN Baseline model uses K=5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:28:14Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: MICE imputation max_iter is 10 and random_state is 42
+  claim_id: c_9f5c4818
+  context: T014a [US1] Implement code/data/ingest.py to apply standard MICE imputation...
+    (max_iter=10, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE imputation uses max_iter=10 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:28:39Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: n_estimators grid search values are 100, 200, and 500
+  claim_id: c_db75ef4d
+  context: T020c [P] [US2] Implement code/models/train.py to perform n_estimators
+    grid search across values {100, 200, 500} for both models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The n_estimators grid search for RandomForest and XGBoost tests values
+    100, 200, and 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:28:58Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: validation gene count in top 10 features must be at least 3
+  claim_id: c_20efeab8
+  context: T029 [US3] ... Check if count of these genes in Top 10 features >= 3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_gene_count_in_top_10_features_must_be_at_least_3
+  kind: magnitude
+  raw_text: The final report validation logic requires the count of validation genes
+    in the Top 10 features to be greater than or equal to 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:30:17Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: synthetic phylogenetic distance matrix is N x N symmetric with zero diagonal
+  claim_id: c_3168d6c6
+  context: 'T016 [P] ... Logic: Create N x N symmetric matrix (N=species count), zero
+    diagonal, off-diagonal values uniformly distributed...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_phylogenetic_distance_matrix_is_N_x_N_symmetric_wi
+  kind: entity_fact
+  raw_text: The synthetic phylogenetic distance matrix is an N x N symmetric matrix
+    with a zero diagonal and off-diagonal values uniformly distributed between a lower
+    and upper bound.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:30:46Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: project requirements include specific version constraints for 10 libraries
+  claim_id: c_790199f3
+  context: T002 Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt file includes scikit-learn>=1.3.0, xgboost>=2.0.0,
+    pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0, imblearn>=0.11.0,
+    pyyaml>=6.0.0, joblib>=1.3.0, and pytest>=7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:31:07Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: project uses Python version 3.11
+  claim_id: c_6bb52b10
+  context: T002 Initialize Python 3.11 project...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:31:29Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: RF and XGBoost training uses 2 cores
+  claim_id: c_c115d62b
+  context: T020a [P] ... Implement code/models/train.py to train RandomForest using
+    joblib for parallelism on 2 cores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest and XGBoost models are trained using joblib parallelism
+    on 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:32:06Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: RF and XGBoost training time limit is 30 minutes on 2 cores
+  claim_id: c_437dbaac
+  context: T018 [P] [US2] Integration test verifying RF and XGBoost train within 30
+    mins on 2-core CPU...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for User Story 2 verifies that RF and XGBoost train
+    within 30 minutes on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:32:28Z'

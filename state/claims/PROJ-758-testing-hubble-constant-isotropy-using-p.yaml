@@ -1586,26 +1586,6 @@
   updated_at: '2026-07-21T12:50:52Z'
 - artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
   attempts: 1
-  canonical: Pantheon+ dataset Zenodo record ID 10.5281/zenodo.1002345
-  claim_id: c_d62b1cce
-  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+
-    dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345))
-    and verify checksum'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
-    DOI: 10.5281/zenodo.1002345)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-21T12:51:48Z'
-- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
-  attempts: 1
   canonical: H0 recovery within 67.80 km/s/Mpc Wikipedia 2013 in science
   claim_id: c_53eddd4f
   context: "Run regression on synthetic data with known H\u2080 and verify recovery\
@@ -1745,3 +1725,514 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T12:54:54Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 0
+  canonical: H0 value 67.80 km/s/Mpc cited from Wikipedia 2013 in science
+  claim_id: c_1d3288c0
+  context: "Run regression on synthetic data with known H\u2080 and verify recovery\
+    \ within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "verify recovery within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:34:14Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel library version 1.2+ contains apply_cosmicflows3_correction function
+  claim_id: c_eb68fa62
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:35:03Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 0
+  canonical: H0 recovery within 67.80 km/s/Mpc based on Wikipedia 2013 in science
+  claim_id: c_ec35f0e9
+  context: "Run regression on synthetic data with known H0 and verify recovery within\
+    \ \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "verify recovery within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:35:36Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Pantheon+ dataset Zenodo Record ID 10.5281/zenodo.1002345 DOI 10.5281/zenodo.1002345
+  claim_id: c_3981c7d8
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+
+    dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345))
+    and verify checksum against data/raw/pantheon_plus.csv using T009'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:35:38Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Integrate pecvel library version 1.2 or higher function apply_cosmicflows3_correction
+  claim_id: c_e7039063
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:35:39Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 0
+  canonical: H0 recovery within 67.80 km/s/Mpc per Wikipedia 2013 in science
+  claim_id: c_1eec8151
+  context: "Run regression on synthetic data with known H\u2080 and verify recovery\
+    \ within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "verify recovery within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:37:14Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 2
+  canonical: Pantheon+ dataset Zenodo record 10.5281/zenodo.1002345
+  claim_id: c_47d456f9
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+
+    dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345))
+    and verify checksum'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:37:19Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel library version 1.2+ function apply_cosmicflows3_correction
+  claim_id: c_b89d393c
+  context: Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction`
+    in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:37:20Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: CosmicFlows-3 model applied to redshifts
+  claim_id: c_abe05846
+  context: Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction`
+    in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply the static CosmicFlows-3 model to redshifts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:38:01Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: spherical harmonic coefficients dipole l=1 quadrupole l=2
+  claim_id: c_3873e97c
+  context: "Implement `src/analysis/anisotropy.py` to compute spherical harmonic coefficients\
+    \ (dipole \u2113=1, quadrupole \u2113=2) from `data/results/h0_estimates.parquet`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compute spherical harmonic coefficients (dipole \u2113=1, quadrupole\
+    \ \u2113=2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:38:34Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q=0.05
+  claim_id: c_16b58809
+  context: Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole
+    tests in `src/analysis/anisotropy.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Benjamini-Hochberg FDR correction (q=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:38:59Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: redshift cuts 0.10 0.15 0.20
+  claim_id: c_d1a27a17
+  context: Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15,
+    0.20) and record stability of metrics
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: vary redshift cuts (z < 0.10, 0.15, 0.20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:38:59Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulations runtime under 6 hours
+  claim_id: c_81ce3b8c
+  context: Performance optimization for Monte Carlo simulations (vectorization, multiprocessing)
+    to ensure < 6h runtime
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure < 6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:38:59Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix indices Nside=4 NESTED
+  claim_id: c_f2af3fb8
+  context: Assign HEALPix indices (Nside=4, NESTED) to supernovae
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign HEALPix indices (Nside=4, NESTED)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:39:19Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: local H0 fit for pixels with N >= 30
+  claim_id: c_20feaf9d
+  context: "Implement logic to fit local H\u2080 for each HEALPix pixel with N \u2265\
+    \ 30 in `src/analysis/h0_estimator.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fit local H\u2080 for each HEALPix pixel with N \u2265 30"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:39:19Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix mapping tolerance 1e-6 degrees
+  claim_id: c_54d41ef8
+  context: 'Integration test for HEALPix mapping accuracy in `tests/integration/test_spatial.py`:
+    input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel
+    indices; tolerance: inverse projection recovers original coords within 1e-6 deg'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'tolerance: inverse projection recovers original coords within 1e-6 deg'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:39:47Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 0
+  canonical: H0 recovery tolerance 67.80 km/s/Mpc
+  claim_id: c_bc5e740d
+  context: "Run regression on synthetic data with known H0 and verify recovery within\
+    \ \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "verify recovery within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:40:37Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 2
+  canonical: Pantheon+ dataset Zenodo record ID 10.5281/zenodo.1002345
+  claim_id: c_d62b1cce
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+
+    dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345))
+    and verify checksum'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:40:43Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q value 0.05
+  claim_id: c_c14f29d7
+  context: Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole
+    tests in src/analysis/anisotropy.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction (q=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:41:14Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation runtime less than 6 hours
+  claim_id: c_51cc091b
+  context: Performance optimization for Monte Carlo simulations (vectorization, multiprocessing)
+    to ensure < 6h runtime
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monte_Carlo_simulation_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: ensure < 6h runtime
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:41:36Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix inverse projection tolerance 1e-6 degrees
+  claim_id: c_d83f6cd1
+  context: 'expected valid pixel indices; tolerance: inverse projection recovers original
+    coords within 1e-6 deg'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'tolerance: inverse projection recovers original coords within 1e-6 deg'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:41:36Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix Nside 4 NESTED scheme
+  claim_id: c_0dda6043
+  context: Assign HEALPix indices (Nside=4, NESTED) to supernovae
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HEALPix indices (Nside=4, NESTED)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:41:52Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Local H0 fit requires 30 or more supernovae per pixel
+  claim_id: c_a13594e2
+  context: "Implement logic to fit local H0 for each HEALPix pixel with N \u2265 30\
+    \ in src/analysis/h0_estimator.py"
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: "fit local H0 for each HEALPix pixel with N \u2265 30"
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:41:57Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Spherical harmonic dipole l=1 quadrupole l=2
+  claim_id: c_811bbf4c
+  context: "Implement src/analysis/anisotropy.py to compute spherical harmonic coefficients\
+    \ (dipole \u2113=1, quadrupole \u2113=2) from data/results/h0_estimates.parquet"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "spherical harmonic coefficients (dipole \u2113=1, quadrupole \u2113=2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:42:28Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Synthetic isotropic datasets p-value greater than 0.05
+  claim_id: c_5eb6c9f2
+  context: 'Independent Test: Verify p-value > 0.05 for synthetic isotropic datasets
+    in majority of trials'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: verify p-value > 0.05 for synthetic isotropic datasets in majority of
+    trials
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:42:29Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 0
+  canonical: H0 recovery within 67.80 km/s/Mpc
+  claim_id: c_678b8c57
+  context: "Run regression on synthetic data with known H\u2080 and verify recovery\
+    \ within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Verify recovery within \xB167.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science)\
+    \ km/s/Mpc."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T15:43:35Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Pantheon+ dataset Zenodo Record ID 10.5281/zenodo.1002345
+  claim_id: c_152b471a
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+
+    dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345))
+    and verify checksum'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:43:38Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 2
+  canonical: pecvel library version 1.2 or higher
+  claim_id: c_8479e3c8
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:43:39Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: CosmicFlows-3 model applied to redshifts
+  claim_id: c_bbfd7cd4
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply the static CosmicFlows-3 model to redshifts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T15:43:39Z'

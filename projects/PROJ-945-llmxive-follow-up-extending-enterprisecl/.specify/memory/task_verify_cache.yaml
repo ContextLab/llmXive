@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence of the requested folder hierarchy are
+    provided; the claim alone does not prove that the `src/...`, `data/...`, and `tests/...`
+    directories were actually created. The implementer must supply a manifest (e.g.,
+    `tree` output or a list of created paths) showing that all specified directories
+    exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or similar) are present in the provided evidence, nor
+    any scripts or documentation showing that ruff and black have been set up. Without
+    these artifacts, the requirement to configure linting and formatting tools is
+    not satisfied.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `spec.md` content is provided; the claim that FR-003 has been changed
+    and the Llama-3-8B exclusion removed cannot be verified without the actual file
+    showing those edits. The required artifact (the modified specification) is missing.
+T005:
+  c: false
+  h: a1dc9f09cb5b55ada25edd6b924ffe1188ee459c89049403870cfbc62663585e
+  r: "The provided `src/utils/verify_citations.py` is truncated (ends mid\u2011function\
+    \ without closing braces, error handling, iteration over DOIs, or JSON writing)\
+    \ and no `data/results/citation_report.json` file was generated. The required\
+    \ end\u2011to\u2011end citation verification and report output are therefore missing."
+T018:
+  c: false
+  h: f7ade492976033ac4e8ebc8305b024a70431b06ea64481bd0f1c4629eb9f9d3f
+  r: "The required output file `data/results/distinctiveness_stats.csv` is missing,\
+    \ so no Mann\u2011Whitney U test results, corrections, or significance flags have\
+    \ been logged. The implementer must generate the CSV with the specified columns\
+    \ and apply the appropriate multiple\u2011testing correction."
+T021b:
+  c: false
+  h: ecb2a33a59c878ff5942e3d70898f54b1fab324b07fe66d4209aa9db074de52c
+  r: "The `src/modeling/oracle.py` file exists but its content is truncated and we\
+    \ cannot see the full implementation that writes the validation report. Moreover,\
+    \ the required output file `data/results/oracle_validation.json` is missing, so\
+    \ the script has not produced the mandated validation report. The task\u2019s\
+    \ core requirement is therefore not satisfied."

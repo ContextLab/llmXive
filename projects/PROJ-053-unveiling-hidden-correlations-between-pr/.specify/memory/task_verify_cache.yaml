@@ -1,3 +1,11 @@
+T006:
+  c: false
+  h: 37d9751f35d8563a7f3a80e8d7714d500e5579bf7d129d6f35cfe217945f91a7
+  r: 'The `schema_validator.py` file ends with an unfinished `except FileNotFoundError
+    as fnf: log` line, which is a syntax error and prevents the module from running.
+    Additionally, the required `contracts/dataset.schema.yaml` file is missing, so
+    the validator cannot actually load a schema. These issues must be fixed for the
+    task to be considered complete.'
 T022:
   c: false
   h: f2075164f7ebdae0f2b4511124f9bff4fe77365d6ab88b9af9e5e3997f649854
@@ -34,14 +42,6 @@ T044:
     \ is missing, and the paper does not clearly incorporate the scope\u2011reduction\
     \ log (T016A) nor explicitly reference the baseline importance source from T031.\
     \ These omissions mean the task\u2019s full requirements are not satisfied."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No memory profiling reports, logs, or optimized code were provided; the only\
-    \ artifacts shown relate to data preprocessing, model training, and visualization,\
-    \ none of which address profiling memory usage or any subsequent optimization.\
-    \ The required evidence (e.g., memory usage metrics, profiling scripts, before\u2011\
-    and\u2011after comparisons, or code changes to reduce memory consumption) is missing."
 T051:
   c: true
   h: 5523aeb83cb8d2138b0e6858a71a503f23552ce430b66f1566d537e269c7a69d

@@ -11,7 +11,7 @@
   verification_status: verified
   verified_against_url: https://zenodo.org/records/5546663
   verified_at: '2026-07-11T06:51:08.699438Z'
-- artifact_hash: c28c334e426e17f3d1d0cbf049c1e7751ce0fde8934b902f8d5d00a5e84aadbd
+- artifact_hash: 247f3e849e85590c293dfa1974755dbaa48f1157d9cfc4fd98db2a5d4006f6ac
   artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -21,8 +21,8 @@
   value: https://en.wikipedia.org/wiki/2013_in_science
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/2013_in_science
-  verified_at: '2026-07-21T12:54:55.271050Z'
-- artifact_hash: c28c334e426e17f3d1d0cbf049c1e7751ce0fde8934b902f8d5d00a5e84aadbd
+  verified_at: '2026-09-22T15:43:40.402696Z'
+- artifact_hash: 247f3e849e85590c293dfa1974755dbaa48f1157d9cfc4fd98db2a5d4006f6ac
   artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -32,4 +32,4 @@
   value: 10.5281/zenodo.1002345
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1002345
-  verified_at: '2026-07-21T12:54:55.271050Z'
+  verified_at: '2026-09-22T15:43:40.402696Z'
