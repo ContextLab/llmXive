@@ -2,217 +2,283 @@
 Environment variable management for dataset paths and API keys.
 
 This module provides a centralized way to manage environment variables
-required for the project, including dataset paths, API keys, and configuration
-flags. It ensures that all required environment variables are set before
-proceeding with data operations.
-
-Usage:
-    from env_config import get_config, validate_environment
-
-    config = get_config()
-    validate_environment()
+required for the project, including dataset paths and API keys.
 """
-
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, field
+import logging
+
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
 
 class EnvironmentConfigError(Exception):
-    """Raised when environment configuration is invalid or missing required variables."""
+    """Custom exception for environment configuration errors."""
     pass
 
 
 @dataclass
 class EnvConfig:
     """
-    Configuration container for environment variables.
+    Configuration container for all environment variables.
 
     Attributes:
-        visual_genome_path: Path to the Visual Genome dataset directory
-        morald_path: Path to the MoralD dataset directory
-        huggingface_token: Hugging Face API token for authenticated downloads
-        survey_api_key: API key for survey platforms (Prolific, Qualtrics, etc.)
-        verified_data_source: Override for verified data source injection
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        seed: Random seed for reproducibility
-        allow_synthetic: Flag to allow synthetic data fallback (default: False)
+        DATA_RAW_PATH: Path to raw data directory
+        DATA_PROCESSED_PATH: Path to processed data directory
+        DATA_SURVEY_PATH: Path to survey data directory
+        DATA_SYNTH_PATH: Path to synthetic data directory
+        HF_TOKEN: Hugging Face API token
+        MORALD_URL: URL for MoralD dataset
+        VISUAL_GENOME_URL: URL for Visual Genome dataset
+        VERIFIED_DATA_SOURCE: Verified data source override
+        CLIP_MODEL_NAME: Name of CLIP model to use
+        SEED: Random seed for reproducibility
     """
-    visual_genome_path: Optional[str] = None
-    morald_path: Optional[str] = None
-    huggingface_token: Optional[str] = None
-    survey_api_key: Optional[str] = None
-    verified_data_source: Optional[str] = None
-    log_level: str = "INFO"
-    seed: int = 42
-    allow_synthetic: bool = False
-
-    # Derived paths
-    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
-    data_raw_dir: Path = field(default_factory=lambda: Path("data/raw"))
-    data_processed_dir: Path = field(default=lambda: Path("data/processed"))
-    data_survey_dir: Path = field(default=lambda: Path("data/survey"))
-    data_synth_dir: Path = field(default=lambda: Path("data/synth"))
-    config_dir: Path = field(default=lambda: Path("config"))
-    figures_dir: Path = field(default=lambda: Path("figures"))
+    DATA_RAW_PATH: str = field(default="data/raw")
+    DATA_PROCESSED_PATH: str = field(default="data/processed")
+    DATA_SURVEY_PATH: str = field(default="data/survey")
+    DATA_SYNTH_PATH: str = field(default="data/synth")
+    HF_TOKEN: Optional[str] = None
+    MORALD_URL: str = field(default="https://huggingface.co/datasets/morald")
+    VISUAL_GENOME_URL: str = field(default="https://huggingface.co/datasets/visual_genome")
+    VERIFIED_DATA_SOURCE: Optional[str] = None
+    CLIP_MODEL_NAME: str = field(default="openai/clip-vit-base-patch32")
+    SEED: int = field(default=42)
+    MIN_PRECISION: str = field(default="0.1")
+    ALLOW_SYNTHETIC: bool = field(default=False)
 
     def __post_init__(self):
-        """Initialize derived paths based on project root."""
-        self.data_raw_dir = self.project_root / self.data_raw_dir
-        self.data_processed_dir = self.project_root / self.data_processed_dir
-        self.data_survey_dir = self.project_root / self.data_survey_dir
-        self.data_synth_dir = self.project_root / self.data_synth_dir
-        self.config_dir = self.project_root / self.config_dir
-        self.figures_dir = self.project_root / self.figures_dir
+        """Validate and set environment variables from dataclass attributes."""
+        # Convert paths to absolute paths relative to project root
+        project_root = Path(__file__).parent.parent
+        self.DATA_RAW_PATH = str(project_root / self.DATA_RAW_PATH)
+        self.DATA_PROCESSED_PATH = str(project_root / self.DATA_PROCESSED_PATH)
+        self.DATA_SURVEY_PATH = str(project_root / self.DATA_SURVEY_PATH)
+        self.DATA_SYNTH_PATH = str(project_root / self.DATA_SYNTH_PATH)
 
-
-# Singleton instance
-_config_instance: Optional[EnvConfig] = None
+        # Set environment variables for other modules to access
+        os.environ['DATA_RAW_PATH'] = self.DATA_RAW_PATH
+        os.environ['DATA_PROCESSED_PATH'] = self.DATA_PROCESSED_PATH
+        os.environ['DATA_SURVEY_PATH'] = self.DATA_SURVEY_PATH
+        os.environ['DATA_SYNTH_PATH'] = self.DATA_SYNTH_PATH
+        os.environ['HF_TOKEN'] = self.HF_TOKEN or ""
+        os.environ['MORALD_URL'] = self.MORALD_URL
+        os.environ['VISUAL_GENOME_URL'] = self.VISUAL_GENOME_URL
+        if self.VERIFIED_DATA_SOURCE:
+            os.environ['VERIFIED_DATA_SOURCE'] = self.VERIFIED_DATA_SOURCE
+        os.environ['CLIP_MODEL_NAME'] = self.CLIP_MODEL_NAME
+        os.environ['SEED'] = str(self.SEED)
+        os.environ['MIN_PRECISION'] = self.MIN_PRECISION
+        os.environ['ALLOW_SYNTHETIC'] = str(self.ALLOW_SYNTHETIC).lower()
 
 
 def get_config() -> EnvConfig:
     """
-    Get the singleton EnvConfig instance.
-
-    Returns:
-        EnvConfig: The configuration instance with all environment variables loaded.
-
-    Raises:
-        EnvironmentConfigError: If the configuration has not been initialized.
-    """
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = _load_config_from_env()
-    return _config_instance
-
-
-def _load_config_from_env() -> EnvConfig:
-    """
     Load configuration from environment variables.
 
     Returns:
-        EnvConfig: Configuration object populated from environment variables.
+        EnvConfig: Configuration object with values from environment or defaults.
     """
-    return EnvConfig(
-        visual_genome_path=os.getenv("VISUAL_GENOME_PATH"),
-        morald_path=os.getenv("MORALD_PATH"),
-        huggingface_token=os.getenv("HUGGINGFACE_TOKEN"),
-        survey_api_key=os.getenv("SURVEY_API_KEY"),
-        verified_data_source=os.getenv("VERIFIED_DATA_SOURCE"),
-        log_level=os.getenv("LOG_LEVEL", "INFO"),
-        seed=int(os.getenv("RANDOM_SEED", "42")),
-        allow_synthetic=os.getenv("ALLOW_SYNTHETIC", "false").lower() == "true"
+    # Read from environment variables with fallback to defaults
+    config = EnvConfig(
+        DATA_RAW_PATH=os.getenv('DATA_RAW_PATH', 'data/raw'),
+        DATA_PROCESSED_PATH=os.getenv('DATA_PROCESSED_PATH', 'data/processed'),
+        DATA_SURVEY_PATH=os.getenv('DATA_SURVEY_PATH', 'data/survey'),
+        DATA_SYNTH_PATH=os.getenv('DATA_SYNTH_PATH', 'data/synth'),
+        HF_TOKEN=os.getenv('HF_TOKEN'),
+        MORALD_URL=os.getenv('MORALD_URL', 'https://huggingface.co/datasets/morald'),
+        VISUAL_GENOME_URL=os.getenv('VISUAL_GENOME_URL', 'https://huggingface.co/datasets/visual_genome'),
+        VERIFIED_DATA_SOURCE=os.getenv('VERIFIED_DATA_SOURCE'),
+        CLIP_MODEL_NAME=os.getenv('CLIP_MODEL_NAME', 'openai/clip-vit-base-patch32'),
+        SEED=int(os.getenv('SEED', '42')),
+        MIN_PRECISION=os.getenv('MIN_PRECISION', '0.1'),
+        ALLOW_SYNTHETIC=os.getenv('ALLOW_SYNTHETIC', 'False').lower() == 'true'
     )
+    return config
 
 
-def validate_environment(required_vars: Optional[List[str]] = None) -> None:
+def validate_environment(config: Optional[EnvConfig] = None) -> Dict[str, Any]:
     """
-    Validate that all required environment variables are set.
+    Validate that all required environment variables are set correctly.
 
     Args:
-        required_vars: Optional list of specific variables to check. If None,
-                      checks all variables that are marked as required by default.
-
-    Raises:
-        EnvironmentConfigError: If any required variable is missing.
-    """
-    if required_vars is None:
-        # Default required variables for core functionality
-        required_vars = ["HUGGINGFACE_TOKEN"]
-
-    missing_vars = []
-    for var in required_vars:
-        if os.getenv(var) is None:
-            missing_vars.append(var)
-
-    if missing_vars:
-        raise EnvironmentConfigError(
-            f"Missing required environment variables: {', '.join(missing_vars)}. "
-            f"Please set these variables before running the pipeline. "
-            f"See .env.example for a template."
-        )
-
-
-def setup_env_file_example(output_path: Optional[str] = None) -> Path:
-    """
-    Create an .env.example file with all available environment variables.
-
-    Args:
-        output_path: Path to write the example file. Defaults to project root/.env.example
+        config: Optional EnvConfig object. If None, loads from environment.
 
     Returns:
-        Path: The path to the created file.
+        Dict with validation results.
+
+    Raises:
+        EnvironmentConfigError: If required variables are missing or invalid.
+    """
+    if config is None:
+        config = get_config()
+
+    issues = []
+    warnings = []
+
+    # Check required paths exist
+    for path_name, path_val in [
+        ('DATA_RAW_PATH', config.DATA_RAW_PATH),
+        ('DATA_PROCESSED_PATH', config.DATA_PROCESSED_PATH),
+        ('DATA_SURVEY_PATH', config.DATA_SURVEY_PATH),
+        ('DATA_SYNTH_PATH', config.DATA_SYNTH_PATH),
+    ]:
+        path_obj = Path(path_val)
+        if not path_obj.exists():
+            issues.append(f"{path_name} does not exist: {path_val}")
+        elif not path_obj.is_dir():
+            issues.append(f"{path_name} is not a directory: {path_val}")
+
+    # Check API keys if needed
+    if not config.HF_TOKEN:
+        warnings.append("HF_TOKEN not set. Some datasets may require authentication.")
+
+    # Check URLs
+    if not config.MORALD_URL or not config.MORALD_URL.startswith(('http://', 'https://')):
+        issues.append(f"Invalid MORALD_URL: {config.MORALD_URL}")
+
+    if not config.VISUAL_GENOME_URL or not config.VISUAL_GENOME_URL.startswith(('http://', 'https://')):
+        issues.append(f"Invalid VISUAL_GENOME_URL: {config.VISUAL_GENOME_URL}")
+
+    # Check seed
+    if config.SEED < 0:
+        issues.append(f"Invalid SEED (must be non-negative): {config.SEED}")
+
+    # Check precision
+    try:
+        float(config.MIN_PRECISION)
+    except ValueError:
+        issues.append(f"Invalid MIN_PRECISION (must be numeric): {config.MIN_PRECISION}")
+
+    result = {
+        'valid': len(issues) == 0,
+        'issues': issues,
+        'warnings': warnings,
+        'config': {
+            'DATA_RAW_PATH': config.DATA_RAW_PATH,
+            'DATA_PROCESSED_PATH': config.DATA_PROCESSED_PATH,
+            'DATA_SURVEY_PATH': config.DATA_SURVEY_PATH,
+            'DATA_SYNTH_PATH': config.DATA_SYNTH_PATH,
+            'HF_TOKEN': '***' if config.HF_TOKEN else None,
+            'MORALD_URL': config.MORALD_URL,
+            'VISUAL_GENOME_URL': config.VISUAL_GENOME_URL,
+            'VERIFIED_DATA_SOURCE': config.VERIFIED_DATA_SOURCE,
+            'CLIP_MODEL_NAME': config.CLIP_MODEL_NAME,
+            'SEED': config.SEED,
+            'MIN_PRECISION': config.MIN_PRECISION,
+            'ALLOW_SYNTHETIC': config.ALLOW_SYNTHETIC,
+        }
+    }
+
+    if issues:
+        raise EnvironmentConfigError(f"Environment configuration errors: {issues}")
+
+    return result
+
+
+def setup_env_file_example(output_path: Optional[str] = None) -> None:
+    """
+    Generate an example .env file with all required variables.
+
+    Args:
+        output_path: Path to write the example .env file. Defaults to project root.
     """
     if output_path is None:
-        output_path = str(Path(__file__).parent.parent / ".env.example")
+        output_path = str(Path(__file__).parent.parent / '.env.example')
 
-    content = """# Environment Configuration for Visual Salience Research
+    content = """# Environment Configuration for Visual Salience Project
 # Copy this file to .env and fill in your values
 
-# Dataset Paths
-VISUAL_GENOME_PATH=
-MORALD_PATH=
+# Data Paths (relative to project root)
+DATA_RAW_PATH=data/raw
+DATA_PROCESSED_PATH=data/processed
+DATA_SURVEY_PATH=data/survey
+DATA_SYNTH_PATH=data/synth
 
 # API Keys
-HUGGINGFACE_TOKEN=
-SURVEY_API_KEY=
+HF_TOKEN=your_huggingface_token_here
 
-# Configuration
-VERIFIED_DATA_SOURCE=
-LOG_LEVEL=INFO
-RANDOM_SEED=42
-ALLOW_SYNTHETIC=false
+# Dataset URLs
+MORALD_URL=https://huggingface.co/datasets/morald
+VISUAL_GENOME_URL=https://huggingface.co/datasets/visual_genome
 
-# Note: Do not commit your .env file to version control
+# Verified Data Source (optional, overrides default URLs)
+# VERIFIED_DATA_SOURCE=your_verified_source
+
+# Model Configuration
+CLIP_MODEL_NAME=openai/clip-vit-base-patch32
+
+# Reproducibility
+SEED=42
+
+# Analysis Configuration
+MIN_PRECISION=0.1
+
+# Synthetic Data Allowance (for testing only)
+ALLOW_SYNTHETIC=False
 """
+    with open(output_path, 'w') as f:
+        f.write(content)
 
-    Path(output_path).write_text(content)
-    return Path(output_path)
+    logger.info(f"Example .env file created at: {output_path}")
 
 
 def main():
-    """
-    Main entry point for testing environment configuration.
-    """
-    import logging
-    from logging_config import setup_logging
+    """Main function to demonstrate environment configuration."""
+    import argparse
 
-    setup_logging()
-    logger = logging.getLogger(__name__)
+    parser = argparse.ArgumentParser(description='Environment Configuration Utility')
+    parser.add_argument('--validate', action='store_true', help='Validate current environment')
+    parser.add_argument('--generate-example', action='store_true', help='Generate example .env file')
+    parser.add_argument('--show-config', action='store_true', help='Show current configuration')
 
-    try:
-        # Create example .env file
-        env_example_path = setup_env_file_example()
-        logger.info(f"Created .env.example at: {env_example_path}")
+    args = parser.parse_args()
 
-        # Load and display configuration
+    if args.generate_example:
+        setup_env_file_example()
+        return
+
+    if args.show_config:
         config = get_config()
-        logger.info("Environment configuration loaded successfully:")
-        logger.info(f"  Visual Genome Path: {config.visual_genome_path}")
-        logger.info(f"  MoralD Path: {config.morald_path}")
-        logger.info(f"  HuggingFace Token: {'***' if config.huggingface_token else 'Not set'}")
-        logger.info(f"  Survey API Key: {'***' if config.survey_api_key else 'Not set'}")
-        logger.info(f"  Verified Data Source: {config.verified_data_source}")
-        logger.info(f"  Log Level: {config.log_level}")
-        logger.info(f"  Random Seed: {config.seed}")
-        logger.info(f"  Allow Synthetic: {config.allow_synthetic}")
-        logger.info(f"  Project Root: {config.project_root}")
+        print("Current Configuration:")
+        print(f"  DATA_RAW_PATH: {config.DATA_RAW_PATH}")
+        print(f"  DATA_PROCESSED_PATH: {config.DATA_PROCESSED_PATH}")
+        print(f"  DATA_SURVEY_PATH: {config.DATA_SURVEY_PATH}")
+        print(f"  DATA_SYNTH_PATH: {config.DATA_SYNTH_PATH}")
+        print(f"  HF_TOKEN: {'***' if config.HF_TOKEN else 'Not set'}")
+        print(f"  MORALD_URL: {config.MORALD_URL}")
+        print(f"  VISUAL_GENOME_URL: {config.VISUAL_GENOME_URL}")
+        print(f"  VERIFIED_DATA_SOURCE: {config.VERIFIED_DATA_SOURCE or 'Not set'}")
+        print(f"  CLIP_MODEL_NAME: {config.CLIP_MODEL_NAME}")
+        print(f"  SEED: {config.SEED}")
+        print(f"  MIN_PRECISION: {config.MIN_PRECISION}")
+        print(f"  ALLOW_SYNTHETIC: {config.ALLOW_SYNTHETIC}")
+        return
 
-        # Validate required variables
+    if args.validate:
         try:
-            validate_environment(["HUGGINGFACE_TOKEN"])
-            logger.info("All required environment variables are set.")
+            result = validate_environment()
+            print("Environment Validation:")
+            print(f"  Valid: {result['valid']}")
+            if result['issues']:
+                print("  Issues:")
+                for issue in result['issues']:
+                    print(f"    - {issue}")
+            if result['warnings']:
+                print("  Warnings:")
+                for warning in result['warnings']:
+                    print(f"    - {warning}")
         except EnvironmentConfigError as e:
-            logger.warning(f"Environment validation warning: {e}")
-            logger.info("This is expected if running without full configuration.")
+            print(f"Environment Configuration Error: {e}")
+            return 1
+        return 0
 
-    except EnvironmentConfigError as e:
-        logger.error(f"Environment configuration error: {e}")
-        return 1
-
-    return 0
+    # Default: show configuration
+    main()
 
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())

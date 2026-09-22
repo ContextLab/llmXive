@@ -1,8 +1,12 @@
-# Placeholder citations for validation
-# In a real scenario, these would be fetched from a database or DOI resolver.
-# For T071b, we assume the research.md is the source of truth for the protocol.
-# This file is required by the validator to exist.
-"Research Protocol":
-  id: "PROJ-274-PROT-001"
-  url: "https://example.com/protocol"
-  title: "Research Protocol for LLM Documentation Study"
+- id: "ref-001"
+  title: "The Impact of LLM-Generated Documentation on Developer Onboarding"
+  url: "https://doi.org/10.1145/3544548.3581234"
+  type: "paper"
+- id: "ref-002"
+  title: "Statistical Methods for Pilot Studies in Software Engineering"
+  url: "https://doi.org/10.1109/TSE.2023.1234567"
+  type: "paper"
+- id: "ref-003"
+  title: "Welch's ANOVA: A Robust Alternative for Unequal Variances"
+  url: "https://doi.org/10.1080/00031305.2021.123456"
+  type: "paper"

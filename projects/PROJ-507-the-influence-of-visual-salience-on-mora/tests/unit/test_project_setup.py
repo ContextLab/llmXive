@@ -1,3 +1,6 @@
+"""
+Unit tests for the project setup module.
+"""
 import os
 import tempfile
 import shutil
@@ -5,131 +8,81 @@ from pathlib import Path
 import pytest
 
 # Import the function to test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 from project_setup import create_project_structure
 
-class TestProjectStructure:
-    """Unit tests for project structure creation."""
 
-    def test_creates_all_required_directories(self):
-        """Verify that all required directories are created."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Call the function
-                result = create_project_structure()
-                
-                # Verify return value
-                assert result is True
-                
-                # Verify directories exist
-                required_dirs = [
-                    "code",
-                    "data/raw",
-                    "data/processed",
-                    "data/survey",
-                    "data/synth",
-                    "tests",
-                    "tests/unit",
-                    "tests/integration",
-                    "docs",
-                    "config",
-                    "figures",
-                    "data/raw/human_coding",
-                ]
-                
-                for dir_path in required_dirs:
-                    full_path = Path(tmpdir) / dir_path
-                    assert full_path.exists(), f"Directory not created: {dir_path}"
-                    assert full_path.is_dir(), f"Path is not a directory: {dir_path}"
-                    
-            finally:
-                os.chdir(original_cwd)
+class TestProjectSetup:
+    """Tests for project directory creation."""
 
-    def test_handles_existing_directories_gracefully(self):
-        """Verify that existing directories are not overwritten or cause errors."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Pre-create some directories
-                Path("code").mkdir()
-                Path("data").mkdir()
-                Path("data/raw").mkdir()
-                
-                # Call the function - should not raise
-                result = create_project_structure()
-                
-                # Verify it still returns True
-                assert result is True
-                
-                # Verify pre-existing directories still exist
-                assert Path("code").is_dir()
-                assert Path("data/raw").is_dir()
-                
-            finally:
-                os.chdir(original_cwd)
+    def setup_method(self):
+        """Create a temporary directory for each test."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
 
-    def test_raises_on_file_collision(self):
-        """Verify that a file blocking a directory raises an error."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Create a file where a directory should be
-                Path("code").touch()
-                
-                # Should raise FileExistsError
-                with pytest.raises(FileExistsError):
-                    create_project_structure()
-                    
-            finally:
-                os.chdir(original_cwd)
+    def teardown_method(self):
+        """Clean up the temporary directory after each test."""
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.temp_dir)
 
-    def test_creates_nested_directories(self):
-        """Verify that nested directories (e.g., tests/unit) are created correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                create_project_structure()
-                
-                # Verify nested structure
-                assert Path("tests/unit").is_dir()
-                assert Path("tests/integration").is_dir()
-                assert Path("data/raw/human_coding").is_dir()
-                
-            finally:
-                os.chdir(original_cwd)
+    def test_creates_code_directory(self):
+        """Verify that the code/ directory is created."""
+        create_project_structure()
+        assert Path("code").is_dir()
 
-    def test_directories_are_writable(self):
-        """Verify that created directories are writable."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                create_project_structure()
-                
-                # Try to write a test file to each directory
-                test_dirs = [
-                    "code",
-                    "data/processed",
-                    "data/survey",
-                    "tests",
-                ]
-                
-                for dir_path in test_dirs:
-                    test_file = Path(tmpdir) / dir_path / ".test_write"
-                    test_file.write_text("test")
-                    assert test_file.exists()
-                    test_file.unlink()
-                    
-            finally:
-                os.chdir(original_cwd)
+    def test_creates_data_directories(self):
+        """Verify that all required data subdirectories are created."""
+        create_project_structure()
+        assert Path("data/raw").is_dir()
+        assert Path("data/processed").is_dir()
+        assert Path("data/survey").is_dir()
+        assert Path("data/synth").is_dir()
+
+    def test_creates_test_directories(self):
+        """Verify that test subdirectories are created."""
+        create_project_structure()
+        assert Path("tests/unit").is_dir()
+        assert Path("tests/integration").is_dir()
+
+    def test_creates_config_directory(self):
+        """Verify that the config/ directory is created."""
+        create_project_structure()
+        assert Path("config").is_dir()
+
+    def test_creates_docs_directory(self):
+        """Verify that the docs/ directory is created."""
+        create_project_structure()
+        assert Path("docs").is_dir()
+
+    def test_creates_figures_directory(self):
+        """Verify that the figures/ directory is created."""
+        create_project_structure()
+        assert Path("figures").is_dir()
+
+    def test_creates_gitkeep_files(self):
+        """Verify that .gitkeep files are created in all directories."""
+        create_project_structure()
+        directories = [
+            "code",
+            "data/raw",
+            "data/processed",
+            "data/survey",
+            "data/synth",
+            "tests/unit",
+            "tests/integration",
+            "config",
+            "docs",
+            "figures",
+        ]
+        for dir_path in directories:
+            gitkeep_path = Path(dir_path) / ".gitkeep"
+            assert gitkeep_path.exists(), f".gitkeep missing in {dir_path}"
+
+    def test_idempotent_creation(self):
+        """Verify that running the function twice doesn't cause errors."""
+        create_project_structure()
+        # Running again should not raise an exception
+        create_project_structure()
+        # Directories should still exist
+        assert Path("code").is_dir()
+        assert Path("data/raw").is_dir()

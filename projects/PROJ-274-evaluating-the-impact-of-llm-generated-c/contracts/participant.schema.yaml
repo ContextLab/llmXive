@@ -1,0 +1,84 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Participant Record Schema
+description: >
+  Schema for the Feasibility Pilot participant tracking system.
+  Supports N=15-20 total participants distributed across 3 conditions.
+type: object
+required:
+  - metadata
+  - participants
+properties:
+  metadata:
+    type: object
+    required:
+      - study_phase
+      - total_capacity
+      - min_capacity
+      - conditions
+      - created_at
+      - version
+    properties:
+      study_phase:
+        type: string
+        const: "Feasibility Pilot"
+      total_capacity:
+        type: integer
+        minimum: 15
+        maximum: 20
+      min_capacity:
+        type: integer
+        minimum: 15
+        maximum: 20
+      conditions:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "LLM"
+        contains:
+          const: "Human"
+        contains:
+          const: "None"
+      created_at:
+        type: string
+        format: date-time
+      version:
+        type: string
+  participants:
+    type: array
+    items:
+      type: object
+      required:
+        - participant_id
+        - condition
+        - status
+      properties:
+        participant_id:
+          type: string
+          format: uuid
+        condition:
+          type: string
+          enum:
+            - LLM
+            - Human
+            - None
+            - null
+        status:
+          type: string
+          enum:
+            - pending
+            - recruited
+            - completed
+            - dropped
+        enrollment_date:
+          type: string
+          format: date-time
+          nullable: true
+        completion_date:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+    minItems: 0
+    maxItems: 20

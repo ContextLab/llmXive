@@ -1,23 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or files for `code/`, `data/raw/`, `data/processed/`, `data/survey/`,
-    or `tests/` were provided, so there is no evidence that the required project structure
-    exists or contains any content.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or corresponding CI scripts) were provided,
-    nor any evidence that ruff and black have been set up and run. The required artifacts
-    are missing, so the task is not satisfied.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact such as an `.env` file, configuration script, or code demonstrating
-    loading of dataset path and API key environment variables was provided. Consequently,
-    the requirement to set up environment variable management for dataset paths and
-    API keys is not satisfied.
 T014:
   c: false
   h: e194eafea619e054d23ac34fa93bbac4b7afcbefb1774465efa3298bec48d177
@@ -60,9 +40,9 @@ T041:
     \ artifact confirming that the quickstart documentation was validated is missing."
 T061:
   c: false
-  h: 1074a817020f6cc499ee673ece1d85a6b8ebd415c12a9a023a29d7d134516b35
-  r: "The repository lacks the required `data/raw/sample_metadata.json` file, and\
-    \ the shown portion of `code/data_prep.py` does not contain any logic that computes\
-    \ a checksum of the sampled data and writes a JSON record with `count`, `checksum_sha256`,\
-    \ `seed`, and `timestamp` as specified. The task\u2019s logging requirement is\
-    \ therefore not fulfilled."
+  h: 86c37e2ef8bd51c2a9f14e09c06caee5da1ccba90785dd41285af3126fe6001c
+  r: The repository contains a `_log_sample_metadata` function that would write the
+    required JSON, but the `data/raw/sample_metadata.json` file is missing, and there
+    is no evidence that the function is actually invoked during dataset ingestion.
+    Without the generated file, the explicit sample size logging requirement is not
+    satisfied.

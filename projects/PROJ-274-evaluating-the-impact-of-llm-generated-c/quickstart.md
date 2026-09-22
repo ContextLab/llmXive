@@ -1,72 +1,65 @@
-# Quickstart Guide: Evaluating the Impact of LLM-Generated Code Documentation
+# Quickstart Guide
 
-This guide outlines the steps to run the full pipeline for the project.
+This guide outlines the commands to execute the project pipeline.
+Ensure all prerequisites (Python 3.11+, dependencies) are installed.
 
-## Prerequisites
+## 1. Environment Setup
 
-- Python 3.11+
-- `pip install -r requirements.txt`
-
-## 1. Project Setup
-
-Ensure the directory structure is created (Task T001a):
 ```bash
-python code/setup_project.py # If exists, otherwise manual mkdir
+pip install -r requirements.txt
 ```
 
-## 2. Citation Extraction (Task T070a)
+## 2. Project Initialization
 
-Extract citations from research and plan documents:
+Ensure directory structure and initial state files are created.
+
 ```bash
-python code/utils/citation_extractor.py
+# Initialize project directories
+python code/setup_project.py
+
+# Initialize run metadata (Required for Phase 2 gates)
+python code/utils/run_metadata.py
 ```
-This generates `state/citations.yaml`.
 
-## 3. Repository Selection & Metrics (Phase 2)
+## 3. Data Collection & Experiment (Mock Mode)
 
-- Calculate Cyclomatic Complexity:
- ```bash
- python code/run_cc_collection.py
- ```
-- Calculate Lines of Code:
- ```bash
- python code/run_loc_collection.py
- ```
-- Evaluate Documentation Quality:
- ```bash
- python code/run_doc_quality_rubric.py
- ```
-- Run Selection Gate:
- ```bash
- python code/run_repo_selection_gate.py
- ```
+Run a mock experiment to verify the logging pipeline.
 
-## 4. Experiment Execution (Phase 3)
+```bash
+python code/experiment/experiment.py --mode mock --participants 3
+```
 
-- Run Mock Experiment:
- ```bash
- python code/experiment/experiment.py --mode mock --participants 3
- ```
+## 4. Documentation Generation
 
-## 5. Documentation Generation (Phase 4)
+Generate documentation for a sample repository.
 
-- Generate Docs:
- ```bash
- python code/generation/doc_pipeline.py --repo <repo_url> --commit <commit_hash> --output data/processed/docs/repo_docs.md
- ```
+```bash
+# Note: Replace <repo_url> and <commit> with real values
+python code/generation/doc_pipeline.py --repo <repo_url> --commit <commit> --output data/processed/docs/repo_docs.md
+```
 
-## 6. Data Cleaning & Analysis (Phase 5 & 6)
+## 5. Data Cleaning & Analysis
 
-- Run Cleaning Pipeline:
- ```bash
- python code/run_cleaning_pipeline.py
- ```
-- Run Statistical Analysis:
- ```bash
- python code/analysis/stats_runner.py --input data/processed/task_logs_anon.json --output data/processed/analysis_results.json
- ```
+Run the cleaning pipeline and statistical analysis.
 
-## Verification
+```bash
+# Run cleaning pipeline
+python code/run_cleaning_pipeline.py
 
-Ensure all output files in `data/processed/` and `data/reports/` are generated.
-Check `state/validation_log.json` for research validation status.
+# Run statistical analysis
+python code/analysis/stats_runner.py --input data/processed/task_logs_anon.json --output data/processed/analysis_results.json
+```
+
+## 6. Verification
+
+Verify all artifacts are present.
+
+```bash
+python code/utils/validator.py
+```
+
+## Troubleshooting
+
+- **FileNotFoundError**: Ensure `python code/setup_project.py` has been run to create necessary directories.
+- **Import Errors**: Ensure you are running from the project root or that `code/` is in your `PYTHONPATH`.
+- **Missing Data**: Ensure previous pipeline stages (e.g., experiment, cleaning) have completed successfully.

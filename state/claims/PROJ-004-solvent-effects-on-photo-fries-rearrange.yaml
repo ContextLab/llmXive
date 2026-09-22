@@ -4117,3 +4117,574 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T19:59:15Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 0
+  canonical: environmental logging tolerance temperature 25 degrees Celsius plus or
+    minus 0.5 degrees Celsius and relative humidity plus or minus 2 percent
+  claim_id: c_cd4d9198
+  context: 'Phase 3: User Story 1 - Independent Test'
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Verify that the system logs... temperature (25 \xB1 0.5\xB0C), and relative\
+    \ humidity (\xB12% RH) for each run."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:32:10Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: solvent dataset contains 5 distinct solvents with NIST dielectric constant
+    values
+  claim_id: c_4d6a3d6c
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006b [P] Solvent Data
+    Population'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solvent_dataset_contains_5_distinct_solvents_with_NIST_diele
+  kind: magnitude
+  raw_text: Populate data/chemicals/solvents.yaml with at least 5 distinct solvents
+    (cyclohexane, methanol, acetonitrile, toluene, water) including real NIST values
+    for dielectric constant.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:32:57Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: dielectric constant deviation threshold 2 percent
+  claim_id: c_3e1140a7
+  context: 'Phase 3: User Story 1 - T017a Environmental Validation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag runs where logged dielectric constants deviate >2% from solvents.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:32:58Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: environmental compliance percentage threshold 95 percent
+  claim_id: c_f169045d
+  context: 'Phase 3: User Story 1 - T017b Compliance Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculate the environmental compliance percentage (\u226595% of runs\
+    \ within tolerance)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:32:59Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: minimum sample size 3 replicates per solvent for power analysis
+  claim_id: c_6afdb6a0
+  context: 'Phase 4: User Story 2 - T059 Unified Power Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "perform and document a single unified power analysis for the entire study...\
+    \ with n \u2265 3 replicates per solvent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:00Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: solvent model partitioning 80 percent implicit and 20 percent explicit
+  claim_id: c_0870a368
+  context: 'Phase 5: User Story 3 - T029 Solvent Model Partitioning & DFT Fetching'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "partition the list into \u226480% implicit (SMD/PCM) and \u226520% explicit\
+    \ (QM/MM) models"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:01Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: study sample size 3 replicates
+  claim_id: c_b4bd63de
+  context: 'Phase 5: User Story 3 - T030b Statistical Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: frame all findings as associational and exploratory due to low N (n=3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:07Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: trend verification requires 5 solvent conditions
+  claim_id: c_ceab5590
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T048 Trend Verification'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that consistent trends are observed across \u22655 solvent conditions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:08Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: hydration state logging tolerance 2 percent relative humidity
+  claim_id: c_2c9fe0d9
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T041 Hydration Control & Monitoring'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "monitor and log solvent hydration states to three significant figures\
+    \ (\xB12% RH tolerance)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:09Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: simulated UV-Vis spectrum parameters FWHM 20 nm baseline noise 0.005
+    AU
+  claim_id: c_f8be5637
+  context: 'Phase 7: Review-Driven Enhancements - T055 Ground-State Characterization'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate simulated UV-Vis spectra... using a Lorentzian absorption model...
+    FWHM = 20 nm, and baseline noise = 0.005 AU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:33:12Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 0
+  canonical: "Log temperature 25 \xB1 0.5\xB0C and relative humidity \xB12% RH"
+  claim_id: c_11b7a4c3
+  context: "Independent Test: Verify that the system logs dielectric constant (validated\
+    \ against `solvents.yaml`), temperature (25 \xB1 0.5\xB0C), and relative humidity\
+    \ (\xB12% RH) for each run."
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The system logs temperature (25 \xB1 0.5\xB0C) and relative humidity\
+    \ (\xB12% RH) for each run."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:34:17Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Populate solvents.yaml with 5 distinct solvents using NIST values
+  claim_id: c_575e7728
+  context: 'T006b [P] **Solvent Data Population**: Populate `data/chemicals/solvents.yaml`
+    with at least 5 distinct solvents (cyclohexane, methanol, acetonitrile, toluene,
+    water) including real NIST values for dielectric constant. Source: NIST Standard
+    Reference Database b.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Populate_solvents.yaml_with_5_distinct_solvents_using_NIST_v
+  kind: magnitude
+  raw_text: Populate `data/chemicals/solvents.yaml` with at least 5 distinct solvents
+    (cyclohexane, methanol, acetonitrile, toluene, water) including real NIST values
+    for dielectric constant.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:34:26Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: CLI validate at least 5 distinct solvent conditions
+  claim_id: c_36cdaf30
+  context: 'T013 [US1] Implement `code/main.py` CLI entry point to configure solvent
+    series... Constraint: The CLI MUST explicitly validate that at least 5 distinct
+    solvent conditions are provided...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CLI_validate_at_least_5_distinct_solvent_conditions
+  kind: magnitude
+  raw_text: The CLI MUST explicitly validate that at least 5 distinct solvent conditions
+    are provided.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:35:22Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: CLI validate dielectric constants span low to 33
+  claim_id: c_75a03b28
+  context: "T013 [US1] ...and that the dielectric constants span the range \u03B5\
+    \ \u2248 low to \u03B5 \u2248 33."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CLI must validate that dielectric constants span the range \u03B5\
+    \ \u2248 low to \u03B5 \u2248 33."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:35:47Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Flag runs with dielectric constant deviation >2%
+  claim_id: c_44502212
+  context: 'T017a [US1] **Environmental Validation**: Implement `code/analysis/validation.py`
+    to: 1) flag runs where logged dielectric constants deviate >2% from `solvents.yaml`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag runs where logged dielectric constants deviate >2% from `solvents.yaml`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:35:48Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Unified power analysis with n >= 3 replicates
+  claim_id: c_b05ff4e6
+  context: "T059 [US2/US3] **Unified Power Analysis**: Implement `code/analysis/power.py`\
+    \ to perform and document a **single unified power analysis** for the entire study...\
+    \ with n \u2265 3 replicates per solvent."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform and document a single unified power analysis with n \u2265 3\
+    \ replicates per solvent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:35:49Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Partition solvent models into <=80% implicit and >=20% explicit
+  claim_id: c_bb3c8afd
+  context: "T029 [US3] ...2) partition the list into \u226480% implicit (SMD/PCM)\
+    \ and \u226520% explicit (QM/MM) models..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Partition the list of solvents into \u226480% implicit (SMD/PCM) and\
+    \ \u226520% explicit (QM/MM) models."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:35:49Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Simulated UV-Vis spectra FWHM 20 nm baseline noise 0.005 AU
+  claim_id: c_30a7882c
+  context: 'T055 [P] ...generate simulated UV-Vis spectra for the substrate in each
+    solvent using a **Lorentzian absorption model** with defined parameters: ... FWHM
+    = 20 nm, and baseline noise = 0.005 AU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate Lorentzian absorption models with FWHM = 20 nm and baseline noise
+    = 0.005 AU for simulated UV-Vis spectra.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:36:07Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: "Monitor hydration states to three significant figures with \xB12% RH\
+    \ tolerance"
+  claim_id: c_7f83c50c
+  context: "T041 [P] **Hydration Control & Monitoring**: Implement `code/analysis/hydration_control.py`\
+    \ to actively monitor and log solvent hydration states to three significant figures\
+    \ (\xB12% RH tolerance)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Monitor solvent hydration states to three significant figures (\xB12%\
+    \ RH tolerance)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:36:08Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Verify consistent trends across >=5 solvent conditions
+  claim_id: c_59053302
+  context: "T048 [US3] **Trend Verification**: Implement `code/analysis/validation.py`\
+    \ to verify that consistent trends are observed across \u22655 solvent conditions\
+    \ as a pass/fail criterion for SC-002."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that consistent trends are observed across \u22655 solvent conditions\
+    \ as a pass/fail criterion."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:36:09Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 0
+  canonical: "System logs temperature with 25 \xB1 0.5\xB0C tolerance"
+  claim_id: c_1061935b
+  context: "Independent Test: Verify that the system logs dielectric constant (validated\
+    \ against `solvents.yaml`), temperature (25 \xB1 0.5\xB0C), and relative humidity\
+    \ (\xB12% RH) for each run."
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The system logs temperature with a tolerance of 25 \xB1 0.5\xB0C."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:39:42Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Populate solvent data file with 5 distinct solvents using real NIST dielectric
+    constant values
+  claim_id: c_edb2910b
+  context: 'T006b [P] **Solvent Data Population**: Populate `data/chemicals/solvents.yaml`
+    with at least 5 distinct solvents (cyclohexane, methanol, acetonitrile, toluene,
+    water) including real NIST values for dielectric constant. Source: NIST Standard
+    Reference Database b.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Populate_solvent_data_file_with_5_distinct_solvents_using_re
+  kind: magnitude
+  raw_text: Populate data/chemicals/solvents.yaml with at least 5 distinct solvents
+    (cyclohexane, methanol, acetonitrile, toluene, water) including real NIST values
+    for dielectric constant.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:39:51Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: "System logs relative humidity with \xB12% RH tolerance"
+  claim_id: c_27816852
+  context: "Independent Test: Verify that the system logs dielectric constant (validated\
+    \ against `solvents.yaml`), temperature (25 \xB1 0.5\xB0C), and relative humidity\
+    \ (\xB12% RH) for each run."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system logs relative humidity with a tolerance of \xB12% RH."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:39:52Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: "Unified power analysis requires n \u2265 3 replicates per solvent"
+  claim_id: c_eda6bdb2
+  context: "T059 [US2/US3] **Unified Power Analysis**: Implement `code/analysis/power.py`\
+    \ to perform and document a **single unified power analysis** for the entire study\
+    \ (covering both kinetic extraction and correlation steps) with n \u2265 3 replicates\
+    \ per solvent."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unified_power_analysis_requires_n_%E2%89%A5_3_replicates_per_solvent
+  kind: magnitude
+  raw_text: The unified power analysis requires at least 3 replicates per solvent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:40:20Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Solvent model partitioning requires at least 20% explicit QM/MM models
+  claim_id: c_8d829dad
+  context: "T029 [US3] **Solvent Model Partitioning & DFT Fetching**: Implement `code/data/compute/solvent_models.py`\
+    \ to: 1) fetch or compute DFT solvation data for a list of N solvents, 2) partition\
+    \ the list into \u226480% implicit (SMD/PCM) and \u226520% explicit (QM/MM) models\
+    \ based on `alpha` from `code/config.py`."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Solvent_model_partitioning_requires_at_least_20%25_explicit_QM
+  kind: magnitude
+  raw_text: The solvent model partitioning logic must use at least 20% explicit (QM/MM)
+    models.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T09:40:43Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Solvent model partitioning requires no more than 80% implicit SMD/PCM
+    models
+  claim_id: c_6187dc4c
+  context: "T029 [US3] **Solvent Model Partitioning & DFT Fetching**: Implement `code/data/compute/solvent_models.py`\
+    \ to: 1) fetch or compute DFT solvation data for a list of N solvents, 2) partition\
+    \ the list into \u226480% implicit (SMD/PCM) and \u226520% explicit (QM/MM) models\
+    \ based on `alpha` from `code/config.py`."
+  evidence:
+    candidates:
+    - - ''
+      - 80.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Solvent_model_partitioning_requires_no_more_than_80%25_implici
+  kind: magnitude
+  raw_text: The solvent model partitioning logic must use no more than 80% implicit
+    (SMD/PCM) models.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T09:41:05Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Findings framed as associational due to sample size n=3
+  claim_id: c_18e5ab6f
+  context: 'T030b [US3] **Statistical Reporting**: Implement `code/analysis/correlation.py`
+    to report **Posterior Probability of Effect**... Explicitly frame all findings
+    as associational and exploratory due to low N (n=3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study explicitly frames findings as associational and exploratory
+    due to a sample size of n=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:41:24Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: "Trend verification requires consistent trends across \u22655 solvent\
+    \ conditions"
+  claim_id: c_fd68ea49
+  context: "T048 [US3] **Trend Verification**: Implement `code/analysis/validation.py`\
+    \ to verify that consistent trends are observed across \u22655 solvent conditions\
+    \ as a pass/fail criterion for SC-002."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_verification_requires_consistent_trends_across_%E2%89%A55_solv
+  kind: magnitude
+  raw_text: Trend verification requires consistent trends across at least 5 solvent
+    conditions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:41:49Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Simulated ground-state spectra use Lorentzian model with FWHM 20 nm
+  claim_id: c_25d94f11
+  context: "T055 [P] **Ground-State Characterization**: Implement `code/analysis/ground_state.py`\
+    \ to perform and log ground-state structural characterization... generate simulated\
+    \ UV-Vis spectra... using a **Lorentzian absorption model** with defined parameters:\
+    \ peak wavelength (\u03BB_max) from spec assumptions, FWHM = 20 nm, and baseline\
+    \ noise = 0.005 AU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated ground-state spectra use a Lorentzian absorption model with
+    a Full Width at Half Maximum (FWHM) of 20 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:42:08Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/tasks.md
+  attempts: 1
+  canonical: Simulated ground-state spectra use baseline noise 0.005 AU
+  claim_id: c_70e4f465
+  context: "T055 [P] **Ground-State Characterization**: Implement `code/analysis/ground_state.py`\
+    \ to perform and log ground-state structural characterization... generate simulated\
+    \ UV-Vis spectra... using a **Lorentzian absorption model** with defined parameters:\
+    \ peak wavelength (\u03BB_max) from spec assumptions, FWHM = 20 nm, and baseline\
+    \ noise = 0.005 AU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated ground-state spectra use a baseline noise level of 0.005 AU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:42:23Z'

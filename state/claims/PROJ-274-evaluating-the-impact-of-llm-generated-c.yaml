@@ -4588,3 +4588,366 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T06:30:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Feasibility Pilot size of 15 to 20 total participants across 3 conditions
+  claim_id: c_c33bb409
+  context: Initialize data/raw/participants_raw.json with the schema for a Feasibility
+    Pilot of N=15-20 TOTAL participants (distributed across 3 conditions, approx 5-7
+    per group).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=15-20 TOTAL participants (distributed across 3 conditions, approx 5-7
+    per group)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:23:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Jaccard similarity threshold of 0.7 for citation validation
+  claim_id: c_bafa9afc
+  context: "Calculate Jaccard similarity of tokenized titles; threshold \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "threshold \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:23:39Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention triggered at 2700 seconds (45 minutes)
+  claim_id: c_108784c0
+  context: If task time > 2700s (45 min), trigger moderator intervention, flag record
+    as 'failed'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2700s (45 min)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:23:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Model commit hash must be a 40-character hexadecimal string
+  claim_id: c_a64cff7a
+  context: Assert file exists and contains a valid 40-character hex hash.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 40-character hex hash
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:24:25Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: High-quality documentation requires presence of at least 3 of 4 specific
+    sections
+  claim_id: c_0d98753c
+  context: "Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4\
+    \ sections)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High-quality_documentation_requires_presence_of_at_least_3_o
+  kind: magnitude
+  raw_text: "\u2265 3/4 sections"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:24:48Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Repository filtering applies 15% tolerance on LOC and Cyclomatic Complexity
+  claim_id: c_dc8c0336
+  context: "Filter for high-quality docs (T021c), then apply \xB115% tolerance on\
+    \ LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\xB115% tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:24:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Feasibility Pilot of 15-20 total participants distributed across 3 conditions
+    with approx 5-7 per group
+  claim_id: c_38d8c04d
+  context: 'T073b [P] [Phase 0] Implement Recruitment Tracking System. **Action**:
+    Create `code/recruitment/tracker.py` to manage participant records. Initialize
+    `data/raw/participants_raw.json` with the schema for a **Feasibility Pilot** of
+    **N=15-20 TOTAL participants** (distributed across 3 conditions, approx 5-7 per
+    group).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize `data/raw/participants_raw.json` with the schema for a Feasibility
+    Pilot of N=15-20 TOTAL participants (distributed across 3 conditions, approx 5-7
+    per group).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:27:12Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stratified randomization to LLM/Human/None conditions targeting 5-7 per
+    group and 15-20 total
+  claim_id: c_aad43757
+  context: 'T014b [S] [Phase 1] Implement the **Real Participant Assignment Logic**
+    and **Randomization Mechanism** in `code/experiment/assignment.py`. **Input**:
+    `data/raw/participants_raw.json` (from T073b). **Logic**: Stratified randomization
+    to LLM/Human/None conditions (target N=5-7 per group, total N=15-20).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified randomization to LLM/Human/None conditions (target N=5-7 per
+    group, total N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:27:34Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Synthetic mock assignment log with 5 simulated participants
+  claim_id: c_5fd63acf
+  context: 'T014c [P] [Phase 1] Implement **Mock Participant Assignment Logic** for
+    simulation runs in `code/experiment/assignment.py`. **Action**: Generate a synthetic
+    `data/processed/mock_assignment_log.json` with N=5 simulated participants assigned
+    to conditions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a synthetic `data/processed/mock_assignment_log.json` with N=5
+    simulated participants assigned to conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:27:51Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Regex pattern r'^#{1,2}\s+(Setup|API|Architecture)' used to search for
+    headers
+  claim_id: c_cb8d5f6a
+  context: "T021c [P] [Phase 2] Implement 'high-quality human documentation' rubric\
+    \ in `code/validation.py`. **Input**: `data/raw/repo_readmes/`. **Mechanism**:\
+    \ Use `requests` to fetch raw content from ` (or `master`). **Criteria**: Presence\
+    \ of Setup, API, and Architecture sections (\u2265 3/4 sections). **Method**:\
+    \ Use regex `r'^#{1,2}\\s+(Setup|API|Architecture)'` to search for headers."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Architecture)' used to search for headers
+    relation: API
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Regex_pattern_r'%5E#%7B1,2%7D%5Cs+(Setup_API_Architecture)'_used_to_
+    source_value: https://en.wikipedia.org/wiki/Regex_pattern_r'^#{1,2}\s+(Setup_API_Architecture)'_used_to_
+    subject: Regex pattern r'^#{1,2}\s+(Setup
+  kind: relational
+  raw_text: Use regex `r'^#{1,2}\s+(Setup|API|Architecture)'` to search for headers.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:28:19Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Apply 15% tolerance on Lines of Code and Cyclomatic Complexity for repository
+    filtering
+  claim_id: c_c1acf019
+  context: "T021d [S] [Phase 2] Implement repository filtering logic in `code/validation.py`.\
+    \ **Input**: `config/candidate_repos.yaml`, `data/raw/repo_loc_raw.json` (from\
+    \ T021b), `data/raw/repo_cc_raw.json` (from T021a), `data/raw/doc_quality_scores.json`.\
+    \ **Logic**: Filter for high-quality docs (T021c), then apply \xB115% tolerance\
+    \ on LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter for high-quality docs (T021c), then apply \xB115% tolerance on\
+    \ LOC and CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:28:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention triggered if task time exceeds 2700 seconds
+  claim_id: c_95df394d
+  context: 'T018 [US1] Implement "Stop-Loss" intervention logic: If task time > 2700s
+    (45 min), trigger moderator intervention, flag record as ''failed'', set `intervention_status`
+    = ''stop_loss'', and record `max_time` = 2700.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If task time > 2700s (45 min), trigger moderator intervention, flag record
+    as 'failed', set `intervention_status` = 'stop_loss', and record `max_time` =
+    2700.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:28:56Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Static HuggingFace commit hash e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7
+    for phi-2-GGUF fallback model
+  claim_id: c_2b1a03b3
+  context: 'T028a [P] [Phase 4] Create `config/model_pins.yaml`. **Action**: Define
+    the static HuggingFace commit hash for the fallback model ''phi (quantized int4)''.
+    **Value**: `phi_2_gguf_commit: "e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7"` (Use
+    this specific hash for reproducibility).'
+  evidence:
+    asserted: '0.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: 'Define the static HuggingFace commit hash for the fallback model ''phi
+    (quantized int4)'' as `phi_2_gguf_commit: "e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7"`.'
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:28:57Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model triggered by HTTP 5xx or latency exceeding 300
+    seconds
+  claim_id: c_d6a68bf4
+  context: 'T028 [US2] Implement fallback logic to local CPU-optimized model. **Model
+    Path**: `TheBloke/phi-2-GGUF`. **Configuration**: `load_in_4bit=True`. **Trigger**:
+    HTTP 5xx or latency > 300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger fallback to local CPU-optimized model on HTTP 5xx or latency >
+    300s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:29:27Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Load static commit hash with 4-bit quantization configuration
+  claim_id: c_ed7a97b8
+  context: 'T028 [US2] Implement fallback logic to local CPU-optimized model. **Model
+    Path**: `TheBloke/phi-2-GGUF`. **Configuration**: `load_in_4bit=True`. **Trigger**:
+    HTTP 5xx or latency > 300s. **Logic**: **Load the static commit hash from `config/model_pins.yaml`**
+    (created in T028a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load the static commit hash from `config/model_pins.yaml` (created in
+    T028a) using `load_in_4bit=True`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:29:44Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Welch's ANOVA performed as primary method regardless of diagnostic results
+  claim_id: c_4e7d16b0
+  context: 'T036b [S] [US3] Implement the primary analysis function in `code/analysis/analyze.py`.
+    **Mandatory Logic**: 1. **Run Diagnostics**: Perform Levene''s test and Shapiro-Wilk
+    test (log results to `data/reports/diagnostics.json`). 2. **Primary Test**: **ALWAYS**
+    perform **Welch''s ANOVA** (regardless of diagnostics). This is the pre-specified
+    primary method per the plan''s "Critical Methodological Shift".'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Welch's_ANOVA_performed_as_primary_method_regardless_of_diag
+  kind: entity_fact
+  raw_text: ALWAYS perform Welch's ANOVA (regardless of diagnostics) as the pre-specified
+    primary method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:30:11Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execution time under 6 hours and RAM under 7GB constraint
+  claim_id: c_0e08f8b9
+  context: 'T036b-exec [GATE] [Phase 6] Execute T036b-logic. **CRITICAL**: The `state/research_validated.lock`
+    check is handled by Phase 0 gate T071b. This task assumes the project has passed
+    Phase 0. **Verification**: Assert execution time < 6 hours and RAM < 7GB via `data/reports/resource_log.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert execution time < 6 hours and RAM < 7GB via `data/reports/resource_log.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:30:12Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model on HTTP 5xx errors or timeouts exceeding 300
+    seconds
+  claim_id: c_4ce7b805
+  context: 'T055 [P] Implement hard fail on real data fetch for non-recoverable errors.
+    **Logic**: HTTP xx (4xx) -> Hard Fail. HTTP 5xx (500-599) or timeout > 300s ->
+    Fallback to local model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:30:45Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report includes limitations regarding sample size of 15-20
+  claim_id: c_11037380
+  context: T080 [P] Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:31:28Z'

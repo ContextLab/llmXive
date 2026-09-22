@@ -1825,81 +1825,6 @@
   updated_at: '2026-08-25T12:30:55Z'
 - artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   attempts: 1
-  canonical: rdkit version 2023.9.5
-  claim_id: c_f2cd817c
-  context: 'Create code/requirements.txt containing pinned versions of: rdkit==2023.9.5'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: rdkit==2023.9.5
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:06Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: pandas version 2.1.4
-  claim_id: c_eb0e95c5
-  context: 'Create code/requirements.txt containing pinned versions of: pandas==2.1.4'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: pandas==2.1.4
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:07Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: scikit-learn version 1.3.2
-  claim_id: c_74ba80df
-  context: 'Create code/requirements.txt containing pinned versions of: scikit-learn==1.3.2'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: scikit-learn==1.3.2
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:07Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: pyyaml version 6.0.1
-  claim_id: c_ca3e53bf
-  context: 'Create code/requirements.txt containing pinned versions of: pyyaml==6.0.1'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: pyyaml==6.0.1
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:07Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: numpy version 1.26.2
-  claim_id: c_49f5ecfb
-  context: 'Create code/requirements.txt containing pinned versions of: numpy==1.26.2'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: numpy==1.26.2
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:08Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
   canonical: pytest version 7.4.3
   claim_id: c_8cd1afe8
   context: 'Create code/requirements.txt containing pinned versions of: pytest==7.4.3'
@@ -1915,66 +1840,6 @@
   updated_at: '2026-08-25T12:42:08Z'
 - artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   attempts: 1
-  canonical: ruff version 0.1.6
-  claim_id: c_653534de
-  context: 'Create code/requirements.txt containing pinned versions of: ruff==0.1.6'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: ruff==0.1.6
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:08Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: black version 23.11.0
-  claim_id: c_583c8e00
-  context: 'Create code/requirements.txt containing pinned versions of: black==23.11.0'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: black==23.11.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:09Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: datasets version 2.15.0
-  claim_id: c_d7c19188
-  context: 'Create code/requirements.txt containing pinned versions of: datasets==2.15.0'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: datasets==2.15.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:09Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: huggingface_hub version 0.19.4
-  claim_id: c_0251cae0
-  context: 'Create code/requirements.txt containing pinned versions of: huggingface_hub==0.19.4'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: huggingface_hub==0.19.4
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:10Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
   canonical: torch version 2.1.0
   claim_id: c_3c4ad54a
   context: 'Run: pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu'
@@ -1982,21 +1847,6 @@
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: torch==2.1.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T12:42:10Z'
-- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  attempts: 1
-  canonical: torch-geometric version 2.4.0
-  claim_id: c_608bfa25
-  context: pip install torch-geometric==2.4.0 --index-url https://download.pytorch.org/whl/cpu
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: torch-geometric==2.4.0
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -2481,3 +2331,859 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T09:43:01Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: dataset source is ZINC15
+  claim_id: c_30e0a83e
+  context: 'Strict Source Logic: Check DATA_SOURCE_OVERRIDE environment variable.
+    If present, use that source exclusively. If absent, fetch ONLY from ZINC15.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: ZINC15
+      source_id: Q24701512
+      url: https://www.wikidata.org/wiki/Q24701512
+      value: ZINC15
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset source is ZINC15.
+  resolved_value: ZINC15
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:44:42Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: molecules with atom count > 100 are excluded
+  claim_id: c_94aaf685
+  context: 'Max Atoms Filter Implementation: Calculate the number of atoms for each
+    molecule using RDKit. If the atom count is > 100, exclude the molecule from the
+    dataset and log the specific SMILES string to logs/excluded_molecules.log using
+    T018.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/molecules_with_atom_count_%3E_100_are_excluded
+  kind: magnitude
+  raw_text: Molecules with an atom count greater than 100 are excluded from the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:45:19Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: pilot study max molecules is 5000
+  claim_id: c_c37828f3
+  context: MAX_MOLECULES (int) set to 5000 (fixed cap for pilot study)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study is constrained to a maximum of 5000 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:45:46Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: conformer generation failure rate threshold is 0.10
+  claim_id: c_88d9969c
+  context: 'Global Failure Rate Logic: Maintain a running count of total_attempted
+    and total_failed across ALL processed chunks. After processing each chunk, calculate
+    global_failure_rate = total_failed / total_attempted. Halt Logic: If global_failure_rate
+    > 0.10, generate data/processed/failure_report.csv and THEN halt with a critical
+    error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The conformer generation failure rate threshold is 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:46:05Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: KS test p-value threshold for split validation is 0.05
+  claim_id: c_51fc8ec4
+  context: 'Execute the Kolmogorov-Smirnov (KS) test comparing the molecular_weight
+    column of the training set vs the test set. Output: ALWAYS generate data/splits/split_report.json
+    containing the key ks_p_value and used_seed... If p <= 0.05, also generate data/splits/split_error_report.json
+    with details.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Kolmogorov-Smirnov test p-value threshold for split validation is
+    0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:46:24Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: data split max retries is 5
+  claim_id: c_ce64252e
+  context: 'Verify Split Report: Load data/splits/split_report.json and verify that
+    ks_p_value > 0.05. Action: If the condition is not met, retry the split with a
+    new random seed up to 5 times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for the data split is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:46:50Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: pipeline execution time budget is 6.0 hours
+  claim_id: c_ef1b7373
+  context: Create code/config.py and define TIME_BUDGET (float, hours) set to 6.0
+    (value from Plan.md 'Performance Goals')...
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The time budget for the pipeline execution is 6.0 hours.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:46:51Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: pipeline max RAM is 7.0 GB
+  claim_id: c_d3749f50
+  context: Create code/config.py and define ... MAX_RAM_GB (float) set to 7.0...
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The maximum RAM allowed for the pipeline is 7.0 GB.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:46:51Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: sensitivity thresholds for MAE are 0.01, 0.05, and 0.1
+  claim_id: c_680a81f4
+  context: "Create code/config.py and define ... SENSITIVITY_THRESHOLDS (list of floats)\
+    \ set to [0.01, 0.05, 0.1]... This task implements absolute thresholds {0.01,\
+    \ 0.05, 0.1} \xC5\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity thresholds for MAE are 0.01, 0.05, and 0.1 \xC5\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:47:14Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: baseline model uses Random Forest
+  claim_id: c_15ba7808
+  context: 'Train a Random Forest model on geometric descriptors (from T015b: radius_of_gyration,
+    principal_moments, sasa_components) using code/models/baseline.py.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q139910653
+        url: https://www.wikidata.org/wiki/Q139910653
+        value: Random Forest
+      quote: Random Forest Classification of Acute Coronary Syndrome
+      source_id: Q111642107
+      url: https://www.wikidata.org/wiki/Q111642107
+      value: Random Forest Classification of Acute Coronary Syndrome
+    filled: true
+  kind: entity_fact
+  raw_text: The baseline model uses a Random Forest algorithm.
+  resolved_value: Random Forest Classification of Acute Coronary Syndrome
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:26Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: GCN model is PyTorch Geometric CPU-only
+  claim_id: c_72ebd4a0
+  context: Implement lightweight GCN model definition (PyTorch Geometric, CPU-only)
+    in code/models/gcn.py...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GCN_model_is_PyTorch_Geometric_CPU-only
+  kind: entity_fact
+  raw_text: The GCN model is implemented using PyTorch Geometric and is CPU-only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:47:49Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: training early stopping patience is 5
+  claim_id: c_4267c2ec
+  context: Implement training loop with early stopping (patience=5, max 50 epochs)
+    in code/models/train.py...
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The training loop uses early stopping with a patience of 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:47:49Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: training loop max epochs is 50
+  claim_id: c_0dbc5673
+  context: Implement training loop with early stopping (patience=5, max 50 epochs)
+    in code/models/train.py...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop runs for a maximum of 50 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:48:06Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Ruff version is 0.1.6
+  claim_id: c_7364d028
+  context: 'Create code/requirements.txt containing pinned versions of: ... ruff==0.1.6
+    ...'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Ruff version pinned in requirements is 0.1.6.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:06Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Black version is 23.11.0
+  claim_id: c_4cbcee79
+  context: 'Create code/requirements.txt containing pinned versions of: ... black==23.11.0
+    ...'
+  evidence:
+    asserted: '23.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Black version pinned in requirements is 23.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:07Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: RDKit version is 2023.9.5
+  claim_id: c_1b3fca9a
+  context: 'Create code/requirements.txt containing pinned versions of: rdkit==2023.9.5
+    ...'
+  evidence:
+    asserted: '2023.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The RDKit version pinned in requirements is 2023.9.5.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:07Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Pandas version is 2.1.4
+  claim_id: c_e7b3339a
+  context: 'Create code/requirements.txt containing pinned versions of: ... pandas==2.1.4
+    ...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Pandas version pinned in requirements is 2.1.4.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:08Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: scikit-learn version is 1.3.2
+  claim_id: c_260c4e73
+  context: 'Create code/requirements.txt containing pinned versions of: ... scikit-learn==1.3.2
+    ...'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-learn version pinned in requirements is 1.3.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:08Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: PyYAML version is 6.0.1
+  claim_id: c_dcd37753
+  context: 'Create code/requirements.txt containing pinned versions of: ... pyyaml==6.0.1
+    ...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyYAML version pinned in requirements is 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:09Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: NumPy version is 1.26.2
+  claim_id: c_7f2237fe
+  context: 'Create code/requirements.txt containing pinned versions of: ... numpy==1.26.2
+    ...'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The NumPy version pinned in requirements is 1.26.2.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:09Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: datasets library version is 2.15.0
+  claim_id: c_c38fff06
+  context: 'Create code/requirements.txt containing pinned versions of: ... datasets==2.15.0
+    ...'
+  evidence:
+    asserted: '2.15'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The datasets library version pinned in requirements is 2.15.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Hugging Face Hub version is 0.19.4
+  claim_id: c_be93c4b8
+  context: 'Create code/requirements.txt containing pinned versions of: ... huggingface_hub==0.19.4
+    ...'
+  evidence:
+    asserted: '0.19'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Hugging Face Hub version pinned in requirements is 0.19.4.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: PyTorch version is 2.1.0
+  claim_id: c_3b7d89cb
+  context: 'Run: pip install -r code/requirements.txt followed by pip install torch==2.1.0
+    --index-url https://download.pytorch.org/whl/cpu...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch version pinned in requirements is 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:11Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: PyTorch Geometric version is 2.4.0
+  claim_id: c_d7263643
+  context: 'Run: ... pip install torch-geometric==2.4.0 --index-url https://download.pytorch.org/whl/cpu.'
+  evidence:
+    asserted: '2.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch Geometric version pinned in requirements is 2.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:11Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: "justification for 0.05 \xC5\xB2 threshold is typical experimental error\
+    \ margins"
+  claim_id: c_bb898e2f
+  context: "Logic: 1. If research.md exists and contains a relevant citation for the\
+    \ 0.05 \xC5\xB2 threshold, use that citation. 2. If research.md does not exist\
+    \ or contains no relevant citation, use the justification from the Assumptions\
+    \ section of spec.md (\"typical experimental error margins in surface area measurement\"\
+    )."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The primary justification for the 0.05 \xC5\xB2 threshold is typical\
+    \ experimental error margins in surface area measurement."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:48:12Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: rdkit version 2023.9.5
+  claim_id: c_f2cd817c
+  context: 'Create code/requirements.txt containing pinned versions of: rdkit==2023.9.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: rdkit==2023.9.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:49:51Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: pandas version 2.1.4
+  claim_id: c_eb0e95c5
+  context: 'Create code/requirements.txt containing pinned versions of: pandas==2.1.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.1.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:50:15Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_74ba80df
+  context: 'Create code/requirements.txt containing pinned versions of: scikit-learn==1.3.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:50:43Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: pyyaml version 6.0.1
+  claim_id: c_ca3e53bf
+  context: 'Create code/requirements.txt containing pinned versions of: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:51:13Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: numpy version 1.26.2
+  claim_id: c_49f5ecfb
+  context: 'Create code/requirements.txt containing pinned versions of: numpy==1.26.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:51:33Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: ruff version 0.1.6
+  claim_id: c_653534de
+  context: 'Create code/requirements.txt containing pinned versions of: ruff==0.1.6'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ruff==0.1.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:51:51Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: black version 23.11.0
+  claim_id: c_583c8e00
+  context: 'Create code/requirements.txt containing pinned versions of: black==23.11.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black==23.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:52:26Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: datasets version 2.15.0
+  claim_id: c_d7c19188
+  context: 'Create code/requirements.txt containing pinned versions of: datasets==2.15.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.15.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:52:55Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: huggingface_hub version 0.19.4
+  claim_id: c_0251cae0
+  context: 'Create code/requirements.txt containing pinned versions of: huggingface_hub==0.19.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: huggingface_hub==0.19.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:53:15Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0
+  claim_id: c_aca46332
+  context: pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:53:31Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_608bfa25
+  context: pip install torch-geometric==2.4.0 --index-url https://download.pytorch.org/whl/cpu
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:54:06Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: sensitivity thresholds list contains 0.01 0.05 and 0.1
+  claim_id: c_f14bab2f
+  context: SENSITIVITY_THRESHOLDS (list of floats) set to [0.01, 0.05, 0.1]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_THRESHOLDS set to [0.01, 0.05, 0.1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:54:47Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: molecules with more than 100 atoms are excluded from dataset
+  claim_id: c_94b1a481
+  context: If the atom count is > 100, exclude the molecule from the dataset
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Molecules_with_more_than_100_atoms_are_excluded_from_dataset
+  kind: magnitude
+  raw_text: molecules with > 100 atoms are excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:55:17Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: global conformer failure rate threshold set to 0.10
+  claim_id: c_987700e5
+  context: If global_failure_rate > 0.10, generate data/processed/failure_report.csv
+    and THEN halt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global conformer failure rate threshold is 0.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:55:43Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: ks test p-value threshold set to 0.05
+  claim_id: c_10256426
+  context: If p <= 0.05, also generate data/splits/split_error_report.json
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The overdensity was discovered using data from different space telescopes\
+        \ operating at gamma-ray and X-ray wavelengths, plus some data from ground-based\
+        \ telescopes. By the end of 2012 they successfully recorded 286 GRBs and measured\
+        \ their redshifts spectroscopically. They subdivided them to different group\
+        \ subsamples of different redshifts, initially with five groups, six groups,\
+        \ seven groups and eight groups, but each group division in the tests suggest\
+        \ a weak anisotropy and concentration, but this is not the case when it is\
+        \ subdivided to nine groups, each containing 31 GRBs; they noticed a significant\
+        \ clustering of GRBs of the fourth subsample (z = 1.6 to 2.1) with 19 of the\
+        \ 31 GRBs of the subsample are concentrated within the vicinity of the Second,\
+        \ Third and Fourth Northern Galactic Quadrants (NGQ2, NGQ3 and NGQ4) spanning\
+        \ no less than 120 degrees of the sky. Under current stellar evolutionary\
+        \ models GRBs are only caused by neutron star collision and collapse of massive\
+        \ stars, and as such, stars causing these events are only found in regions\
+        \ with more matter in general. Using the two-point Kolmogorov\u2013Smirnov\
+        \ test, a nearest-neighbor test, and a Bootstrap point-radius method, they\
+        \ found the statistical significance of this observation to be less than 0.05\
+        \ %. The possible binomial probability to find a clustering was p=0.0000055.\
+        \ It is later reported in the paper that the clustering may be associated\
+        \ with a previously unknown supermassive structure."
+      source_id: "Hercules\u2013Corona Borealis Great Wall"
+      url: "https://en.wikipedia.org/wiki/Hercules\u2013Corona_Borealis_Great_Wall"
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Kolmogorov-Smirnov test p-value threshold is 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T09:55:52Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: split retry limit set to 5 attempts
+  claim_id: c_6bc2e3df
+  context: retry the split with a new random seed up to 5 times
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: split retry limit is 5 attempts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:56:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: early stopping patience set to 5 epochs
+  claim_id: c_4a9a2e47
+  context: Implement training loop with early stopping (patience=5, max 50 epochs)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training patience is 5 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:56:45Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: maximum training epochs set to 50
+  claim_id: c_92bab7b8
+  context: Implement training loop with early stopping (patience=5, max 50 epochs)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: maximum training epochs is 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:57:08Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: mcnemar test used for paired proportions at each threshold
+  claim_id: c_b82b9231
+  context: Perform McNemar's test for paired proportions at EACH threshold
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar_test_used_for_paired_proportions_at_each_threshold
+  kind: entity_fact
+  raw_text: McNemar's test is used for paired proportions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:57:38Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: absolute sensitivity thresholds are 0.01 0.05 and 0.1 angstroms squared
+  claim_id: c_e75b8115
+  context: "Clarification: This task implements absolute thresholds {0.01, 0.05, 0.1}\
+    \ \xC5\xB2"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity thresholds are 0.01, 0.05, and 0.1 \xC5\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T09:58:07Z'

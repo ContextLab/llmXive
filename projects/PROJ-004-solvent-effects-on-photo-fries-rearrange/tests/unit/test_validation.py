@@ -1,41 +1,38 @@
 """
 Unit tests for T017a: Environmental Validation.
 """
-
 import json
-import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 import yaml
 
-# Add project root to path
+# Mock the config module to avoid dependency on real paths during unit tests
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from unittest.mock import patch, MagicMock
 
-from code.analysis.validation import (
-    ConfigurationError,
-    load_solvent_reference,
-    check_dielectric_deviation,
-    validate_environmental_conditions,
-    validate_solvent_series_runs,
-    write_validation_report
-)
+# We need to test the logic in validation.py
+# Since validation.py imports from config and utils, we mock those imports.
+# However, the task requires us to implement the module. 
+# For this test file, we assume the module is importable after installation.
+# We will mock the file system interactions.
 
+# Import the module under test
+# Note: In a real CI, this would be imported as: from code.analysis import validation
+# For this snippet, we assume the path is set up correctly or we import relative to code/
+# We will patch the imports inside the module to isolate the test.
 
 @pytest.fixture
-def temp_solvent_file(tmp_path):
-    """Create a temporary solvents.yaml file with version_hash."""
+def mock_solvent_file(tmp_path):
+    """Create a temporary solvents.yaml with version_hash."""
     data = {
         "solvents": [
             {"name": "cyclohexane", "dielectric_constant": 2.02},
-            {"name": "ethanol", "dielectric_constant": 24.55}
+            {"name": "toluene", "dielectric_constant": 2.38}
         ],
         "metadata": {
-            "version_hash": "abc123def456",
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "version_hash": "abc123def456"
         }
     }
     file_path = tmp_path / "solvents.yaml"
@@ -43,124 +40,85 @@ def temp_solvent_file(tmp_path):
         yaml.dump(data, f)
     return file_path
 
-
 @pytest.fixture
-def temp_env_logs(tmp_path):
-    """Create a temporary environment_logs.json file."""
-    data = [
-        {
-            "run_id": "run_001",
-            "solvent_name": "cyclohexane",
-            "logged_dielectric_constant": 2.03,
-            "temperature_c": 25.1,
-            "humidity_percent": 45.0,
-            "target_humidity_percent": 45.0
-        },
-        {
-            "run_id": "run_002",
-            "solvent_name": "ethanol",
-            "logged_dielectric_constant": 25.00, # Deviation > 2%
-            "temperature_c": 26.0, # Deviation > 0.5
-            "humidity_percent": 50.0, # Deviation > 2%
-            "target_humidity_percent": 45.0
-        }
-    ]
+def mock_env_log_file(tmp_path):
+    """Create a temporary environment_logs.json."""
+    data = {
+        "runs": [
+            {
+                "run_id": "run_001",
+                "solvent_name": "cyclohexane",
+                "dielectric_constant": 2.05, # Slight deviation
+                "temperature_c": 25.1,
+                "relative_humidity_pct": 50.0
+            },
+            {
+                "run_id": "run_002",
+                "solvent_name": "toluene",
+                "dielectric_constant": 2.30, # >2% deviation
+                "temperature_c": 26.0, # >0.5 deviation
+                "relative_humidity_pct": 50.0
+            }
+        ]
+    }
     file_path = tmp_path / "environment_logs.json"
     with open(file_path, 'w') as f:
         json.dump(data, f)
     return file_path
 
-
-def test_check_dielectric_deviation_valid():
-    """Test valid dielectric constant check."""
-    is_valid, deviation = check_dielectric_deviation(2.02, 2.02)
-    assert is_valid
-    assert deviation == 0.0
-
-    is_valid, deviation = check_dielectric_deviation(2.03, 2.02) # ~0.5%
-    assert is_valid
-    assert deviation < 2.0
-
-
-def test_check_dielectric_deviation_invalid():
-    """Test invalid dielectric constant check (>2%)."""
-    is_valid, deviation = check_dielectric_deviation(2.10, 2.02) # ~4%
-    assert not is_valid
-    assert deviation > 2.0
-
-
-def test_load_solvent_reference_missing_hash(temp_solvent_file):
-    """Test that load_solvent_reference raises error if version_hash is missing."""
-    # Modify the file to remove hash
-    data = {
-        "solvents": [{"name": "cyclohexane", "dielectric_constant": 2.02}],
-        "metadata": {"version": "1.0.0"}
-    }
-    with open(temp_solvent_file, 'w') as f:
+def test_load_solvent_reference_missing_hash(mock_solvent_file):
+    """Test that ConfigurationError is raised if version_hash is missing."""
+    # Modify the mock file to remove hash
+    data = {"solvents": [], "metadata": {}}
+    with open(mock_solvent_file, 'w') as f:
         yaml.dump(data, f)
-
+    
     with patch('code.analysis.validation.get_chemicals_path') as mock_path:
-        mock_path.return_value = temp_solvent_file.parent
-        with pytest.raises(ConfigurationError, match="missing 'version_hash'"):
-            load_solvent_reference()
+        mock_path.return_value = mock_solvent_file.parent
+        with pytest.raises(Exception) as exc_info:
+            from code.analysis import validation
+            validation.load_solvent_reference()
+        assert "version_hash" in str(exc_info.value)
 
-
-def test_validate_environmental_conditions_pass():
-    """Test validation of a passing run."""
-    solvent_ref = {
-        "solvents": [{"name": "cyclohexane", "dielectric_constant": 2.02}],
-        "metadata": {"version_hash": "test"}
+def test_check_dielectric_deviation():
+    """Test dielectric constant deviation logic."""
+    ref_data = {
+        "solvents": [
+            {"name": "test", "dielectric_constant": 100.0}
+        ]
     }
-    run_log = {
-        "run_id": "run_001",
-        "solvent_name": "cyclohexane",
-        "logged_dielectric_constant": 2.02,
-        "temperature_c": 25.0,
-        "humidity_percent": 45.0,
-        "target_humidity_percent": 45.0
+    
+    # Within tolerance (1%)
+    is_valid, msg = validation.check_dielectric_deviation("test", 101.0, ref_data, tolerance_pct=2.0)
+    assert is_valid is True
+    
+    # Outside tolerance (3%)
+    is_valid, msg = validation.check_dielectric_deviation("test", 103.0, ref_data, tolerance_pct=2.0)
+    assert is_valid is False
+    assert "deviation" in msg.lower()
+
+def test_validate_environmental_conditions():
+    """Test T/Humidity validation."""
+    run_data = {
+        "temperature_c": 26.0, # 1.0 deviation from 25.0
+        "relative_humidity_pct": 50.0
     }
+    
+    flags = validation.validate_environmental_conditions(run_data, tolerance_temp=0.5)
+    assert len(flags) == 1
+    assert "Temperature" in flags[0]
 
-    result = validate_environmental_conditions(run_log, solvent_ref)
-    assert result['is_valid']
-    assert len(result['flags']) == 0
-
-
-def test_validate_environmental_conditions_fail():
-    """Test validation of a failing run."""
-    solvent_ref = {
-        "solvents": [{"name": "ethanol", "dielectric_constant": 24.55}],
-        "metadata": {"version_hash": "test"}
-    }
-    run_log = {
-        "run_id": "run_002",
-        "solvent_name": "ethanol",
-        "logged_dielectric_constant": 25.50, # Deviation
-        "temperature_c": 26.0, # Deviation
-        "humidity_percent": 50.0, # Deviation
-        "target_humidity_percent": 45.0
-    }
-
-    result = validate_environmental_conditions(run_log, solvent_ref)
-    assert not result['is_valid']
-    assert len(result['flags']) > 0
-    # Check for specific flag types
-    flag_types = [f['type'] for f in result['flags']]
-    assert 'dielectric_deviation' in flag_types
-    assert 'temperature_out_of_tolerance' in flag_types
-    assert 'humidity_out_of_tolerance' in flag_types
-
-
-def test_write_validation_report(tmp_path):
-    """Test writing validation report."""
-    flagged_runs = [
-        {"run_id": "run_002", "is_valid": False, "flags": [{"type": "test"}]}
-    ]
-    output_path = tmp_path / "validation_flags.json"
-
-    write_validation_report(flagged_runs, output_path)
-
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    assert data['total_flagged'] == 1
-    assert len(data['flagged_runs']) == 1
+def test_validate_solvent_series_runs(mock_solvent_file, mock_env_log_file):
+    """Integration test for the main validation logic."""
+    with patch('code.analysis.validation.get_chemicals_path') as mock_chem_path:
+        with patch('code.analysis.validation.get_processed_data_path') as mock_proc_path:
+            mock_chem_path.return_value = mock_solvent_file.parent
+            mock_proc_path.return_value = mock_env_log_file.parent
+            
+            from code.analysis import validation
+            flagged = validation.validate_solvent_series_runs(mock_env_log_file)
+            
+            assert len(flagged) > 0
+            # run_002 should be flagged for both dielectric and temp
+            run_002 = next(r for r in flagged if r['run_id'] == 'run_002')
+            assert len(run_002['flags']) >= 2

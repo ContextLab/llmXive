@@ -1,9 +1,8 @@
 """
-Recruitment Tracking System for Feasibility Pilot (N=15-20).
+Recruitment Tracking System for Feasibility Pilot Study.
 
-This module manages participant records for the study. It initializes the
-data file with the correct schema and provides utilities to track recruitment
-status. It does NOT perform actual human recruitment; that is a manual process.
+Manages participant records for the N=15-20 feasibility pilot.
+Implements the system to track recruitment without recruiting humans.
 """
 import json
 import os
@@ -14,188 +13,193 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path to allow imports if run as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project paths are set up
+try:
+    from utils.setup_paths import ensure_project_dirs
+except ImportError:
+    # Fallback if running as module vs script
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from utils.setup_paths import ensure_project_dirs
 
-from utils.setup_paths import ensure_project_dirs
+# Constants
+PILOT_MIN_SIZE = 15
+PILOT_MAX_SIZE = 20
+CONDITIONS = ["LLM", "Human", "None"]
+DATA_FILE = "data/raw/participants_raw.json"
 
 # Configure logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(ch)
 
-# Constants
-PARTICIPANT_DATA_PATH = "data/raw/participants_raw.json"
-MAX_PILOT_SIZE = 20
-MIN_PILOT_SIZE = 15
-CONDITIONS = ["llm", "human", "none"]
-
-def ensure_data_file_exists():
-    """Ensure the data directory and file exist. Initialize with schema if empty."""
-    # Ensure directory structure exists
+def ensure_data_file_exists(file_path: str = DATA_FILE) -> None:
+    """
+    Ensure the data file and its directory exist.
+    Initializes the file with the required schema if it doesn't exist.
+    """
     ensure_project_dirs()
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    data_path = Path(PARTICIPANT_DATA_PATH)
-    data_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if not data_path.exists():
-        logger.info(f"Initializing new participant data file at {data_path}")
+    if not path.exists():
+        logger.info(f"Initializing {file_path} with Feasibility Pilot schema (N={PILOT_MIN_SIZE}-{PILOT_MAX_SIZE})")
         initial_data = {
             "metadata": {
-                "version": "1.0",
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "max_capacity": MAX_PILOT_SIZE,
-                "min_required": MIN_PILOT_SIZE,
+                "study_phase": "Feasibility Pilot",
+                "total_capacity": PILOT_MAX_SIZE,
+                "min_capacity": PILOT_MIN_SIZE,
                 "conditions": CONDITIONS,
-                "description": "Feasibility Pilot Participant Tracker (N=15-20)"
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "version": "1.0"
             },
             "participants": []
         }
-        with open(data_path, 'w', encoding='utf-8') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             json.dump(initial_data, f, indent=2)
-        return True
-    return False
+        logger.info(f"Created {file_path} with empty participants array.")
+    else:
+        logger.info(f"Data file {file_path} already exists.")
 
-def load_participants() -> Dict[str, Any]:
-    """Load the current participant data from disk."""
-    data_path = Path(PARTICIPANT_DATA_PATH)
-    if not data_path.exists():
-        ensure_data_file_exists()
+def load_participants(file_path: str = DATA_FILE) -> Dict[str, Any]:
+    """Load the participants data from the JSON file."""
+    path = Path(file_path)
+    if not path.exists():
+        ensure_data_file_exists(file_path)
     
-    with open(data_path, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_participants(data: Dict[str, Any]):
-    """Save participant data to disk."""
-    data_path = Path(PARTICIPANT_DATA_PATH)
-    with open(data_path, 'w', encoding='utf-8') as f:
+def save_participants(data: Dict[str, Any], file_path: str = DATA_FILE) -> None:
+    """Save the participants data to the JSON file."""
+    path = Path(file_path)
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Saved {len(data['participants'])} participant records to {file_path}")
 
-def add_participant_record(partial_record: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def add_participant_record(file_path: str = DATA_FILE, 
+                           condition: Optional[str] = None,
+                           status: str = "pending") -> Dict[str, Any]:
     """
-    Add a new participant record to the tracker.
-    
-    If partial_record is provided, it merges with defaults.
-    If not, creates a placeholder record with a generated ID.
-    
-    Returns the full new record.
+    Add a new participant record to the tracking system.
+    Does NOT recruit the human; creates a placeholder for tracking.
     """
-    data = load_participants()
+    if condition and condition not in CONDITIONS:
+        raise ValueError(f"Invalid condition: {condition}. Must be one of {CONDITIONS}")
     
-    if len(data["participants"]) >= MAX_PILOT_SIZE:
-        raise ValueError(f"Recruitment limit reached: {MAX_PILOT_SIZE} participants.")
-
-    new_id = str(uuid.uuid4())
-    default_record = {
-        "participant_id": new_id,
-        "status": "pending",  # pending, recruited, assigned, completed, dropped
-        "condition": None,    # llm, human, none (assigned later)
-        "recruited_at": None,
-        "assigned_at": None,
-        "completed_at": None,
+    data = load_participants(file_path)
+    
+    if len(data['participants']) >= data['metadata']['total_capacity']:
+        raise ValueError(f"Recruitment limit reached: {data['metadata']['total_capacity']} participants.")
+    
+    new_participant = {
+        "participant_id": str(uuid.uuid4()),
+        "condition": condition,  # Assigned later by T014b logic
+        "status": status,  # pending, recruited, completed, dropped
+        "enrollment_date": None,
+        "completion_date": None,
         "notes": ""
     }
-
-    if partial_record:
-        # Merge provided fields, but keep generated ID if not provided
-        if "participant_id" not in partial_record:
-            partial_record["participant_id"] = new_id
-        new_record = {**default_record, **partial_record}
-    else:
-        new_record = default_record
-
-    data["participants"].append(new_record)
-    save_participants(data)
-    logger.info(f"Added participant record: {new_record['participant_id']}")
-    return new_record
-
-def get_participant_stats() -> Dict[str, Any]:
-    """Return summary statistics of the current recruitment state."""
-    data = load_participants()
-    participants = data["participants"]
     
-    total = len(participants)
-    status_counts = {}
-    condition_counts = {}
+    data['participants'].append(new_participant)
+    save_participants(data, file_path)
+    logger.info(f"Added new participant record: {new_participant['participant_id']}")
+    return new_participant
+
+def get_participant_stats(file_path: str = DATA_FILE) -> Dict[str, Any]:
+    """Get statistics about current recruitment status."""
+    data = load_participants(file_path)
+    total = len(data['participants'])
+    by_condition = {cond: 0 for cond in CONDITIONS}
+    by_status = {}
     
-    for p in participants:
-        status = p.get("status", "unknown")
-        status_counts[status] = status_counts.get(status, 0) + 1
+    for p in data['participants']:
+        cond = p.get('condition')
+        if cond and cond in by_condition:
+            by_condition[cond] += 1
         
-        cond = p.get("condition")
-        if cond:
-            condition_counts[cond] = condition_counts.get(cond, 0) + 1
-
+        status = p.get('status', 'unknown')
+        by_status[status] = by_status.get(status, 0) + 1
+    
     return {
-        "total_recruited": total,
-        "max_capacity": MAX_PILOT_SIZE,
-        "min_required": MIN_PILOT_SIZE,
-        "status_breakdown": status_counts,
-        "condition_breakdown": condition_counts,
-        "remaining_slots": MAX_PILOT_SIZE - total
+        "total_participants": total,
+        "capacity": data['metadata']['total_capacity'],
+        "by_condition": by_condition,
+        "by_status": by_status,
+        "remaining_capacity": data['metadata']['total_capacity'] - total
     }
 
-def validate_schema(data: Dict[str, Any]) -> bool:
+def validate_schema(file_path: str = DATA_FILE) -> bool:
     """
-    Validate that the data structure matches the expected schema.
-    Checks for required top-level keys and participant record structure.
+    Validate that the data file matches the expected schema.
+    Checks for metadata block and participants array structure.
     """
-    required_keys = ["metadata", "participants"]
-    if not all(k in data for k in required_keys):
-        logger.error("Missing required top-level keys in participant data.")
-        return False
-
-    # Check metadata
-    meta = data["metadata"]
-    if "max_capacity" not in meta or meta["max_capacity"] != MAX_PILOT_SIZE:
-        logger.error("Invalid metadata: max_capacity must be 20.")
-        return False
-    
-    if "min_required" not in meta or meta["min_required"] != MIN_PILOT_SIZE:
-        logger.error("Invalid metadata: min_required must be 15.")
-        return False
-
-    # Check participants structure
-    for p in data["participants"]:
-        if "participant_id" not in p:
-            logger.error("Participant record missing 'participant_id'.")
+    try:
+        data = load_participants(file_path)
+        
+        # Check top-level keys
+        if 'metadata' not in data:
+            logger.error("Missing 'metadata' key in data file.")
             return False
-        if "status" not in p:
-            logger.error("Participant record missing 'status'.")
+        if 'participants' not in data:
+            logger.error("Missing 'participants' key in data file.")
             return False
-
-    return True
+        
+        # Check metadata fields
+        meta = data['metadata']
+        required_meta = ['study_phase', 'total_capacity', 'min_capacity', 'conditions']
+        for field in required_meta:
+            if field not in meta:
+                logger.error(f"Missing metadata field: {field}")
+                return False
+        
+        # Check capacity constraints
+        if not (PILOT_MIN_SIZE <= meta['total_capacity'] <= PILOT_MAX_SIZE):
+            logger.error(f"Capacity {meta['total_capacity']} outside valid range [{PILOT_MIN_SIZE}, {PILOT_MAX_SIZE}]")
+            return False
+        
+        # Check participants structure
+        if not isinstance(data['participants'], list):
+            logger.error("'participants' must be a list.")
+            return False
+        
+        for i, p in enumerate(data['participants']):
+            if 'participant_id' not in p:
+                logger.error(f"Participant at index {i} missing 'participant_id'.")
+                return False
+        
+        logger.info("Schema validation passed.")
+        return True
+    except Exception as e:
+        logger.error(f"Schema validation failed: {e}")
+        return False
 
 def main():
     """
-    Main entry point for the tracker.
-    Initializes the data file if missing and prints current stats.
+    Main entry point for the recruitment tracker.
+    Initializes the data file and prints current stats.
     """
-    logger.info("Recruitment Tracker System initialized.")
+    ensure_project_dirs()
+    logger.info("Starting Recruitment Tracking System...")
     
-    # Ensure file exists
+    # Ensure file exists with correct schema
     ensure_data_file_exists()
     
-    # Load and validate
-    data = load_participants()
-    if not validate_schema(data):
-        logger.error("Schema validation failed. Please check the data file.")
+    # Validate schema
+    if not validate_schema():
+        logger.error("Schema validation failed. Aborting.")
         sys.exit(1)
     
     # Print stats
     stats = get_participant_stats()
     print(json.dumps(stats, indent=2))
     
-    # If we have fewer than MIN_PILOT_SIZE, we might want to add placeholders
-    # to demonstrate the system capacity, but we do NOT auto-recruit real humans.
-    if stats["total_recruited"] < MIN_PILOT_SIZE:
-        logger.info(f"Current recruitment ({stats['total_recruited']}) is below minimum required ({MIN_PILOT_SIZE}).")
-        logger.info("Use add_participant_record() to manually add records as volunteers are recruited.")
+    logger.info("Recruitment Tracking System initialized successfully.")
+    logger.info(f"Capacity: {stats['total_participants']}/{stats['capacity']}")
+    logger.info(f"Remaining: {stats['remaining_capacity']}")
 
 if __name__ == "__main__":
     main()

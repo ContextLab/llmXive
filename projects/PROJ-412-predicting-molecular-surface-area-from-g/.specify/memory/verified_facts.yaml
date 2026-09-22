@@ -1,5 +1,23 @@
-3|pytest:
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
+'|kolmogorov smirnov test threshold':
+  quote: "The overdensity was discovered using data from different space telescopes\
+    \ operating at gamma-ray and X-ray wavelengths, plus some data from ground-based\
+    \ telescopes. By the end of 2012 they successfully recorded 286 GRBs and measured\
+    \ their redshifts spectroscopically. They subdivided them to different group subsamples\
+    \ of different redshifts, initially with five groups, six groups, seven groups\
+    \ and eight groups, but each group division in the tests suggest a weak anisotropy\
+    \ and concentration, but this is not the case when it is subdivided to nine groups,\
+    \ each containing 31 GRBs; they noticed a significant clustering of GRBs of the\
+    \ fourth subsample (z = 1.6 to 2.1) with 19 of the 31 GRBs of the subsample are\
+    \ concentrated within the vicinity of the Second, Third and Fourth Northern Galactic\
+    \ Quadrants (NGQ2, NGQ3 and NGQ4) spanning no less than 120 degrees of the sky.\
+    \ Under current stellar evolutionary models GRBs are only caused by neutron star\
+    \ collision and collapse of massive stars, and as such, stars causing these events\
+    \ are only found in regions with more matter in general. Using the two-point Kolmogorov\u2013\
+    Smirnov test, a nearest-neighbor test, and a Bootstrap point-radius method, they\
+    \ found the statistical significance of this observation to be less than 0.05\
+    \ %. The possible binomial probability to find a clustering was p=0.0000055. It\
+    \ is later reported in the paper that the clustering may be associated with a\
+    \ previously unknown supermassive structure."
+  source_id: "Hercules\u2013Corona Borealis Great Wall"
+  url: "https://en.wikipedia.org/wiki/Hercules\u2013Corona_Borealis_Great_Wall"
+  value: '0.05'

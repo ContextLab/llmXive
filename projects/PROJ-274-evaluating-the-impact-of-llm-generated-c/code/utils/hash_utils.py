@@ -2,51 +2,87 @@ import os
 import hashlib
 from pathlib import Path
 from typing import List, Tuple
+import fnmatch
 
-def calculate_directory_hash(root_dir: Path) -> str:
+def calculate_directory_hash(root_path: Path, exclude_patterns: List[str] = None) -> str:
     """
-    Calculates a SHA256 hash of the entire directory tree structure and file contents.
-    This provides a unique fingerprint for the project state.
+    Calculates a SHA256 hash of the directory structure and file contents.
+    Excludes patterns like __pycache__, .git, etc.
     """
-    sha256_hash = hashlib.sha256()
-    
-    # Walk the directory tree
-    for path in sorted(root_dir.rglob("*")):
-        if path.is_file():
-            # Include relative path in the hash
-            rel_path = path.relative_to(root_dir)
-            sha256_hash.update(str(rel_path).encode('utf-8'))
+    if exclude_patterns is None:
+        exclude_patterns = ["__pycache__", "*.pyc", ".git", ".DS_Store"]
+
+    hasher = hashlib.sha256()
+    root_str = str(root_path.resolve())
+
+    # Walk directory
+    # We need a deterministic order, so we sort files and dirs
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        # Sort in-place to ensure deterministic traversal order
+        dirnames.sort()
+        filenames.sort()
+
+        # Filter out excluded directories
+        dirnames[:] = [d for d in dirnames if not any(fnmatch.fnmatch(d, p) for p in exclude_patterns)]
+
+        # Filter files
+        filtered_files = [f for f in filenames if not any(fnmatch.fnmatch(f, p) for p in exclude_patterns)]
+
+        # Hash directory entry (relative path)
+        rel_dir = os.path.relpath(dirpath, root_path)
+        hasher.update(rel_dir.encode('utf-8'))
+        hasher.update(b'\n')
+
+        for filename in filtered_files:
+            file_path = Path(dirpath) / filename
+            rel_file = os.path.relpath(file_path, root_path)
             
-            # Include file content hash
+            # Hash file path
+            hasher.update(rel_file.encode('utf-8'))
+            hasher.update(b':')
+            
+            # Hash file content
             try:
-                with open(path, "rb") as f:
-                    for chunk in iter(lambda: f.read(4096), b""):
-                        sha256_hash.update(chunk)
-            except (PermissionError, FileNotFoundError):
-                # Skip files we can't read
-                continue
-        elif path.is_dir():
-            # Include directory path
-            rel_path = path.relative_to(root_dir)
-            sha256_hash.update(str(rel_path).encode('utf-8'))
-            sha256_hash.update(b'/') # Directory marker
+                with open(file_path, 'rb') as f:
+                    # Read in chunks for large files
+                    while chunk := f.read(8192):
+                        hasher.update(chunk)
+            except (IOError, OSError):
+                # If we can't read a file, we still hash the path but note it?
+                # For this task, we assume readable files or skip silently
+                pass
             
-    return sha256_hash.hexdigest()
+            hasher.update(b'\n')
 
-def update_project_state(project_root: Path, project_name: str, new_hash: str):
+    return hasher.hexdigest()
+
+def update_project_state(project_root: Path, project_id: str, new_hash: str):
     """
-    Updates the state/projects/{project_name}.yaml file with the new hash.
+    Updates the state/projects/{project_id}.yaml file with the new hash.
     """
     state_dir = project_root / "state" / "projects"
     state_dir.mkdir(parents=True, exist_ok=True)
+    state_file = state_dir / f"{project_id}.yaml"
     
-    state_file = state_dir / f"{project_name}.yaml"
-    
-    content = f"""project_name: {project_name}
-initial_hash: {new_hash}
-last_updated: auto-generated
+    # Simple append/update logic for the hash line if file exists
+    if state_file.exists():
+        lines = state_file.read_text().splitlines()
+        new_lines = []
+        hash_updated = False
+        for line in lines:
+            if line.startswith("structure_hash:"):
+                new_lines.append(f"structure_hash: {new_hash}")
+                hash_updated = True
+            else:
+                new_lines.append(line)
+        
+        if not hash_updated:
+            new_lines.append(f"structure_hash: {new_hash}")
+        
+        state_file.write_text('\n'.join(new_lines) + '\n')
+    else:
+        # Create new file
+        content = f"""project_id: {project_id}
+structure_hash: {new_hash}
 """
-    with open(state_file, "w") as f:
-        f.write(content)
-    
-    return state_file
+        state_file.write_text(content)

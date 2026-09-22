@@ -1,15 +1,9 @@
 """
-Synthetic Transient-Absorption Trace Generator (CI Placeholder).
+Synthetic Data Generation Module.
+Implements T015: CI-Placeholder Data Generation.
 
-This module generates deterministic synthetic transient-absorption traces
-(mocking laser flash photolysis) strictly as a FALLBACK for CI logic testing.
-
-CONSTRAINT: This data MUST NOT be used as the primary research data source.
-It runs only if T015b (Real Data Ingestion) is explicitly bypassed or disabled.
-Output is written to `data/raw/synthetic_traces.csv`.
-
-The generation is deterministic based on a fixed seed to ensure reproducible
-CI builds.
+Constraint: This module generates DETERMINISTIC synthetic data for CI logic testing ONLY.
+It MUST NOT be used as the primary research data source.
 """
 import os
 import sys
@@ -17,169 +11,120 @@ import logging
 import argparse
 import csv
 import math
-from datetime import datetime
+from pathlib import Path
 
-# Project-relative imports
-from utils.seeds import set_seed
 from config import get_raw_data_path
+from utils.logging import setup_logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Fixed seed for deterministic CI generation
-CI_SEED = 42
-# Standard decay time constants (nanoseconds) for different "solvents"
-# Mocking: Non-polar (fast), Polar (slow)
-# Values derived from typical Photo-Fries rearrangement intermediate lifetimes
-DECAY_CONSTANTS = {
-    'cyclohexane': 2.5,   # ns
-    'toluene': 3.8,       # ns
-    'acetonitrile': 5.2,  # ns
-    'methanol': 6.1,      # ns
-    'water': 7.5          # ns
-}
-
-def exponential_decay(t: float, tau: float, amplitude: float = 1.0, offset: float = 0.0) -> float:
+def exponential_decay(t: float, amplitude: float, tau: float, offset: float) -> float:
     """
-    Calculate exponential decay: A * exp(-t/tau) + offset.
-
-    Args:
-        t: Time in nanoseconds.
-        tau: Decay time constant in nanoseconds.
-        amplitude: Initial amplitude.
-        offset: Baseline offset.
-
-    Returns:
-        Calculated absorbance change.
+    Calculate exponential decay value.
+    y(t) = A * exp(-t/tau) + offset
     """
-    if t < 0:
-        return 0.0
     return amplitude * math.exp(-t / tau) + offset
 
 def generate_decay_curve(
-    tau: float,
-    n_points: int = 100,
-    time_max_ns: float = 50.0,
-    noise_level: float = 0.005
-) -> list:
+    n_points: int = 1000,
+    tau: float = 100.0,
+    amplitude: float = 1.0,
+    offset: float = 0.0,
+    noise_level: float = 0.01
+) -> tuple:
     """
     Generate a deterministic synthetic decay curve.
-
-    Note: This function uses NO random number generation to ensure
-    determinism for CI. Noise is simulated via a deterministic
-    perturbation function based on the index.
-
-    Args:
-        tau: Decay time constant.
-        n_points: Number of time points.
-        time_max_ns: Maximum time in ns.
-        noise_level: Amplitude of deterministic perturbation.
-
-    Returns:
-        List of (time, absorbance) tuples.
+    Uses a fixed seed logic implicitly via math (no random module) to ensure
+    reproducibility for CI. 'Noise' is simulated deterministically via a sine wave
+    to mimic jitter without using random.
     """
-    set_seed(CI_SEED) # Ensure any internal state is reset
-    data = []
-    dt = time_max_ns / n_points
+    # Deterministic time steps
+    t_max = 1000.0 # ns
+    times = [i * (t_max / n_points) for i in range(n_points)]
+    
+    values = []
+    for i, t in enumerate(times):
+        # Deterministic pseudo-noise: small sine variation
+        noise = noise_level * math.sin(i * 0.1)
+        val = exponential_decay(t, amplitude, tau, offset) + noise
+        values.append(val)
+        
+    return times, values
 
-    for i in range(n_points):
-        t = i * dt
-        # Base signal
-        signal = exponential_decay(t, tau)
-        # Deterministic "noise" pattern to mimic instrument jitter without randomness
-        # Using a sine wave based on index to simulate periodic noise artifacts
-        noise = noise_level * math.sin(i * 0.5) * math.cos(i * 0.1)
-        absorbance = signal + noise
-        data.append((t, absorbance))
-
-    return data
-
-def generate_synthetic_traces(output_path: str, solvents: list = None) -> None:
+def generate_synthetic_traces(output_path: Path) -> None:
     """
-    Generate synthetic transient-absorption traces for a list of solvents
-    and write them to a CSV file.
-
-    Args:
-        output_path: Path to the output CSV file.
-        solvents: List of solvent names to generate traces for.
+    Generate synthetic transient-absorption traces for multiple solvents.
+    Writes to the specified CSV path.
+    
+    Constraint: This is a FALLBACK for CI. It does not represent real measurements.
     """
-    if solvents is None:
-        solvents = list(DECAY_CONSTANTS.keys())
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    logger.info(f"Generating synthetic traces for {len(solvents)} solvents...")
-    logger.info(f"Output path: {output_path}")
-    logger.warning("GENERATING SYNTHETIC DATA FOR CI ONLY. NOT FOR RESEARCH.")
-
-    with open(output_path, 'w', newline='') as f:
+    # Define deterministic parameters for different solvents to simulate variety
+    # These are NOT real measurements, just deterministic patterns for testing pipeline.
+    # Solvent: (tau, amplitude, offset)
+    # Using a simple hash of the name to pick parameters deterministically if needed,
+    # but here we hardcode a set for T015 compliance.
+    solvents = [
+        ("cyclohexane", 50.0, 1.0, 0.0),
+        ("toluene", 65.0, 0.95, 0.02),
+        ("dichloromethane", 120.0, 0.8, 0.05),
+        ("ethanol", 200.0, 0.7, 0.08),
+        ("acetonitrile", 350.0, 0.6, 0.1)
+    ]
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        # Header: solvent, time_ns, delta_absorbance, tau_used
-        writer.writerow(['solvent', 'time_ns', 'delta_absorbance', 'tau_used'])
+        writer.writerow(["run_id", "solvent_name", "time_ns", "absorbance", "tau_used"])
+        
+        run_counter = 1
+        for solvent_name, tau, amp, off in solvents:
+            times, values = generate_decay_curve(tau=tau, amplitude=amp, offset=off)
+            for t, val in zip(times, values):
+                writer.writerow([
+                    f"synth_{run_counter}",
+                    solvent_name,
+                    f"{t:.4f}",
+                    f"{val:.6f}",
+                    f"{tau:.2f}"
+                ])
+            run_counter += 1
+    
+    logger.info(f"Generated synthetic traces to {output_path}")
 
-        for solvent in solvents:
-            if solvent not in DECAY_CONSTANTS:
-                logger.warning(f"Unknown solvent '{solvent}', skipping.")
-                continue
-
-            tau = DECAY_CONSTANTS[solvent]
-            logger.info(f"  Generating {solvent} (tau={tau} ns)...")
-            curve = generate_decay_curve(tau, n_points=100, time_max_ns=50.0)
-
-            for t, absorbance in curve:
-                writer.writerow([solvent, f"{t:.4f}", f"{absorbance:.6f}", f"{tau:.2f}"])
-
-    logger.info(f"Successfully wrote synthetic data to {output_path}")
-
-def main() -> None:
-    """
-    Entry point for generating synthetic data.
-    """
+def main():
+    """CLI entry point for synthetic data generation."""
     parser = argparse.ArgumentParser(
         description="Generate deterministic synthetic transient-absorption traces for CI testing."
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
         default=None,
-        help="Output CSV path. Defaults to data/raw/synthetic_traces.csv."
+        help="Output file path. Defaults to data/raw/synthetic_traces.csv"
     )
     parser.add_argument(
-        '--solvents',
-        type=str,
-        nargs='+',
-        default=None,
-        help="Space-separated list of solvents to generate. Defaults to all configured."
+        "--bypass-real-check",
+        action="store_true",
+        help="Force generation even if real data check is active (for CI)."
     )
-
+    
     args = parser.parse_args()
-
-    # Determine output path
+    setup_logging()
+    
     if args.output:
-        output_path = args.output
+        output_path = Path(args.output)
     else:
-        raw_data_path = get_raw_data_path()
-        output_path = os.path.join(raw_data_path, "synthetic_traces.csv")
-
-    # Check if file exists to avoid overwriting in a real run (though CI should be clean)
-    if os.path.exists(output_path):
-        logger.warning(f"Synthetic data file already exists at {output_path}. Overwriting for CI.")
-
-    solvents = args.solvents
-
-    try:
-        generate_synthetic_traces(output_path, solvents)
-        logger.info("Synthetic data generation completed successfully.")
-    except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
-        sys.exit(1)
+        raw_path = get_raw_data_path()
+        output_path = raw_path / "synthetic_traces.csv"
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file exists (optional warning)
+    if output_path.exists() and not args.bypass_real_check:
+        logger.warning(f"Synthetic data file already exists at {output_path}. Overwriting.")
+    
+    generate_synthetic_traces(output_path)
+    logger.info("Synthetic data generation complete.")
 
 if __name__ == "__main__":
     main()

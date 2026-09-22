@@ -1,94 +1,79 @@
+"""
+Project Setup Module for PROJ-507-the-influence-of-visual-salience-on-mora
+
+This module creates the required directory structure for the research project
+as specified in the implementation plan.
+"""
 import os
 from pathlib import Path
 
+
 def create_project_structure():
     """
-    Creates the required project directory structure for the llmXive pipeline.
-    
-    Creates:
-    - code/ (source code)
-    - data/raw/ (raw external data)
-    - data/processed/ (processed data)
-    - data/survey/ (survey responses)
-    - tests/ (test suite)
-    - docs/ (documentation)
-    - config/ (configuration files)
-    - figures/ (generated plots)
-    
-    Ensures all directories exist and are writable.
+    Create the standard project directory structure.
+
+    Creates the following directories relative to the project root:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/survey/
+    - data/synth/ (for synthetic data separation)
+    - tests/
+    - tests/unit/
+    - tests/integration/
+    - config/
+    - docs/
+    - figures/
+
+    Returns:
+        Path: The project root directory where structure was created.
     """
-    # Define the project root (current directory or parent if in a subdirectory)
-    # Assuming this script is run from the project root
-    project_root = Path.cwd()
-    
-    # Define required directories relative to project root
+    # Define the base directory (current working directory is assumed to be project root)
+    base_dir = Path.cwd()
+
+    # Define required directories
     directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/survey",
-        "data/synth",  # For synthetic data separation (per T026b)
-        "tests",
+        "data/synth",
         "tests/unit",
         "tests/integration",
-        "docs",
         "config",
+        "docs",
         "figures",
-        "data/raw/human_coding",  # Per T015c requirement
     ]
-    
-    created_dirs = []
-    skipped_dirs = []
-    
+
+    created_count = 0
     for dir_path in directories:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            if full_path.is_dir():
-                skipped_dirs.append(dir_path)
-            else:
-                raise FileExistsError(
-                    f"Path exists but is not a directory: {full_path}"
-                )
-        else:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            # Ensure directory is writable
-            if not os.access(full_path, os.W_OK):
-                raise PermissionError(
-                    f"Cannot write to directory: {full_path}"
-                )
-    
-    # Log results
-    if created_dirs:
-        print(f"Created directories: {', '.join(created_dirs)}")
-    
-    if skipped_dirs:
-        print(f"Skipped existing directories: {', '.join(skipped_dirs)}")
-    
-    # Verify final structure
-    all_exist = all((project_root / d).is_dir() for d in directories)
-    
-    if all_exist:
-        print("Project structure successfully created/verified.")
-        print(f"Root: {project_root}")
-        for dir_path in sorted(directories):
-            full_path = project_root / dir_path
-            print(f"  ✓ {full_path}")
-    else:
-        missing = [d for d in directories if not (project_root / d).is_dir()]
-        raise RuntimeError(f"Failed to create directories: {', '.join(missing)}")
-    
-    return True
+            created_count += 1
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
+
+    # Create .gitkeep files in empty directories to ensure they are tracked by git
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        gitkeep_path = full_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep in: {full_path}")
+
+    print(f"\nProject structure created/verified at: {base_dir}")
+    print(f"New directories created: {created_count}")
+    return base_dir
+
 
 def main():
-    """Entry point for command-line execution."""
-    try:
-        create_project_structure()
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    """Entry point for running the script directly."""
+    print("Initializing project structure for PROJ-507...")
+    create_project_structure()
+    print("Done.")
+
 
 if __name__ == "__main__":
-    import sys
     main()

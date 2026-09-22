@@ -1,83 +1,59 @@
 [lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+# Enable a comprehensive set of rules for scientific code quality
 select = [
   "E",   # pycodestyle errors
   "W",   # pycodestyle warnings
   "F",   # Pyflakes
-  "I",   # isort
+  "I",   # isort (sorting imports)
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
-  "UP",  # pyupgrade
+  "UP",  # pyupgrade (modern syntax)
   "N",   # pep8-naming
+  "ARG", # flake8-unused-arguments
+  "SIM", # flake8-simplify
+  "TCH", # flake8-type-checking
   "RUF", # Ruff-specific rules
 ]
+
+# Ignore specific rules that are too strict for this project
 ignore = [
   "E501", # Line too long (handled by Black)
-  "B008", # Do not perform function call in argument defaults (common in dataclasses)
-  "C408", # Unnecessary dict call (sometimes used for clarity)
-  "N806", # Variable in function should be lowercase (strictness adjustment for scientific vars)
+  "B008", # Do not perform function call in argument defaults (common in ML)
+  "B905", # `zip()` without an explicit `strict=` parameter (Python 3.10+ only)
 ]
 
-# Allow autofix for all enabled rules (if `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
+# Allow long lines for data paths and complex expressions
+line-length = 120
 
-# Exclude a few files from linting.
-exclude = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
-  "data/raw", # Large data files
-]
+# Target Python 3.9+ (compatible with most scientific stacks)
+target-version = "py39"
 
-# Per-file ignores (optional).
-per-file-ignores = {}
+# Allow unused variables in function signatures for protocol compatibility
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+))$"
 
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.per-file-ignores]
+# Ignore unused imports in __init__.py (re-export pattern)
+"code/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+"code/models/__init__.py" = ["F401"]
+"code/eval/__init__.py" = ["F401"]
 
-# Target version (matching project Python version).
-target-version = "py310"
+# Allow print statements in scripts for quick debugging
+"scripts/*.py" = ["T201"]
 
-[lint.mccabe]
-# Flag functions with high complexity.
-max-complexity = 12
-
-[lint.pydocstyle]
-# Use Google-style docstrings.
-convention = "google"
+# Ignore complexity in main entry points
+"code/main.py" = ["C901", "PLR0912"]
 
 [lint.isort]
-# Force single imports per line.
-force-single-line = true
-known-first-party = ["code"]
-known-local-folder = ["tests"]
+known-first-party = ["code", "data", "models", "eval", "utils"]
+force-sort-within-sections = true
+combine-as-imports = true
 split-on-trailing-comma = true
 
 [format]
-# Enable preview style formatting.
-preview = true
-# Quote style (matching Black).
+# Ensure consistent formatting (compatible with Black)
 quote-style = "double"
-# Indent style (matching Black).
 indent-style = "space"
-# Skip magic trailing comma.
 skip-magic-trailing-comma = false
-# Line width (matching Black default).
-line-width = 88
+line-ending = "auto"

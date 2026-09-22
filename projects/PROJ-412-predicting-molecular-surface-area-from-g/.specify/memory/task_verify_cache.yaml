@@ -22,12 +22,12 @@ T011:
     test code.
 T015a:
   c: false
-  h: 145ab810538b9c627c6175f8cf81fbb4345227dd968f0c072b1286e94487525a
+  h: 70badcc8c1028c7dad7c8e1867f9f907ec44ae7b74156ab4cf0b6a3ec8dc0290
   r: "The required output files `data/processed/conformer_params.json`, `data/processed/failure_report.csv`,\
-    \ and `data/processed/conformers.parquet` are absent, and the script lacks the\
-    \ global failure\u2011rate tracking, halt\u2011on\u2011>10% logic, and logging\
-    \ to `logs/conformer_failures.log` mandated by the task. Consequently the implementation\
-    \ does not meet the specification."
+    \ and `data/processed/conformers.parquet` are absent, and the provided `preprocess.py`\
+    \ does not contain the logic for explicit parameter logging, failure\u2011reason\
+    \ mapping, global failure\u2011rate handling, or halting as specified. The task\u2019\
+    s core artifacts and behavior are therefore not satisfied."
 T015c:
   c: false
   h: 2532f98fa00dd4d39eb914ef7c48b1670720e5893a830aabecaf297882d8b57e

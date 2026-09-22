@@ -1,133 +1,114 @@
 """
-Unit tests for linting configuration and tool verification.
+Unit tests for the linting configuration module.
+
+These tests verify that the linting_config module correctly identifies
+tool availability and executes commands (mocked where necessary).
 """
 
 import subprocess
-import sys
-from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 import pytest
 
-# Import the module under test
-from code.linting_config import (
-    verify_tools_installed,
-    run_ruff_check,
-    run_black_check,
-    RUFF_CONFIG,
-    BLACK_CONFIG,
-)
+# Import the module to test
+from code import linting_config
 
 
-class TestLintingConfig:
-    """Tests for linting configuration constants and functions."""
+class TestVerifyToolsInstalled:
+    def test_both_installed(self):
+        """Test when both ruff and black are installed."""
+        with patch("subprocess.run") as mock_run:
+            # Mock successful runs for both
+            mock_run.side_effect = [
+                MagicMock(returncode=0), # ruff
+                MagicMock(returncode=0), # black
+            ]
+            ruff_ok, black_ok = linting_config.verify_tools_installed()
+            assert ruff_ok is True
+            assert black_ok is True
 
-    def test_ruff_config_structure(self):
-        """Verify RUFF_CONFIG has required keys."""
-        assert "select" in RUFF_CONFIG
-        assert "ignore" in RUFF_CONFIG
-        assert "line-length" in RUFF_CONFIG
-        assert "target-version" in RUFF_CONFIG
-        assert RUFF_CONFIG["line-length"] == 88
-        assert RUFF_CONFIG["target-version"] == "py39"
+    def test_ruff_missing(self):
+        """Test when ruff is missing."""
+        with patch("subprocess.run") as mock_run:
+            # Mock failure for ruff, success for black
+            mock_run.side_effect = [
+                FileNotFoundError("ruff not found"),
+                MagicMock(returncode=0), # black
+            ]
+            ruff_ok, black_ok = linting_config.verify_tools_installed()
+            assert ruff_ok is False
+            assert black_ok is True
 
-    def test_black_config_structure(self):
-        """Verify BLACK_CONFIG has required keys."""
-        assert "line-length" in BLACK_CONFIG
-        assert "target-version" in BLACK_CONFIG
-        assert BLACK_CONFIG["line-length"] == 88
-        assert BLACK_CONFIG["target-version"] == ["py39"]
+    def test_black_missing(self):
+        """Test when black is missing."""
+        with patch("subprocess.run") as mock_run:
+            # Mock success for ruff, failure for black
+            mock_run.side_effect = [
+                MagicMock(returncode=0), # ruff
+                FileNotFoundError("black not found"),
+            ]
+            ruff_ok, black_ok = linting_config.verify_tools_installed()
+            assert ruff_ok is True
+            assert black_ok is False
 
-    @patch("code.linting_config.subprocess.run")
-    def test_verify_tools_installed_success(self, mock_run):
-        """Test verify_tools_installed when tools are present."""
-        mock_run.return_value = MagicMock(returncode=0)
-        
-        # Should not raise
-        verify_tools_installed()
-        
-        # Verify subprocess was called for both tools
-        assert mock_run.call_count == 2
+    def test_both_missing(self):
+        """Test when both are missing."""
+        with patch("subprocess.run") as mock_run:
+            mock_run.side_effect = [
+                FileNotFoundError("ruff not found"),
+                FileNotFoundError("black not found"),
+            ]
+            ruff_ok, black_ok = linting_config.verify_tools_installed()
+            assert ruff_ok is False
+            assert black_ok is False
 
-    @patch("code.linting_config.subprocess.run")
-    def test_verify_tools_installed_ruff_missing(self, mock_run):
-        """Test verify_tools_installed when ruff is missing."""
-        # First call (ruff) fails
-        mock_run.side_effect = [
-            subprocess.CalledProcessError(1, "ruff"),
-            MagicMock(returncode=0),  # black (won't be reached)
-        ]
-        
-        with pytest.raises(RuntimeError) as exc_info:
-            verify_tools_installed()
-        
-        assert "ruff is not installed" in str(exc_info.value)
 
-    @patch("code.linting_config.subprocess.run")
-    def test_verify_tools_installed_black_missing(self, mock_run):
-        """Test verify_tools_installed when black is missing."""
-        # First call succeeds, second fails
-        mock_run.side_effect = [
-            MagicMock(returncode=0),  # ruff
-            subprocess.CalledProcessError(1, "black"),
-        ]
-        
-        with pytest.raises(RuntimeError) as exc_info:
-            verify_tools_installed()
-        
-        assert "black is not installed" in str(exc_info.value)
+class TestRunRuffCheck:
+    def test_check_passes(self):
+        """Test successful ruff check."""
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0, stdout="")
+            result = linting_config.run_ruff_check()
+            assert result is True
+            mock_run.assert_called_once_with(
+                ["ruff", "check", "code/", "tests/"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
 
-    @patch("code.linting_config.subprocess.run")
-    def test_run_ruff_check(self, mock_run):
-        """Test ruff check command construction."""
-        mock_result = MagicMock(returncode=0)
-        mock_run.return_value = mock_result
-        
-        result = run_ruff_check()
-        
-        # Verify subprocess was called
-        mock_run.assert_called_once()
-        assert result == mock_result
+    def test_check_fails(self):
+        """Test failed ruff check."""
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(
+                returncode=1, stdout="E501 Line too long\n"
+            )
+            # CalledProcessError is raised by check=True on non-zero return
+            mock_run.side_effect = subprocess.CalledProcessError(
+                1, ["ruff", "check", "code/", "tests/"]
+            )
+            result = linting_config.run_ruff_check()
+            assert result is False
 
-    @patch("code.linting_config.subprocess.run")
-    def test_run_black_check(self, mock_run):
-        """Test black check command construction."""
-        mock_result = MagicMock(returncode=0)
-        mock_run.return_value = mock_result
-        
-        result = run_black_check()
-        
-        # Verify subprocess was called
-        mock_run.assert_called_once()
-        assert result == mock_result
 
-class TestConfigFiles:
-    """Tests for configuration file generation."""
+class TestRunBlackCheck:
+    def test_check_passes(self):
+        """Test successful black check."""
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0, stdout="")
+            result = linting_config.run_black_check()
+            assert result is True
+            mock_run.assert_called_once_with(
+                ["black", "--check", "code/", "tests/"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
 
-    def test_ruff_toml_exists(self):
-        """Verify .ruff.toml exists in project root."""
-        ruff_path = Path.cwd() / ".ruff.toml"
-        assert ruff_path.exists(), ".ruff.toml should exist"
-
-    def test_pyproject_toml_black_section(self):
-        """Verify pyproject.toml contains black configuration."""
-        pyproject_path = Path.cwd() / "pyproject.toml"
-        assert pyproject_path.exists(), "pyproject.toml should exist"
-        
-        with open(pyproject_path, "r") as f:
-            content = f.read()
-        
-        assert "[tool.black]" in content, "pyproject.toml should contain [tool.black]"
-        assert "line-length = 88" in content, "Black line-length should be 88"
-
-    def test_ruff_toml_content(self):
-        """Verify .ruff.toml contains expected configuration."""
-        ruff_path = Path.cwd() / ".ruff.toml"
-        
-        with open(ruff_path, "r") as f:
-            content = f.read()
-        
-        assert "target-version" in content
-        assert "line-length = 88" in content
-        assert "select" in content
-        assert "ignore" in content
+    def test_check_fails(self):
+        """Test failed black check."""
+        with patch("subprocess.run") as mock_run:
+            mock_run.side_effect = subprocess.CalledProcessError(
+                1, ["black", "--check", "code/", "tests/"]
+            )
+            result = linting_config.run_black_check()
+            assert result is False

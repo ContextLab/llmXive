@@ -1,19 +1,3 @@
-T014:
-  c: false
-  h: 1ca66a29815eb8baade047096b7e3668734b48863e82b5f03b4f0e359f0c0724
-  r: "The provided `code/analysis/environment.py` is incomplete (the snippet ends\
-    \ before any code that writes a JSON log, and no function to create `environment_logs.json`\
-    \ is shown). Moreover, the required output file `data/processed/environment_logs.json`\
-    \ does not exist. The task\u2019s core requirement\u2014logging all fields to\
-    \ that JSON file and raising `ConfigurationError` if barometric pressure is missing\u2014\
-    is therefore not satisfied."
-T015:
-  c: false
-  h: 99c1b7f5cda65162a5fa348803d09e71fbeac6e30f81915d90137c4d7e9130e5
-  r: The `generate_synthetic.py` script exists but is truncated and does not show
-    a complete implementation that writes `data/raw/synthetic_traces.csv`. Moreover,
-    the required CSV file is missing from the repository. The task is therefore not
-    fully satisfied.
 T015b:
   c: true
   h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7
@@ -25,20 +9,22 @@ T015b:
     \ file exists and does nothing when the flag is false, satisfying all stated constraints."
 T017a:
   c: false
-  h: 98732c2a03ffacae7e57af518c0d164201cb5258b808e85ba1a526474a05e45c
-  r: The `validation.py` script checks for a `version_hash` field that is absent in
-    `data/chemicals/solvents.yaml`, so it would raise a `ConfigurationError`. Moreover,
-    the required output file `data/processed/validation_flags.json` does not exist,
-    and the provided code snippet is truncated before showing any temperature/humidity
-    validation logic. These missing/incorrect elements prevent the task from being
-    fulfilled.
+  h: afda064db6b6b1adce746c654cd6d070576e3b1da1e9f7394a303b47ffb4b61b
+  r: "The repository contains `code/analysis/validation.py`, but the shown portion\
+    \ stops mid\u2011function and does not demonstrate temperature/humidity checks\
+    \ or writing to `data/processed/validation_flags.json`. Moreover, the required\
+    \ output file `data/processed/validation_flags.json` is absent, and the provided\
+    \ `solvents.yaml` lacks a `version_hash`, causing the code to raise a `ConfigurationError`\
+    \ instead of completing validation. The task\u2019s core outputs are therefore\
+    \ missing."
 T017b:
   c: false
-  h: 264a129d3aa0f568dc9c00c802f5e54472025c60a369d31a24105a1397cb840c
-  r: The required input files `data/processed/environment_logs.json` and `data/processed/validation_flags.json`
-    are absent, and the provided `code/analysis/validation.py` is truncated and contains
-    no implementation that reads those files or writes `data/processed/compliance_report.json`.
-    Consequently the compliance percentage is never calculated or reported.
+  h: 0dbdbac32fef626eb39ae92ed98b8ce15afaef13387681d4c129eb4fc20b1b4a
+  r: "The repository contains a partially shown `code/analysis/validation.py`, but\
+    \ it does not implement the compliance\u2011percentage calculation nor write `data/processed/compliance_report.json`.\
+    \ Moreover, the required input files `data/processed/environment_logs.json` and\
+    \ `data/processed/validation_flags.json` are absent, so the script cannot run\
+    \ the intended analysis. The task\u2019s core output is missing."
 T021:
   c: false
   h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f
@@ -65,10 +51,8 @@ T048:
     \ report. The task therefore remains unfinished."
 T059:
   c: false
-  h: d00572512e24690b41ccf73857878e95ee4bc2ca532361bf27b47279a828b1fa
-  r: "The repository contains `code/analysis/power.py`, but the script does not produce\
-    \ the required `data/processed/study_power_analysis.json` (the file is missing).\
-    \ Consequently the unified power analysis is not documented as specified, and\
-    \ the task\u2019s output artifact is absent. The next implementer must add code\
-    \ that runs the analysis and writes the JSON file with effect sizes for US\u2011\
-    2 and US\u20113, explicitly noting the low\u2011N limitation."
+  h: 8cde5c22cd6c8fe18e4b40128ea6a8567bae63346700cd0e35f618e3f5fbc40b
+  r: "The repository contains `code/analysis/power.py`, but the required output file\
+    \ `data/processed/study_power_analysis.json` is absent; no evidence that the script\
+    \ has been executed to produce the JSON documenting effect sizes and study limitations.\
+    \ The missing artifact means the task\u2019s core deliverable is not satisfied."
