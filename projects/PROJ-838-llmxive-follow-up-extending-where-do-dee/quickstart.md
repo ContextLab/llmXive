@@ -1,50 +1,67 @@
-# llmXive Quickstart
+# Quickstart Guide for llmXive Follow-up Project
 
 ## Prerequisites
-- Python 3.8+
+
+- Python 3.11+
 - pip
-- Virtual environment (recommended)
 
 ## Setup
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv code/.venv
- source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
- ```
-3. Install dependencies:
+
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
+2. Ensure the project structure is correct:
+ ```bash
+ mkdir -p code data tests data/raw data/processed graphs data/processed/graphs
+ ```
+
 ## Execution
-Run the full research pipeline using the orchestration script:
+
+Run the full pipeline:
+
 ```bash
 python code/pipeline.py --config code/config.py
 ```
 
-Alternatively, run individual stages:
-1. Download Data: `python code/run_downloader.py`
-2. Build Graphs: `python code/run_build_graphs.py`
-3. Calculate Metrics: `python code/run_metrics.py`
-4. Evaluate: `python code/run_evaluator.py`
-
-## Validation
-Run the validation script to ensure quickstart commands are valid:
-```bash
-bash scripts/validate_quickstart.sh
-```
+This command will:
+1. Download and validate the TELBench dataset
+2. Build graphs for all trajectories
+3. Calculate metrics (connectivity and branching)
+4. Split data into train/test sets
+5. Run evaluation and generate reports
 
 ## Output Artifacts
+
 The pipeline produces the following artifacts in `data/processed/`:
-- `metrics.csv`
-- `train_metrics.csv`, `test_metrics.csv`
-- `threshold_config.json`
-- `results_report.json`
-- `baseline_report.json`
-- `sc_002_result.json`
-- `linear_reasoning_report.json`
-- `power_analysis.json`
-- `comparative_report.json`
-- `sensitivity_threshold_matrix.json`
-- `sensitivity_percentile_matrix.json`
+- `metrics.csv`: Metrics for all trajectories
+- `train_metrics.csv`, `test_metrics.csv`: Split datasets
+- `threshold_config.json`: 20th percentile threshold
+- `baseline_report.json`: Baseline connectivity
+- `results_report.json`: Final evaluation results
+- `sensitivity_threshold_matrix.json`, `sensitivity_percentile_matrix.json`: Sensitivity analysis
+- `sc_002_result.json`: Correlation significance result
+- `power_analysis.json`: Power analysis results
+- `comparative_report.json`: Comparative threshold analysis
+- `linear_reasoning_report.json`: Linear reasoning analysis (if applicable)
+- `f1_max_threshold.json`: F1-max threshold for comparison
+
+## Validation
+
+To validate the pipeline:
+```bash
+python -m pytest tests/ -v
+```
+
+To check reproducibility:
+```bash
+python tests/integration/test_reproducibility.py
+```
+
+## Notes
+
+- All seeds are read from `code/config.py`
+- The pipeline runs on CPU only
+- Real data from `NJU-LINK/TELBench` is required
+- The pipeline will fail loudly if the dataset is missing
