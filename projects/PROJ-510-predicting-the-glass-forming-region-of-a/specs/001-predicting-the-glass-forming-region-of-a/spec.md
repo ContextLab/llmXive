@@ -42,7 +42,7 @@ The system MUST train a Random Forest regressor on the engineered features using
 
 ### User Story 3 - Feature Importance and Sensitivity Analysis (Priority: P3)
 
-The system MUST perform permutation importance analysis to rank thermodynamic parameters and conduct a sensitivity analysis sweeping the decision threshold (if binarized) or analyzing correlation stability across a range of parameter perturbations. The sensitivity analysis MUST use a physically-grounded threshold (e.g., 100 K/s) for any binarization.
+The system MUST perform permutation importance analysis to rank thermodynamic parameters and conduct a sensitivity analysis sweeping the decision threshold (if binarized) or analyzing correlation stability across a range of parameter perturbations. The sensitivity analysis MUST use a physically-grounded threshold for any binarization.
 
 **Why this priority**: This addresses the "Expected results" requirement to identify *which* parameters drive the prediction and validates the robustness of the findings against threshold choices.
 

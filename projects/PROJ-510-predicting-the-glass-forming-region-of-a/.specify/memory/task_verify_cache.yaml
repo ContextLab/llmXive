@@ -1,9 +1,11 @@
 T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing the `ingestion.py` script or any change that adds a `ValueError`
-    when the `matsci/glass-forming-ability` dataset cannot be fetched was provided.
-    The required code modification is missing.
+  h: 7e56fd4a8c02b99f0dccf934971ab9396d52ac4072c5203ea21597a58d5d2637
+  r: "The repository contains a large `code/ingestion.py` but the visible portion\
+    \ ends before any dataset\u2011fetching logic, and no `try/except` around a fetch\
+    \ call is shown. Moreover, the required `data/logs/fetch_error.log` file does\
+    \ not exist, so the script cannot be writing the detailed error log as specified.\
+    \ The task\u2019s error\u2011handling requirement is therefore not met."
 T010a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,20 +67,6 @@ T030b:
     \ stability (e.g., permutation importance results, sensitivity plots, or stability\
     \ metrics) was provided. The required artifact for User Story\u202F3 is missing,\
     \ so the task is not satisfied."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `REPORT.md` file was supplied; the response contains only the task description
-    and no summary document covering data, model performance, feature importance,
-    sensitivity analysis, or caveats. The required artifact is missing.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No data files, model artifacts, analysis outputs, or report were provided; the\
-    \ claim lacks any concrete evidence that the ingestion, training, analysis, and\
-    \ reporting steps were actually run and validated in a clean environment. The\
-    \ required pipeline outputs (e.g., engineered CSV with \u2265500 rows, saved model,\
-    \ cross\u2011validation metrics, importance analysis, and final report) are missing."
 T057:
   c: false
   h: 2fb60e575ed2a519b0ef2d4549867706bf25ec6b1f439d95e1d1df204b462c28

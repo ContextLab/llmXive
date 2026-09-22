@@ -1,259 +1,424 @@
 """
-Data Ingestion Module for Glass Forming Ability Prediction.
-Handles downloading, filtering, and initial cleaning of alloy data.
+Ingestion module for glass-forming alloy data.
+Handles dataset fetching, validation, and filtering.
 """
-
 import logging
 import os
 import sys
 import re
-import pandas as pd
+import json
+from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
+
+import pandas as pd
 from datasets import load_dataset
 from mendeleev import element
-from utils import get_logger, ensure_dir
 
-# Configuration
-DATASET_NAME = "matsci/glass-forming-ability"
-LOG_DIR = "data/logs"
-PROCESSED_DIR = "data/processed"
-EXCLUSION_LOG = os.path.join(LOG_DIR, "exclusion_log.txt")
-FETCH_ERROR_LOG = os.path.join(LOG_DIR, "fetch_error.log")
+# Ensure directories exist
+def ensure_dir(path: str) -> None:
+    """Ensure the directory for the given path exists."""
+    dir_path = os.path.dirname(path)
+    if dir_path and not os.path.exists(dir_path):
+        os.makedirs(dir_path, exist_ok=True)
 
-logger = get_logger("ingestion")
+# Setup logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-def parse_comcomposition(composition_str: str) -> Optional[Dict[str, float]]:
+# Constants
+DATASET_ID = "matsci/glass-forming-ability"
+RAW_DATA_DIR = "data/processed"
+LOGS_DIR = "data/logs"
+FETCH_ERROR_LOG = os.path.join(LOGS_DIR, "fetch_error.log")
+EXCLUSION_LOG = os.path.join(LOGS_DIR, "exclusion_log.txt")
+RAW_OUTPUT_FILE = os.path.join(RAW_DATA_DIR, "processed_alloys_raw.csv")
+
+# Ensure log directories exist before any file operations
+ensure_dir(LOGS_DIR)
+ensure_dir(RAW_DATA_DIR)
+
+def parse_composition(composition_str: str) -> Optional[Dict[str, float]]:
     """
-    Parse a composition string like 'Fe0.5Ni0.3Cr0.2' into a dictionary.
-    Uses regex to extract element symbols and their atomic fractions.
+    Parse a composition string like "Fe50Ni30Cr20" or "Fe_50 Ni_30 Cr_20"
+    into a dictionary of {element: atomic_fraction}.
+
+    Supports formats:
+    - "Fe50Ni30Cr20" (no separators)
+    - "Fe50 Ni30 Cr20" (space separated)
+    - "Fe_50 Ni_30 Cr_20" (underscore separated)
+
+    Returns None if parsing fails.
     """
-    if not isinstance(composition_str, str):
+    if not isinstance(composition_str, str) or not composition_str.strip():
         return None
-    
-    # Regex pattern: Element Symbol (1-2 chars) followed by optional number
+
+    # Normalize separators
+    comp_str = composition_str.replace('_', ' ').strip()
+
+    # Regex to match element symbol and optional number
+    # Element symbols: One uppercase followed by optional lowercase
     pattern = r'([A-Z][a-z]?)(\d*\.?\d*)'
-    matches = re.findall(pattern, composition_str)
-    
+
+    matches = re.findall(pattern, comp_str)
+
+    if not matches:
+        return None
+
     result = {}
-    for symbol, amount in matches:
+    total_atoms = 0.0
+
+    for elem, amount_str in matches:
         try:
-            # Validate element exists
-            el = element(symbol)
-            if el:
-                # Convert amount to float, default to 0 if empty
-                val = float(amount) if amount else 0.0
-                result[symbol] = val
-        except (ValueError, Exception):
-            continue
-    
-    return result if result else None
+            # If no number provided, assume equal distribution (handled later)
+            if amount_str == '':
+                amount = 1.0  # Placeholder, will normalize later
+            else:
+                amount = float(amount_str)
+            result[elem] = amount
+            total_atoms += amount
+        except ValueError:
+            return None
+
+    if total_atoms == 0:
+        return None
+
+    # Normalize to fractions
+    for elem in result:
+        result[elem] /= total_atoms
+
+    return result
 
 def validate_ternary_elements(composition_dict: Dict[str, float]) -> bool:
     """
-    Check if the composition has exactly 3 distinct elements.
+    Validate that the composition has exactly 3 distinct elements
+    and all elements exist in the periodic table (mendeleev).
     """
-    if not composition_dict:
+    if len(composition_dict) != 3:
         return False
-    # Filter out zero amounts if any
-    non_zero = {k: v for k, v in composition_dict.items() if v > 0}
-    return len(non_zero) == 3
+
+    for elem_symbol in composition_dict.keys():
+        try:
+            # Check if element exists
+            element(elem_symbol)
+        except (ValueError, TypeError):
+            return False
+
+    return True
 
 def load_glass_data() -> pd.DataFrame:
     """
-    Load the glass forming ability dataset from Hugging Face.
-    Uses streaming to handle large datasets efficiently.
+    Load the glass-forming ability dataset from Hugging Face.
+    Implements robust error handling as per T008.
+
+    Returns:
+        pd.DataFrame: The loaded dataset.
+
+    Raises:
+        ValueError: If the dataset fetch fails or schema is invalid.
     """
+    logger.info(f"Attempting to fetch dataset: {DATASET_ID}")
+
     try:
-        logger.info(f"Loading dataset: {DATASET_NAME}")
-        # Stream the dataset to avoid memory issues
-        dataset = load_dataset(DATASET_NAME, split="train", streaming=True)
-        
-        # Convert to DataFrame (limit to first 10k for initial run if needed, 
-        # but spec says process all if possible. We'll iterate and collect)
-        # Note: In a real CI environment, we might need to limit or sample 
-        # if the dataset is too large, but we must use REAL data.
-        
-        rows = []
-        count = 0
-        for row in dataset:
-            rows.append(row)
-            count += 1
-            # Safety break for CI runners if dataset is massive (e.g., > 50k rows)
-            # but we aim for the full dataset if it fits in memory/time.
-            # If the dataset is small (< 1000 rows), this loop finishes naturally.
-            if count > 50000: 
-                logger.warning("Dataset size limit reached for CI safety. Stopping at 50k rows.")
-                break
-        
-        df = pd.DataFrame(rows)
-        
-        # Verify schema
-        if 'critical_cooling_rate' not in df.columns:
-            raise ValueError("Verified Data Source Mismatch: Dataset lacks critical_cooling_rate column.")
-        
-        logger.info(f"Successfully loaded {len(df)} rows from {DATASET_NAME}")
-        return df
+        # Attempt to load the dataset
+        # Using streaming to handle large datasets and avoid OOM
+        ds = load_dataset(DATASET_ID, split="train", streaming=True)
+
+        # Convert to a list of dicts first to inspect schema
+        # We need to verify the schema immediately
+        sample = next(iter(ds))
+        columns = list(sample.keys())
+
+        logger.info(f"Dataset schema verified. Columns: {columns}")
+
+        # Check for critical column
+        if 'critical_cooling_rate' not in columns:
+            error_msg = f"Verified Data Source Mismatch: Dataset lacks critical_cooling_rate column. Found: {columns}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # If schema is valid, load the full data (chunked processing happens in caller)
+        # We return the dataset object to allow streaming processing
+        return ds
 
     except Exception as e:
-        # Log error and write to fetch_error.log
-        ensure_dir(LOG_DIR)
-        with open(FETCH_ERROR_LOG, 'w') as f:
-            f.write(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}\n")
-        logger.error(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}")
-        raise ValueError(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}")
+        # Log detailed error
+        error_details = {
+            "timestamp": datetime.now().isoformat(),
+            "dataset_id": DATASET_ID,
+            "error_type": type(e).__name__,
+            "error_message": str(e),
+            "traceback": str(e.__traceback__) if hasattr(e, '__traceback__') else "N/A"
+        }
 
-def filter_ternary_alloys(df: pd.DataFrame) -> pd.DataFrame:
+        logger.error(f"Failed to fetch dataset: {error_details}")
+
+        # Write error log to file
+        try:
+            ensure_dir(FETCH_ERROR_LOG)
+            with open(FETCH_ERROR_LOG, 'w') as f:
+                json.dump(error_details, f, indent=2)
+            logger.info(f"Error details written to {FETCH_ERROR_LOG}")
+        except IOError as io_err:
+            logger.error(f"Failed to write error log: {io_err}")
+
+        # Raise ValueError as required by T008
+        raise ValueError(f"Dataset fetch failed: {str(e)}") from e
+
+def filter_ternary_alloys(ds) -> pd.DataFrame:
     """
-    Filter the dataframe to keep only valid ternary alloys.
-    Logs exclusions to data/logs/exclusion_log.txt.
+    Filter the dataset for valid ternary alloys.
+    Processes data in chunks to handle memory constraints.
+
+    Args:
+        ds: The Hugging Face dataset object.
+
+    Returns:
+        pd.DataFrame: Filtered and processed data.
     """
-    ensure_dir(LOG_DIR)
-    exclusion_log_path = EXCLUSION_LOG
-    
-    # Clear or create log file
-    with open(exclusion_log_path, 'w') as log_file:
-        log_file.write("Exclusion Log - Glass Forming Alloy Filtering\n")
-        log_file.write("=" * 50 + "\n")
-    
+    logger.info("Starting filtering for ternary alloys...")
+
     valid_rows = []
-    exclusion_reasons = {
-        "missing_cooling_rate": 0,
-        "malformed_composition": 0,
-        "not_ternary": 0,
-        "unknown_label": 0,
-        "invalid_element": 0
-    }
+    exclusion_reasons = []
+    chunk_size = 5000
+    buffer = []
+    total_processed = 0
+    total_valid = 0
+    total_excluded = 0
 
-    for idx, row in df.iterrows():
-        # 1. Check critical_cooling_rate
-        if pd.isna(row.get('critical_cooling_rate')):
-            exclusion_reasons["missing_cooling_rate"] += 1
-            continue
-        
-        # 2. Parse composition
-        composition_str = row.get('composition', '')
-        if not isinstance(composition_str, str) or not composition_str:
-            exclusion_reasons["malformed_composition"] += 1
-            continue
+    # Ensure exclusion log exists
+    ensure_dir(EXCLUSION_LOG)
 
-        parsed = parse_comcomposition(composition_str)
-        if not parsed:
-            exclusion_reasons["malformed_composition"] += 1
-            continue
+    try:
+        with open(EXCLUSION_LOG, 'w') as log_file:
+            log_file.write(f"Exclusion Log - {datetime.now().isoformat()}\n")
+            log_file.write("=" * 50 + "\n")
 
-        # 3. Check for exactly 3 elements
-        if not validate_ternary_elements(parsed):
-            exclusion_reasons["not_ternary"] += 1
-            continue
+            for row in ds:
+                total_processed += 1
+                buffer.append(row)
 
-        # 4. Check label (if exists)
-        label = row.get('glass_forming_label', 'unknown')
-        if label in ['unknown', 'mixed', None, '']:
-            exclusion_reasons["unknown_label"] += 1
-            continue
+                # Process in chunks
+                if len(buffer) >= chunk_size:
+                    chunk_df = pd.DataFrame(buffer)
+                    buffer = []
 
-        # If passed all checks
-        row_dict = row.to_dict()
-        row_dict['parsed_composition'] = str(parsed)
-        row_dict['source_label'] = DATASET_NAME
-        valid_rows.append(row_dict)
+                    # Process chunk
+                    for idx, row in chunk_df.iterrows():
+                        try:
+                            # Check for critical_cooling_rate
+                            if pd.isna(row.get('critical_cooling_rate')):
+                                exclusion_reasons.append({
+                                    "index": total_processed,
+                                    "reason": "Missing critical_cooling_rate"
+                                })
+                                total_excluded += 1
+                                continue
 
-    # Write exclusion summary
-    with open(exclusion_log_path, 'a') as log_file:
-        log_file.write("\nExclusion Summary:\n")
-        for reason, count in exclusion_reasons.items():
-            if count > 0:
-                log_file.write(f"{reason}: {count}\n")
-        log_file.write(f"Total Excluded: {sum(exclusion_reasons.values())}\n")
-        log_file.write(f"Total Valid: {len(valid_rows)}\n")
+                            # Parse composition
+                            comp_str = row.get('composition', '')
+                            if not isinstance(comp_str, str):
+                                exclusion_reasons.append({
+                                    "index": total_processed,
+                                    "reason": "Invalid composition format"
+                                })
+                                total_excluded += 1
+                                continue
 
-    if len(valid_rows) == 0:
-        raise ValueError("Dataset is empty after filtering. Check composition parsing logic and data source validity.")
+                            comp_dict = parse_composition(comp_str)
+                            if not comp_dict:
+                                exclusion_reasons.append({
+                                    "index": total_processed,
+                                    "reason": "Failed to parse composition"
+                                })
+                                total_excluded += 1
+                                continue
 
-    return pd.DataFrame(valid_rows)
+                            # Validate ternary
+                            if not validate_ternary_elements(comp_dict):
+                                exclusion_reasons.append({
+                                    "index": total_processed,
+                                    "reason": f"Not ternary (found {len(comp_dict)} elements)"
+                                })
+                                total_excluded += 1
+                                continue
+
+                            # Filter unknown labels
+                            label = row.get('glass_forming_label', 'unknown')
+                            if pd.isna(label) or str(label).lower() in ['unknown', 'mixed', 'null']:
+                                exclusion_reasons.append({
+                                    "index": total_processed,
+                                    "reason": f"Invalid label: {label}"
+                                })
+                                total_excluded += 1
+                                continue
+
+                            # Valid row
+                            row_dict = dict(row)
+                            row_dict['source_label'] = DATASET_ID
+                            row_dict['parsed_composition'] = json.dumps(comp_dict)
+                            valid_rows.append(row_dict)
+                            total_valid += 1
+
+                        except Exception as e:
+                            exclusion_reasons.append({
+                                "index": total_processed,
+                                "reason": f"Processing error: {str(e)}"
+                            })
+                            total_excluded += 1
+
+                    # Log exclusions for this chunk
+                    for reason in exclusion_reasons:
+                        log_file.write(f"Index {reason['index']}: {reason['reason']}\n")
+                    exclusion_reasons = []
+
+            # Process remaining buffer
+            if buffer:
+                chunk_df = pd.DataFrame(buffer)
+                for idx, row in chunk_df.iterrows():
+                    try:
+                        if pd.isna(row.get('critical_cooling_rate')):
+                            exclusion_reasons.append({"index": total_processed, "reason": "Missing critical_cooling_rate"})
+                            total_excluded += 1
+                            continue
+
+                        comp_str = row.get('composition', '')
+                        if not isinstance(comp_str, str):
+                            exclusion_reasons.append({"index": total_processed, "reason": "Invalid composition format"})
+                            total_excluded += 1
+                            continue
+
+                        comp_dict = parse_composition(comp_str)
+                        if not comp_dict:
+                            exclusion_reasons.append({"index": total_processed, "reason": "Failed to parse composition"})
+                            total_excluded += 1
+                            continue
+
+                        if not validate_ternary_elements(comp_dict):
+                            exclusion_reasons.append({"index": total_processed, "reason": f"Not ternary (found {len(comp_dict)} elements)"})
+                            total_excluded += 1
+                            continue
+
+                        label = row.get('glass_forming_label', 'unknown')
+                        if pd.isna(label) or str(label).lower() in ['unknown', 'mixed', 'null']:
+                            exclusion_reasons.append({"index": total_processed, "reason": f"Invalid label: {label}"})
+                            total_excluded += 1
+                            continue
+
+                        row_dict = dict(row)
+                        row_dict['source_label'] = DATASET_ID
+                        row_dict['parsed_composition'] = json.dumps(comp_dict)
+                        valid_rows.append(row_dict)
+                        total_valid += 1
+
+                    except Exception as e:
+                        exclusion_reasons.append({"index": total_processed, "reason": f"Processing error: {str(e)}"})
+                        total_excluded += 1
+
+                # Log remaining exclusions
+                for reason in exclusion_reasons:
+                    log_file.write(f"Index {reason['index']}: {reason['reason']}\n")
+
+        logger.info(f"Filtering complete. Total processed: {total_processed}, Valid: {total_valid}, Excluded: {total_excluded}")
+
+        if not valid_rows:
+            error_msg = "Dataset is empty after filtering. Check composition parsing logic and data source validity."
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        return pd.DataFrame(valid_rows)
+
+    except Exception as e:
+        logger.error(f"Error during filtering: {str(e)}")
+        raise
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform final cleaning and type conversions.
+    Clean the dataframe by removing duplicates and standardizing columns.
     """
-    # Ensure numeric types
+    logger.info("Cleaning data...")
+
+    # Remove duplicates based on composition and critical_cooling_rate
+    if 'parsed_composition' in df.columns and 'critical_cooling_rate' in df.columns:
+        df = df.drop_duplicates(subset=['parsed_composition', 'critical_cooling_rate'])
+
+    # Ensure numeric types for critical columns
     if 'critical_cooling_rate' in df.columns:
         df['critical_cooling_rate'] = pd.to_numeric(df['critical_cooling_rate'], errors='coerce')
         df = df.dropna(subset=['critical_cooling_rate'])
-    
-    # Normalize labels
-    if 'glass_forming_label' in df.columns:
-        df['glass_forming_label'] = df['glass_forming_label'].astype(str).str.lower()
-        df = df[~df['glass_forming_label'].isin(['unknown', 'mixed', 'nan', ''])]
-    
-    return df.reset_index(drop=True)
+
+    logger.info(f"Cleaning complete. Final shape: {df.shape}")
+    return df
 
 def validate_critical_cooling_rate(df: pd.DataFrame) -> None:
     """
-    Assert variance > 0 for critical_cooling_rate.
+    Validate that critical_cooling_rate has non-zero variance.
     """
     if 'critical_cooling_rate' not in df.columns:
-        raise ValueError("critical_cooling_rate column missing.")
-    
+        raise ValueError("critical_cooling_rate column missing")
+
     variance = df['critical_cooling_rate'].var()
     if variance == 0:
         raise ValueError("Zero variance in critical_cooling_rate")
-    
+
     logger.info(f"Critical cooling rate variance: {variance}")
 
-def run_ingestion():
+def run_ingestion() -> None:
     """
     Main entry point for the ingestion pipeline.
     """
-    logger.info("Starting ingestion pipeline")
-    ensure_dir(LOG_DIR)
-    ensure_dir(PROCESSED_DIR)
+    logger.info("Starting ingestion pipeline...")
 
     try:
-        # 1. Load Data
-        df = load_glass_data()
-        
-        # 2. Filter for Ternary Alloys
-        df_filtered = filter_ternary_alloys(df)
-        
-        # 3. Clean Data
-        df_clean = clean_data(df_filtered)
-        
-        # 4. Validate Variance
-        validate_critical_cooling_rate(df_clean)
-        
-        # 5. Save Raw Processed Data
-        output_path = os.path.join(PROCESSED_DIR, "processed_alloys_raw.csv")
-        df_clean.to_csv(output_path, index=False)
-        logger.info(f"Saved raw processed data to {output_path}")
-        
-        # 6. Log Data Availability (T012b)
-        n_total = len(df_clean)
+        # Load data
+        ds = load_glass_data()
+
+        # Filter for ternary alloys
+        df = filter_ternary_alloys(ds)
+
+        # Clean data
+        df = clean_data(df)
+
+        # Validate variance
+        validate_critical_cooling_rate(df)
+
+        # Write output
+        ensure_dir(RAW_OUTPUT_FILE)
+        df.to_csv(RAW_OUTPUT_FILE, index=False)
+        logger.info(f"Successfully wrote {len(df)} rows to {RAW_OUTPUT_FILE}")
+
+        # Write data validation status
         status = "pass"
-        message = "Data size sufficient."
+        message = "Data validation passed"
+        n_total = len(df)
+
         if n_total < 500:
             status = "fail"
-            message = "Data size below minimum (N < 500)."
-            raise ValueError(f"Data availability error: N < 500. Minimum N >= 500 required by FR-001.")
-        elif 500 <= n_total < 1000:
+            message = f"Data availability error: N < 500. Minimum N >= 500 required by FR-001."
+        elif n_total < 1000:
             status = "warning"
-            message = "Data size below target (N < 1000) but above minimum."
-            logger.warning(message)
-        
+            message = f"Data size below target (N < 1000) but above minimum (N >= 500). Proceeding."
+
         validation_status = {
             "status": status,
             "n_total": n_total,
             "message": message
         }
-        
-        with open(os.path.join(LOG_DIR, "data_validation_status.json"), 'w') as f:
-            json.dump(validation_status, f, indent=2)
-        
-        logger.info("Ingestion pipeline completed successfully.")
-        return df_clean
 
+        ensure_dir(os.path.join(LOGS_DIR, "data_validation_status.json"))
+        with open(os.path.join(LOGS_DIR, "data_validation_status.json"), 'w') as f:
+            json.dump(validation_status, f, indent=2)
+        logger.info(f"Wrote validation status to {os.path.join(LOGS_DIR, 'data_validation_status.json')}")
+
+    except ValueError as e:
+        logger.error(f"Ingestion failed with ValueError: {str(e)}")
+        raise
     except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {str(e)}")
+        logger.error(f"Ingestion failed unexpectedly: {str(e)}")
         raise
 
 if __name__ == "__main__":

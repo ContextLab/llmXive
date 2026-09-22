@@ -1,12 +1,12 @@
 status: none
-intent: MatsSci-Glass and OQMD ternary alloy critical cooling rate dataset python
-  package dataset
+intent: download glass forming alloy dataset critical cooling rates ternary compositions
+  MatsSci-Glass Materials Project python package dataset
 required_fields:
-- alloy_composition
+- composition
 - critical_cooling_rate
 - mixing_enthalpy
 - atomic_size_difference
 - electronegativity_variance
-cache_key: 8985808438893c41d76e6166d21fcc1aad008824b26ace2266231449f443f60f
-searched_at: '2026-09-09T13:27:45.728011+00:00'
+cache_key: 2671e3ad75af6592e2728b55ebda2c31b4b77145dc29d33fa5eb6a95e5b16199
+searched_at: '2026-09-22T09:52:46.083809+00:00'
 retry_count: 1

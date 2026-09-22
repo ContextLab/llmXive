@@ -1,21 +1,21 @@
 {
   "project_id": "PROJ-510-predicting-the-glass-forming-region-of-a",
   "ok": false,
-  "reason": "4 command(s) failed: python code/ingestion.py (rc=1); python code/features.py (rc=1); python code/train.py (rc=1); 4 declared deliverable(s) absent: data/models/sc002_status.json; data/models/statistical_comparison.json; data/processed/processed_alloys.csv",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"Check for absence of synthetic data indicators.\"\"\"         d\u2026\u201d; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eturn False, f\"Potential synthetic data indicators found: {synth\u2026\u201d; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026se, f\"Error checking for synthetic data: {e}\"      def _check_sc\u2026\u201d; 4 command(s) failed: python code/ingestion.py (rc=1); python code/features.py (rc=1); python code/train.py (rc=1); 17 declared deliverable(s) absent: data/logs/data_source_audit.json; data/logs/data_validation_status.json; data/logs/schema_validation_status.json",
   "artifacts": [],
   "failures": [
-    "python code/ingestion.py -> rc=1\n    venv/lib/python3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py\", line 216, i",
-    "python code/features.py -> rc=1\n    2026-09-09 13:26:21,494 - __main__ - INFO - Starting feature engineering pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 286, in <module>\n    run_features()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 265, in run_features\n    raise FileNotFoundError(f\"Input file not found: {input_path}. Run ingestion.py first.\")\nFileNotFoundError: Input file not found: data/p",
-    "python code/train.py -> rc=1\n    2026-09-09 13:26:23,486 - __main__ - INFO - Starting training pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 175, in <module>\n    run_training()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 142, in run_training\n    X, y = load_data()\n           ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.p",
-    "python code/analyze.py -> rc=1\n    2026-09-09 13:26:24,944 - __main__ - ERROR - Baseline model not found at data/models/random_forest_model.pkl."
+    "python code/ingestion.py -> rc=1\n    unner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXiv",
+    "python code/features.py -> rc=1\n    2026-09-22 09:45:24,731 - features - INFO - Starting feature engineering pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 246, in <module>\n    run_features()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 209, in run_features\n    raise FileNotFoundError(f\"Input file not found: {input_path}. Run ingestion.py first.\")\nFileNotFoundError: Input file not found: data/p",
+    "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 13, in <module>\n    from sklearn.ensemble import RandomForestRegressor, DummyRegressor\nImportError: cannot import name 'DummyRegressor' from 'sklearn.ensemble' (/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/.venv/lib/python3.11/site-packages/sklearn/ensemble/__init__.py)",
+    "python code/analyze.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py\", line 32, in <module>\n    def check_collinearity(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, Any]:\n                                                           ^^^^\nNameError: name 'List' is not defined. Did you mean: 'list'?"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python code/ingestion.py"
   ],
-  "updated_at": "2026-09-09T13:26:27Z"
+  "updated_at": "2026-09-22T09:45:31Z"
 }
