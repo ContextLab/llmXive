@@ -1,197 +1,182 @@
 """
-Outlier detection logic for perturbed random matrix eigenvalues.
+Outlier detection logic for perturbed random matrices.
 
-This module implements the logic to distinguish between eigenvalues belonging
-to the bulk (semicircle law support [-2, 2]) and outliers predicted by the
-BBP (Baik-Ben Arous-Péché) phase transition theory.
+This module implements the detection of outliers (eigenvalues outside the bulk)
+based on the BBP (Baik-Ben Arous-Péché) phase transition prediction.
 
-The detection relies on comparing the computed eigenvalues against the
-theoretical bulk edge (2.0) and the predicted BBP threshold (theta + 1/theta).
+The theoretical bulk edge for a standard Wigner matrix is at +/- 2.0.
+Outliers are eigenvalues that exceed this edge by a significant margin,
+predicted by the BBP transition when the perturbation strength theta > 1.
 """
-from typing import List, Dict, Tuple, Optional
+
+from typing import List, Dict, Tuple, Optional, NamedTuple
 import numpy as np
 
 from data_models import PerturbationConfig, SimulationRun
 from analysis.eigen_solver import compute_top_eigenvalues, validate_eigenvalues
+from utils.config import get_outlier_tolerance
 
-# Constants
-BULK_EDGE_THEORETICAL = 2.0
-TOLERANCE_FRACTION = 1e-6  # Fraction of matrix size for tolerance scaling
 
-class OutlierResult:
+class OutlierResult(NamedTuple):
+    """Result of outlier detection analysis."""
+    run_id: str
+    N: int
+    theta: float
+    bulk_edge: float
+    top_eigenvalue: float
+    is_outlier: bool
+    deviation: float
+    bbp_predicted_outlier: bool
+    theoretical_outlier_pos: Optional[float]
+    perturbation_type: str
+
+
+def calculate_bbp_threshold(
+    theta: float,
+    perturbation_rank: int = 1,
+    bulk_edge: float = 2.0
+) -> Tuple[bool, Optional[float]]:
     """
-    Container for outlier detection results.
-    """
-    def __init__(
-        self,
-        eigenvalues: np.ndarray,
-        outlier_indices: List[int],
-        outlier_values: np.ndarray,
-        bulk_indices: List[int],
-        bulk_values: np.ndarray,
-        bbp_threshold: float,
-        is_outlier_present: bool
-    ):
-        self.eigenvalues = eigenvalues
-        self.outlier_indices = outlier_indices
-        self.outlier_values = outlier_values
-        self.bulk_indices = bulk_indices
-        self.bulk_values = bulk_values
-        self.bbp_threshold = bbp_threshold
-        self.is_outlier_present = is_outlier_present
+    Calculate the BBP prediction for outlier emergence.
 
-    def to_dict(self) -> Dict:
-        return {
-            "eigenvalues": self.eigenvalues.tolist(),
-            "outlier_indices": self.outlier_indices,
-            "outlier_values": self.outlier_values.tolist(),
-            "bulk_indices": self.bulk_indices,
-            "bulk_values": self.bulk_values.tolist(),
-            "bbp_threshold": self.bbp_threshold,
-            "bulk_edge_theoretical": BULK_EDGE_THEORETICAL,
-            "is_outlier_present": self.is_outlier_present
-        }
-
-def calculate_bbp_threshold(theta: float) -> float:
-    """
-    Calculate the theoretical BBP threshold for outlier emergence.
-
-    According to BBP theory, for a perturbation of norm theta > 1,
-    the outlier eigenvalue emerges at approximately:
-        lambda_outlier = theta + 1/theta
-
-    For theta <= 1, no outlier exists above the bulk edge (2.0).
+    According to the BBP transition theorem, for a rank-k perturbation
+    with strength theta added to a Wigner matrix:
+    - If theta <= 1 (critical threshold), no outlier emerges from the bulk.
+    - If theta > 1, an outlier emerges at position:
+      lambda_outlier = theta + 1/theta (for standard Wigner scaling)
 
     Args:
-        theta: The norm of the rank-k perturbation.
+        theta: Perturbation strength parameter.
+        perturbation_rank: Rank of the perturbation (default 1).
+        bulk_edge: Theoretical edge of the Wigner semicircle (default 2.0).
 
     Returns:
-        The predicted eigenvalue position for the outlier.
+        Tuple of (bbp_predicts_outlier, theoretical_outlier_position).
+        If no outlier is predicted, theoretical_outlier_position is None.
     """
-    if theta <= 1.0:
-        # No theoretical outlier for sub-critical perturbations
-        return BULK_EDGE_THEORETICAL
-    return theta + (1.0 / theta)
+    # Critical threshold for BBP transition is theta = 1
+    # For theta > 1, an outlier emerges
+    critical_threshold = 1.0
+
+    if theta > critical_threshold:
+        # BBP prediction: lambda = theta + 1/theta
+        # This assumes the Wigner matrix is scaled by 1/sqrt(N)
+        # and the perturbation is added directly.
+        theoretical_pos = theta + 1.0 / theta
+        return True, theoretical_pos
+    else:
+        return False, None
+
 
 def detect_outliers(
-    eigenvalues: np.ndarray,
+    eigenvalues: List[float],
+    theta: float,
     perturbation_config: PerturbationConfig,
-    matrix_size: int,
-    strict_validation: bool = True
+    bulk_edge: float = 2.0,
+    tolerance: Optional[float] = None
 ) -> OutlierResult:
     """
-    Detect outliers in the eigenvalue spectrum based on BBP theory.
+    Detect outliers in the eigenvalue spectrum.
 
-    This function:
-    1. Calculates the theoretical BBP threshold based on the perturbation norm.
-    2. Compares the computed eigenvalues against the bulk edge (2.0) and the BBP threshold.
-    3. Classifies eigenvalues as 'bulk' or 'outlier'.
+    This function compares the top eigenvalue against:
+    1. The theoretical bulk edge (2.0 for Wigner)
+    2. The BBP prediction for the given theta
 
     Args:
-        eigenvalues: Array of computed eigenvalues (sorted descending).
-        perturbation_config: Configuration containing the perturbation norm (theta).
-        matrix_size: Dimension N of the matrix.
-        strict_validation: If True, strictly validate against the theoretical bulk edge (2.0)
-                           to ensure outliers are not artifacts, as per T007 requirements.
+        eigenvalues: List of computed eigenvalues (sorted descending).
+        theta: Perturbation strength.
+        perturbation_config: Configuration of the perturbation.
+        bulk_edge: Theoretical edge of the bulk spectrum.
+        tolerance: Optional tolerance for outlier detection.
+                  If None, uses config default.
 
     Returns:
-        OutlierResult containing classification details.
+        OutlierResult with detection details.
     """
-    if len(eigenvalues) == 0:
-        return OutlierResult(
-            eigenvalues=np.array([]),
-            outlier_indices=[],
-            outlier_values=np.array([]),
-            bulk_indices=[],
-            bulk_values=np.array([]),
-            bbp_threshold=BULK_EDGE_THEORETICAL,
-            is_outlier_present=False
-        )
+    if tolerance is None:
+        tolerance = get_outlier_tolerance()
 
-    theta = perturbation_config.norm
-    bbp_threshold = calculate_bbp_threshold(theta)
+    if not eigenvalues:
+        raise ValueError("Eigenvalues list cannot be empty")
 
-    # Determine tolerance for numerical stability
-    # Scale tolerance with matrix size to account for finite-N fluctuations
-    tolerance = max(1e-8, BULK_EDGE_THEORETICAL * TOLERANCE_FRACTION * np.sqrt(matrix_size))
+    top_eigenvalue = max(eigenvalues)
+    deviation = top_eigenvalue - bulk_edge
 
-    outlier_indices = []
-    outlier_values = []
-    bulk_indices = []
-    bulk_values = []
+    # Check if top eigenvalue is outside the bulk
+    # Using strict tolerance as per T007b
+    is_outlier = deviation > tolerance
 
-    # Sort eigenvalues descending (should already be, but ensure)
-    sorted_indices = np.argsort(eigenvalues)[::-1]
-    sorted_eigenvalues = eigenvalues[sorted_indices]
-
-    for i, val in enumerate(sorted_eigenvalues):
-        # Strict validation: An outlier must be strictly greater than the bulk edge (2.0)
-        # and ideally close to the BBP prediction if theta > 1.
-        # We use a slightly relaxed check against the bulk edge to account for finite-N
-        # fluctuations, but strictly greater than 2.0 + tolerance.
-        if strict_validation:
-            is_outlier = val > (BULK_EDGE_THEORETICAL + tolerance)
-        else:
-            # Fallback: use BBP threshold directly if not in strict mode
-            is_outlier = val > bbp_threshold
-
-        if is_outlier:
-            outlier_indices.append(int(sorted_indices[i]))
-            outlier_values.append(float(val))
-        else:
-            bulk_indices.append(int(sorted_indices[i]))
-            bulk_values.append(float(val))
-
-    # Convert lists to numpy arrays for consistency
-    outlier_vals_arr = np.array(outlier_values)
-    bulk_vals_arr = np.array(bulk_values)
-
-    is_outlier_present = len(outlier_vals_arr) > 0
+    # BBP prediction
+    bbp_predicts_outlier, theoretical_pos = calculate_bbp_threshold(
+        theta,
+        perturbation_config.rank,
+        bulk_edge
+    )
 
     return OutlierResult(
-        eigenvalues=sorted_eigenvalues,
-        outlier_indices=outlier_indices,
-        outlier_values=outlier_vals_arr,
-        bulk_indices=bulk_indices,
-        bulk_values=bulk_vals_arr,
-        bbp_threshold=bbp_threshold,
-        is_outlier_present=is_outlier_present
+        run_id="",  # Will be set by caller
+        N=0,  # Will be set by caller
+        theta=theta,
+        bulk_edge=bulk_edge,
+        top_eigenvalue=top_eigenvalue,
+        is_outlier=is_outlier,
+        deviation=deviation,
+        bbp_predicted_outlier=bbp_predicts_outlier,
+        theoretical_outlier_pos=theoretical_pos,
+        perturbation_type=perturbation_config.type
     )
+
 
 def run_outlier_analysis(
     simulation_run: SimulationRun,
     perturbation_config: PerturbationConfig,
-    eigenvalues: Optional[np.ndarray] = None
+    bulk_edge: float = 2.0
 ) -> OutlierResult:
     """
-    Perform a complete outlier analysis on a simulation run.
+    Run full outlier analysis on a simulation run.
 
-    If eigenvalues are not provided, they are computed using the iterative solver.
+    This function:
+    1. Computes top eigenvalues if not already present
+    2. Validates eigenvalues against the bulk edge
+    3. Detects outliers using BBP prediction
+    4. Returns detailed analysis result
 
     Args:
-        simulation_run: The simulation run object containing matrix info.
-        perturbation_config: The perturbation configuration.
-        eigenvalues: Optional pre-computed eigenvalues.
+        simulation_run: The simulation run with eigenvalues.
+        perturbation_config: Configuration of the perturbation.
+        bulk_edge: Theoretical edge of the bulk spectrum.
 
     Returns:
-        OutlierResult with classification and metrics.
+        OutlierResult with complete analysis.
     """
-    if eigenvalues is None:
-        # Compute top eigenvalues if not provided
-        # We need enough eigenvalues to detect outliers; usually top 10 is sufficient
-        num_eigs = max(10, perturbation_config.rank + 5)
-        eigenvalues = compute_top_eigenvalues(
-            matrix_size=simulation_run.matrix_size,
-            perturbation_config=perturbation_config,
-            num_eigenvalues=num_eigs
-        )
+    eigenvalues = simulation_run.eigenvalues
 
-    # Validate eigenvalues against the theoretical semicircle edge
-    # This ensures we are not misidentifying bulk fluctuations as outliers
-    validate_eigenvalues(eigenvalues, simulation_run.matrix_size)
+    if not eigenvalues:
+        raise ValueError("Simulation run has no eigenvalues")
 
-    return detect_outliers(
-        eigenvalues=eigenvalues,
-        perturbation_config=perturbation_config,
-        matrix_size=simulation_run.matrix_size
+    # Validate eigenvalues (T007b)
+    validation_result = validate_eigenvalues(eigenvalues, bulk_edge)
+
+    # Detect outliers
+    result = detect_outliers(
+        eigenvalues,
+        simulation_run.theta,
+        perturbation_config,
+        bulk_edge
     )
+
+    # Fill in run metadata
+    result = OutlierResult(
+        run_id=simulation_run.run_id,
+        N=simulation_run.N,
+        theta=simulation_run.theta,
+        bulk_edge=result.bulk_edge,
+        top_eigenvalue=result.top_eigenvalue,
+        is_outlier=result.is_outlier,
+        deviation=result.deviation,
+        bbp_predicted_outlier=result.bbp_predicted_outlier,
+        theoretical_outlier_pos=result.theoretical_outlier_pos,
+        perturbation_type=result.perturbation_type
+    )
+
+    return result

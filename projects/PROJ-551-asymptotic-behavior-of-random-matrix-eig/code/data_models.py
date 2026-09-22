@@ -4,7 +4,7 @@ Data models using Pydantic for the asymptotic behavior of random matrix eigenval
 Defines core entities: PerturbationConfig and SimulationRun.
 """
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import datetime
 import json
 
@@ -12,23 +12,22 @@ class PerturbationConfig(BaseModel):
     """Configuration for the sparse perturbation matrix."""
     theta: float = Field(..., description="Norm of the perturbation")
     rank: int = Field(..., ge=0, description="Rank of the perturbation")
-    sparsity_pattern: str = Field(..., description="Type of sparsity: 'diagonal', 'block_sparse', 'random_sparse'")
-    sparsity_density: Optional[float] = Field(None, ge=0.0, le=1.0, description="Density for random/block sparse patterns")
+    support_density: float = Field(..., ge=0.0, le=1.0, description="Fraction of non-zero entries in the support")
+    type: Literal["diagonal", "block-sparse", "random sparse"] = Field(..., description="Type of sparsity pattern")
 
-    @field_validator('sparsity_pattern')
+    @field_validator('type')
     @classmethod
-    def validate_pattern(cls, v):
-        allowed = {'diagonal', 'block_sparse', 'random_sparse'}
+    def validate_type(cls, v):
+        allowed = {"diagonal", "block-sparse", "random sparse"}
         if v not in allowed:
-            raise ValueError(f"sparsity_pattern must be one of {allowed}, got '{v}'")
+            raise ValueError(f"type must be one of {allowed}, got '{v}'")
         return v
 
-    @field_validator('sparsity_density')
+    @field_validator('support_density')
     @classmethod
-    def validate_density(cls, v, info):
-        if v is not None and not (0.0 <= v <= 1.0):
-            raise ValueError("sparsity_density must be between 0.0 and 1.0")
-        # If density is provided but pattern is diagonal, it's technically ignored but allowed for config flexibility
+    def validate_density(cls, v):
+        if not (0.0 <= v <= 1.0):
+            raise ValueError("support_density must be between 0.0 and 1.0")
         return v
 
     def to_dict(self) -> dict:
@@ -37,12 +36,13 @@ class PerturbationConfig(BaseModel):
 
 class SimulationRun(BaseModel):
     """Record of a single simulation run including metadata and results."""
-    seed: int = Field(..., description="Random seed used for reproducibility")
+    run_id: str = Field(..., description="Unique identifier for the run")
     N: int = Field(..., gt=0, description="Matrix dimension")
-    perturbation: PerturbationConfig = Field(..., description="Perturbation configuration")
+    seed: int = Field(..., description="Random seed used for reproducibility")
+    theta: float = Field(..., description="Perturbation norm")
     eigenvalues: List[float] = Field(..., description="Computed eigenvalues (sorted descending)")
-    w_checksum: str = Field(..., description="SHA-256 checksum of the Wigner matrix")
-    p_checksum: str = Field(..., description="SHA-256 checksum of the perturbation matrix")
+    outlier_flag: bool = Field(..., description="Whether an outlier was detected")
+    perturbation_config: Optional[PerturbationConfig] = Field(None, description="Optional perturbation configuration used")
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z", description="ISO 8601 timestamp of run completion")
 
     def to_dict(self) -> dict:
@@ -56,6 +56,9 @@ class SimulationRun(BaseModel):
     @classmethod
     def from_dict(cls, data: dict) -> 'SimulationRun':
         """Create a SimulationRun instance from a dictionary."""
-        if 'perturbation' in data and isinstance(data['perturbation'], dict):
-            data['perturbation'] = PerturbationConfig.model_validate(data['perturbation'])
+        if 'perturbation_config' in data and isinstance(data['perturbation_config'], dict):
+            data['perturbation_config'] = PerturbationConfig.model_validate(data['perturbation_config'])
         return cls.model_validate(data)
+
+# Re-export for convenience
+__all__ = ["PerturbationConfig", "SimulationRun"]

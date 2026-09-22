@@ -4,6 +4,15 @@ Verifies statistical properties (mean, variance) and spectral bounds.
 """
 import numpy as np
 import pytest
+import sys
+import os
+
+# Ensure the project root is in the path for imports
+# This handles running from the project root or from a subdirectory
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from code.generators.wigner import generate_wigner_matrix
 
 def test_wigner_shape():

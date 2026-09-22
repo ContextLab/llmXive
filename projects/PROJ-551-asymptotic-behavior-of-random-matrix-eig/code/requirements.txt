@@ -1,7 +1,21 @@
+# Core Numerical & Scientific Stack
+# Explicit version pinning for Reproducibility (Constitution Principle I)
 numpy==1.26.4
 scipy==1.13.0
-pydantic==2.7.0
-matplotlib==3.9.0
 pandas==2.2.2
+
+# Data Modeling
+pydantic==2.7.0
+
+# Visualization
+matplotlib==3.9.0
+
+# Code Quality & Formatting
 ruff==0.4.0
 black==24.3.0
+
+# Analysis Dependencies
+scikit-learn==1.4.0
+
+# Profiling
+memory-profiler==0.61.0

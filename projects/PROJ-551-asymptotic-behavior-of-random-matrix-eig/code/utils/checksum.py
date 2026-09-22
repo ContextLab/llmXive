@@ -1,70 +1,53 @@
 """
-Checksum utilities for data hygiene.
+Data hygiene utilities for checksums.
+
+Implements Constitution Principle III: Data Hygiene.
 """
 import hashlib
-import json
-import logging
-import os
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Optional
 
-def compute_file_checksum(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
 
-def compute_directory_checksums(dir_path: Path) -> Dict[str, str]:
-    """Compute checksums for all files in a directory."""
-    checksums = {}
-    for file_path in dir_path.iterdir():
-        if file_path.is_file():
-            checksums[str(file_path)] = compute_file_checksum(file_path)
-    return checksums
+def compute_file_checksum(filepath: Path, algorithm: str = "sha256") -> str:
+    """
+    Compute the checksum of a file.
 
-def save_checksum_manifest(checksums: Dict[str, str], output_path: Path) -> None:
-    """Save checksum manifest to a JSON file."""
-    with open(output_path, "w") as f:
-        json.dump(checksums, f, indent=2)
+    Args:
+        filepath: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
 
-def load_checksum_manifest(input_path: Path) -> Dict[str, str]:
-    """Load checksum manifest from a JSON file."""
-    with open(input_path, "r") as f:
-        return json.load(f)
+    Returns:
+        Hexadecimal digest of the file.
+    """
+    if algorithm == "sha256":
+        hasher = hashlib.sha256()
+    elif algorithm == "md5":
+        hasher = hashlib.md5()
+    else:
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
 
-def verify_checksums(file_path: Path, expected_checksum: str) -> bool:
-    """Verify that a file's checksum matches the expected value."""
-    actual_checksum = compute_file_checksum(file_path)
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+
+    return hasher.hexdigest()
+
+
+def verify_file_checksum(
+    filepath: Path,
+    expected_checksum: str,
+    algorithm: str = "sha256"
+) -> bool:
+    """
+    Verify that a file's checksum matches the expected value.
+
+    Args:
+        filepath: Path to the file.
+        expected_checksum: Expected checksum value.
+        algorithm: Hash algorithm to use.
+
+    Returns:
+        True if checksums match, False otherwise.
+    """
+    actual_checksum = compute_file_checksum(filepath, algorithm)
     return actual_checksum == expected_checksum
-
-def checksum_raw_data(data_dir: Path, registry_path: Path) -> Dict[str, Any]:
-    """Compute checksums for all raw data files and register them."""
-    checksums = {}
-    for file_path in data_dir.iterdir():
-        if file_path.is_file() and file_path.suffix == ".npy":
-            checksum = compute_file_checksum(file_path)
-            checksums[str(file_path)] = checksum
-    
-    # Register in metadata
-    registry = {"entries": []}
-    if registry_path.exists():
-        with open(registry_path, "r") as f:
-            registry = json.load(f)
-    
-    for file_path, checksum in checksums.items():
-        registry["entries"].append({
-            "file": file_path,
-            "checksum": checksum,
-            "algorithm": "sha256"
-        })
-    
-    with open(registry_path, "w") as f:
-        json.dump(registry, f, indent=2)
-    
-    return checksums
-
-def checksum_processed_data(data_dir: Path, registry_path: Path) -> Dict[str, Any]:
-    """Compute checksums for all processed data files and register them."""
-    return checksum_raw_data(data_dir, registry_path)

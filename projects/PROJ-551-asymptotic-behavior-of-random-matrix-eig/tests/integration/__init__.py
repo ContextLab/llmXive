@@ -1,1 +1,1 @@
-# Integration tests init
+# Integration tests package

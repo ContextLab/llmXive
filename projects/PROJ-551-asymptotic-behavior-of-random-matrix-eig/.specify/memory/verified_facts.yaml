@@ -1,5 +1,5 @@
-'|distribution limiting semicircle support wigner':
-  quote: '[-2, 2]'
-  source_id: '1301.6224'
-  url: https://arxiv.org/abs/1301.6224
-  value: '[-2, 2]'
+'|edge located semicircle theoretical':
+  quote: "\xB12"
+  source_id: Gaussian ensemble
+  url: https://en.wikipedia.org/wiki/Gaussian_ensemble
+  value: "\xB12"

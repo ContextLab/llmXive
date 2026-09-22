@@ -1,8 +1,8 @@
 """
-Eigenvalue solver utilities for random matrix analysis.
+Eigenvalue solvers and validation logic for Random Matrix Theory simulations.
 
-Provides iterative solvers for large sparse matrices and validation logic
-to distinguish true spectral outliers from numerical artifacts.
+This module provides iterative solvers for large sparse matrices and validation
+functions to distinguish physical outliers from numerical artifacts.
 """
 
 import numpy as np
@@ -10,158 +10,104 @@ from scipy.sparse.linalg import eigsh, LinearOperator
 from scipy import sparse
 import warnings
 
-# Theoretical edge of the semicircle law for Wigner matrices
-# (scaled by 1/sqrt(N))
-SEMICIRCLE_EDGE = 2.0
-
-# Strict numerical tolerance for validation
-VALIDATION_TOLERANCE = 1e-10
+from utils.config import get_outlier_tolerance
 
 
-def compute_top_eigenvalues(
-    matrix: np.ndarray,
-    k: int = 10,
-    which: str = 'LM',
-    tol: float = 1e-10
-) -> np.ndarray:
+def compute_top_eigenvalues(matrix: np.ndarray, k: int = 1, which: str = 'LM') -> np.ndarray:
     """
-    Compute the top k eigenvalues of a symmetric matrix using ARPACK.
+    Compute the top k eigenvalues of a symmetric matrix.
 
     Args:
-        matrix: Input symmetric matrix (dense or sparse).
+        matrix: Symmetric matrix (dense or sparse).
         k: Number of eigenvalues to compute.
-        which: Which eigenvalues to compute ('LM' for largest magnitude,
-               'LA' for largest algebraic).
-        tol: Convergence tolerance for the iterative solver.
+        which: Which part of the spectrum to compute ('LM' for largest magnitude,
+               'LA' for largest algebraic, etc.).
 
     Returns:
-        Array of k eigenvalues sorted in descending order.
-
-    Raises:
-        RuntimeError: If the solver fails to converge.
+        Array of k eigenvalues, sorted in descending order.
     """
-    n = matrix.shape[0]
-    if k >= n:
-        raise ValueError(f"k ({k}) must be less than matrix dimension ({n})")
-
-    # Ensure matrix is symmetric for eigsh
-    # We assume input is symmetric, but enforce it for numerical stability
     if sparse.issparse(matrix):
-        # For sparse, we trust the user provided a symmetric structure
-        A = matrix
+        # Ensure the matrix is symmetric for eigsh
+        matrix = sparse.csr_matrix((matrix + matrix.T) / 2)
+        try:
+            eigenvalues, _ = eigsh(matrix, k=k, which=which)
+        except Exception as e:
+            warnings.warn(f"eigsh failed: {e}. Falling back to dense solver.")
+            eigenvalues = np.linalg.eigvalsh(matrix.toarray())
     else:
-        # Make symmetric explicitly
-        A = (matrix + matrix.T) / 2.0
-        if not sparse.issparse(A):
-            A = sparse.csr_matrix(A)
-
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            eigenvalues, _ = eigsh(A, k=k, which=which, tol=tol)
-    except Exception as e:
-        raise RuntimeError(f"Eigenvalue solver failed to converge: {e}")
+        # Ensure the matrix is symmetric
+        matrix = (matrix + matrix.T) / 2
+        eigenvalues = np.linalg.eigvalsh(matrix)
 
     # Sort in descending order
     eigenvalues = np.sort(eigenvalues)[::-1]
-    return eigenvalues
+    return eigenvalues[:k]
 
 
-def validate_eigenvalues(
-    eigenvalues: np.ndarray,
-    edge: float = SEMICIRCLE_EDGE,
-    tolerance: float = VALIDATION_TOLERANCE
-) -> dict:
+def compute_top_eigenvalues_iterative(matrix: np.ndarray, k: int = 1, tol: float = 1e-6) -> np.ndarray:
     """
-    Validate eigenvalues to distinguish outliers from numerical artifacts.
-
-    This function implements a pure validation logic that checks if an eigenvalue
-    is a true outlier (significantly beyond the theoretical semicircle edge)
-    versus a numerical artifact (floating point noise near the edge).
+    Compute top eigenvalues using an iterative solver with explicit tolerance.
 
     Args:
-        eigenvalues: Array of eigenvalues to validate (typically sorted descending).
-        edge: Theoretical edge of the semicircle law (default 2.0).
-        tolerance: Strict tolerance for distinguishing outliers (default 1e-10).
+        matrix: Symmetric matrix.
+        k: Number of eigenvalues.
+        tol: Convergence tolerance.
 
     Returns:
-        A dictionary containing:
-            - 'is_outlier': bool, True if the top eigenvalue is a confirmed outlier
-            - 'max_eigenvalue': float, the largest eigenvalue
-            - 'distance_from_edge': float, how far the max eigenvalue is from the edge
-            - 'validation_passed': bool, True if the distance > tolerance
-            - 'reason': str, explanation of the validation result
-
-    The validation logic:
-        - An eigenvalue is considered a TRUE outlier if:
-            eigenvalue > edge + tolerance
-        - An eigenvalue is considered a NUMERICAL ARTIFACT if:
-            |eigenvalue - edge| <= tolerance
-        - The function returns binary pass/fail for the "outlier" hypothesis.
+        Array of k eigenvalues.
     """
-    if eigenvalues.size == 0:
-        return {
-            'is_outlier': False,
-            'max_eigenvalue': None,
-            'distance_from_edge': None,
-            'validation_passed': False,
-            'reason': 'No eigenvalues provided'
-        }
+    if not sparse.issparse(matrix):
+        matrix = sparse.csr_matrix(matrix)
 
-    max_eig = eigenvalues[0]
-    distance = max_eig - edge
-
-    # Strict validation: must exceed edge by more than the tolerance
-    # to be considered a real outlier, not a numerical artifact.
-    if distance > tolerance:
-        return {
-            'is_outlier': True,
-            'max_eigenvalue': float(max_eig),
-            'distance_from_edge': float(distance),
-            'validation_passed': True,
-            'reason': f'Eigenvalue {max_eig:.10f} exceeds edge {edge} by {distance:.10e} > {tolerance}'
-        }
-    else:
-        return {
-            'is_outlier': False,
-            'max_eigenvalue': float(max_eig),
-            'distance_from_edge': float(distance),
-            'validation_passed': False,
-            'reason': f'Eigenvalue {max_eig:.10f} is within tolerance {tolerance} of edge {edge} (distance={distance:.10e}) - likely numerical artifact'
-        }
-
-# The following functions are placeholders for the iterative solver wrapper
-# mentioned in T007a. They are included here to maintain API consistency
-# but the actual implementation of the wrapper logic is in T007a.
-# This file is extended by T007b to add the validation logic.
-
-def _create_linear_operator(matrix: np.ndarray) -> LinearOperator:
-    """
-    Create a LinearOperator from a dense matrix for use with eigsh.
-    """
-    n = matrix.shape[0]
-    def matvec(v):
-        return matrix @ v
-    return LinearOperator((n, n), matvec=matvec, dtype=matrix.dtype)
-
-def compute_top_eigenvalues_iterative(
-    matrix: np.ndarray,
-    k: int = 10,
-    tol: float = 1e-10
-) -> np.ndarray:
-    """
-    Wrapper for iterative eigenvalue computation using LinearOperator.
-    This is the function referenced in T007a.
-    """
-    if sparse.issparse(matrix):
-        A = matrix
-    else:
-        A = (matrix + matrix.T) / 2.0
-        A = sparse.csr_matrix(A)
+    # Ensure symmetry
+    matrix = (matrix + matrix.T) / 2
 
     try:
-        eigenvalues, _ = eigsh(A, k=k, which='LA', tol=tol)
+        eigenvalues, _ = eigsh(matrix, k=k, which='LA', tol=tol)
+        return np.sort(eigenvalues)[::-1]
     except Exception as e:
-        raise RuntimeError(f"Iterative solver failed: {e}")
+        warnings.warn(f"Iterative solver failed: {e}. Using dense fallback.")
+        return np.linalg.eigvalsh(matrix.toarray())[:k][::-1]
 
-    return np.sort(eigenvalues)[::-1]
+
+def validate_eigenvalues(eigenvalues: np.ndarray, tolerance: float = None) -> bool:
+    """
+    Validate eigenvalues against the theoretical Wigner semicircle edge.
+
+    The theoretical edge of the semicircle law for a standard Wigner matrix
+    (scaled by 1/sqrt(N)) is at ±2.0. This function checks if the largest
+    eigenvalue exceeds the edge by a strictly configurable tolerance.
+
+    Args:
+        eigenvalues: Array of eigenvalues (sorted descending is preferred,
+                     but not required).
+        tolerance: Optional tolerance override. If None, loaded from config.py.
+                   Defaults to a sufficiently small value (e.g., 1e-6) if not
+                   found in config.
+
+    Returns:
+        True if the largest eigenvalue is strictly greater than (2.0 + tolerance),
+        indicating a potential physical outlier. False otherwise.
+
+    Note:
+        This is a pure validation function. It does not execute simulations or
+        generate data. It strictly compares the observed maximum eigenvalue
+        against the theoretical boundary + tolerance.
+    """
+    if tolerance is None:
+        tolerance = get_outlier_tolerance()
+
+    if not isinstance(tolerance, (int, float)):
+        raise ValueError("Tolerance must be a numeric value.")
+
+    if not isinstance(eigenvalues, np.ndarray):
+        eigenvalues = np.array(eigenvalues)
+
+    if eigenvalues.size == 0:
+        return False
+
+    max_eigenvalue = np.max(eigenvalues)
+    theoretical_edge = 2.0
+
+    # Strict check: outlier if max_eigenvalue > theoretical_edge + tolerance
+    return max_eigenvalue > (theoretical_edge + tolerance)

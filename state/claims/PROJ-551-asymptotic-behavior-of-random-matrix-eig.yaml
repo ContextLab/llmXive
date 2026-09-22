@@ -1097,3 +1097,172 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-19T15:43:57Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Definition of Wigner Ensemble as symmetric matrices with independent,
+    identically distributed entries
+  claim_id: c_fff5bb52
+  context: Task T061 requires updating research.md to explicitly define the Wigner
+    Ensemble and Sparse Perturbations as purely mathematical constructs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_Wigner_Ensemble_as_symmetric_matrices_with_ind
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:55:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem for the ensemble
+  claim_id: c_0ce1cb83
+  context: Task T062 requires adding a subsection to research.md explaining that the
+    BBP transition is a rigorous mathematical theorem proven in literature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem_for_the_en
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem that holds for the
+    ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:56:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: "Theoretical semicircle edge at \xB12.0"
+  claim_id: c_7d33da54
+  context: "Task T007b implements validation logic relative to the theoretical semicircle\
+    \ edge (\xB12.0) and Task T035_new compares eigenvalues against this edge."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "\xB12"
+      source_id: Gaussian ensemble
+      url: https://en.wikipedia.org/wiki/Gaussian_ensemble
+      value: "\xB12"
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is located at \xB12.0."
+  resolved_value: "\xB12"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T00:56:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Critical threshold theta_c derived using Logistic Regression via scikit-learn
+  claim_id: c_aa3cce59
+  context: Task T021c mandates the use of Logistic Regression via scikit-learn to
+    fit the probability of outlier emergence versus theta to calculate the critical
+    theta_c value.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_theta_c_derived_using_Logistic_Regression
+  kind: entity_fact
+  raw_text: The critical threshold theta_c is derived using Logistic Regression via
+    scikit-learn.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:56:51Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Full parameter sweep completes within 6 hours
+  claim_id: c_132ee2c5
+  context: Task T036 requires performance optimization to verify that the full parameter
+    sweep completes within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires full parameter sweep completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:57:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7 GB for N=2000
+  claim_id: c_f0979a6f
+  context: Task T035 requires code cleanup to ensure memory usage is less than 7 GB
+    for N=2000.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB_for_N=2000
+  kind: magnitude
+  raw_text: Memory usage must be less than 7 GB for N=2000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:57:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Strict numerical tolerance of 1e-6 for sanity check
+  claim_id: c_cb8683a0
+  context: Task T051 requires comparing the output eigenvalue against the stored baseline
+    with a strict numerical tolerance of 1e-6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A strict numerical tolerance of 1e-6 is used for sanity check comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner matrices are dense and scaled by 1/sqrt(N)
+  claim_id: c_9a07e781
+  context: Task T012 describes implementing a Wigner matrix generator that produces
+    dense matrices scaled by 1/sqrt(N).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wigner matrices are dense and scaled by 1/sqrt(N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:36Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Study is purely observational and computational without modeling a physical
+    observer
+  claim_id: c_8d95a770
+  context: Multiple tasks (T032_init, T032a, T061, T063a) require explicitly stating
+    that the study is purely observational and computational, avoiding any modeling
+    of a physical observer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_is_purely_observational_and_computational_without_mode
+  kind: entity_fact
+  raw_text: The study is framed as purely observational and computational without
+    modeling a physical observer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:56Z'
