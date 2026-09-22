@@ -1,0 +1,15 @@
+transformers
+torch
+datasets
+scikit-learn
+spacy
+kenlm
+numpy
+pandas
+bitsandbytes
+psutil
+h5py
+pytest
+black
+ruff
+pyyaml

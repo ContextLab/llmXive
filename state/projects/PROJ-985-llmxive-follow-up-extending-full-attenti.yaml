@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-985-llmxive-follow-up-extending-full-attenti
-last_run_id: eb27648a-eadb-4bcf-b4a8-22b00009915a
+last_run_id: 4082f3ad-12df-47f6-8435-bbff80b8a9a4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti
 title: 'llmXive follow-up: extending "Full Attention Strikes Back: Transferring Full
   Attention into Sparse w"'
-updated_at: '2026-09-18T09:31:34.080300Z'
+updated_at: '2026-09-22T11:49:23.281650Z'

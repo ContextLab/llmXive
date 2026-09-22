@@ -1,206 +1,517 @@
 """
 Unit tests for feature extraction logic in code/data/compute_features.py.
 
-Tests cover:
-- Entropy calculation
-- POS tagging via spaCy
-- Position encoding
-- KenLM perplexity computation
-- Edge case handling for special characters and emojis
+This module tests the core feature extraction functions:
+- compute_entropy
+- compute_kenlm_perplexity
+- is_ambiguous_token
+- process_document
+
+These tests verify correctness without requiring GPU or large datasets.
 """
-
 import pytest
-import numpy as np
 import math
-from typing import List, Dict, Any
+import os
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Import the functions to test
-# Note: We assume the implementation follows the standard naming convention
-# based on the task description (compute_features.py).
-# If the actual implementation uses different names, adjust imports here.
-try:
-    from code.data.compute_features import (
-        compute_entropy,
-        compute_pos_tags,
-        compute_positions,
-        compute_perplexity,
-        extract_features_batch
-    )
-except ImportError:
-    # Fallback for testing if the module isn't fully implemented yet,
-    # but since we are implementing T009, we assume compute_features.py
-    # exists or will be created by T013. For this unit test to run
-    # independently, we might need to mock or define stubs if the module
-    # is missing. However, per constraints, we must write real code.
-    # We will assume T013 (compute_features) is implemented or we define
-    # the expected interface here for the test to validate the logic.
-    #
-    # Since T009 is a unit test for the logic, and T013 is the implementation,
-    # usually T009 would be written alongside T013.
-    # To satisfy the "real code" constraint and allow this test to exist
-    # even if T013 isn't fully merged yet, we will define the expected
-    # behavior and assert against it, or import if available.
-    #
-    # CRITICAL: The test file must import the REAL functions. If T013
-    # is not done, this import will fail. We assume the pipeline order
-    # allows T013 to be ready or we are testing the logic in isolation.
-    # Given the constraints, we write the test assuming the functions exist.
-    # If they don't, the test suite will fail to collect, which is a valid
-    # failure state indicating the implementation is missing.
-    pass
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from data.compute_features import (
+    compute_entropy,
+    compute_kenlm_perplexity,
+    is_ambiguous_token,
+    process_document,
+    load_or_download_kenlm
+)
+from lib.entities import TokenUnit
 
 
-# --- Mock Data Helpers ---
-
-def mock_tokenize(text: str) -> List[str]:
-    """Simple mock tokenizer for testing purposes."""
-    return text.split()
-
-# --- Test Cases ---
-
-class TestEntropy:
+class TestComputeEntropy:
     """Tests for entropy calculation."""
-
-    def test_compute_entropy_uniform_distribution(self):
-        """Entropy of a uniform distribution should be log2(N)."""
-        probs = np.array([0.25, 0.25, 0.25, 0.25])
+    
+    def test_entropy_uniform_distribution(self):
+        """Uniform distribution should have maximum entropy."""
+        # Two equally likely outcomes: entropy = log2(2) = 1.0
+        probs = [0.5, 0.5]
         entropy = compute_entropy(probs)
-        # log2(4) = 2.0
-        assert np.isclose(entropy, 2.0, atol=1e-5)
-
-    def test_compute_entropy_deterministic(self):
-        """Entropy of a deterministic distribution (one prob=1) should be 0."""
-        probs = np.array([1.0, 0.0, 0.0, 0.0])
+        assert abs(entropy - 1.0) < 1e-6
+        
+    def test_entropy_deterministic(self):
+        """Deterministic distribution should have zero entropy."""
+        # One certain outcome: entropy = 0
+        probs = [1.0, 0.0]
         entropy = compute_entropy(probs)
-        assert np.isclose(entropy, 0.0, atol=1e-5)
-
-    def test_compute_entropy_invalid_probs(self):
-        """Should handle probabilities that don't sum to 1 gracefully or raise."""
-        # Depending on implementation, this might raise or normalize.
-        # We test the robust case: valid input.
-        probs = np.array([0.5, 0.5])
+        assert abs(entropy) < 1e-6
+        
+    def test_entropy_empty_probs(self):
+        """Empty probability list should return 0 or raise."""
+        with pytest.raises((ValueError, ZeroDivisionError)):
+            compute_entropy([])
+            
+    def test_entropy_single_prob(self):
+        """Single probability should be handled."""
+        probs = [1.0]
         entropy = compute_entropy(probs)
-        assert np.isclose(entropy, 1.0, atol=1e-5)
+        assert abs(entropy) < 1e-6
+        
+    def test_entropy_invalid_probs(self):
+        """Invalid probabilities (negative or >1) should raise or be handled."""
+        with pytest.raises(ValueError):
+            compute_entropy([1.5, -0.5])
+            
+    def test_entropy_sum_not_one(self):
+        """Probabilities not summing to 1 should be normalized or raise."""
+        probs = [0.6, 0.6]  # sum = 1.2
+        # Should normalize internally or handle gracefully
+        entropy = compute_entropy(probs)
+        assert 0 <= entropy <= math.log2(len(probs))
+        
+    def test_entropy_three_outcomes(self):
+        """Test with three outcomes."""
+        # Uniform over 3: entropy = log2(3) ≈ 1.585
+        probs = [1/3, 1/3, 1/3]
+        entropy = compute_entropy(probs)
+        expected = math.log2(3)
+        assert abs(entropy - expected) < 1e-6
+        
+    def test_entropy_very_small_probs(self):
+        """Test with very small probabilities to check numerical stability."""
+        probs = [0.0001, 0.0001, 0.9998]
+        entropy = compute_entropy(probs)
+        assert 0 <= entropy < math.log2(3)
+        
+    def test_entropy_negative_log_handling(self):
+        """Ensure log(0) is handled (should not occur with valid probs)."""
+        # This tests that we don't get NaN or inf
+        probs = [0.99, 0.01]
+        entropy = compute_entropy(probs)
+        assert not math.isnan(entropy)
+        assert not math.isinf(entropy)
+        
+    def test_entropy_large_distribution(self):
+        """Test with larger number of outcomes."""
+        n = 100
+        probs = [1.0/n] * n
+        entropy = compute_entropy(probs)
+        expected = math.log2(n)
+        assert abs(entropy - expected) < 1e-3
+        
+    def test_entropy_asymmetric(self):
+        """Test asymmetric distribution."""
+        probs = [0.7, 0.3]
+        entropy = compute_entropy(probs)
+        # Should be less than 1.0 (max for binary)
+        assert 0 < entropy < 1.0
+        # Calculate expected: -0.7*log2(0.7) - 0.3*log2(0.3)
+        expected = -0.7 * math.log2(0.7) - 0.3 * math.log2(0.3)
+        assert abs(entropy - expected) < 1e-6
 
-class TestPositions:
-    """Tests for position encoding."""
 
-    def test_compute_positions_basic(self):
-        """Positions should be 0-indexed integers."""
-        tokens = ["a", "b", "c", "d"]
-        positions = compute_positions(tokens)
-        expected = [0, 1, 2, 3]
-        assert positions == expected
+class TestComputeKenlmPerplexity:
+    """Tests for KenLM perplexity calculation."""
+    
+    @patch('data.compute_features.load_or_download_kenlm')
+    def test_perplexity_valid_model(self, mock_load_model):
+        """Test perplexity calculation with mocked model."""
+        # Mock the model
+        mock_model = MagicMock()
+        mock_model.score = MagicMock(return_value=0.5)  # Log probability
+        mock_load_model.return_value = mock_model
+        
+        text = "This is a test sentence."
+        perplexity = compute_kenlm_perplexity(text)
+        
+        # Perplexity = exp(-avg_log_prob)
+        # For a simple mock, we just verify it returns a number
+        assert isinstance(perplexity, float)
+        assert perplexity > 0
+        
+    @patch('data.compute_features.load_or_download_kenlm')
+    def test_perplexity_empty_text(self, mock_load_model):
+        """Test perplexity with empty text."""
+        mock_model = MagicMock()
+        mock_load_model.return_value = mock_model
+        
+        with pytest.raises((ValueError, RuntimeError)):
+            compute_kenlm_perplexity("")
+            
+    @patch('data.compute_features.load_or_download_kenlm')
+    def test_perplexity_single_word(self, mock_load_model):
+        """Test perplexity with single word."""
+        mock_model = MagicMock()
+        mock_model.score = MagicMock(return_value=-1.0)
+        mock_load_model.return_value = mock_model
+        
+        perplexity = compute_kenlm_perplexity("test")
+        assert isinstance(perplexity, float)
+        assert perplexity > 0
+        
+    @patch('data.compute_features.load_or_download_kenlm')
+    def test_perplexity_special_characters(self, mock_load_model):
+        """Test perplexity with special characters."""
+        mock_model = MagicMock()
+        mock_model.score = MagicMock(return_value=-2.0)
+        mock_load_model.return_value = mock_model
+        
+        text = "Hello! @#$%^&*() World."
+        perplexity = compute_kenlm_perplexity(text)
+        assert isinstance(perplexity, float)
+        assert perplexity > 0
+        
+    @patch('data.compute_features.load_or_download_kenlm')
+    def test_perplexity_very_long_text(self, mock_load_model):
+        """Test perplexity with long text."""
+        mock_model = MagicMock()
+        mock_model.score = MagicMock(return_value=-0.5)
+        mock_load_model.return_value = mock_model
+        
+        text = "word " * 1000
+        perplexity = compute_kenlm_perplexity(text)
+        assert isinstance(perplexity, float)
+        assert perplexity > 0
 
-    def test_compute_positions_empty(self):
-        """Empty list should return empty list."""
-        tokens = []
-        positions = compute_positions(tokens)
-        assert positions == []
 
-class TestPerplexity:
-    """Tests for perplexity calculation using KenLM."""
+class TestIsAmbiguousToken:
+    """Tests for ambiguous token detection."""
+    
+    def test_ambiguous_emoji(self):
+        """Emojis should be detected as ambiguous."""
+        assert is_ambiguous_token("😀") is True
+        assert is_ambiguous_token("🚀") is True
+        assert is_ambiguous_token("❤️") is True
+        
+    def test_ambiguous_special_chars(self):
+        """Special characters should be detected as ambiguous."""
+        assert is_ambiguous_token("@") is True
+        assert is_ambiguous_token("#") is True
+        assert is_ambiguous_token("$") is True
+        assert is_ambiguous_token("%") is True
+        
+    def test_ambiguous_mixed(self):
+        """Mixed ambiguous tokens."""
+        assert is_ambiguous_token("🎉") is True
+        assert is_ambiguous_token("$$$") is True
+        
+    def test_not_ambiguous_word(self):
+        """Regular words should not be ambiguous."""
+        assert is_ambiguous_token("hello") is False
+        assert is_ambiguous_token("test") is False
+        assert is_ambiguous_token("RULER") is False
+        
+    def test_not_ambiguous_number(self):
+        """Numbers should not be ambiguous."""
+        assert is_ambiguous_token("123") is False
+        assert is_ambiguous_token("42") is False
+        
+    def test_not_ambiguous_alphanumeric(self):
+        """Alphanumeric should not be ambiguous."""
+        assert is_ambiguous_token("test123") is False
+        assert is_ambiguous_token("ABC123") is False
+        
+    def test_not_ambiguous_punctuation(self):
+        """Standard punctuation should not be ambiguous."""
+        assert is_ambiguous_token(".") is False
+        assert is_ambiguous_token(",") is False
+        assert is_ambiguous_token("!") is False
+        assert is_ambiguous_token("?") is False
+        
+    def test_edge_case_empty(self):
+        """Empty string should be handled."""
+        assert is_ambiguous_token("") is False
+        
+    def test_edge_case_whitespace(self):
+        """Whitespace should be handled."""
+        assert is_ambiguous_token(" ") is False
+        assert is_ambiguous_token("\t") is False
+        assert is_ambiguous_token("\n") is False
+        
+    def test_unicode_variations(self):
+        """Various unicode characters."""
+        # Some unicode might be ambiguous
+        assert is_ambiguous_token("©") is True  # Copyright symbol
+        assert is_ambiguous_token("®") is True  # Registered trademark
+        
+    def test_case_sensitivity(self):
+        """Test that detection is case-insensitive for letters."""
+        assert is_ambiguous_token("A") is False
+        assert is_ambiguous_token("a") is False
+        
+    def test_long_ambiguous_string(self):
+        """Long string of ambiguous characters."""
+        assert is_ambiguous_token("$$$$$$$$$$") is True
+        assert is_ambiguous_token("😀😀😀") is True
 
-    def test_compute_perplexity_basic(self):
-        """Test basic perplexity computation."""
-        # We need a real language model for this.
-        # Assuming compute_perplexity handles model loading or takes a model instance.
-        # For unit testing without heavy dependencies, we might mock the model.
-        # However, the task requires REAL data execution.
-        # We will write a test that expects a valid float > 1.0.
-        text = "the cat sat on the mat"
-        # This test assumes a model is available or a mock is injected.
-        # If the implementation requires a model argument, we pass one.
-        # For now, we assume the function signature: compute_perplexity(text, model)
-        # or it loads a default model.
-        # To make this test runnable without a 2GB model download in the test suite,
-        # we might need to mock the model object.
-        # But per "Real data only", we must test the actual logic.
-        # We will assume a small test model or a mock is acceptable for the UNIT test
-        # of the *logic*, while the INTEGRATION test (T010) uses real data.
-        #
-        # Let's assume the function handles the model loading internally or
-        # we inject a mock.
-        #
-        # Since we cannot guarantee a model is present in the test environment,
-        # we will test the *math* of perplexity if the function exposes it,
-        # or we skip the heavy model load if it's too slow for unit tests.
-        #
-        # REVISION: The task asks for a unit test for feature extraction logic.
-        # The logic of perplexity is: exp(-log_prob / N).
-        # We can test a wrapper that takes log_probs directly if the function is modular.
-        # If the function loads the model, we must mock the model loading.
-        pass
 
-    def test_perplexity_edge_case_short_text(self):
-        """Perplexity on very short text."""
-        pass
+class TestProcessDocument:
+    """Tests for document processing pipeline."""
+    
+    def test_process_simple_document(self):
+        """Test processing a simple document."""
+        document = {
+            "id": "test_doc_1",
+            "text": "This is a test document."
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        assert len(result) > 0
+        assert all(isinstance(token, TokenUnit) for token in result)
+        assert result[0].token_id == "This"
+        
+    def test_process_document_with_ambiguities(self):
+        """Test processing document with ambiguous tokens."""
+        document = {
+            "id": "test_doc_2",
+            "text": "Hello 😀 world!"
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        # Should have tokens for "Hello", "😀", "world"
+        assert len(result) >= 3
+        
+    def test_process_empty_document(self):
+        """Test processing empty document."""
+        document = {
+            "id": "test_doc_3",
+            "text": ""
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        assert len(result) == 0
+        
+    def test_process_document_structure(self):
+        """Test that result has correct structure."""
+        document = {
+            "id": "test_doc_4",
+            "text": "The quick brown fox."
+        }
+        
+        result = process_document(document)
+        
+        for token in result:
+            assert hasattr(token, 'token_id')
+            assert hasattr(token, 'position')
+            assert hasattr(token, 'entropy')
+            assert hasattr(token, 'kenlm_perplexity')
+            assert hasattr(token, 'is_ambiguous')
+            
+    def test_process_document_position_tracking(self):
+        """Test that positions are correctly tracked."""
+        document = {
+            "id": "test_doc_5",
+            "text": "one two three"
+        }
+        
+        result = process_document(document)
+        
+        positions = [token.position for token in result]
+        assert positions == list(range(len(positions)))
+        
+    def test_process_document_id_preservation(self):
+        """Test that document ID is preserved in tokens."""
+        document = {
+            "id": "unique_doc_id_123",
+            "text": "test"
+        }
+        
+        result = process_document(document)
+        
+        if len(result) > 0:
+            # The document ID should be accessible somehow
+            # (depends on implementation, but should be preserved)
+            assert result[0].token_id == "test"
+            
+    def test_process_document_with_newlines(self):
+        """Test processing document with newlines."""
+        document = {
+            "id": "test_doc_6",
+            "text": "Line 1\nLine 2\nLine 3"
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        assert len(result) > 0
+        
+    def test_process_document_special_case(self):
+        """Test document with only special characters."""
+        document = {
+            "id": "test_doc_7",
+            "text": "@#$%^&*()"
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        # Should still process, even if all tokens are ambiguous
+        
+    def test_process_document_very_long(self):
+        """Test processing a very long document."""
+        text = "word " * 1000
+        document = {
+            "id": "test_doc_8",
+            "text": text
+        }
+        
+        result = process_document(document)
+        
+        assert len(result) > 1000
+        
+    def test_process_document_mixed_content(self):
+        """Test document with mixed content types."""
+        document = {
+            "id": "test_doc_9",
+            "text": "Hello 123 world @#$ test 😀"
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        assert len(result) > 0
+        
+        # Check that we have both regular and ambiguous tokens
+        ambiguous_count = sum(1 for token in result if token.is_ambiguous)
+        assert ambiguous_count > 0  # Should have some ambiguous tokens
 
-class TestEdgeCases:
-    """Tests for edge cases in feature extraction."""
 
-    def test_special_characters(self):
-        """Test handling of special characters."""
-        text = "Hello @#$%^&*() World!"
-        # The feature extractor should not crash.
-        # It should either skip them or assign a specific POS/feature.
-        # We verify it returns a result without raising an exception.
-        try:
-            # This assumes extract_features_batch exists and handles this.
-            # If not implemented yet, this test will fail with ImportError,
-            # which is expected until T013 is done.
-            pass
-        except Exception:
-            # We expect the test to pass if the implementation handles it,
-            # or fail if the implementation is missing.
-            pass
+class TestLoadOrDownloadKenlm:
+    """Tests for KenLM model loading."""
+    
+    @patch('data.compute_features.os.path.exists')
+    @patch('data.compute_features.os.makedirs')
+    def test_load_existing_model(self, mock_makedirs, mock_exists):
+        """Test loading an existing model."""
+        mock_exists.return_value = True
+        
+        # This would normally load the model, but we're just testing the path
+        with patch('data.compute_features.load_model') as mock_load:
+            mock_load.return_value = MagicMock()
+            model = load_or_download_kenlm()
+            assert model is not None
+            
+    @patch('data.compute_features.os.path.exists')
+    @patch('data.compute_features.os.makedirs')
+    def test_download_missing_model(self, mock_makedirs, mock_exists):
+        """Test downloading a missing model."""
+        mock_exists.side_effect = [False, True]  # First check fails, second succeeds
+        
+        with patch('data.compute_features.download_model') as mock_download:
+            with patch('data.compute_features.load_model') as mock_load:
+                mock_load.return_value = MagicMock()
+                model = load_or_download_kenlm()
+                assert model is not None
+                
+    def test_model_path_creation(self):
+        """Test that model path is correctly constructed."""
+        # Just verify the function doesn't crash and returns something
+        with patch('data.compute_features.os.path.exists', return_value=True):
+            with patch('data.compute_features.load_model', return_value=MagicMock()):
+                model = load_or_download_kenlm()
+                assert model is not None
 
-    def test_emojis(self):
-        """Test handling of emojis."""
-        text = "Smile 😀 and laugh 😂"
-        # Similar to special characters.
-        pass
 
-    def test_empty_document(self):
-        """Test handling of empty document."""
-        text = ""
-        # Should return empty features or handle gracefully.
-        pass
+class TestIntegrationScenarios:
+    """Integration-style tests for feature extraction."""
+    
+    def test_full_pipeline_small_document(self):
+        """Test the full feature extraction pipeline on a small document."""
+        document = {
+            "id": "integration_test_1",
+            "text": "The cat sat on the mat."
+        }
+        
+        result = process_document(document)
+        
+        # Verify all tokens have features computed
+        for token in result:
+            assert isinstance(token.token_id, str)
+            assert isinstance(token.position, int)
+            assert isinstance(token.entropy, float)
+            assert isinstance(token.kenlm_perplexity, float)
+            assert isinstance(token.is_ambiguous, bool)
+            
+    def test_consistency_across_calls(self):
+        """Test that feature extraction is consistent."""
+        document = {
+            "id": "consistency_test",
+            "text": "test consistency"
+        }
+        
+        result1 = process_document(document)
+        result2 = process_document(document)
+        
+        # Results should be identical
+        assert len(result1) == len(result2)
+        for t1, t2 in zip(result1, result2):
+            assert t1.token_id == t2.token_id
+            assert t1.position == t2.position
+            assert t1.entropy == t2.entropy
+            assert t1.kenlm_perplexity == t2.kenlm_perplexity
+            
+    def test_large_document_performance(self):
+        """Test that large documents are processed reasonably."""
+        text = "word " * 500  # Moderate size
+        document = {
+            "id": "performance_test",
+            "text": text
+        }
+        
+        import time
+        start = time.time()
+        result = process_document(document)
+        elapsed = time.time() - start
+        
+        # Should complete in reasonable time (less than 10 seconds for 500 words)
+        assert elapsed < 10.0
+        assert len(result) == 500
+        
+    def test_edge_case_whitespace_only(self):
+        """Test document with only whitespace."""
+        document = {
+            "id": "whitespace_test",
+            "text": "   \t\t\n\n   "
+        }
+        
+        result = process_document(document)
+        
+        # Should handle gracefully, possibly returning empty or minimal tokens
+        assert isinstance(result, list)
+        
+    def test_unicode_document(self):
+        """Test document with unicode characters."""
+        document = {
+            "id": "unicode_test",
+            "text": "Hello 世界 مرحبا שלום"
+        }
+        
+        result = process_document(document)
+        
+        assert isinstance(result, list)
+        assert len(result) > 0
+        
+    def test_mixed_case_document(self):
+        """Test document with mixed case."""
+        document = {
+            "id": "case_test",
+            "text": "Hello HELLO hello HeLLo"
+        }
+        
+        result = process_document(document)
+        
+        assert len(result) == 4
+        assert result[0].token_id == "Hello"
+        assert result[1].token_id == "HELLO"
+        assert result[2].token_id == "hello"
+        assert result[3].token_id == "HeLLo"
 
-# --- Integration-style Unit Test for the Batch Pipeline ---
-# This tests the orchestration logic assuming the individual components work.
-
-def test_extract_features_batch_logic():
-    """
-    Test the batch extraction logic with a small, controlled input.
-    This ensures the pipeline connects entropy, POS, position, and perplexity.
-    """
-    # Since we cannot guarantee a full Llama model or KenLM model in the unit test env,
-    # we will mock the heavy dependencies.
-    # The unit test verifies the *logic* of the batch processing.
-
-    # Mock inputs
-    tokens = ["the", "quick", "brown", "fox"]
-    attention_probs = np.array([[0.1, 0.2, 0.3, 0.4],
-                                [0.4, 0.3, 0.2, 0.1],
-                                [0.2, 0.2, 0.3, 0.3],
-                                [0.3, 0.3, 0.2, 0.2]])
-
-    # Expected outputs (mocked for logic check)
-    # Entropy: -sum(p * log2(p))
-    # POS: [DT, JJ, JJ, NN] (mocked)
-    # Positions: [0, 1, 2, 3]
-
-    # We assume the function exists. If not, we can't test it.
-    # This test will be skipped if the module is missing.
-    try:
-        from code.data.compute_features import extract_features_batch
-        # features = extract_features_batch(tokens, attention_probs, mock_model)
-        # assert len(features) == len(tokens)
-        # assert 'entropy' in features[0]
-        # assert 'pos' in features[0]
-        # assert 'position' in features[0]
-        # assert 'perplexity' in features[0]
-        pass
-    except ImportError:
-        pytest.skip("compute_features module not yet implemented (T013)")
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

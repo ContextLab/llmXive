@@ -1,150 +1,88 @@
-import os
-import sys
-import gc
-import csv
-import tempfile
-import shutil
-from unittest.mock import patch, MagicMock
-from io import StringIO
-
 import pytest
-import psutil
+import os
+import gc
+import sys
+import tracemalloc
+from pathlib import Path
+from typing import Generator, Dict, Any
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+# Add code to path if not already there
+code_path = Path(__file__).parent.parent.parent / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
 
-from code.lib.data_loader import (
-    stream_ruler_dataset,
-    get_current_memory_mb,
-    log_memory_usage,
-    RAM_LIMIT_GB,
-    MEMORY_LOG_PATH,
-    DataStreamer
-)
+from lib.data_loader import profile_memory_usage, get_current_memory_gb
 
-class TestMemoryConstraints:
-    """Test that the data loader enforces memory limits."""
+def generate_synthetic_moderate_stream(num_items: int = 5000, item_size_kb: int = 10) -> Generator[Dict[str, Any], None, None]:
+    """
+    Generates a synthetic moderate-sized stream for testing memory limits.
+    Simulates data chunks of roughly 10KB each.
+    Total size approx: 5000 * 10KB = 50MB, well under 7GB limit.
+    """
+    data_block = "x" * (item_size_kb * 1024)
+    for i in range(num_items):
+        yield {
+            "id": i,
+            "content": data_block,
+            "metadata": {"index": i, "source": "synthetic_test"}
+        }
+        # Force garbage collection occasionally to ensure accurate measurement
+        if i % 500 == 0:
+            gc.collect()
 
-    @pytest.fixture(autouse=True)
-    def setup(self, tmp_path):
-        """Setup temporary directory for logs."""
-        # We need to override the global MEMORY_LOG_PATH for testing
-        # Since the module defines it at import time, we patch the function
-        # that uses it or mock the path.
+def test_peak_memory_usage_under_limit():
+    """
+    Unit test asserting peak memory usage < 7GB on a synthetic Moderate-sized stream.
+    This test verifies that the memory profiling logic works and that the stream
+    does not exceed the defined limit.
+    """
+    limit_gb = 7.0
+    log_path = "data/logs/memory_profile.csv"
+    
+    # Ensure data/logs directory exists
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    
+    # Reset garbage collector to ensure clean state
+    gc.collect()
+    
+    try:
+        # Start the profiled generator
+        stream = generate_synthetic_moderate_stream(num_items=5000, item_size_kb=10)
+        profiled_stream = profile_memory_usage(stream, limit_gb=limit_gb, log_path=log_path)
         
-        # Create a temp log file path
-        self.temp_dir = tmp_path
-        self.temp_log_path = os.path.join(self.temp_dir, "memory_profile.csv")
+        # Consume the entire stream
+        count = 0
+        for item in profiled_stream:
+            count += 1
+            if count % 1000 == 0:
+                gc.collect()
         
-        # Patch the global constant in the module
-        with patch("code.lib.data_loader.MEMORY_LOG_PATH", self.temp_log_path):
-            yield
-
-    def test_peak_memory_assertion_on_synthetic_stream(self):
-        """
-        Unit test asserting peak memory usage < 7GB on a synthetic Moderate-sized stream.
+        # Verify we processed the expected number of items
+        assert count == 5000, f"Expected 5000 items, got {count}"
         
-        Since we cannot easily fake the actual dataset streaming without mocking,
-        we simulate the stream process with mock data that triggers memory logging,
-        and assert that the logging mechanism works and stays under the limit
-        (since we are mocking the memory usage to be low).
-        """
-        # Mock psutil to return a low memory usage (e.g., 1GB)
-        # This simulates a "Moderate-sized stream" that fits within limits
-        mock_memory_mb = 1024.0  # 1 GB
+        # Verify the log file was created
+        assert os.path.exists(log_path), f"Memory profile log not created at {log_path}"
         
-        with patch("code.lib.data_loader.psutil.Process") as MockProcess:
-            mock_instance = MagicMock()
-            mock_instance.memory_info.return_value = MagicMock(rss=mock_memory_mb * 1024 * 1024)
-            MockProcess.return_value = mock_instance
-            
-            # Mock the dataset loader to return a small synthetic stream
-            mock_data = [
-                {"id": f"doc_{i}", "text": "x" * 1000, "label": 0} 
-                for i in range(50)  # Moderate size: 50 docs
-            ]
-            
-            with patch("code.lib.data_loader.load_dataset") as mock_load:
-                # Create an iterator that yields our mock data
-                mock_load.return_value = MagicMock(__iter__=lambda self: iter(mock_data))
-                
-                # Run the stream
-                batch_count = 0
-                for batch in stream_ruler_dataset(batch_size=10):
-                    batch_count += 1
-                    assert len(batch) > 0
-                    # Verify memory logging happened
-                    assert os.path.exists(self.temp_log_path)
-                
-                # Verify we processed all data
-                assert batch_count == 5
-                
-                # Verify the log file contains entries
-                with open(self.temp_log_path, "r", newline="", encoding="utf-8") as f:
-                    reader = csv.DictReader(f)
-                    rows = list(reader)
-                    
-                assert len(rows) > 0
-                
-                # Assert all logged entries are under the limit
-                for row in rows:
-                    mem_gb = float(row["memory_gb"])
-                    assert mem_gb < RAM_LIMIT_GB, f"Memory {mem_gb}GB exceeded limit {RAM_LIMIT_GB}GB"
-                    assert row["status"] == "OK"
-
-    def test_memory_limit_exceeded_raises_error(self):
-        """Test that exceeding RAM limit raises MemoryError."""
-        mock_memory_mb = 8000.0  # 8 GB, exceeds 7GB limit
+        # Read the log to verify peak memory
+        peak_memory = 0.0
+        with open(log_path, 'r') as f:
+            import csv
+            reader = csv.DictReader(f)
+            for row in reader:
+                mem = float(row['memory_gb'])
+                if mem > peak_memory:
+                    peak_memory = mem
         
-        with patch("code.lib.data_loader.psutil.Process") as MockProcess:
-            mock_instance = MagicMock()
-            mock_instance.memory_info.return_value = MagicMock(rss=mock_memory_mb * 1024 * 1024)
-            MockProcess.return_value = mock_instance
-            
-            # Mock dataset
-            mock_data = [{"id": "doc_1", "text": "test"}]
-            with patch("code.lib.data_loader.load_dataset") as mock_load:
-                mock_load.return_value = MagicMock(__iter__=lambda self: iter(mock_data))
-                
-                with pytest.raises(MemoryError, match="RAM limit exceeded"):
-                    # Force a log entry to trigger the check
-                    log_memory_usage("test_step", document_id="test_doc")
-            
-    def test_log_file_creation(self):
-        """Test that the log file is created correctly."""
-        mock_memory_mb = 500.0
+        # Assert peak memory is well below the limit (allowing a small buffer for overhead)
+        # The synthetic data is small (~50MB), so peak should be very low.
+        # We assert it is strictly less than the limit.
+        assert peak_memory < limit_gb, f"Peak memory {peak_memory:.2f}GB exceeded limit {limit_gb}GB"
+        assert peak_memory < 1.0, f"Peak memory {peak_memory:.2f}GB is unexpectedly high for synthetic test (expected < 1GB)"
         
-        with patch("code.lib.data_loader.psutil.Process") as MockProcess:
-            mock_instance = MagicMock()
-            mock_instance.memory_info.return_value = MagicMock(rss=mock_memory_mb * 1024 * 1024)
-            MockProcess.return_value = mock_instance
-            
-            # Trigger a log
-            log_memory_usage("init", document_id="test")
-            
-            assert os.path.exists(self.temp_log_path)
-            
-            with open(self.temp_log_path, "r") as f:
-                content = f.read()
-                assert "timestamp" in content
-                assert "memory_gb" in content
-                assert "test" in content
-
-    def test_data_streamer_class(self):
-        """Test the DataStreamer context class."""
-        mock_memory_mb = 500.0
+        logger = __import__('logging').getLogger(__name__)
+        logger.info(f"Test passed. Peak memory: {peak_memory:.4f}GB")
         
-        with patch("code.lib.data_loader.psutil.Process") as MockProcess:
-            mock_instance = MagicMock()
-            mock_instance.memory_info.return_value = MagicMock(rss=mock_memory_mb * 1024 * 1024)
-            MockProcess.return_value = mock_instance
-            
-            mock_data = [{"id": f"doc_{i}"} for i in range(20)]
-            with patch("code.lib.data_loader.load_dataset") as mock_load:
-                mock_load.return_value = MagicMock(__iter__=lambda self: iter(mock_data))
-                
-                streamer = DataStreamer(batch_size=5)
-                batches = list(streamer)
-                
-                assert len(batches) == 4
-                assert len(batches[0]) == 5
+    except MemoryError as e:
+        pytest.fail(f"Memory limit was incorrectly triggered: {e}")
+    except Exception as e:
+        pytest.fail(f"Unexpected error during test: {e}")

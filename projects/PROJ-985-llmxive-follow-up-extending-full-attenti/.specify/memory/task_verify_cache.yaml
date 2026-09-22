@@ -1,18 +1,27 @@
+T003:
+  c: false
+  h: 211ece28f2669ef6663f05dc69878c2eb4cbeb385092919661c98e9d99e5d901
+  r: "The repository contains a correct `pyproject.toml` with a Black configuration,\
+    \ but the required `.ruff.toml` file is missing entirely, and no evidence is provided\
+    \ that `ruff check` and `black --check` were run successfully. The task\u2019\
+    s deliverables are therefore not fully satisfied."
 T005:
   c: false
-  h: eb31f55d424e086c017fbfd497b82178a0e6b6d1902bbd85ca4d19e09376b399
-  r: "The repository contains a partially\u2011implemented `code/lib/data_loader.py`\
-    \ that streams the RULER dataset and logs memory usage, but the required unit\
-    \ test asserting peak memory <\u202F7\u202FGB is absent, and the expected log\
-    \ file `data/logs/memory_profile.csv` does not exist. Consequently the task\u2019\
-    s full requirements are not satisfied."
-T019b:
+  h: cdfa738197fc7690a1a22c9339ac0ecb46e3f59875c1d035caa1ec70332e79eb
+  r: "The repository contains a partially\u2011implemented `data_loader.py` (the `MemoryLimitedLoader.load_and_check`\
+    \ method is truncated and does not fully enforce the RAM limit), no unit\u2011\
+    test file asserting peak memory\u202F<\u202F7\u202FGB, and the required `data/logs/memory_profile.csv`\
+    \ does not exist. These missing pieces mean the task\u2019s requirements are not\
+    \ satisfied."
+T019:
   c: false
-  h: a7da70b873782887103d9edf2e5095b2bfcd20583d4d92f2d03c018a4aa682c1
-  r: The `evaluate_static.py` script exists but the required output file `data/intermediate/static_eval_scores.json`
-    is missing, indicating the evaluation results were not generated or saved. The
-    implementation must produce this JSON file with precision/recall (and related
-    metrics) for the static models.
+  h: e1e6629dd0df5e24483ec42736b10cb86bd364b199b6c1a6d17045a486f225d3
+  r: The repository contains `code/models/train_static.py`, but the file is truncated
+    and does not show a training loop that iterates over the five seeds and saves
+    model files to `data/intermediate/models/seeds/model_seed_{seed}.pkl`. Moreover,
+    the required input `data/intermediate/merged_dataset.csv` is absent, so the script
+    cannot be executed to produce the expected model artifacts. The missing dataset
+    and incomplete script prevent the task from being genuinely fulfilled.
 T026a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

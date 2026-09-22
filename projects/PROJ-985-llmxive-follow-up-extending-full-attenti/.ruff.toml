@@ -1,3 +1,22 @@
-# Explicit Ruff configuration for the project
-# This file is referenced by pyproject.toml but kept for editor compatibility
-extend = "pyproject.toml"
+# Ruff configuration for llmXive project
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[lint.isort]
+known-first-party = ["lib", "data", "models", "evaluation", "tests"]
+force-sort-within-sections = true

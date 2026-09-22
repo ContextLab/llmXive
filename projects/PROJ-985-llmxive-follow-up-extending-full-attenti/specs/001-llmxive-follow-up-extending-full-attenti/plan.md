@@ -15,10 +15,10 @@ This feature implements a research pipeline to investigate whether static lingui
 **Primary Dependencies**: `transformers` (CPU-only inference), `torch` (CPU), `datasets` (streaming), `scikit-learn`, `spacy`, `kenlm` (for independent perplexity), `numpy`, `pandas`  
 **Storage**: Local file system (`data/`), Hugging Face Hub (datasets)  
 **Testing**: `pytest`  
-**Target Platform**: **GitHub Actions Free Tier** (2 CPU cores, ~7 GB RAM, ~14 GB disk, 6h timeout) as defined in [GitHub Actions Runner Limits](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).  
+**Target Platform**: **GitHub Actions Free Tier** (CPU cores, ~7 GB RAM, A substantial disk capacity (e.g., multiple gigabytes) is required., A timeout threshold will be established to manage execution duration.) as defined in [GitHub Actions Runner Limits](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).  
 **Project Type**: Research Pipeline / CLI Tool  
 **Performance Goals**: Complete pipeline execution on a **sampled subset** (50 documents) within 6 hours on CPU. Full-scale runs require paid resources and are noted as non-reproducible on the free tier.  
-**Constraints**: Max 7 GB RAM usage; no gradient flow in the predictor training phase; strict separation between ground-truth generation (frozen model) and static rule derivation.  
+**Constraints**: Max GB RAM usage; no gradient flow in the predictor training phase; strict separation between ground-truth generation (frozen model) and static rule derivation.  
 **Scale/Scope**: Process a **sampled subset** of the RULER benchmark (validation split) to generate ~50k-100k token samples for training and evaluation. Full dataset processing is out of scope for the free tier.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -91,7 +91,7 @@ projects/PROJ-985-llmxive-follow-up-extending-full-attenti/code/
 ## Functional Requirements Alignment
 
 - **FR-001**: System MUST download and preprocess a **sampled subset** of RULER documents (50 docs) to serve as the evaluation corpus.
-- **FR-002**: System MUST run a frozen Llama-3-8B model to generate full attention maps and apply RTPurbo (deterministic) to extract ground truth.
+- **FR-002**: System MUST run a frozen Llama-8B model to generate full attention maps and apply RTPurbo (deterministic) to extract ground truth.
 - **FR-003**: System MUST compute static linguistic features using **independent models** (spaCy for POS, KenLM for perplexity) to avoid circularity.
 - **FR-004**: System MUST train a CPU-based classifier using **5 independent random seeds** for the training split to estimate variance.
 - **FR-005**: System MUST execute sparsified attention using the static heuristic and measure performance against Full and Learned baselines.
@@ -106,5 +106,5 @@ projects/PROJ-985-llmxive-follow-up-extending-full-attenti/code/
 - **SC-002**: Perplexity measured against Full and Learned baselines.
 - **SC-003**: Exact match measured against Full baseline.
 - **SC-004**: Statistical significance of the drop measured via paired t-test (α=0.05).
-- **SC-005**: Execution time measured against 6-hour limit (on sampled subset).
+- **SC-005**: Execution time measured against a predefined time limit (on sampled subset).
 - **SC-006**: Cross-Model performance drop measured against Llama-3-8B baseline to assess generalizability.
