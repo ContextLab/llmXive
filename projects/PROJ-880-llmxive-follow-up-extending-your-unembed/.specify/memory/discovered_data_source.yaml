@@ -1,15 +1,14 @@
 status: none
-intent: download WALS typology, SentEval multilingual STS, STS Benchmark, OSCAR corpora
-  python package dataset
+intent: download Llama-3 Mistral BLOOM model weights and WALS typology data python
+  package dataset
 required_fields:
-- language_code
-- typological_feature_vector
-- sentence1
-- sentence2
-- similarity_score
-- token
-- frequency
-- corpus_language
-cache_key: 75255da02280a510b5414d37abb7f489fef0b9f2b9e87907fe82947c312deebe
-searched_at: '2026-09-05T20:15:08.540118+00:00'
+- model_name
+- unembedding_matrix
+- vocab_size
+- embedding_dim
+- language_id
+- typological_feature
+- feature_value
+cache_key: f96f86b232125812943c0007e2b79d4dea27382f3195b3d561784ccaf52c1969
+searched_at: '2026-09-23T05:14:07.500529+00:00'
 retry_count: 1
