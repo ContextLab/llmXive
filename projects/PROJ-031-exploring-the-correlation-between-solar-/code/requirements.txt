@@ -4,3 +4,4 @@ requests  # auto-added: imported by run-book but missing from venv
 scipy  # auto-added: imported by run-book but missing from venv
 statsmodels  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+jsonschema  # auto-added: imported by run-book but missing from venv

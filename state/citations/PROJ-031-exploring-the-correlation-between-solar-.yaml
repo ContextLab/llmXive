@@ -31,36 +31,14 @@
   verification_status: verified
   verified_against_url: https://www.spaceweather.gov/phenomena/geomagnetic-storms
   verified_at: '2026-07-04T01:03:41.270822Z'
-- artifact_hash: 1991aabf8f2b3115c762bdccb5c1db3b06673421ba8075e6bc9ff9146b00dc7e
+- artifact_hash: 9853d0b0c396d63ea614a24f89cc5bed45645d0d988abdbf872fac8a1e3be3a9
   artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://cdaweb.gsfc.nasa.gov/pub/data/solar-soho/lasco/cme/`
-  verification_status: mismatch
-  verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/solar-soho/lasco/cme/
-  verified_at: '2026-09-21T01:09:23.218750Z'
-- artifact_hash: 1991aabf8f2b3115c762bdccb5c1db3b06673421ba8075e6bc9ff9146b00dc7e
-  artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://services.swpc.noaa.gov/json/dst-hourly.json`
-  verification_status: mismatch
-  verified_against_url: https://services.swpc.noaa.gov/json/dst-hourly.json
-  verified_at: '2026-09-21T01:09:23.218750Z'
-- artifact_hash: 1991aabf8f2b3115c762bdccb5c1db3b06673421ba8075e6bc9ff9146b00dc7e
-  artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
   fetched_title: Geomagnetic Storms | NOAA / NWS Space Weather Prediction Center
   kind: url
-  value: https://www.swpc.noaa.gov/phenomena/geomagnetic-storms`
+  value: https://www.swpc.noaa.gov/phenomena/geomagnetic-storms
   verification_status: pending
   verified_against_url: https://www.spaceweather.gov/phenomena/geomagnetic-storms
-  verified_at: '2026-09-21T01:09:23.218750Z'
+  verified_at: '2026-09-23T04:51:22.362815Z'

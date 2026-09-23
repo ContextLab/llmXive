@@ -6,7 +6,3 @@ requests
 pyyaml
 pytest
 jsonschema
-flake8
-pylint
-black
-isort

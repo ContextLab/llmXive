@@ -1,19 +1,18 @@
 status: none
-intent: NOAA SWPC GOES X-ray flare and SOHO LASCO CME catalogs with Dst index python
-  package dataset
+intent: sunpy GOES flare catalog and CDAWeb LASCO CME and NOAA Dst python package
+  dataset
 required_fields:
-- storm_timestamp
-- dst_minimum_value
-- dst_minimum_time
+- dst_timestamp
+- dst_minimum
+- flare_timestamp
 - flare_class
 - flare_peak_flux
-- flare_start_time
-- flare_end_time
-- flare_peak_time
-- cme_start_time
+- cme_timestamp
 - cme_speed
 - cme_width
-- cme_acceleration
-cache_key: 30e09beba1eae5e031f427ba29bb185b212e164bbff4c7c55bc4a6a5451b15a5
-searched_at: '2026-08-26T08:19:47.365156+00:00'
+- solar_event_match_flag
+- missing_flare_flag
+- missing_cme_flag
+cache_key: dfc0cf0e2d38185f18f8c556bd4e82b3e2b27820d5d09e96a16a8be6dbc504c2
+searched_at: '2026-09-23T04:23:58.280643+00:00'
 retry_count: 1

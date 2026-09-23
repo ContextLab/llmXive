@@ -1,6 +1,14 @@
 """
 Main orchestrator for the Solar Flare - Geomagnetic Storm Correlation Pipeline.
 Executes steps in order: Verify Sources -> Ingest -> Align -> Filter -> Analyze.
+
+Order defined by T062:
+1) Verify Sources (T071) - via verify_source_heartbeat
+2) Heartbeat Check (T064) - integrated into verify_source_heartbeat
+3) Ingest & Stream (T011, T012, T013) - via ingest_main
+4) Align (T014) - via align_main
+5) Filter Non-Recurrent (T016b) - via filter_main
+6) Analyze (T022, T024) - via analysis_main
 """
 
 import os
@@ -27,7 +35,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def verify_source_heartbeat():
-    """Verify all configured data sources are reachable."""
+    """Verify all configured data sources are reachable (Heartbeat Check T064).
+    
+    This function implements the fail-loud verification logic:
+    - Attempts to fetch a single "heartbeat" record (or verify connectivity) from each source.
+    - Raises DataFetchError immediately if any source is unreachable.
+    - Ensures sources are alive before attempting full download.
+    """
     logger.info("Starting source heartbeat verification...")
     
     # Updated URLs to match the actual working endpoints for Dst and Kp
@@ -81,37 +95,37 @@ def verify_source_heartbeat():
     return True
 
 def run_pipeline():
-    """Execute the full pipeline."""
+    """Execute the full pipeline in the order defined by T062."""
     logger.info("=" * 60)
     logger.info("Starting Solar Flare - Geomagnetic Storm Correlation Pipeline")
     logger.info("=" * 60)
     
     try:
-        # Step 1: Verify Sources
+        # Step 1: Verify Sources (T071) & Heartbeat (T064)
         logger.info("Step 1: Verifying data sources...")
         verify_source_heartbeat()
         
-        # Step 2: Ingest & Stream
+        # Step 2: Ingest & Stream (T011, T012, T013)
         logger.info("Step 2: Ingesting data...")
         if not ingest_main():
             raise RuntimeError("Ingestion step failed")
         
-        # Step 3: Align
+        # Step 3: Align (T014)
         logger.info("Step 3: Aligning events...")
         if not align_main():
             raise RuntimeError("Alignment step failed")
         
-        # Step 4: Filter Non-Recurrent
+        # Step 4: Filter Non-Recurrent (T016b)
         logger.info("Step 4: Filtering non-recurrent storms...")
         if not filter_main():
             raise RuntimeError("Filtering step failed")
         
-        # Step 5: Validate
+        # Step 5: Validate (T017/T017b)
         logger.info("Step 5: Validating outputs...")
         if not validate_main():
             raise RuntimeError("Validation step failed")
 
-        # Step 6: Analyze
+        # Step 6: Analyze (T022, T024)
         logger.info("Step 6: Performing analysis...")
         if not analysis_main():
             raise RuntimeError("Analysis step failed")
