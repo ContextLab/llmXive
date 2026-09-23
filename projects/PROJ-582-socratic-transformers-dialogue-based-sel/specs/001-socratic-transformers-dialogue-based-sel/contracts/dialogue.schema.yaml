@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dialogue Tuple Schema"
+description: "Schema for Socratic dialogue tuples (Condition A)"
+type: "object"
+properties:
+  id:
+    type: "string"
+  question:
+    type: "string"
+  initial_answer:
+    type: "string"
+  critique:
+    type: "string"
+    description: "Adversarial critique identifying logical errors"
+  revised_answer:
+    type: "string"
+  critique_quality_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  source_dataset:
+    type: "string"
+    enum:
+      - "gsm8k"
+      - "math"
+required:
+  - "id"
+  - "question"
+  - "initial_answer"
+  - "critique"
+  - "revised_answer"
+  - "critique_quality_score"
+  - "source_dataset"

@@ -1,68 +1,89 @@
-# Data Model: Socratic Transformers
+# Data Model: Socratic Transformers (PROJ-582)
 
 ## Overview
 
-This document defines the data schemas for the Socratic Transformers project. All data artifacts must conform to these schemas to ensure reproducibility and contract validation.
+This document defines the data schemas for the Socratic Transformers project. All data artifacts must conform to these schemas to ensure reproducibility and integrity.
 
-## Artifact Flow
+## Raw Data
 
-1. **Raw Data**: Downloaded from HuggingFace (GSM8K, MATH).
-2. **Generated Dialogue**: Produced by the Critic and Generator models.
-3. **Training Data**: Aggregated datasets for the three conditions.
-4. **Evaluation Results**: Accuracy metrics and statistical test outputs.
+### GSM8K Test Set
+- **Source**: `openai/gsm8k` (split: `test`)
+- **Format**: Parquet
+- **Fields**:
+    - `question`: string (The math problem)
+    - `answer`: string (The ground truth solution)
 
-## Schemas
+### MATH-500 Test Set
+- **Source**: `HuggingFaceH4/MATH-500` (split: `test`)
+- **Format**: JSONL
+- **Fields**:
+    - `problem`: string (The math problem)
+    - `solution`: string (The ground truth solution)
 
-### 1. Raw Dataset Schema (GSM8K/MATH)
+## Processed Data (Generated Tuples)
 
-**Source**: `data/raw/gsm8k.parquet`, `data/raw/math.parquet`
+### Static Tuples (Condition C)
+- **File**: `data/processed/static.parquet`
+- **Schema**:
+    - `id`: string (Unique identifier)
+    - `question`: string
+    - `answer`: string
+    - `source_dataset`: string ("gsm8k" or "math")
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `question` | string | The original problem statement. |
-| `answer` | string | The ground truth solution (or `solution` for MATH). |
-| `id` | string | Unique identifier for the sample. |
+### Dialogue Tuples (Condition A - Selection)
+- **File**: `data/processed/dialogue.parquet`
+- **Schema**: **SSoT**: `dialogue_tuple.schema.yaml`
+    - `sample_id`: string (Unique UUID)
+    - `condition`: string ("socratic")
+    - `question`: string
+    - `initial_answer`: string (Model-generated)
+    - `critique`: string (Adversarial critique identifying errors)
+    - `revised_answer`: string (Model-generated revision)
+    - `critique_quality_score`: float (0.0-1.0, from validation step)
+    - `is_degenerate`: boolean
+    - `is_verified`: boolean
+    - `metadata`: object (seed, threshold, model_version)
 
-### 2. Dialogue Tuple Schema (Generated)
+### Ablation Tuples (Condition B - Neutral)
+- **File**: `data/processed/ablation.parquet`
+- **Schema**: **SSoT**: `dialogue_tuple.schema.yaml`
+    - `sample_id`: string (Unique UUID)
+    - `condition`: string ("ablation")
+    - `question`: string
+    - `initial_answer`: string
+    - `critique`: string (Semantically coherent neutral text)
+    - `revised_answer`: string
+    - `critique_quality_score`: float (0.0-1.0)
+    - `is_degenerate`: boolean
+    - `is_verified`: boolean
+    - `metadata`: object
 
-**Source**: `data/derived/dialogues.parquet`
+## Results Data
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `question` | string | Original question. |
-| `initial_answer` | string | Model's first attempt (potentially erroneous). |
-| `critique` | string | Adversarial critique identifying errors. |
-| `revised_answer` | string | Model's revised answer after critique. |
-| `condition` | string | "selection" (adversarial) or "ablation" (neutral placeholder). |
-| `quality_passed` | boolean | True if passed the regeneration loop quality gate. |
-| `retry_count` | integer | Number of regeneration attempts (0 if passed first try). |
+### Evaluation Results
+- **File**: `data/results.csv`
+- **Schema**: **SSoT**: `evaluation_result.schema.yaml`
+    - `run_id`: string (Unique UUID)
+    - `condition`: string ("selection", "ablation", "static")
+    - `seed`: int
+    - `benchmark`: string ("gsm8k_test", "math_test")
+    - `accuracy`: float
+    - `total_samples`: int
+    - `correct_samples`: int
+    - `runtime_seconds`: float
 
-### 3. Evaluation Result Schema
-
-**Source**: `data/results/metrics.csv`
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `condition` | string | "selection", "ablation", or "static". |
-| `dataset` | string | "gsm8k" or "math". |
-| `accuracy` | float | Proportion of correct answers. |
-| `n_samples` | integer | Number of samples evaluated. |
-| `std_err` | float | Standard error of the mean. |
-
-### 4. Statistical Test Output Schema
-
-**Source**: `data/results/stats.json`
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `comparison` | string | e.g., "selection_vs_ablation". |
-| `t_statistic` | float | T-statistic value. |
-| `p_value` | float | Raw p-value. |
-| `p_value_corrected` | float | Bonferroni-corrected p-value. |
-| `significant` | boolean | True if `p_value_corrected` < 0.05. |
+### Statistical Analysis
+- **File**: `data/analysis.json`
+- **Schema**: **SSoT**: `stats_schema.schema.yaml`
+    - `comparison`: string (e.g., "selection_vs_ablation")
+    - `t_statistic`: float
+    - `p_value`: float
+    - `p_value_corrected`: float
+    - `significant`: boolean (after Bonferroni correction)
 
 ## Data Hygiene Rules
 
-- **Checksums**: All files in `data/raw/` and `data/derived/` must be checksummed (SHA-256) and recorded in `state/artifact_hashes.yaml`.
-- **Immutability**: Raw data is never modified. Derived data is written to new files with versioned names.
-- **PII**: No Personally Identifiable Information is allowed. Datasets are public and anonymized by nature.
+1.  **Checksums**: All raw files in `data/raw/` must have a corresponding `.sha256` file.
+2.  **Immutability**: Raw files are never modified. Derived files are written to new paths.
+3.  **Validation**: `verify_datasets.py` must run before any training step to ensure schema compliance (Principle III).
+4.  **PII**: No personally identifiable information is allowed. All data is synthetic or public benchmark data.

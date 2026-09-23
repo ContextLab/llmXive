@@ -21,10 +21,10 @@ properties:
     description: "The revised answer after critique."
   critique:
     type: "string"
-    description: "The critique text (adversarial or syntactic distractor)."
+    description: "The critique text (adversarial or neutral)."
   critique_type:
     type: "string"
-    enum: ["logical_contradiction", "unsupported_assumption", "calculation_error", "syntactic_distractor"]
+    enum: ["logical_contradiction", "unsupported_assumption", "calculation_error", "neutral_critique"]
     description: "Type of critique applied."
   quality_score:
     type: "number"

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dialogue Tuple Schema"
-description: "Schema for Socratic training data tuples (question, answer, critique, revised_answer)."
+description: "Schema for Socratic training data tuples (question, answer, critique, revised_answer). Unified SSoT."
 type: "object"
 properties:
   sample_id:
@@ -20,42 +20,16 @@ properties:
     type: "string"
     description: "The model's first attempt at the answer."
   critique:
-    oneOf:
-      - type: "null"
-        description: "Static condition: no critique."
-      - type: "object"
-        description: "Socratic condition: adversarial critique object."
-        properties:
-          confidence_score:
-            type: "number"
-            minimum: 0.0
-            maximum: 1.0
-            description: "Proxy confidence score (log-prob normalized)."
-          reasoning_snippet:
-            type: "string"
-            description: "Text identifying logical contradictions or unsupported assumptions."
-        required:
-          - "confidence_score"
-          - "reasoning_snippet"
-      - type: "object"
-        description: "Ablation condition: syntactic distractor object."
-        properties:
-          confidence_score:
-            type: "number"
-            const: 0.5
-            description: "Fixed confidence score for distractor."
-          reasoning_snippet:
-            type: "string"
-            description: "Syntactic distractor text (no logical content)."
-        required:
-          - "confidence_score"
-          - "reasoning_snippet"
+    type: "string"
+    description: "Adversarial critique or neutral critique text."
   revised_answer:
     type: "string"
     description: "The final answer after critique (or initial answer if no critique)."
-  prediction_error:
+  critique_quality_score:
     type: "number"
-    description: "The log-prob proxy value that triggered the critique."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Quality score of the critique (for Socratic condition)."
   is_degenerate:
     type: "boolean"
     description: "True if the dialogue was truncated due to repetition."
@@ -86,6 +60,8 @@ required:
   - "question"
   - "initial_answer"
   - "revised_answer"
+  - "critique"
+  - "critique_quality_score"
   - "is_degenerate"
   - "is_verified"
 additionalProperties: false

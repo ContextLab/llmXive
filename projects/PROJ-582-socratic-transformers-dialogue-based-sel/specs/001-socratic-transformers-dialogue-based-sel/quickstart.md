@@ -1,68 +1,82 @@
-# Quickstart: Socratic Transformers
+# Quickstart: Socratic Transformers (PROJ-582)
 
 ## Prerequisites
 
 - Python 3.11+
 - Git
-- Access to a GitHub Actions runner (or local machine with 7GB+ RAM for testing)
+- 7GB+ RAM (CPU-only) or access to Kaggle GPU (for fallback)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd socratic-transformers
- ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-582-socratic-transformers-dialogue-based-sel/code
+    ```
 
-2. **Set up the virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Create virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt
- ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Running the Pipeline
+## Usage
 
-### Step 1: Verify & Download Data
+### 1. Download & Verify Data
+Download GSM8K and MATH datasets and verify checksums.
 ```bash
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/data/verify.py
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/data/download.py
-```
-*Note: This step downloads GSM8K and MATH datasets via streaming and records checksums.*
-
-### Step 2: Generate Dialogue Tuples
-```bash
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/generation/dialogue_gen.py --condition selection
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/generation/ablation_gen.py
-```
-*Note: This step includes the regeneration loop for quality control.*
-
-### Step 3: Fine-tune Models
-```bash
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/training/trainer.py --condition selection
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/training/trainer.py --condition ablation
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/training/trainer.py --condition static
-```
-*Note: Runs on CPU by default. If CUDA is available (Kaggle offload), it will automatically use it.*
-
-### Step 4: Evaluate & Analyze
-```bash
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/eval/runner.py
-python projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/analysis/stats.py
+python src/data/download.py
+python src/data/verify_datasets.py
 ```
 
-## Validation
-
-Run the contract tests to ensure data integrity:
+### 2. Generate Training Data
+Generate Static, Dialogue, and Ablation tuples.
 ```bash
-pytest projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/contract/
+# Generate Static (Condition C)
+python src/data/generate_dialogue.py --mode static
+
+# Generate Dialogue (Condition A)
+python src/data/generate_dialogue.py --mode dialogue
+
+# Generate Ablation (Condition B)
+python src/data/generate_dialogue.py --mode ablation
+```
+*Note: The `dialogue` mode includes a quality filter. Expect some tuples to be discarded.*
+
+### 3. Train Models
+Fine-tune models for each condition.
+```bash
+# Train Condition A (Selection)
+python src/train/run_training.py --condition selection
+
+# Train Condition B (Ablation)
+python src/train/run_training.py --condition ablation
+
+# Train Condition C (Static)
+python src/train/run_training.py --condition static
+```
+*Note: If CPU OOM occurs, the script will attempt to fallback to a smaller model or signal for GPU offload (FR-008).*
+
+### 4. Evaluate & Analyze
+Run benchmarks and statistical tests.
+```bash
+python src/eval/evaluate.py
+```
+Output: `data/results.csv` and `data/analysis.json`.
+
+## Running Tests
+
+```bash
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
-- **OOM Errors**: If you encounter memory errors on CPU, ensure `streaming=True` is used in data loading. The pipeline is designed to handle this, but local testing may require reducing batch sizes.
-- **Dataset Access**: If HuggingFace downloads fail, verify your internet connection and ensure you are not behind a restrictive firewall.
+- **OOM Error**: Reduce `batch_size` in `src/utils/config.py` to 1. Ensure 4-bit quantization is enabled.
+- **Slow Training**: If training exceeds 6 hours on CPU, the pipeline will signal for GPU offload (Kaggle).
+- **Data Mismatch**: Ensure `verify_datasets.py` passes before generating data.

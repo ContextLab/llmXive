@@ -44,8 +44,6 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize Python project with pinned dependencies
-- [X] T003 [P] Configure linting and formatting tools
 
 ---
 
@@ -57,8 +55,8 @@
 
 Examples of foundational tasks (adjust based on your plan):
 
-- [X] T002 [P] Initialize Python project: Create `requirements.txt` with pinned versions: `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0 reportlab==4.0.4 jinja2==3.1.2`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with specified rules.
+- [X] T002 [P] Initialize Python project: Create `requirements.txt` with pinned versions: `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0 reportlab==4.0.4 jinja2==3.1.2 google-cloud-bigquery==3.11.0 tenacity==8.2.2`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pypy.toml` with specified rules.
 - [X] T005 [P] Implement `code/utils/config.py` for random seeds, paths, and API credentials
 - [X] T006 [P] Setup `code/utils/validators.py` for schema validation and PII scanning
 - [X] T007 [P] Create base data models in `code/utils/models.py`:
@@ -86,8 +84,9 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [X] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
 - [X] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (Fallback/Secondary). Output: `data/processed/classified_snippets.parquet`. **Verification**: Verify that the output file contains >0 rows and that the 'author_type' column has unique values ['human', 'llm-like'].
-- [ ] T014b-GEN [US1] **CONTEXT-BASED GENERATION (GPU ESCAPE HATCH)**: Implement `code/data_acquisition/generator.py` to generate synthetic code snippets using a small/8-bit quantized LLM (e.g., CodeLlama-7B). **Strategy**: Attempt generation on CPU first. If generation time > 60s or fails, trigger a GitHub Actions workflow dispatch to a `runs-on: [self-hosted, gpu]` runner group (defined in T014b-GPU-WORKFLOW) to re-run the generation on a GPU-enabled runner. **Input**: Original code + context. **Output**: `data/processed/context_based_snippets.parquet` with `generation_source='llm-context'`. **Timeout**: Enforce ≤30s generation time per snippet on GPU. **Verification**: Verify output contains >0 rows and `generation_source` column has unique values. **Depends on: T012**.
-- [ ] T014b-PROMPT-GEN [US1] **PROMPT-BASED COHORT GENERATION**: Implement `code/data_acquisition/prompt_generator.py` to generate synthetic code snippets using a small/8-bit quantized LLM (e.g., CodeLlama-7B) **without access to original file content**. **Input**: Prompts derived from commit messages. **Output**: `data/processed/prompt_based_snippets.parquet` with `generation_source='llm-prompt'`. **Constraint**: Must strictly follow US-4 Acceptance Scenario 1. **Depends on: T012, T014b-GEN**.
+- [ ] T014b-GEN [US1] **CONTEXT-BASED GENERATION (GPU ESCAPE HATCH)**: Implement `code/data_acquisition/generator.py` to generate synthetic code snippets using a small/8-bit quantized LLM (e.g., `CodeLlama-7B-8bit` or `4bit`). **Strategy**: Attempt generation on CPU first. If generation time > 60s or fails, trigger a GitHub Actions workflow dispatch to a `runs-on: [self-hosted, gpu]` runner group (defined in T014b-GPU-WORKFLOW) to re-run the generation on a GPU-enabled runner. **Implementation Detail**: Use `requests.post` to `/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches` with payload `{"ref": "main", "inputs": {"snippet_id": "..."}}`. **Crucial**: `workflow_id` must be the workflow filename (e.g., `gpu-generation.yml`). **Input**: Original code + context. **Output**: `data/processed/context_based_snippets.parquet` with `generation_source='llm-context'`. **Timeout**: Enforce ≤30s generation time per snippet on GPU. **Verification**: Verify output contains >0 rows and `generation_source` column has unique values. **Depends on: T012**. (Plan Override: FR-002 CPU limit conditional override - explicitly implements Plan's 'Critical Methodological Override' and FR-002's 30s/60s constraints).
+- [ ] T014b-INTENT [US1] **PROMPT PREPARATION**: Implement `code/data_acquisition/prompt_engineering.py` to extract and rewrite commit messages into natural language prompts for the "Prompt-Based" cohort. **Output**: `data/processed/intent_prompts.parquet`. **Constraint**: Must not access original file content. **Output Schema**: Must include a 'prompt' column. **Depends on: T012**.
+- [ ] T014b-PROMPT-GEN [US1] **PROMPT-BASED COHORT GENERATION**: Implement `code/data_acquisition/prompt_generator.py` to generate synthetic code snippets using a small/8-bit quantized LLM (e.g., `CodeLlama-7B-8bit` or `4bit`) **without access to original file content**. **Input**: Prompts from `data/processed/intent_prompts.parquet` (T014b-INTENT). **Output**: `data/processed/prompt_based_snippets.parquet` with `generation_source='llm-prompt'`. **Constraint**: Must strictly follow US-4 Acceptance Scenario 1. **Depends on: T012, T014b-INTENT**. (Plan Override: FR-002 CPU limit conditional override - explicitly implements Plan's 'Critical Methodological Override' and FR-002's 30s/60s constraints).
 - [ ] T014b-GPU-WORKFLOW [US1] **GPU ESCAPE HATCH WORKFLOW**: Implement `.github/workflows/gpu-generation.yml` to define the GitHub Actions workflow for the GPU offload. **Content**: Define a job that runs on `runs-on: [self-hosted, gpu]` (or equivalent runner group) and triggers the `generator.py` script with `device="cuda"`. **Trigger**: Manual or automatic dispatch from T014b-GEN on failure. **Depends on: T008**.
 - [ ] T014b-VAL [US1] **SYNTAX VALIDATION**: Implement `code/data_acquisition/syntax_validator.py` to verify generated code is syntactically valid (≥95% success rate). **Output**: `data/processed/syntax_validation_report.json`. **Verification**: Verify file exists and contains a 'validity_rate' key with value ≥0.95. **Depends on: T014b-GEN, T014b-PROMPT-GEN**. (SC-007)
 - [X] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
@@ -115,10 +114,10 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 2
 
-- [ ] T022-1 [US2] **PROPENSITY SCORE MATCHING (EXCLUDING SEMANTIC SIMILARITY)**: Implement `code/analysis/matching.py` for propensity score matching using covariates: file size, complexity, activity. **Constraint**: **Explicitly EXCLUDE** 'semantic_similarity' to avoid 'bad control' bias, per Plan's 'Critical Methodological Override'. **Note**: This overrides Spec FR-004/FR-009. **Bias Check**: Compute causal graph and verify that excluding semantic similarity is valid for "generation from scratch" design. **Depends on: T017b-1, T017b-2, T014b-GEN, T014b-PROMPT-GEN, T014**. (FR-004 adjusted)
-- [ ] T022-CONFLICT-DOC [US2] **METHODOLOGY CONFLICT REPORT**: Implement `code/analysis/conflict_reporter.py` to generate `data/processed/methodology_conflict_report.json`. **Content**: Document that Spec FR-004/FR-009 (include semantic similarity) is superseded by Plan's 'Critical Methodological Override' (exclude semantic similarity) to avoid 'bad control' bias. **Action**: Record this divergence as the authoritative execution path. **Verification**: Verify file exists and contains 'override_reason' and 'spec_conflict' flags. **Depends on: T022-1**.
+- [ ] T022-1 [US2] **PROPENSITY SCORE MATCHING (EXCLUDING SEMANTIC SIMILARITY)**: Implement `code/analysis/matching.py` for propensity score matching using covariates defined in `data/processed/covariate_config.json` (from T017b-2). **Input Dataset**: `data/processed/merged_features.parquet`. **Columns to Use**: Read from `data/processed/covariate_config.json` (e.g., `['file_size', 'complexity_score', 'activity_level']`). **Constraint**: **Explicitly EXCLUDE** 'semantic_similarity' to avoid 'bad control' bias, per Plan's 'Critical Methodological Override'. **Note**: This overrides Spec FR-004/FR-009. **Bias Check**: Compute causal graph and verify that excluding semantic similarity is valid for "generation from scratch" design. **Depends on: T017b-2, T014b-GEN, T014b-PROMPT-GEN, T014**. (FR-004 adjusted)
+- [ ] T022-SPEC-AMEND [US2] **SPEC AMENDMENT FOR METHODOLOGY**: Implement `code/analysis/spec_amender.py` to update `specs/001-evaluating-llm-code-generation-impact/spec.md`. **Content**: Update FR-004 and FR-009 to explicitly state that semantic_similarity is excluded from matching covariates to avoid 'bad control' bias, reflecting the Plan's 'Critical Methodological Override'. **Action**: Modify the spec file directly to ensure the Spec is the Single Source of Truth. **Verification**: Verify spec.md reflects the updated requirement. **Depends on: T022-1**. (Constitution Principle IV)
 - [X] T023a [US2] **MATCHING RETRY LOGIC**: Implement `code/analysis/matching.py` logic to: 1) If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms. **Retry Algorithm**: First retry: add (file_size * complexity). Second retry: add (complexity * activity). Third retry: add (file_size * activity). **Output**: Updated matching results. **Depends on: T022-1**. (FR-004)
-- [ ] T023b [US2] **MATCHING FAILURE REPORTING & HALT**: Implement `code/analysis/matching.py` logic to: 1) If SMD > 0.1 after 3 retries, generate `data/processed/matching_failure_report.json` containing SMD values and retry count. 2) **HALT the pipeline with `sys.exit(1)`**. **Verification**: Verify `main.py` exits with code 1 when this condition is met. **Depends on: T023a**. (FR-004)
+- [ ] T023b [US2] **MATCHING FAILURE REPORTING & HALT**: Implement `code/analysis/matching.py` logic to: 1) If SMD > 0.1 after multiple retries, generate `data/processed/matching_failure_report.json` containing SMD values and retry count. 2) **HALT the pipeline with `sys.exit(1)`**. **Verification**: Verify `main.py` exits with code 1 when this condition is met. **Depends on: T023a**. (FR-004)
 - [X] T024 [US2] Implement `code/analysis/statistical_test.py` to run Shapiro-Wilk, select t-test or Mann-Whitney U, and output p-value/Cohen's d (FR-005)
 - [ ] T020-IMP [US2] **SIGNIFICANCE FLAGGING**: Implement `code/analysis/significance.py` with function `check_significance(p_val: float, alpha: float = 0.05) -> bool`. **Logic**: Return `True` if `p_val < alpha`, else `False`. **Output**: `data/processed/significance_flag.json` containing `{"is_significant": <bool>, "p_value": <float>, "alpha": <float>}`. **Depends on: T024**. (SC-002)
 - [X] T025 [US2] Implement `code/analysis/matching.py` to generate "Covariate Balance Report" listing SMD for all covariates (FR-010)
@@ -141,7 +140,7 @@ Examples of foundational tasks (adjust based on your plan):
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across multiple distinct subsets stratified by **code complexity and PR size** quartiles (FR-006, Plan override).
-- [ ] T030 [US3] **SENSITIVITY CONSISTENCY CHECK**: Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Constraint**: **Must have at least 5 valid subsets**. If fewer than 5 valid subsets exist, **FAIL** with error "Insufficient data for sensitivity analysis (requires ≥5 subsets)". **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. **Verification**: Verify JSON file exists and contains a key 'consistent' with a boolean value derived from the logic: (count(p < 0.05) / total_subsets) >= 0.80 AND total_subsets >= 5. (SC-005)
+- [ ] T030 [US3] **SENSITIVITY CONSISTENCY CHECK**: Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Input**: `data/processed/merged_features.parquet`. **Method**: Use `pandas.qcut` on columns defined in `data/processed/covariate_config.json` (from T017b-2) for complexity and size. **Constraint**: **Must have at least 5 valid subsets**. **Fallback**: If complexity/size stratification yields <5 subsets, fallback to stratifying by `repository_star_count` (Spec US-3 original requirement). If neither yields ≥5 subsets, **FAIL** with error "Insufficient data for sensitivity analysis (requires ≥5 subsets)". **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. **Verification**: Verify JSON file exists and contains a key 'consistent' with a boolean value derived from the logic: (count(p < 0.05) / total_subsets) >= 0.80 AND total_subsets >= 5. (SC-005)
 - [X] T030b [US3] **PIPELINE GATE CHECK**: Implement `code/main.py` logic to check `data/processed/sensitivity_summary.json`. If "consistent" is false, exit with code 1 and log "Sensitivity Failed: Consistency < 80%". This enforces SC-005. **Depends on: data/processed/sensitivity_summary.json**.
 - [X] T031 [US3] Implement `code/analysis/visualization.py` to generate box plots and CDF curves comparing review-time distributions (FR-007)
 - [ ] T032 [US3] **REPORT GENERATION (PDF)**: Implement `code/analysis/report_generator.py` using `reportlab` and `jinja2`. **Input**: `data/processed/analysis_results.json`, `data/processed/visualizations/`. **Output**: `reports/analysis_report.pdf`. **Content**: Sections for p-value, effect size, box plot, CDF, and sensitivity summary. (US-3)
@@ -159,7 +158,8 @@ Examples of foundational tasks (adjust based on your plan):
 ### Implementation for User Story 4
 
 - [ ] T033a [US4] **COHORT ANALYSIS**: Implement `code/data_acquisition/cohort_analyzer.py` to segment the `prompt_based_snippets.parquet` (from T014b-PROMPT-GEN) and `context_based_snippets.parquet` (from T014b-GEN) into "llm-prompt", "llm-context", and "human" cohorts. **Depends on: T014b-PROMPT-GEN, T014b-GEN, T014b-VAL, T014**. **Output**: `data/processed/cohort_segments.parquet`. **Verification**: Verify file contains exactly three unique values in 'generation_source' column: 'llm-prompt', 'llm-context', 'human'.
-- [ ] T034 [US4] **COHORT MATCHING**: Implement matching logic for the "llm-prompt" and "llm-context" cohorts against "Human" code using the same covariates as US2 (excluding semantic similarity). **Depends on: T033a, T022-1**. **Output**: `data/processed/llm_cohort_matched.parquet`. **Verification**: Verify SMD < 0.1 for all covariates in the output. (FR-008 adjusted)
+- [ ] T034-MAIN [US4] **COHORT MATCHING (PLAN LOGIC)**: Implement matching logic for the "llm-prompt" and "llm-context" cohorts against "Human" code using the same covariates as US2 (excluding semantic_similarity). **Input**: `data/processed/cohort_segments.parquet`. **Covariates**: `['file_size', 'complexity_score', 'activity_level']` (from `data/processed/covariate_config.json`). **Depends on: T033a, T022-1**. **Output**: `data/processed/llm_cohort_matched_main.parquet`. **Verification**: Verify SMD < 0.1 for all covariates in the output. (FR-008 adjusted)
+- [ ] T034-US4-VALID [US4] **COHORT MATCHING (SPEC US-4 VALIDATION)**: Implement matching logic for the "llm-prompt" cohort against "Human" code using the SPEC's US-4 acceptance criteria (including semantic_similarity). **Input**: `data/processed/cohort_segments.parquet`. **Action**: First, merge `data/processed/semantic_scores.parquet` (from T017b-1) into `data/processed/cohort_segments.parquet` to ensure `semantic_similarity_score` column exists. **Covariates**: `['file_size', 'complexity_score', 'activity_level', 'semantic_similarity_score']`. **Depends on: T033a, T017b-1**. **Output**: `data/processed/llm_cohort_matched_spec.parquet`. **Verification**: Verify SMD < 0.1 for all covariates in the output. (FR-008 Spec Compliance)
 
 **Checkpoint**: Prompt-based cohort validation complete
 
@@ -205,17 +205,18 @@ Examples of foundational tasks (adjust based on your plan):
 - Core implementation before integration
 - Story complete before moving to next priority
 - **T014b-GEN depends on T012**.
-- **T014b-PROMPT-GEN depends on T012, T014b-GEN**.
+- **T014b-PROMPT-GEN depends on T012, T014b-INTENT**.
 - **T017b-1 depends on T012**.
 - **T017b-2 depends on T017b-1**.
 - **T014b-VAL depends on T014b-GEN, T014b-PROMPT-GEN**.
-- **T022-1 depends on T017b-1, T017b-2, T014b-GEN, T014b-PROMPT-GEN, T014**.
-- **T022-CONFLICT-DOC depends on T022-1**.
+- **T022-1 depends on T017b-2, T014b-GEN, T014b-PROMPT-GEN, T014**.
+- **T022-SPEC-AMEND depends on T022-1**.
 - **T023a depends on T022-1**.
 - **T023b depends on T023a**.
 - **T020-IMP depends on T024**.
 - **T033a depends on T014b-PROMPT-GEN, T014b-GEN, T014b-VAL, T014**.
-- **T034 depends on T033a, T022-1**.
+- **T034-MAIN depends on T033a, T022-1**.
+- **T034-US4-VALID depends on T033a, T017b-1**.
 
 ### Parallel Opportunities
 
@@ -225,14 +226,14 @@ Examples of foundational tasks (adjust based on your plan):
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Note**: T014b-GEN, T014b-PROMPT-GEN, T014b-VAL, T017b-1, T017b-2, T022-1, T022-CONFLICT-DOC, T023a, T023b, T020-IMP, T033a, T034 are **NOT** parallel-safe due to sequential dependencies.
+- **Note**: T014b-GEN, T014b-PROMPT-GEN, T014b-VAL, T017b-1, T017b-2, T022-1, T022-SPEC-AMEND, T023a, T023b, T020-IMP, T033a, T034-MAIN, T034-US4-VALID are **NOT** parallel-safe due to sequential dependencies.
 
 ### Critical Cross-Phase Dependencies
 
-- **T017b-1 (Phase 3) -> T022-1 (Phase 4)**: Matching (T022-1) MUST wait for semantic scores (T017b-1) to complete. **Note**: T017b-1 is Critical Path, not [P].
-- **T014b-GEN (Phase 3) -> T033a (Phase 6) -> T034 (Phase 6)**: Cohort analysis (T033a) and matching (T034) MUST wait for generation (T014b-GEN, T014b-PROMPT-GEN).
+- **T017b-1 (Phase 3) -> T022-1 (Phase 4)**: Matching (T022-1) MUST wait for semantic scores (T017b-1) to complete. **Note**: T017b-1 is Critical Path, not [P]. (Clarified: T022-1 uses T017b-1 for exploratory/optional data, but core matching excludes it).
+- **T014b-GEN (Phase 3) -> T033a (Phase 6) -> T034-MAIN/T034-US4-VALID (Phase 6)**: Cohort analysis (T033a) and matching (T034) MUST wait for generation (T014b-GEN, T014b-PROMPT-GEN).
 - **T014b-GEN (Phase 3) -> T014b-VAL (Phase 3)**: Validation (T014b-VAL) MUST wait for generation (T014b-GEN, T014b-PROMPT-GEN).
-- **T022-1 (Phase 4) -> T022-CONFLICT-DOC (Phase 4)**: Conflict report (T022-CONFLICT-DOC) MUST wait for matching (T022-1).
+- **T022-1 (Phase 4) -> T022-SPEC-AMEND (Phase 4)**: Spec amendment (T022-SPEC-AMEND) MUST wait for matching (T022-1).
 - **T023a (Phase 4) -> T023b (Phase 4)**: Failure report (T023b) MUST wait for retry logic (T023a) to complete and fail.
 - **T030 (Phase 5) -> T030b (Phase 5)**: Gate check (T030b) MUST wait for summary (T030).
 
@@ -298,12 +299,12 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: T014b-GEN (GPU Escape Hatch) now uses conditional GitHub Actions workflow dispatch, not Kaggle.
 - **Critical Constraint**: T014b-PROMPT-GEN added to implement distinct 'Prompt-Based' cohort (FR-008).
-- **Critical Constraint**: T022-1 excludes semantic similarity per Plan override; T022-CONFLICT-DOC documents the Spec/Plan divergence.
-- **Critical Constraint**: T030 enforces 'at least 5' subsets for sensitivity analysis.
+- **Critical Constraint**: T022-SPEC-AMEND added to formally update spec.md to reflect the Plan's methodology override (excluding semantic_similarity), resolving the Spec/Plan contradiction.
+- **Critical Constraint**: T030 enforces 'at least 5' subsets for sensitivity analysis with fallback to star-count stratification.
 - **Critical Constraint**: T020-IMP moved to Phase 4 to depend on T024 and renamed to avoid collision with T020 Test task.
 - **Critical Constraint**: T014b-WAIVER-LOG added to formally log FR-002 override.
 - **Critical Constraint**: Removed irrelevant Wikipedia URL from T020-IMP.
 - **Critical Constraint**: Removed [P] tag from T014b-GEN, T017b-1.
-- **NEW TASK**: T014b-PROMPT-GEN added (Prompt-Based Generation), T014b-GPU-WORKFLOW added (GPU Workflow), T022-CONFLICT-DOC added (Conflict Report), T014b-WAIVER-LOG added (Waiver Log).
-- **REMOVED TASKS**: T014b-DOC, T022-EXC, T014b-NEW removed.
-- **SPEC ROOT CAUSE**: The Plan's methodology shift (excluding semantic similarity) contradicts the Spec (FR-004). This task list implements the Plan's valid methodology (with constitutional GPU escape hatch for generation) and adds T022-CONFLICT-DOC to formally document the Plan/Spec contradictions.
+- **NEW TASK**: T014b-PROMPT-GEN added (Prompt-Based Generation), T014b-GPU-WORKFLOW added (GPU Workflow), T022-SPEC-AMEND added (Spec Amendment), T014b-WAIVER-LOG added (Waiver Log), T014b-INTENT added (Prompt Preparation), T034-MAIN and T034-US4-VALID added (Split Matching Tasks).
+- **REMOVED TASKS**: T014b-DOC, T022-EXC, T014b-NEW, T022-CONFLICT-DOC removed.
+- **SPEC ROOT CAUSE**: The Plan's methodology shift (excluding semantic similarity) contradicts the Spec (FR-004). This task list implements the Plan's valid methodology (with constitutional GPU escape hatch for generation) and adds T022-SPEC-AMEND to formally update the Spec to match the valid methodology, resolving the contradiction.

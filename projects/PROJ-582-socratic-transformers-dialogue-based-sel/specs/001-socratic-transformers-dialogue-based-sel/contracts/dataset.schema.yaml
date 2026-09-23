@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and processed dataset files"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the record"
+  question:
+    type: "string"
+    description: "The math problem or question"
+  answer:
+    type: "string"
+    description: "The ground truth answer"
+  source_dataset:
+    type: "string"
+    enum:
+      - "gsm8k"
+      - "math"
+    description: "Source dataset name"
+required:
+  - "id"
+  - "question"
+  - "answer"
+  - "source_dataset"

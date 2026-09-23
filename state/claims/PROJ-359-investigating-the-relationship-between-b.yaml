@@ -451,22 +451,6 @@
   updated_at: '2026-07-10T16:36:58Z'
 - artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: Schaefer 400-region parcellation used for ROI extraction
-  claim_id: c_8b78aee0
-  context: 'T020 [US1] Implement ROI extraction in src/metrics.py: load Schaefer 400-region
-    parcellation from ; extract time series from preprocessed NIfTI (FR-003)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Schaefer 400-region parcellation is used for ROI extraction.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-10T16:36:58Z'
-- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: power analysis alpha 0.05 effect size 0.15
   claim_id: c_f870fc1f
   context: 'T015 [US0] Implement power analysis script src/power_analysis.py: use
@@ -1400,3 +1384,132 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T22:18:49Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 dataset contains resting-state scans
+  claim_id: c_8410cb4d
+  context: 'T005 [P] Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI
+    release) via OpenNeuro API. MANDATORY: This task MUST download ds000278 which
+    contains the required resting-state scans...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_dataset_contains_resting-state_scans
+  kind: entity_fact
+  raw_text: The dataset ds000278 contains the required resting-state scans (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:01:16Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Schaefer 400-region parcellation used for ROI extraction
+  claim_id: c_8b78aee0
+  context: 'T020 [US1] Implement ROI extraction in src/metrics.py: load Schaefer 400-region
+    parcellation from ; extract time series from preprocessed NIfTI (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer 400-region parcellation is used for ROI extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:02:01Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Global Efficiency Modularity FPN Strength DMN Strength computed as baseline
+    metrics
+  claim_id: c_6d61f216
+  context: 'T022 [US1] Implement network metric calculation in src/metrics.py: compute
+    Global Efficiency, Modularity (Q), FPN Strength, DMN Strength using bctpy or NetworkX...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_Efficiency_Modularity_FPN_Strength_DMN_Strength_compu
+  kind: entity_fact
+  raw_text: Global Efficiency, Modularity (Q), FPN Strength, and DMN Strength are
+    the four baseline metrics computed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:11:36Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Multiple linear regression predicts WM score from Global Efficiency Modularity
+    FPN Strength DMN Strength Age and Sex
+  claim_id: c_13b6b42b
+  context: 'T027 [US2] Implement multiple linear regression in src/regression.py:
+    Predict WM score from the four baseline metrics (Global Efficiency, Modularity,
+    FPN Strength, DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple_linear_regression_predicts_WM_score_from_Global_Eff
+  kind: entity_fact
+  raw_text: The multiple linear regression model predicts WM score from Global Efficiency,
+    Modularity, FPN Strength, DMN Strength, Age, and Sex.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:12:13Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 shuffles
+  claim_id: c_fdafa699
+  context: "T027 [US2] ... Perform permutation testing (\u22651000 shuffles) and apply\
+    \ Holm-Bonferroni correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_1000_shuffles
+  kind: magnitude
+  raw_text: Permutation testing uses at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:12:47Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to p-values
+  claim_id: c_7776be20
+  context: "T027 [US2] ... Perform permutation testing (\u22651000 shuffles) and apply\
+    \ Holm-Bonferroni correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Holm-Bonferroni correction is applied to p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:13:06Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Power analysis uses alpha 0.05 and effect size 0.15
+  claim_id: c_760d4f16
+  context: "T015 [US0] Implement power analysis script src/power_analysis.py: use\
+    \ statsmodels to calculate power for N participants, \u03B1=0.05, effect=0.15..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis uses an alpha (\u03B1) of 0.05 and an effect size\
+    \ of 0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:13:35Z'

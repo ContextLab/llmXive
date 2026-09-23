@@ -1,33 +1,11 @@
-- artifact_hash: 1cea32fa31b327fc2afffe39d509c9c0efc1ece826407ed2f6cde629f4e50648
+- artifact_hash: 2b70a1b70a062e6d54b9766b03a1ca5fbfaa3a75dd8774c6ccbbad1e1f841e25
   artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001.parquet
+  fetched_title: "GitHub - openai/grade-school-math \xB7 GitHub"
   kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  value: https://github.com/openai/grade-school-math
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1789789529&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODk3ODk1Mjl9fX1dfQ__&Signature=MEUCIEhC4Jc0Onc78CC-0S8D%7EXofaocCJ71JEyiWyoHntBHTAiEA2HM0jdJIs9Hp1DSD0TxxG2tk7CGf%7EJcY-WmhUbsZdzg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-09-19T02:45:29.462713Z'
-- artifact_hash: 1cea32fa31b327fc2afffe39d509c9c0efc1ece826407ed2f6cde629f4e50648
-  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/lighteval/MATH/resolve/main/test-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/lighteval/MATH/resolve/main/test-00000-of-00001.parquet
-  verified_at: '2026-09-19T02:45:29.462713Z'
-- artifact_hash: cfb63290d3376682935e30bcdaeb228cecd08a1fed14b17602f9851b697374d9
-  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/socratic-transformers.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/socratic-transformers
-  verified_at: '2026-09-19T02:45:41.241619Z'
+  verified_against_url: https://github.com/openai/grade-school-math
+  verified_at: '2026-09-23T16:00:07.517340Z'

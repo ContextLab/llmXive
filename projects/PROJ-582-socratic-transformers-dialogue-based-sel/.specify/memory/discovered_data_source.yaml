@@ -1,13 +1,12 @@
 status: none
-intent: HuggingFace datasets static QA Socratic dialogue source datasets python package
-  dataset
+intent: download GSM8K and Math dataset with critique generation python package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
-- dialogue_id
+- split
 - source_dataset
-cache_key: 5fcb9d9cd0782188f9612f6348900a7ba35b4b000e53a1975b799fea5d1f55c6
-searched_at: '2026-09-19T02:36:44.061726+00:00'
+cache_key: 67c0a6b7a2c192088d909c0bf3afa45a275a992a1b7e34f2a9480269f3bebd7a
+searched_at: '2026-09-23T15:45:35.606876+00:00'
 retry_count: 1

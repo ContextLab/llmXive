@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Test Output Schema"
-description: "Schema for statistical test results (paired t-tests with Bonferroni correction)."
+description: "Schema for statistical test results (Independent Samples t-test with Bonferroni correction)."
 type: object
 properties:
   comparison:
@@ -22,10 +22,18 @@ properties:
   significant:
     type: boolean
     description: "True if the corrected p-value is less than 0.05."
+  effect_size_cohen_d:
+    type: number
+    description: "Cohen's d effect size."
+  mdes:
+    type: number
+    description: "Minimum Detectable Effect Size."
 required:
   - comparison
   - t_statistic
   - p_value
   - p_value_corrected
   - significant
+  - effect_size_cohen_d
+  - mdes
 additionalProperties: false
