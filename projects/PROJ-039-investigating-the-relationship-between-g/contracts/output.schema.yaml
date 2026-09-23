@@ -1,22 +1,50 @@
-type: object
+# Output Schema for Ecological Aggregation Results
+# This schema defines the structure for the stratum-level analysis report.
+# Fields: stratum_id, stratum_mean_alpha_power, stratum_taxa_means, valid_strata_count
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EcologicalAggregationOutput"
+type: "object"
 required:
   - stratum_id
   - stratum_mean_alpha_power
   - stratum_taxa_means
   - valid_strata_count
+
 properties:
   stratum_id:
     type: string
-    description: Unique identifier for the demographic stratum
+    description: "Unique identifier for the demographic stratum"
+    
   stratum_mean_alpha_power:
     type: number
-    description: Mean alpha power across subjects in this stratum
+    description: "Mean alpha power for this stratum"
+    minimum: 0.0
+    
   stratum_taxa_means:
     type: object
+    description: "Dictionary of mean taxon abundances for this stratum"
     additionalProperties:
       type: number
-    description: Dictionary mapping taxon names to mean abundances in this stratum
+      minimum: 0.0
+      maximum: 1.0
+      
   valid_strata_count:
     type: integer
+    description: "Total number of valid strata identified in the analysis"
     minimum: 0
-    description: Total number of valid strata identified (>= 5 subjects each)
+    
+  metadata:
+    type: object
+    description: "Additional metadata about the aggregation process"
+    properties:
+      total_subjects_processed:
+        type: integer
+      subjects_per_stratum:
+        type: integer
+      exclusion_reasons:
+        type: array
+        items:
+          type: string
+
+description: "Schema for the aggregated stratum-level results report."

@@ -167,7 +167,7 @@ projects/PROJ-039-investigating-the-relationship-between-g/
 
 All methods are CPU-tractable and fit within GitHub Actions free-tier constraints:
 - **No GPU/CUDA**: Statistical methods (Spearman, Mann-Whitney, Permutation) use `scipy` and `numpy` on CPU.
-- **Memory**: Data subset to ~7 GB RAM; individual-level data is lightweight.
+- **Memory**: Data subset to a manageable size for RAM; individual-level data is lightweight.
 - **Disk**: ~14 GB limit; raw data stored in compressed formats, processed data in CSV/Parquet.
 - **Runtime**: ≤6 hours; matching and correlation analysis are computationally lightweight.
 - **Libraries**: Pinned versions in `requirements.txt` ensure CPU-only installation.

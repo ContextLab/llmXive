@@ -1529,23 +1529,6 @@
   updated_at: '2026-09-06T09:58:48Z'
 - artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
   attempts: 1
-  canonical: Runtime target <6 hours
-  claim_id: c_95c49719
-  context: '...verify runtime <6 hours.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_target_%3C6_hours
-  kind: magnitude
-  raw_text: The optimization task targets a runtime of less than 6 hours.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-06T09:59:36Z'
-- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
-  attempts: 1
   canonical: Cyclomatic complexity <10
   claim_id: c_14397742
   context: Refactor code/correlation_analysis.py to reduce cyclomatic complexity (<10)
@@ -2346,36 +2329,6 @@
   updated_at: '2026-09-17T09:27:43Z'
 - artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
   attempts: 1
-  canonical: QIIME2 version 2023.5 used for genus-level abundances
-  claim_id: c_19cea6b5
-  context: Run QIIME2 version 2023.5 to generate genus-level abundances.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: QIIME2 version 2023.5 is used to generate genus-level abundances.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-17T09:28:38Z'
-- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
-  attempts: 1
-  canonical: Pseudocount of 0.5 applied to microbiome data
-  claim_id: c_3d81fb9e
-  context: Apply pseudocount=0.5. Output data/processed/microbiome_features.csv.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: A pseudocount of 0.5 is applied to microbiome data.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-17T09:28:55Z'
-- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
-  attempts: 1
   canonical: Subjects with less than 80% valid epochs filtered
   claim_id: c_332d950d
   context: Filter subjects with <80% valid epochs. Output data/processed/eeg_features.csv.
@@ -2835,3 +2788,761 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T09:38:11Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000248 used for EEG data
+  claim_id: c_a87a49e9
+  context: Task T013 description regarding EEG data acquisition and preprocessing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000248_used_for_EEG_data
+  kind: entity_fact
+  raw_text: Implement code/preprocess_eeg.py to download OpenNeuro dataset ds000248
+    (Spec/Constitution mandate).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:16:58Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: QIIME2 version 2023.5 used for microbiome analysis
+  claim_id: c_d55bbd1e
+  context: Task T012 description regarding microbiome data processing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run QIIME2 version 2023.5 to generate genus-level abundances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:17:27Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Pseudocount of 0.5 applied before log transformation
+  claim_id: c_858ced30
+  context: Task T015 description regarding CLR transformation and handling zeros.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply pseudocount=0.5 to the mean taxa abundances BEFORE applying the
+    log transformation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:18:00Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction with q < 0.1 threshold
+  claim_id: c_69122584
+  context: Task T022 description regarding statistical significance testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply Benjamini-Hochberg FDR correction explicitly to the p-values. Threshold:
+    q < 0.1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:18:00Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations
+  claim_id: c_a9359d97
+  context: Task T024 description regarding null distribution generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute mean_alpha_power labels across strata (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:18:20Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation test significance at 95th percentile
+  claim_id: c_1285d112
+  context: Task T024 description regarding permutation test pass criteria.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_significance_at_95th_percentile
+  kind: entity_fact
+  raw_text: Set perm_test_passed boolean if observed max absolute Spearman rho exceeds
+    the 95th percentile of the null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:19:30Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Top 20 taxa selected by mean abundance
+  claim_id: c_5236d9b5
+  context: Task T022 description regarding feature selection for correlation analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_20_taxa_selected_by_mean_abundance
+  kind: magnitude
+  raw_text: Select the taxa with the highest mean abundance (Top 20 Taxa).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:20:09Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Stratum features file contains n_subjects count
+  claim_id: c_2c611c97
+  context: Task T015 description regarding output file structure.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratum_features_file_contains_n_subjects_count
+  kind: entity_fact
+  raw_text: Output data/processed/stratum_features.csv containing stratum_id, mean_alpha_power,
+    clr_taxa_abundances (dict), and n_subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:20:47Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage target of less than 7 GB RAM
+  claim_id: c_e188a8eb
+  context: Task T036a description regarding performance constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_target_of_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: Optimize memory usage in code/preprocess_eeg.py and code/ecological_aggregation.py
+    to ensure <7 GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:21:14Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Runtime target of less than 6 hours
+  claim_id: c_3a24f55f
+  context: Task T036a description regarding performance constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_of_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify runtime <6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:21:43Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG subjects filtered if less than 80% valid epochs
+  claim_id: c_a17586c3
+  context: Task T013 description regarding EEG data preprocessing criteria.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EEG_subjects_filtered_if_less_than_80%25_valid_epochs
+  kind: magnitude
+  raw_text: Filter subjects with <80% valid epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:22:15Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Minimum of 5 subjects per stratum required for validity
+  claim_id: c_4edf1165
+  context: Task T014 description regarding valid strata definition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify groups with \u22655 subjects in both cohorts (AGP and OpenNeuro)\
+    \ after exclusion."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:22:16Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Process exits if valid strata count is less than 5
+  claim_id: c_2bfac603
+  context: Task T014 description regarding exit logic for insufficient data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_exits_if_valid_strata_count_is_less_than_5
+  kind: magnitude
+  raw_text: If valid_strata_count < 5, log ERROR and exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:22:45Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: American Gut Project is canonical microbiome data repository
+  claim_id: c_af460094
+  context: Implement preprocess_microbiome.py to download AGP data from the canonical
+    American Gut Project repository...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/American_Gut_Project_is_canonical_microbiome_data_repository
+  kind: entity_fact
+  raw_text: The American Gut Project is the canonical repository for microbiome data
+    used in this analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:25:41Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000248 is mandated EEG dataset
+  claim_id: c_d2c43d8d
+  context: Implement preprocess_eeg.py to download OpenNeuro dataset ds000248 (Spec/Constitution
+    mandate).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000248_is_mandated_EEG_dataset
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ds000248 is the mandated dataset for EEG data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:27:23Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 2
+  canonical: QIIME2 version 2023.5 used for genus-level abundances
+  claim_id: c_19cea6b5
+  context: Run QIIME2 version 2023.5 to generate genus-level abundances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: QIIME2 version 2023.5 is used to generate genus-level abundances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:27:57Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 2
+  canonical: Pseudocount of 0.5 applied to microbiome data
+  claim_id: c_3d81fb9e
+  context: Apply pseudocount=0.5. Output data/processed/microbiome_features.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A pseudocount of 0.5 is applied to microbiome data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:28:14Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Subjects with <80% valid epochs filtered in EEG preprocessing
+  claim_id: c_54a45e1e
+  context: Filter subjects with <80% valid epochs.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_%3C80%25_valid_epochs_filtered_in_EEG_preprocessin
+  kind: magnitude
+  raw_text: Subjects with fewer than 80% valid epochs are filtered out in EEG preprocessing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:28:57Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Exclusion is only method for missing demographic data
+  claim_id: c_bac95579
+  context: For subjects with missing demographics (Age, Sex, BMI, Diet), apply Exclusion
+    as the ONLY method.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclusion_is_only_method_for_missing_demographic_data
+  kind: entity_fact
+  raw_text: Exclusion is the only method used to handle missing demographic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:29:26Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Minimum 5 valid strata required for analysis
+  claim_id: c_0746341a
+  context: 'If valid_strata_count < 5, log ERROR: ''Insufficient valid strata (<5)
+    for ecological analysis'', and exit with code 1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_5_valid_strata_required_for_analysis
+  kind: magnitude
+  raw_text: The analysis requires at least 5 valid strata to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:29:49Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Top 20 taxa selected by mean relative abundance
+  claim_id: c_96e23bba
+  context: 'Select Top 20 Taxa: Compute the mean relative abundance of each taxon
+    across all subjects...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 20 taxa are selected based on mean relative abundance across all
+    subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:30:42Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Spearman correlation used for taxa-alpha power association
+  claim_id: c_ea2422ec
+  context: Perform Spearman correlation between the CLR-transformed abundances of
+    these 20 taxa and mean_alpha_power per stratum.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_used_for_taxa-alpha_power_association
+  kind: entity_fact
+  raw_text: Spearman correlation is used to analyze the association between taxa and
+    alpha power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:31:21Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction with q < 0.1 threshold
+  claim_id: c_b012a9f4
+  context: 'Apply Benjamini-Hochberg FDR correction explicitly to the p-values. Threshold:
+    q < 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction is applied to p-values with a threshold
+    of q < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:31:21Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: 1000 iterations for permutation testing
+  claim_id: c_af8b0a6e
+  context: 'Path: Permute mean_alpha_power labels across strata (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing is conducted for 1000 iterations to generate a null
+    distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:31:59Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation significance defined by 95th percentile of null distribution
+  claim_id: c_5396c956
+  context: Set perm_test_passed boolean if observed max absolute Spearman rho exceeds
+    the 95th percentile of the null distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_significance_defined_by_95th_percentile_of_null
+  kind: entity_fact
+  raw_text: Statistical significance in permutation testing is determined by exceeding
+    the 95th percentile of the null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:32:39Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Analysis is associational only, no causal inference
+  claim_id: c_8263582a
+  context: 'Inject the exact string ''Note: This analysis is associational only; no
+    causal inference is made.'' into all result JSONs and reports.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_is_associational_only,_no_causal_inference
+  kind: entity_fact
+  raw_text: The analysis is strictly associational with no causal inference made.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:33:03Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage target <7 GB
+  claim_id: c_665f48a6
+  context: Optimize memory usage in code/preprocess_eeg.py and code/ecological_aggregation.py
+    to ensure <7 GB RAM usage...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_target_%3C7_GB
+  kind: magnitude
+  raw_text: The project targets a memory usage of less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:33:58Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 2
+  canonical: Runtime target <6 hours
+  claim_id: c_95c49719
+  context: '...verify runtime <6 hours.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_%3C6_hours
+  kind: magnitude
+  raw_text: The optimization task targets a runtime of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:34:36Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 0
+  canonical: FDR threshold q < 0.1
+  claim_id: c_f8f0682f
+  context: 'Apply Benjamini-Hochberg FDR correction explicitly to the p-values. Threshold:
+    q < 0.1.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.1, otherwise.
+      source_id: '1705.04312'
+      url: https://arxiv.org/abs/1705.04312
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction is applied with a threshold of q < 0.1.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T19:38:31Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP is canonical microbiome repository
+  claim_id: c_a1e18db5
+  context: Implement preprocess_microbiome.py to download AGP data from the canonical
+    American Gut Project repository.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AGP_is_canonical_microbiome_repository
+  kind: entity_fact
+  raw_text: The American Gut Project (AGP) is the canonical repository for microbiome
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:39:16Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000248 is mandated EEG dataset
+  claim_id: c_f34a0fc3
+  context: Implement preprocess_eeg.py to download OpenNeuro dataset ds000248 (Spec/Constitution
+    mandate).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000248_is_mandated_EEG_dataset
+  kind: entity_fact
+  raw_text: OpenNeuro dataset ds000248 is the mandated dataset for EEG analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:39:40Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: OpenNeuro lacks diet field
+  claim_id: c_a1b800b8
+  context: REMOVE 'diet' field as OpenNeuro lacks it.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_lacks_diet_field
+  kind: entity_fact
+  raw_text: The American Gut Project dataset lacks a 'diet' field.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:40:11Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Minimum 5 valid strata required
+  claim_id: c_91b9ef6c
+  context: Implement Spec-mandated Ecological Aggregation with hard exit if <5 valid
+    strata exist.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a minimum of 5 valid demographic strata for ecological
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:41:11Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Microbiome CSV minimum 100 rows
+  claim_id: c_d8ea26dd
+  context: "Verify that (1) Microbiome CSV has \u2265100 rows..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microbiome_CSV_minimum_100_rows
+  kind: magnitude
+  raw_text: The microbiome CSV must contain at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:41:55Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG CSV minimum 50 subjects
+  claim_id: c_726e27ab
+  context: "Verify that... (2) EEG CSV has \u226550 subjects..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EEG_CSV_minimum_50_subjects
+  kind: magnitude
+  raw_text: The EEG CSV must contain at least 50 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:42:24Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Strata must have minimum 5 subjects
+  claim_id: c_31624519
+  context: "Verify that... (3) data/processed/stratum_features.csv contains valid\
+    \ strata with \u22655 subjects each..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Strata_must_have_minimum_5_subjects
+  kind: magnitude
+  raw_text: Stratum features CSV must contain valid strata with at least 5 subjects
+    each.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:42:52Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: QIIME2 version 2023.5 used
+  claim_id: c_a6cd2395
+  context: Run QIIME2 version 2023.5 to generate genus-level abundances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: QIIME2 version 2023.5 is used to generate genus-level abundances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:42:52Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Microbiome pseudocount 0.5
+  claim_id: c_f63aa19d
+  context: Apply pseudocount=0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A pseudocount of 0.5 is applied to microbiome data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:42:53Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter subjects with <80% valid EEG epochs
+  claim_id: c_26ba54ef
+  context: Filter subjects with <80% valid epochs.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_subjects_with_%3C80%25_valid_EEG_epochs
+  kind: magnitude
+  raw_text: Subjects with less than 80% valid EEG epochs are filtered out.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:43:13Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Select top 20 taxa by abundance
+  claim_id: c_1411370f
+  context: 'Select Top 20 Taxa: Compute the mean relative abundance of each taxon
+    across all subjects... Select the taxa with the highest mean abundance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 20 taxa by mean relative abundance are selected for correlation
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:43:47Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation test 1000 iterations
+  claim_id: c_115f9610
+  context: 'Path: Permute mean_alpha_power labels across strata (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing is run for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:44:13Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation significance at 95th percentile
+  claim_id: c_8de57d11
+  context: Set perm_test_passed boolean if observed max absolute Spearman rho exceeds
+    the 95th percentile of the null distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_significance_at_95th_percentile
+  kind: entity_fact
+  raw_text: Statistical significance for permutation tests is defined as exceeding
+    the 95th percentile of the null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:44:56Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage < 7 GB
+  claim_id: c_ab51aab1
+  context: Optimize memory usage... to ensure <7 GB RAM usage (aligned with spec)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_%3C_7_GB
+  kind: magnitude
+  raw_text: The analysis is limited to a memory usage of less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:45:45Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Runtime < 6 hours
+  claim_id: c_231e2c78
+  context: '...verify runtime <6 hours.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_%3C_6_hours
+  kind: magnitude
+  raw_text: The target runtime for the analysis is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:46:47Z'

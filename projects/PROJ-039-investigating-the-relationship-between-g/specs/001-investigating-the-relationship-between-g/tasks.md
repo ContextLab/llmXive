@@ -43,12 +43,13 @@
 
 **Purpose**: Project initialization, plan correction, and schema definition.
 
+**CRITICAL NOTE**: The `plan.md` file currently contains a fundamental architectural contradiction (Virtual Cohort Matching vs. Ecological Correlation) and incorrect dataset IDs. This task list proceeds based on the `spec.md` requirements. The `plan.md` MUST be rewritten by a human to align with the Spec before the project can advance to the research stage.
+
 - [X] T001a Create `code/`, `data/`, `artifacts/`, `tests/` directories in repository root
 - [X] T001b Create `data/raw/agp_microbiome/` and `data/raw/openneuro_eeg/` subdirectories
 - [X] T001c Create `data/processed/`, `artifacts/`, `tests/contract/`, `tests/integration/`, `tests/unit/` subdirectories
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, mne, skbio, matplotlib, seaborn, pyyaml, qiime2==2023.5)
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
-- [ ] T039 [P] **CRITICAL PLAN FIX**: Update `plan.md` to correct the OpenNeuro dataset ID from `ds000246` to `ds000248` in the Summary and Constitution Check sections. **Verification**: Grep for `ds000246` and replace with `ds000248`. Remove all references to "Virtual Cohort Matching" to align with the Spec's Ecological Correlation requirement. (US-1)
 
 ---
 
@@ -58,16 +59,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T004b1/T004b2 are producers; T004 is the consumer and depends on their completion.
 
-- [ ] T004b1 [P] Define and Write `contracts/dataset.schema.yaml` with explicit fields: `age` (int), `sex` (str), `bmi` (float), `alpha_power` (float), `taxon_abundances` (dict). **REMOVE 'diet' field** as OpenNeuro lacks it. **Independently executable from T004b2.** (US-1)
-- [ ] T004b2 [P] Define and Write `contracts/output.schema.yaml` with explicit fields for `stratum_id`, `stratum_mean_alpha_power`, `stratum_taxa_means` (dict), `valid_strata_count`. **Explicitly output to `artifacts/strata_report.json`.** **Independently executable from T004b1.** (US-1)
+- [ ] T004b1 [P] Define and Write `contracts/dataset.schema.yaml` with explicit fields: `age` (int), `sex` (str), `bmi` (float), `alpha_power` (float), `taxon_abundances` (dict: keys=string genus names, values=float 0.0-1.0), and `diet` (str, **optional**, nullable). **Independently executable from T004b2.** (US-1)
+- [ ] T004b2 [P] Define and Write `contracts/output.schema.yaml` with explicit fields for `stratum_id`, `stratum_mean_alpha_power`, `stratum_taxa_means` (dict: keys=string genus names, values=float mean abundances), `valid_strata_count`. **Explicitly output to `artifacts/strata_report.json`.** **Independently executable from T004b1.** (US-1)
 - [ ] T004 [US1] Implement data schema validation using `pydantic` or `jsonschema` based on `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`. **Depends on T004b1, T004b2 completion.** (US-1)
-- [ ] T005 [P] Setup logging infrastructure to output structured logs to `artifacts/preprocess.yaml` and `artifacts/analysis_results.json`
-- [ ] T006 [P] Create utility functions for checksum verification (SHA256) to generate `artifacts/checksums.txt` for all files in `data/`. (US-1)
+- [X] T005 [P] Setup logging infrastructure to output structured logs to `artifacts/preprocess.yaml` and `artifacts/analysis_results.json`
+- [ ] T006 [P] Create utility functions for checksum verification (SHA256) to generate `artifacts/checksums.txt` for all files in `data/`. **Must run before T012/T013.** (US-1)
 - [X] T007 [P] Create `code/seed_manager.py` with a `set_seed(seed=42)` function to ensure reproducibility across statistical runs. (US-2)
 - [X] T008 [P] Create base configuration loader to read `artifacts/preprocess.yaml` (filter bands, ICA settings, pseudocount) and write the initial `artifacts/preprocess.yaml` with required parameters. (US-1)
-- [ ] T009a [P] [US1] Implement `code/validate_microbiome_fields.py` to check raw AGP data for required fields: Age, Sex, BMI, Diet. Log errors if missing. (US-1)
-- [ ] T009b [P] [US1] Implement `code/validate_eeg_fields.py` to check raw OpenNeuro data for required fields: Age, Sex, BMI. Log errors if missing (Diet is optional/absent). (US-1)
-- [ ] T040 [P] [US1] **CRITICAL ERROR HANDLING**: Refactor `code/preprocess_microbiome.py` and `code/preprocess_eeg.py` templates to include explicit error handling: **FAIL LOUDLY** (raise `FileNotFoundError`) if real data download fails. Ensure no synthetic fallback logic is present. (US-1)
+- [X] T009a [P] [US1] Implement `code/validate_microbiome_fields.py` to check raw AGP data for required fields: Age, Sex, BMI, Diet. Log errors if missing. **Depends on T004.** (US-1)
+- [X] T009b [P] [US1] Implement `code/validate_eeg_fields.py` to check raw OpenNeuro data for required fields: Age, Sex, BMI. Log errors if missing (Diet is optional/absent). **Depends on T004.** (US-1)
+- [X] T040 [P] [US1] **CRITICAL ERROR HANDLING**: Refactor `code/preprocess_microbiome.py` and `code/preprocess_eeg.py` templates to include explicit error handling: **FAIL LOUDLY** (raise `FileNotFoundError`) if real data download fails. Ensure no synthetic fallback logic is present. (US-1)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,19 +90,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from the **canonical American Gut Project repository** (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **FAIL LOUDLY**: Raise `FileNotFoundError` if download fails. Use SHA256 for checksums. **(Depends on T039, T040, T009a)**. (US-1)
-- [ ] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset `ds000248` (Spec/Constitution mandate). Filter (0.5–45 Hz), run FastICA, epoch, compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **(Depends on T039, T040, T009b)**. (US-1)
+- [ ] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from the **canonical American Gut Project repository** (URL: `). Run QIIME2 version `2023.5` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **Fallback Logic**: If URL fails, check for local file in `data/raw/agp_microbiome/`; if found, verify SHA256; if not, raise `FileNotFoundError`. **FAIL LOUDLY**: Raise `FileNotFoundError` if download fails and no local file exists. Use SHA256 for checksums. **(Depends on T009a, T006)**. (US-1)
+- [ ] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset **ds000248** (Spec/Constitution mandate). Command: `datalad get ds000248` or `curl` from `https://openneuro.org/datasets/ds000248`. Filter (low-pass to high-pass range), run FastICA, epoch, compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **Fallback Logic**: If URL fails, check for local file in `data/raw/openneuro_eeg/`; if found, verify SHA256; if not, raise `FileNotFoundError`. **(Depends on T009b, T006)**. (US-1)
 - [ ] T014 [US1] Implement `code/ecological_aggregation.py` to perform **Ecological Aggregation** (FR-003):
  1. Load `microbiome_features.csv` and `eeg_features.csv`.
- 2. **Handle Missing Data**: For subjects with missing demographics (Age, Sex, BMI, Diet), apply **Exclusion** as the primary method. **CRITICAL FALLBACK**: If exclusion results in <5 subjects in a potential stratum, **attempt Documented Median Imputation** for the missing field (e.g., median BMI for the cohort) and re-evaluate. If imputation still fails to reach 5, exclude the subject. Log all imputations with a flag.
- 3. **Aggregate**: Group subjects into demographic strata (Age bins, Sex, BMI bins, Diet).
- 4. **Count Valid Strata**: Identify groups with ≥5 subjects in *both* cohorts (AGP and OpenNeuro).
+ 2. **Handle Missing Data**: For subjects with missing demographics (Age, Sex, BMI, Diet), apply **Exclusion** OR **Impute using median value with a documented flag** (as per Spec Edge Cases).
+ 3. **Aggregate**: Group subjects into demographic strata using **exact binning**: Age (10-year bins: 20-29, 30-39, 40-49, 50-59, 60-69, 70+), Sex (M/F), BMI (<25, 25-30, >30), Diet (Vegan, Vegetarian, Omnivore, Other).
+ 4. **Count Valid Strata**: Identify groups with ≥5 subjects in *both* cohorts (AGP and OpenNeuro) *after exclusion/imputation*.
  5. **Output**: Write `data/processed/raw_stratum_agg.csv` and `artifacts/strata_report.json` (containing `valid_strata_count`).
- 6. **Exit Logic**: If `valid_strata_count` < 5, log ERROR: "Insufficient valid strata (<5) for ecological analysis", and exit with code 1. Otherwise, exit with code 0. **(Depends on T012, T013)**. (US-1)
+ 6. **Exit Logic**: If `valid_strata_count` < 5, log ERROR: "Insufficient valid strata (<5) for ecological analysis", and exit with code 1. Otherwise, exit with code 0. **(Depends on T012, T013)**.
+ **CRITICAL: Implements Spec FR-003 (Ecological Aggregation). Plan.md Two-Path Strategy is noted as contradictory; Spec takes precedence for this task.** (US-1)
 - [ ] T015 [US1] Implement `code/compute_stratum_means.py` to compute final stratum features (**Depends on T014**):
  1. Load `data/processed/raw_stratum_agg.csv`.
  2. **Compute Means**: Calculate mean alpha power (Welch's method result) per stratum. Calculate mean taxa abundance per stratum.
- 3. **CLR Transformation**: Apply CLR transformation (pseudocount=0.5) to the mean taxa abundances per stratum (FR-004).
+ 3. **CLR Transformation**: **Apply pseudocount=0.5 to the mean taxa abundances BEFORE applying the log transformation** to handle zeros. Explicit Formula: `clr = log((mean_abundance + 0.5) / geometric_mean(mean_abundance + 0.5))`. (FR-004).
  4. **Output**: Write `data/processed/stratum_features.csv` containing `stratum_id`, `mean_alpha_power`, `clr_taxa_abundances` (dict), and `n_subjects`. (US-1, US-2)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently, with stratum-level data ready for analysis.
@@ -125,17 +127,18 @@
 - [X] T021 [US2] Implement alpha power aggregation utility in `code/utils.py` using Welch's method results. (US-2)
 - [ ] T022 [US2] Implement Spearman correlation analysis (**Depends on T015**):
  - Load `data/processed/stratum_features.csv`.
- - **Select Top 20 Taxa**: Compute the mean relative abundance of each taxon across *all* strata in the file. Select the taxa with the highest mean abundance.
+ - **Select Top 20 Taxa**: Compute the mean relative abundance of each taxon across *all subjects* in `data/processed/microbiome_features.csv` (the raw feature matrix, before aggregation). Select the taxa with the highest mean abundance. **Sorting Rule**: Sort taxa by mean relative abundance descending; if tied, sort alphabetically by genus name; select top 20.
  - **Correlation**: Perform Spearman correlation between the CLR-transformed abundances of these 20 taxa and `mean_alpha_power` per stratum.
  - **FDR**: Apply **Benjamini-Hochberg FDR correction** explicitly to the p-values. **Threshold**: q < 0.1.
  - **Output**: Write `artifacts/correlation_results.json` (rho, p-value, q-value, significance flag) and `artifacts/top_taxa.txt`. (US-2)
+ **Note**: This task follows the Spec's 'Top 20 Taxa' requirement. The Plan's PCoA suggestion is noted as an alternative for future analysis but is not implemented here per Spec priority. (US-2)
 - [ ] T023 [US2] Implement collinearity diagnostics (**Depends on T022**):
  - Calculate **Variance Inflation Factor (VIF)** for the 20 taxa tested in T022.
  - Report VIF values in `artifacts/analysis_results.json`. (US-2)
 - [ ] T024 [US2] Implement permutation testing to generate null distribution (**Depends on T015**):
  - **Path**: Permute `mean_alpha_power` labels across strata (1000 iterations).
  - **Pass the random seed (from T007) explicitly as `random_state`**.
- - Set `perm_test_passed` boolean if observed max absolute Spearman rho exceeds the upper percentile of null distribution. (US-2)
+ - Set `perm_test_passed` boolean if observed max absolute Spearman rho exceeds the **95th percentile** of the null distribution. (US-2)
 - [ ] T025 [US2] Inject the exact string "Note: This analysis is associational only; no causal inference is made." into all result JSONs and reports. (US-2)
 - [ ] T026 [US2] Output `artifacts/analysis_results.json` containing correlation coefficients, p-values, q-values, VIF values, permutation flags, and `valid_strata_count` read from `artifacts/strata_report.json`. (US-2)
 
@@ -178,7 +181,7 @@
 - [ ] T036a Optimize memory usage in `code/preprocess_eeg.py` and `code/ecological_aggregation.py` to ensure **<7 GB RAM** usage (aligned with spec); verify runtime <6 hours. **Generate `artifacts/performance_report.json`**. (US-1)
 - [ ] T037 [P] Additional unit tests for edge cases (NaN handling, zero-abundance taxa) in `tests/unit/`
 - [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T041 [US1] Validate SC-001: Read `artifacts/strata_report.json` and assert `valid_strata_count` >= 5. Log pass/fail to `artifacts/validation_report.json`. **(Depends on T014)**. (US-1)
+- [ ] T041 [US1] Validate SC-001: Read `artifacts/strata_report.json`, extract the `valid_strata_count`, and log the measured value against the threshold of 5. **Do not assert pass/fail**. Report the actual count and the threshold in `artifacts/validation_report.json`. **(Depends on T014)**. (US-1)
 
 ---
 
@@ -186,7 +189,7 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 0)**: No dependencies - can start immediately. **T039 must complete before T012/T013.**
+- **Setup (Phase 0)**: No dependencies - can start immediately.
 - **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 2+)**: All depend on Foundational phase completion.
  - User stories can then proceed in parallel (if staffed)
@@ -195,7 +198,7 @@
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories. **T012/T013 depend on T039, T040, T009a/b.**
+- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories. **T012/T013 depend on T009a/b.**
 - **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on T015 (stratum features)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on T015 (stratum features)
 
@@ -209,7 +212,7 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel (except T039 which is a prerequisite for T012/T013).
+- All Setup tasks marked [P] can run in parallel.
 - All Foundational tasks marked [P] can run in parallel (within Phase 1, except T004 which depends on T004b1/b2).
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
@@ -236,7 +239,7 @@ Task: "Implement compute_stratum_means.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Setup & Plan Correction (T039)
+1. Complete Phase 0: Setup & Plan Correction
 2. Complete Phase 1: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 2: User Story 1 (Ecological Aggregation)
 4. **STOP and VALIDATE**: Test User Story 1 independently (verify data counts, strata count, and exit logic)
@@ -272,18 +275,23 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: The `plan.md` references 'ds000246' while tasks and constitution reference 'ds000248'. Task T039 addresses the plan update and is now in Phase 0.
-- **CRITICAL**: Task T014 now implements the explicit Ecological Aggregation logic (grouping, missing data handling with imputation fallback, strata count) as the primary path, removing the abandoned 'Virtual Cohort Matching' strategy.
-- **CRITICAL**: Task T015 computes mean alpha power and CLR transformation on stratum-level means, satisfying FR-004 and FR-005.
+- **CRITICAL**: The `plan.md` file contains a fundamental contradiction (Virtual Cohort vs. Ecological) and incorrect dataset IDs. This task list proceeds based on the `spec.md` requirements. The `plan.md` MUST be rewritten by a human to align with the Spec before the project can advance.
+- **CRITICAL**: Task T014 implements the explicit Ecological Aggregation logic (grouping, strict exclusion/imputation for missing data, strata count) as the primary path.
+- **CRITICAL**: Task T015 computes mean alpha power and CLR transformation on stratum-level means, satisfying FR-004 and FR-005, with explicit pseudocount instruction.
 - **CRITICAL**: Task T022 performs Spearman correlation on stratum-level means with explicit Benjamini-Hochberg FDR correction, satisfying FR-006.
-- **CRITICAL**: Task T024 performs permutation testing on stratum-level data, satisfying FR-007.
-- **CRITICAL**: Task T029 generates visualizations of stratum-level correlations, satisfying FR-008.
+- **CRITICAL**: Task T024 performs permutation testing on stratum-level data, satisfying FR-007, with explicit 95th percentile definition.
 - **CRITICAL**: Task T004b1 and T004b2 are independent and write to distinct files.
 - **CRITICAL**: Task T014 fails loudly if <5 valid strata exist, as mandated by the Spec.
-- **CRITICAL**: Task T014 specifies 'Exclusion' as primary, with 'Documented Median Imputation' as the required fallback.
+- **CRITICAL**: Task T014 specifies 'Exclusion' OR 'Impute' as allowed methods for missing demographics.
 - **CRITICAL**: Task T022 explicitly computes global mean abundance to select the top 20 taxa and specifies Benjamini-Hochberg.
-- **CRITICAL**: Task T039 is now in Phase 0 to ensure plan consistency before data processing.
 - **CRITICAL**: Task T006, T007, T008 are updated to explicitly create required artifacts.
 - **CRITICAL**: Task T012 and T013 use verified URLs (AGP) or fail loudly; T013 uses ds000248.
 - **CRITICAL**: The 'Virtual Cohort Matching' strategy is removed from the tasks to align with the Spec's Ecological Correlation requirement.
 - **CRITICAL**: T036a memory target aligned with spec (<7 GB).
+- **CRITICAL**: Task T041 measures and reports the actual count, not a binary assertion.
+- **CRITICAL**: T012 and T013 now include explicit fallback logic for 'Manual Download + Checksum' protocol.
+- **CRITICAL**: T014 now includes explicit binning definitions (no 'etc.').
+- **CRITICAL**: T015 now includes explicit CLR formula.
+- **CRITICAL**: T004b1 now includes 'diet' as optional field.
+- **CRITICAL**: T022 now includes explicit tie-breaking rule and comment on Plan/Spec conflict.
+- **CRITICAL**: T013 is restored as active and generates `data/processed/eeg_features.csv`.

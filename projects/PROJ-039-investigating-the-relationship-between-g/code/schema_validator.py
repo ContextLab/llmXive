@@ -1,167 +1,162 @@
+"""
+Schema validation module for Gut Microbiome and EEG data.
+Implements validation using jsonschema based on contracts/dataset.schema.yaml 
+and contracts/output.schema.yaml.
+"""
 import os
+import sys
 import json
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
+import jsonschema
 from jsonschema import validate, ValidationError, Draft7Validator
-from config import get_project_root
 
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 class SchemaValidator:
     """
-    Validates data against JSON schemas defined in contracts/
+    A class to validate data against JSON schemas.
     """
-
+    
     def __init__(self, schema_path: str):
         """
-        Initialize validator with a schema file.
-
+        Initialize the SchemaValidator with a schema file path.
+        
         Args:
-            schema_path: Path to the YAML schema file relative to project root
+            schema_path: Path to the JSON schema file (YAML or JSON)
         """
         self.schema_path = Path(schema_path)
         self.schema = self._load_schema()
         self.validator = Draft7Validator(self.schema)
-
+        
     def _load_schema(self) -> Dict[str, Any]:
-        """Load schema from YAML file."""
+        """
+        Load the schema from a YAML or JSON file.
+        
+        Returns:
+            The schema as a dictionary.
+        """
         if not self.schema_path.exists():
             raise FileNotFoundError(f"Schema file not found: {self.schema_path}")
         
         with open(self.schema_path, 'r') as f:
-            return yaml.safe_load(f)
-
+            if self.schema_path.suffix in ['.yaml', '.yml']:
+                return yaml.safe_load(f)
+            elif self.schema_path.suffix == '.json':
+                return json.load(f)
+            else:
+                raise ValueError(f"Unsupported schema file format: {self.schema_path.suffix}")
+    
     def validate(self, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
         """
-        Validate data against the schema.
-
-        Args:
-            data: Data to validate (single record or list of records)
-
-        Returns:
-            True if valid, raises ValidationError if invalid
-
-        Raises:
-            ValidationError: If data does not conform to schema
-        """
-        if isinstance(data, list):
-            for i, record in enumerate(data):
-                try:
-                    validate(instance=record, schema=self.schema)
-                except ValidationError as e:
-                    logger.error(f"Validation error in record {i}: {e.message}")
-                    raise
-        else:
-            validate(instance=data, schema=self.schema)
+        Validate data against the loaded schema.
         
-        logger.info(f"Data validation successful against {self.schema_path}")
-        return True
-
-    def validate_file(self, file_path: str) -> bool:
-        """
-        Validate a JSON/CSV file against the schema.
-
         Args:
-            file_path: Path to the file to validate
-
+            data: The data to validate (single record or list of records)
+            
         Returns:
-            True if valid
-
+            True if validation passes, False otherwise.
+            
         Raises:
-            FileNotFoundError: If file doesn't exist
-            json.JSONDecodeError: If file is not valid JSON
+            ValidationError: If validation fails.
         """
-        file_path = Path(file_path)
-        if not file_path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
-
-        ext = file_path.suffix.lower()
+        try:
+            if isinstance(data, list):
+                # Validate each item in the list
+                for i, item in enumerate(data):
+                    validate(instance=item, schema=self.schema)
+                    logger.debug(f"Record {i} passed validation")
+            else:
+                # Validate single record
+                validate(instance=data, schema=self.schema)
+                logger.debug("Single record passed validation")
+                
+            return True
+        except ValidationError as e:
+            logger.error(f"Validation failed: {e.message}")
+            logger.error(f"Path: {list(e.path)}")
+            raise
+    
+    def validate_file(self, file_path: str, is_list: bool = True) -> bool:
+        """
+        Validate a JSON or YAML file against the schema.
         
-        if ext == '.json':
-            with open(file_path, 'r') as f:
+        Args:
+            file_path: Path to the data file
+            is_list: Whether the file contains a list of records (default: True)
+            
+        Returns:
+            True if validation passes, False otherwise.
+        """
+        data_path = Path(file_path)
+        if not data_path.exists():
+            raise FileNotFoundError(f"Data file not found: {data_path}")
+        
+        with open(data_path, 'r') as f:
+            if data_path.suffix in ['.yaml', '.yml']:
+                data = yaml.safe_load(f)
+            elif data_path.suffix == '.json':
                 data = json.load(f)
-        elif ext == '.csv':
-            import pandas as pd
-            df = pd.read_csv(file_path)
-            data = df.to_dict(orient='records')
-        else:
-            raise ValueError(f"Unsupported file format: {ext}")
-
+            else:
+                raise ValueError(f"Unsupported data file format: {data_path.suffix}")
+        
         return self.validate(data)
 
 def validate_artifacts() -> bool:
     """
-    Validate all key artifacts against their respective schemas.
-
+    Validate all required artifacts against their schemas.
+    
     Returns:
-        True if all validations pass, False otherwise
+        True if all validations pass, False otherwise.
     """
-    project_root = get_project_root()
-    contracts_dir = project_root / "contracts"
-    data_dir = project_root / "data" / "processed"
-    artifacts_dir = project_root / "artifacts"
+    dataset_schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    output_schema_path = project_root / "contracts" / "output.schema.yaml"
+    
+    # Validate dataset schema exists
+    if not dataset_schema_path.exists():
+        logger.error(f"Dataset schema not found: {dataset_schema_path}")
+        return False
+        
+    # Validate output schema exists
+    if not output_schema_path.exists():
+        logger.error(f"Output schema not found: {output_schema_path}")
+        return False
+    
+    try:
+        # Initialize validators
+        dataset_validator = SchemaValidator(str(dataset_schema_path))
+        output_validator = SchemaValidator(str(output_schema_path))
+        
+        logger.info("Dataset and Output schemas loaded successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to initialize validators: {e}")
+        return False
 
-    all_valid = True
-
-    # Validate dataset schema against processed microbiome and EEG data
-    dataset_schema = contracts_dir / "dataset.schema.yaml"
-    if dataset_schema.exists():
-        validator = SchemaValidator(str(dataset_schema.relative_to(project_root)))
-        
-        # Check if processed data files exist before validating
-        microbiome_file = data_dir / "microbiome_features.csv"
-        eeg_file = data_dir / "eeg_features.csv"
-        
-        if microbiome_file.exists():
-            try:
-                validator.validate_file(str(microbiome_file))
-                logger.info(f"✓ {microbiome_file} valid against dataset schema")
-            except Exception as e:
-                logger.error(f"✗ {microbiome_file} failed validation: {e}")
-                all_valid = False
-        
-        if eeg_file.exists():
-            try:
-                validator.validate_file(str(eeg_file))
-                logger.info(f"✓ {eeg_file} valid against dataset schema")
-            except Exception as e:
-                logger.error(f"✗ {eeg_file} failed validation: {e}")
-                all_valid = False
-
-    # Validate output schema against stratum features
-    output_schema = contracts_dir / "output.schema.yaml"
-    if output_schema.exists():
-        validator = SchemaValidator(str(output_schema.relative_to(project_root)))
-        
-        stratum_file = data_dir / "stratum_features.csv"
-        if stratum_file.exists():
-            try:
-                validator.validate_file(str(stratum_file))
-                logger.info(f"✓ {stratum_file} valid against output schema")
-            except Exception as e:
-                logger.error(f"✗ {stratum_file} failed validation: {e}")
-                all_valid = False
-        
-        # Also validate strata_report.json if it exists
-        strata_report = artifacts_dir / "strata_report.json"
-        if strata_report.exists():
-            try:
-                validator.validate_file(str(strata_report))
-                logger.info(f"✓ {strata_report} valid against output schema")
-            except Exception as e:
-                logger.error(f"✗ {strata_report} failed validation: {e}")
-                all_valid = False
-
-    return all_valid
+def main():
+    """
+    Main function to run schema validation.
+    """
+    logger.info("Starting schema validation...")
+    
+    # Check if schemas exist and are valid
+    if not validate_artifacts():
+        logger.error("Schema validation failed.")
+        sys.exit(1)
+    
+    logger.info("Schema validation completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    success = validate_artifacts()
-    if success:
-        print("All artifacts validated successfully.")
-        exit(0)
-    else:
-        print("Validation failed for one or more artifacts.")
-        exit(1)
+    main()

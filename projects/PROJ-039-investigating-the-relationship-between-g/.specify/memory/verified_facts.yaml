@@ -3,8 +3,3 @@
   source_id: '1705.04312'
   url: https://arxiv.org/abs/1705.04312
   value: '0.1'
-'|iteration performed permutation testing':
-  quote: 10000 104729
-  source_id: A000040
-  url: https://oeis.org/A000040
-  value: '104729'

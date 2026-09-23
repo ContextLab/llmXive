@@ -5,211 +5,247 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple, List
 import json
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 def compute_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Compute the checksum of a file using the specified algorithm.
+    Compute the SHA256 checksum of a file.
 
     Args:
-        file_path: Path to the file to checksum.
-        algorithm: Hash algorithm to use (default: sha256).
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (default 'sha256').
 
     Returns:
         Hexadecimal string of the checksum.
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        IOError: If the file cannot be read.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    hasher = hashlib.new(algorithm)
     
+    hasher = hashlib.new(algorithm)
     try:
         with open(file_path, 'rb') as f:
             # Read in chunks to handle large files efficiently
             for chunk in iter(lambda: f.read(8192), b''):
                 hasher.update(chunk)
         return hasher.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
+    except IOError as e:
+        logger.error(f"Error reading file {file_path}: {e}")
         raise
 
-def generate_checksums(data_root: Path, output_path: Path) -> Dict[str, str]:
+def generate_checksums(data_root: Path, output_path: Path, algorithm: str = 'sha256') -> Dict[str, str]:
     """
-    Generate SHA256 checksums for all files in the data directory.
+    Generate checksums for all files in the data directory and write to a file.
 
     Args:
-        data_root: Root directory containing data files.
-        output_path: Path where the checksums.txt file will be written.
+        data_root: Root directory of the data to checksum.
+        output_path: Path to the output checksum file.
+        algorithm: Hash algorithm to use.
 
     Returns:
         Dictionary mapping relative file paths to their checksums.
     """
     if not data_root.exists():
-        logger.warning(f"Data root does not exist: {data_root}. Creating directory.")
-        data_root.mkdir(parents=True, exist_ok=True)
-
-    checksums: Dict[str, str] = {}
+        raise FileNotFoundError(f"Data root directory not found: {data_root}")
     
-    logger.info(f"Scanning directory: {data_root}")
+    checksums = {}
+    files_processed = 0
     
-    # Walk through all files recursively
+    logger.info(f"Generating checksums for files in {data_root}")
+    
     for root, _, files in os.walk(data_root):
-        for filename in files:
-            # Skip the checksum file itself if it exists in the data folder
-            if filename == 'checksums.txt' and Path(root) == data_root:
-                continue
-            
-            file_path = Path(root) / filename
-            rel_path = file_path.relative_to(data_root)
+        for file_name in files:
+            file_path = Path(root) / file_name
+            relative_path = file_path.relative_to(data_root)
             
             try:
-                checksum = compute_checksum(file_path)
-                checksums[str(rel_path)] = checksum
-                logger.info(f"Checksum generated for {rel_path}: {checksum[:16]}...")
+                checksum = compute_checksum(file_path, algorithm)
+                checksums[str(relative_path)] = checksum
+                files_processed += 1
+                logger.debug(f"Computed checksum for {relative_path}")
             except Exception as e:
-                logger.error(f"Failed to checksum {rel_path}: {e}")
-                # Fail loudly as per constraints
-                raise
-
-    # Write checksums to file
-    with open(output_path, 'w') as f:
+                logger.warning(f"Skipping {relative_path} due to error: {e}")
+    
+    # Write checksums to output file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         for rel_path, checksum in sorted(checksums.items()):
             f.write(f"{checksum}  {rel_path}\n")
     
-    logger.info(f"Checksums written to {output_path}")
+    logger.info(f"Generated checksums for {files_processed} files. Output written to {output_path}")
     return checksums
 
-def verify_checksums(data_root: Path, checksum_file: Path) -> Tuple[bool, List[str]]:
+def verify_checksums(checksum_file: Path, data_root: Path) -> Tuple[bool, List[str]]:
     """
     Verify file checksums against a stored checksum file.
 
     Args:
-        data_root: Root directory containing data files.
-        checksum_file: Path to the checksums.txt file.
+        checksum_file: Path to the file containing stored checksums.
+        data_root: Root directory of the data to verify.
 
     Returns:
         Tuple of (all_valid, list_of_failed_files).
     """
     if not checksum_file.exists():
-        logger.error(f"Checksum file not found: {checksum_file}")
-        return False, ["Checksum file missing"]
-
-    if not data_root.exists():
-        logger.error(f"Data root not found: {data_root}")
-        return False, ["Data root missing"]
-
-    failed_files: List[str] = []
+        raise FileNotFoundError(f"Checksum file not found: {checksum_file}")
     
-    with open(checksum_file, 'r') as f:
+    if not data_root.exists():
+        raise FileNotFoundError(f"Data root directory not found: {data_root}")
+    
+    stored_checksums = {}
+    with open(checksum_file, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            
+            # Format: "checksum  relative_path"
             parts = line.split('  ', 1)
-            if len(parts) != 2:
+            if len(parts) == 2:
+                stored_checksums[parts[1]] = parts[0]
+            else:
                 logger.warning(f"Malformed checksum line: {line}")
-                continue
-            
-            expected_checksum, rel_path = parts
-            file_path = data_root / rel_path
-
-            if not file_path.exists():
-                logger.error(f"File missing during verification: {rel_path}")
+    
+    failed_files = []
+    all_valid = True
+    
+    logger.info(f"Verifying checksums from {checksum_file}")
+    
+    for rel_path, expected_checksum in stored_checksums.items():
+        file_path = data_root / rel_path
+        
+        if not file_path.exists():
+            logger.error(f"File missing during verification: {rel_path}")
+            failed_files.append(rel_path)
+            all_valid = False
+            continue
+        
+        try:
+            actual_checksum = compute_checksum(file_path)
+            if actual_checksum != expected_checksum:
+                logger.error(f"Checksum mismatch for {rel_path}")
+                logger.error(f"  Expected: {expected_checksum}")
+                logger.error(f"  Actual:   {actual_checksum}")
                 failed_files.append(rel_path)
-                continue
-
-            try:
-                actual_checksum = compute_checksum(file_path)
-                if actual_checksum != expected_checksum:
-                    logger.error(f"Checksum mismatch for {rel_path}")
-                    logger.error(f"  Expected: {expected_checksum}")
-                    logger.error(f"  Actual:   {actual_checksum}")
-                    failed_files.append(rel_path)
-                else:
-                    logger.info(f"Verified {rel_path}")
-            except Exception as e:
-                logger.error(f"Error verifying {rel_path}: {e}")
-                failed_files.append(rel_path)
-
-    all_valid = len(failed_files) == 0
+                all_valid = False
+            else:
+                logger.debug(f"Checksum verified for {rel_path}")
+        except Exception as e:
+            logger.error(f"Error verifying {rel_path}: {e}")
+            failed_files.append(rel_path)
+            all_valid = False
+    
     if all_valid:
-        logger.info("All checksums verified successfully.")
+        logger.info(f"All {len(stored_checksums)} files verified successfully.")
     else:
         logger.error(f"Verification failed for {len(failed_files)} files.")
     
     return all_valid, failed_files
 
-def update_checksum_for_file(file_path: Path, checksum_file: Path) -> None:
+def update_checksum_for_file(file_path: Path, checksum_file: Path, algorithm: str = 'sha256') -> bool:
     """
-    Update the checksum for a specific file in the checksum file.
-    If the file doesn't exist in the list, it is added.
+    Update the checksum for a single file in the checksum file.
+    If the file is not in the checksum file, it is added.
 
     Args:
         file_path: Path to the file to update.
-        checksum_file: Path to the checksums.txt file.
+        checksum_file: Path to the checksum file.
+        algorithm: Hash algorithm to use.
+
+    Returns:
+        True if update was successful.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    # Load existing checksums
-    existing_checksums: Dict[str, str] = {}
+    
+    # Compute new checksum
+    new_checksum = compute_checksum(file_path, algorithm)
+    
+    # Read existing checksums
+    stored_checksums = {}
     if checksum_file.exists():
-        with open(checksum_file, 'r') as f:
+        with open(checksum_file, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line:
                     continue
                 parts = line.split('  ', 1)
                 if len(parts) == 2:
-                    existing_checksums[parts[1]] = parts[0]
-
-    # Compute new checksum
-    new_checksum = compute_checksum(file_path)
-    rel_path = str(file_path) # Store full relative path from root if needed, or relative to data
+                    stored_checksums[parts[1]] = parts[0]
     
-    # Update dictionary
-    existing_checksums[rel_path] = new_checksum
-
+    # Update or add the checksum
+    relative_path = str(file_path)
+    stored_checksums[relative_path] = new_checksum
+    
     # Write back
-    with open(checksum_file, 'w') as f:
-        for path, checksum in sorted(existing_checksums.items()):
-            f.write(f"{checksum}  {path}\n")
+    with open(checksum_file, 'w', encoding='utf-8') as f:
+        for rel_path, checksum in sorted(stored_checksums.items()):
+            f.write(f"{checksum}  {rel_path}\n")
+    
+    logger.info(f"Updated checksum for {relative_path}")
+    return True
 
-    logger.info(f"Updated checksum for {rel_path}")
-
-def main() -> int:
+def main():
     """
-    Main entry point for running the checksum utility.
-    Generates checksums for all files in data/ and writes to artifacts/checksums.txt.
+    Main entry point for checksum utility.
+    Usage:
+      python checksum_utils.py generate [data_root] [output_path]
+      python checksum_utils.py verify [checksum_file] [data_root]
+      python checksum_utils.py update [file_path] [checksum_file]
     """
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / 'data'
-    checksum_output = project_root / 'artifacts' / 'checksums.txt'
+    import argparse
 
-    # Ensure artifacts directory exists
-    checksum_output.parent.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Checksum verification utility")
+    subparsers = parser.add_subparsers(dest='command', help='Commands')
 
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Data root: {data_root}")
-    logger.info(f"Output path: {checksum_output}")
+    # Generate command
+    gen_parser = subparsers.add_parser('generate', help='Generate checksums for all files in data/')
+    gen_parser.add_argument('data_root', nargs='?', default='data', help='Root directory of data (default: data)')
+    gen_parser.add_argument('output_path', nargs='?', default='artifacts/checksums.txt', help='Output file path (default: artifacts/checksums.txt)')
 
-    try:
-        generate_checksums(data_root, checksum_output)
-        return 0
-    except Exception as e:
-        logger.error(f"Checksum generation failed: {e}")
-        return 1
+    # Verify command
+    verify_parser = subparsers.add_parser('verify', help='Verify checksums')
+    verify_parser.add_argument('checksum_file', nargs='?', default='artifacts/checksums.txt', help='Checksum file path (default: artifacts/checksums.txt)')
+    verify_parser.add_argument('data_root', nargs='?', default='data', help='Root directory of data (default: data)')
+
+    # Update command
+    update_parser = subparsers.add_parser('update', help='Update checksum for a single file')
+    update_parser.add_argument('file_path', help='Path to the file to update')
+    update_parser.add_argument('checksum_file', nargs='?', default='artifacts/checksums.txt', help='Checksum file path (default: artifacts/checksums.txt)')
+
+    args = parser.parse_args()
+
+    if args.command == 'generate':
+        data_root = Path(args.data_root)
+        output_path = Path(args.output_path)
+        try:
+            generate_checksums(data_root, output_path)
+        except Exception as e:
+            logger.error(f"Failed to generate checksums: {e}")
+            exit(1)
+    elif args.command == 'verify':
+        checksum_file = Path(args.checksum_file)
+        data_root = Path(args.data_root)
+        try:
+            all_valid, failed = verify_checksums(checksum_file, data_root)
+            exit(0 if all_valid else 1)
+        except Exception as e:
+            logger.error(f"Failed to verify checksums: {e}")
+            exit(1)
+    elif args.command == 'update':
+        file_path = Path(args.file_path)
+        checksum_file = Path(args.checksum_file)
+        try:
+            update_checksum_for_file(file_path, checksum_file)
+        except Exception as e:
+            logger.error(f"Failed to update checksum: {e}")
+            exit(1)
+    else:
+        parser.print_help()
+        exit(1)
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+    logging.basicConfig(level=logging.INFO)
+    main()
