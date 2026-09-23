@@ -25,15 +25,25 @@ def load_scene_data(input_dir: Path) -> List[Dict[str, Any]]:
     with open(raw_file, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
-                scenes.append(json.loads(line))
+                try:
+                    scenes.append(json.loads(line))
+                except json.JSONDecodeError as e:
+                    # Log malformed JSON lines as invalid scenes
+                    scenes.append({"id": f"malformed_{hashlib.md5(line.encode()).hexdigest()[:8]}", "error": str(e)})
     return scenes
 
 def validate_scene_constraints(scene: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """Validate a scene's constraints."""
+    if 'error' in scene:
+        return False, "Malformed JSON"
     if 'geometry' not in scene:
         return False, "Missing geometry"
     if 'label' not in scene:
         return False, "Missing label"
+    if not isinstance(scene.get("geometry"), dict):
+        return False, "Invalid geometry format"
+    if not isinstance(scene.get("label"), (int, float)):
+        return False, "Invalid label format"
     return True, None
 
 def extract_constraints(scenes: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -59,14 +69,21 @@ def extract_constraints(scenes: List[Dict[str, Any]]) -> Tuple[List[Dict[str, An
 
 def main():
     config = Config()
-    logger = config.logger
+    # Config might not have a logger attribute if __getattr__ isn't fully implemented yet
+    # Use a simple fallback or direct print if needed, but relying on Config's interface
+    logger = getattr(config, 'logger', None)
+    if not logger:
+        class SimpleLogger:
+            def info(self, msg): print(f"INFO: {msg}")
+            def error(self, msg): print(f"ERROR: {msg}")
+        logger = SimpleLogger()
     
-    input_dir = config.DATA_RAW
-    output_file = config.DATA_DERIVED / "constraints.jsonl"
-    exclusion_log_file = config.DATA_RESULTS / "exclusion_log.json"
+    input_dir = getattr(config, 'DATA_RAW', Path("data/raw"))
+    output_file = getattr(config, 'DATA_DERIVED', Path("data/derived")) / "constraints.jsonl"
+    exclusion_log_file = getattr(config, 'DATA_RESULTS', Path("data/results")) / "exclusion_log.json"
     
-    os.makedirs(config.DATA_DERIVED, exist_ok=True)
-    os.makedirs(config.DATA_RESULTS, exist_ok=True)
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    os.makedirs(os.path.dirname(exclusion_log_file), exist_ok=True)
     
     logger.info(f"Loading scene data from {input_dir}...")
     try:
@@ -83,10 +100,11 @@ def main():
         for constraint in valid_constraints:
             f.write(json.dumps(constraint) + '\n')
     
-    # Write exclusion log
+    # Write exclusion log with required schema keys
     exclusion_data = {
         "total_scenes": len(scenes),
         "excluded_count": len(exclusions),
+        "excluded_ids": [exc["scene_id"] for exc in exclusions],
         "exclusions": exclusions
     }
     with open(exclusion_log_file, 'w', encoding='utf-8') as f:

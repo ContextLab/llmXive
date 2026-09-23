@@ -1,144 +1,90 @@
-# llmXive Follow-up: S-Agent Spatial Reasoning Pipeline - Quickstart
-
-This guide provides instructions for setting up and executing the full symbolic spatial reasoning pipeline against the S-Agent-300K dataset.
+# Quickstart Guide: llmXive Follow-up (S-Agent Extension)
 
 ## Prerequisites
-
 - Python 3.11+
-- pip
-- ~14GB disk space (for S-Agent-300K dataset and derived artifacts)
-- ~8GB RAM (for streaming dataset processing)
+- `pip install -r code/requirements.txt`
 
-## 1. Environment Setup
+## Execution Steps
 
-Clone the repository and create a virtual environment:
-
+### 1. Download Data
+Fetch the S-Agent-300K dataset and sample it.
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+python code/data/download.py --sample-size 1000
 ```
 
-Install dependencies:
-
+### 2. Verify Checksum
+Ensure data integrity.
 ```bash
-pip install -r code/requirements.txt
+python code/data/verify_checksum.py
 ```
 
-## 2. Project Structure Initialization
-
-Ensure the directory structure exists:
-
+### 3. Validate Distribution
+Check statistical validity of the sample.
 ```bash
-python code/setup_structure.py
+python code/data/validate_distribution.py
 ```
 
-This creates:
-- `code/` - Source code
-- `data/raw/` - Raw downloaded datasets
-- `data/derived/` - Processed constraints and predictions
-- `data/results/` - Benchmark results and reports
-- `specs/` - Design documents
-- `tests/` - Test suites
-- `state/` - Project state tracking
-
-## 3. Full Pipeline Execution
-
-Run the complete pipeline from data download to failure analysis:
-
+### 4. Extract Geometry (T010)
+Parse the dataset and extract constraints.
 ```bash
-python code/main.py
+python code/data/extract_geometry.py
+```
+*Output*: `data/derived/constraints.jsonl`, `data/results/exclusion_log.json`
+
+### 5. Dry Run Validation (T029)
+Validate constraints before solving.
+```bash
+python code/validate/dry_run.py
 ```
 
-### Pipeline Stages
-
-The pipeline executes the following stages in order:
-
-1. **Download**: Fetches S-Agent-300K subset from HuggingFace
-2. **Verify Checksum**: Validates dataset integrity against manifest
-3. **Validate Distribution**: Performs KS-tests on object density and spatial variance
-4. **Extract Geometry**: Parses constraints, excludes malformed scenes
-5. **Solve**: Runs CSP solver on valid scenes
-6. **Benchmark**: Compares symbolic solver vs VLM baseline
-7. **Analyze Failures**: Classifies failure modes and quantifies semantic gap
-
-### Configuration
-
-Edit `code/config.py` to modify:
-- `SAMPLE_SIZE`: Number of scenes to process (default: 1000)
-- `RANDOM_SEED`: For reproducibility
-- `PATHS`: Data directory locations
-
-## 4. Output Artifacts
-
-After successful execution, the following artifacts are generated:
-
-### Data Artifacts
-- `data/derived/constraints.jsonl` - Extracted geometric constraints
-- `data/derived/predictions.jsonl` - CSP solver predictions
-- `data/derived/latency_log.jsonl` - Per-scene solver latency
-- `data/results/exclusion_log.json` - List of excluded/malformed scenes
-- `data/results/benchmark_results.csv` - Full benchmark metrics
-- `data/results/failure_analysis_report.md` - Failure mode analysis
-
-### State Tracking
-- `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml` - Updated with artifact hashes
-
-## 5. Running Individual Components
-
-### Download Data Only
+### 6. VLM Trace Audit (T027)
+Ensure no VLM traces in constraint data.
 ```bash
-python code/data/download.py
+python code/validate/vlm_trace_auditor.py
 ```
 
-### Run CSP Solver Only
+### 7. Run Solver (T012)
+Execute the symbolic CSP solver.
 ```bash
-python code/solver/run_solver.py --config code/config.py
+python code/solver/run_solver.py \
+ --input data/derived/constraints.jsonl \
+ --output data/derived/predictions.jsonl \
+ --latency-log data/derived/latency_log.jsonl \
+ --exclusion-log data/results/solver_exclusions.json
 ```
 
-### Generate Benchmark Metrics
+### 8. Benchmark (T016, T017)
+Calculate metrics and statistical significance.
 ```bash
 python code/benchmark/metrics.py
 ```
 
-### Analyze Failure Cases
+### 9. Generate Benchmark Results (T019b)
+Create the final benchmark CSV.
+```bash
+python code/benchmark/generate_benchmark_results.py
+```
+
+### 10. Sensitivity Analysis (T030)
+Run threshold sensitivity sweep.
+```bash
+python code/benchmark/sensitivity.py
+```
+
+### 11. Failure Analysis (T021)
+Analyze symbolic solver failures.
 ```bash
 python code/benchmark/analyze_failures.py
 ```
 
-## 6. Testing
-
-Run the full test suite:
-
+### 12. Final Report (T031)
+Generate the comprehensive research report.
 ```bash
-pytest tests/ -v
+python code/validate/final_report_generator.py
 ```
 
-Run specific test categories:
+## Verification
+Run the acceptance checker to ensure all scenarios are met.
 ```bash
-pytest tests/unit/ -v # Unit tests
-pytest tests/integration/ -v # Integration tests
+python code/verify_acceptance_scenarios.py
 ```
-
-## 7. Troubleshooting
-
-### Dataset Download Fails
-Ensure you have internet access and the HuggingFace token is configured:
-```bash
-huggingface-cli login
-```
-
-### Distribution Validation Gate Fails
-The pipeline will abort if the dataset distribution significantly differs from expected. Check `data/derived/validation_report.json` for details.
-
-### Solver Performance Issues
-The CSP solver is CPU-only. Ensure you have sufficient RAM for the sample size. Reduce `SAMPLE_SIZE` in `config.py` if memory errors occur.
-
-## 8. Verification
-
-After completion, run hygiene checks to verify all artifacts:
-
-```bash
-python code/hygiene.py
-```
-
-This updates the state YAML with SHA-256 hashes of all generated files.

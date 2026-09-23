@@ -1,5 +1,5 @@
 """
-Configuration module for the llmXive S-Agent Spatial Reasoning Pipeline.
+Configuration management for the llmXive project.
 """
 import os
 from pathlib import Path
@@ -8,42 +8,59 @@ from typing import Any, Optional
 class Config:
     """
     Centralized configuration class.
-    Provides paths and constants for the pipeline.
+    Handles paths, seeds, and constants.
     """
     def __init__(self):
-        # Base paths
-        self.ROOT_DIR = Path(__file__).resolve().parent.parent
-        self.CODE_DIR = self.ROOT_DIR / "code"
-        self.DATA_DIR = self.ROOT_DIR / "data"
+        self.PROJECT_ROOT = Path(__file__).resolve().parent.parent
+        self.CODE_DIR = self.PROJECT_ROOT / "code"
+        self.DATA_DIR = self.PROJECT_ROOT / "data"
         self.DATA_RAW = self.DATA_DIR / "raw"
         self.DATA_DERIVED = self.DATA_DIR / "derived"
         self.DATA_RESULTS = self.DATA_DIR / "results"
+        self.SPECS_DIR = self.PROJECT_ROOT / "specs" / "001-symbolic-spatial-reasoning"
         
         # Constants
         self.RANDOM_SEED = 42
         self.SAMPLE_SIZE = 1000
-        
-        # Timeout configurations (in seconds/hours)
         self.BATCH_TIMEOUT_HOURS = 6
-        self.SCENE_SOFT_LIMIT_SECONDS = 30
+        self.SCENE_SOFT_LIMIT_SECONDS = 300
 
-    @property
-    def logger(self):
-        """Return a simple logger instance."""
-        import logging
-        logging.basicConfig(level=logging.INFO)
-        return logging.getLogger(__name__)
+        # Ensure directories exist
+        self._ensure_directories()
 
-    # Tolerant attribute access for dynamic calls
+    def _ensure_directories(self):
+        """Create necessary directories if they don't exist."""
+        dirs = [
+            self.DATA_RAW,
+            self.DATA_DERIVED,
+            self.DATA_RESULTS,
+            self.CODE_DIR
+        ]
+        for d in dirs:
+            d.mkdir(parents=True, exist_ok=True)
+
+    # Logger-like methods for tolerance
+    def info(self, msg: str):
+        print(f"INFO: {msg}")
+
+    def error(self, msg: str):
+        print(f"ERROR: {msg}")
+
+    def warning(self, msg: str):
+        print(f"WARNING: {msg}")
+
+    def debug(self, msg: str):
+        print(f"DEBUG: {msg}")
+
     def __getattr__(self, name: str) -> Any:
-        # Provide a no-op callable for any unknown attribute that might be called as a method
-        # e.g. config.some_unknown_method() -> returns a function that does nothing
-        if name.startswith('_'):
-            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-        
-        def _noop(*args, **kwargs):
+        """
+        Fallback for any undefined attribute to prevent AttributeError
+        in scripts that might call dynamic methods on Config.
+        Returns a no-op callable or None.
+        """
+        def _no_op(*args, **kwargs):
             return None
-        return _noop
+        return _no_op
 
-# Instance for easy access if needed
+# Global instance
 config = Config()

@@ -1,20 +1,19 @@
 {
   "project_id": "PROJ-893-llmxive-follow-up-extending-s-agent-spat",
   "ok": false,
-  "reason": "5 command(s) failed: python code/data/download.py --sample-size 1000 (rc=1); python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl (rc=1); python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl (rc=1); 1 declared deliverable(s) absent: data/results/benchmark_results.csv",
+  "reason": "4 command(s) failed: python code/data/download.py --sample-size 1000 (rc=1); python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl (rc=1); python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl (rc=2); 2 declared deliverable(s) absent: data/results/benchmark_results.csv; data/results/sensitivity_analysis.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/download.py --sample-size 1000 -> rc=1\n    ERROR: Dataset llmXive/S-AgentK not found at HuggingFace Hub",
-    "python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/extract_geometry.py\", line 96, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/extract_geometry.py\", line 73, in main\n    scenes = load_scene_data(input_dir)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmx",
-    "python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl -> rc=1\n    Warning: python-constraint not installed. Using mock solver.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/run_solver.py\", line 11, in <module>\n    from solver.csp_engine import CSPEngine, SolveResult\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/csp_engine.py\", line 15, in <module>\n    from solver.run_so",
-    "python code/benchmark/metrics.py --predictions data/derived/predictions.jsonl --baseline data/raw/merged.csv --output data/derived/benchmark_results.csv -> rc=1\n    Loading predictions from data/derived/predictions.jsonl...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/metrics.py\", line 278, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/metrics.py\", line 159, in main\n    predictions = load_jsonl(ar",
-    "python code/benchmark/analyze_failures.py --results data/derived/benchmark_results.csv --output data/derived/failure_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/analyze_failures.py\", line 9, in <module>\n    def classify_failure(scene_id: str, symbolic_pred: Any, vlm_pred: Any, ground_truth: Any) -> Dict[str, Any]:\n                                                       ^^^\nNameError: name 'Any' is not defined. Did you mean: 'any'?"
+    "python code/data/download.py --sample-size 1000 -> rc=1\n    0af2-2477edb04d32547650de0efb;9752143f-fa96-45b6-ad08-21165df5707d)\n\nRepository Not Found for url: https://huggingface.co/api/models/llmXive/S-AgentK.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.\nFor more details, see https://huggingface.co/docs/huggingface_hub/authentication\nInvalid username or password.\n\nDuring handling of the above exception, another exception occurred:\n\nTracebac",
+    "python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl -> rc=1\n    INFO:config:Loading scene data from /home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/data/raw...\nERROR:config:Raw data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/data/raw/s_agent_k_subset.jsonl",
+    "python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl -> rc=2\n    usage: run_solver.py [-h] --input INPUT --output OUTPUT --latency-log\n                     LATENCY_LOG --exclusion-log EXCLUSION_LOG\nrun_solver.py: error: the following arguments are required: --latency-log, --exclusion-log",
+    "python code/benchmark/analyze_failures.py --results data/derived/benchmark_results.csv --output data/derived/failure_report.json -> rc=1\n    ERROR:config:Benchmark results not found: data/derived/benchmark_results.csv"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-20T03:17:29Z"
+  "updated_at": "2026-09-23T17:23:00Z"
 }

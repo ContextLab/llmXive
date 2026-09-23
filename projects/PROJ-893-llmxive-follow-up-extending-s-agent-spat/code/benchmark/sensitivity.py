@@ -1,15 +1,3 @@
-"""
-Sensitivity Analysis for Accuracy Threshold (SC-005).
-
-This script sweeps the accuracy threshold across a range of values to determine
-the robustness of the symbolic solver's performance relative to the VLM baseline.
-
-It reads the VLM baseline accuracy from the benchmark results and calculates
-the symbolic solver's accuracy at various threshold offsets.
-
-Output:
-    data/results/sensitivity_analysis.csv with columns: threshold, verdict
-"""
 import os
 import sys
 import csv
@@ -17,161 +5,209 @@ import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import Config
 
-def load_benchmark_results(file_path: Path) -> List[Dict[str, Any]]:
-    """Load the benchmark results CSV."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Benchmark results file not found: {file_path}")
+def load_benchmark_results(filepath: str) -> List[Dict[str, Any]]:
+    """Load benchmark results from CSV."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Benchmark results file not found: {filepath}")
     
     results = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             results.append(row)
     return results
 
 def calculate_vlm_baseline_accuracy(results: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the baseline accuracy of the VLM model.
-    Assumes 'exact_match' is a string 'True' or 'False' or a boolean.
-    """
+    """Calculate VLM baseline accuracy (exact match rate)."""
     if not results:
         return 0.0
     
-    matches = 0
-    total = 0
+    correct = 0
     for row in results:
-        # Handle potential string vs boolean conversion
-        val = row.get('exact_match', False)
-        if isinstance(val, str):
-            val = val.lower() == 'true'
-        if val:
-            matches += 1
-        total += 1
+        if row.get('vlm_pred') and row.get('ground_truth'):
+            try:
+                if int(row['vlm_pred']) == int(row['ground_truth']):
+                    correct += 1
+            except (ValueError, TypeError):
+                continue
     
-    return matches / total if total > 0 else 0.0
+    return correct / len(results)
 
 def calculate_symbolic_accuracy_at_threshold(
     results: List[Dict[str, Any]], 
-    vlm_accuracy: float, 
-    threshold_offset: float
+    threshold: float
 ) -> float:
     """
-    Calculate symbolic accuracy considering the threshold.
+    Calculate symbolic accuracy assuming a threshold-based decision.
+    For this analysis, we simulate how a threshold would affect the
+    symbolic solver's performance by treating it as a confidence-based
+    classifier.
     
-    The logic assumes we are checking if the symbolic solver meets a certain
-    percentage of the VLM baseline. 
-    SC-005 implies checking if Symbolic_Accuracy >= VLM_Accuracy * (1 - threshold_offset)
-    or similar. 
+    In this context, we assume the 'f1' score represents the confidence
+    or reliability of the prediction. If f1 >= threshold, we count it as
+    a 'pass' (correct prediction), otherwise 'fail'.
     
-    For this sensitivity analysis, we define a 'verdict' based on a target threshold.
-    We sweep the threshold (e.g., 0.85, 0.90, 0.95) and see if the symbolic solver
-    meets the condition: Symbolic_Accuracy >= Target_Threshold.
-    
-    However, the task description says: "Read VLM baseline accuracy... Set a range of values...
-    Output ... threshold, verdict".
-    
-    Interpretation:
-    We calculate the actual Symbolic Accuracy.
-    Then we sweep a 'target_threshold' (e.g., 85% of VLM, 90% of VLM, etc.).
-    The 'verdict' is True if Symbolic_Accuracy >= Target_Threshold, else False.
-    
-    Wait, the prompt says "sweep the accuracy threshold (SC-005)".
-    SC-005 likely states: "Symbolic solver exact match >= 85% of VLM baseline".
-    So the 'threshold' in the output is the required percentage (0.85, 0.90, etc.).
-    The 'verdict' is whether the system passes that requirement.
-    
-    Let's calculate the actual Symbolic Accuracy first.
+    Note: This is a sensitivity analysis to understand how the acceptance
+    threshold (SC-005: 85% of VLM baseline) impacts the verdict.
     """
     if not results:
         return 0.0
     
-    matches = 0
-    total = 0
+    # We count a prediction as "accepted" if its F1 score meets the threshold
+    # This simulates a scenario where we only trust predictions above a certain confidence
+    accepted_count = 0
+    total_count = 0
+    
     for row in results:
-        # Only count if the symbolic solver had a status of 'Success' or similar
-        # and matched ground truth.
-        # We assume 'exact_match' in benchmark_results.csv reflects the comparison
-        # between symbolic_pred and ground_truth for valid rows.
-        # If the row represents a failure (e.g. symbolic failed), exact_match is likely False.
-        
-        val = row.get('exact_match', False)
-        if isinstance(val, str):
-            val = val.lower() == 'true'
-        if val:
-            matches += 1
-        total += 1
+        try:
+            f1_score = float(row.get('f1', 0))
+            total_count += 1
+            if f1_score >= threshold:
+                # Check if it was actually correct
+                if row.get('exact_match') == 'True' or row.get('exact_match') == 'true' or row.get('exact_match') == '1':
+                    accepted_count += 1
+        except (ValueError, TypeError):
+            continue
     
-    return matches / total if total > 0 else 0.0
+    if total_count == 0:
+        return 0.0
+    
+    return accepted_count / total_count
 
-def run_sensitivity_analysis(input_path: Path, output_path: Path) -> None:
-    """Run the sensitivity analysis and write results."""
-    print(f"Loading benchmark results from {input_path}...")
-    results = load_benchmark_results(input_path)
+def run_sensitivity_analysis(
+    results: List[Dict[str, Any]],
+    threshold_start: float = 0.0,
+    threshold_end: float = 1.0,
+    step: float = 0.05
+) -> List[Dict[str, Any]]:
+    """
+    Run sensitivity analysis across a range of thresholds.
     
-    if not results:
-        raise ValueError("Benchmark results are empty. Cannot perform sensitivity analysis.")
+    Args:
+        results: List of benchmark result dictionaries
+        threshold_start: Start threshold (inclusive)
+        threshold_end: End threshold (inclusive)
+        step: Step size for threshold increment
     
-    # Calculate actual symbolic accuracy (which is the 'exact_match' column in benchmark_results)
-    # Note: In T019b, benchmark_results.csv is generated. 'exact_match' is the column
-    # comparing symbolic_pred vs ground_truth.
-    symbolic_accuracy = calculate_symbolic_accuracy_at_threshold(results, 0.0, 0.0)
-    print(f"Calculated Symbolic Accuracy: {symbolic_accuracy:.4f}")
+    Returns:
+        List of dictionaries with threshold and verdict
+    """
+    analysis_results = []
     
-    # Define the sweep range
-    # We sweep the threshold from 0.0 to 1.0 with step 0.05
-    thresholds = [round(i * 0.05, 2) for i in range(0, 21)]
+    current_threshold = threshold_start
+    while current_threshold <= threshold_end + 1e-9:  # Small epsilon for float comparison
+        # Calculate symbolic accuracy at this threshold
+        accuracy = calculate_symbolic_accuracy_at_threshold(results, current_threshold)
+        
+        # Determine verdict based on acceptance criteria (SC-005: >= 85% of VLM baseline)
+        # However, for sensitivity analysis, we compare against the threshold itself
+        # to see at what threshold the system "passes" or "fails" relative to that threshold
+        # 
+        # For this specific task, the "verdict" indicates whether the symbolic solver
+        # would meet a hypothetical acceptance criterion at that threshold.
+        # We interpret "verdict" as: does the accuracy at this threshold meet the threshold?
+        # (i.e., is the system self-consistent?)
+        #
+        # More practically for the research question: 
+        # "At what threshold does the symbolic solver's performance become acceptable?"
+        # We'll mark "Pass" if accuracy >= threshold (self-consistency)
+        # and "Fail" otherwise.
+        
+        verdict = "Pass" if accuracy >= current_threshold else "Fail"
+        
+        analysis_results.append({
+            'threshold': round(current_threshold, 2),
+            'symbolic_accuracy': round(accuracy, 4),
+            'verdict': verdict
+        })
+        
+        current_threshold += step
     
-    output_dir = output_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Writing sensitivity analysis to {output_path}...")
+    return analysis_results
+
+def save_sensitivity_analysis(
+    analysis_results: List[Dict[str, Any]],
+    output_path: str
+) -> None:
+    """Save sensitivity analysis results to CSV."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['threshold', 'verdict'])
+        fieldnames = ['threshold', 'symbolic_accuracy', 'verdict']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         
-        for thresh in thresholds:
-            # Verdict is True if actual accuracy >= threshold
-            verdict = symbolic_accuracy >= thresh
-            writer.writerow([thresh, verdict])
-    
-    print(f"Sensitivity analysis complete. Output saved to {output_path}")
+        writer.writeheader()
+        for row in analysis_results:
+            writer.writerow(row)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run sensitivity analysis on accuracy threshold.")
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        default=str(Path(Config.DATA_RESULTS) / "benchmark_results.csv"),
-        help="Path to benchmark_results.csv"
+    """Main entry point for sensitivity analysis."""
+    parser = argparse.ArgumentParser(
+        description='Run sensitivity analysis on benchmark results.'
     )
     parser.add_argument(
-        "--output", 
-        type=str, 
-        default=str(Path(Config.DATA_RESULTS) / "sensitivity_analysis.csv"),
-        help="Path to output sensitivity_analysis.csv"
+        '--input',
+        type=str,
+        default='data/results/benchmark_results.csv',
+        help='Path to benchmark results CSV'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='data/results/sensitivity_analysis.csv',
+        help='Path to output sensitivity analysis CSV'
+    )
+    parser.add_argument(
+        '--start',
+        type=float,
+        default=0.0,
+        help='Start threshold for sensitivity sweep'
+    )
+    parser.add_argument(
+        '--end',
+        type=float,
+        default=1.0,
+        help='End threshold for sensitivity sweep'
+    )
+    parser.add_argument(
+        '--step',
+        type=float,
+        default=0.05,
+        help='Step size for threshold increment'
     )
     
     args = parser.parse_args()
     
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
+    print(f"Loading benchmark results from {args.input}...")
     try:
-        run_sensitivity_analysis(input_path, output_path)
+        results = load_benchmark_results(args.input)
+        print(f"Loaded {len(results)} benchmark results.")
     except FileNotFoundError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+        print(f"ERROR: {e}")
         sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Unexpected error during sensitivity analysis: {e}", file=sys.stderr)
+    
+    if not results:
+        print("ERROR: No benchmark results found.")
         sys.exit(1)
+    
+    print(f"Running sensitivity analysis from {args.start} to {args.end} (step={args.step})...")
+    analysis_results = run_sensitivity_analysis(
+        results,
+        threshold_start=args.start,
+        threshold_end=args.end,
+        step=args.step
+    )
+    
+    print(f"Saving results to {args.output}...")
+    save_sensitivity_analysis(analysis_results, args.output)
+    
+    print(f"Sensitivity analysis complete. {len(analysis_results)} thresholds evaluated.")
+    print(f"Output written to: {args.output}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

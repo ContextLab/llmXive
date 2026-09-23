@@ -31,37 +31,51 @@ from solver.run_solver import main as run_solver_main
 from benchmark.generate_benchmark_results import main as benchmark_main
 from benchmark.analyze_failures import main as analyze_failures_main
 from hygiene import main as hygiene_main
+from benchmark.sensitivity import main as sensitivity_main
 
 def run_pipeline(args):
     """Execute the full pipeline steps sequentially."""
     config = Config()
-    logger = config.logger
+    # Use a simple logger fallback if Config.logger is not fully implemented
+    logger = getattr(config, 'logger', None)
+    if not logger:
+        class SimpleLogger:
+            def info(self, msg): print(f"INFO: {msg}")
+            def error(self, msg): print(f"ERROR: {msg}")
+            def warning(self, msg): print(f"WARNING: {msg}")
+        logger = SimpleLogger()
 
     logger.info("=" * 60)
     logger.info("Starting llmXive S-Agent Spatial Reasoning Pipeline")
     logger.info("=" * 60)
 
     # Step 1: Download
-    logger.info("Step 1/7: Downloading dataset...")
+    logger.info("Step 1/8: Downloading dataset...")
     try:
         download_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Download failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Download failed: {e}")
         sys.exit(1)
 
     # Step 2: Verify Checksum
-    logger.info("Step 2/7: Verifying checksums...")
+    logger.info("Step 2/8: Verifying checksums...")
     try:
         verify_checksum_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Checksum verification failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Checksum verification failed: {e}")
         sys.exit(1)
 
     # Step 3: Validate Distribution (HARD BLOCK)
-    logger.info("Step 3/7: Validating data distribution (HARD BLOCK)...")
+    logger.info("Step 3/8: Validating data distribution (HARD BLOCK)...")
     try:
-        # This function returns a boolean or raises if invalid based on spec
-        # We assume the main() function handles the logic and exits if failed
         validate_distribution_main()
     except SystemExit as e:
         if e.code != 0:
@@ -72,33 +86,61 @@ def run_pipeline(args):
         sys.exit(1)
 
     # Step 4: Extract Geometry
-    logger.info("Step 4/7: Extracting geometric constraints...")
+    logger.info("Step 4/8: Extracting geometric constraints...")
     try:
         extract_geometry_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Geometry extraction failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Geometry extraction failed: {e}")
         sys.exit(1)
 
     # Step 5: Solve
-    logger.info("Step 5/7: Running CSP solver...")
+    logger.info("Step 5/8: Running CSP solver...")
     try:
         run_solver_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Solver execution failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Solver execution failed: {e}")
         sys.exit(1)
 
     # Step 6: Benchmark
-    logger.info("Step 6/7: Running benchmarking metrics...")
+    logger.info("Step 6/8: Running benchmarking metrics...")
     try:
         benchmark_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Benchmarking failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Benchmarking failed: {e}")
         sys.exit(1)
 
-    # Step 7: Failure Analysis (US3)
-    logger.info("Step 7/7: Running failure analysis...")
+    # Step 7: Sensitivity Analysis
+    logger.info("Step 7/8: Running sensitivity analysis...")
+    try:
+        sensitivity_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Sensitivity analysis failed. Pipeline ABORTED.")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Sensitivity analysis failed: {e}")
+        sys.exit(1)
+
+    # Step 8: Failure Analysis (US3)
+    logger.info("Step 8/8: Running failure analysis...")
     try:
         analyze_failures_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Failure analysis failed. Pipeline ABORTED.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Failure analysis failed: {e}")
         sys.exit(1)

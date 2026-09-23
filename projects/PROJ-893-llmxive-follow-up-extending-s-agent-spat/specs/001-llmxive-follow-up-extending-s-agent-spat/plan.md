@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a deterministic Constraint Satisfaction Problem (CSP) solver to evaluate spatial reasoning on the S-Agent-300K dataset, replacing neural VLM planning with symbolic logic. The primary goal is to determine if 3D geometric evidence alone (coordinates, object relations) suffices for accurate spatial counting and positioning, or if neural "semantic disambiguation" is required. The implementation involves extracting geometric constraints from a stratified sample of n=1,000 static scenes, solving them via `python-constraint` or `ortools` on CPU, and benchmarking accuracy/latency against the original VLM baseline and ground truth.
+This feature implements a deterministic Constraint Satisfaction Problem (CSP) solver to evaluate spatial reasoning on the S-Agent-300K dataset, replacing neural VLM planning with symbolic logic. The primary goal is to determine if D geometric evidence alone (coordinates, object relations) suffices for accurate spatial counting and positioning, or if neural "semantic disambiguation" is required. The implementation involves extracting geometric constraints from a stratified sample of n=1,000 static scenes, solving them via `python-constraint` or `ortools` on CPU, and benchmarking accuracy/latency against the original VLM baseline and ground truth.
 
 **Critical Constraint**: The plan includes a mandatory **Distributional Validity Gate** (see Research.md) to ensure that any proxy dataset used shares the same statistical distribution of spatial complexity as the target S-Agent-300K dataset. If this gate fails, the primary analysis is aborted or re-labeled as a "Pilot/Proxy" study.
 
