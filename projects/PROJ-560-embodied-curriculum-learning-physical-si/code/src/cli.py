@@ -4,203 +4,160 @@ import json
 import os
 import logging
 from typing import List, Optional
-from .logging_config import setup_logging
-from .data_loader import load_public_dataset, calculate_gain_scores, write_processed_data
-from .synthetic_gen import SyntheticDataGenerator, generate_mapping_log
-from .stats_engine import run_t_test, calculate_effect_size, calculate_confidence_interval, aggregate_results, frame_inference, calculate_power, check_collinearity
-from .sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
-from .models import AnalysisResult, SensitivitySweep
-from .utils import set_seed
 
+from .logging_config import setup_logging
+from .data_loader import load_public_dataset, generate_synthetic_fallback, calculate_gain_scores, write_processed_data, handle_synthetic_fallback_failure
+from .stats_engine import run_ancova, run_t_test, calculate_effect_size, calculate_confidence_interval, apply_bonferroni_correction, check_collinearity, calculate_power, frame_inference, aggregate_results, write_analysis_results
+from .sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
+from .models import DatasetRecord, AnalysisResult, SensitivitySweep
+from .utils import set_seed
 
 logger = logging.getLogger(__name__)
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Embodied Curriculum Learning Analysis CLI")
+    parser.add_argument("--mode", type=str, required=True, choices=["secondary_analysis", "synthetic"],
+                        help="Mode of operation: 'secondary_analysis' for public data, 'synthetic' for generated data.")
+    parser.add_argument("--input", type=str, default=None, help="Path to input CSV/JSON file (for secondary_analysis).")
+    parser.add_argument("--sweep_thresholds", type=str, default="0.01,0.05,0.10",
+                        help="Comma-separated list of significance thresholds for sensitivity sweep.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser.add_argument("--concept_definition", type=str, default=None, help="Concept definition string (for synthetic mode).")
+    parser.add_argument("--n", type=int, default=1000, help="Number of records to generate (for synthetic mode).")
+    return parser.parse_args()
 
-def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+def run_secondary_analysis(input_path: str, sweep_thresholds: List[float], seed: int) -> dict:
     """
-    Parse command line arguments.
-    
-    Args:
-        args: Optional list of arguments.
-        
-    Returns:
-        Parsed arguments namespace.
+    Run analysis on public data.
     """
-    parser = argparse.ArgumentParser(description="Embodied Curriculum Learning Analysis")
-    parser.add_argument(
-        '--mode', 
-        type=str, 
-        choices=['secondary_analysis', 'synthetic'], 
-        default='synthetic',
-        help='Analysis mode'
-    )
-    parser.add_argument(
-        '--input', 
-        type=str, 
-        default=None,
-        help='Input data file path'
-    )
-    parser.add_argument(
-        '--sweep_thresholds', 
-        type=float, 
-        nargs='+', 
-        default=[0.01, 0.05, 0.1],
-        help='Significance thresholds for sensitivity sweep'
-    )
-    parser.add_argument(
-        '--seed', 
-        type=int, 
-        default=42,
-        help='Random seed'
-    )
-    parser.add_argument(
-        '--concept_definition', 
-        type=str, 
-        default=None,
-        help='JSON string of concept definition for synthetic data'
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default='data/processed/results.json',
-        help='Output file path'
-    )
-    
-    return parser.parse_args(args)
-
-
-def run_secondary_analysis(input_path: str, output_path: str) -> None:
-    """
-    Run secondary analysis on public data.
-    
-    Args:
-        input_path: Path to input data.
-        output_path: Path to output results.
-    """
-    logger.info("Running secondary analysis...")
+    set_seed(seed)
+    logger.info(f"Loading public dataset from {input_path}")
     records = load_public_dataset(input_path)
-    records = calculate_gain_scores(records)
     
-    if len(records) < 2:
-        logger.error("Insufficient data for analysis.")
-        return
-        
-    # Group by instruction type
-    groups: Dict[str, List[float]] = {}
-    for r in records:
-        if r.instruction_type not in groups:
-            groups[r.instruction_type] = []
-        gain = r.post_test_score - r.pre_test_score
-        groups[r.instruction_type].append(gain)
-        
-    if len(groups) < 2:
-        logger.error("Need at least two instruction types for comparison.")
-        return
-        
-    g1_keys = list(groups.keys())
-    g1 = groups[g1_keys[0]]
-    g2 = groups[g1_keys[1]]
-    
-    t_stat, p_val = run_t_test(g1, g2)
-    effect = calculate_effect_size(g1, g2)
-    ci = calculate_confidence_interval(g1, g2)
-    power = calculate_power(effect, len(g1), len(g2))
-    collinearity = check_collinearity([{k: v for k, v in r.covariates.items()} for r in records if r.covariates])
-    
-    result = aggregate_results(t_stat, p_val, effect, ci, "t-test", power, collinearity)
-    framed = frame_inference(result)
-    
-    # Write results
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(framed, f, indent=2)
-        
-    logger.info(f"Results written to {output_path}")
+    if not records:
+        logger.error("No records loaded from public dataset.")
+        return {}
 
+    # Calculate gain scores
+    gain_records = calculate_gain_scores(records)
+    write_processed_data(gain_records, "data/processed/validated_fallback.csv")
 
-def run_synthetic_generation(output_path: str, concept_def: Optional[str], thresholds: List[float]) -> None:
-    """
-    Run synthetic data generation and analysis.
+    # Run primary stats
+    ancova_result = run_ancova(gain_records)
+    t_test_result = run_t_test(
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
+    )
+    effect_size = calculate_effect_size(
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
+    )
+    ci = calculate_confidence_interval(effect_size)
+    collinearity = check_collinearity(gain_records)
+    power = calculate_power(gain_records)
+    inference = frame_inference(ancova_result)
     
-    Args:
-        output_path: Path to output results.
-        concept_def: JSON string of concept definition.
-        thresholds: Sensitivity thresholds.
-    """
-    logger.info("Running synthetic generation...")
-    
-    concept_dict = json.loads(concept_def) if concept_def else None
-    generator = SyntheticDataGenerator()
-    records = generator.generate(
-        n_samples=1000,
-        mean_diff=0.5,
-        std_dev=1.0,
-        instruction_types=["embodied", "static"]
+    # Run sensitivity sweep
+    sweep_results = run_sensitivity_sweep(gain_records, sweep_thresholds)
+    robustness_warning = check_robustness_warning(sweep_results)
+
+    # Aggregate results
+    results = aggregate_results(
+        ancova_f_statistic=ancova_result['f_statistic'],
+        ancova_p_value=ancova_result['p_value'],
+        t_statistic=t_test_result[0],
+        p_value=t_test_result[1],
+        effect_size_cohen_d=effect_size,
+        confidence_interval=ci,
+        inference_framing=inference,
+        collinearity_diagnostics=collinearity,
+        power_analysis=power,
+        robustness_warning=robustness_warning,
+        sensitivity_sweep=aggregate_results_for_report(sweep_results)
     )
     
-    # Generate mapping log
-    mapping_log_path = "data/synthetic/mapping_log.json"
-    generate_mapping_log(records, mapping_log_path, physics_params={"gravity": 9.8, "friction": 0.1})
-    
-    # Analyze
-    records = calculate_gain_scores(records)
-    
-    groups: Dict[str, List[float]] = {}
-    for r in records:
-        if r.instruction_type not in groups:
-            groups[r.instruction_type] = []
-        gain = r.post_test_score - r.pre_test_score
-        groups[r.instruction_type].append(gain)
-        
-    if len(groups) < 2:
-        logger.error("Insufficient groups.")
-        return
-        
-    g1_keys = list(groups.keys())
-    g1 = groups[g1_keys[0]]
-    g2 = groups[g1_keys[1]]
-    
-    t_stat, p_val = run_t_test(g1, g2)
-    effect = calculate_effect_size(g1, g2)
-    ci = calculate_confidence_interval(g1, g2)
-    power = calculate_power(effect, len(g1), len(g2))
-    
-    result = aggregate_results(t_stat, p_val, effect, ci, "synthetic_t-test", power)
-    
-    # Sensitivity
-    sweep_results = run_sensitivity_sweep(records, thresholds)
-    robust = check_robustness_warning(sweep_results)
-    result.robustness_warning = robust
-    
-    framed = frame_inference(result)
-    framed["sensitivity_sweep"] = aggregate_results_for_report(sweep_results)
-    
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(framed, f, indent=2)
-        
-    logger.info(f"Results written to {output_path}")
+    write_analysis_results(results, "data/processed/results.json")
+    return results
 
+def run_synthetic_generation(n: int, concept_definition: str, sweep_thresholds: List[float], seed: int) -> dict:
+    """
+    Generate synthetic data and run analysis.
+    """
+    set_seed(seed)
+    logger.info(f"Generating synthetic data with n={n}, concept={concept_definition}")
+    
+    from .synthetic_gen import SyntheticDataGenerator, generate_mapping_log
+    
+    # Generate mapping log first (required for synthetic mode)
+    generate_mapping_log("data/synthetic/mapping_log.json", concept_definition)
+    
+    generator = SyntheticDataGenerator(seed=seed)
+    records = generator.generate(n=n, concept_definition=concept_definition)
+    
+    if not records:
+        logger.error("Failed to generate synthetic data.")
+        return {}
 
-def main() -> None:
-    """Main entry point."""
+    # Calculate gain scores
+    gain_records = calculate_gain_scores(records)
+    write_processed_data(gain_records, "data/synthetic/validated_synthetic.csv")
+
+    # Run primary stats
+    ancova_result = run_ancova(gain_records)
+    t_test_result = run_t_test(
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
+    )
+    effect_size = calculate_effect_size(
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
+        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
+    )
+    ci = calculate_confidence_interval(effect_size)
+    collinearity = check_collinearity(gain_records)
+    power = calculate_power(gain_records)
+    inference = frame_inference(ancova_result)
+    
+    # Run sensitivity sweep
+    sweep_results = run_sensitivity_sweep(gain_records, sweep_thresholds)
+    robustness_warning = check_robustness_warning(sweep_results)
+
+    # Aggregate results
+    results = aggregate_results(
+        ancova_f_statistic=ancova_result['f_statistic'],
+        ancova_p_value=ancova_result['p_value'],
+        t_statistic=t_test_result[0],
+        p_value=t_test_result[1],
+        effect_size_cohen_d=effect_size,
+        confidence_interval=ci,
+        inference_framing=inference,
+        collinearity_diagnostics=collinearity,
+        power_analysis=power,
+        robustness_warning=robustness_warning,
+        sensitivity_sweep=aggregate_results_for_report(sweep_results)
+    )
+    
+    write_analysis_results(results, "data/synthetic/results.json")
+    return results
+
+def main():
     args = parse_args()
-    setup_logging(log_level=logging.INFO, log_file="data/derivation_logs/cli.log")
-    set_seed(args.seed)
+    setup_logging()
     
-    if args.mode == 'secondary_analysis':
+    thresholds = [float(x) for x in args.sweep_thresholds.split(",")]
+    
+    if args.mode == "secondary_analysis":
         if not args.input:
-            logger.error("Input path required for secondary analysis.")
+            logger.error("--input is required for secondary_analysis mode.")
             sys.exit(1)
-        run_secondary_analysis(args.input, args.output)
-    elif args.mode == 'synthetic':
-        run_synthetic_generation(args.output, args.concept_definition, args.sweep_thresholds)
-    else:
-        logger.error("Invalid mode.")
-        sys.exit(1)
-
+        results = run_secondary_analysis(args.input, thresholds, args.seed)
+    elif args.mode == "synthetic":
+        if not args.concept_definition:
+            logger.error("--concept_definition is required for synthetic mode.")
+            sys.exit(1)
+        results = run_synthetic_generation(args.n, args.concept_definition, thresholds, args.seed)
+    
+    logger.info("Analysis complete.")
+    print(json.dumps(results, indent=2, default=str))
 
 if __name__ == "__main__":
     main()

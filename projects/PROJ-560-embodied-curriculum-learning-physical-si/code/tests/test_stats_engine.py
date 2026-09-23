@@ -4,96 +4,137 @@ import json
 import os
 import tempfile
 from typing import List, Tuple
+import pandas as pd
+
 from src.stats_engine import (
-    run_t_test, 
-    calculate_effect_size, 
-    calculate_confidence_interval, 
-    apply_bonferroni_correction, 
-    frame_inference, 
-    check_collinearity, 
+    run_t_test,
+    run_ancova,
+    calculate_effect_size,
+    calculate_confidence_interval,
+    apply_bonferroni_correction,
+    check_collinearity,
     calculate_power,
+    frame_inference,
     aggregate_results
 )
-from src.models import AnalysisResult
-
 
 class TestStatsEngine:
-    """Tests for statistical engine functions."""
-    
-    def test_t_test_equal_var(self):
-        """Test t-test with equal variance assumption."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [4.0, 5.0, 6.0]
-        t_stat, p_val = run_t_test(g1, g2, use_welch=False)
+    @pytest.fixture
+    def sample_data(self):
+        """Generate sample data for testing."""
+        np.random.seed(42)
+        group1 = np.random.normal(loc=10, scale=2, size=50)
+        group2 = np.random.normal(loc=12, scale=2, size=50)
+        return group1, group2
+
+    @pytest.fixture
+    def ancova_data(self):
+        """Generate data for ANCOVA testing."""
+        np.random.seed(42)
+        n = 100
+        pre_scores = np.random.normal(loc=50, scale=10, size=n)
+        instruction_type = np.random.choice(['static', 'embodied'], size=n)
+        # Simulate post scores with a slight effect for embodied
+        post_scores = 0.5 * pre_scores + 20 + np.where(instruction_type == 'embodied', 5, 0) + np.random.normal(0, 5, size=n)
+        df = pd.DataFrame({
+            'pre_test_score': pre_scores,
+            'instruction_type': instruction_type,
+            'post_test_score': post_scores
+        })
+        return df
+
+    def test_t_test_basic(self, sample_data):
+        """Test basic t-test functionality."""
+        g1, g2 = sample_data
+        t_stat, p_val = run_t_test(g1, g2)
         assert isinstance(t_stat, float)
         assert isinstance(p_val, float)
         assert 0 <= p_val <= 1
-        
-    def test_t_test_welch(self):
-        """Test Welch's t-test."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [10.0, 20.0, 30.0]
-        t_stat, p_val = run_t_test(g1, g2, use_welch=True)
-        assert isinstance(t_stat, float)
-        assert p_val < 0.05
-        
-    def test_effect_size(self):
+
+    def test_t_test_empty_groups(self):
+        """Test t-test with empty groups raises error."""
+        with pytest.raises(ValueError):
+            run_t_test([], [1, 2, 3])
+
+    def test_ancova_basic(self, ancova_data):
+        """Test basic ANCOVA functionality."""
+        result = run_ancova(None, "post_test_score ~ pre_test_score + C(instruction_type)", ancova_data)
+        assert "f_statistic" in result
+        assert "p_value" in result
+        assert isinstance(result["f_statistic"], float)
+        assert isinstance(result["p_value"], float)
+
+    def test_calculate_effect_size(self, sample_data):
         """Test Cohen's d calculation."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [4.0, 5.0, 6.0]
+        g1, g2 = sample_data
         d = calculate_effect_size(g1, g2)
         assert isinstance(d, float)
-        
-    def test_confidence_interval(self):
+        # With a known difference of 2 and std of 2, d should be around 1.0
+        assert 0.5 < d < 1.5
+
+    def test_calculate_confidence_interval(self):
         """Test confidence interval calculation."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [4.0, 5.0, 6.0]
-        ci = calculate_confidence_interval(g1, g2)
+        ci = calculate_confidence_interval(effect_size=0.5, n1=50, n2=50)
+        assert isinstance(ci, tuple)
         assert len(ci) == 2
-        assert ci[0] < ci[1]
-        
-    def test_bonferroni(self):
+        assert ci[0] < 0.5 < ci[1]
+
+    def test_bonferroni_correction(self):
         """Test Bonferroni correction."""
-        p_vals = [0.01, 0.02, 0.03]
-        adjusted = apply_bonferroni_correction(p_vals)
+        p_values = [0.01, 0.04, 0.06]
+        adjusted = apply_bonferroni_correction(p_values)
         assert len(adjusted) == 3
-        assert all(0 <= p <= 1 for p in adjusted)
-        
+        assert adjusted[0] == 0.03 # 0.01 * 3
+        assert adjusted[1] == 0.12 # 0.04 * 3
+        assert adjusted[2] == 1.0  # 0.06 * 3 > 1
+
+    def test_collinearity_detection(self):
+        """Test collinearity detection."""
+        df = pd.DataFrame({
+            'x1': [1, 2, 3, 4, 5],
+            'x2': [2, 4, 6, 8, 10], # Perfectly correlated
+            'x3': [1, 3, 2, 4, 3]
+        })
+        result = check_collinearity(df, ['x1', 'x2', 'x3'], threshold=0.8)
+        assert result["collinear"] is True
+        assert len(result["problematic_pairs"]) > 0
+
+    def test_calculate_power_adequate(self):
+        """Test power calculation for adequate power."""
+        # Large effect, large sample
+        result = calculate_power(effect_size=0.8, n1=100, n2=100)
+        assert result["power"] > 0.8
+        assert result["underpowered"] is False
+
+    def test_calculate_power_underpowered(self):
+        """Test power calculation for underpowered result (FR-007)."""
+        # Small effect, small sample
+        result = calculate_power(effect_size=0.2, n1=10, n2=10)
+        assert result["underpowered"] is True
+        assert result["power"] < 0.8
+
     def test_frame_inference(self):
         """Test inference framing."""
-        result = AnalysisResult(
-            t_statistic=2.0,
-            p_value=0.05,
-            effect_size=0.5,
-            confidence_interval=[0.1, 0.9],
-            method="t-test"
-        )
-        framed = frame_inference(result)
-        assert framed["finding"] == "associational"
-        
-    def test_collinearity(self):
-        """Test collinearity detection."""
-        covariates = [
-            {"x": 1.0, "y": 1.0},
-            {"x": 2.0, "y": 2.0},
-            {"x": 3.0, "y": 3.0}
-        ]
-        diag = check_collinearity(covariates)
-        assert diag["collinearity_detected"] is True
-        
-    def test_power_calculation(self):
-        """Test power calculation."""
-        power = calculate_power(effect_size=0.5, n1=50, n2=50)
-        assert 0 <= power <= 1
-        
+        results = {"key": "value"}
+        framed = frame_inference(results)
+        assert framed["inference_framing"] == "associational"
+        assert "methodological_caveats" in framed
+
     def test_aggregate_results(self):
-        """Test result aggregation."""
-        result = aggregate_results(
-            t_stat=2.0,
-            p_val=0.05,
-            effect=0.5,
-            ci=[0.1, 0.9],
-            method="t-test"
-        )
-        assert isinstance(result, AnalysisResult)
-        assert result.associational_framing is True
+        """Test aggregation of all results."""
+        ancova = {"f_statistic": 10.0, "p_value": 0.001}
+        t_test = (2.5, 0.01)
+        effect = 0.5
+        ci = (0.1, 0.9)
+        power = {"power": 0.9, "underpowered": False}
+        collinearity = {"collinear": False}
+        framing = {"inference_framing": "associational"}
+        
+        combined = aggregate_results(ancova, t_test, effect, ci, power, collinearity, framing)
+        
+        assert "ancova" in combined
+        assert "t_test" in combined
+        assert "effect_size_cohen_d" in combined
+        assert "confidence_interval" in combined
+        assert "power_analysis" in combined
+        assert "inference_framing" in combined

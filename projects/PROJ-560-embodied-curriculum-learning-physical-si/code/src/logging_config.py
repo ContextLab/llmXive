@@ -4,47 +4,46 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-
 def setup_logging(log_level: Optional[int] = None, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure and return a logger with console and optional file handlers.
+    Configure the root logger with console and optional file handlers.
     
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Optional path to a log file.
-        
+        log_level: Optional log level (e.g., logging.DEBUG). Defaults to INFO.
+        log_file: Optional path to a log file. If None, only console output is used.
+    
     Returns:
-        A configured logger instance.
+        The configured root logger.
     """
     if log_level is None:
         log_level = logging.INFO
 
-    logger = logging.getLogger("embodied_curriculum")
-    logger.setLevel(log_level)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
 
-    # Clear existing handlers to avoid duplicates
-    if logger.handlers:
-        logger.handlers.clear()
+    # Clear existing handlers to avoid duplicates in repeated calls
+    if root_logger.handlers:
+        root_logger.handlers.clear()
+
+    # Formatter with timestamp, level, and message
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
 
-    # File handler (if specified)
+    # File handler if specified
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
+        file_handler = logging.FileHandler(log_path)
         file_handler.setLevel(log_level)
-        file_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
 
-    return logger
+    return root_logger

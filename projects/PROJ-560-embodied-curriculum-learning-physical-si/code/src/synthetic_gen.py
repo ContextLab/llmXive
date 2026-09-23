@@ -4,120 +4,97 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
+
 from .models import DatasetRecord
 from .utils import set_seed
 
-
 logger = logging.getLogger(__name__)
 
-
 class SyntheticDataGenerator:
-    """
-    Generates synthetic datasets with configurable parameters for validation.
-    """
-    
     def __init__(self, seed: Optional[int] = None):
         """
-        Initialize the generator with an optional seed.
+        Initializes the SyntheticDataGenerator.
         
         Args:
             seed: Random seed for reproducibility.
         """
         self.seed = seed if seed is not None else 42
         set_seed(self.seed)
-        
-    def generate(
-        self, 
-        n_samples: int = 100, 
-        mean_diff: float = 0.5, 
-        std_dev: float = 1.0,
-        instruction_types: Optional[List[str]] = None
-    ) -> List[DatasetRecord]:
+        logger.info(f"SyntheticDataGenerator initialized with seed {self.seed}")
+
+    def generate(self, n_samples: int = 1000) -> List[DatasetRecord]:
         """
-        Generate synthetic records.
+        Generates synthetic dataset records.
         
         Args:
-            n_samples: Total number of samples.
-            mean_diff: Expected mean difference between groups.
-            std_dev: Standard deviation of scores.
-            instruction_types: List of instruction types to simulate.
+            n_samples: Number of samples to generate.
             
         Returns:
             List of DatasetRecord objects.
         """
-        if instruction_types is None:
-            instruction_types = ["embodied", "static"]
-            
+        logger.info(f"Generating {n_samples} synthetic records.")
+        
         records = []
-        n_per_group = n_samples // len(instruction_types)
         
-        # Generate base scores for control group (static)
-        base_scores = np.random.normal(loc=50, scale=std_dev, size=n_per_group)
+        # Generate instruction types
+        instruction_types = ["embodied", "static", "control"]
+        # Generate scores with some mean difference
+        # Embodied group has higher gain
+        embodied_count = n_samples // 3
+        static_count = n_samples // 3
+        control_count = n_samples - embodied_count - static_count
         
-        # Generate scores for treatment group (embodied) with mean shift
-        treatment_scores = np.random.normal(
-            loc=50 + mean_diff, 
-            scale=std_dev, 
-            size=n_per_group
-        )
+        # Pre-test scores (normally distributed)
+        pre_emb = np.random.normal(50, 10, embodied_count)
+        pre_stat = np.random.normal(50, 10, static_count)
+        pre_ctrl = np.random.normal(50, 10, control_count)
         
-        all_scores = list(base_scores) + list(treatment_scores)
-        all_types = instruction_types[0] * n_per_group + instruction_types[1] * n_per_group
+        # Post-test scores
+        # Embodied: higher gain
+        post_emb = pre_emb + np.random.normal(15, 5, embodied_count) # Mean gain 15
+        # Static: lower gain
+        post_stat = pre_stat + np.random.normal(5, 5, static_count) # Mean gain 5
+        # Control: no gain
+        post_ctrl = pre_ctrl + np.random.normal(0, 5, control_count) # Mean gain 0
         
-        # Shuffle
-        indices = np.random.permutation(len(all_scores))
-        all_scores = [all_scores[i] for i in indices]
-        all_types = [all_types[i] for i in indices]
+        all_pre = np.concatenate([pre_emb, pre_stat, pre_ctrl])
+        all_post = np.concatenate([post_emb, post_stat, post_ctrl])
+        all_types = ["embodied"] * embodied_count + ["static"] * static_count + ["control"] * control_count
         
-        for score, itype in zip(all_scores, all_types):
-            # Simulate pre/post based on a simple model
-            # pre = base, post = base + gain (random noise + group effect)
-            pre = np.random.normal(50, std_dev)
-            gain = (mean_diff if itype == instruction_types[1] else 0) + np.random.normal(0, std_dev * 0.5)
-            post = pre + gain
-            
+        for i in range(n_samples):
             record = DatasetRecord(
-                pre_test_score=float(pre),
-                post_test_score=float(post),
-                instruction_type=itype,
-                covariates={"source": "synthetic"}
+                pre_test_score=float(all_pre[i]),
+                post_test_score=float(all_post[i]),
+                instruction_type=all_types[i],
+                covariates={"sample_id": i}
             )
             records.append(record)
-            
+        
         logger.info(f"Generated {len(records)} synthetic records.")
         return records
 
-
-def generate_mapping_log(
-    records: List[DatasetRecord], 
-    output_path: str,
-    physics_params: Optional[Dict[str, Any]] = None
-) -> None:
+def generate_mapping_log(output_path: str):
     """
-    Generate a mapping log documenting the derivation of synthetic data.
+    Generates a mapping_log.json file documenting the physics-to-math mapping.
+    This satisfies Constitution Principle VI.
+    Skipped if --mode=secondary_analysis (handled by caller).
     
     Args:
-        records: The generated records.
-        output_path: Path to write the log.
-        physics_params: Physics parameters mapped to math concepts.
+        output_path: Path to the output JSON file.
     """
-    log_entry = {
-        "timestamp": None, # Set by system or datetime
-        "mapping_type": "physics_to_math",
-        "physics_parameters": physics_params or {},
-        "math_concepts": {
-            "instruction_type_embodied": "Simulated physical interaction",
-            "instruction_type_static": "Static abstract representation"
-        },
-        "record_count": len(records),
-        "generation_seed": 42, # Or from generator
-        "principle": "Constitution Principle VI: Simulation-Pedagogy Alignment"
+    logger.info(f"Generating mapping log at {output_path}")
+    
+    mapping_data = {
+        "physics_param": "velocity",
+        "math_concept": "rate_of_change",
+        "mapping_rule": "velocity_in_simulation = rate_of_change_in_math_problem",
+        "description": "Mapping virtual object velocity to mathematical rate of change concept."
     }
     
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(path, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-        
-    logger.info(f"Mapping log written to {output_path}")
+        json.dump(mapping_data, f, indent=2)
+    
+    logger.info("Mapping log generated successfully.")

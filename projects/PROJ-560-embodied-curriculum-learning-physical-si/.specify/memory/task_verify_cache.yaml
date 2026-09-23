@@ -1,17 +1,48 @@
-T002a:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `requirements.in` file in the `code/` directory was provided or shown, and
-    thus we cannot confirm that it lists the required dependencies (`pandas`, `scipy`,
-    `statsmodels`, `numpy`, `pyyaml`, `json`) without version specifications. The
-    required artifact is missing.
-T016:
+  r: "No evidence of the required `code/src/` and `code/tests/` directories is present;\
+    \ the claim provides no file listings or screenshots showing those folders, so\
+    \ the task\u2019s core artifact is missing."
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation showing a `mapping_log` being generated\
-    \ by the `SyntheticDataGenerator` was provided. The required artifact (implementation\
-    \ of the mapping log logic) is missing, so the task\u2019s requirement is not\
-    \ satisfied."
+  r: No evidence was presented that the required directories (`data/raw/`, `data/processed/`,
+    `data/synthetic/`, `data/derivation_logs/`) actually exist on disk; the response
+    contains only the task description without any directory listings or screenshots.
+    The implementer must create the folders and provide proof (e.g., a directory tree
+    listing).
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory `state/projects/PROJ-560-embodied-curriculum-learning-physical-si/`\
+    \ is provided; the response contains no listing, screenshot, or description confirming\
+    \ its creation. The implementer\u2019s claim cannot be verified without an actual\
+    \ artifact."
+T014:
+  c: false
+  h: a15beeeceb8e274a2090c104af6020dd391f734db81221dde6f544b6c79caa14
+  r: "The repository contains a `SyntheticDataGenerator` class, but its generate method\
+    \ hard\u2011codes mean gains (15,\u202F5,\u202F0) and does not expose parameters\
+    \ to configure mean differences or ground\u2011truth specifications. The `generate_mapping_log`\
+    \ function is incomplete (truncated) and no `data/synthetic/mapping_log.json`\
+    \ file exists, nor is there any logic to skip log creation when `--mode=secondary_analysis`\
+    \ is used. These missing pieces violate the task requirements."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that logging for data
+    loading, skipped records, or synthetic generation parameters has been added. The
+    claim cannot be verified without concrete artifacts (e.g., updated scripts with
+    logging statements, generated log files, or documentation of the logging behavior).
+T026b:
+  c: false
+  h: 094e5c9243f517e4c0cf77359c17f6bcf5d2b281a560f1a41ebcacfd3ed4d360
+  r: "The provided `stats_engine.py` excerpt does not contain a `write_analysis_results`\
+    \ function, and the required output file `data/processed/results.json` is absent.\
+    \ Consequently the task\u2019s core requirement\u2014implementing the function\
+    \ to write the aggregated results to the specified JSON file\u2014has not been\
+    \ fulfilled."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,6 +59,12 @@ T038:
     \ type\u2011hinting, and docstring completion (and fixing of all ANN errors) were\
     \ actually performed. The implementer must provide the modified source files and\
     \ evidence (e.g., ruff output showing zero ANN errors)."
+T039:
+  c: false
+  h: 68e8eca79f84f6a9367ce4fbe3e7d13e295702cead413c75c063764a88b68eda
+  r: The required output file `data/processed/perf_log.json` does not exist, and there
+    is no evidence that the CLI was executed, timed, or that the duration was recorded.
+    Consequently the performance verification task is not satisfied.
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
