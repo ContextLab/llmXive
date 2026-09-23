@@ -1,3 +1,1 @@
-"""
-Simulation module for noise estimation and power analysis utilities.
-"""
+# Simulation and noise estimation utilities

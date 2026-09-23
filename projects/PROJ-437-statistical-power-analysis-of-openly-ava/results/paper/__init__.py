@@ -1,3 +1,1 @@
-"""
-Paper-ready results and reports.
-"""
+# Final paper artifacts and reports

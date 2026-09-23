@@ -1,3 +1,1 @@
-"""
-Derived data storage (preprocessed outputs).
-"""
+# Preprocessed and smoothed derived data

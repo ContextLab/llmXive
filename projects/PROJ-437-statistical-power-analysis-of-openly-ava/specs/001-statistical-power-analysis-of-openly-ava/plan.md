@@ -103,7 +103,7 @@ results/
 | Bootstrap iterations (50+) | Required by FR-004 for stable empirical probability estimation | Single-run estimation would be too noisy and fail SC-002 |
 | Multiple smoothing kernels (temporal) | Required by FR-002 (adapted) and US-3 to assess preprocessing sensitivity (temporal autocorrelation) | Single kernel would miss SC-003 (impact of preprocessing choices) |
 | Memory-aware downsampling | Required by FR-006 and compute constraints (7 GB RAM) | Loading full datasets would exceed runner limits and crash |
-| ROI-based extraction | Required to bypass intractable full-brain fMRIPrep on CPU | Full fMRIPrep on CPU for multiple paradigms x multiple iterations is impossible on 2 CPU/7GB RAM; **Spec FR-002 adapted to allow CPU-tractable alternative** |
+| ROI-based extraction | Required to bypass intractable full-brain fMRIPrep on CPU | Full fMRIPrep on CPU for multiple paradigms x multiple iterations is impossible on minimal CPU/low RAM configurations.; **Spec FR-002 adapted to allow CPU-tractable alternative** |
 | 5-Paradigm Scope | Required to fit within compute budget and data availability | 15-paradigm target is aspirational; MVP limited to 5 verified datasets to ensure feasibility |
 
 ## FR/SC Coverage Matrix
@@ -115,7 +115,7 @@ results/
 | FR-003 | `analysis/split_half_validator.py` | Split-half validation loop with effect size estimation and replication success definition. |
 | FR-004 | `analysis/power_curve_generator.py` | 50+ bootstrapped iterations per sample size. |
 | FR-005 | `analysis/power_curve_generator.py` | Logistic Regression with `statsmodels` (CPU-optimized). |
-| FR-006 | `utils/memory_monitor.py` | Automatic downsampling if dataset exceeds 6GB RAM. |
+| FR-006 | `utils/memory_monitor.py` | Automatic downsampling if dataset exceeds available RAM. |
 | SC-001 | `analysis/split_half_validator.py` | Replication success metric (True Positive Rate) against known ground truth. |
 | SC-002 | `analysis/power_curve_generator.py` | Power curves for 5 verified paradigms (MVP scope). |
 | SC-003 | `preprocess/temporal_smoothing.py` | Sensitivity analysis of smoothing kernels (4mm/8mm equivalent). |

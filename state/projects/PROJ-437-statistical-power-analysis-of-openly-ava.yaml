@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-437-statistical-power-analysis-of-openly-ava
-last_run_id: 506a29e2-6caa-4d83-8f85-26083725a849
+last_run_id: f5dc49f2-881b-4bc4-a9ec-e30532947594
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava
 title: Statistical Power Analysis of Openly Available fMRI Datasets
-updated_at: '2026-09-21T15:53:39.038151Z'
+updated_at: '2026-09-23T21:52:25.618986Z'

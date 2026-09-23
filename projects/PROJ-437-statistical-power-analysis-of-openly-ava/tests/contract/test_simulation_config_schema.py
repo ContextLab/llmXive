@@ -1,134 +1,149 @@
 """
-Contract tests for the SimulationConfig schema.
+Contract test for SimulationConfig schema.
 
-This module implements Test-Driven Development (TDD) contract tests
-to validate the `SimulationConfig` entity constraints and structure
-before the full implementation is integrated.
-
-Tests verify:
-1. Valid configuration creation.
-2. Validation of `sample_size_target` (must be > 0).
-3. Validation of `smoothing_kernel` (must be > 0).
-4. Validation of `num_iterations` (must be > 0).
-5. Type validation for `random_seed` (must be int if provided).
+Validates the structure and constraints of the SimulationConfig dataclass
+as defined in code/models/simulation_config.py.
 """
+import dataclasses
 import pytest
-from dataclasses import FrozenInstanceError
-
 from models.simulation_config import SimulationConfig
+from utils.seed_manager import set_global_seed, get_seed
 
 
 class TestSimulationConfigSchema:
-    """Contract tests for SimulationConfig entity."""
+    """Tests for the SimulationConfig entity schema and validation."""
 
     def test_valid_config_creation(self):
-        """Test that a valid configuration can be created."""
+        """Test that a valid config can be created."""
         config = SimulationConfig(
-            sample_size_target=50,
+            sample_size_target=100,
             smoothing_kernel=4.0,
             num_iterations=1000,
             random_seed=42
         )
-        assert config.sample_size_target == 50
+        assert config.sample_size_target == 100
         assert config.smoothing_kernel == 4.0
         assert config.num_iterations == 1000
         assert config.random_seed == 42
 
-    def test_valid_config_no_seed(self):
-        """Test creation without an explicit random seed."""
+    def test_config_defaults(self):
+        """Test that random_seed defaults to None."""
         config = SimulationConfig(
-            sample_size_target=20,
+            sample_size_target=50,
             smoothing_kernel=8.0,
             num_iterations=500
         )
         assert config.random_seed is None
 
     def test_invalid_sample_size_target_zero(self):
-        """Test that sample_size_target must be greater than 0."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that sample_size_target=0 raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
                 sample_size_target=0,
                 smoothing_kernel=4.0,
                 num_iterations=100
             )
-        assert "sample_size_target must be greater than 0" in str(exc_info.value)
+        assert "sample_size_target must be greater than 0" in str(excinfo.value)
 
     def test_invalid_sample_size_target_negative(self):
-        """Test that sample_size_target cannot be negative."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that negative sample_size_target raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
                 sample_size_target=-10,
                 smoothing_kernel=4.0,
                 num_iterations=100
             )
-        assert "sample_size_target must be greater than 0" in str(exc_info.value)
+        assert "sample_size_target must be greater than 0" in str(excinfo.value)
 
     def test_invalid_smoothing_kernel_zero(self):
-        """Test that smoothing_kernel must be greater than 0."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that smoothing_kernel=0 raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
-                sample_size_target=50,
+                sample_size_target=100,
                 smoothing_kernel=0.0,
                 num_iterations=100
             )
-        assert "smoothing_kernel must be greater than 0" in str(exc_info.value)
+        assert "smoothing_kernel must be greater than 0" in str(excinfo.value)
 
     def test_invalid_smoothing_kernel_negative(self):
-        """Test that smoothing_kernel cannot be negative."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that negative smoothing_kernel raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
-                sample_size_target=50,
+                sample_size_target=100,
                 smoothing_kernel=-4.0,
                 num_iterations=100
             )
-        assert "smoothing_kernel must be greater than 0" in str(exc_info.value)
+        assert "smoothing_kernel must be greater than 0" in str(excinfo.value)
 
     def test_invalid_num_iterations_zero(self):
-        """Test that num_iterations must be greater than 0."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that num_iterations=0 raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
-                sample_size_target=50,
+                sample_size_target=100,
                 smoothing_kernel=4.0,
                 num_iterations=0
             )
-        assert "num_iterations must be greater than 0" in str(exc_info.value)
+        assert "num_iterations must be greater than 0" in str(excinfo.value)
 
     def test_invalid_num_iterations_negative(self):
-        """Test that num_iterations cannot be negative."""
-        with pytest.raises(ValueError) as exc_info:
+        """Test that negative num_iterations raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
             SimulationConfig(
-                sample_size_target=50,
+                sample_size_target=100,
                 smoothing_kernel=4.0,
                 num_iterations=-5
             )
-        assert "num_iterations must be greater than 0" in str(exc_info.value)
+        assert "num_iterations must be greater than 0" in str(excinfo.value)
 
-    def test_config_is_frozen(self):
-        """Test that SimulationConfig instances are immutable (frozen)."""
+    def test_apply_seed_with_value(self):
+        """Test that apply_seed sets the global seed when random_seed is provided."""
         config = SimulationConfig(
-            sample_size_target=50,
-            smoothing_kernel=4.0,
-            num_iterations=100
-        )
-        with pytest.raises(FrozenInstanceError):
-            config.sample_size_target = 100
-
-    def test_random_seed_type_int(self):
-        """Test that random_seed accepts integer values."""
-        config = SimulationConfig(
-            sample_size_target=50,
+            sample_size_target=100,
             smoothing_kernel=4.0,
             num_iterations=100,
             random_seed=12345
         )
-        assert isinstance(config.random_seed, int)
+        config.apply_seed()
+        # Verify seed was set by checking get_seed returns the expected value
+        assert get_seed() == 12345
 
-    def test_random_seed_type_none(self):
-        """Test that random_seed accepts None."""
+    def test_apply_seed_without_value(self):
+        """Test that apply_seed does nothing when random_seed is None."""
         config = SimulationConfig(
-            sample_size_target=50,
+            sample_size_target=100,
             smoothing_kernel=4.0,
             num_iterations=100,
             random_seed=None
         )
-        assert config.random_seed is None
+        # Should not raise
+        config.apply_seed()
+
+    def test_frozen_dataclass(self):
+        """Test that the dataclass is immutable (frozen=True)."""
+        config = SimulationConfig(
+            sample_size_target=100,
+            smoothing_kernel=4.0,
+            num_iterations=100
+        )
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.sample_size_target = 200
+
+    def test_type_int_for_sample_size(self):
+        """Test that sample_size_target must be an int."""
+        config = SimulationConfig(
+            sample_size_target=100,
+            smoothing_kernel=4.0,
+            num_iterations=100
+        )
+        assert isinstance(config.sample_size_target, int)
+
+    def test_type_float_for_kernel(self):
+        """Test that smoothing_kernel is treated as float."""
+        config = SimulationConfig(
+            sample_size_target=100,
+            smoothing_kernel=4,  # int passed, should coerce or accept
+            num_iterations=100
+        )
+        # Dataclass will keep it as int if passed as int, but logic expects float-like behavior.
+        # We ensure the value is numeric.
+        assert isinstance(config.smoothing_kernel, (int, float))

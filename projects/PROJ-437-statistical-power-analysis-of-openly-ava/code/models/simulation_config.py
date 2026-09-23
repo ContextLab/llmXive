@@ -1,36 +1,31 @@
 """
-Simulation configuration entity for statistical power analysis.
+Simulation configuration entity.
 
-Defines the `SimulationConfig` dataclass used to parameterize
-the Monte Carlo simulation pipeline (sample size, smoothing, iterations, seed).
+Defines the parameters for running simulation-based power analysis.
 """
 from dataclasses import dataclass
 from typing import Optional
-from utils.seed_manager import set_global_seed
+from utils.seed_manager import set_global_seed, get_seed
 
 
 @dataclass(frozen=True)
 class SimulationConfig:
     """
-    Configuration entity for running power analysis simulations.
+    Configuration for simulation-based power analysis.
 
     Attributes:
-        sample_size_target (int): The target number of subjects for the simulation.
-            Must be a positive integer.
-        smoothing_kernel (float): The temporal smoothing kernel size in mm (or equivalent
-            time units depending on the preprocessing pipeline).
-        num_iterations (int): The number of bootstrap/Monte Carlo iterations to run.
-            Must be a positive integer.
-        random_seed (Optional[int]): The random seed for reproducibility. If None,
-            the system will attempt to use the global seed or a default.
+        sample_size_target: Target number of subjects for the simulation.
+        smoothing_kernel: Smoothing kernel size in mm (or seconds for temporal).
+        num_iterations: Number of bootstrap iterations to run.
+        random_seed: Optional random seed for reproducibility. If None, no seed is set.
     """
     sample_size_target: int
     smoothing_kernel: float
     num_iterations: int
     random_seed: Optional[int] = None
 
-    def __post_init__(self) -> None:
-        """Validate configuration constraints."""
+    def __post_init__(self):
+        """Validate configuration parameters after initialization."""
         if self.sample_size_target <= 0:
             raise ValueError("sample_size_target must be greater than 0")
         if self.smoothing_kernel <= 0:
@@ -40,9 +35,9 @@ class SimulationConfig:
 
     def apply_seed(self) -> None:
         """
-        Apply the random seed to the global environment if one is provided.
+        Apply the random seed if one is configured.
 
-        Uses the `set_global_seed` function from `utils.seed_manager`.
+        Does nothing if random_seed is None.
         """
         if self.random_seed is not None:
             set_global_seed(self.random_seed)

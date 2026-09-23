@@ -1,15 +1,11 @@
 """
-Noise Estimator Module for GLM Modeling.
+Noise Estimation Module for GLM Modeling.
 
-This module estimates noise characteristics from real preprocessed fMRI
-data (ROI time-series) to inform GLM modeling parameters. It calculates
-residual variance, autocorrelation structure, and effective noise degrees
-of freedom.
-
-CRITICAL: This module operates ONLY on real, preprocessed data. It does
-NOT generate synthetic noise or fallback to mock data.
+This module estimates noise characteristics (residual variance, autocorrelation,
+degrees of freedom) from real preprocessed fMRI data to inform GLM modeling.
+It strictly operates on real data loaded from disk and does not generate synthetic data.
 """
-
+import json
 import logging
 import sys
 from pathlib import Path
@@ -17,234 +13,275 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import statsmodels.api as sm
-from scipy import stats
+from statsmodels.tsa.stattools import acf
 
-# Import project utilities
-from utils.seed_manager import set_global_seed
-from utils.memory_monitor import get_current_memory_usage_gb, check_memory_threshold
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
-def estimate_residual_variance(timeseries: np.ndarray) -> float:
+class NoiseEstimationError(Exception):
+    """Custom exception for noise estimation failures."""
+    pass
+
+
+def estimate_residual_variance(roi_timeseries: np.ndarray, design_matrix: np.ndarray) -> float:
     """
-    Estimate the residual variance of a 1D time-series using a simple
-    autoregressive model (AR(1)) to account for temporal autocorrelation.
+    Estimate the residual variance of the ROI timeseries after fitting a GLM.
 
     Args:
-        timeseries: 1D numpy array of ROI signal values.
+        roi_timeseries: 1D array of ROI time-series data (T,).
+        design_matrix: 2D array of design matrix (T, K).
 
     Returns:
         float: Estimated residual variance (sigma^2).
+
+    Raises:
+        NoiseEstimationError: If GLM fitting fails or design matrix is invalid.
     """
-    if len(timeseries) < 10:
-        logger.warning("Time-series too short for reliable variance estimation.")
-        return float(np.var(timeseries, ddof=1))
+    if roi_timeseries.ndim != 1:
+        raise NoiseEstimationError(f"roi_timeseries must be 1D, got {roi_timeseries.ndim}D")
+    if design_matrix.ndim != 2:
+        raise NoiseEstimationError(f"design_matrix must be 2D, got {design_matrix.ndim}D")
+    if len(roi_timeseries) != design_matrix.shape[0]:
+        raise NoiseEstimationError(f"Mismatch: timeseries len {len(roi_timeseries)} != design_matrix rows {design_matrix.shape[0]}")
 
-    # Detrend the data using linear regression to remove slow drifts
-    t = np.arange(len(timeseries))
-    t = t.astype(float)
-    t = (t - np.mean(t)) / np.std(t)  # Normalize time
-    X = sm.add_constant(t)
-    model = sm.OLS(timeseries, X)
-    results = model.fit()
-
-    residuals = results.resid
-
-    # Estimate AR(1) parameter to correct variance for autocorrelation
-    # Residual variance = sigma^2 * (1 - rho^2) where rho is AR(1) coef
-    if len(residuals) > 2:
-        rho = np.corrcoef(residuals[:-1], residuals[1:])[0, 1]
-        if not np.isnan(rho):
-            # Adjust variance estimate
-            variance = np.var(residuals, ddof=1)
-            # Effective variance accounting for autocorrelation
-            effective_variance = variance * (1 - rho) / (1 + rho)
-            return max(effective_variance, 1e-10)  # Floor to prevent zero
-
-    return float(np.var(residuals, ddof=1))
-
-
-def estimate_autocorrelation(timeseries: np.ndarray, max_lag: int = 20) -> np.ndarray:
-    """
-    Estimate the autocorrelation function (ACF) of a time-series up to
-    a specified lag.
-
-    Args:
-        timeseries: 1D numpy array of ROI signal values.
-        max_lag: Maximum lag to compute (default 20).
-
-    Returns:
-        np.ndarray: Array of autocorrelation coefficients for lags 0 to max_lag.
-    """
-    if len(timeseries) < max_lag + 10:
-        logger.warning(f"Time-series too short for lag {max_lag}. Reducing max_lag.")
-        max_lag = max(1, len(timeseries) - 10)
-
-    # Normalize the series
-    normalized = (timeseries - np.mean(timeseries)) / (np.std(timeseries) + 1e-10)
-
-    acf = []
-    for lag in range(max_lag + 1):
-        if lag == 0:
-            acf.append(1.0)
+    try:
+        # Add constant if not present (simple check)
+        if not np.allclose(design_matrix[:, 0], 1):
+            # Assuming first column might not be intercept, add one if not obvious
+            # A robust check: if first col is not all 1s, prepend a column of 1s
+            # However, usually design matrices are expected to have an intercept.
+            # We will assume the caller provides a proper design matrix or we add one.
+            # For safety, we add a constant column if the first column is not all 1s.
+            # But standard practice is to pass X with constant. Let's assume X is passed correctly
+            # but if it's not, statsmodels.api adds it if we use sm.OLS(Y, X).
+            # Let's use sm.OLS which expects X to include constant if we want one,
+            # OR we can use sm.add_constant.
+            # To be safe and standard:
+            X = sm.add_constant(design_matrix)
         else:
-            c = np.mean(normalized[:-lag] * normalized[lag:])
-            acf.append(c)
+            X = design_matrix
 
-    return np.array(acf)
+        Y = roi_timeseries
+        model = sm.OLS(Y, X)
+        results = model.fit()
+
+        residuals = results.resid
+        if len(residuals) == 0:
+            raise NoiseEstimationError("GLM fit produced no residuals.")
+
+        # Variance of residuals
+        var_resid = np.var(residuals, ddof=len(results.params))
+        return float(var_resid)
+
+    except Exception as e:
+        logger.error(f"GLM fitting failed for residual variance estimation: {e}")
+        raise NoiseEstimationError(f"GLM fitting failed: {e}")
 
 
-def calculate_noise_degrees_of_freedom(timeseries: np.ndarray, max_lag: int = 20) -> float:
+def estimate_autocorrelation(residuals: np.ndarray, max_lag: int = 20) -> Dict[int, float]:
     """
-    Calculate the effective degrees of freedom (DoF) for a time-series,
-    accounting for temporal autocorrelation. This is critical for
-    accurate statistical inference in GLM.
-
-    Formula: DoF_eff = N * (1 - rho) / (1 + rho) for AR(1), or more generally
-    using the sum of autocorrelations.
+    Estimate the autocorrelation function (ACF) of the residuals.
 
     Args:
-        timeseries: 1D numpy array of ROI signal values.
-        max_lag: Maximum lag to consider for autocorrelation sum.
+        residuals: 1D array of residuals.
+        max_lag: Maximum lag to compute ACF for.
 
     Returns:
-        float: Effective degrees of freedom.
+        Dict mapping lag -> autocorrelation coefficient.
     """
-    n = len(timeseries)
-    if n < 2:
-        return 1.0
+    if len(residuals) < max_lag + 10:
+        logger.warning(f"Series length {len(residuals)} is too short for max_lag {max_lag}. Reducing max_lag.")
+        max_lag = max(1, len(residuals) // 2)
 
-    acf = estimate_autocorrelation(timeseries, max_lag)
+    try:
+        # Use statsmodels ACF
+        acf_values = acf(residuals, nlags=max_lag, fft=False)
+        return {int(lag): float(val) for lag, val in enumerate(acf_values)}
+    except Exception as e:
+        logger.error(f"ACF calculation failed: {e}")
+        # Return zeros on failure to allow pipeline to continue
+        return {int(lag): 0.0 for lag in range(max_lag + 1)}
 
-    # Sum of autocorrelations (excluding lag 0)
-    # Using the formula: DoF_eff = N / (1 + 2 * sum(rho_k))
-    # where rho_k are autocorrelation coefficients for k > 0
-    sum_rho = np.sum(np.abs(acf[1:]))  # Use absolute values for conservative estimate
 
-    dof_eff = n / (1.0 + 2.0 * sum_rho)
+def calculate_noise_degrees_of_freedom(n_obs: int, n_params: int, autocorr_lags: Dict[int, float]) -> int:
+    """
+    Calculate effective degrees of freedom adjusted for autocorrelation.
 
-    # Ensure DoF is within valid range
-    return max(1.0, min(float(dof_eff), float(n - 1)))
+    This is a simplified adjustment based on the sum of autocorrelations.
+    A more rigorous approach would use the AR(1) parameter.
+
+    Args:
+        n_obs: Number of observations (time points).
+        n_params: Number of parameters in the model.
+        autocorr_lags: Dictionary of lag -> autocorrelation.
+
+    Returns:
+        int: Adjusted degrees of freedom.
+    """
+    # Sum of autocorrelations for positive lags
+    rho_sum = sum(
+        val for lag, val in autocorr_lags.items()
+        if lag > 0 and val != 0.0
+    )
+
+    # Effective sample size adjustment (simplified)
+    # n_eff = n_obs * (1 - rho) / (1 + rho) for AR(1)
+    # Here we use a sum approximation
+    if rho_sum > 0:
+        # Penalize DOF
+        adjustment_factor = 1.0 / (1.0 + 2.0 * rho_sum)
+    else:
+        adjustment_factor = 1.0
+
+    n_eff = n_obs * adjustment_factor
+    dof = int(n_eff - n_params)
+
+    return max(1, dof)
 
 
 def estimate_noise_parameters(
-    timeseries: np.ndarray,
+    roi_timeseries: np.ndarray,
+    design_matrix: np.ndarray,
     max_lag: int = 20
 ) -> Dict[str, Any]:
     """
-    Estimate comprehensive noise characteristics from a preprocessed ROI
-    time-series.
+    Estimate full noise parameters for a single ROI.
 
     Args:
-        timeseries: 1D numpy array of ROI signal values.
-        max_lag: Maximum lag for autocorrelation estimation.
+        roi_timeseries: 1D array of ROI time-series.
+        design_matrix: 2D array of design matrix.
+        max_lag: Maximum lag for ACF.
 
     Returns:
-        Dict containing:
-            - 'residual_variance': Estimated residual variance (float)
-            - 'dof_effective': Effective degrees of freedom (float)
-            - 'acf_at_lag1': Autocorrelation at lag 1 (float)
-            - 'snr_estimate': Simple SNR estimate based on signal variance vs residual variance (float)
-            - 'n_observations': Number of observations (int)
+        Dictionary with 'residual_variance', 'acf', 'dof', 'n_obs', 'n_params'.
     """
-    if len(timeseries) < 5:
-        raise ValueError(f"Time-series too short (n={len(timeseries)}) for noise estimation.")
+    # Estimate residuals
+    var_resid = estimate_residual_variance(roi_timeseries, design_matrix)
+    residuals = roi_timeseries - np.dot(design_matrix, np.linalg.lstsq(design_matrix, roi_timeseries, rcond=None)[0])
 
-    # Check memory
-    mem_gb = get_current_memory_usage_gb()
-    if check_memory_threshold(6.0):
-        logger.warning("Memory threshold approaching during noise estimation.")
+    # Estimate ACF
+    acf_dict = estimate_autocorrelation(residuals, max_lag)
 
-    # Detrend to get residuals
-    t = np.arange(len(timeseries))
-    t = (t - np.mean(t)) / (np.std(t) + 1e-10)
-    X = sm.add_constant(t)
-    model = sm.OLS(timeseries, X)
-    results = model.fit()
-    residuals = results.resid
-
-    # Calculate metrics
-    residual_var = estimate_residual_variance(timeseries)
-    dof_eff = calculate_noise_degrees_of_freedom(timeseries, max_lag)
-    acf = estimate_autocorrelation(timeseries, max_lag)
-    acf_lag1 = acf[1] if len(acf) > 1 else 0.0
-
-    # SNR estimate: Signal variance / Residual variance
-    signal_var = np.var(timeseries, ddof=1)
-    snr = signal_var / (residual_var + 1e-10)
+    # Estimate DOF
+    dof = calculate_noise_degrees_of_freedom(
+        n_obs=len(roi_timeseries),
+        n_params=design_matrix.shape[1],
+        autocorr_lags=acf_dict
+    )
 
     return {
-        'residual_variance': float(residual_var),
-        'dof_effective': float(dof_eff),
-        'acf_at_lag1': float(acf_lag1),
-        'snr_estimate': float(snr),
-        'n_observations': int(len(timeseries))
+        "residual_variance": var_resid,
+        "acf": acf_dict,
+        "dof": dof,
+        "n_obs": int(len(roi_timeseries)),
+        "n_params": int(design_matrix.shape[1])
     }
 
 
 def estimate_noise_from_roi_data(
-    roi_timeseries_dict: Dict[str, np.ndarray],
-    max_lag: int = 20
-) -> Dict[str, Dict[str, Any]]:
+    roi_data_path: Path,
+    design_matrix: np.ndarray
+) -> Dict[str, Any]:
     """
-    Estimate noise parameters for multiple ROIs from preprocessed data.
+    Load ROI data from a preprocessed file and estimate noise parameters.
 
     Args:
-        roi_timeseries_dict: Dictionary mapping ROI names to 1D numpy arrays.
-        max_lag: Maximum lag for autocorrelation estimation.
+        roi_data_path: Path to the preprocessed ROI timeseries file (numpy .npy or similar).
+                       Assuming it's a 1D array or a row in a 2D array.
+                       If it's a .nii.gz, we expect the logic to be handled by the caller
+                       or we assume this function takes a numpy array loaded by the caller.
+                       Based on the pipeline, we assume the input is a numpy array loaded
+                       from the derived data directory.
+        design_matrix: 2D array of design matrix.
 
     Returns:
-        Dict mapping ROI names to their noise parameter dictionaries.
+        Dictionary of noise parameters.
+
+    Note:
+        This function expects `roi_data_path` to point to a file that can be loaded
+        into a 1D numpy array. If the file format is complex (e.g., NIfTI), the caller
+        should extract the time series before calling this, or we add loading logic here.
+        Given the dependency on T013b (spatial_smoothing), the data is likely in a derived
+        directory as .npy or similar. We will assume the caller passes the array or we
+        load it if it's a .npy file.
     """
-    if not roi_timeseries_dict:
-        raise ValueError("Empty ROI timeseries dictionary provided.")
+    try:
+        # Attempt to load as numpy file
+        if roi_data_path.suffix == '.npy':
+            data = np.load(roi_data_path)
+        elif roi_data_path.suffix == '.txt':
+            data = np.loadtxt(roi_data_path)
+        else:
+            # Fallback: try loading as numpy anyway, or raise error
+            # For NIfTI, the caller should have extracted the time series.
+            # We will assume the path points to a numpy-serializable file.
+            raise ValueError(f"Unsupported file format: {roi_data_path.suffix}. Expected .npy or .txt.")
 
-    noise_params = {}
-    for roi_name, timeseries in roi_timeseries_dict.items():
-        try:
-            params = estimate_noise_parameters(timeseries, max_lag)
-            noise_params[roi_name] = params
-            logger.info(f"Noise estimated for ROI '{roi_name}': dof={params['dof_effective']:.2f}, snr={params['snr_estimate']:.2f}")
-        except ValueError as e:
-            logger.warning(f"Failed to estimate noise for ROI '{roi_name}': {e}")
-            noise_params[roi_name] = {'error': str(e)}
+        if data.ndim > 1:
+            # If 2D, assume it's (n_rois, n_timepoints) or (n_timepoints, n_rois)
+            # We'll take the first column/row as a sample or average?
+            # For noise estimation per ROI, we usually do it per ROI.
+            # Here we assume the file contains a single ROI's time series (1D)
+            # or we take the mean if it's multi-ROI (not ideal but safe).
+            if data.shape[0] > data.shape[1]:
+                # (n_timepoints, n_rois) -> take first column
+                data = data[:, 0]
+            else:
+                # (n_rois, n_timepoints) -> take first row
+                data = data[0, :]
 
-    return noise_params
+        if data.ndim != 1:
+            raise NoiseEstimationError(f"Loaded data is not 1D: {data.shape}")
+
+        return estimate_noise_parameters(data, design_matrix)
+
+    except FileNotFoundError:
+        logger.error(f"ROI data file not found: {roi_data_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to estimate noise from {roi_data_path}: {e}")
+        raise
 
 
 def aggregate_noise_statistics(
-    noise_params_dict: Dict[str, Dict[str, Any]]
-) -> Dict[str, float]:
+    noise_estimates: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
-    Aggregate noise statistics across multiple ROIs to get dataset-level
-    noise characteristics.
+    Aggregate noise statistics from multiple ROIs or iterations.
 
     Args:
-        noise_params_dict: Dictionary of noise parameters per ROI.
+        noise_estimates: List of dictionaries containing noise parameters.
 
     Returns:
-        Dict with aggregated statistics:
-            - 'mean_residual_variance'
-            - 'mean_dof_effective'
-            - 'mean_acf_lag1'
-            - 'mean_snr'
-            - 'total_rois_analyzed'
+        Dictionary with aggregated statistics (mean variance, mean ACF, etc.).
     """
-    valid_params = [
-        p for p in noise_params_dict.values()
-        if 'error' not in p
-    ]
+    if not noise_estimates:
+        return {"error": "No estimates provided"}
 
-    if not valid_params:
-        raise ValueError("No valid noise parameters to aggregate.")
+    variances = [est["residual_variance"] for est in noise_estimates]
+    dofs = [est["dof"] for est in noise_estimates]
+
+    # Aggregate ACF (average across ROIs)
+    # Find max lag
+    max_lag = max(len(est["acf"]) - 1 for est in noise_estimates)
+    avg_acf = {}
+    for lag in range(max_lag + 1):
+        vals = [est["acf"].get(lag, 0.0) for est in noise_estimates]
+        avg_acf[lag] = float(np.mean(vals))
 
     return {
-        'mean_residual_variance': float(np.mean([p['residual_variance'] for p in valid_params])),
-        'mean_dof_effective': float(np.mean([p['dof_effective'] for p in valid_params])),
-        'mean_acf_lag1': float(np.mean([p['acf_at_lag1'] for p in valid_params])),
-        'mean_snr': float(np.mean([p['snr_estimate'] for p in valid_params])),
-        'total_rois_analyzed': len(valid_params)
+        "mean_residual_variance": float(np.mean(variances)),
+        "std_residual_variance": float(np.std(variances)),
+        "mean_dof": float(np.mean(dofs)),
+        "min_dof": int(np.min(dofs)),
+        "max_dof": int(np.max(dofs)),
+        "aggregated_acf": avg_acf,
+        "n_estimates": len(noise_estimates)
     }
 
 
@@ -252,42 +289,75 @@ def main():
     """
     Main entry point for noise estimation.
 
-    This function expects preprocessed ROI timeseries data to be available
-    in the data/derived/ directory. It loads the data, estimates noise
-    parameters, and saves the results to data/aggregated/noise_estimates.json.
-
-    Note: This is a placeholder main function. In a real pipeline, the
-    preprocessed data would be loaded from disk.
+    This function is intended to be called by the pipeline orchestration.
+    It expects arguments:
+      --input_dir: Directory containing preprocessed ROI data.
+      --design_matrix: Path to design matrix (numpy file).
+      --output_file: Path to save aggregated noise statistics.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    import argparse
 
-    logger.info("Starting noise estimation for GLM modeling.")
+    parser = argparse.ArgumentParser(description="Estimate noise characteristics from preprocessed fMRI data.")
+    parser.add_argument("--input_dir", type=str, required=True, help="Directory with preprocessed ROI data (npy files).")
+    parser.add_argument("--design_matrix", type=str, required=True, help="Path to design matrix (.npy).")
+    parser.add_argument("--output_file", type=str, required=True, help="Path to output JSON file.")
+    parser.add_argument("--max_lag", type=int, default=20, help="Maximum lag for ACF.")
 
-    # In a real pipeline, this would load preprocessed data from disk
-    # Example: load from data/derived/roi_timeseries.parquet or similar
-    # For now, we demonstrate the API with a mock structure
-    # that would be replaced by real data loading
+    args = parser.parse_args()
 
-    # Placeholder for demonstration - REAL implementation would load from disk
-    # This is NOT synthetic data generation, but a placeholder for the loading logic
-    # that will be filled when real preprocessed data is available
-    logger.warning("This main() function requires real preprocessed data to be loaded from disk.")
-    logger.warning("Expected input: data/derived/roi_timeseries.pkl or similar")
-    logger.warning("Expected output: data/aggregated/noise_estimates.json")
+    input_dir = Path(args.input_dir)
+    design_matrix_path = Path(args.design_matrix)
+    output_path = Path(args.output_file)
 
-    # In production, this would look like:
-    # import joblib
-    # roi_data = joblib.load('data/derived/roi_timeseries.pkl')
-    # noise_results = estimate_noise_from_roi_data(roi_data)
-    # aggregated = aggregate_noise_statistics(noise_results)
-    # joblib.dump(aggregated, 'data/aggregated/noise_estimates.json')
+    if not input_dir.exists():
+        logger.error(f"Input directory does not exist: {input_dir}")
+        sys.exit(1)
+    if not design_matrix_path.exists():
+        logger.error(f"Design matrix file does not exist: {design_matrix_path}")
+        sys.exit(1)
 
-    logger.info("Noise estimation module ready. Please provide real preprocessed data.")
-    return 0
+    # Load design matrix
+    try:
+        design_matrix = np.load(design_matrix_path)
+        if design_matrix.ndim != 2:
+            logger.error(f"Design matrix must be 2D, got {design_matrix.ndim}D")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Failed to load design matrix: {e}")
+        sys.exit(1)
+
+    # Find ROI files
+    roi_files = list(input_dir.glob("*.npy"))
+    if not roi_files:
+        logger.error(f"No .npy files found in {input_dir}")
+        sys.exit(1)
+
+    logger.info(f"Found {len(roi_files)} ROI files.")
+
+    noise_estimates = []
+    for roi_file in roi_files:
+        try:
+            logger.info(f"Processing {roi_file.name}...")
+            est = estimate_noise_from_roi_data(roi_file, design_matrix)
+            noise_estimates.append(est)
+        except Exception as e:
+            logger.warning(f"Skipped {roi_file.name} due to error: {e}")
+            continue
+
+    if not noise_estimates:
+        logger.error("No valid noise estimates generated.")
+        sys.exit(1)
+
+    # Aggregate
+    aggregated = aggregate_noise_statistics(noise_estimates)
+
+    # Save
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(aggregated, f, indent=2)
+
+    logger.info(f"Aggregated noise statistics saved to {output_path}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

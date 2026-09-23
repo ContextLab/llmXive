@@ -1,3 +1,1 @@
-"""
-Results package root.
-"""
+# Results output package

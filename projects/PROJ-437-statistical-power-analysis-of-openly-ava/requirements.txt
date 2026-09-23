@@ -1,25 +1,24 @@
-# Core dependencies
-bidslib>=1.0.0
+# Core BIDS and Neuroimaging
+bidslib
 nibabel>=5.0.0
 nilearn>=0.10.0
-scikit-learn>=1.3.0
-statsmodels>=0.14.0
+mne>=1.5.0
+
+# Data Processing and Analysis
 pandas>=2.0.0
 numpy>=1.24.0
-mne>=1.5.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Dataset Fetching
 datasets>=2.14.0
 
-# OpenNeuro fetching
-requests>=2.31.0
-tqdm>=4.65.0
-
-# Monitoring and utilities
+# Utilities
 psutil>=5.9.0
+requests>=2.31.0
+pyyaml>=6.0
 
-# Testing
+# Testing and Linting
 pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Code quality
+black>=23.0.0
 flake8>=6.1.0
-black>=23.7.0

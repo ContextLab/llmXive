@@ -1,3 +1,1 @@
-"""
-Preprocessing module for ROI extraction and temporal smoothing.
-"""
+# Preprocessing and ROI extraction utilities

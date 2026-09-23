@@ -1,206 +1,236 @@
 """
-Memory monitoring utilities for the llmXive statistical power analysis pipeline.
+Memory monitoring utilities for the fMRI analysis pipeline.
 
-This module provides functionality to track RAM usage and trigger downsampling
-strategies if memory consumption exceeds the defined threshold (FR-006).
+Implements FR-006: Track RAM usage and trigger downsampling if >6GB.
+Ensures the pipeline stays within the compute budget (~7GB RAM limit).
 """
-
 import gc
 import logging
 import os
 import sys
-from typing import Callable, Optional, Dict, Any
+from typing import Callable, Optional, Dict, Any, List, Union
+from pathlib import Path
 
 import psutil
+import numpy as np
 
 # Configuration constants
 MEMORY_THRESHOLD_GB = 6.0
-MEMORY_THRESHOLD_BYTES = MEMORY_THRESHOLD_GB * 1024**3
+SAFETY_MARGIN_GB = 0.5  # Trigger at 6GB to stay under 7GB total budget
+LOG_LEVEL = logging.INFO
 
+# Setup logger
 logger = logging.getLogger(__name__)
-
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(LOG_LEVEL)
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s - %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(LOG_LEVEL)
 
 def get_current_memory_usage_gb() -> float:
     """
-    Get the current memory usage of the current process in gigabytes.
-
+    Get the current memory usage of the Python process in GB.
+    
     Returns:
-        float: Memory usage in GB.
+        float: Current memory usage in gigabytes.
     """
     process = psutil.Process(os.getpid())
     memory_info = process.memory_info()
-    return memory_info.rss / (1024**3)
+    # RSS (Resident Set Size) is the non-swapped physical memory
+    memory_gb = memory_info.rss / (1024 ** 3)
+    logger.debug(f"Current memory usage: {memory_gb:.2f} GB")
+    return memory_gb
 
-
-def check_memory_threshold(threshold_gb: float = MEMORY_THRESHOLD_GB) -> bool:
+def check_memory_threshold(current_usage_gb: Optional[float] = None) -> bool:
     """
-    Check if current memory usage exceeds the specified threshold.
-
+    Check if current memory usage exceeds the threshold.
+    
     Args:
-        threshold_gb: The memory threshold in GB (default: 6.0 GB).
-
+        current_usage_gb: Optional pre-calculated usage. If None, calculates fresh.
+        
     Returns:
         bool: True if usage exceeds threshold, False otherwise.
     """
-    current_usage = get_current_memory_usage_gb()
-    logger.debug(f"Current memory usage: {current_usage:.2f} GB")
-    return current_usage > threshold_gb
+    if current_usage_gb is None:
+        current_usage_gb = get_current_memory_usage_gb()
+    
+    threshold = MEMORY_THRESHOLD_GB
+    is_over = current_usage_gb > threshold
+    
+    if is_over:
+        logger.warning(
+            f"Memory threshold exceeded: {current_usage_gb:.2f} GB > {threshold:.2f} GB"
+        )
+    else:
+        logger.debug(
+            f"Memory usage OK: {current_usage_gb:.2f} GB <= {threshold:.2f} GB"
+        )
+        
+    return is_over
 
-
-def trigger_gc() -> int:
+def trigger_gc() -> None:
     """
-    Force garbage collection to reclaim memory.
-
-    Returns:
-        int: The number of objects collected (approximate).
+    Force garbage collection to free up unused memory.
     """
-    logger.info("Triggering garbage collection to reclaim memory.")
-    collected = gc.collect()
-    logger.info(f"Garbage collection complete. Collected {collected} objects.")
-    return collected
-
+    logger.info("Triggering garbage collection...")
+    gc.collect()
+    logger.info("Garbage collection complete.")
 
 def downsample_data(
-    data_iterator: Callable,
-    target_fraction: float = 0.5,
-    **kwargs
-) -> Any:
+    data: Union[np.ndarray, List[np.ndarray]],
+    target_fraction: float = 0.5
+) -> Union[np.ndarray, List[np.ndarray]]:
     """
-    A generic downsampling strategy that reduces data volume by a target fraction.
-
-    Since the specific data structure is not known at this utility level,
-    this function assumes the input `data_iterator` is a callable that returns
-    a dataset object (e.g., a list, numpy array, or pandas DataFrame) when called,
-    or an iterable that can be sliced.
-
-    This is a placeholder for the actual downsampling logic which will be
-    implemented in the data loading or preprocessing stages.
-
+    Downsample data arrays to reduce memory footprint.
+    
+    This function performs temporal downsampling by selecting every Nth timepoint
+    or randomly sampling a fraction of the data.
+    
     Args:
-        data_iterator: A callable or iterable representing the data to be downsized.
-        target_fraction: The fraction of data to keep (0.0 to 1.0).
-        **kwargs: Additional arguments passed to the downsampling logic.
-
+        data: Input data array (timepoints x features) or list of such arrays.
+        target_fraction: Fraction of data to keep (0.0 to 1.0). Default 0.5.
+        
     Returns:
-        The downsized data object.
-
+        Downsampled data in the same format as input.
+        
     Raises:
-        NotImplementedError: If the specific data type is not handled.
-        ValueError: If target_fraction is invalid.
+        ValueError: If target_fraction is not between 0 and 1.
+        TypeError: If data format is unsupported.
     """
-    if not (0.0 < target_fraction <= 1.0):
-        raise ValueError("target_fraction must be between 0.0 (exclusive) and 1.0 (inclusive).")
-
-    logger.warning(f"Memory threshold exceeded. Initiating downsampling to {target_fraction * 100:.0f}% of original size.")
-
-    # Note: In a real implementation, this would inspect the type of data
-    # and perform specific slicing (e.g., df.sample(frac=...) or arr[::step]).
-    # For now, we raise a NotImplementedError to force the caller to implement
-    # specific logic for their data type, or we provide a generic fallback
-    # if the data supports standard slicing.
-
-    if callable(data_iterator):
-        try:
-            data = data_iterator()
-        except Exception as e:
-            logger.error(f"Failed to retrieve data for downsampling: {e}")
-            raise
-    else:
-        data = data_iterator
-
-    # Attempt generic downsampling if it supports slicing and len
-    if hasattr(data, '__len__') and hasattr(data, '__getitem__'):
-        new_length = int(len(data) * target_fraction)
-        logger.info(f"Downsampling data from {len(data)} to {new_length} items.")
-        # Simple slice for lists/arrays; pandas/numpy usually handle this better
-        # but we assume a generic indexable structure here.
-        return data[:new_length]
-    else:
-        raise NotImplementedError(
-            f"Automatic downsampling not implemented for type {type(data)}. "
-            "Please implement specific downsampling logic for this data type."
-        )
-
+    if not 0.0 < target_fraction <= 1.0:
+        raise ValueError(f"target_fraction must be between 0 and 1, got {target_fraction}")
+    
+    if isinstance(data, list):
+        return [downsample_data(arr, target_fraction) for arr in data]
+        
+    if not isinstance(data, np.ndarray):
+        raise TypeError(f"Unsupported data type: {type(data)}. Expected np.ndarray or list.")
+        
+    if data.ndim == 0:
+        return data
+        
+    if data.ndim == 1:
+        # 1D array: select indices
+        n_samples = len(data)
+        n_keep = max(1, int(n_samples * target_fraction))
+        indices = np.linspace(0, n_samples - 1, n_keep, dtype=int)
+        return data[indices]
+        
+    if data.ndim >= 2:
+        # Multi-dimensional: downsample along the first axis (time)
+        n_timepoints = data.shape[0]
+        n_keep = max(1, int(n_timepoints * target_fraction))
+        indices = np.linspace(0, n_timepoints - 1, n_keep, dtype=int)
+        return data[indices, ...]
+        
+    return data
 
 def monitor_and_ensure_memory(
-    check_func: Optional[Callable[[], None]] = None,
-    threshold_gb: float = MEMORY_THRESHOLD_GB,
-    downsampling_strategy: Optional[Callable] = None
+    check_interval_gb: float = 0.5,
+    max_iterations: int = 3,
+    downsample_factor: float = 0.75
 ) -> bool:
     """
-    Monitor memory usage and trigger actions if the threshold is exceeded.
-
-    This function is designed to be called periodically during data processing.
-
+    Monitor memory and attempt to free up space if threshold is exceeded.
+    
+    This function checks memory usage, and if over threshold, attempts to:
+    1. Trigger garbage collection
+    2. Downsample cached data if available (requires external cache hook)
+    
     Args:
-        check_func: An optional callback to perform custom checks or data retrieval
-                    if downsampling is needed.
-        threshold_gb: The memory threshold in GB.
-        downsampling_strategy: An optional callable to handle downsampling.
-                               If None, a default strategy is attempted.
-
+        check_interval_gb: How much memory to check before re-evaluating.
+        max_iterations: Maximum number of downsample attempts before failing.
+        downsample_factor: Factor to reduce data size on each attempt.
+        
     Returns:
-        bool: True if memory is within limits (or successfully reduced),
-              False if memory is critical and could not be resolved.
+        bool: True if memory is within limits after attempts, False otherwise.
+        
+    Note:
+        This function logs warnings but does not raise exceptions. 
+        It is the caller's responsibility to handle the return value.
     """
-    if check_memory_threshold(threshold_gb):
-        logger.warning(f"Memory usage ({get_current_memory_usage_gb():.2f} GB) exceeds threshold ({threshold_gb} GB).")
-
-        # Step 1: Force Garbage Collection
+    current = get_current_memory_usage_gb()
+    logger.info(f"Starting memory check. Current usage: {current:.2f} GB")
+    
+    if not check_memory_threshold(current):
+        return True
+        
+    for attempt in range(1, max_iterations + 1):
+        logger.warning(
+            f"Memory over threshold. Attempting recovery (attempt {attempt}/{max_iterations})..."
+        )
+        
+        # Step 1: Garbage collection
         trigger_gc()
-
-        # Step 2: Re-check
-        if check_memory_threshold(threshold_gb):
-            logger.warning("Memory still exceeds threshold after GC. Attempting downsampling.")
-
-            if downsampling_strategy:
-                try:
-                    downsampling_strategy()
-                except Exception as e:
-                    logger.error(f"Downsampling strategy failed: {e}")
-                    # Fail loudly as per FR-006 requirement for robust handling
-                    # If we cannot reduce memory, the pipeline should not continue
-                    # with potentially unstable memory conditions.
-                    return False
-            else:
-                logger.error("Memory threshold exceeded and no downsampling strategy provided. Aborting.")
-                return False
-
-            # Step 3: Final Check
-            if check_memory_threshold(threshold_gb):
-                logger.error(f"Memory usage ({get_current_memory_usage_gb():.2f} GB) still exceeds threshold after downsampling. Aborting.")
-                return False
-            else:
-                logger.info("Memory usage reduced successfully.")
-                return True
-        else:
-            logger.info("Memory usage recovered after garbage collection.")
+        current = get_current_memory_usage_gb()
+        logger.info(f"After GC: {current:.2f} GB")
+        
+        if not check_memory_threshold(current):
+            logger.info("Memory recovered successfully via GC.")
             return True
-
-    return True
-
-
-def main():
-    """
-    Command-line interface for testing the memory monitor.
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            
+        # Note: Actual data downsampling requires access to the data cache,
+        # which is handled by the calling context (e.g., ROI extractor or GLM fitter).
+        # This function signals the need for downsampling but cannot access 
+        # the data structures directly without coupling.
+        logger.warning(
+            "GC insufficient. Caller must downsample data or reduce batch size."
+        )
+        
+    logger.error(
+        f"Failed to recover memory after {max_iterations} attempts. "
+        f"Current usage: {get_current_memory_usage_gb():.2f} GB."
     )
+    return False
 
-    logger.info("Starting memory monitor test.")
-    logger.info(f"Current memory usage: {get_current_memory_usage_gb():.2f} GB")
-    logger.info(f"Threshold set to: {MEMORY_THRESHOLD_GB} GB")
-
-    is_safe = monitor_and_ensure_memory()
-    if is_safe:
-        logger.info("Memory check passed.")
-        sys.exit(0)
+def main() -> None:
+    """
+    Command-line entry point for memory monitoring.
+    
+    Usage:
+        python -m code.utils.memory_monitor [--check]
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Memory monitoring utility")
+    parser.add_argument(
+        "--check", 
+        action="store_true", 
+        help="Check current memory usage and exit"
+    )
+    parser.add_argument(
+        "--threshold", 
+        type=float, 
+        default=MEMORY_THRESHOLD_GB,
+        help=f"Memory threshold in GB (default: {MEMORY_THRESHOLD_GB})"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.check:
+        usage = get_current_memory_usage_gb()
+        print(f"Current memory usage: {usage:.2f} GB")
+        if usage > args.threshold:
+            print(f"WARNING: Exceeds threshold of {args.threshold} GB")
+            sys.exit(1)
+        else:
+            print("OK: Within threshold")
+            sys.exit(0)
+    
+    # Default behavior: demonstrate monitoring
+    logger.info("Memory Monitor Utility Started")
+    logger.info(f"Threshold set to: {args.threshold} GB")
+    
+    # Simulate a check
+    if check_memory_threshold():
+        logger.warning("Threshold exceeded in demo mode.")
     else:
-        logger.error("Memory check failed. Critical memory conditions detected.")
-        sys.exit(1)
-
+        logger.info("Threshold not exceeded in demo mode.")
 
 if __name__ == "__main__":
     main()
