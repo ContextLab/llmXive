@@ -1,1 +1,3 @@
-# Tests package marker
+"""
+llmXive Research Pipeline - Tests Package
+"""

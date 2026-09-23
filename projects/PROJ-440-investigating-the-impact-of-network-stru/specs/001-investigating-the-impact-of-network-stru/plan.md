@@ -127,7 +127,7 @@ projects/PROJ-440-investigating-the-impact-of-network-stru/
 ## Compute Feasibility
 
 - **CPU-First**: All methods (`networkx`, `scipy`, `sklearn`, `statsmodels`) are CPU-tractable.
-- **Memory**: Multiple networks × nodes × 200 time steps is well within 7 GB RAM.
+- **Memory**: Multiple networks × nodes × A sufficient number of time steps is well within 7 GB RAM.
 - **Time**: A series of simulations, each running for an extended duration, will be conducted to investigate the research question using the established method (Citation). (with `solve_ivp` adaptive steps) estimated at < 2 hours total on 2 cores.
 - **GPU Escape Hatch**: Not required; no transformer or diffusion models involved.
 

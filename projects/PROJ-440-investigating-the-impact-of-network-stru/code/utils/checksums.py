@@ -1,208 +1,256 @@
+"""
+Checksum generation and management for project artifacts.
+
+This module provides functionality to:
+- Compute SHA256 checksums for files in the data directory
+- Generate and manage a checksum registry file
+- Update the project state YAML with artifact hashes
+- Verify existing checksums against current file contents
+"""
 import hashlib
 import os
 import json
-from typing import Dict, List, Optional
+import yaml
+import logging
+import argparse
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
-def compute_file_checksum(file_path: str) -> str:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def compute_file_checksum(file_path: Path) -> str:
     """
     Compute SHA256 checksum of a file.
-    
+
     Args:
-        file_path: Path to the file.
-        
+        file_path: Path to the file
+
     Returns:
-        str: Hexadecimal checksum string.
+        Hexadecimal string of the SHA256 hash
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error computing checksum for {file_path}: {e}")
+        raise
 
-def generate_checksum_file(data_dir: str, output_path: str):
+
+def generate_checksum_file(data_dir: Path, output_path: Path) -> Dict[str, str]:
     """
-    Generate a checksum file for all files in the data directory.
-    
+    Generate checksums for all files in the data directory.
+
     Args:
-        data_dir: Path to the data directory.
-        output_path: Path to save the checksum file.
+        data_dir: Root directory containing data files
+        output_path: Path to write the checksum JSON file
+
+    Returns:
+        Dictionary mapping relative file paths to their checksums
     """
     checksums = {}
+
     for root, _, files in os.walk(data_dir):
         for file in files:
-            if file.endswith('.gitkeep'):
-                continue
-            file_path = os.path.join(root, file)
-            relative_path = os.path.relpath(file_path, data_dir)
-            checksums[relative_path] = compute_file_checksum(file_path)
-    
+            file_path = Path(root) / file
+            relative_path = file_path.relative_to(data_dir)
+            checksum = compute_file_checksum(file_path)
+            checksums[str(relative_path)] = checksum
+            logger.info(f"Computed checksum for {relative_path}: {checksum[:16]}...")
+
+    # Write checksums to file
     with open(output_path, 'w') as f:
         json.dump(checksums, f, indent=2)
-    print(f"Checksums generated and saved to {output_path}")
 
-def verify_checksums(checksum_file: str, data_dir: str) -> bool:
+    logger.info(f"Checksum file written to {output_path}")
+    return checksums
+
+
+def verify_checksums(checksum_file: Path, data_dir: Path) -> Tuple[bool, List[str]]:
     """
-    Verify checksums of files against a checksum file.
-    
+    Verify that files match their recorded checksums.
+
     Args:
-        checksum_file: Path to the checksum file.
-        data_dir: Path to the data directory.
-        
+        checksum_file: Path to the JSON file containing checksums
+        data_dir: Root directory containing data files
+
     Returns:
-        bool: True if all checksums match, False otherwise.
+        Tuple of (all_valid, list_of_mismatched_files)
     """
     with open(checksum_file, 'r') as f:
-        checksums = json.load(f)
-    
+        recorded_checksums = json.load(f)
+
+    mismatches = []
     all_valid = True
-    for relative_path, expected_checksum in checksums.items():
-        file_path = os.path.join(data_dir, relative_path)
-        if not os.path.exists(file_path):
-            print(f"File not found: {file_path}")
+
+    for relative_path, expected_checksum in recorded_checksums.items():
+        file_path = data_dir / relative_path
+        if not file_path.exists():
+            logger.warning(f"File not found: {relative_path}")
+            mismatches.append(relative_path)
             all_valid = False
             continue
-        
+
         actual_checksum = compute_file_checksum(file_path)
         if actual_checksum != expected_checksum:
-            print(f"Checksum mismatch for {file_path}")
+            logger.warning(f"Checksum mismatch for {relative_path}")
+            mismatches.append(relative_path)
             all_valid = False
-    
-    return all_valid
 
-def verify_single_file(file_path: str, expected_checksum: str) -> bool:
+    return all_valid, mismatches
+
+
+def verify_single_file(file_path: Path, expected_checksum: str) -> bool:
     """
-    Verify the checksum of a single file.
-    
+    Verify a single file against an expected checksum.
+
     Args:
-        file_path: Path to the file.
-        expected_checksum: Expected checksum.
-        
+        file_path: Path to the file
+        expected_checksum: Expected SHA256 hash
+
     Returns:
-        bool: True if checksum matches, False otherwise.
+        True if checksum matches, False otherwise
     """
     actual_checksum = compute_file_checksum(file_path)
     return actual_checksum == expected_checksum
 
-def setup_data_directories(base_path: str):
-    """
-    Create the required data subdirectories.
-    
-    Args:
-        base_path: Base path for the data directory.
-    """
-    directories = ["raw", "processed", "analysis"]
-    for dir_name in directories:
-        dir_path = os.path.join(base_path, dir_name)
-        os.makedirs(dir_path, exist_ok=True)
-        print(f"Created directory: {dir_path}")
 
-def register_artifacts(state_path: str, checksum_file: str, data_dir: str):
+def setup_data_directories(project_root: Path) -> None:
     """
-    Register the current checksum state into the project state file.
-    
+    Ensure all required data directories exist.
+
     Args:
-        state_path: Path to the project state YAML file.
-        checksum_file: Path to the generated checksum JSON file.
-        data_dir: Path to the data directory (for relative path context).
+        project_root: Root directory of the project
     """
-    import yaml
-    from datetime import datetime
-    
-    # Load existing state or create new
-    state_data = {}
-    if os.path.exists(state_path):
-        try:
-            with open(state_path, 'r') as f:
-                state_data = yaml.safe_load(f) or {}
-        except Exception:
-            state_data = {}
-    
-    # Load checksums
-    if not os.path.exists(checksum_file):
-        raise FileNotFoundError(f"Checksum file not found: {checksum_file}")
-    
-    with open(checksum_file, 'r') as f:
-        current_checksums = json.load(f)
-    
-    # Update state
-    state_data['last_checksum_run'] = datetime.now().isoformat()
-    state_data['data_checksums'] = current_checksums
-    state_data['data_directory'] = str(Path(data_dir).resolve())
-    
-    # Ensure parent directory exists
-    os.makedirs(os.path.dirname(state_path), exist_ok=True)
-    
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-    
-    print(f"Artifacts registered in {state_path}")
+    data_dirs = [
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "analysis"
+    ]
+
+    for directory in data_dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory exists: {directory}")
+
+
+def register_artifacts(project_root: Path, state_file: Path) -> Dict[str, str]:
+    """
+    Update the project state YAML file with current artifact checksums.
+
+    Args:
+        project_root: Root directory of the project
+        state_file: Path to the project state YAML file
+
+    Returns:
+        Dictionary of updated artifact hashes
+    """
+    data_dir = project_root / "data"
+    checksums = generate_checksum_file(data_dir, project_root / "data" / "checksums.json")
+
+    # Load or create state file
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f) or {}
+    else:
+        state = {}
+
+    # Ensure artifact_hashes key exists
+    if 'artifact_hashes' not in state:
+        state['artifact_hashes'] = {}
+
+    # Update with new checksums
+    state['artifact_hashes'].update(checksums)
+
+    # Write updated state
+    with open(state_file, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated artifact hashes in {state_file}")
+    return state['artifact_hashes']
+
 
 def main():
-    """
-    Main entry point for CLI usage.
-    
-    Usage:
-        python code/utils/checksums.py --update
-        python code/utils/checksums.py --verify
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Manage data checksums for the project.")
-    parser.add_argument(
-        "--update",
-        action="store_true",
-        help="Generate new checksums for all files in data/ and register in state/"
+    """Main entry point for the checksum utility."""
+    parser = argparse.ArgumentParser(
+        description='Generate and manage checksums for project artifacts'
     )
     parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="Verify current data files against the last registered checksums"
+        '--update',
+        action='store_true',
+        help='Update the project state file with new checksums'
     )
     parser.add_argument(
-        "--data-dir",
-        type=str,
-        default="data",
-        help="Path to the data directory (default: data)"
+        '--verify',
+        action='store_true',
+        help='Verify existing checksums against current files'
     )
     parser.add_argument(
-        "--state-file",
-        type=str,
-        default="state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml",
-        help="Path to the project state file (default: state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml)"
+        '--project-root',
+        type=Path,
+        default=Path.cwd(),
+        help='Root directory of the project (default: current directory)'
     )
-    
+
     args = parser.parse_args()
-    
-    if not os.path.exists(args.data_dir):
-        print(f"Error: Data directory not found: {args.data_dir}")
-        sys.exit(1)
-    
-    checksum_file = os.path.join(args.data_dir, ".checksums.json")
-    
+
+    # Ensure data directories exist
+    setup_data_directories(args.project_root)
+
     if args.update:
-        print(f"Generating checksums for {args.data_dir}...")
-        generate_checksum_file(args.data_dir, checksum_file)
-        print("Registering artifacts in state...")
-        register_artifacts(args.state_file, checksum_file, args.data_dir)
-        print("Update complete.")
-    
+        state_file = args.project_root / "state" / "projects" / "PROJ-440-investigating-the-impact-of-network-stru.yaml"
+        if not state_file.parent.exists():
+            state_file.parent.mkdir(parents=True, exist_ok=True)
+
+        if not state_file.exists():
+            logger.info(f"Creating new state file at {state_file}")
+            # Create initial state structure
+            state = {
+                'project_id': 'PROJ-440-investigating-the-impact-of-network-stru',
+                'artifact_hashes': {}
+            }
+            with open(state_file, 'w') as f:
+                yaml.dump(state, f, default_flow_style=False)
+
+        artifacts = register_artifacts(args.project_root, state_file)
+        logger.info(f"Registered {len(artifacts)} artifacts")
+
     elif args.verify:
-        if not os.path.exists(checksum_file):
-            print(f"Error: Checksum file not found: {checksum_file}")
-            print("Run with --update first to generate checksums.")
-            sys.exit(1)
-        
-        print(f"Verifying checksums for {args.data_dir}...")
-        is_valid = verify_checksums(checksum_file, args.data_dir)
-        if is_valid:
-            print("All checksums verified successfully.")
+        checksum_file = args.project_root / "data" / "checksums.json"
+        data_dir = args.project_root / "data"
+
+        if not checksum_file.exists():
+            logger.error(f"Checksum file not found: {checksum_file}")
+            logger.info("Run with --update first to generate checksums")
+            return
+
+        all_valid, mismatches = verify_checksums(checksum_file, data_dir)
+
+        if all_valid:
+            logger.info("All checksums verified successfully")
         else:
-            print("Verification failed: some files are missing or modified.")
-            sys.exit(1)
-    
+            logger.error(f"Checksum verification failed for {len(mismatches)} files:")
+            for mismatch in mismatches:
+                logger.error(f"  - {mismatch}")
+
     else:
-        parser.print_help()
+        # Default: generate checksums without updating state
+        data_dir = args.project_root / "data"
+        output_path = data_dir / "checksums.json"
+        checksums = generate_checksum_file(data_dir, output_path)
+        logger.info(f"Generated {len(checksums)} checksums")
+
 
 if __name__ == "__main__":
     main()

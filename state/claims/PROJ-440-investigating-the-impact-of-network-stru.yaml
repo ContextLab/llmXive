@@ -413,23 +413,6 @@
   updated_at: '2026-08-29T23:28:46Z'
 - artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: energy variance less than 1e-6 for undamped system
-  claim_id: c_836e2684
-  context: Unit test test_energy_conservation_no_damping in tests/test_simulation.py
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Energy_variance_less_than_1e-6_for_undamped_system
-  kind: magnitude
-  raw_text: assert energy variance < 1e-6 for undamped system
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-29T23:29:29Z'
-- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
   canonical: decay rate matches damping/2 within 1% for ring graph
   claim_id: c_00372390
   context: Unit test test_analytical_decay_match in tests/test_simulation.py
@@ -628,3 +611,494 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T23:40:12Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 10 random graphs generated with N=100
+  claim_id: c_f9e38cb5
+  context: Unit test test_generate_random_graphs in tests/test_generation.py
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10 4175098976430598143
+      source_id: A003024
+      url: https://oeis.org/A003024
+      value: '4175098976430598143'
+    filled: true
+  kind: numeric
+  raw_text: assert 10 graphs generated, all labeled 'random', N=100
+  resolved_value: '4175098976430598143'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T01:54:12Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 50+ networks generated across 5 classes with N=100-200
+  claim_id: c_311f6edf
+  context: Implement code/generate_networks.py to generate 50+ networks
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert 50+ networks (N=100-200) across 5 classes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:54:56Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: at least 10 realizations per class
+  claim_id: c_df95edb7
+  context: Ensure at least 10 realizations per class to meet FR-001
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_realizations_per_class
+  kind: magnitude
+  raw_text: Ensure at least 10 realizations per class
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:55:25Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 2
+  canonical: energy variance less than 1e-6 for undamped system
+  claim_id: c_836e2684
+  context: Unit test test_energy_conservation_no_damping in tests/test_simulation.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_variance_less_than_1e-6_for_undamped_system
+  kind: magnitude
+  raw_text: assert energy variance < 1e-6 for undamped system
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:56:17Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: decay rate matches lambda = damping/2 within 1% for ring graph
+  claim_id: c_e70aa2e9
+  context: Unit test test_analytical_decay_match in tests/test_simulation.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:56:43Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: solve_ivp integration with T=200 and driving active T=0-100
+  claim_id: c_76997157
+  context: Implement solve_ivp integration (T=200, driving active T=0-100) using RK45
+    or DOP853
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement solve_ivp integration (T=200, driving active T=0-100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:57:02Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: fit damped sinusoid to post-transient phase t greater than 100
+  claim_id: c_d5dcfbc2
+  context: fit damped sinusoid to post-transient phase (t > 100)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fit_damped_sinusoid_to_post-transient_phase_t_greater_than_1
+  kind: magnitude
+  raw_text: "fit E(t) = A * exp(-\u03BBt) * cos(\u03C9t + \u03C6) + C to post-transient\
+    \ phase (t > 100)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:57:14Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: run simulation with 10 different random seeds
+  claim_id: c_00cffd1d
+  context: Define function run_convergence_test(graph_id, num_seeds=10) that runs
+    simulation with 10 different random seeds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run simulation with 10 different random seeds for a given graph
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:57:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: mark as stable if std/mean less than 0.01
+  claim_id: c_116116d8
+  context: If std/mean < 0.01, mark as 'stable'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_as_stable_if_std/mean_less_than_0.01
+  kind: magnitude
+  raw_text: if std/mean < 0.01, mark as 'stable'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:58:10Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: strong association with PC if absolute loading greater than 0.5
+  claim_id: c_1a3e8477
+  context: if |loading| > 0.5, write 'Strong association with PC[1/2]'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Strong_association_with_PC_if_absolute_loading_greater_than
+  kind: magnitude
+  raw_text: if |loading| > 0.5, write 'Strong association with PC[1/2]'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:59:06Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: moderate association if absolute loading between 0.3 and 0.5
+  claim_id: c_d270bd9f
+  context: if 0.3 < |loading| <= 0.5, write 'Moderate association'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if 0.3 < |loading| <= 0.5, write 'Moderate association'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:59:27Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: flag metrics with VIF greater than 5
+  claim_id: c_37432b56
+  context: 'Implement VIF check: flag metrics with VIF > 5'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag metrics with VIF > 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T01:59:38Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Checksums script parses specific YAML file to update artifact_hashes
+    map
+  claim_id: c_81a26918
+  context: 'Phase 2, Task T008: Implement code/utils/checksums.py to generate SHA256
+    checksums for all files in data/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST parse the YAML file state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml,
+    locate the artifact_hashes map, and update it with the new checksums for the generated
+    data files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:03:05Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Output CSV contains at least 50 rows with minimum 10 per class
+  claim_id: c_733db6f8
+  context: 'Phase 3, User Story 1 Goal: Independent Test requirements.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_50_rows_with_minimum_10_per_cla
+  kind: magnitude
+  raw_text: "The Independent Test for User Story 1 requires verifying output CSV contains\
+    \ \u226550 rows (min 10 per class)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:03:29Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Decay rate matches analytical solution within 1% error
+  claim_id: c_fa947e83
+  context: 'Phase 4, User Story 2 Goal: Independent Test requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Independent Test for User Story 2 requires decay rate to match analytical\
+    \ solution (\u03BB = damping/2) within 1% error on a known ring graph."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:04:29Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Simulation integration time 200 with driving active 0 to 100
+  claim_id: c_ec1de1e4
+  context: 'Phase 4, Task T021b: Implement solve_ivp integration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses integration time T=200 with driving active from T=0
+    to T=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:05:59Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Convergence testing runs 10 random seeds
+  claim_id: c_2f75509e
+  context: 'Phase 4, Task T023a: Implement convergence testing logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The convergence testing logic runs simulation with 10 different random
+    seeds for a given graph.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:06:31Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Numerical instability warning triggered if std/mean greater than or equal
+    to 0.01
+  claim_id: c_788494f3
+  context: 'Phase 4, Task T024b: Execute convergence testing with contingency logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Numerical_instability_warning_triggered_if_std/mean_greater
+  kind: magnitude
+  raw_text: If std/mean >= 0.01, a 'Numerical Instability Warning' is logged and the
+    result is marked as 'unstable'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:07:27Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: VIF check references Wikidata Q113106917
+  claim_id: c_a48d1575
+  context: 'Phase 5, Task T035: Implement VIF check.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VIF_check_references_Wikidata_Q113106917
+  kind: entity_fact
+  raw_text: The VIF check references Wikidata Q113106917.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:07:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Pipeline wall-clock time less than or equal to 6 hours
+  claim_id: c_055a62c4
+  context: 'Phase N, Task T043: Execute benchmark_pipeline.py and verify time.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_wall-clock_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "The benchmark pipeline must verify total wall-clock time is \u2264 6\
+    \ hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:08:39Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 0
+  canonical: unit test asserts 10 random graphs generated with N=100
+  claim_id: c_1a2af28f
+  context: 'Phase 3: User Story 1 - Tests - T009a [P] [US1] Unit test `test_generate_random_graphs`
+    in `tests/test_generation.py`'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10 4175098976430598143
+      source_id: A003024
+      url: https://oeis.org/A003024
+      value: '4175098976430598143'
+    filled: true
+  kind: numeric
+  raw_text: assert 10 graphs generated, all labeled "random", N=100
+  resolved_value: '4175098976430598143'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T02:09:24Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: checksums script parses PROJ-440 YAML file to update artifact_hashes
+    map
+  claim_id: c_5f124589
+  context: 'Phase 2: Foundational - T008 Implement `code/utils/checksums.py` to generate
+    SHA256 checksums for all files in `data/`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST parse the YAML file `state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml`,
+    locate the `artifact_hashes` map, and update it with the new checksums for the
+    generated data files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:09:25Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: generate_networks.py generates 50+ networks with N between 100 and 200
+    across 5 classes
+  claim_id: c_02dd576d
+  context: 'Phase 3: User Story 1 - Implementation - T012 [P] [US1] Implement `code/generate_networks.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/generate_networks.py` to generate 50+ networks (N=100-200)
+    across 5 classes (Random, Scale-Free, Small-World, Lattice, Star) with pinned
+    random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:10:06Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: decay rate matches analytical solution lambda equals damping over 2 within
+    1 percent error
+  claim_id: c_27db228c
+  context: 'Phase 4: User Story 2 - Independent Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify decay rate matches analytical solution (\u03BB = damping/2) within\
+    \ 1% error on a known ring graph"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:10:38Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: unit test asserts decay rate matches lambda equals damping over 2 within
+    1 percent
+  claim_id: c_87169312
+  context: 'Phase 4: User Story 2 - Tests - T017b [P] [US2] Unit test `test_analytical_decay_match`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:10:38Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: solve_ivp integration uses T equals 200 with driving active from T equals
+    0 to 100
+  claim_id: c_8fe4b455
+  context: 'Phase 4: User Story 2 - Implementation - T021b [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `solve_ivp` integration (T=200, driving active T=0-100) using
+    `RK45` or `DOP853`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:11:24Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: run_convergence_test function runs simulation with 10 different random
+    seeds
+  claim_id: c_5c3d77ce
+  context: 'Phase 4: User Story 2 - Implementation - T023a [P] [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define function `run_convergence_test(graph_id, num_seeds=10)` in `code/simulate_oscillators.py`
+    that runs simulation with 10 different random seeds for a given graph.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:12:42Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: if std divided by mean is less than 0.01 mark as stable
+  claim_id: c_3ba88909
+  context: 'Phase 4: User Story 2 - Implementation - T024b [US2] Execute convergence
+    testing'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_std_divided_by_mean_is_less_than_0.01_mark_as_stable
+  kind: magnitude
+  raw_text: If `std/mean < 0.01`, mark as 'stable'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:12:44Z'

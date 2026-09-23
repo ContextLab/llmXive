@@ -1,0 +1,234 @@
+"""
+Script to generate and validate the regression schema.
+This script creates the schema file and optionally validates sample data against it.
+"""
+import json
+import yaml
+from pathlib import Path
+from typing import Dict, Any
+
+SCHEMA_PATH = Path("contracts/regression_schema.schema.yaml")
+SAMPLE_OUTPUT_PATH = Path("data/analysis/regression_results.json")
+
+def create_schema() -> Dict[str, Any]:
+    """Define the regression results schema structure."""
+    return {
+        "type": "object",
+        "required": [
+            "metadata",
+            "regression_model",
+            "coefficients",
+            "vip_scores",
+            "statistical_inference",
+            "pca_loadings",
+            "sensitivity_analysis",
+            "diagnostics"
+        ],
+        "properties": {
+            "metadata": {
+                "type": "object",
+                "required": [
+                    "generated_at",
+                    "pipeline_version",
+                    "input_files",
+                    "sample_size",
+                    "excluded_count"
+                ],
+                "properties": {
+                    "generated_at": {
+                        "type": "string",
+                        "description": "ISO 8601 timestamp of generation"
+                    },
+                    "pipeline_version": {
+                        "type": "string",
+                        "description": "Version of the analysis pipeline"
+                    },
+                    "input_files": {
+                        "type": "object",
+                        "required": ["networks_file", "decay_file"],
+                        "properties": {
+                            "networks_file": {
+                                "type": "string",
+                                "description": "Path to data/raw/networks.csv"
+                            },
+                            "decay_file": {
+                                "type": "string",
+                                "description": "Path to data/processed/energy_decay.csv"
+                            }
+                        }
+                    },
+                    "sample_size": {
+                        "type": "integer",
+                        "description": "Number of samples used in regression (after filtering)"
+                    },
+                    "excluded_count": {
+                        "type": "integer",
+                        "description": "Number of resonant instances excluded"
+                    }
+                }
+            },
+            "regression_model": {
+                "type": "object",
+                "required": ["method", "n_components", "r_squared_train", "r_squared_cv"],
+                "properties": {
+                    "method": {
+                        "type": "string",
+                        "enum": ["PLS"],
+                        "description": "Regression method used"
+                    },
+                    "n_components": {
+                        "type": "integer",
+                        "description": "Number of PLS components retained"
+                    },
+                    "r_squared_train": {
+                        "type": "number",
+                        "description": "R-squared on training data"
+                    },
+                    "r_squared_cv": {
+                        "type": "number",
+                        "description": "Cross-validated R-squared"
+                    }
+                }
+            },
+            "coefficients": {
+                "type": "object",
+                "required": ["beta", "intercept"],
+                "properties": {
+                    "beta": {
+                        "type": "object",
+                        "description": "Regression coefficients for each predictor",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "intercept": {
+                        "type": "number",
+                        "description": "Model intercept"
+                    }
+                }
+            },
+            "vip_scores": {
+                "type": "object",
+                "required": ["scores", "ranked_predictors"],
+                "properties": {
+                    "scores": {
+                        "type": "object",
+                        "description": "VIP score for each predictor",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "ranked_predictors": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Predictors ranked by VIP score (descending)"
+                    }
+                }
+            },
+            "statistical_inference": {
+                "type": "object",
+                "required": ["p_values_raw", "p_values_corrected", "correction_method", "significant_predictors"],
+                "properties": {
+                    "p_values_raw": {
+                        "type": "object",
+                        "description": "Raw p-values for each coefficient",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "p_values_corrected": {
+                        "type": "object",
+                        "description": "Bonferroni/Holm-Bonferroni corrected p-values",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "correction_method": {
+                        "type": "string",
+                        "enum": ["bonferroni", "holm-bonferroni"],
+                        "description": "Multiple comparison correction method used"
+                    },
+                    "significant_predictors": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of predictors with corrected p < 0.05"
+                    }
+                }
+            },
+            "pca_loadings": {
+                "type": "object",
+                "required": ["pc1", "pc2"],
+                "properties": {
+                    "pc1": {
+                        "type": "object",
+                        "description": "Loadings for PC1",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "pc2": {
+                        "type": "object",
+                        "description": "Loadings for PC2",
+                        "additionalProperties": {"type": "number"}
+                    }
+                }
+            },
+            "sensitivity_analysis": {
+                "type": "object",
+                "required": ["thresholds_tested", "significant_counts", "stability_metric"],
+                "properties": {
+                    "thresholds_tested": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "Significance thresholds swept"
+                    },
+                    "significant_counts": {
+                        "type": "array",
+                        "items": {"type": "integer"},
+                        "description": "Count of significant predictors at each threshold"
+                    },
+                    "stability_metric": {
+                        "type": "number",
+                        "description": "Variance in significant counts across thresholds"
+                    }
+                }
+            },
+            "diagnostics": {
+                "type": "object",
+                "required": ["vif_scores", "multicollinearity_flag", "residuals_summary"],
+                "properties": {
+                    "vif_scores": {
+                        "type": "object",
+                        "description": "VIF scores for each predictor",
+                        "additionalProperties": {"type": "number"}
+                    },
+                    "multicollinearity_flag": {
+                        "type": "boolean",
+                        "description": "True if any VIF > 5"
+                    },
+                    "residuals_summary": {
+                        "type": "object",
+                        "properties": {
+                            "mean": {"type": "number"},
+                            "std": {"type": "number"},
+                            "min": {"type": "number"},
+                            "max": {"type": "number"}
+                        },
+                        "description": "Summary statistics of residuals"
+                    }
+                }
+            }
+        },
+        "additionalProperties": False
+    }
+
+def write_schema(schema: Dict[str, Any], path: Path) -> None:
+    """Write the schema to a YAML file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    print(f"Schema written to: {path}")
+
+def main():
+    """Main entry point."""
+    schema = create_schema()
+    write_schema(schema, SCHEMA_PATH)
+    
+    # Verify the file exists and is readable
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Failed to create schema at {SCHEMA_PATH}")
+    
+    print("Schema generation completed successfully.")
+
+if __name__ == "__main__":
+    main()

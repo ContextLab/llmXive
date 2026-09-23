@@ -1,127 +1,110 @@
 # Schema for data/processed/energy_decay.csv
-# Generated for PROJ-440: Investigating the Impact of Network Structure on Energy Dissipation
-# Task: T006b
-#
-# This schema defines the expected structure for the energy decay results
-# produced by the oscillator simulation pipeline (User Story 2).
-#
-# Columns:
-#   graph_id: Unique identifier for the network topology (string)
-#   decay_rate: Extracted exponential decay constant λ from damped sinusoid fit (float)
-#   r_squared: Goodness-of-fit R² value for the decay model (float, 0-1)
-#   status: Classification of the simulation result ('dissipative' or 'resonant')
-#   graph_class: Topological class of the network (e.g., 'random', 'scale_free')
-#   N: Number of nodes in the network (integer)
-#   damping_coefficient: Damping parameter γ used in simulation (float)
-#   driving_frequency: Driving frequency ω used in simulation (float)
-#   fit_error: Root mean squared error of the fit (float)
-#   simulation_seed: Random seed used for the simulation (integer)
-
-schema_version: "1.0"
-file_path: "data/processed/energy_decay.csv"
-file_format: "csv"
-
-columns:
-  - name: graph_id
+# Generated for Project: PROJ-440-investigating-the-impact-of-network-stru
+# Task: T006b - Define expected structure for energy decay results
+type: object
+description: |
+  Defines the expected structure for the energy decay results CSV.
+  This file contains the output of the oscillator simulations, including
+  decay rates, fit quality, and convergence statistics.
+properties:
+  graph_id:
     type: string
-    description: "Unique identifier for the graph instance"
-    required: true
-    nullable: false
-    
-  - name: decay_rate
-    type: float
-    description: "Extracted decay rate λ from E(t) = A * exp(-λt) * cos(ωt + φ) + C"
-    required: true
-    nullable: false
-    constraints:
-      min: -1.0
-      max: 10.0
-      
-  - name: r_squared
-    type: float
-    description: "Coefficient of determination for the damped sinusoid fit"
-    required: true
-    nullable: false
-    constraints:
-      min: 0.0
-      max: 1.0
-      
-  - name: status
+    description: Unique identifier for the network graph used in the simulation.
+    pattern: "^graph_[0-9]+$"
+    examples:
+      - "graph_001"
+      - "graph_042"
+  class:
     type: string
-    description: "Simulation status classification"
-    required: true
-    nullable: false
+    description: Topological class of the network (e.g., random, scale_free, small_world, lattice, star).
     enum:
-      - dissipative
-      - resonant
-      - failed
-      
-  - name: graph_class
+      - "random"
+      - "scale_free"
+      - "small_world"
+      - "lattice"
+      - "star"
+    examples:
+      - "random"
+      - "scale_free"
+  decay_rate:
+    type: number
+    description: |
+      The fitted exponential decay rate (λ) from the damped sinusoid model.
+      Units: inverse time steps.
+      Expected range: Typically > 0 for dissipative systems, < 0 for resonant/unstable.
+    minimum: -100.0
+    maximum: 100.0
+    examples:
+      - 0.0523
+      - -0.0012
+  r_squared:
+    type: number
+    description: |
+      Coefficient of determination (R²) for the damped sinusoid fit.
+      Indicates goodness of fit.
+    minimum: 0.0
+    maximum: 1.0
+    examples:
+      - 0.9876
+      - 0.9921
+  status:
     type: string
-    description: "Topological class of the network"
-    required: true
-    nullable: false
+    description: |
+      Classification of the simulation result.
+      'dissipative': Standard energy decay observed.
+      'resonant': Negative decay rate detected (energy growth or sustained oscillation).
+      'unstable': Convergence criteria not met (high variance across seeds).
     enum:
-      - random
-      - scale_free
-      - small_world
-      - lattice
-      - star
-      
-  - name: N
+      - "dissipative"
+      - "resonant"
+      - "unstable"
+    examples:
+      - "dissipative"
+      - "resonant"
+  convergence_std:
+    type: number
+    description: |
+      Standard deviation of the decay rate across multiple simulation seeds
+      (used for convergence testing).
+    minimum: 0.0
+    examples:
+      - 0.0005
+      - 0.0012
+  convergence_mean:
+    type: number
+    description: |
+      Mean decay rate across multiple simulation seeds.
+    examples:
+      - 0.0520
+      - 0.0518
+  seed_count:
     type: integer
-    description: "Number of nodes in the network"
-    required: true
-    nullable: false
-    constraints:
-      min: 10
-      
-  - name: damping_coefficient
-    type: float
-    description: "Damping parameter γ used in simulation"
-    required: true
-    nullable: false
-    constraints:
-      min: 0.0
-      
-  - name: driving_frequency
-    type: float
-    description: "Driving frequency ω used in simulation"
-    required: true
-    nullable: false
-    constraints:
-      min: 0.0
-      
-  - name: fit_error
-    type: float
-    description: "Root mean squared error of the fit"
-    required: true
-    nullable: false
-    constraints:
-      min: 0.0
-      
-  - name: simulation_seed
-    type: integer
-    description: "Random seed used for the simulation"
-    required: true
-    nullable: false
-    
-validation_rules:
-  - rule: r_squared_threshold
-    condition: "r_squared >= 0.95 OR status == 'resonant'"
-    severity: warning
-    message: "Low R² value indicates poor fit quality"
-    
-  - rule: status_consistency
-    condition: "status != 'resonant' OR decay_rate < 0"
-    severity: error
-    message: "Resonant status should only be assigned when decay_rate is negative"
-    
-  - rule: decay_rate_physical
-    condition: "decay_rate >= 0 OR status == 'resonant'"
-    severity: warning
-    message: "Negative decay rate indicates energy gain (resonance)"
-
-expected_row_count:
-  min: 50
-  description: "Minimum 10 samples per topological class (5 classes)"
+    description: Number of random seeds used for convergence testing.
+    minimum: 1
+    examples:
+      - 10
+  simulation_time:
+    type: number
+    description: Total simulation time duration.
+    minimum: 0.0
+    examples:
+      - 200.0
+  damping_coefficient:
+    type: number
+    description: The damping coefficient (γ) used in the oscillator equations.
+    minimum: 0.0
+    examples:
+      - 0.1
+  driving_frequency:
+    type: number
+    description: The driving frequency (ω) used in the oscillator equations.
+    minimum: 0.0
+    examples:
+      - 1.0
+required:
+  - graph_id
+  - class
+  - decay_rate
+  - r_squared
+  - status
+additionalProperties: false

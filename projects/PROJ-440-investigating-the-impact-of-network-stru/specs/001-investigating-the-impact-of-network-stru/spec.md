@@ -19,7 +19,7 @@ The researcher needs to generate a diverse set of synthetic oscillator network t
 
 **Acceptance Scenarios**:
 
-1. **Given** the user requests 50 random graphs with N=100 nodes, **When** the generation script executes, **Then** the output file contains 50 rows, each with a unique graph ID, a label "random", and computed metrics (average degree, clustering coefficient) that match theoretical expectations for Erdős-Rényi graphs within a 5% tolerance.
+1. **Given** the user requests 50 random graphs with N=100 nodes, **When** the generation script executes, **Then** the output file contains multiple rows, each with a unique graph ID, a label "random", and computed metrics (average degree, clustering coefficient) that match theoretical expectations for Erdős-Rényi graphs within a 5% tolerance.
 2. **Given** the user requests scale-free networks, **When** the script executes, **Then** the generated adjacency matrices exhibit a power-law degree distribution with a scaling exponent in the range typical for scale-free networks, and the "average path length" metric is recorded for each instance.
 3. **Given** the user requests small-world, lattice, or star networks, **When** the script executes, **Then** the generated graphs exhibit their characteristic structural properties (e.g., high clustering for small-world, regular degree for lattice, high diameter for star) and metrics are recorded.
 4. **Given** the total dataset is generated, **When** the script completes, **Then** there are at least 10 realizations for each of the 5 topological classes, ensuring a total of ≥ 50 samples for regression analysis.

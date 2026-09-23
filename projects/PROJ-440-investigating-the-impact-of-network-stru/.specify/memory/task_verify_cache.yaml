@@ -1,3 +1,28 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, screenshots, or command output were provided to demonstrate
+    that the required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`,
+    `tests/`, `contracts/`, `state/`) actually exist. Without concrete evidence the
+    claim cannot be verified.
+T006a:
+  c: false
+  h: 6cde1bf598d663edbf2763efb6ccaae591d5753a3b1327e1eeebdbeb81b746f7
+  r: "The required schema file `contracts/network_schema.schema.yaml` is missing (no\
+    \ `schema.yaml` present), and the referenced CSV `data/raw/networks.csv` also\
+    \ does not exist, so the task\u2019s deliverable is not provided."
+T006b:
+  c: false
+  h: 62d29f3353f68c60cb48b47baed517bfe8dd67ed3dc9c105d5dde6da4150b336
+  r: "The required schema file `contracts/energy_schema.schema.yaml` does not exist,\
+    \ and the referenced data file `data/processed/energy_decay.csv` is also missing,\
+    \ so the task\u2019s deliverable is not present."
+T006c:
+  c: false
+  h: fb197a31285dc1ac82bf7d27f1e6a89785d5fc3dad4bf44396f5358a2bafa21c
+  r: "The required schema file (`contracts/regression_schema.schema.yaml`) is missing,\
+    \ and the target JSON data file (`data/analysis/regression_results.json`) does\
+    \ not exist, so the task\u2019s deliverables are not present."
 T011a:
   c: false
   h: 23bfe476c0120ac7cda67f7ff82ed34aa1fe7b9c5fb14045c399864d45b934cd
@@ -6,6 +31,21 @@ T011a:
     that checks for the existence or contents of `data/raw/networks.csv`. Moreover,
     the file `data/raw/networks.csv` is missing entirely. Hence the required integration
     test and the CSV artifact are not present.
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log file (`state/failedGraphs.log`) was provided\
+    \ to demonstrate that exceptions are caught, classified into the required error\
+    \ types, and logged in the specified pipe\u2011separated format while allowing\
+    \ the generation loop to continue. The implementer must supply the updated generation\
+    \ script (or relevant module) and a non\u2011empty example of the log file showing\
+    \ entries matching the required schema."
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact such as a script, function, or module that reads `state/failedGraphs.log`
+    and filters out the listed graph IDs is present. The claim lacks any code, test,
+    or output demonstrating that the required filtering logic was implemented.
 T021b:
   c: false
   h: de139e6bffb9e675d806a297340bbf0c6da9ace4e0462bd7e1dc4388bebca2fd
@@ -63,10 +103,10 @@ T025:
     the claimed validation cannot be verified. The implementer must supply the implementation
     (e.g., a script or notebook) and the resulting validation results (e.g., printed
     eigenvalues, error metrics, or a plot) to satisfy the task.
-T027:
+T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that error handling for\
-    \ non\u2011convergence was added, that graph IDs are logged when this occurs,\
-    \ or that such graphs are excluded from downstream analysis. The required artifact\
-    \ is missing."
+  r: "No code, data file, or documentation was provided showing that the network generation\
+    \ script exists, produces the required CSV with \u226550 graph instances and correct\
+    \ metrics, or that the power\u2011limitation check was moved to task\u202FT012.\
+    \ Without any tangible artifact, the claim cannot be verified."
