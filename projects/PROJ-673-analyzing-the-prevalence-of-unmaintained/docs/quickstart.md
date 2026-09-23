@@ -1,197 +1,196 @@
 # Quickstart Guide: Analyzing Unmaintained NPM Dependencies
 
-This guide provides step-by-step instructions to run the full pipeline for analyzing the prevalence of unmaintained dependencies in popular NPM packages.
+This guide walks you through setting up and running the full analysis pipeline to measure the prevalence of unmaintained dependencies in popular NPM packages.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- `pip` (Python package installer)
-- NPM API Key (optional, for higher rate limits)
-- GitHub Token (optional, for repository metadata)
+- Python 3.11+
+- pip (Python package manager)
+- Valid API keys (see Environment Setup below)
 
-## 1. Installation
+## Environment Setup
 
-Clone the repository and install dependencies:
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd <project-directory>
-
-# Create a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## 2. Configuration
-
-Set up environment variables for API keys (optional but recommended):
+Before running the pipeline, you must configure your environment variables. Create a `.env` file in the project root or export these variables in your shell:
 
 ```bash
-# Create a.env file or set environment variables directly
-export NPM_API_KEY="your_npm_api_key_here"
-export GITHUB_TOKEN="your_github_token_here"
+# Required API Keys
+export NPM_API_KEY="your_npm_registry_api_key"
+export GITHUB_TOKEN="your_github_personal_access_token"
+
+# Optional: Rate limiting (requests per minute)
+export RATE_LIMIT="60"
+
+# Optional: Override default number of top packages to analyze
+export TOP_PACKAGES="100"
 ```
 
-If no keys are provided, the pipeline will use public endpoints with rate limiting.
+**Important**: Ensure your GitHub token has `public_repo` scope (or equivalent) to read repository metadata. The NPM API key is typically not required for public package metadata but is recommended for higher rate limits.
 
-## 3. Running the Pipeline
+## Installation
 
-The pipeline consists of several stages. You can run them individually or execute the full pipeline at once.
+1. Navigate to the project root:
+ ```bash
+ cd PROJ-673-analyzing-the-prevalence-of-unmaintained
+ ```
 
-### Option A: Run the Full Pipeline
+2. Create a virtual environment (recommended):
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
 
-```bash
-python code/src/cli/optimize_pipeline.py
-```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-This script orchestrates the entire workflow:
-1. Data collection (NPM packages, GitHub metadata, audit data)
-2. Dependency resolution and age calculation
-3. Statistical correlation analysis
-4. Stratified analysis by package category
-5. Visualization generation
-6. Sensitivity analysis
-7. Final report generation
+## Running the Pipeline
 
-### Option B: Run Individual Stages
+The pipeline consists of three main stages: Data Collection, Analysis, and Reporting. You can run them individually or all at once using the validation script.
 
-#### Stage 1: Data Collection
+### Option 1: Run Full Pipeline (Recommended)
 
-```bash
-python code/src/cli/collect_data.py
-```
-
-Outputs:
-- `data/raw/` (cached API responses)
-- `data/processed/dependencies_raw.json`
-
-#### Stage 2: Age Metrics Calculation
-
-```bash
-python code/src/cli/calculate_age_metrics.py
-```
-
-Outputs:
-- `data/processed/dependencies_raw.csv` (with `age_in_days` column)
-
-#### Stage 3: Metrics Calculation
-
-```bash
-python code/src/cli/calculate_metrics.py
-```
-
-Outputs:
-- `data/processed/metrics.json` (proportion of missing release metadata)
-
-#### Stage 4: Statistical Analysis
-
-```bash
-python code/src/cli/run_analysis.py
-```
-
-Outputs:
-- `data/processed/results_correlation.json` (Spearman correlation results)
-
-#### Stage 5: Significance Flagging
-
-```bash
-python code/src/cli/flag_significance.py
-```
-
-Updates:
-- `data/processed/results_correlation.json` (adds significance flags)
-
-#### Stage 6: Visualization
-
-```bash
-python code/src/analysis/visualizer.py
-```
-
-Outputs:
-- `figures/` (scatter plots, histograms, category distributions)
-
-#### Stage 7: Sensitivity Analysis
-
-```bash
-python code/src/analysis/sensitivity_analysis.py
-```
-
-Outputs:
-- `data/processed/sensitivity_analysis.json`
-
-#### Stage 8: Report Generation
-
-```bash
-python code/src/cli/generate_report.py
-```
-
-Outputs:
-- `docs/report.md` (comprehensive analysis report)
-
-## 4. Output Artifacts
-
-After running the full pipeline, you will find the following outputs:
-
-### Data Files
-- `data/raw/` - Cached API responses (immutable, checksummed)
-- `data/processed/dependencies_raw.csv` - Raw dependency data with calculated metrics
-- `data/processed/metrics.json` - Summary metrics (missing release proportion)
-- `data/processed/results_correlation.json` - Correlation analysis results
-- `data/processed/sensitivity_analysis.json` - Sensitivity analysis results
-- `data/processed/power_analysis_notes.md` - Statistical power assumptions
-
-### Visualizations
-- `figures/scatter_age_vs_vulnerability.png` - Age vs. vulnerability count
-- `figures/histogram_unmaintained_by_category.png` - Unmaintained proportions by category
-- `figures/category_distribution.png` - Package category distribution
-
-### Reports
-- `docs/report.md` - Final analysis report with all findings
-
-## 5. Validation
-
-To verify that the pipeline ran correctly and all artifacts were generated:
+Execute the complete pipeline end-to-end:
 
 ```bash
 python code/src/cli/validate_quickstart.py
 ```
 
-This script checks:
-- All required output files exist
-- Checksums are valid for raw data
-- Data integrity is maintained
+This script orchestrates:
+1. Data collection from NPM and GitHub APIs
+2. Dependency tree resolution and metadata extraction
+3. Statistical correlation analysis (Spearman's rho)
+4. Stratified analysis by package category
+5. Sensitivity analysis
+6. Report generation
 
-## 6. Troubleshooting
+### Option 2: Run Stages Individually
 
-### Rate Limiting
-If you encounter rate limit errors, consider:
-- Setting valid API keys in environment variables
-- Adding a delay between requests (configured in `src/config/settings.py`)
-- Running the pipeline during off-peak hours
+#### Stage 1: Data Collection
 
-### Missing Dependencies
-Ensure all dependencies are installed:
+Fetch top NPM packages and their dependency metadata:
+
 ```bash
-pip install -r requirements.txt --upgrade
+python code/src/cli/collect_data.py --export --metrics --top-packages 100
 ```
 
-### Memory Issues
-For large datasets, the pipeline uses streaming where possible. If you encounter memory errors:
-- Reduce the sample size in `src/config/settings.py`
-- Ensure sufficient swap space is available
+**Outputs**:
+- `data/processed/dependencies_raw.csv`: Raw dependency data with age and vulnerability metrics
+- `data/processed/metrics.json`: Summary metrics including missing metadata ratios
 
-## 7. Next Steps
+#### Stage 2: Power Analysis
 
-- Review the generated report in `docs/report.md`
-- Explore the visualizations in the `figures/` directory
-- Modify parameters in `src/config/settings.py` for custom analysis
-- Run unit tests: `pytest code/tests/unit/`
-- Run integration tests: `pytest code/tests/integration/`
+Calculate statistical power for the correlation analysis:
 
-## Support
+```bash
+python code/src/analysis/power.py
+```
 
-For issues or questions, please refer to the project documentation or open an issue in the repository.
+**Output**: `data/processed/power_analysis.json`
+
+#### Stage 3: Correlation Analysis
+
+Compute Spearman rank correlation between dependency age and vulnerability count:
+
+```bash
+python code/src/analysis/correlation.py
+```
+
+**Output**: `data/processed/results_correlation.json`
+
+#### Stage 4: Visualization
+
+Generate scatter plots and category distributions:
+
+```bash
+python code/src/analysis/visualizer.py --plot-scatter
+```
+
+**Output**: `data/processed/scatter_plot.png`
+
+#### Stage 5: Stratified Analysis
+
+Compute per-category correlation coefficients:
+
+```bash
+python code/src/analysis/stratified_stats.py
+```
+
+**Output**: `data/processed/results_stratified.json`
+
+#### Stage 6: Variance Analysis
+
+Calculate variance across category correlations:
+
+```bash
+python code/src/analysis/stratified_stats.py --variance
+```
+
+**Output**: Appends variance data to `data/processed/results_correlation.json`
+
+#### Stage 7: Sensitivity Analysis
+
+Perform threshold sweep analysis:
+
+```bash
+python code/src/analysis/sensitivity.py
+```
+
+**Output**: `data/processed/sensitivity_analysis.json`
+
+#### Stage 8: Report Generation
+
+Aggregate all results into a comprehensive report:
+
+```bash
+python code/src/cli/generate_report.py
+```
+
+**Output**: `docs/report.md`
+
+## Output Artifacts
+
+After successful execution, the following artifacts will be available:
+
+| Artifact | Description |
+|----------|-------------|
+| `data/processed/dependencies_raw.csv` | Raw dependency dataset with age and vulnerability metrics |
+| `data/processed/metrics.json` | Data quality metrics and summary statistics |
+| `data/processed/power_analysis.json` | Statistical power analysis results |
+| `data/processed/results_correlation.json` | Spearman correlation coefficient and p-value |
+| `data/processed/results_stratified.json` | Per-category correlation coefficients |
+| `data/processed/sensitivity_analysis.json` | Threshold sweep results |
+| `data/processed/scatter_plot.png` | Visualization of age vs. vulnerability |
+| `docs/report.md` | Comprehensive analysis report |
+
+## Rate Limiting and Caching
+
+The pipeline implements:
+- **Exponential backoff** (max 3 retries, initial delay 1s, multiplier 2.0, max delay 60s)
+- **Local file caching** in `data/raw/` to avoid redundant API calls
+- **Rate limit awareness** based on `RATE_LIMIT` environment variable
+
+If you encounter rate limit errors, the pipeline will automatically retry with exponential backoff. If errors persist, consider reducing the `TOP_PACKAGES` count or waiting between runs.
+
+## Troubleshooting
+
+### API Authentication Errors
+- Verify your `NPM_API_KEY` and `GITHUB_TOKEN` are correctly set
+- Ensure your GitHub token has the necessary scopes
+- Check that your tokens have not expired
+
+### Missing Output Files
+- Ensure all previous stages completed successfully
+- Check the console logs for specific error messages
+- Verify that `data/processed/` directory exists and is writable
+
+### Memory Constraints
+- Reduce `TOP_PACKAGES` count for smaller datasets
+- The pipeline is optimized for ~7GB RAM; large datasets may require more resources
+
+### Fabrication Guard
+The pipeline enforces a "fail loud" policy: if real data cannot be fetched, it will raise an error rather than generating synthetic data. This ensures all reported results are genuine measurements.
+
+## Next Steps
+
+After running the pipeline, review the generated `docs/report.md` for detailed findings and insights about the prevalence of unmaintained dependencies in the NPM ecosystem.

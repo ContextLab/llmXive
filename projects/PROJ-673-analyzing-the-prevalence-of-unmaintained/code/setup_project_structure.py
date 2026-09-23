@@ -4,44 +4,59 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure as defined in the implementation plan.
-    Executes the equivalent of:
-    mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs
+    Creates the project directory structure as defined in T001.
+    Ensures all required directories exist for the research pipeline.
     """
-    # Define the relative paths to create
-    # Note: The plan mentions 'src/' but the existing API surface uses 'code/src/'
-    # We will create the structure under 'code/' to align with the existing file paths provided in the context.
-    base_dir = Path("code")
-    directories = [
+    # Define the project root (assuming code/ is the root for this task execution)
+    # The paths are relative to where this script is run. 
+    # Based on the task description, we create these under the project root.
+    # We assume the script is run from the project root or code/ directory.
+    # To be safe, we create them relative to the current working directory.
+    root = Path.cwd()
+    
+    # Directories to create based on T001 description
+    # Note: T001 mentions 'src/', 'tests/', 'data/', 'docs/'
+    # The task note says: "Do NOT create contracts/ here"
+    dirs_to_create = [
         "src/models",
         "src/services",
         "src/analysis",
         "src/cli",
         "src/utils",
-        "src/config",
         "data/raw",
         "data/processed",
         "tests/unit",
         "tests/integration",
-        "docs",
+        "docs"
     ]
-
+    
     created_count = 0
     existing_count = 0
-
-    for dir_path in directories:
-        full_path = base_dir / dir_path
+    
+    for dir_path in dirs_to_create:
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
             existing_count += 1
-            # Optional: print existing to verify structure if needed, but keep output clean
-            # print(f"Directory already exists: {full_path}")
-
-    print(f"Project structure ready. Created: {created_count}, Existing: {existing_count}")
-    return 0
+    
+    print(f"Project structure setup complete.")
+    print(f"  Created: {created_count} directories")
+    print(f"  Existing: {existing_count} directories")
+    
+    # Verify creation
+    missing = []
+    for dir_path in dirs_to_create:
+        if not (root / dir_path).exists():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"ERROR: Failed to create the following directories: {missing}")
+        sys.exit(1)
+    else:
+        print("All required directories verified.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,32 +1,38 @@
-T017:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, dataset, or output file was provided that shows the `age_in_days`\
-    \ calculation logic or the handling of null `release_date` values. Consequently,\
-    \ there is no evidence that rows with missing release metadata have `age_in_days`\
-    \ set to null while still retaining a non\u2011null `vulnerability_count`. The\
-    \ required artifact is missing."
-T021a:
+  r: No directory structure or file listing was provided as evidence, so we cannot
+    confirm that the required folders (`src/models`, `src/services`, `src/analysis`,
+    `src/cli`, `src/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,
+    `docs`) were actually created. The implementer must supply proof (e.g., a directory
+    tree snapshot or command output) showing these paths exist.
+T008b:
   c: false
-  h: cf35a19ec08b66d355232a26c84cd39561aacf58fc7c83446b4f71bb4ecb3c09
-  r: "The required file `data/processed/power_analysis_notes.md` does not exist, so\
-    \ no documentation of power assumptions or sample size justification is present.\
-    \ The task\u2019s core deliverable is missing."
-T024:
-  c: true
-  h: 20b5e01cb48b09159bc61b831c6d22ab5c13b733405f53e199d2f82fa758e424
-  r: "The repository contains a non\u2011empty `src/cli/run_analysis.py` (3.4\u202F\
-    KB) that imports the data\u2011loading and correlation functions, writes the analysis\
-    \ results to `data/processed/results_correlation.json`, and logs the process.\
-    \ The missing `results_correlation.json` file is a runtime product, not a required\
-    \ artifact for the task."
-T024a:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or report was provided that demonstrates a local file caching
+    mechanism being exercised in a real pipeline simulation, nor any evidence that
+    such a verification was performed. The required artifact (e.g., a script, logs,
+    or test results showing the caching behavior) is missing.
+T017a:
   c: false
-  h: 556f19969af428dfc0697e82378d7d8428bbb04e3c391d6bfe2adffcce577fa6
-  r: The `src/analysis/correlation.py` file exists and contains functions for loading
-    data and computing Spearman correlation, but the required output file `data/processed/results_correlation.json`
-    is missing, indicating the script does not produce the specified result artifact.
-    The task is therefore not fully satisfied.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided showing a `TOP_PACKAGES`
+    default value being set. The required artifact (e.g., a source file or settings
+    entry defining the default count) is missing, so the task is not satisfied.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, or script was provided that demonstrates the calculation of\
+    \ `age_in_days` with the required behavior (null `release_date` \u2192 `age_in_days`\
+    \ null, while still having a non\u2011null `vulnerability_count`). The artifact\
+    \ needed to verify the logic is missing."
+T018:
+  c: false
+  h: 7373a8e1a078c222a6e2d0ff0f5c64a1ab9b84bde1fe3cf0e8e220af26aa65af
+  r: The provided `src/cli/collect_data.py` does not contain any code that writes
+    `data/processed/dependencies_raw.csv` or `data/processed/metrics.json` (no references
+    to those filenames appear in the shown portion), and the expected output files
+    are absent from the repository. The export logic required by the task is missing.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,6 +40,22 @@ T025:
     \ of logic to detect p\u202F<\u202F0.05 and flag statistical significance in the\
     \ output report, as required by US\u20112 Acceptance\u202F3. The implementer\u2019\
     s claim cannot be verified without such evidence."
+T027:
+  c: false
+  h: 556f19969af428dfc0697e82378d7d8428bbb04e3c391d6bfe2adffcce577fa6
+  r: The required output file `data/processed/results_correlation.json` does not exist,
+    and the provided `src/analysis/correlation.py` only defines helper functions without
+    any code that runs the analysis and writes the JSON result. Consequently the task
+    of executing the script to generate the correlation results has not been fulfilled.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or report artifact was provided that implements the required\
+    \ logic to flag statistical significance (p\u202F<\u202F0.05) in the US\u2011\
+    2 output report. Without a concrete file showing the flagging behavior, the task\
+    \ requirement is not satisfied. The next implementer must add and commit the updated\
+    \ analysis/report generation code (or a sample output) that includes the significance\
+    \ flag."
 T031:
   c: false
   h: bbd9895c4a794f82110eb956130c96865739031749c51f3b2817207bcf90c897
@@ -49,38 +71,16 @@ T033:
     updates cannot be verified because the required artifacts are missing. The task
     specifically requires a `quickstart.md` in `docs/` describing how to run the pipeline,
     which is absent.
-T034:
+T040:
+  c: false
+  h: bbd9895c4a794f82110eb956130c96865739031749c51f3b2817207bcf90c897
+  r: The `generate_report.py` script is present, but the required output file `docs/report.md`
+    does not exist, so the aggregation step has not been demonstrated. The missing
+    report file must be generated and present for the task to be considered complete.
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation related to \u201Ccode cleanup and refactoring\
-    \ of API client error handling\u201D is present; the only material shown concerns\
-    \ a different feature (data collection and analysis of NPM dependencies). Consequently,\
-    \ the required artifact for the cleanup task is missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No timing logs, benchmark reports, or optimized pipeline code were provided\
-    \ to demonstrate that the entire data\u2011collection, analysis, and reporting\
-    \ pipeline completes in \u2264\u202F6\u202Fhours on a 2\u202FvCPU machine. Without\
-    \ concrete performance measurements or evidence of the optimizations applied,\
-    \ the requirement cannot be verified."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/unit/` files containing additional unit tests for the specified edge\
-    \ cases (private packages, rate\u2011limit handling) are present in the repository;\
-    \ the claim cannot be verified because the required test artifacts are missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, logs, test results, or documentation were provided to demonstrate that\
-    \ secrets are not logged and that API keys are sourced from environment variables.\
-    \ The only material present relates to a different research feature (NPM dependency\
-    \ analysis), not to the security\u2011hardening task. Consequently, the required\
-    \ evidence is missing."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation artifact (e.g., a log, report, or script output) confirming that
-    the quickstart.md steps were executed and reproduced successfully is present;
-    the claim lacks any concrete evidence of the required validation.
+  r: No `docs/` directory or `quickstart.md` file was provided; the claim of documentation
+    updates cannot be verified because the required artifacts are missing. The task
+    requires actual documentation files to be present and contain instructions for
+    running the pipeline.

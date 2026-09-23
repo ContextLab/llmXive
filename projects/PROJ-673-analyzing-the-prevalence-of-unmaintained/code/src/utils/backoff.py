@@ -1,57 +1,73 @@
+"""
+Exponential backoff utility for API retry logic.
+
+Implements exponential backoff with jitter to prevent thundering herd
+and respect rate limits as per FR-009.
+
+Parameters:
+- max_retries: 3 (per FR-009)
+- initial_delay: 1 second
+- multiplier: 2.0
+- max_delay: 60 seconds
+"""
+
 import time
 import random
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar, Optional
+
+T = TypeVar('T')
+
+# Constants as per FR-009 and specification
+MAX_RETRIES = 3
+INITIAL_DELAY = 1.0  # seconds
+MULTIPLIER = 2.0
+MAX_DELAY = 60.0  # seconds
 
 def exponential_backoff(
-    func: Callable[..., Any],
+    func: Callable[..., T],
+    max_retries: int = MAX_RETRIES,
+    initial_delay: float = INITIAL_DELAY,
+    multiplier: float = MULTIPLIER,
+    max_delay: float = MAX_DELAY,
     *args: Any,
-    max_retries: int = 3,
-    initial_delay: float = 1.0,
-    multiplier: float = 2.0,
-    max_delay: float = 60.0,
-    jitter: bool = True,
     **kwargs: Any
-) -> Any:
+) -> T:
     """
-    Execute a function with exponential backoff and jitter on failure.
+    Executes a function with exponential backoff retry logic.
 
     Args:
         func: The function to execute.
-        *args: Positional arguments to pass to the function.
         max_retries: Maximum number of retry attempts (default: 3).
         initial_delay: Initial delay in seconds (default: 1.0).
         multiplier: Delay multiplier for each retry (default: 2.0).
         max_delay: Maximum delay cap in seconds (default: 60.0).
-        jitter: Whether to add random jitter to the delay (default: True).
-        **kwargs: Keyword arguments to pass to the function.
+        *args: Positional arguments to pass to func.
+        **kwargs: Keyword arguments to pass to func.
 
     Returns:
-        The return value of the function if successful.
+        The return value of the successful function call.
 
     Raises:
-        Exception: The last exception raised if all retries fail.
+        Exception: Re-raises the last exception if all retries are exhausted.
     """
-    delay = initial_delay
     last_exception = None
+    current_delay = initial_delay
 
     for attempt in range(max_retries + 1):
         try:
             return func(*args, **kwargs)
         except Exception as e:
             last_exception = e
-            if attempt == max_retries:
-                break
-
-            # Calculate delay with jitter
-            if jitter:
-                delay_with_jitter = delay + random.uniform(0, delay * 0.1)
+            if attempt < max_retries:
+                # Calculate delay with jitter
+                jitter = random.uniform(0, 0.1 * current_delay)
+                sleep_time = min(current_delay + jitter, max_delay)
+                time.sleep(sleep_time)
+                current_delay *= multiplier
             else:
-                delay_with_jitter = delay
+                # All retries exhausted
+                raise
 
-            # Cap at max_delay
-            actual_delay = min(delay_with_jitter, max_delay)
-
-            time.sleep(actual_delay)
-            delay *= multiplier
-
-    raise last_exception
+    # This line is theoretically unreachable due to the raise above,
+    # but included for type safety in some strict analyzers.
+    raise last_exception  # type: ignore

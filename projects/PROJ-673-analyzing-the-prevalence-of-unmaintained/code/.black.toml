@@ -1,0 +1,4 @@
+# Black configuration is now handled in pyproject.toml
+# This file exists for legacy compatibility if needed
+line-length = 88
+target-version = ['py311']

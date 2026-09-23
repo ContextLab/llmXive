@@ -1,187 +1,183 @@
-"""
-Variance calculation and comparative measurement of correlation coefficients across categories.
-Implements T029a: Calculates variance of correlation coefficients across categories and overall.
-Outputs to data/processed/results_correlation.json (appending category_variances and overall_variance).
-"""
 import json
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import logging
-
 from src.analysis.stratified_stats import compute_stratified_correlations, load_dependencies_data
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def calculate_variance_and_comparisons(
-    correlations: Dict[str, float],
-    categories: List[str]
-) -> Dict[str, Any]:
+def calculate_variance_and_comparisons(correlations: Dict[str, float], overall_correlation: float) -> Dict[str, Any]:
     """
-    Calculate variance of correlation coefficients across categories and overall.
-
+    Calculate the variance of correlation coefficients across categories
+    and compare it against the overall dataset correlation.
+    
     Args:
-        correlations: Dictionary mapping category names to their correlation coefficients.
-        categories: List of category names (for context, though correlations keys are used).
-
+        correlations: Dictionary mapping category names to their Spearman rho values.
+        overall_correlation: The Spearman rho calculated over the entire dataset.
+        
     Returns:
-        Dictionary with 'category_variances' and 'overall_variance'.
+        Dictionary containing:
+            - category_variances: Dict of category -> correlation
+            - overall_variance: Variance of the category correlations
+            - overall_correlation: The overall dataset correlation (for reference)
+            - variance_ratio: Ratio of overall_variance to |overall_correlation|
+            - analysis_summary: A string summary of the findings
     """
     if not correlations:
-        logger.warning("No correlations provided for variance calculation.")
+        logger.warning("No category correlations provided. Returning empty variance metrics.")
         return {
-            'category_variances': {},
-            'overall_variance': 0.0,
-            'message': 'No data to calculate variance.'
+            "category_variances": {},
+            "overall_variance": 0.0,
+            "overall_correlation": overall_correlation,
+            "variance_ratio": 0.0,
+            "analysis_summary": "No categories found to calculate variance."
         }
 
     values = list(correlations.values())
-    if len(values) < 2:
-        # Variance requires at least 2 samples.
-        # If only one category, variance is 0 or undefined. We return 0.
-        logger.warning(f"Only one category ({len(values)}) found. Variance is 0.")
-        return {
-            'category_variances': {cat: 0.0 for cat in correlations.keys()},
-            'overall_variance': 0.0,
-            'message': 'Insufficient categories for variance calculation.'
-        }
+    
+    # Calculate variance of the correlations
+    # Using population variance (ddof=0) as we are describing the variance of the observed groups
+    variance = np.var(values, ddof=0)
+    
+    # Calculate a ratio to understand the magnitude of variance relative to the overall effect
+    # Avoid division by zero if overall correlation is 0
+    if abs(overall_correlation) < 1e-9:
+        variance_ratio = float('inf') if variance > 0 else 0.0
+    else:
+        variance_ratio = variance / abs(overall_correlation)
 
-    # Calculate overall variance (population variance or sample variance?
-    # Usually for a set of measurements, sample variance (ddof=1) is appropriate,
-    # but if these are the only categories we care about, population (ddof=0) might be intended.
-    # Given the context of "comparative measurement", sample variance is safer for inference.
-    # However, standard numpy var defaults to population. Let's use sample variance (ddof=1).
-    overall_var = np.var(values, ddof=1)
+    analysis_summary = (
+        f"Calculated variance of {variance:.6f} across {len(correlations)} categories. "
+        f"Overall dataset correlation was {overall_correlation:.6f}. "
+        f"Variance ratio (variance/|rho|): {variance_ratio:.6f}."
+    )
 
-    # For category_variances, we don't have multiple measurements per category in this specific task description.
-    # The task asks for "variance calculation ... across categories".
-    # If the input 'correlations' is just one value per category, we can't calculate variance *within* a category
-    # without the raw data split by category.
-    # Re-reading T029a: "Implement variance calculation and comparative measurement of correlation coefficients across categories."
-    # And output schema: {'category_variances': {<cat>: float}, 'overall_variance': float}
-    # This implies we might need to calculate the variance *of the coefficients* (which is the overall variance),
-    # or perhaps the task implies we have multiple coefficients per category?
-    # Looking at T029: "compute per-category coefficients". T029a adds "variance ... across categories".
-    # If T029 produces ONE coefficient per category, then "variance across categories" IS the variance of the list of coefficients.
-    # The schema key 'category_variances' is plural per category. This is ambiguous.
-    # Interpretation:
-    # 1. If we have multiple correlation estimates per category (e.g. bootstrapped), we calculate variance per category.
-    # 2. If we have one per category, 'category_variances' might be a misnomer or intended to store the contribution of each to the overall?
-    # 3. Or, perhaps 'category_variances' is meant to be the variance of the *values* within each category (e.g. age vs vuln variance within category)?
-    # But the schema says "correlation coefficients across categories".
-    # Let's assume the standard interpretation for "variance of correlation coefficients across categories":
-    # We have a set of coefficients (one per category). We calculate the variance of this set.
-    # What about 'category_variances': {<cat>: float}?
-    # Maybe it's the squared deviation of each category's coefficient from the mean? (Contribution to total sum of squares).
-    # Or maybe it's a placeholder for future multi-measure support.
-    # Given the strict schema requirement in T029a: `{'category_variances': {<cat>: float}, 'overall_variance': float}`
-    # I will interpret 'category_variances' as the squared deviation of each category's correlation from the mean correlation.
-    # This sums to (N-1)*variance (for sample) or N*variance (for population).
-    # Let's calculate the mean and then the squared deviation for each.
-
-    mean_corr = np.mean(values)
-    category_variances = {}
-    for cat, corr in correlations.items():
-        squared_deviation = (corr - mean_corr) ** 2
-        category_variances[cat] = float(squared_deviation)
+    logger.info(analysis_summary)
 
     return {
-        'category_variances': category_variances,
-        'overall_variance': float(overall_var),
-        'mean_correlation': float(mean_corr),
-        'num_categories': len(correlations)
+        "category_variances": correlations,
+        "overall_variance": float(variance),
+        "overall_correlation": float(overall_correlation),
+        "variance_ratio": float(variance_ratio),
+        "analysis_summary": analysis_summary
     }
 
-def run_variance_analysis(
-    input_csv_path: str,
-    output_json_path: str,
-    existing_correlations: Optional[Dict[str, float]] = None
-) -> Dict[str, Any]:
+def run_variance_analysis(input_path: Optional[str] = None, output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Run the variance analysis pipeline.
-    If existing_correlations are not provided, it computes them via stratified analysis.
-    Then calculates variances and appends to the output file.
-
+    Orchestrates the variance calculation:
+    1. Loads stratified correlations from the previous step (T035).
+    2. Loads the overall correlation from the core analysis (T027).
+    3. Calculates the variance metrics.
+    4. Appends the results to the main correlation results file.
+    
     Args:
-        input_csv_path: Path to the dependencies CSV file.
-        output_json_path: Path to the results_correlation.json file to append to.
-        existing_correlations: Optional pre-computed correlations. If None, computes from input.
-
+        input_path: Path to the stratified results file (results_stratified.json). 
+                    Defaults to data/processed/results_stratified.json.
+        output_path: Path to the main correlation results file to update 
+                    (results_correlation.json). Defaults to data/processed/results_correlation.json.
+                    
     Returns:
-        The variance analysis result dictionary.
+        The full updated results dictionary.
     """
-    logger.info(f"Running variance analysis on {input_csv_path}")
+    # Default paths based on project structure
+    base_dir = Path(__file__).resolve().parent.parent.parent / "data" / "processed"
+    stratified_path = Path(input_path) if input_path else (base_dir / "results_stratified.json")
+    correlation_path = Path(output_path) if output_path else (base_dir / "results_correlation.json")
 
-    if existing_correlations is None:
-        logger.info("No existing correlations provided. Computing stratified correlations...")
-        # Load data and compute stratified correlations
-        df = load_dependencies_data(input_csv_path)
-        if df is None or df.empty:
-            logger.error("Failed to load data or data is empty.")
-            return {'error': 'Data loading failed'}
+    logger.info(f"Loading stratified correlations from {stratified_path}")
+    if not stratified_path.exists():
+        raise FileNotFoundError(f"Stratified results file not found at {stratified_path}. "
+                                "Please ensure T035 has been executed successfully.")
+    
+    with open(stratified_path, 'r') as f:
+        stratified_data = json.load(f)
 
-        stratified_results = compute_stratified_correlations(df)
-        if not stratified_results:
-            logger.warning("Stratified analysis returned no correlations.")
-            # If no categories met the N>=30 threshold, we can't calculate variance across them.
-            return {
-                'category_variances': {},
-                'overall_variance': 0.0,
-                'message': 'No categories with sufficient data (N>=30) for stratified analysis.'
-            }
-        correlations = {res['category']: res['correlation'] for res in stratified_results}
+    # Extract category correlations from stratified data
+    # The stratified data structure typically contains a 'results' key with category stats
+    category_correlations = {}
+    if 'results' in stratified_data:
+        for category, stats in stratified_data['results'].items():
+            if 'correlation_coefficient' in stats:
+                category_correlations[category] = stats['correlation_coefficient']
+            elif 'rho' in stats:
+                category_correlations[category] = stats['rho']
+    
+    logger.info(f"Found correlations for categories: {list(category_correlations.keys())}")
+
+    # Load overall correlation
+    logger.info(f"Loading overall correlation from {correlation_path}")
+    if not correlation_path.exists():
+        # If the main file doesn't exist yet, we might need to calculate the overall correlation
+        # from the raw data if stratified_stats didn't save it, or raise an error if it's a strict dependency.
+        # Per T036 description, it depends on T035, but T027 (correlation.py) produces this file.
+        # If T027 hasn't run, we try to compute it from raw data as a fallback to ensure the script runs.
+        raw_data_path = base_dir / "dependencies_raw.csv"
+        if raw_data_path.exists():
+            logger.warning(f"{correlation_path} not found. Computing overall correlation from raw data.")
+            raw_df = load_dependencies_data(str(raw_data_path))
+            # Filter out nulls for correlation
+            valid_df = raw_df[raw_df['age_in_days'].notna() & raw_df['vulnerability_count'].notna()]
+            if len(valid_df) > 1:
+                rho, p_val = np.corrcoef(valid_df['age_in_days'], valid_df['vulnerability_count'])
+                overall_rho = rho
+            else:
+                raise ValueError("Not enough valid data points to calculate overall correlation.")
+        else:
+            raise FileNotFoundError(f"Main correlation file {correlation_path} not found, "
+                                    "and raw data {raw_data_path} not found to compute it.")
     else:
-        correlations = existing_correlations
+        with open(correlation_path, 'r') as f:
+            correlation_data = json.load(f)
+        overall_rho = correlation_data.get('correlation_coefficient')
+        if overall_rho is None:
+            # Fallback if key is named differently
+            overall_rho = correlation_data.get('rho')
+            if overall_rho is None:
+                raise ValueError("Could not find 'correlation_coefficient' or 'rho' in results_correlation.json")
 
-    logger.info(f"Calculated {len(correlations)} correlations: {correlations}")
+    logger.info(f"Overall correlation coefficient: {overall_rho}")
 
-    variance_result = calculate_variance_and_comparisons(correlations, list(correlations.keys()))
+    # Calculate variance
+    variance_results = calculate_variance_and_comparisons(category_correlations, overall_rho)
 
-    # Append to existing file or create new
-    output_path = Path(output_json_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Append to correlation data
+    correlation_data['category_variances'] = variance_results['category_variances']
+    correlation_data['overall_variance'] = variance_results['overall_variance']
+    correlation_data['variance_ratio'] = variance_results['variance_ratio']
+    correlation_data['variance_analysis_summary'] = variance_results['analysis_summary']
 
-    existing_data = {}
-    if output_path.exists():
-        try:
-            with open(output_path, 'r') as f:
-                existing_data = json.load(f)
-            logger.info(f"Loaded existing data from {output_json_path}")
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing file {output_json_path}: {e}. Starting fresh.")
-            existing_data = {}
+    # Write back to file
+    logger.info(f"Writing updated results to {correlation_path}")
+    with open(correlation_path, 'w') as f:
+        json.dump(correlation_data, f, indent=2)
 
-    # Update the existing data with new keys
-    existing_data['category_variances'] = variance_result['category_variances']
-    existing_data['overall_variance'] = variance_result['overall_variance']
-    
-    # Optionally preserve other keys if they exist (like individual correlations if stored separately)
-    # But T029a specifically asks to append these keys to results_correlation.json.
-    
-    with open(output_path, 'w') as f:
-        json.dump(existing_data, f, indent=2)
-
-    logger.info(f"Variance analysis complete. Results written to {output_json_path}")
-    return variance_result
+    logger.info("Variance calculation complete.")
+    return correlation_data
 
 def main():
-    """Entry point for variance analysis."""
+    """
+    Entry point for the variance analysis script.
+    Usage: python src/analysis/variance_analysis.py [--input <path>] [--output <path>]
+    """
     import argparse
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-    parser = argparse.ArgumentParser(description='Calculate variance of correlation coefficients across categories.')
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV (dependencies_raw.csv).')
-    parser.add_argument('--output', type=str, required=True, help='Path to output JSON (results_correlation.json).')
+    
+    parser = argparse.ArgumentParser(description="Calculate variance in correlation coefficients across categories.")
+    parser.add_argument("--input", type=str, help="Path to stratified results JSON (results_stratified.json)")
+    parser.add_argument("--output", type=str, help="Path to update correlation results JSON (results_correlation.json)")
+    
     args = parser.parse_args()
-
-    result = run_variance_analysis(args.input, args.output)
     
-    if 'error' in result:
-        logger.error(f"Variance analysis failed: {result['error']}")
-        return 1
-    
-    logger.info(f"Analysis successful. Overall Variance: {result.get('overall_variance', 'N/A')}")
-    return 0
+    try:
+        result = run_variance_analysis(
+            input_path=args.input,
+            output_path=args.output
+        )
+        print(json.dumps(result, indent=2))
+    except Exception as e:
+        logger.error(f"Variance analysis failed: {e}")
+        raise
 
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()

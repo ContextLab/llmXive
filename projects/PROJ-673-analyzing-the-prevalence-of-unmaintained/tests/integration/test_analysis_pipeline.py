@@ -1,180 +1,342 @@
 """
-Integration test for the end-to-end analysis pipeline on a small synthetic dataset.
+Integration test for end-to-end analysis pipeline on a small synthetic dataset.
 
-This test verifies that the statistical analysis module (T021) correctly
-calculates Spearman correlation and p-values, and that the visualization
-module (T023) generates valid output files.
+This test verifies the full flow of the analysis pipeline:
+1. Loading data from a small, controlled synthetic dataset
+2. Running correlation analysis
+3. Running stratified analysis
+4. Running sensitivity analysis
+5. Running visualization generation
 
-Since the full data collection pipeline (US1) is not yet fully implemented
-or populated with real data in this context, this test uses a small,
-deterministic synthetic dataset to validate the logic of the analysis
-and visualization components without external API dependencies.
-
-The synthetic data is generated in-memory to simulate the output of T018.
+The synthetic dataset is generated locally for testing purposes only.
+In production, this test would run against a small sample of real data.
 """
-import pytest
+
 import json
 import os
-import sys
 import tempfile
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import pandas as pd
 import numpy as np
+import pytest
 
-# Add project root to path to allow imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Import the analysis modules we are testing
+from src.analysis.correlation import run_correlation_analysis, calculate_spearman_correlation
+from src.analysis.stratified_stats import run_stratified_analysis
+from src.analysis.sensitivity_analysis import run_sensitivity_analysis
+from src.analysis.visualizer import create_visualization_summary
+from src.analysis.power import run_power_analysis
 
-from src.models.data_models import Dependency, AnalysisResult
-from src.analysis.correlation import calculate_spearman_correlation
-from src.analysis.visualizer import generate_scatter_plot
 
-# Synthetic dataset generator
-def generate_synthetic_dataset(n_samples: int = 100) -> pd.DataFrame:
+def generate_small_synthetic_dataset(num_samples: int = 100) -> pd.DataFrame:
     """
-    Generates a synthetic dataset mimicking the structure of data/processed/dependencies_raw.csv.
-    
-    The data is constructed to have a known correlation structure for verification.
-    We create a positive correlation between age_in_days and vulnerability_count.
+    Generate a small synthetic dataset for integration testing.
+
+    This creates a controlled dataset with known properties to verify
+    the analysis pipeline functions correctly.
+
+    Args:
+        num_samples: Number of rows to generate (default 100 for fast testing)
+
+    Returns:
+        DataFrame with columns: name, version, age_in_days, vulnerability_count, category
     """
     np.random.seed(42)  # Reproducibility
-    
-    # Generate age_in_days (0 to 3650 days)
-    age = np.random.exponential(scale=500, size=n_samples)
-    age = np.clip(age, 0, 3650)
-    
-    # Generate vulnerability_count with correlation to age
-    # y = 0.005 * x + noise
-    noise = np.random.normal(0, 2, n_samples)
-    vuln = 0.005 * age + noise
-    vuln = np.clip(vuln, 0, 50).astype(int)
-    
-    # Create DataFrame
-    df = pd.DataFrame({
-        'package_name': [f'pkg_{i}' for i in range(n_samples)],
-        'dependency_name': [f'dep_{i}' for i in range(n_samples)],
-        'age_in_days': age,
-        'vulnerability_count': vuln,
-        'last_release_date': [datetime.now().isoformat() for _ in range(n_samples)],
-        'last_commit_date': [datetime.now().isoformat() for _ in range(n_samples)]
-    })
-    
+
+    data = {
+        'name': [f"pkg_{i}" for i in range(num_samples)],
+        'version': ['1.0.0'] * num_samples,
+        'age_in_days': np.random.randint(30, 3650, size=num_samples),
+        'vulnerability_count': np.random.poisson(lam=2.5, size=num_samples),
+        'category': np.random.choice(['framework', 'data', 'utility', 'infrastructure'], size=num_samples)
+    }
+
+    df = pd.DataFrame(data)
+
+    # Introduce some nulls in age_in_days to test handling
+    null_indices = np.random.choice(num_samples, size=int(num_samples * 0.1), replace=False)
+    df.loc[null_indices, 'age_in_days'] = np.nan
+
     return df
 
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory for test outputs."""
+
+def test_correlation_analysis_pipeline():
+    """Test the full correlation analysis pipeline end-to-end."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+        tmpdir_path = Path(tmpdir)
 
-@pytest.fixture
-def synthetic_data(temp_data_dir):
-    """Generate and save synthetic data to a CSV file."""
-    df = generate_synthetic_dataset(n_samples=100)
-    csv_path = temp_data_dir / "synthetic_dependencies.csv"
-    df.to_csv(csv_path, index=False)
-    return csv_path, df
+        # Generate synthetic data
+        df = generate_small_synthetic_dataset(num_samples=100)
 
-def test_analysis_pipeline_end_to_end(synthetic_data, temp_data_dir):
-    """
-    End-to-end test of the analysis pipeline:
-    1. Load synthetic data
-    2. Calculate Spearman correlation
-    3. Verify correlation coefficient and p-value are within expected bounds
-    4. Generate scatter plot
-    5. Verify plot file exists and is non-empty
-    """
-    csv_path, df = synthetic_data
-    
-    # Step 1: Load data (simulating T018 output)
-    loaded_df = pd.read_csv(csv_path)
-    assert len(loaded_df) == 100, "Dataset should have 100 rows"
-    assert 'age_in_days' in loaded_df.columns, "age_in_days column missing"
-    assert 'vulnerability_count' in loaded_df.columns, "vulnerability_count column missing"
-    
-    # Step 2: Calculate Spearman correlation (T021 logic)
-    try:
-        rho, p_value = calculate_spearman_correlation(
-            loaded_df['age_in_days'], 
-            loaded_df['vulnerability_count']
+        # Save to CSV
+        input_file = tmpdir_path / "test_dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Run correlation analysis
+        output_file = tmpdir_path / "test_results_correlation.json"
+        result = run_correlation_analysis(
+            input_path=str(input_file),
+            output_path=str(output_file)
         )
-    except Exception as e:
-        pytest.fail(f"Correlation calculation failed: {e}")
-    
-    # Step 3: Verify correlation bounds
-    # Spearman rho must be in [-1, 1]
-    assert -1.0 <= rho <= 1.0, f"Correlation coefficient {rho} out of bounds [-1, 1]"
-    
-    # P-value must be in [0, 1]
-    assert 0.0 <= p_value <= 1.0, f"P-value {p_value} out of bounds [0, 1]"
-    
-    # Check that we have a positive correlation (as constructed)
-    # Allow some tolerance due to noise
-    assert rho > 0, f"Expected positive correlation, got {rho}"
-    
-    # Step 4: Generate visualization (T023 logic)
-    plot_path = temp_data_dir / "synthetic_scatter.png"
-    try:
-        generate_scatter_plot(
-            loaded_df['age_in_days'],
-            loaded_df['vulnerability_count'],
-            str(plot_path),
-            title="Synthetic Analysis Test: Age vs Vulnerabilities"
-        )
-    except Exception as e:
-        pytest.fail(f"Visualization generation failed: {e}")
-    
-    # Step 5: Verify plot file exists and is non-empty
-    assert plot_path.exists(), f"Plot file not created at {plot_path}"
-    assert plot_path.stat().st_size > 0, "Plot file is empty"
-    
-    # Optional: Verify it's a valid PNG (starts with PNG signature)
-    with open(plot_path, 'rb') as f:
-        header = f.read(8)
-        assert header[:4] == b'\x89PNG', "File does not appear to be a valid PNG"
 
-def test_null_handling_in_correlation(synthetic_data, temp_data_dir):
-    """
-    Test that the correlation calculation handles missing/null values correctly.
-    According to FR-010, dependencies with missing release metadata should
-    have null age_in_days but still be included in vulnerability counts.
-    This test ensures the correlation function can handle such data.
-    """
-    csv_path, df = synthetic_data
-    
-    # Introduce some null values in age_in_days
-    df_with_nulls = df.copy()
-    df_with_nulls.loc[0:9, 'age_in_days'] = None
-    
-    temp_csv = temp_data_dir / "null_test.csv"
-    df_with_nulls.to_csv(temp_csv, index=False)
-    
-    loaded_df = pd.read_csv(temp_csv)
-    
-    # Calculate correlation - should handle NaNs by dropping them
-    rho, p_value = calculate_spearman_correlation(
-        loaded_df['age_in_days'],
-        loaded_df['vulnerability_count']
-    )
-    
-    # Should still produce valid results
-    assert -1.0 <= rho <= 1.0, "Correlation with nulls should be in bounds"
-    assert 0.0 <= p_value <= 1.0, "P-value with nulls should be in bounds"
+        # Verify results
+        assert result is not None, "Correlation analysis should return a result"
+        assert 'correlation_coefficient' in result, "Result should contain correlation_coefficient"
+        assert 'p_value' in result, "Result should contain p_value"
+        assert 'sample_size' in result, "Result should contain sample_size"
 
-def test_empty_dataset_handling(temp_data_dir):
-    """
-    Test behavior with an empty dataset.
-    """
-    empty_df = pd.DataFrame(columns=['age_in_days', 'vulnerability_count'])
-    csv_path = temp_data_dir / "empty.csv"
-    empty_df.to_csv(csv_path, index=False)
-    
-    loaded_df = pd.read_csv(csv_path)
-    
-    # Should raise a meaningful error or return None for empty data
-    with pytest.raises((ValueError, TypeError)):
-        calculate_spearman_correlation(
-            loaded_df['age_in_days'],
-            loaded_df['vulnerability_count']
+        # Verify the values are within expected bounds
+        assert -1.0 <= result['correlation_coefficient'] <= 1.0, "Correlation coefficient must be between -1 and 1"
+        assert 0.0 <= result['p_value'] <= 1.0, "P-value must be between 0 and 1"
+        assert result['sample_size'] > 0, "Sample size must be positive"
+
+        # Verify the output file was written
+        assert output_file.exists(), "Output JSON file should be created"
+
+        # Verify the JSON content matches the result
+        with open(output_file, 'r') as f:
+            saved_result = json.load(f)
+            assert saved_result['correlation_coefficient'] == result['correlation_coefficient']
+            assert saved_result['p_value'] == result['p_value']
+
+
+def test_stratified_analysis_pipeline():
+    """Test the stratified analysis pipeline end-to-end."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Generate synthetic data with distinct categories
+        df = generate_small_synthetic_dataset(num_samples=150)
+
+        # Save to CSV
+        input_file = tmpdir_path / "test_dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Run stratified analysis
+        output_file = tmpdir_path / "test_results_stratified.json"
+        result = run_stratified_analysis(
+            input_path=str(input_file),
+            output_path=str(output_file)
         )
+
+        # Verify results
+        assert result is not None, "Stratified analysis should return a result"
+        assert 'category_correlations' in result, "Result should contain category_correlations"
+        assert 'overall_correlation' in result, "Result should contain overall_correlation"
+
+        # Verify category correlations are present and valid
+        category_corrs = result['category_correlations']
+        assert isinstance(category_corrs, dict), "Category correlations should be a dictionary"
+        assert len(category_corrs) > 0, "Should have at least one category"
+
+        for category, values in category_corrs.items():
+            assert 'correlation' in values, f"Category {category} should have correlation"
+            assert 'p_value' in values, f"Category {category} should have p_value"
+            assert 'sample_size' in values, f"Category {category} should have sample_size"
+
+            # Only check bounds if sample_size is sufficient (>= 30 per spec)
+            if values['sample_size'] >= 30:
+                assert -1.0 <= values['correlation'] <= 1.0, f"Correlation for {category} must be between -1 and 1"
+                assert 0.0 <= values['p_value'] <= 1.0, f"P-value for {category} must be between 0 and 1"
+
+        # Verify the output file was written
+        assert output_file.exists(), "Output JSON file should be created"
+
+
+def test_sensitivity_analysis_pipeline():
+    """Test the sensitivity analysis pipeline end-to-end."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Generate synthetic data
+        df = generate_small_synthetic_dataset(num_samples=100)
+
+        # Save to CSV
+        input_file = tmpdir_path / "test_dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Run sensitivity analysis
+        output_file = tmpdir_path / "test_sensitivity.json"
+        result = run_sensitivity_analysis(
+            input_path=str(input_file),
+            output_path=str(output_file)
+        )
+
+        # Verify results
+        assert result is not None, "Sensitivity analysis should return a result"
+        assert 'threshold_sweep' in result, "Result should contain threshold_sweep"
+
+        # Verify threshold sweep structure
+        threshold_sweep = result['threshold_sweep']
+        assert isinstance(threshold_sweep, list), "Threshold sweep should be a list"
+        assert len(threshold_sweep) > 0, "Threshold sweep should have at least one entry"
+
+        for entry in threshold_sweep:
+            assert 'threshold' in entry, "Each entry should have a threshold"
+            assert 'unmaintained_proportion' in entry, "Each entry should have unmaintained_proportion"
+            assert 'sample_size' in entry, "Each entry should have sample_size"
+
+        # Verify the output file was written
+        assert output_file.exists(), "Output JSON file should be created"
+
+
+def test_power_analysis_pipeline():
+    """Test the power analysis pipeline end-to-end."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Generate synthetic data
+        df = generate_small_synthetic_dataset(num_samples=100)
+
+        # Save to CSV
+        input_file = tmpdir_path / "test_dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Run power analysis
+        output_file = tmpdir_path / "test_power_analysis.json"
+        result = run_power_analysis(
+            input_path=str(input_file),
+            output_path=str(output_file)
+        )
+
+        # Verify results
+        assert result is not None, "Power analysis should return a result"
+        assert 'effect_size' in result, "Result should contain effect_size"
+        assert 'alpha' in result, "Result should contain alpha"
+        assert 'sample_size' in result, "Result should contain sample_size"
+        assert 'actual_power' in result, "Result should contain actual_power"
+
+        # Verify values are within expected bounds
+        assert 0.0 <= result['alpha'] <= 1.0, "Alpha must be between 0 and 1"
+        assert 0.0 <= result['actual_power'] <= 1.0, "Actual power must be between 0 and 1"
+        assert result['sample_size'] > 0, "Sample size must be positive"
+
+        # Verify the output file was written
+        assert output_file.exists(), "Output JSON file should be created"
+
+
+def test_visualization_pipeline():
+    """Test the visualization pipeline end-to-end."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Generate synthetic data
+        df = generate_small_synthetic_dataset(num_samples=100)
+
+        # Save to CSV
+        input_file = tmpdir_path / "test_dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Create output directory for figures
+        figures_dir = tmpdir_path / "figures"
+        figures_dir.mkdir()
+
+        # Run visualization
+        output_summary = tmpdir_path / "visualization_summary.json"
+        result = create_visualization_summary(
+            input_path=str(input_file),
+            output_dir=str(figures_dir),
+            summary_path=str(output_summary)
+        )
+
+        # Verify results
+        assert result is not None, "Visualization should return a result"
+        assert 'plots_generated' in result, "Result should contain plots_generated"
+        assert 'summary_file' in result, "Result should contain summary_file"
+
+        # Verify plots were generated
+        plots = result['plots_generated']
+        assert isinstance(plots, list), "Plots should be a list"
+        assert len(plots) > 0, "At least one plot should be generated"
+
+        for plot in plots:
+            assert 'filename' in plot, "Each plot should have a filename"
+            assert 'description' in plot, "Each plot should have a description"
+
+            # Verify the plot file exists
+            plot_path = figures_dir / plot['filename']
+            assert plot_path.exists(), f"Plot file {plot['filename']} should exist"
+
+        # Verify the summary file was written
+        assert output_summary.exists(), "Summary JSON file should be created"
+
+
+def test_full_integration_pipeline():
+    """
+    Test the complete end-to-end pipeline: data -> correlation -> stratified -> sensitivity -> visualization.
+    This ensures all components work together correctly.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Step 1: Generate and save synthetic data
+        df = generate_small_synthetic_dataset(num_samples=150)
+        input_file = tmpdir_path / "dependencies.csv"
+        df.to_csv(input_file, index=False)
+
+        # Step 2: Run correlation analysis
+        correlation_output = tmpdir_path / "correlation.json"
+        correlation_result = run_correlation_analysis(
+            input_path=str(input_file),
+            output_path=str(correlation_output)
+        )
+        assert correlation_result is not None
+        assert correlation_output.exists()
+
+        # Step 3: Run stratified analysis
+        stratified_output = tmpdir_path / "stratified.json"
+        stratified_result = run_stratified_analysis(
+            input_path=str(input_file),
+            output_path=str(stratified_output)
+        )
+        assert stratified_result is not None
+        assert stratified_output.exists()
+
+        # Step 4: Run sensitivity analysis
+        sensitivity_output = tmpdir_path / "sensitivity.json"
+        sensitivity_result = run_sensitivity_analysis(
+            input_path=str(input_file),
+            output_path=str(sensitivity_output)
+        )
+        assert sensitivity_result is not None
+        assert sensitivity_output.exists()
+
+        # Step 5: Run power analysis
+        power_output = tmpdir_path / "power.json"
+        power_result = run_power_analysis(
+            input_path=str(input_file),
+            output_path=str(power_output)
+        )
+        assert power_result is not None
+        assert power_output.exists()
+
+        # Step 6: Generate visualizations
+        figures_dir = tmpdir_path / "figures"
+        figures_dir.mkdir()
+        viz_output = tmpdir_path / "viz_summary.json"
+        viz_result = create_visualization_summary(
+            input_path=str(input_file),
+            output_dir=str(figures_dir),
+            summary_path=str(viz_output)
+        )
+        assert viz_result is not None
+        assert viz_output.exists()
+
+        # Final verification: all expected artifacts exist
+        expected_artifacts = [
+            input_file,
+            correlation_output,
+            stratified_output,
+            sensitivity_output,
+            power_output,
+            viz_output
+        ]
+
+        for artifact in expected_artifacts:
+            assert artifact.exists(), f"Expected artifact {artifact} was not created"
+
+        # Verify the pipeline produced consistent results
+        # (e.g., sample sizes should match across analyses)
+        assert correlation_result['sample_size'] == stratified_result['overall_sample_size']
+        assert correlation_result['sample_size'] == sensitivity_result['total_samples']

@@ -1,0 +1,83 @@
+{
+  "project_id": "PROJ-673-analyzing-the-prevalence-of-unmaintained",
+  "tasks": [
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, `.flake8`, or related setup scripts) are present, and the only artifacts shown pertain to the NPM dependency analysis feature, not to configuring ruff/flake8/black. Consequently, the required linting/formatting setup is missing.",
+      "first_seen": "2026-09-23T03:00:26.129771+00:00",
+      "last_seen": "2026-09-23T03:00:26.129771+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/cache.py",
+      "first_seen": "2026-09-23T03:00:26.131024+00:00",
+      "last_seen": "2026-09-23T03:00:26.131024+00:00"
+    },
+    {
+      "task_key": "T019",
+      "reject_count": 1,
+      "last_reason": "The required output artifacts `data/processed/dependencies_raw.csv` and `data/processed/metrics.json` are absent; there is no evidence that the `collect_data.py` script was executed or that it produced the expected files, nor that it fails loudly if creation fails. The task\u2019s core deliverable is therefore missing.",
+      "first_seen": "2026-09-23T03:00:34.219647+00:00",
+      "last_seen": "2026-09-23T03:00:34.219647+00:00"
+    },
+    {
+      "task_key": "T020",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/dependencies_raw.csv",
+      "first_seen": "2026-09-23T03:00:34.220700+00:00",
+      "last_seen": "2026-09-23T03:00:34.220700+00:00"
+    },
+    {
+      "task_key": "T023",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/power.py",
+      "first_seen": "2026-09-23T03:00:34.221480+00:00",
+      "last_seen": "2026-09-23T03:00:34.221480+00:00"
+    },
+    {
+      "task_key": "T024",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/power.py, data/processed/power_analysis.json, data/processed/dependencies_raw.csv",
+      "first_seen": "2026-09-23T03:00:34.222220+00:00",
+      "last_seen": "2026-09-23T03:00:34.222220+00:00"
+    },
+    {
+      "task_key": "T034",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/stratified_stats.py",
+      "first_seen": "2026-09-23T03:00:34.223137+00:00",
+      "last_seen": "2026-09-23T03:00:34.223137+00:00"
+    },
+    {
+      "task_key": "T035",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/stratified_stats.py",
+      "first_seen": "2026-09-23T03:00:34.223905+00:00",
+      "last_seen": "2026-09-23T03:00:34.223905+00:00"
+    },
+    {
+      "task_key": "T036",
+      "reject_count": 1,
+      "last_reason": "The required script `src/analysis/stratified_stats.py` does not exist, and the output file `data/processed/results_correlation.json` is also missing, so the variance calculation cannot have been executed nor the results stored.",
+      "first_seen": "2026-09-23T03:00:34.224758+00:00",
+      "last_seen": "2026-09-23T03:00:34.224758+00:00"
+    },
+    {
+      "task_key": "T037",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/sensitivity.py",
+      "first_seen": "2026-09-23T03:00:34.225477+00:00",
+      "last_seen": "2026-09-23T03:00:34.225477+00:00"
+    },
+    {
+      "task_key": "T038",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/analysis/sensitivity.py, data/processed/sensitivity_analysis.json",
+      "first_seen": "2026-09-23T03:00:34.226238+00:00",
+      "last_seen": "2026-09-23T03:00:34.226238+00:00"
+    }
+  ],
+  "updated_at": "2026-09-23T03:00:34.226238+00:00"
+}

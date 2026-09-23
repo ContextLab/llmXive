@@ -1,143 +1,152 @@
-import pandas as pd
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 from scipy.stats import spearmanr
-from typing import Tuple, Optional, Dict, Any
-import logging
-from pathlib import Path
-import json
+import pandas as pd
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_dependencies_data(input_path: str) -> pd.DataFrame:
+def load_dependencies_data(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load the dependencies dataset from a CSV file.
+    Load the dependencies data from the processed CSV file.
+    Defaults to data/processed/dependencies_raw.csv if no path is provided.
+    """
+    if input_path is None:
+        input_path = "data/processed/dependencies_raw.csv"
     
-    Args:
-        input_path: Path to the CSV file containing dependency data.
-        
-    Returns:
-        pandas DataFrame with the loaded data.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
-    """
     path = Path(input_path)
     if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(path)
     
+    # Ensure required columns exist
     required_cols = ['age_in_days', 'vulnerability_count']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
     
-    # Filter out rows where critical columns are NaN for correlation calculation
-    # We keep rows for analysis but exclude NaNs from the correlation computation
-    logger.info(f"Loaded {len(df)} rows. Filtering NaNs for correlation...")
-    valid_mask = df['age_in_days'].notna() & df['vulnerability_count'].notna()
-    valid_df = df[valid_mask]
+    # Filter out rows with missing data for correlation
+    # age_in_days might be null if release_date was missing (per FR-010)
+    # vulnerability_count should always be present (int)
+    valid_df = df.dropna(subset=['age_in_days', 'vulnerability_count'])
     
-    logger.info(f"Valid samples for correlation: {len(valid_df)} / {len(df)}")
-    
-    if len(valid_df) == 0:
-        raise ValueError("No valid samples available for correlation (all age_in_days or vulnerability_count are NaN).")
-    
+    logger.info(f"Loaded {len(df)} rows, {len(valid_df)} valid for correlation analysis")
     return valid_df
 
-def calculate_spearman_correlation(df: pd.DataFrame, 
-                                   x_col: str = 'age_in_days', 
-                                   y_col: str = 'vulnerability_count') -> Tuple[float, float]:
+def calculate_spearman_correlation(df: pd.DataFrame) -> Tuple[float, float, int]:
     """
-    Calculate the Spearman rank correlation coefficient and p-value.
+    Calculate Spearman rank correlation between age_in_days and vulnerability_count.
     
-    Args:
-        df: DataFrame containing the data.
-        x_col: Name of the column for the independent variable (age).
-        y_col: Name of the column for the dependent variable (vulnerabilities).
-        
     Returns:
-        Tuple of (rho, p_value).
-        
-    Raises:
-        ValueError: If there are fewer than 2 valid samples.
+        Tuple of (correlation_coefficient, p_value, sample_size)
     """
     if len(df) < 2:
-        raise ValueError(f"Need at least 2 samples for correlation, got {len(df)}")
+        logger.warning("Insufficient data for correlation (need at least 2 samples)")
+        return 0.0, 1.0, len(df)
     
-    x = df[x_col].values
-    y = df[y_col].values
+    age = df['age_in_days'].values
+    vulns = df['vulnerability_count'].values
     
-    # scipy.stats.spearmanr handles NaNs if we filter beforehand, but double check
-    # Since we filtered in load_dependencies_data, this should be safe
-    rho, p_value = spearmanr(x, y)
+    # Handle case where all values are identical (constant)
+    if np.std(age) == 0 or np.std(vulns) == 0:
+        logger.warning("One of the variables is constant; correlation undefined")
+        return 0.0, 1.0, len(df)
     
-    return float(rho), float(p_value)
+    try:
+        rho, p_value = spearmanr(age, vulns)
+        return float(rho), float(p_value), len(df)
+    except Exception as e:
+        logger.error(f"Error calculating Spearman correlation: {e}")
+        raise
 
-def run_correlation_analysis(input_path: str, output_path: str) -> Dict[str, Any]:
+def run_correlation_analysis(input_path: Optional[str] = None, 
+                             output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Run the full correlation analysis pipeline:
-    1. Load data
-    2. Calculate Spearman correlation
-    3. Determine statistical significance
-    4. Save results to JSON
+    Run the full correlation analysis pipeline.
     
     Args:
-        input_path: Path to input CSV file.
-        output_path: Path to output JSON file.
-        
+        input_path: Path to input CSV (default: data/processed/dependencies_raw.csv)
+        output_path: Path to output JSON (default: data/processed/results_correlation.json)
+    
     Returns:
-        Dictionary containing the analysis results.
+        Dictionary containing correlation results
     """
-    logger.info(f"Starting correlation analysis: {input_path} -> {output_path}")
+    if output_path is None:
+        output_path = "data/processed/results_correlation.json"
     
+    # Load data
     df = load_dependencies_data(input_path)
-    rho, p_value = calculate_spearman_correlation(df)
     
+    # Calculate correlation
+    rho, p_value, sample_size = calculate_spearman_correlation(df)
+    
+    # Determine statistical significance
     is_significant = p_value < 0.05
     
-    result = {
-        "rho": rho,
+    # Prepare results
+    results = {
+        "correlation_coefficient": rho,
         "p_value": p_value,
-        "is_significant": is_significant,
-        "sample_size": len(df),
-        "input_file": input_path,
-        "method": "Spearman Rank Correlation",
-        "threshold": 0.05
+        "sample_size": sample_size,
+        "is_statistically_significant": is_significant,
+        "alpha_threshold": 0.05,
+        "method": "Spearman rank correlation"
     }
     
+    # Ensure output directory exists
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
+    # Write results to JSON
+    logger.info(f"Writing results to {output_path}")
     with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(results, f, indent=2)
     
-    logger.info(f"Results saved to {output_path}")
-    logger.info(f"Correlation (rho): {rho:.4f}, p-value: {p_value:.4f}, Significant: {is_significant}")
-    
-    return result
+    logger.info(f"Correlation analysis complete: rho={rho:.4f}, p={p_value:.4f}, n={sample_size}")
+    return results
 
 def main():
     """Main entry point for the correlation analysis script."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Calculate Spearman correlation between package age and vulnerability count.")
-    parser.add_argument("--input", type=str, required=True, 
-                        help="Path to input CSV file (e.g., data/processed/dependencies_raw.csv)")
-    parser.add_argument("--output", type=str, required=True,
-                        help="Path to output JSON file (e.g., data/processed/results_correlation.json)")
+    parser = argparse.ArgumentParser(description="Calculate Spearman correlation for dependency data")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        default="data/processed/dependencies_raw.csv",
+        help="Path to input CSV file"
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/processed/results_correlation.json",
+        help="Path to output JSON file"
+    )
     
     args = parser.parse_args()
     
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
     try:
-        result = run_correlation_analysis(args.input, args.output)
-        print(f"Analysis complete. Results: {result}")
+        results = run_correlation_analysis(args.input, args.output)
+        print(f"Analysis complete. Results written to {args.output}")
+        print(f"  Correlation (rho): {results['correlation_coefficient']:.4f}")
+        print(f"  P-value: {results['p_value']:.4f}")
+        print(f"  Sample size: {results['sample_size']}")
+        print(f"  Statistically significant (p < 0.05): {results['is_statistically_significant']}")
+        return 0
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
-        raise
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,238 +1,216 @@
 """
-Category classifier for NPM packages using metadata keywords and graph topology.
+Category classifier for NPM packages.
 
-Implements FR-007: Mandatory fallback using dependency graph topology when
-keywords are missing or noisy.
+Classifies packages based on metadata keywords with a mandatory fallback
+to dependency graph topology (centrality metrics) when keywords are missing or noisy.
+
+Implements FR-007: MANDATORY FALLBACK to topology classification.
 """
+
 from typing import List, Dict, Any, Optional, Tuple
 from collections import Counter
 import re
+import networkx as nx
+import logging
 
-# Keyword mappings for common NPM package categories
-CATEGORY_KEYWORDS = {
-    "framework": ["framework", "react", "vue", "angular", "svelte", "next", "nuxt", "express", "koa", "fastify"],
-    "ui": ["ui", "component", "design", "style", "css", "tailwind", "bootstrap", "material", "ant"],
-    "data": ["data", "json", "csv", "xml", "parser", "serializer", "query", "database", "sql", "orm", "mongoose"],
-    "network": ["http", "tcp", "udp", "socket", "web", "api", "rest", "graphql", "rpc", "client", "server"],
-    "security": ["security", "auth", "crypto", "encrypt", "hash", "jwt", "oauth", "permission", "acl"],
-    "utility": ["util", "helper", "tool", "misc", "common", "shared", "base"],
-    "testing": ["test", "mock", "stub", "fixture", "assert", "coverage", "jest", "mocha", "chai"],
-    "dev-tool": ["build", "compile", "bundle", "transpile", "lint", "format", "dev", "tooling", "webpack", "vite"],
-    "storage": ["storage", "cache", "redis", "memory", "disk", "file", "fs", "blob"],
-    "logging": ["log", "logger", "trace", "debug", "monitor", "alert", "telemetry"],
+logger = logging.getLogger(__name__)
+
+# Keyword mappings for category classification
+KEYWORD_CATEGORIES = {
+    'framework': ['framework', 'lib', 'library', 'sdk', 'kit'],
+    'data': ['data', 'database', 'db', 'orm', 'query', 'store', 'cache'],
+    'utility': ['util', 'utility', 'helper', 'tool', 'tools', 'common'],
+    'security': ['security', 'auth', 'crypto', 'encrypt', 'decrypt', 'password', 'oauth'],
+    'ui': ['ui', 'user interface', 'component', 'react', 'vue', 'angular', 'dom', 'css'],
+    'testing': ['test', 'testing', 'mock', 'stub', 'assertion', 'coverage'],
+    'build': ['build', 'bundling', 'webpack', 'vite', 'rollup', 'esbuild', 'compile'],
+    'network': ['http', 'network', 'socket', 'websockets', 'rest', 'api', 'client', 'server'],
+    'devops': ['devops', 'deploy', 'ci', 'cd', 'docker', 'kubernetes', 'cloud'],
+    'core': ['core', 'essential', 'foundation', 'base'],
+    'infrastructure': ['infrastructure', 'infra', 'platform', 'middleware']
 }
 
-# Fallback category names for graph-based classification
-TOPOLOGY_CATEGORIES = [
-    "core-infrastructure",
-    "application-layer",
-    "domain-specific",
-    "utility-libraries"
-]
+# Thresholds for topology-based classification
+DEGREE_CENTRALITY_THRESHOLD = 0.8
+BETWEENNESS_CENTRALITY_THRESHOLD = 0.5
 
-def _normalize_keyword(keyword: str) -> str:
-    """Normalize a keyword for comparison."""
-    return re.sub(r'[^a-z0-9]', '', keyword.lower())
 
-def _get_keyword_score(keywords: List[str], category: str) -> float:
-    """Calculate how well keywords match a category."""
-    if not keywords:
-        return 0.0
-    
-    normalized_keywords = [_normalize_keyword(k) for k in keywords]
-    category_terms = [_normalize_keyword(t) for t in CATEGORY_KEYWORDS.get(category, [])]
-    
-    if not category_terms:
-        return 0.0
-    
-    matches = sum(1 for kw in normalized_keywords if any(term in kw or kw in term for term in category_terms))
-    return matches / len(category_terms)
-
-def classify_by_keywords(keywords: List[str]) -> Optional[str]:
+def classify_by_keywords(package_data: Dict[str, Any]) -> Optional[str]:
     """
-    Classify a package based on its keywords.
+    Classify a package based on its metadata keywords.
     
     Args:
-        keywords: List of keywords from package metadata.
+        package_data: Dictionary containing package metadata (keywords, description, name)
         
     Returns:
-        Category name or None if no strong match found.
+        Category string if a strong match is found, None otherwise
     """
-    if not keywords:
+    if not package_data:
         return None
+        
+    # Extract keywords and description
+    keywords = package_data.get('keywords', []) or []
+    description = package_data.get('description', '') or ''
+    name = package_data.get('name', '') or ''
     
-    scores = {
-        cat: _get_keyword_score(keywords, cat)
-        for cat in CATEGORY_KEYWORDS
-    }
+    # Combine all text for matching
+    all_text = ' '.join(keywords + [description, name]).lower()
     
-    # Require at least 0.5 match score to be confident
-    best_category = max(scores, key=scores.get)
-    if scores[best_category] >= 0.5:
+    # Count matches for each category
+    category_scores = {}
+    
+    for category, category_keywords in KEYWORD_CATEGORIES.items():
+        score = 0
+        for kw in category_keywords:
+            # Check if keyword appears in text
+            if re.search(r'\b' + re.escape(kw) + r'\b', all_text):
+                score += 1
+        category_scores[category] = score
+    
+    # Find the best category
+    if not category_scores:
+        return None
+        
+    best_category = max(category_scores, key=category_scores.get)
+    best_score = category_scores[best_category]
+    
+    # Only return a category if we have at least one strong match
+    # (at least 2 keyword matches for the category, or 1 match for high-confidence categories)
+    if best_score >= 2 or (best_score == 1 and best_category in ['security', 'testing', 'devops']):
+        logger.debug(f"Keyword classification: {package_data.get('name', 'unknown')} -> {best_category} (score: {best_score})")
         return best_category
-    
+        
     return None
 
-def _calculate_graph_metrics(dependency_graph: Dict[str, List[str]]) -> Dict[str, float]:
-    """
-    Calculate basic graph metrics for topology-based classification.
-    
-    Args:
-        dependency_graph: Dict mapping package name to list of dependencies.
-        
-    Returns:
-        Dict with graph metrics.
-    """
-    if not dependency_graph:
-        return {"avg_degree": 0.0, "max_degree": 0, "isolated_ratio": 1.0}
-    
-    degrees = [len(deps) for deps in dependency_graph.values()]
-    total_nodes = len(dependency_graph)
-    
-    # Count isolated nodes (no dependencies)
-    isolated = sum(1 for d in degrees if d == 0)
-    
-    return {
-        "avg_degree": sum(degrees) / len(degrees) if degrees else 0.0,
-        "max_degree": max(degrees) if degrees else 0,
-        "isolated_ratio": isolated / total_nodes if total_nodes > 0 else 1.0,
-        "total_edges": sum(degrees)
-    }
 
-def _classify_by_topology(graph_metrics: Dict[str, float], package_name: str, 
-                          dependency_graph: Dict[str, List[str]]) -> str:
+def build_dependency_graph(dependencies: List[Dict[str, Any]]) -> nx.Graph:
     """
-    Classify a package based on dependency graph topology.
-    
-    This is the mandatory fallback when keyword classification fails.
+    Build a dependency graph from a list of dependency relationships.
     
     Args:
-        graph_metrics: Pre-calculated graph metrics.
-        package_name: The name of the package to classify.
-        dependency_graph: The full dependency graph.
+        dependencies: List of dicts with 'from' and 'to' package names
         
     Returns:
-        One of the TOPOLOGY_CATEGORIES.
+        NetworkX Graph object
     """
-    if not dependency_graph:
-        return "utility-libraries"
+    G = nx.Graph()
     
-    deps = dependency_graph.get(package_name, [])
-    degree = len(deps)
+    for dep in dependencies:
+        from_pkg = dep.get('from')
+        to_pkg = dep.get('to')
+        
+        if from_pkg and to_pkg:
+            G.add_edge(from_pkg, to_pkg)
     
-    # Calculate in-degree (how many packages depend on this one)
-    in_degree = sum(1 for d in dependency_graph.values() if package_name in d)
-    
-    # Classification logic based on topology
-    if degree == 0 and in_degree == 0:
-        # Isolated package
-        return "utility-libraries"
-    elif degree > 10 or in_degree > 20:
-        # Highly connected - likely core infrastructure
-        return "core-infrastructure"
-    elif degree > 5 or in_degree > 10:
-        # Moderately connected - application layer
-        return "application-layer"
-    elif degree > 0 and in_degree == 0:
-        # Depends on others but no one depends on it - domain specific
-        return "domain-specific"
-    else:
-        # Default fallback
-        return "utility-libraries"
+    logger.info(f"Built dependency graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+    return G
 
-def classify_package(package_data: Dict[str, Any], 
-                    dependency_graph: Optional[Dict[str, List[str]]] = None) -> str:
+
+def classify_by_topology(package_name: str, graph: nx.Graph) -> str:
     """
-    Classify a package using keywords first, then topology fallback.
+    Classify a package based on its position in the dependency graph.
     
-    Implements FR-007: Mandatory fallback using dependency graph topology.
+    Uses centrality metrics as per FR-007:
+    - degree_centrality > 0.8 -> 'core'
+    - betweenness_centrality > 0.5 -> 'infrastructure'
+    - otherwise -> 'other'
     
     Args:
-        package_data: Dict containing package metadata including 'keywords'.
-        dependency_graph: Optional full dependency graph for topology analysis.
+        package_name: Name of the package to classify
+        graph: NetworkX Graph of dependencies
         
     Returns:
-        Category string.
+        Category string based on topology
     """
-    keywords = package_data.get("keywords", [])
-    package_name = package_data.get("name", "unknown")
+    if package_name not in graph:
+        logger.warning(f"Package {package_name} not found in dependency graph, defaulting to 'other'")
+        return 'other'
     
-    # Try keyword-based classification first
-    category = classify_by_keywords(keywords)
+    # Calculate centrality metrics
+    try:
+        degree_centrality = nx.degree_centrality(graph)
+        betweenness_centrality = nx.betweenness_centrality(graph)
+    except Exception as e:
+        logger.error(f"Error calculating centrality metrics: {e}")
+        return 'other'
     
-    if category:
-        return category
+    deg_cent = degree_centrality.get(package_name, 0)
+    betw_cent = betweenness_centrality.get(package_name, 0)
     
-    # Fallback to topology-based classification
-    if dependency_graph is not None:
-        # Ensure the package exists in the graph
-        if package_name not in dependency_graph:
-            dependency_graph[package_name] = package_data.get("dependencies", [])
-        
-        graph_metrics = _calculate_graph_metrics(dependency_graph)
-        category = _classify_by_topology(graph_metrics, package_name, dependency_graph)
+    logger.debug(f"Topology metrics for {package_name}: degree={deg_cent:.4f}, betweenness={betw_cent:.4f}")
+    
+    # Apply thresholds
+    if deg_cent > DEGREE_CENTRALITY_THRESHOLD:
+        return 'core'
+    elif betw_cent > BETWEENNESS_CENTRALITY_THRESHOLD:
+        return 'infrastructure'
     else:
-        # Ultimate fallback if no graph data available
-        category = "utility-libraries"
+        return 'other'
+
+
+def classify_package(package_data: Dict[str, Any], dependency_graph: Optional[nx.Graph] = None) -> str:
+    """
+    Main classification function with fallback logic.
+    
+    First tries keyword-based classification. If keywords are missing, noisy,
+    or no strong match is found, falls back to topology-based classification
+    if a dependency graph is provided.
+    
+    Args:
+        package_data: Package metadata dictionary
+        dependency_graph: Optional NetworkX graph for topology fallback
+        
+    Returns:
+        Category string
+    """
+    package_name = package_data.get('name', 'unknown')
+    
+    # Step 1: Try keyword classification
+    category = classify_by_keywords(package_data)
+    
+    # Step 2: Fallback to topology if keyword classification failed
+    if category is None:
+        if dependency_graph is not None:
+            logger.info(f"Keyword classification failed for {package_name}, falling back to topology")
+            category = classify_by_topology(package_name, dependency_graph)
+        else:
+            # No graph available, default to 'other'
+            logger.warning(f"No keyword match and no dependency graph for {package_name}, defaulting to 'other'")
+            category = 'other'
     
     return category
 
-def classify_batch(packages: List[Dict[str, Any]], 
-                  dependency_graph: Optional[Dict[str, List[str]]] = None) -> List[Dict[str, str]]:
+
+def classify_batch(packages: List[Dict[str, Any]], dependency_graph: Optional[nx.Graph] = None) -> List[Dict[str, str]]:
     """
-    Classify multiple packages.
+    Classify a batch of packages.
     
     Args:
-        packages: List of package metadata dicts.
-        dependency_graph: Optional full dependency graph.
+        packages: List of package metadata dictionaries
+        dependency_graph: Optional NetworkX graph for topology fallback
         
     Returns:
-        List of dicts with package name and assigned category.
+        List of dicts with 'name' and 'category'
     """
     results = []
     for pkg in packages:
-        name = pkg.get("name", "unknown")
         category = classify_package(pkg, dependency_graph)
         results.append({
-            "name": name,
-            "category": category
+            'name': pkg.get('name', 'unknown'),
+            'category': category
         })
     return results
 
-def build_dependency_graph(packages: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-    """
-    Build a dependency graph from a list of packages.
-    
-    Args:
-        packages: List of package metadata dicts with 'dependencies' field.
-        
-    Returns:
-        Dict mapping package name to list of dependency names.
-    """
-    graph = {}
-    for pkg in packages:
-        name = pkg.get("name", "unknown")
-        deps = pkg.get("dependencies", [])
-        # Extract just the package names from dependency specs
-        if isinstance(deps, dict):
-            deps = list(deps.keys())
-        graph[name] = deps
-    return graph
 
-def get_category_distribution(packages: List[Dict[str, Any]], 
-                             dependency_graph: Optional[Dict[str, List[str]]] = None) -> Dict[str, int]:
+def get_category_distribution(classifications: List[Dict[str, str]]) -> Dict[str, int]:
     """
-    Get the distribution of categories across packages.
+    Calculate the distribution of categories.
     
     Args:
-        packages: List of package metadata dicts.
-        dependency_graph: Optional full dependency graph.
+        classifications: List of dicts with 'name' and 'category'
         
     Returns:
-        Dict mapping category to count.
+        Dictionary mapping category to count
     """
-    distribution = Counter()
-    for pkg in packages:
-        category = classify_package(pkg, dependency_graph)
-        distribution[category] += 1
-    return dict(distribution)
+    counter = Counter(item['category'] for item in classifications)
+    return dict(counter)

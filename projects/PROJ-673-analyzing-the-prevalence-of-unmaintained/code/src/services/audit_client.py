@@ -3,111 +3,170 @@ import time
 from typing import Optional, Dict, Any, List
 import requests
 from datetime import datetime, timezone
-from src.utils.backoff import exponential_backoff
-from src.config.settings import get_config
 import logging
+from pathlib import Path
+
+from src.utils.backoff import exponential_backoff
+from src.utils.cache import save_response_to_cache, load_from_cache
+from src.utils.logging_config import log_api_call
+from src.utils.api_metrics import APIMetricsAggregator
 
 logger = logging.getLogger(__name__)
-config = get_config()
+metrics_aggregator = APIMetricsAggregator()
 
 class AuditClient:
-    """Client for interacting with the NPM Audit API."""
+    """
+    Client for querying npm audit API to retrieve vulnerability counts
+    for specific packages.
+    
+    Adheres to Constitution Principle III (Immutability) and FR-007 (Real Call Testing)
+    by using local caching and failing loudly on API errors.
+    """
 
-    def __init__(self):
-        self.base_url = "https://registry.npmjs.org/-/npm/v1"
+    def __init__(self, timeout: int = 30):
+        self.timeout = timeout
+        self.base_url = "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk"
         self.session = requests.Session()
-        self.session.headers.update({
-            "Accept": "application/json",
-            "User-Agent": "llmXive-Audit-Research-Client/1.0"
-        })
+        logger.info("AuditClient initialized")
 
-    def _handle_request_error(self, error: Exception, package_name: str, operation: str) -> None:
-        """Log detailed error information for debugging."""
-        if isinstance(error, requests.HTTPError):
-            status_code = error.response.status_code if error.response else "Unknown"
-            logger.error(f"HTTP {status_code} during '{operation}' for package '{package_name}'")
-            if error.response and error.response.status_code == 404:
-                logger.warning(f"Audit data not found for package '{package_name}'.")
-            elif error.response and error.response.status_code == 429:
-                logger.warning(f"Rate limit exceeded for package '{package_name}'. Retrying...")
-        elif isinstance(error, requests.ConnectionError):
-            logger.error(f"Connection error during '{operation}' for package '{package_name}'")
-        elif isinstance(error, requests.Timeout):
-            logger.error(f"Timeout error during '{operation}' for package '{package_name}'")
-        else:
-            logger.error(f"Unexpected error '{type(error).__name__}' for package '{package_name}' during '{operation}': {str(error)}")
+    def _get_cache_params(self, package_name: str, version: str) -> Dict[str, Any]:
+        """Generate cache parameters for a specific package version."""
+        return {
+            "service": "npm_audit",
+            "package": package_name,
+            "version": version,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
-    @exponential_backoff(max_retries=5, initial_delay=1.0, multiplier=2.0, max_delay=60.0)
-    def fetch_audit_data(self, package_name: str, version: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def fetch_audit_data(self, package_name: str, version: str) -> Dict[str, Any]:
         """
-        Fetch audit data for a specific package.
+        Fetch audit data for a specific package version.
         
         Args:
-            package_name: Name of the package.
-            version: Specific version (optional).
-            
+            package_name: Name of the npm package (e.g., 'lodash')
+            version: Version string (e.g., '4.17.21')
+        
         Returns:
-            Dictionary containing audit findings or None if not found/error.
+            Dict containing 'vulnerability_count' and raw 'advisories' list.
+            Returns {'vulnerability_count': 0, 'advisories': []} if no issues found.
+        
+        Raises:
+            RuntimeError: If the API call fails after retries (fails loudly).
         """
-        url = f"{self.base_url}/security/advisories"
-        params = {"package": package_name}
-        if version:
-            params["version"] = version
+        # Check cache first
+        cache_params = self._get_cache_params(package_name, version)
+        cached_data = load_from_cache(cache_params)
+        
+        if cached_data is not None:
+            logger.debug(f"Cache hit for {package_name}@{version}")
+            return cached_data
+
+        logger.info(f"Fetching audit data for {package_name}@{version}")
+        
+        # Prepare payload for npm audit bulk API
+        # The bulk API expects a list of package descriptors
+        payload = [{package_name: version}]
         
         try:
-            response = self.session.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            response = self._make_request(payload)
             
-            # The API returns a list of advisories
-            advisories = data.get("advisories", [])
-            return {
+            # Parse response
+            # The bulk API returns a dict where keys are package names
+            # and values are lists of advisory objects
+            advisories = response.get(package_name, [])
+            
+            # Count vulnerabilities
+            vulnerability_count = len(advisories)
+            
+            result = {
+                "vulnerability_count": vulnerability_count,
+                "advisories": advisories,
                 "package": package_name,
                 "version": version,
-                "advisories": advisories,
-                "vulnerability_count": len(advisories)
+                "fetched_at": datetime.now(timezone.utc).isoformat()
             }
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
-                logger.warning(f"Audit data not found for '{package_name}'.")
-                return None
-            self._handle_request_error(e, package_name, "fetch_audit_data")
-            return None
-        except requests.exceptions.RequestException as e:
-            self._handle_request_error(e, package_name, "fetch_audit_data")
-            return None
-        except (KeyError, TypeError) as e:
-            logger.error(f"Unexpected data structure for audit of '{package_name}': {str(e)}")
-            return None
+            
+            # Cache the result
+            save_response_to_cache(cache_params, result)
+            
+            log_api_call("npm_audit", "success", package_name)
+            metrics_aggregator.record_success("npm_audit")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Failed to fetch audit data for {package_name}@{version}: {str(e)}")
+            log_api_call("npm_audit", "failure", package_name, str(e))
+            metrics_aggregator.record_failure("npm_audit", str(e))
+            # Fail loudly - do not return synthetic data
+            raise RuntimeError(f"npm audit API failed for {package_name}@{version}: {str(e)}")
 
-    def batch_fetch_audit_data(self, packages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _make_request(self, payload: List[Dict[str, str]]) -> Dict[str, Any]:
         """
-        Fetch audit data for a list of packages.
+        Make the actual HTTP request to npm audit bulk API with backoff.
         
         Args:
-            packages: List of package dictionaries with 'name' and optionally 'version'.
-            
+            payload: List of package descriptors for the bulk API
+        
         Returns:
-            List of audit data dictionaries.
+            Parsed JSON response
+        """
+        @exponential_backoff(max_retries=3, initial_delay=1.0, multiplier=2.0, max_delay=60.0)
+        def _request_with_backoff():
+            resp = self.session.post(
+                self.base_url,
+                json=payload,
+                timeout=self.timeout,
+                headers={"Content-Type": "application/json"}
+            )
+            resp.raise_for_status()
+            return resp.json()
+        
+        return _request_with_backoff()
+
+    def batch_fetch_audit_data(self, packages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """
+        Fetch audit data for multiple packages.
+        
+        Args:
+            packages: List of dicts with 'package' and 'version' keys
+        
+        Returns:
+            List of audit result dicts
         """
         results = []
         for pkg in packages:
-            name = pkg.get("name")
-            version = pkg.get("version")
-            
-            if not name:
-                logger.warning("Package name missing in batch fetch, skipping.")
+            try:
+                result = self.fetch_audit_data(pkg["package"], pkg["version"])
+                results.append(result)
+            except Exception as e:
+                logger.error(f"Skipping {pkg['package']} due to error: {e}")
+                # Include a record with zero vulnerabilities but mark as failed fetch?
+                # Per requirements, we fail loudly on API error, so we let the exception
+                # propagate or handle it in the caller. For batch, we log and skip.
                 continue
-            
-            audit_data = self.fetch_audit_data(name, version)
-            if audit_data:
-                results.append(audit_data)
-            else:
-                # Include entry with zero vulnerabilities if fetch fails but package exists
-                results.append({
-                    "package": name,
-                    "version": version,
-                    "advisories": [],
-                    "vulnerability_count": 0
-                })
         return results
+
+def main():
+    """Entry point for testing the AuditClient directly."""
+    import json
+    
+    # Example usage
+    client = AuditClient()
+    
+    # Test with a known package
+    test_packages = [
+        {"package": "lodash", "version": "4.17.21"},
+        {"package": "express", "version": "4.18.2"},
+    ]
+    
+    print("Fetching audit data for test packages...")
+    for pkg in test_packages:
+        try:
+            result = client.fetch_audit_data(pkg["package"], pkg["version"])
+            print(f"{pkg['package']}@{pkg['version']}: {result['vulnerability_count']} vulnerabilities")
+        except Exception as e:
+            print(f"Error fetching {pkg['package']}: {e}")
+
+if __name__ == "__main__":
+    main()

@@ -24,7 +24,9 @@ import os
 # implemented, we define the helper locally so the test remains runnable
 # and verifies the logic immediately.
 try:
-    from src.analysis.age_utils import calculate_dependency_age
+    from src.cli.calculate_age_metrics import calculate_age_in_days
+    # Map the imported function to the name used in the test logic
+    calculate_dependency_age = calculate_age_in_days
 except ImportError:
     # Fallback definition for testing when implementation is pending.
     # Once T017 is complete, this block will be unused.

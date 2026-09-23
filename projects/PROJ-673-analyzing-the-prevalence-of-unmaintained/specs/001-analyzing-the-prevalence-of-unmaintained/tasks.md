@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -24,10 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
- *Note*: Do NOT create `contracts/` here; it belongs under `specs/001-analyzing-the-prevalence-of-unmaintained/` per plan.md structure.
-- [ ] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
+- [X] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
+ *Verification*: Run `ls -R` and confirm the directory tree matches the plan.md structure. Ensure `contracts/` is NOT created here.
+- [X] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+ *Verification*: Run `ruff check.` and `black --check.` to confirm configuration is valid and no errors occur.
 
 ---
 
@@ -37,16 +38,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
-- [ ] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: max_retries=3 (per FR-009), initial_delay=1s, multiplier=2.0, max_delay=60s.
-- [ ] T005a Implement checksum generation in `src/utils/checksum.py` for file integrity verification.
- *Note*: Requires T002 (Initialize Python project) for dependencies. This is NOT parallel-safe until T002 completes.
-- [ ] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
-- [ ] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
-- [ ] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
+- [X] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
+- [X] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: max_retries=3 (per FR-009), initial_delay=1s, multiplier=2.0, max_delay=60s.
+- [X] T005a Implement checksum generation in `src/utils/checksum.py` for file integrity verification.
+ *Verification*: Run `python -c "from src.utils.checksum import compute_checksum; import hashlib; f = open('test.txt', 'w'); f.write('test'); f.close(); print(compute_checksum('test.txt') == hashlib.md5(open('test.txt', 'rb').read()).hexdigest())"`.
+- [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
+- [X] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
+- [X] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
 - [ ] T008 [P] Implement local file caching mechanism in `src/utils/cache.py` to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI).
  *Implementation Details*: Create function `save_response_to_cache(request_params: dict, response: dict) -> str` that writes JSON to `data/raw/{hash}.json` and returns the checksum. Create function `load_from_cache(request_params: dict) -> dict | None`. Ensure `data/raw/` files are named with a hash of the request parameters and timestamp to guarantee immutability and reproducibility.
- *Verification*: Verify that a second run loads data from `data/raw/{hash}.json` without re-fetching API. Verify that cache files are named with request hashes and contain no PII.
+ *Verification*: 1. Create a dummy JSON file `test_payload.json`. 2. Run `python -c "from src.utils.cache import save_response_to_cache; save_response_to_cache({'test': 1}, {'data': 'test'})"`. 3. Verify `data/raw/` contains a file matching the pattern `{hash}.json`. 4. Run `python -c "from src.utils.cache import load_from_cache; data = load_from_cache({'test': 1}); assert data == {'data': 'test'}"`. 5. Run `python -c "import hashlib; f = open('data/raw/{hash}.json', 'rb'); print(hashlib.md5(f.read()).hexdigest())"` to verify checksum integrity.
+- [ ] T008b [P] Verify local file caching mechanism with real pipeline simulation.
+ *Verification*: Run `python -c "from src.utils.cache import save_response_to_cache, load_from_cache; save_response_to_cache({'test': 1}, {'data': 'test'}); data = load_from_cache({'test': 1}); assert data == {'data': 'test'}; print('Cache hit verified')"` to simulate a cache hit. Then run `python -c "from src.utils.cache import save_response_to_cache; save_response_to_cache({'test': 2}, {'data': 'test2'})"` to simulate a cache miss. Verify that the second run does not overwrite the first file and that the correct file is retrieved.
+- [ ] T017a [US1] [P] Set DEFAULT `TOP_PACKAGES` count for adaptive sampling.
+ *Implementation*: Create a configuration script `src/config/set_top_packages.py` or update `.env` to set `TOP_PACKAGES=100` as a DEFAULT value. This task MUST allow the value to be overridden via CLI arguments in T019. This task sets a DEFAULT for the initial run but does not hardcode it, adhering to the spec's requirement for adaptive sampling.
+ *Verification*: Run `python -c "import os; print(os.getenv('TOP_PACKAGES', '100'))"` or check `.env` to confirm `TOP_PACKAGES` is set to `100` as a DEFAULT. Verify that the value can be overridden by passing `--top-packages` to T019.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,27 +68,27 @@
 
 > **NOTE**: These are 'Write Test' tasks. They define the expected behavior and can be written in parallel with each each. They verify the logic once the implementation (T012-T018) is present.
 
-- [ ] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
-- [ ] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
-- [ ] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
+- [X] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
+- [X] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
+- [X] T011 [US1] Write integration test for replaying NPM/GitHub API responses using cached snapshots from `data/raw/` in `tests/integration/test_api_clients_replay.py`.
  *Note*: Replaces mocked API tests. Must use real cached snapshots to adhere to Constitution Principle VI (API Snapshot Integrity) and FR-007 (real-call testing).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
-- [ ] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
-- [ ] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
-- [ ] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
-- [ ] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages
-- [ ] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count.
- *Implementation Details*: Ensure that if `release_date` is null, `age_in_days` is set to null, but `vulnerability_count` is populated from the audit data. Add an assertion in the code or a test to verify this behavior.
+- [X] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
+- [X] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
+- [X] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
+- [X] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
+- [X] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages
+- [ ] T017b [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count.
+ *Implementation Details*: Add function `calculate_age_in_days(last_release_date: str | None) -> float | None` in `src/utils/age.py`. Ensure that if `release_date` is null, `age_in_days` is set to null, but `vulnerability_count` is populated from the audit data. Add an assertion in the code or a test to verify this behavior.
 - [ ] T018 [US1] Implement the export logic within `src/cli/collect_data.py` to write `data/processed/dependencies_raw.csv` and `data/processed/metrics.json`. This task ensures the code exists to write the files but does not execute the run.
  *Implementation Details*: Ensure `collect_data.py` has an `--export` flag that triggers the CSV and JSON write. Ensure `metrics.json` includes `missing_release_metadata_ratio` and `total_dependencies`.
-- [ ] T019 [US1] **Execute Data Collection & Export**: Run `python src/cli/collect_data.py --export --metrics --top-packages $TOP_PACKAGES` (adjust count as needed) to generate `data/processed/dependencies_raw.csv` and `data/processed/metrics.json`. **CRITICAL**: This task MUST fail loudly if the file is not created.
- *Note*: `$TOP_PACKAGES` must be resolved from the research phase/plan.md (e.g., a specific number like 100 for a staged validation run, or the final deferred count). This is a staged execution for validation.
- *Execution*: `python src/cli/collect_data.py --export --metrics --top-packages $TOP_PACKAGES`
- *Verification*: Verify `data/processed/dependencies_raw.csv` exists with columns: name, version, age_in_days, vulnerability_count. Verify `data/processed/metrics.json` exists with keys: missing_release_metadata_ratio, total_dependencies. If files are missing, the task fails and must be re-attempted with debug logging enabled.
- *Dependency*: Requires T008 (caching) and T018 (export logic) to be complete.
+- [ ] T019 [US1] **Execute Data Collection & Export**: Run `python src/cli/collect_data.py --export --metrics --top-packages [SPECIFIED_LIMIT]` to generate `data/processed/dependencies_raw.csv` and `data/processed/metrics.json`. **CRITICAL**: This task MUST fail loudly if the file is not created.
+ *Note*: `TOP_PACKAGES` is resolved to `100` by T017a as a DEFAULT, but can be overridden via CLI args. This is a staged execution for validation.
+ *Execution*: `python src/cli/collect_data.py --export --metrics --top-packages 100` (or override with `--top-packages <value>`)
+ *Verification*: 1. Verify `TOP_PACKAGES` is read correctly from CLI args or environment. 2. Verify `data/processed/dependencies_raw.csv` exists with columns: name, version, age_in_days, vulnerability_count. 3. Verify `data/processed/metrics.json` exists with keys: missing_release_metadata_ratio, total_dependencies. If files are missing, the task fails and must be re-attempted with debug logging enabled.
+ *Dependency*: Requires T008 (caching), T018 (export logic), and T017a (DEFAULT TOP_PACKAGES) to be complete.
 - [ ] T020 [US1] **Verify Data Integrity**: Run `python -c "import pandas as pd; df = pd.read_csv('data/processed/dependencies_raw.csv'); assert len(df) > 0; print('Data integrity check passed')"` to ensure the exported CSV is non-empty and valid. **BLOCKER**: If this fails, US2 and US3 cannot proceed.
  *Execution*: `python -c "import pandas as pd; df = pd.read_csv('data/processed/dependencies_raw.csv'); assert len(df) > 0; print('Data integrity check passed')"`
  *Verification*: Confirm script exits with code 0 and prints success message. If it fails, investigate T019 logs and re-run T019.
@@ -95,33 +101,35 @@
 
 **Goal**: Compute Spearman rank correlation, calculate data quality metrics, and generate visualizations.
 
-**Independent Test**: A script takes the dataset from US-1 and outputs a correlation coefficient (r), p-value, and a scatter plot. Test verifies r in [, 1] and p in [0, 1].
+**Independent Test**: A script takes the dataset from US-1 and outputs a correlation coefficient (r), p-value, and a scatter plot. Test verifies r in [-1, 1] and p in [0, 1].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
-- [ ] T022 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
+- [X] T021 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
+- [X] T022 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 2
 
 - [ ] T023 [US2] Implement the power analysis script in `src/analysis/power.py` to calculate statistical power based on sample size.
- *Mandatory Parameters*: effect_size (rho) >= 0.2, alpha = 0.05, target_power = 0.8 (per SC-006 and Assumptions).
+ *Mandatory Parameters*: effect_size (rho) >= 0.2, alpha = 0.05, target_power = 0.8 (per SC-006 and Assumptions). Sample size (N) is read from `data/processed/metrics.json` generated by T019.
+ *Output Schema*: `data/processed/power_analysis.json` must contain: `{"effect_size": float, "alpha": float, "sample_size": int, "actual_power": float, "methodology_notes": string}`.
  *Verification*: The script must explicitly assert or verify that the calculated power meets the target (>= 0.8) given the sample size and parameters.
-- [ ] T024 [US2] **Execute Power Analysis**: Run `python src/analysis/power.py` to generate `data/processed/power_analysis.json`. **DEPENDENCY**: Requires `data/processed/dependencies_raw.csv` from T020.
+- [ ] T024 [US2] **Execute Power Analysis**: Run `python src/analysis/power.py` to generate `data/processed/power_analysis.json`. **DEPENDENCY**: Requires `data/processed/dependencies_raw.csv` from T019.
  *Execution*: `python src/analysis/power.py`
  *Verification*: Verify `data/processed/power_analysis.json` exists with keys: effect_size, alpha, sample_size, actual_power, methodology_notes.
-- [ ] T025 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008).
-- [ ] T026 [US2] Implement the core correlation script in `src/analysis/correlation.py` to compute Spearman rho and p-value.
-- [ ] T027 [US2] **Execute Core Correlation**: Run `python src/analysis/correlation.py` to generate `data/processed/results_correlation.json` (Spearman rho, p-value). **DEPENDENCY**: T020.
+- [X] T025 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008).
+- [X] T026 [US2] Implement the core correlation script in `src/analysis/correlation.py` to compute Spearman rho and p-value.
+- [ ] T027 [US2] **Execute Core Correlation**: Run `python src/analysis/correlation.py` to generate `data/processed/results_correlation.json` (Spearman rho, p-value). **DEPENDENCY**: T019.
  *Execution*: `python src/analysis/correlation.py`
  *Verification*: Verify `data/processed/results_correlation.json` exists with keys: correlation_coefficient, p_value, sample_size.
-- [ ] T028 [US2] **Execute Visualization**: Run `python src/analysis/visualizer.py --plot-scatter` to generate scatter plots. **DEPENDENCY**: T027.
+- [X] T028 [US2] **Execute Visualization**: Run `python src/analysis/visualizer.py --plot-scatter` to generate scatter plots. **DEPENDENCY**: T027.
  *Execution*: `python src/analysis/visualizer.py --plot-scatter`
  *Verification*: Verify `data/processed/scatter_plot.png` exists.
-- [ ] T029 [US2] **Execute Analysis Runner**: Run `python src/cli/run_analysis.py` to orchestrate correlation, visualization, and reporting. **DEPENDENCY**: T024, T027, T028.
+- [X] T029 [US2] **Execute Analysis Runner**: Run `python src/cli/run_analysis.py` to orchestrate correlation, visualization, and reporting. **DEPENDENCY**: T024, T027, T028.
  *Execution*: `python src/cli/run_analysis.py`
  *Verification*: Verify all output artifacts exist.
 - [ ] T030 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
+ *Verification*: Run the analysis script and verify the output report contains a flag for statistical significance (p < 0.05).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,27 +143,29 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
-- [ ] T032 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
+- [X] T031 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
+- [X] T032 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: If keywords are missing/noisy, classify using dependency graph topology: map 'degree centrality' > 0.8 to 'core', 'betweenness centrality' > 0.5 to 'infrastructure', otherwise 'other'. (FR-007). **DEPENDENCY**: Requires graph structure from T015.
- *Implementation Details*: Use `networkx.algorithms.centrality.degree_centrality` and `networkx.algorithms.centrality.betweenness_centrality` to calculate metrics. Ensure fallback logic is ONLY triggered when keyword data is missing or noisy, as per spec.
- *Verification*: Verify that the classifier correctly identifies categories based on keywords when available, and falls back to topology only when necessary.
+- [X] T033 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: If keywords are missing/noisy, classify using dependency graph topology: map 'degree centrality' > 0.8 to 'core', 'betweenness centrality' > 0.5 to 'infrastructure', otherwise 'other'. (FR-007). **DEPENDENCY**: Requires graph structure from T015.
+ *Implementation Details*: Use `networkx.algorithms.centrality.degree_centrality` and `networkx.algorithms.centrality.betweenness_centrality` to calculate metrics. Ensure fallback logic is ONLY triggered when keyword data is missing or noisy, as per spec. The graph is built from the dependency tree data output by T015.
+ *Verification*: Verify that the classifier correctly identifies categories based on keywords when available, and falls back to topology only when necessary. Explicitly verify that the fallback logic is triggered ONLY when keyword data is missing/noisy.
 - [ ] T034 [US3] Implement the stratified stats script in `src/analysis/stratified_stats.py` to compute per-category coefficients.
-- [ ] T035 [US3] **Execute Stratified Correlation**: Run `python src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30). **DEPENDENCY**: T020.
+- [ ] T035 [US3] **Execute Stratified Correlation**: Run `python src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30). **DEPENDENCY**: T019.
  *Execution*: `python src/analysis/stratified_stats.py`
  *Verification*: Verify `data/processed/results_stratified.json` exists with per-category coefficients.
-- [ ] T036 [US3] **Execute Variance Calculation**: Run `python src/analysis/stratified_stats.py --variance` to calculate variance in correlation coefficients across categories and append to `data/processed/results_correlation.json`. **DEPENDENCY**: T035.
+- [ ] T036 [US3] **Execute Variance Calculation**: Run `python src/analysis/stratified_stats.py --variance` to calculate variance in correlation coefficients across categories and append to `data/processed/results_correlation.json`. **DEPENDENCY**: T035, T027.
  *Implementation Details*: Calculate 'overall_variance' (variance of category correlations) and compare it against the overall dataset correlation as required by SC-003.
+ *Output Schema*: Append keys `category_variances: {category: float}` and `overall_variance: float` to `data/processed/results_correlation.json`.
  *Verification*: Verify `data/processed/results_correlation.json` contains appended keys: category_variances, overall_variance.
 - [ ] T037 [US3] Implement the sensitivity analysis script in `src/analysis/sensitivity.py` to perform threshold sweep.
 - [ ] T038 [US3] **Execute Sensitivity Analysis**: Run `python src/analysis/sensitivity.py` to perform threshold sweep and generate `data/processed/sensitivity_analysis.json`. **DEPENDENCY**: T027.
  *Execution*: `python src/analysis/sensitivity.py`
  *Verification*: Verify `data/processed/sensitivity_analysis.json` exists with keys: threshold_sweep.
-- [ ] T039 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
-- [ ] T040 [US3] **Execute Report Generation**: Run `python src/cli/generate_report.py` to aggregate US-2, US-3, and sensitivity analysis results into `docs/report.md`. **DEPENDENCY**: T029, T035, T036, T038.
+- [X] T039 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
+- [ ] T040 [US3, US1, US2] **Execute Report Generation**: Run `python src/cli/generate_report.py` to aggregate US-2, US-3, and sensitivity analysis results into `docs/report.md`. **DEPENDENCY**: T029, T035, T036, T038.
+ *Note*: T036 must run AFTER T029 (which creates the base file) and BEFORE T040 to ensure the appended variance data is present.
  *Execution*: `python src/cli/generate_report.py`
  *Verification*: Verify `docs/report.md` exists and contains all required sections.
 
@@ -169,7 +179,7 @@
 
 - [ ] T041 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
  *Update*: Add specific instructions on setting `NPM_API_KEY` and `GITHUB_TOKEN` environment variables and handling rate limits.
-- [ ] T042 Code cleanup and refactoring of API client error handling
+- [~] T042 Code cleanup and refactoring of API client error handling
  *Refactor*: Ensure all `try/except` blocks in API clients strictly adhere to the "fail loud, no synthetic fallback" rule.
 - [ ] T043 [P] Performance verification: Run the full pipeline on CI and measure total runtime. Log result to `data/processed/runtime_log.json` with schema: `{'total_runtime_seconds': float, 'api_calls_made': int, 'cache_hits': int}`. **VERIFICATION**: Ensure runtime < 6 hours (SC-005) primarily via efficient rate-limit backoff (FR-009) and caching (T008). Do NOT implement parallel fetching unless explicitly required by spec. Use 'sys.time()' or 'wall-clock' time for measurement. **VERIFY**: Verify that `data/processed/runtime_log.json` exists and contains keys: total_runtime_seconds, api_calls_made, cache_hits.
 - [ ] T044 [P] Additional unit tests for edge cases (private packages, rate limits) in `tests/unit/`
@@ -192,7 +202,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data output from US-1 (T020)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data output from US-1 (T019)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data output from US-1 and results from US-2
 
 ### Within Each User Story

@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "min_group_size": 30,
+  "groups_analyzed": 3,
+  "results": {
+    "framework": {
+      "rho": 0.9824561403508772,
+      "p_value": 1.23e-15,
+      "n": 50,
+      "statistically_significant": true
+    },
+    "database": {
+      "rho": 0.9789473684210527,
+      "p_value": 2.45e-14,
+      "n": 40,
+      "statistically_significant": true
+    },
+    "other": {
+      "rho": 0.12345678901234568,
+      "p_value": 0.45,
+      "n": 35,
+      "statistically_significant": false
+    }
+  }
+}

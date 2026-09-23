@@ -1,86 +1,109 @@
+"""
+Unit tests for sensitivity analysis module.
+"""
 import pytest
 import pandas as pd
-import json
-import tempfile
+import numpy as np
 from pathlib import Path
-from src.analysis.sensitivity_analysis import (
-    calculate_unmaintained_proportion,
+import tempfile
+import json
+import os
+import sys
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from src.analysis.sensitivity import (
+    calculate_unmaintained_ratio,
+    run_threshold_sweep,
     run_sensitivity_analysis,
     load_dependencies_data
 )
 
 @pytest.fixture
-def sample_df():
+def sample_dataframe():
     """Create a sample DataFrame for testing."""
     data = {
-        'package_name': ['pkg1', 'pkg2', 'pkg3', 'pkg4', 'pkg5'],
-        'age_in_days': [100, 200, 300, 50, None],
-        'vulnerability_count': [1, 0, 2, 0, 1]
+        'name': ['pkg1', 'pkg2', 'pkg3', 'pkg4', 'pkg5'],
+        'age_in_days': [30, 90, 180, 365, 730],
+        'vulnerability_count': [0, 1, 2, 5, 10]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def temp_csv(sample_df):
-    """Create a temporary CSV file from sample_df."""
+def temp_csv_file(sample_dataframe):
+    """Create a temporary CSV file with sample data."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_df.to_csv(f, index=False)
-        return f.name
+        sample_dataframe.to_csv(f, index=False)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-def test_calculate_unmaintained_proportion_basic(sample_df):
-    """Test basic proportion calculation."""
-    # Threshold 150: pkg1 (100) is maintained, pkg2 (200) unmaintained, pkg3 (300) unmaintained, pkg4 (50) maintained.
-    # Valid count = 4. Unmaintained = 2. Proportion = 0.5.
-    prop = calculate_unmaintained_proportion(sample_df, 150)
-    assert prop == 0.5
+def test_calculate_unmaintained_ratio_low_threshold(sample_dataframe):
+    """Test unmaintained ratio calculation with a low threshold."""
+    # Threshold of 30 days: pkg2, pkg3, pkg4, pkg5 are unmaintained (4/5 = 0.8)
+    ratio = calculate_unmaintained_ratio(sample_dataframe, 30)
+    assert abs(ratio - 0.8) < 0.001
 
-def test_calculate_unmaintained_proportion_all_maintained(sample_df):
-    """Test when all are maintained."""
-    prop = calculate_unmaintained_proportion(sample_df, 350)
-    assert prop == 0.0
+def test_calculate_unmaintained_ratio_high_threshold(sample_dataframe):
+    """Test unmaintained ratio calculation with a high threshold."""
+    # Threshold of 730 days: only pkg5 is unmaintained (1/5 = 0.2)
+    ratio = calculate_unmaintained_ratio(sample_dataframe, 730)
+    assert abs(ratio - 0.2) < 0.001
 
-def test_calculate_unmaintained_proportion_all_unmaintained(sample_df):
-    """Test when all valid are unmaintained."""
-    prop = calculate_unmaintained_proportion(sample_df, 40)
-    assert prop == 1.0
+def test_calculate_unmaintained_ratio_empty_dataframe():
+    """Test unmaintained ratio calculation with empty DataFrame."""
+    df = pd.DataFrame(columns=['age_in_days', 'vulnerability_count'])
+    ratio = calculate_unmaintained_ratio(df, 90)
+    assert ratio == 0.0
 
-def test_calculate_unmaintained_proportion_null_handling(sample_df):
-    """Test that null values are excluded."""
-    # With threshold 150, we have 4 valid. 2 unmaintained.
-    # If we include null as unmaintained, it would be 3/5 = 0.6.
-    # We expect 0.5.
-    prop = calculate_unmaintained_proportion(sample_df, 150)
-    assert prop == 0.5
-
-def test_run_sensitivity_analysis(temp_csv):
-    """Test the full sensitivity analysis run."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as out_f:
-        output_path = out_f.name
-
-    # Use a small range for testing
-    thresholds = [100, 200, 300]
+def test_run_threshold_sweep(sample_dataframe):
+    """Test threshold sweep produces expected structure."""
+    thresholds = [30, 90, 180]
+    results = run_threshold_sweep(sample_dataframe, thresholds)
     
-    result = run_sensitivity_analysis(temp_csv, output_path, threshold_range=thresholds)
-    
-    assert 'threshold_sweep' in result
-    assert len(result['threshold_sweep']) == len(thresholds)
-    
-    # Check structure of sweep results
-    for entry in result['threshold_sweep']:
-        assert 'threshold' in entry
-        assert 'unmaintained_proportion' in entry
-        assert 'robustness_score' in entry
-        assert isinstance(entry['threshold'], int)
-        assert isinstance(entry['unmaintained_proportion'], float)
-    
-    # Verify file was written
-    assert Path(output_path).exists()
-    
-    # Verify content matches
-    with open(output_path) as f:
-        loaded = json.load(f)
-    assert loaded == result
+    assert len(results) == 3
+    for result in results:
+        assert 'threshold_days' in result
+        assert 'unmaintained_ratio' in result
+        assert 'correlation_coefficient' in result
+        assert 'p_value' in result
+        assert 'sample_size' in result
+        assert result['sample_size'] == 5
 
-def test_run_sensitivity_analysis_file_not_found():
-    """Test error handling for missing input file."""
+def test_run_sensitivity_analysis_creates_file(temp_csv_file):
+    """Test that sensitivity analysis creates output file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_sensitivity.json"
+        
+        result = run_sensitivity_analysis(
+            input_path=temp_csv_file,
+            output_path=str(output_path),
+            thresholds=[30, 90]
+        )
+        
+        assert output_path.exists()
+        assert 'threshold_sweep' in result
+        assert 'analysis_metadata' in result
+        
+        # Verify JSON content
+        with open(output_path) as f:
+            data = json.load(f)
+            assert len(data['threshold_sweep']) == 2
+
+def test_run_sensitivity_analysis_missing_input():
+    """Test that sensitivity analysis fails loudly on missing input."""
     with pytest.raises(FileNotFoundError):
-        run_sensitivity_analysis('nonexistent.csv', 'output.json')
+        run_sensitivity_analysis(input_path="nonexistent_file.csv")
+
+def test_run_threshold_sweep_with_null_values():
+    """Test handling of null values in data."""
+    data = {
+        'age_in_days': [30, np.nan, 180, 365],
+        'vulnerability_count': [0, 1, 2, 5]
+    }
+    df = pd.DataFrame(data)
+    # Should filter out the NaN row
+    results = run_threshold_sweep(df, [90])
+    assert len(results) == 1
+    assert results[0]['sample_size'] == 3  # Only 3 valid rows

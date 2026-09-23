@@ -4,253 +4,372 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-DATA_DIR = Path("data/processed")
-FIGURES_DIR = Path("figures")
-REPORTS_DIR = Path("docs")
-
-# Ensure directories exist
-FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-
-def load_dependencies_data(csv_path: Optional[str] = None) -> pd.DataFrame:
+def load_dependencies_data(input_path: str) -> pd.DataFrame:
     """
-    Load dependencies data from CSV file.
+    Load dependency data from a CSV file.
     
     Args:
-        csv_path: Path to the CSV file. If None, uses default path.
+        input_path: Path to the input CSV file
         
     Returns:
-        DataFrame with dependencies data
+        DataFrame with dependency data
+        
+    Raises:
+        FileNotFoundError: If the input file doesn't exist
+        ValueError: If the file is empty or has no valid data
     """
-    if csv_path is None:
-        csv_path = DATA_DIR / "dependencies_raw.csv"
+    input_file = Path(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Dependencies data not found at {csv_path}")
+    df = pd.read_csv(input_file)
     
-    logger.info(f"Loading dependencies data from {csv_path}")
-    df = pd.read_csv(csv_path)
+    if df.empty:
+        raise ValueError(f"Input file {input_path} is empty or contains no valid data")
     
-    # Ensure necessary columns exist
-    required_cols = ['category', 'is_unmaintained', 'age_in_days', 'vulnerability_count']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in data: {missing_cols}")
-    
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def calculate_unmaintained_proportions_by_category(df: pd.DataFrame) -> Dict[str, float]:
+def calculate_unmaintained_proportions_by_category(
+    df: pd.DataFrame, 
+    unmaintained_threshold_days: int = 365
+) -> Dict[str, Dict[str, float]]:
     """
-    Calculate the proportion of unmaintained dependencies for each category.
+    Calculate the proportion of unmaintained dependencies by category.
+    
+    A dependency is considered unmaintained if:
+    1. age_in_days > unmaintained_threshold_days (and not null)
+    2. OR age_in_days is null (missing release metadata)
     
     Args:
-        df: DataFrame with dependencies data
+        df: DataFrame with dependency data
+        unmaintained_threshold_days: Days since last release to consider unmaintained
         
     Returns:
-        Dictionary mapping category to unmaintained proportion
+        Dictionary with category -> {total, unmaintained, proportion}
     """
-    if 'is_unmaintained' not in df.columns or 'category' not in df.columns:
-        raise ValueError("DataFrame must contain 'is_unmaintained' and 'category' columns")
+    if 'category' not in df.columns:
+        raise ValueError("DataFrame must contain 'category' column")
     
-    # Group by category and calculate proportions
-    category_stats = df.groupby('category').agg(
-        total=('is_unmaintained', 'count'),
-        unmaintained_count=('is_unmaintained', 'sum')
-    ).reset_index()
+    if 'age_in_days' not in df.columns:
+        raise ValueError("DataFrame must contain 'age_in_days' column")
     
-    category_stats['unmaintained_proportion'] = category_stats['unmaintained_count'] / category_stats['total']
+    results = {}
     
-    result = dict(zip(category_stats['category'], category_stats['unmaintained_proportion']))
-    logger.info(f"Calculated unmaintained proportions for {len(result)} categories")
-    return result
+    for category in df['category'].dropna().unique():
+        category_df = df[df['category'] == category]
+        
+        if len(category_df) == 0:
+            continue
+        
+        total = len(category_df)
+        
+        # Count unmaintained: age_in_days > threshold OR age_in_days is null
+        # Note: We exclude null age_in_days from the "age > threshold" check
+        # but include them in the unmaintained count as per FR-010
+        age_col = category_df['age_in_days']
+        
+        # Dependencies with age > threshold (excluding nulls)
+        over_threshold = age_col.dropna()[age_col > unmaintained_threshold_days]
+        
+        # Dependencies with null age (missing release metadata)
+        null_age = age_col.isna().sum()
+        
+        unmaintained = len(over_threshold) + null_age
+        proportion = unmaintained / total if total > 0 else 0.0
+        
+        results[category] = {
+            'total': total,
+            'unmaintained': unmaintained,
+            'proportion': proportion
+        }
+    
+    logger.info(f"Calculated unmaintained proportions for {len(results)} categories")
+    return results
 
-def generate_histogram_by_category(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
+def generate_histogram_by_category(
+    input_path: str,
+    output_path: str,
+    unmaintained_threshold_days: int = 365,
+    bins: int = 10,
+    figsize: Tuple[int, int] = (12, 8)
+) -> str:
     """
     Generate a histogram of unmaintained dependency percentages by category.
     
+    This visualization shows the distribution of unmaintained dependency
+    percentages across different package categories, allowing for
+    stratified analysis of maintenance health.
+    
     Args:
-        df: DataFrame with dependencies data
-        output_path: Path to save the histogram image. If None, uses default path.
+        input_path: Path to input CSV with dependency data
+        output_path: Path where the histogram image will be saved
+        unmaintained_threshold_days: Days since last release to consider unmaintained
+        bins: Number of bins for the histogram
+        figsize: Figure size (width, height) in inches
         
     Returns:
         Path to the generated histogram file
+        
+    Raises:
+        FileNotFoundError: If input file doesn't exist
+        ValueError: If required columns are missing
+        RuntimeError: If the plot cannot be generated
     """
-    if output_path is None:
-        output_path = FIGURES_DIR / "unmaintained_histogram_by_category.png"
-    else:
-        output_path = Path(output_path)
+    logger.info(f"Generating histogram from {input_path} to {output_path}")
     
-    logger.info(f"Generating histogram for unmaintained dependencies by category")
+    # Load data
+    df = load_dependencies_data(input_path)
     
-    # Calculate unmaintained proportions by category
-    proportions = calculate_unmaintained_proportions_by_category(df)
+    # Calculate unmaintained proportions
+    proportions = calculate_unmaintained_proportions_by_category(
+        df, unmaintained_threshold_days
+    )
     
-    # Sort categories by proportion for better visualization
-    sorted_categories = sorted(proportions.items(), key=lambda x: x[1], reverse=True)
-    categories = [cat for cat, _ in sorted_categories]
-    values = [prop for _, prop in sorted_categories]
+    if not proportions:
+        raise ValueError("No categories found in the data")
     
-    # Create the histogram
-    plt.figure(figsize=(12, 8))
-    bars = plt.bar(categories, values, color='skyblue', edgecolor='black', alpha=0.8)
+    # Prepare data for plotting
+    categories = list(proportions.keys())
+    unmaintained_ratios = [proportions[cat]['proportion'] for cat in categories]
+    counts = [proportions[cat]['total'] for cat in categories]
     
-    # Add value labels on bars
-    for bar, value in zip(bars, values):
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Create histogram bars
+    bars = ax.bar(categories, unmaintained_ratios, color='steelblue', edgecolor='black', alpha=0.7)
+    
+    # Add count labels on top of bars
+    for i, (bar, count) in enumerate(zip(bars, counts)):
         height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2., height,
-                f'{value:.2%}',
-                ha='center', va='bottom', fontsize=9)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.,
+            height,
+            f'n={count}',
+            ha='center',
+            va='bottom',
+            fontsize=8,
+            rotation=45 if len(categories) > 10 else 0
+        )
     
-    plt.title('Distribution of Unmaintained Dependencies by Category', fontsize=14, fontweight='bold')
-    plt.xlabel('Category', fontsize=12)
-    plt.ylabel('Proportion of Unmaintained Dependencies', fontsize=12)
-    plt.xticks(rotation=45, ha='right')
-    plt.ylim(0, max(values) * 1.1 if values else 1)
-    plt.grid(axis='y', alpha=0.3)
+    # Customize plot
+    ax.set_xlabel('Package Category', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Proportion of Unmaintained Dependencies', fontsize=12, fontweight='bold')
+    ax.set_title(
+        f'Unmaintained Dependencies by Category (Threshold: {unmaintained_threshold_days} days)',
+        fontsize=14,
+        fontweight='bold'
+    )
+    ax.set_ylim(0, max(unmaintained_ratios) * 1.2 if unmaintained_ratios else 1.0)
+    
+    # Rotate x-axis labels if there are many categories
+    if len(categories) > 5:
+        plt.xticks(rotation=45, ha='right')
+    
+    # Add grid for better readability
+    ax.yaxis.grid(True, linestyle='--', alpha=0.7)
+    ax.set_axisbelow(True)
+    
+    # Adjust layout to prevent label cutoff
     plt.tight_layout()
     
-    # Save the figure
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
+    # Ensure output directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Histogram saved to {output_path}")
-    return str(output_path)
+    # Save figure
+    try:
+        fig.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Histogram saved to {output_path}")
+        return output_path
+    except Exception as e:
+        plt.close(fig)
+        raise RuntimeError(f"Failed to save histogram: {e}")
 
-def generate_category_distribution_plot(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
+def generate_scatter_plot(
+    input_path: str,
+    output_path: str,
+    x_col: str = 'age_in_days',
+    y_col: str = 'vulnerability_count',
+    figsize: Tuple[int, int] = (10, 8)
+) -> str:
     """
-    Generate a plot showing the distribution of packages across categories.
+    Generate a scatter plot of age vs vulnerability count.
     
     Args:
-        df: DataFrame with dependencies data
-        output_path: Path to save the plot image. If None, uses default path.
+        input_path: Path to input CSV
+        output_path: Path to save the plot
+        x_col: Column name for x-axis (default: age_in_days)
+        y_col: Column name for y-axis (default: vulnerability_count)
+        figsize: Figure size
         
     Returns:
-        Path to the generated plot file
+        Path to the generated plot
     """
-    if output_path is None:
-        output_path = FIGURES_DIR / "category_distribution.png"
-    else:
-        output_path = Path(output_path)
+    df = load_dependencies_data(input_path)
     
-    logger.info(f"Generating category distribution plot")
+    if x_col not in df.columns or y_col not in df.columns:
+        raise ValueError(f"Columns '{x_col}' and/or '{y_col}' not found in data")
     
-    # Count packages per category
-    category_counts = df['category'].value_counts().reset_index()
-    category_counts.columns = ['category', 'count']
+    # Remove rows with null values in both columns
+    plot_df = df[[x_col, y_col]].dropna()
     
-    # Sort by count
-    category_counts = category_counts.sort_values('count', ascending=True)
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.scatter(plot_df[x_col], plot_df[y_col], alpha=0.5, edgecolors='w', s=10)
     
-    # Create the plot
-    plt.figure(figsize=(12, 8))
-    bars = plt.barh(category_counts['category'], category_counts['count'], color='lightgreen', edgecolor='black', alpha=0.8)
+    ax.set_xlabel(x_col.replace('_', ' ').title())
+    ax.set_ylabel(y_col.replace('_', ' ').title())
+    ax.set_title('Dependency Age vs Vulnerability Count')
+    ax.grid(True, alpha=0.3)
     
-    # Add value labels on bars
-    for bar, count in zip(bars, category_counts['count']):
-        width = bar.get_width()
-        plt.text(width + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{int(count)}',
-                ha='left', va='center', fontsize=9)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
     
-    plt.title('Distribution of Packages by Category', fontsize=14, fontweight='bold')
-    plt.xlabel('Number of Packages', fontsize=12)
-    plt.ylabel('Category', fontsize=12)
-    plt.tight_layout()
+    logger.info(f"Scatter plot saved to {output_path}")
+    return output_path
+
+def generate_category_distribution_plot(
+    input_path: str,
+    output_path: str,
+    figsize: Tuple[int, int] = (10, 8)
+) -> str:
+    """
+    Generate a pie chart of category distribution.
     
-    # Save the figure
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
+    Args:
+        input_path: Path to input CSV
+        output_path: Path to save the plot
+        figsize: Figure size
+        
+    Returns:
+        Path to the generated plot
+    """
+    df = load_dependencies_data(input_path)
+    
+    if 'category' not in df.columns:
+        raise ValueError("Column 'category' not found in data")
+    
+    category_counts = df['category'].value_counts()
+    
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.pie(
+        category_counts.values,
+        labels=category_counts.index,
+        autopct='%1.1f%%',
+        startangle=90
+    )
+    ax.set_title('Package Category Distribution')
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
     
     logger.info(f"Category distribution plot saved to {output_path}")
-    return str(output_path)
+    return output_path
 
-def create_visualization_summary(df: pd.DataFrame, metrics_path: Optional[str] = None) -> Dict[str, Any]:
+def create_visualization_summary(
+    input_path: str,
+    output_dir: str,
+    unmaintained_threshold_days: int = 365
+) -> Dict[str, str]:
     """
-    Create all visualizations and generate a summary report.
+    Create all visualizations for the analysis.
     
     Args:
-        df: DataFrame with dependencies data
-        metrics_path: Path to save metrics JSON. If None, uses default path.
+        input_path: Path to input CSV
+        output_dir: Directory to save all outputs
+        unmaintained_threshold_days: Threshold for unmaintained dependencies
         
     Returns:
-        Dictionary containing paths to generated files and summary metrics
+        Dictionary mapping visualization types to file paths
     """
-    if metrics_path is None:
-        metrics_path = DATA_DIR / "visualization_metrics.json"
-    else:
-        metrics_path = Path(metrics_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info("Creating visualization summary")
+    results = {}
     
-    # Generate histogram
-    histogram_path = generate_histogram_by_category(df)
+    # Histogram of unmaintained percentages
+    histogram_path = output_dir / 'unmaintained_histogram_by_category.png'
+    results['histogram'] = generate_histogram_by_category(
+        input_path, str(histogram_path), unmaintained_threshold_days
+    )
     
-    # Generate category distribution plot
-    distribution_path = generate_category_distribution_plot(df)
+    # Scatter plot
+    scatter_path = output_dir / 'age_vs_vulnerability_scatter.png'
+    results['scatter'] = generate_scatter_plot(
+        input_path, str(scatter_path)
+    )
     
-    # Calculate summary metrics
-    proportions = calculate_unmaintained_proportions_by_category(df)
-    total_categories = len(proportions)
-    avg_proportion = sum(proportions.values()) / len(proportions) if proportions else 0
-    max_proportion = max(proportions.values()) if proportions else 0
-    min_proportion = min(proportions.values()) if proportions else 0
+    # Category distribution
+    dist_path = output_dir / 'category_distribution_pie.png'
+    results['distribution'] = generate_category_distribution_plot(
+        input_path, str(dist_path)
+    )
     
-    summary = {
-        "histogram_path": histogram_path,
-        "distribution_path": distribution_path,
-        "total_categories": total_categories,
-        "average_unmaintained_proportion": avg_proportion,
-        "max_unmaintained_proportion": max_proportion,
-        "min_unmaintained_proportion": min_proportion,
-        "category_proportions": proportions,
-        "generated_at": pd.Timestamp.now().isoformat()
-    }
-    
-    # Save metrics
-    with open(metrics_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Visualization summary saved to {metrics_path}")
-    return summary
+    logger.info(f"Created visualization summary in {output_dir}")
+    return results
 
 def main():
     """
-    Main function to run the visualization generation for unmaintained dependencies.
-    This function loads the processed data, generates histograms and distribution plots,
-    and saves a summary report.
+    Main entry point for the visualizer script.
     """
-    try:
-        # Load data
-        df = load_dependencies_data()
-        
-        # Create visualizations and summary
-        summary = create_visualization_summary(df)
-        
-        print(f"✓ Histogram generated: {summary['histogram_path']}")
-        print(f"✓ Distribution plot generated: {summary['distribution_path']}")
-        print(f"✓ Metrics saved: {DATA_DIR / 'visualization_metrics.json'}")
-        print(f"✓ Total categories analyzed: {summary['total_categories']}")
-        print(f"✓ Average unmaintained proportion: {summary['average_unmaintained_proportion']:.2%}")
-        
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during visualization generation: {e}")
-        return 1
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Generate visualizations for dependency analysis')
+    parser.add_argument('--input', type=str, default='data/processed/dependencies_raw.csv',
+                      help='Path to input CSV file')
+    parser.add_argument('--output-dir', type=str, default='data/processed/',
+                      help='Directory to save output plots')
+    parser.add_argument('--plot-histogram', action='store_true',
+                      help='Generate histogram of unmaintained percentages by category')
+    parser.add_argument('--plot-scatter', action='store_true',
+                      help='Generate scatter plot of age vs vulnerability')
+    parser.add_argument('--plot-distribution', action='store_true',
+                      help='Generate category distribution pie chart')
+    parser.add_argument('--all', action='store_true',
+                      help='Generate all visualizations')
+    parser.add_argument('--threshold', type=int, default=365,
+                      help='Days threshold for unmaintained dependencies')
+    
+    args = parser.parse_args()
+    
+    # Default to all plots if none specified
+    if not (args.plot_histogram or args.plot_scatter or args.plot_distribution or args.all):
+        args.all = True
+    
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    if args.all or args.plot_histogram:
+        hist_path = output_dir / 'unmaintained_histogram_by_category.png'
+        generate_histogram_by_category(
+            args.input, str(hist_path), args.threshold
+        )
+        print(f"Generated: {hist_path}")
+    
+    if args.all or args.plot_scatter:
+        scatter_path = output_dir / 'age_vs_vulnerability_scatter.png'
+        generate_scatter_plot(args.input, str(scatter_path))
+        print(f"Generated: {scatter_path}")
+    
+    if args.all or args.plot_distribution:
+        dist_path = output_dir / 'category_distribution_pie.png'
+        generate_category_distribution_plot(args.input, str(dist_path))
+        print(f"Generated: {dist_path}")
+    
+    print("Visualization generation complete.")
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()
