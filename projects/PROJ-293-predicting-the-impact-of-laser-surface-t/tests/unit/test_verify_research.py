@@ -1,125 +1,178 @@
-"""
-Unit tests for T039: verify_research.py
-"""
 import pytest
+import json
+from pathlib import Path
 import tempfile
 import os
-from pathlib import Path
-import sys
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from verify_research import validate_research_md, FORBIDDEN_PATTERNS
+# Import the module under test
+from verify_research import parse_research_md, validate_research_file
 
 class TestResearchValidation:
-    def setup_method(self):
-        """Setup temporary directory and file for testing."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.test_file_path = Path(self.temp_dir.name) / "research.md"
+    """Unit tests for research.md validation logic."""
 
-    def teardown_method(self):
-        """Clean up temporary directory."""
-        self.temp_dir.cleanup()
+    @pytest.fixture
+    def temp_research_file(self, tmp_path):
+        """Create a temporary research.md file for testing."""
+        file_path = tmp_path / "research.md"
+        return file_path
 
-    def write_test_file(self, content: str):
-        """Helper to write content to test file."""
-        self.test_file_path.write_text(content)
-        # Temporarily patch the global variable in the module
-        import verify_research
-        original_path = verify_research.RESEARCH_FILE
-        verify_research.RESEARCH_FILE = self.test_file_path
-        return original_path
-
-    def restore_path(self, original_path):
-        """Restore original path."""
-        import verify_research
-        verify_research.RESEARCH_FILE = original_path
-
-    def test_file_not_found(self):
-        """Test that FileNotFoundError is raised if research.md is missing."""
-        import verify_research
-        original_path = verify_research.RESEARCH_FILE
-        verify_research.RESEARCH_FILE = Path("/nonexistent/path/research.md")
-        
-        with pytest.raises(FileNotFoundError) as exc_info:
-            validate_research_md()
-        
-        assert "not found" in str(exc_info.value)
-        
-        verify_research.RESEARCH_FILE = original_path
-
-    def test_dynamic_search_logic_detected(self):
-        """Test that dynamic search patterns trigger ValueError."""
-        content = """
-        # Research
-        We will search for datasets on OpenML.
-        """
-        original_path = self.write_test_file(content)
-        
-        with pytest.raises(ValueError) as exc_info:
-            validate_research_md()
-        
-        assert "dynamic search logic" in str(exc_info.value).lower()
-        
-        self.restore_path(original_path)
-
-    def test_placeholder_detected(self):
-        """Test that placeholders trigger ValueError."""
-        content = """
-        # Research
-        URL: TODO_insert_url_here
-        """
-        original_path = self.write_test_file(content)
-        
-        with pytest.raises(ValueError) as exc_info:
-            validate_research_md()
-        
-        assert "placeholder" in str(exc_info.value).lower()
-        
-        self.restore_path(original_path)
-
-    def test_valid_static_urls(self):
-        """Test that valid static URLs pass validation."""
+    def test_parse_static_urls(self, temp_research_file):
+        """Test parsing of static, verified URLs."""
         content = """
         # Research Data Sources
-        1. OpenML Dataset: https://openml.org/s/dataset/12345
-        2. HuggingFace: https://huggingface.co/datasets/lst-wear-data
-        3. GitHub: https://github.com/research/lst-wear/tree/main/data
-        """
-        original_path = self.write_test_file(content)
-        
-        # Should not raise
-        result = validate_research_md()
-        assert result is True
-        
-        self.restore_path(original_path)
 
-    def test_valid_static_ids(self):
-        """Test that valid static IDs pass validation."""
+        ## OpenML Dataset
+        https://openml.org/api/v1/data/12345
+
+        ## HuggingFace Dataset
+        https://huggingface.co/datasets/example/lst-wear
+
+        ## GitHub Raw File
+        https://github.com/example/repo/blob/main/data.csv
+        """
+        temp_research_file.write_text(content)
+
+        result = parse_research_md(temp_research_file)
+
+        assert result["summary"]["total_sources"] == 3
+        assert result["summary"]["static_sources"] == 3
+        assert result["summary"]["unverified_sources"] == 0
+        assert not result["dynamic_logic_found"]
+
+    def test_parse_dynamic_logic_detection(self, temp_research_file):
+        """Test detection of dynamic search logic."""
         content = """
         # Research Data Sources
-        - openml_id: 45678
-        - hf_dataset: research/lst-wear
-        """
-        original_path = self.write_test_file(content)
-        
-        result = validate_research_md()
-        assert result is True
-        
-        self.restore_path(original_path)
 
-    def test_no_sources_detected(self):
-        """Test that file with no sources triggers ValueError."""
-        content = """
-        # Research Plan
-        We need to find data.
+        ## Dynamic Search
+        https://example.com/search?q=laser+wear
+
+        ## TODO Placeholder
+        https://example.com/TODO/dataset
+
+        ## Template Literal
+        https://example.com/datasets/${dataset_id}
         """
-        original_path = self.write_test_file(content)
-        
-        with pytest.raises(ValueError) as exc_info:
-            validate_research_md()
-        
-        assert "no static URLs or dataset IDs" in str(exc_info.value).lower()
-        
-        self.restore_path(original_path)
+        temp_research_file.write_text(content)
+
+        result = parse_research_md(temp_research_file)
+
+        assert result["dynamic_logic_found"] is True
+        assert len(result["validation_errors"]) >= 3
+
+    def test_parse_mixed_content(self, temp_research_file):
+        """Test parsing of mixed static and dynamic content."""
+        content = """
+        # Research Data Sources
+
+        ## Static Source
+        https://openml.org/api/v1/data/67890
+
+        ## Dynamic Source
+        https://example.com/search?q=test
+
+        ## Another Static Source
+        https://doi.org/10.1234/example
+        """
+        temp_research_file.write_text(content)
+
+        result = parse_research_md(temp_research_file)
+
+        assert result["summary"]["total_sources"] == 3
+        assert result["summary"]["static_sources"] == 2
+        assert result["summary"]["unverified_sources"] == 1
+        assert result["dynamic_logic_found"] is True
+
+    def test_missing_file_raises_error(self, temp_research_file):
+        """Test that missing file raises appropriate error."""
+        temp_research_file.unlink()  # Remove the file
+
+        with pytest.raises(FileNotFoundError):
+            parse_research_md(temp_research_file)
+
+    def test_validation_report_structure(self, temp_research_file):
+        """Test that validation report has expected structure."""
+        content = """
+        # Research Data Sources
+        https://openml.org/api/v1/data/11111
+        """
+        temp_research_file.write_text(content)
+
+        result = parse_research_md(temp_research_file)
+
+        # Check required keys
+        assert "file_path" in result
+        assert "total_lines" in result
+        assert "data_sources" in result
+        assert "dynamic_logic_found" in result
+        assert "validation_errors" in result
+        assert "warnings" in result
+        assert "summary" in result
+
+        # Check summary structure
+        summary = result["summary"]
+        assert "total_sources" in summary
+        assert "static_sources" in summary
+        assert "unverified_sources" in summary
+        assert "dynamic_issues" in summary
+        assert "warnings_count" in summary
+
+    def test_doi_and_arxiv_parsing(self, temp_research_file):
+        """Test parsing of DOI and arXiv references."""
+        content = """
+        # Research Data Sources
+
+        ## DOI Reference
+        doi:10.1016/j.wear.2023.123456
+
+        ## arXiv Reference
+        arxiv.org/abs/2301.12345
+        """
+        temp_research_file.write_text(content)
+
+        result = parse_research_md(temp_research_file)
+
+        # Both should be detected
+        assert result["summary"]["total_sources"] == 2
+        # DOIs are static, arXiv URLs might not match our pattern depending on format
+        assert result["summary"]["static_sources"] >= 1
+
+    def test_empty_file(self, temp_research_file):
+        """Test parsing of empty file."""
+        temp_research_file.write_text("")
+
+        result = parse_research_md(temp_research_file)
+
+        assert result["summary"]["total_sources"] == 0
+        assert not result["dynamic_logic_found"]
+        assert result["summary"]["dynamic_issues"] == 0
+
+    def test_validation_output_file_creation(self, temp_research_file):
+        """Test that validation creates output file."""
+        content = """
+        # Research Data Sources
+        https://openml.org/api/v1/data/99999
+        """
+        temp_research_file.write_text(content)
+
+        # Create temp output path
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_validation.json"
+
+            # Temporarily override OUTPUT_PATH
+            import verify_research
+            original_output = verify_research.OUTPUT_PATH
+            verify_research.OUTPUT_PATH = output_path
+
+            try:
+                result = validate_research_file(temp_research_file)
+
+                assert output_path.exists()
+
+                with open(output_path, 'r') as f:
+                    saved_result = json.load(f)
+
+                assert "summary" in saved_result
+                assert saved_result["summary"]["total_sources"] == 1
+            finally:
+                verify_research.OUTPUT_PATH = original_output

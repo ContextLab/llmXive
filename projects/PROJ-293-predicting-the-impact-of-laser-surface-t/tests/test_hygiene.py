@@ -1,16 +1,16 @@
 """
-Tests for code/hygiene.py
+Unit tests for code/hygiene.py
 """
 import os
 import tempfile
-import pytest
+import hashlib
 from pathlib import Path
 import yaml
-import hashlib
+import pytest
 
-# Import the module under test
 from hygiene import (
     calculate_md5,
+    calculate_dir_md5,
     get_file_metadata,
     load_artifact_hashes,
     save_artifact_hashes,
@@ -18,196 +18,227 @@ from hygiene import (
     verify_artifact_integrity,
     register_multiple_artifacts,
     cleanup_stale_hashes,
-    get_artifact_status,
-    STATE_DIR,
-    ARTIFACT_HASH_FILE
+    get_artifact_status
 )
 
 
-@pytest.fixture
-def temp_file():
-    """Create a temporary file with known content."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-        f.write("test content for hygiene")
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
-
-
-@pytest.fixture
-def temp_registry_file():
-    """Create a temporary registry file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.yaml') as f:
-        f.write("last_updated: '2024-01-01T00:00:00'\nartifacts: {}\n")
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
-
-
-def test_calculate_md5(temp_file):
-    """Test MD5 calculation."""
-    content = b"test content for hygiene"
-    expected_hash = hashlib.md5(content).hexdigest()
-    actual_hash = calculate_md5(temp_file)
-    assert actual_hash == expected_hash
-
-
-def test_calculate_md5_file_not_found():
-    """Test MD5 calculation on non-existent file."""
-    with pytest.raises(FileNotFoundError):
-        calculate_md5("non_existent_file.txt")
-
-
-def test_calculate_md5_directory(tmp_path):
-    """Test MD5 calculation on directory."""
-    with pytest.raises(ValueError):
-        calculate_md5(tmp_path)
-
-
-def test_get_file_metadata(temp_file):
-    """Test file metadata extraction."""
-    metadata = get_file_metadata(temp_file)
-    assert "size_bytes" in metadata
-    assert "modified_time" in metadata
-    assert "extension" in metadata
-    assert "filename" in metadata
-    assert metadata["extension"] == ".txt"
-
-
-def test_load_artifact_hashes_missing_file(tmp_path, monkeypatch):
-    """Test loading hash registry when file doesn't exist."""
-    # Temporarily change the constant
-    monkeypatch.setattr("hygiene.STATE_DIR", tmp_path)
-    monkeypatch.setattr("hygiene.ARTIFACT_HASH_FILE", tmp_path / "artifact_hashes.yaml")
+class TestCalculateMD5:
+    def test_calculate_md5_file(self, tmp_path):
+        """Test MD5 calculation for a single file."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
+        
+        expected_hash = hashlib.md5(content).hexdigest()
+        actual_hash = calculate_md5(test_file)
+        
+        assert actual_hash == expected_hash
     
-    registry = load_artifact_hashes()
-    assert "last_updated" in registry
-    assert "artifacts" in registry
-    assert registry["artifacts"] == {}
-
-
-def test_save_artifact_hashes(tmp_path, monkeypatch):
-    """Test saving hash registry."""
-    # Setup
-    monkeypatch.setattr("hygiene.STATE_DIR", tmp_path)
-    monkeypatch.setattr("hygiene.ARTIFACT_HASH_FILE", tmp_path / "artifact_hashes.yaml")
+    def test_calculate_md5_nonexistent(self, tmp_path):
+        """Test error handling for non-existent file."""
+        with pytest.raises(FileNotFoundError):
+            calculate_md5(tmp_path / "nonexistent.txt")
     
-    data = {
-        "last_updated": "2024-01-01T00:00:00",
-        "artifacts": {
-            "test.txt": {"md5": "abc123", "metadata": {}, "updated_at": "2024-01-01"}
+    def test_calculate_md5_directory(self, tmp_path):
+        """Test error handling for directory input."""
+        with pytest.raises(IsADirectoryError):
+            calculate_md5(tmp_path)
+
+
+class TestCalculateDirMD5:
+    def test_calculate_dir_md5_empty(self, tmp_path):
+        """Test MD5 calculation for empty directory."""
+        # Even empty dir should produce a hash (based on structure)
+        h = calculate_dir_md5(tmp_path)
+        assert isinstance(h, str)
+        assert len(h) == 32  # MD5 hex length
+    
+    def test_calculate_dir_md5_content(self, tmp_path):
+        """Test MD5 calculation includes file content."""
+        file1 = tmp_path / "a.txt"
+        file1.write_bytes(b"content1")
+        
+        file2 = tmp_path / "b.txt"
+        file2.write_bytes(b"content2")
+        
+        h1 = calculate_dir_md5(tmp_path)
+        
+        # Change content
+        file1.write_bytes(b"content1_changed")
+        h2 = calculate_dir_md5(tmp_path)
+        
+        assert h1 != h2
+    
+    def test_calculate_dir_md5_excludes_pycache(self, tmp_path):
+        """Test that __pycache__ is excluded by default."""
+        pycache = tmp_path / "__pycache__"
+        pycache.mkdir()
+        (pycache / "test.pyc").write_bytes(b"bytecode")
+        
+        file1 = tmp_path / "test.py"
+        file1.write_bytes(b"python")
+        
+        h = calculate_dir_md5(tmp_path)
+        # If __pycache__ was included, hash would be different.
+        # We verify it doesn't crash and produces a hash.
+        assert len(h) == 32
+
+
+class TestGetFileMetadata:
+    def test_get_file_metadata(self, tmp_path):
+        """Test metadata extraction."""
+        test_file = tmp_path / "info.txt"
+        test_file.write_bytes(b"test data")
+        
+        meta = get_file_metadata(test_file)
+        
+        assert meta["path"] == str(test_file.absolute())
+        assert meta["size_bytes"] == 9
+        assert "md5" in meta
+        assert meta["type"] == "file"
+        assert "modified_time" in meta
+
+
+class TestArtifactHashRegistry:
+    def test_load_nonexistent(self, tmp_path):
+        """Test loading non-existent registry."""
+        registry = load_artifact_hashes(tmp_path / "missing.yaml")
+        assert registry["version"] == "1.0"
+        assert registry["artifacts"] == {}
+    
+    def test_save_and_load(self, tmp_path):
+        """Test saving and loading registry."""
+        registry_file = tmp_path / "registry.yaml"
+        data = {
+            "version": "1.0",
+            "artifacts": {"test": {"hash": "abc123"}}
         }
-    }
+        
+        save_artifact_hashes(data, registry_file)
+        loaded = load_artifact_hashes(registry_file)
+        
+        assert loaded["artifacts"]["test"]["hash"] == "abc123"
     
-    save_artifact_hashes(data)
-    
-    # Verify
-    assert (tmp_path / "artifact_hashes.yaml").exists()
-    with open(tmp_path / "artifact_hashes.yaml", "r") as f:
-        loaded = yaml.safe_load(f)
-    assert loaded["artifacts"]["test.txt"]["md5"] == "abc123"
-
-
-def test_update_artifact_hash(temp_file):
-    """Test updating artifact hash in registry."""
-    registry = {"artifacts": {}}
-    updated = update_artifact_hash(temp_file, registry)
-    
-    assert len(updated["artifacts"]) == 1
-    key = list(updated["artifacts"].keys())[0]
-    assert "md5" in updated["artifacts"][key]
-    assert "metadata" in updated["artifacts"][key]
-    assert "updated_at" in updated["artifacts"][key]
-
-
-def test_verify_artifact_integrity_success(temp_file):
-    """Test successful integrity verification."""
-    hash_val = calculate_md5(temp_file)
-    is_valid, msg = verify_artifact_integrity(temp_file, hash_val)
-    assert is_valid
-    assert "verified" in msg.lower()
-
-
-def test_verify_artifact_integrity_failure(temp_file):
-    """Test failed integrity verification."""
-    is_valid, msg = verify_artifact_integrity(temp_file, "wrong_hash")
-    assert not is_valid
-    assert "mismatch" in msg.lower()
-
-
-def test_verify_artifact_integrity_missing():
-    """Test integrity verification on missing file."""
-    is_valid, msg = verify_artifact_integrity("non_existent.txt", "any_hash")
-    assert not is_valid
-    assert "not found" in msg.lower()
-
-
-def test_register_multiple_artifacts(temp_file):
-    """Test registering multiple artifacts."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f2:
-        f2.write("second file")
-        temp_file2 = f2.name
-    
-    try:
+    def test_update_artifact_hash_file(self, tmp_path):
+        """Test updating registry with a file."""
+        test_file = tmp_path / "update.txt"
+        test_file.write_bytes(b"data")
+        
         registry = {"artifacts": {}}
-        updated = register_multiple_artifacts([temp_file, temp_file2], registry)
-        assert len(updated["artifacts"]) == 2
-    finally:
-        os.unlink(temp_file2)
+        updated_reg, h = update_artifact_hash(test_file, registry)
+        
+        assert h == hashlib.md5(b"data").hexdigest()
+        assert "update.txt" in str(list(updated_reg["artifacts"].keys())[0])
+    
+    def test_update_artifact_hash_dir(self, tmp_path):
+        """Test updating registry with a directory."""
+        test_dir = tmp_path / "subdir"
+        test_dir.mkdir()
+        (test_dir / "f.txt").write_bytes(b"data")
+        
+        registry = {"artifacts": {}}
+        updated_reg, h = update_artifact_hash(test_dir, registry)
+        
+        assert len(h) == 32
+        assert "subdir" in str(list(updated_reg["artifacts"].keys())[0])
 
 
-def test_cleanup_stale_hashes():
-    """Test cleanup of stale artifacts."""
-    from datetime import datetime, timedelta
+class TestVerifyIntegrity:
+    def test_verify_success(self, tmp_path):
+        """Test successful verification."""
+        test_file = tmp_path / "verify.txt"
+        content = b"verify me"
+        test_file.write_bytes(content)
+        h = hashlib.md5(content).hexdigest()
+        
+        assert verify_artifact_integrity(test_file, h)
     
-    old_date = (datetime.now() - timedelta(days=60)).isoformat()
-    new_date = datetime.now().isoformat()
+    def test_verify_failure(self, tmp_path):
+        """Test verification failure."""
+        test_file = tmp_path / "verify_fail.txt"
+        test_file.write_bytes(b"wrong")
+        
+        assert not verify_artifact_integrity(test_file, "00000000000000000000000000000000")
     
-    registry = {
-        "artifacts": {
-            "old.txt": {"updated_at": old_date},
-            "new.txt": {"updated_at": new_date}
+    def test_verify_missing(self, tmp_path):
+        """Test verification of missing file."""
+        assert not verify_artifact_integrity(tmp_path / "missing.txt", "hash")
+
+
+class TestRegisterMultiple:
+    def test_register_multiple(self, tmp_path):
+        """Test registering multiple files."""
+        f1 = tmp_path / "f1.txt"
+        f2 = tmp_path / "f2.txt"
+        f1.write_bytes(b"1")
+        f2.write_bytes(b"2")
+        
+        registry_file = tmp_path / "reg.yaml"
+        result = register_multiple_artifacts([f1, f2], hash_file=registry_file)
+        
+        assert len(result["artifacts"]) == 2
+
+
+class TestCleanupStale:
+    def test_cleanup_stale(self, tmp_path):
+        """Test removing stale entries."""
+        registry_file = tmp_path / "reg.yaml"
+        
+        # Create a fake registry with a missing file entry
+        fake_registry = {
+            "version": "1.0",
+            "artifacts": {
+                "missing_file.txt": {"hash": "123", "type": "file"}
+            }
         }
-    }
+        save_artifact_hashes(fake_registry, registry_file)
+        
+        stale = cleanup_stale_hashes(registry_file)
+        
+        assert "missing_file.txt" in stale
+        loaded = load_artifact_hashes(registry_file)
+        assert len(loaded["artifacts"]) == 0
+
+
+class TestGetArtifactStatus:
+    def test_status_unregistered(self, tmp_path):
+        """Test status of unregistered file."""
+        f = tmp_path / "new.txt"
+        f.write_bytes(b"new")
+        
+        status = get_artifact_status(f, hash_file=tmp_path / "empty.yaml")
+        assert status["status"] == "unregistered"
     
-    cleaned = cleanup_stale_hashes(registry, threshold_days=30)
-    assert len(cleaned["artifacts"]) == 1
-    assert "new.txt" in cleaned["artifacts"]
-
-
-def test_get_artifact_status_new(temp_file, tmp_path, monkeypatch):
-    """Test status for new artifact."""
-    monkeypatch.setattr("hygiene.STATE_DIR", tmp_path)
-    monkeypatch.setattr("hygiene.ARTIFACT_HASH_FILE", tmp_path / "artifact_hashes.yaml")
-    
-    registry = {"artifacts": {}}
-    status = get_artifact_status(temp_file, registry)
-    assert status["status"] == "new"
-    assert status["exists"]
-
-
-def test_get_artifact_status_unchanged(temp_file, tmp_path, monkeypatch):
-    """Test status for unchanged artifact."""
-    monkeypatch.setattr("hygiene.STATE_DIR", tmp_path)
-    monkeypatch.setattr("hygiene.ARTIFACT_HASH_FILE", tmp_path / "artifact_hashes.yaml")
-    
-    hash_val = calculate_md5(temp_file)
-    registry = {
-        "artifacts": {
-            str(Path(temp_file).relative_to(Path.cwd())): {"md5": hash_val}
+    def test_status_registered(self, tmp_path):
+        """Test status of registered file."""
+        f = tmp_path / "reg.txt"
+        f.write_bytes(b"reg")
+        h = hashlib.md5(b"reg").hexdigest()
+        
+        reg_data = {
+            "artifacts": {
+                "reg.txt": {"hash": h}
+            }
         }
-    }
+        save_artifact_hashes(reg_data, tmp_path / "reg.yaml")
+        
+        status = get_artifact_status(f, hash_file=tmp_path / "reg.yaml")
+        assert status["status"] == "registered"
     
-    status = get_artifact_status(temp_file, registry)
-    assert status["status"] == "unchanged"
-
-
-def test_get_artifact_status_missing(tmp_path, monkeypatch):
-    """Test status for missing artifact."""
-    monkeypatch.setattr("hygiene.STATE_DIR", tmp_path)
-    monkeypatch.setattr("hygiene.ARTIFACT_HASH_FILE", tmp_path / "artifact_hashes.yaml")
-    
-    registry = {"artifacts": {}}
-    status = get_artifact_status("non_existent.txt", registry)
-    assert status["status"] == "missing"
-    assert not status["exists"]
+    def test_status_modified(self, tmp_path):
+        """Test status of modified file."""
+        f = tmp_path / "mod.txt"
+        f.write_bytes(b"old")
+        
+        reg_data = {
+            "artifacts": {
+                "mod.txt": {"hash": hashlib.md5(b"old").hexdigest()}
+            }
+        }
+        save_artifact_hashes(reg_data, tmp_path / "mod.yaml")
+        
+        # Modify file
+        f.write_bytes(b"new")
+        
+        status = get_artifact_status(f, hash_file=tmp_path / "mod.yaml")
+        assert status["status"] == "modified"

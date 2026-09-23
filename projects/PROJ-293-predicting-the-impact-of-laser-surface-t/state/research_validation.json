@@ -1,0 +1,15 @@
+{
+  "file_path": "research.md",
+  "total_lines": 0,
+  "data_sources": [],
+  "dynamic_logic_found": false,
+  "validation_errors": [],
+  "warnings": [],
+  "summary": {
+    "total_sources": 0,
+    "static_sources": 0,
+    "unverified_sources": 0,
+    "dynamic_issues": 0,
+    "warnings_count": 0
+  }
+}

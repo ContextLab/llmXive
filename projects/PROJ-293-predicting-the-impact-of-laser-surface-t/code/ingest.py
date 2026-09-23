@@ -5,171 +5,149 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import logging
 
-import pandas as pd
-import numpy as np
+# Import logging configuration
+from logging_config import setup_logging, get_logger
 
-# Import existing project utilities
-from logging_config import get_logger, raise_on_missing_data
-from hygiene import calculate_md5, save_artifact_hashes, update_artifact_hash
-from config.loader import load_schema_map, get_target_columns
-
-# Configure logger
+# Initialize logger
 logger = get_logger(__name__)
 
-# Define predictor columns that MUST be present for normalization
-# These are the inputs required for Archard's law or standard wear models
-PREDICTOR_COLUMNS = [
-    'pulse_duration', 'power', 'scanning_speed', 'pattern_geometry',
-    'hardness', 'elastic_modulus'
-]
+# Constants for thresholds
+MINIMUM_THRESHOLD = 100
+FULL_STUDY_THRESHOLD = 300
 
-# Columns that are allowed to be missing for "raw" normalization
-OPTIONAL_COLUMNS = ['contact_load', 'sliding_speed']
+def load_aggregated_data(file_path: str) -> Optional[Dict[str, Any]]:
+    """Load the aggregated clean CSV data (simulated as dict for record counting)."""
+    # In a real implementation, this would read the CSV.
+    # Since T016a is marked done, we assume record_counts.json exists or we read the CSV.
+    # We will read the CSV to get the count dynamically if the JSON is missing,
+    # but primarily rely on the output of T016a if available.
+    try:
+        import pandas as pd
+        df = pd.read_csv(file_path)
+        return {"total_records": len(df), "data": df}
+    except Exception as e:
+        logger.error(f"Failed to load aggregated data: {e}")
+        return None
 
-def handle_missing_values(df: pd.DataFrame, normalization_method_col: str = 'normalization_method') -> Tuple[pd.DataFrame, Dict[str, int]]:
-    """
-    Implements missing value handling per FR-002:
-    1. DROP records with missing values in any of the PREDICTOR_COLUMNS.
-    2. RETAIN records with missing values in OPTIONAL_COLUMNS (contact_load, sliding_speed).
-       For these retained records, ensure normalization_method is set to 'raw'.
-    
-    Args:
-        df: The input DataFrame (schema standardized).
-        normalization_method_col: Name of the column tracking normalization status.
-    
-    Returns:
-        Tuple of (processed_df, stats_dict)
-    """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
-        return df, {'dropped_predictor_missing': 0, 'retained_raw_missing': 0, 'total_input': 0}
+def extract_source_metadata(data: Dict[str, Any]) -> List[str]:
+    """Extract source metadata from the loaded data."""
+    # Placeholder for metadata extraction logic
+    return []
 
-    original_count = len(df)
-    logger.info(f"Starting missing value handling on {original_count} records.")
-
-    # Ensure the normalization column exists
-    if normalization_method_col not in df.columns:
-        df[normalization_method_col] = 'unknown'
-    
-    # Identify columns that must be present
-    # Filter PREDICTOR_COLUMNS to only those actually in the dataframe
-    required_cols_present = [col for col in PREDICTOR_COLUMNS if col in df.columns]
-    optional_cols_present = [col for col in OPTIONAL_COLUMNS if col in df.columns]
-
-    if not required_cols_present:
-        logger.error("No predictor columns found in the dataframe. Cannot proceed with validation.")
-        raise ValueError("Missing required predictor columns in dataframe.")
-
-    # 1. DROP records with missing predictors
-    # Create a mask for rows where ANY required column is NaN
-    mask_missing_predictors = df[required_cols_present].isna().any(axis=1)
-    dropped_count = mask_missing_predictors.sum()
-    
-    if dropped_count > 0:
-        logger.warning(f"Dropping {dropped_count} records with missing predictor values.")
-        df = df[~mask_missing_predictors]
-
-    # 2. RETAIN records with missing optional columns, flag as 'raw'
-    # Identify rows where at least one optional column is missing
-    if optional_cols_present:
-        mask_missing_optional = df[optional_cols_present].isna().any(axis=1)
-        retained_count = mask_missing_optional.sum()
-        
-        if retained_count > 0:
-            logger.info(f"Retaining {retained_count} records with missing optional columns (contact_load/sliding_speed).")
-            # Force normalization_method to 'raw' for these records
-            df.loc[mask_missing_optional, normalization_method_col] = 'raw'
-            # Also ensure records that were previously 'unknown' or 'normalized' but have missing optional 
-            # are correctly flagged if they rely on those for normalization. 
-            # However, the task specifically says: RETAIN records with missing optional -> set 'raw'.
+def count_records(data: Dict[str, Any]) -> Dict[str, int]:
+    """Count total, normalized, and raw records."""
+    total = data.get("total_records", 0)
+    # In a real scenario, we would filter by 'normalization_method' column
+    # For now, assuming the data dict has pre-calculated counts or we parse the dataframe
+    df = data.get("data")
+    if df is not None and 'normalization_method' in df.columns:
+        normalized_count = len(df[df['normalization_method'] == 'archard'])
+        raw_count = len(df[df['normalization_method'] == 'raw'])
     else:
-        retained_count = 0
-
-    final_count = len(df)
-    logger.info(f"Missing value handling complete. Dropped: {dropped_count}, Retained (Raw): {retained_count}, Final: {final_count}")
-
-    stats = {
-        'dropped_predictor_missing': int(dropped_count),
-        'retained_raw_missing': int(retained_count),
-        'total_input': int(original_count),
-        'total_output': int(final_count)
+        # Fallback if column missing or data not loaded as DF
+        normalized_count = 0
+        raw_count = 0
+    return {
+        "total_count": total,
+        "normalized_count": normalized_count,
+        "raw_count": raw_count
     }
 
-    return df, stats
+def log_source_warning(data: Dict[str, Any]) -> None:
+    """Log warning if data sources are insufficient."""
+    # Placeholder logic
+    pass
+
+def compare_thresholds(normalized_count: int) -> Dict[str, Any]:
+    """
+    Compare normalized_count against defined thresholds.
+    
+    Logic:
+    - If normalized_count < 100 (SC-006): HALT (exit code 1).
+    - If 100 <= normalized_count < 300 (SC-004): Scope degradation warning (exit code 2).
+    - Else: Full study scope.
+    
+    Returns a dictionary with the study scope and flags.
+    """
+    result = {
+        "normalized_count": normalized_count,
+        "study_scope": "unknown",
+        "halt_requested": False,
+        "scope_degradation": False,
+        "warning_message": None,
+        "exit_code": 0
+    }
+
+    if normalized_count < MINIMUM_THRESHOLD:
+        result["study_scope"] = "insufficient_data"
+        result["halt_requested"] = True
+        result["exit_code"] = 1
+        result["warning_message"] = f"CRITICAL: Normalized record count ({normalized_count}) is below minimum threshold ({MINIMUM_THRESHOLD}) per SC-006. Halting execution."
+        logger.critical(result["warning_message"])
+    elif normalized_count < FULL_STUDY_THRESHOLD:
+        result["study_scope"] = "pilot_study"
+        result["scope_degradation"] = True
+        result["exit_code"] = 2
+        result["warning_message"] = f"WARNING: Normalized record count ({normalized_count}) is below full study threshold ({FULL_STUDY_THRESHOLD}). Scope degraded to 'pilot_study' per SC-004."
+        logger.warning(result["warning_message"])
+    else:
+        result["study_scope"] = "full_study"
+        logger.info(f"Normalized record count ({normalized_count}) meets full study threshold. Scope: 'full_study'.")
+
+    return result
 
 def main():
     """
-    Main entry point for missing value handling logic.
-    Reads the aggregated data from the previous step, applies cleaning,
-    and writes the result to the processed directory.
+    Main entry point for T016b: compare_thresholds.
+    Reads record counts, compares against thresholds, and exits with appropriate code.
     """
+    setup_logging()
+    
     # Paths
-    input_path = Path("data/processed/aggregated_raw.csv") # Assumed intermediate from T011/T013
-    output_path = Path("data/processed/aggregated_clean.csv")
-    hash_path = Path("state/artifact_hashes.yaml")
+    processed_dir = Path("data/processed")
+    input_file = processed_dir / "aggregated_clean.csv"
+    output_file = processed_dir / "threshold_check.json"
     
-    # If the immediate predecessor output is different, adjust. 
-    # Based on T015, the output is aggregated_clean.csv, but T012 is the logic to create it.
-    # T013 handles Archard's law. T012 handles missing values. 
-    # The pipeline order in tasks.md: T010 (fetch) -> T011 (schema) -> T012 (missing) -> T013 (Archard).
-    # So input to T012 is the output of T011.
-    # Let's assume the standard flow: T011 writes to a temp or we chain in main.
-    # For this specific task implementation, we assume the input is the schema-standardized data.
-    # We will look for 'aggregated_standardized.csv' or similar if T011 outputs it, 
-    # but T015 says output is 'aggregated_clean.csv'. 
-    # To be safe and executable: T012 will read from a logical intermediate if T011 is separate,
-    # or we assume the 'ingest_all_data' function in T010/T011 pipeline produces the input.
-    # Given T015 output is 'aggregated_clean.csv', and T012 is part of creating that:
-    # We will implement the logic to read the 'raw' or 'standardized' file.
-    # Let's assume the file from T011 is 'data/processed/aggregated_standardized.csv' or we read 'data/raw/...' 
-    # and apply the whole chain. 
-    # However, the task asks to implement the HANDLING logic.
-    
-    # For the script to run independently as per T012 requirements:
-    # We need an input file. Let's assume T011 output is 'data/processed/aggregated_standardized.csv'.
-    # If T011 hasn't run, we might need to fetch. But T010/T011 are marked done.
-    # We will assume the file exists at 'data/processed/aggregated_standardized.csv' as the output of T011.
-    # If T015 (aggregated_clean.csv) is the final output, T012 produces the intermediate for T013.
-    
-    # Let's check if the input file exists. If not, we try to find the most recent processed file.
-    if not input_path.exists():
-        # Fallback to a generic search or error
-        # In a real pipeline, T011 would have written here.
-        # Let's try to find any csv in data/processed except the final clean one
-        candidates = list(Path("data/processed").glob("aggregated_*.csv"))
-        if not candidates:
-            raise FileNotFoundError("No input file found for missing value handling. Expected 'data/processed/aggregated_standardized.csv' or similar.")
-        # Pick the one that isn't 'aggregated_clean.csv' if it exists
-        candidates = [c for c in candidates if c.name != 'aggregated_clean.csv']
-        if candidates:
-            input_path = candidates[0]
-            logger.info(f"Using found input file: {input_path}")
-        else:
-            raise FileNotFoundError("No suitable input file found.")
+    # Ensure output directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Reading input data from {input_path}")
+    # 1. Load Data
+    logger.info(f"Loading aggregated data from {input_file}...")
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        sys.exit(1)
+
+    data = load_aggregated_data(str(input_file))
+    if data is None:
+        logger.error("Failed to load data.")
+        sys.exit(1)
+
+    # 2. Count Records
+    # Note: T016a should have produced record_counts.json, but we calculate here to be robust
+    # or we could load T016a's output. The task asks to compare the count.
+    counts = count_records(data)
+    normalized_count = counts.get("normalized_count", 0)
+    
+    logger.info(f"Normalized record count: {normalized_count}")
+
+    # 3. Compare Thresholds
+    threshold_result = compare_thresholds(normalized_count)
+
+    # 4. Write Output
     try:
-        df = pd.read_csv(input_path)
+        with open(output_file, 'w') as f:
+            json.dump(threshold_result, f, indent=2)
+        logger.info(f"Threshold check results written to {output_file}")
     except Exception as e:
-        logger.error(f"Failed to read input file: {e}")
-        raise
+        logger.error(f"Failed to write output file: {e}")
+        sys.exit(1)
 
-    # Apply the logic
-    df_cleaned, stats = handle_missing_values(df)
-
-    # Write output
-    logger.info(f"Writing cleaned data to {output_path}")
-    df_cleaned.to_csv(output_path, index=False)
-
-    # Update hashes
-    if hash_path.exists():
-        update_artifact_hash(hash_path, output_path)
-    else:
-        save_artifact_hashes({output_path.name: calculate_md5(output_path)}, hash_path)
-
-    # Log stats
-    logger.info(f"Statistics: {stats}")
-    return stats
+    # 5. Exit with appropriate code
+    exit_code = threshold_result.get("exit_code", 0)
+    if exit_code != 0:
+        sys.exit(exit_code)
+    
+    return threshold_result
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,12 @@
 """
-Data hygiene utilities for the LST Wear Resistance project.
-Provides MD5 checksum generation, artifact metadata extraction, and
-persistent storage of artifact hashes in state/artifact_hashes.yaml.
+Data hygiene utilities for the llmXive pipeline.
+
+Provides functions for:
+- MD5 checksum generation for files and directories
+- Artifact metadata extraction
+- Loading and saving artifact hash registries (YAML)
+- Integrity verification of artifacts
+- Cleanup of stale hash entries
 """
 import hashlib
 import os
@@ -11,13 +16,12 @@ import yaml
 from datetime import datetime
 import logging
 
-# Configure logging for hygiene operations
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-# Constants
-STATE_DIR = Path("state")
-ARTIFACT_HASH_FILE = STATE_DIR / "artifact_hashes.yaml"
-SUPPORTED_EXTENSIONS = {".csv", ".json", ".yaml", ".yml", ".txt", ".pkl", ".joblib"}
+# Default paths
+DEFAULT_HASH_FILE = Path("state/artifact_hashes.yaml")
+DEFAULT_EXCLUDE_PATTERNS = {'.git', '__pycache__', '.pyc', '.o', '.so'}
 
 
 def calculate_md5(file_path: Union[str, Path]) -> str:
@@ -25,322 +29,465 @@ def calculate_md5(file_path: Union[str, Path]) -> str:
     Calculate the MD5 checksum of a file.
     
     Args:
-        file_path: Path to the file to hash.
+        file_path: Path to the file.
         
     Returns:
         Hexadecimal MD5 hash string.
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the path is not a file.
+        IsADirectoryError: If the path points to a directory.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    if not file_path.is_file():
-        raise ValueError(f"Path is not a file: {file_path}")
-        
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    if path.is_dir():
+        raise IsADirectoryError(f"Path is a directory, expected a file: {path}")
+    
     hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b""):
-            hash_md5.update(chunk)
+    try:
+        with open(path, "rb") as f:
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+    except PermissionError as e:
+        logger.error(f"Permission denied reading file: {path}")
+        raise e
+    
     return hash_md5.hexdigest()
+
+
+def calculate_dir_md5(dir_path: Union[str, Path], exclude: Optional[set] = None) -> str:
+    """
+    Calculate a composite MD5 checksum for all files in a directory.
+    
+    Files are processed in sorted order to ensure deterministic results.
+    Subdirectories are traversed recursively.
+    
+    Args:
+        dir_path: Path to the directory.
+        exclude: Set of filename patterns to exclude (e.g., '.pyc', '__pycache__').
+                
+    Returns:
+        Hexadecimal MD5 hash string representing the directory contents.
+        
+    Raises:
+        NotADirectoryError: If the path is not a directory.
+    """
+    path = Path(dir_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory not found: {path}")
+    if not path.is_dir():
+        raise NotADirectoryError(f"Path is a file, expected a directory: {path}")
+    
+    if exclude is None:
+        exclude = DEFAULT_EXCLUDE_PATTERNS
+        
+    combined_hash = hashlib.md5()
+    
+    # Get all files sorted by relative path for determinism
+    files = []
+    for root, dirs, filenames in os.walk(path):
+        # Filter directories in-place to prevent descending into excluded dirs
+        dirs[:] = [d for d in dirs if d not in exclude]
+        
+        for filename in filenames:
+            if any(ex in filename for ex in exclude):
+                continue
+            file_path = Path(root) / filename
+            files.append(file_path)
+    
+    files.sort(key=lambda p: str(p.relative_to(path)))
+    
+    for file_path in files:
+        try:
+            # Include relative path in hash to capture structure
+            rel_path = file_path.relative_to(path)
+            combined_hash.update(str(rel_path).encode('utf-8'))
+            # Include file content hash
+            file_hash = calculate_md5(file_path)
+            combined_hash.update(file_hash.encode('utf-8'))
+        except Exception as e:
+            logger.warning(f"Skipping file during dir hash calculation: {file_path} ({e})")
+            continue
+    
+    return combined_hash.hexdigest()
 
 
 def get_file_metadata(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Extract basic metadata for a file.
+    Extract metadata for a single file.
     
     Args:
         file_path: Path to the file.
         
     Returns:
-        Dictionary containing file size, modification time, and extension.
+        Dictionary containing:
+            - path: Absolute path as string
+            - size_bytes: File size in bytes
+            - modified_time: ISO format timestamp
+            - md5: MD5 checksum
+            - type: 'file'
     """
-    file_path = Path(file_path)
-    stats = file_path.stat()
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
+    stat = path.stat()
     return {
-        "size_bytes": stats.st_size,
-        "modified_time": datetime.fromtimestamp(stats.st_mtime).isoformat(),
-        "extension": file_path.suffix.lower(),
-        "filename": file_path.name
+        "path": str(path.absolute()),
+        "size_bytes": stat.st_size,
+        "modified_time": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        "md5": calculate_md5(path),
+        "type": "file"
     }
 
 
-def load_artifact_hashes() -> Dict[str, Any]:
+def load_artifact_hashes(hash_file: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
     """
-    Load the artifact hash registry from state/artifact_hashes.yaml.
+    Load the artifact hash registry from YAML.
     
+    Args:
+        hash_file: Path to the YAML file. Defaults to DEFAULT_HASH_FILE.
+        
     Returns:
-        Dictionary containing artifact hashes and metadata.
-        Returns an empty dict with structure if file doesn't exist.
+        Dictionary containing the hash registry.
+        Returns an empty structure if file does not exist.
     """
-    if not ARTIFACT_HASH_FILE.exists():
-        logger.info(f"Artifact hash file not found at {ARTIFACT_HASH_FILE}. Initializing empty registry.")
+    if hash_file is None:
+        hash_file = DEFAULT_HASH_FILE
+    else:
+        hash_file = Path(hash_file)
+        
+    if not hash_file.exists():
+        logger.info(f"Hash file not found at {hash_file}, initializing empty registry.")
         return {
+            "version": "1.0",
             "last_updated": datetime.now().isoformat(),
             "artifacts": {}
         }
-    
+        
     try:
-        with open(ARTIFACT_HASH_FILE, "r", encoding="utf-8") as f:
+        with open(hash_file, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
             if data is None:
                 return {
+                    "version": "1.0",
                     "last_updated": datetime.now().isoformat(),
                     "artifacts": {}
                 }
             return data
     except yaml.YAMLError as e:
-        logger.error(f"Failed to parse YAML file {ARTIFACT_HASH_FILE}: {e}")
+        logger.error(f"Error parsing YAML file {hash_file}: {e}")
         raise
 
 
-def save_artifact_hashes(data: Dict[str, Any]) -> None:
+def save_artifact_hashes(data: Dict[str, Any], hash_file: Optional[Union[str, Path]] = None) -> None:
     """
-    Save the artifact hash registry to state/artifact_hashes.yaml.
+    Save the artifact hash registry to YAML.
     
     Args:
-        data: Dictionary containing artifact hashes and metadata.
+        data: The dictionary to save.
+        hash_file: Path to the YAML file. Defaults to DEFAULT_HASH_FILE.
     """
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    if hash_file is None:
+        hash_file = DEFAULT_HASH_FILE
+    else:
+        hash_file = Path(hash_file)
+        
+    # Ensure directory exists
+    hash_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # Update timestamp
     data["last_updated"] = datetime.now().isoformat()
     
-    try:
-        with open(ARTIFACT_HASH_FILE, "w", encoding="utf-8") as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-        logger.info(f"Successfully saved artifact hashes to {ARTIFACT_HASH_FILE}")
-    except IOError as e:
-        logger.error(f"Failed to write artifact hashes to {ARTIFACT_HASH_FILE}: {e}")
-        raise
+    with open(hash_file, 'w', encoding='utf-8') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        
+    logger.info(f"Artifact hashes saved to {hash_file}")
 
 
 def update_artifact_hash(
-    file_path: Union[str, Path], 
-    registry: Dict[str, Any],
-    custom_key: Optional[str] = None
-) -> Dict[str, Any]:
+    artifact_path: Union[str, Path],
+    registry: Optional[Dict[str, Any]] = None,
+    hash_file: Optional[Union[str, Path]] = None
+) -> Tuple[Dict[str, Any], str]:
     """
-    Calculate hash for a file and update the registry.
+    Calculate hash for an artifact and update the registry.
     
     Args:
-        file_path: Path to the file.
-        registry: Current artifact registry dictionary.
-        custom_key: Optional custom key for the artifact. If None, uses relative path.
+        artifact_path: Path to the file or directory to hash.
+        registry: Existing registry dict. If None, loads from disk.
+        hash_file: Path to the registry file.
         
     Returns:
-        Updated registry dictionary.
+        Tuple of (updated_registry, new_hash_string)
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot hash non-existent file: {file_path}")
+    path = Path(artifact_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Artifact not found for hashing: {path}")
         
-    key = custom_key if custom_key else str(file_path.relative_to(Path.cwd()))
-    md5_hash = calculate_md5(file_path)
-    metadata = get_file_metadata(file_path)
-    
+    if registry is None:
+        registry = load_artifact_hashes(hash_file)
+        
     if "artifacts" not in registry:
         registry["artifacts"] = {}
         
-    registry["artifacts"][key] = {
-        "md5": md5_hash,
-        "metadata": metadata,
-        "updated_at": datetime.now().isoformat()
+    # Determine hash based on type
+    if path.is_dir():
+      # For directories, we use a composite hash of contents
+      new_hash = calculate_dir_md5(path)
+      artifact_type = "directory"
+    else:
+      new_hash = calculate_md5(path)
+      artifact_type = "file"
+      
+    rel_key = str(path.relative_to(Path.cwd()))
+    
+    registry["artifacts"][rel_key] = {
+        "hash": new_hash,
+        "type": artifact_type,
+        "last_verified": datetime.now().isoformat()
     }
     
-    logger.debug(f"Updated hash for artifact '{key}': {md5_hash}")
-    return registry
+    return registry, new_hash
 
 
 def verify_artifact_integrity(
-    file_path: Union[str, Path], 
+    artifact_path: Union[str, Path],
     expected_hash: str,
-    custom_key: Optional[str] = None
-) -> Tuple[bool, str]:
+    registry: Optional[Dict[str, Any]] = None
+) -> bool:
     """
-    Verify a file's integrity by comparing its MD5 hash to an expected value.
+    Verify an artifact's integrity against an expected hash.
     
     Args:
-        file_path: Path to the file to verify.
-        expected_hash: Expected MD5 hash.
-        custom_key: Optional key for logging purposes.
+        artifact_path: Path to the artifact.
+        expected_hash: The expected MD5 hash.
+        registry: Optional registry to load from if needed (not used directly for calculation).
         
     Returns:
-        Tuple of (is_valid, message)
+        True if the current hash matches the expected hash.
     """
-    file_path = Path(file_path)
-    key = custom_key if custom_key else str(file_path)
-    
-    if not file_path.exists():
-        return False, f"File not found: {key}"
+    path = Path(artifact_path)
+    if not path.exists():
+        logger.error(f"Artifact missing during integrity check: {path}")
+        return False
         
-    try:
-        actual_hash = calculate_md5(file_path)
-        if actual_hash == expected_hash:
-            return True, f"Integrity verified for {key}"
-        else:
-            return False, f"Integrity mismatch for {key}. Expected: {expected_hash}, Got: {actual_hash}"
-    except Exception as e:
-        return False, f"Error verifying {key}: {str(e)}"
+    current_hash = calculate_md5(path) if path.is_file() else calculate_dir_md5(path)
+    
+    if current_hash != expected_hash:
+        logger.error(
+            f"Integrity check failed for {path}. "
+            f"Expected: {expected_hash}, Got: {current_hash}"
+        )
+        return False
+        
+    logger.info(f"Integrity check passed for {path}")
+    return True
 
 
 def register_multiple_artifacts(
-    file_paths: List[Union[str, Path]],
-    registry: Optional[Dict[str, Any]] = None,
-    custom_keys: Optional[List[str]] = None
+    artifact_paths: List[Union[str, Path]],
+    hash_file: Optional[Union[str, Path]] = None,
+    force_update: bool = False
 ) -> Dict[str, Any]:
     """
     Register multiple artifacts in the hash registry.
     
     Args:
-        file_paths: List of file paths to register.
-        registry: Existing registry to update. If None, loads from disk.
-        custom_keys: Optional list of custom keys matching file_paths.
+        artifact_paths: List of paths to register.
+        hash_file: Path to the registry file.
+        force_update: If True, re-calculate hash even if entry exists.
         
     Returns:
-        Updated registry dictionary.
+        The updated registry.
     """
-    if registry is None:
-        registry = load_artifact_hashes()
+    registry = load_artifact_hashes(hash_file)
+    
+    if "artifacts" not in registry:
+        registry["artifacts"] = {}
         
-    if custom_keys is not None and len(custom_keys) != len(file_paths):
-        raise ValueError("custom_keys length must match file_paths length")
+    updated_count = 0
+    for path_str in artifact_paths:
+        path = Path(path_str)
+        rel_key = str(path.relative_to(Path.cwd()))
         
-    for i, path in enumerate(file_paths):
-        key = custom_keys[i] if custom_keys else None
-        registry = update_artifact_hash(path, registry, custom_key=key)
-        
+        if rel_key in registry["artifacts"] and not force_update:
+            # Optional: verify existing hash?
+            continue
+            
+        try:
+            registry, _ = update_artifact_hash(path, registry, hash_file=None)
+            updated_count += 1
+        except FileNotFoundError as e:
+            logger.warning(f"Skipping missing artifact: {path} ({e})")
+        except Exception as e:
+            logger.error(f"Failed to register artifact {path}: {e}")
+            
+    save_artifact_hashes(registry, hash_file)
+    logger.info(f"Registered {updated_count} artifacts.")
     return registry
 
 
 def cleanup_stale_hashes(
-    registry: Dict[str, Any],
-    threshold_days: int = 30
-) -> Dict[str, Any]:
+    hash_file: Optional[Union[str, Path]] = None,
+    max_age_days: int = 30
+) -> List[str]:
     """
-    Remove artifact entries that are older than the threshold.
+    Remove entries from the registry for artifacts that no longer exist.
     
     Args:
-        registry: Artifact registry dictionary.
-        threshold_days: Age threshold in days.
+        hash_file: Path to the registry file.
+        max_age_days: (Reserved for future extension) Age threshold.
         
     Returns:
-        Cleaned registry dictionary.
+        List of removed artifact paths.
     """
-    from datetime import timedelta, datetime
-    
+    registry = load_artifact_hashes(hash_file)
     if "artifacts" not in registry:
-        return registry
+        return []
         
-    cutoff = datetime.now() - timedelta(days=threshold_days)
-    cleaned_artifacts = {}
-    
-    for key, data in registry["artifacts"].items():
-        updated_at_str = data.get("updated_at", "")
-        try:
-            updated_at = datetime.fromisoformat(updated_at_str)
-            if updated_at > cutoff:
-                cleaned_artifacts[key] = data
-            else:
-                logger.debug(f"Removing stale artifact: {key} (updated: {updated_at_str})")
-        except (ValueError, TypeError):
-            # Keep entries with invalid dates to avoid data loss
-            cleaned_artifacts[key] = data
+    stale_keys = []
+    for key in list(registry["artifacts"].keys()):
+        full_path = Path.cwd() / key
+        if not full_path.exists():
+            stale_keys.append(key)
+            del registry["artifacts"][key]
             
-    registry["artifacts"] = cleaned_artifacts
-    return registry
+    if stale_keys:
+        save_artifact_hashes(registry, hash_file)
+        logger.info(f"Cleaned up {len(stale_keys)} stale artifact entries.")
+        
+    return stale_keys
 
 
 def get_artifact_status(
-    file_path: Union[str, Path],
-    registry: Optional[Dict[str, Any]] = None
+    artifact_path: Union[str, Path],
+    hash_file: Optional[Union[str, Path]] = None
 ) -> Dict[str, Any]:
     """
-    Get the status of an artifact (new, updated, unchanged, missing).
+    Get the current status of an artifact relative to the registry.
     
-    Args:
-        file_path: Path to the file.
-        registry: Optional registry to check against.
-        
     Returns:
-        Dictionary with status information.
+        Dict with keys:
+            - status: 'registered', 'unregistered', 'modified', 'missing'
+            - current_hash: (if exists)
+            - registered_hash: (if registered)
+            - message: Human readable description
     """
-    file_path = Path(file_path)
-    key = str(file_path.relative_to(Path.cwd()))
+    path = Path(artifact_path)
+    rel_key = str(path.relative_to(Path.cwd()))
+    registry = load_artifact_hashes(hash_file)
     
-    if registry is None:
-        registry = load_artifact_hashes()
-        
     result = {
-        "path": str(file_path),
-        "key": key,
-        "exists": file_path.exists(),
-        "status": "unknown"
+        "path": str(path),
+        "status": "unknown",
+        "message": ""
     }
     
-    if not result["exists"]:
+    if not path.exists():
         result["status"] = "missing"
+        result["message"] = "Artifact file does not exist."
         return result
         
-    if "artifacts" not in registry or key not in registry["artifacts"]:
-        result["status"] = "new"
-        result["current_hash"] = calculate_md5(file_path)
-        return result
-        
-    stored_hash = registry["artifacts"][key].get("md5")
-    current_hash = calculate_md5(file_path)
-    
-    if stored_hash == current_hash:
-        result["status"] = "unchanged"
-    else:
-        result["status"] = "updated"
-        
-    result["stored_hash"] = stored_hash
+    current_hash = calculate_md5(path) if path.is_file() else calculate_dir_md5(path)
     result["current_hash"] = current_hash
+    
+    if rel_key not in registry.get("artifacts", {}):
+        result["status"] = "unregistered"
+        result["message"] = "Artifact is not in the registry."
+        return result
+        
+    registered_entry = registry["artifacts"][rel_key]
+    registered_hash = registered_entry.get("hash")
+    result["registered_hash"] = registered_hash
+    
+    if current_hash == registered_hash:
+        result["status"] = "registered"
+        result["message"] = "Artifact matches registry."
+    else:
+        result["status"] = "modified"
+        result["message"] = "Artifact has been modified since registration."
+        
     return result
 
 
-def main():
+def main() -> None:
     """
     CLI entry point for hygiene utilities.
-    Demonstrates registering artifacts and verifying integrity.
+    Demonstrates usage of the hygiene functions.
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Data hygiene utilities")
-    parser.add_argument("--register", nargs="+", help="Register file paths")
-    parser.add_argument("--verify", nargs="+", help="Verify file paths")
-    parser.add_argument("--status", nargs="+", help="Check status of file paths")
-    parser.add_argument("--save", action="store_true", help="Save registry after operations")
+    parser = argparse.ArgumentParser(description="Data Hygiene Utilities")
+    parser.add_argument("--action", choices=["hash", "verify", "register", "status"], required=True, help="Action to perform")
+    parser.add_argument("--path", required=True, help="Path to file or directory")
+    parser.add_argument("--expected-hash", help="Expected hash for verification")
+    parser.add_argument("--registry", help="Path to registry file (default: state/artifact_hashes.yaml)")
     
     args = parser.parse_args()
+    path = Path(args.path)
     
-    registry = load_artifact_hashes()
-    
-    if args.register:
-        registry = register_multiple_artifacts(args.register, registry)
-        if args.save:
-            save_artifact_hashes(registry)
+    if args.action == "hash":
+        if not path.exists():
+            print(f"Error: Path not found: {path}")
+            return 1
+        try:
+            if path.is_file():
+                h = calculate_md5(path)
+            else:
+                h = calculate_dir_md5(path)
+            print(f"Hash: {h}")
+        except Exception as e:
+            print(f"Error calculating hash: {e}")
+            return 1
             
-    if args.verify:
-        for path in args.verify:
-            is_valid, msg = verify_artifact_integrity(path, "dummy_hash")
-            print(f"{path}: {msg}")
+    elif args.action == "verify":
+        if not args.expected_hash:
+            print("Error: --expected-hash is required for verification")
+            return 1
+        if not path.exists():
+            print(f"Error: Path not found: {path}")
+            return 1
+        try:
+            if path.is_file():
+                current = calculate_md5(path)
+            else:
+                current = calculate_dir_md5(path)
+            if current == args.expected_hash:
+                print("Verification: PASSED")
+                return 0
+            else:
+                print(f"Verification: FAILED (Expected: {args.expected_hash}, Got: {current})")
+                return 1
+        except Exception as e:
+            print(f"Error during verification: {e}")
+            return 1
             
-    if args.status:
-        for path in args.status:
-            status = get_artifact_status(path, registry)
-            print(f"{status['path']}: {status['status']}")
+    elif args.action == "register":
+        try:
+            registry, new_hash = update_artifact_hash(path, hash_file=args.registry)
+            print(f"Registered {path} with hash: {new_hash}")
+        except Exception as e:
+            print(f"Error registering artifact: {e}")
+            return 1
             
-    if not any([args.register, args.verify, args.status]):
-        print("Usage: python hygiene.py --register <paths...> [--save]")
-        print("       python hygiene.py --verify <paths...>")
-        print("       python hygiene.py --status <paths...>")
+    elif args.action == "status":
+        try:
+            status = get_artifact_status(path, hash_file=args.registry)
+            print(f"Status: {status['status']}")
+            print(f"Message: {status['message']}")
+            if "current_hash" in status:
+                print(f"Current Hash: {status['current_hash']}")
+            if "registered_hash" in status:
+                print(f"Registered Hash: {status['registered_hash']}")
+        except Exception as e:
+            print(f"Error checking status: {e}")
+            return 1
+            
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

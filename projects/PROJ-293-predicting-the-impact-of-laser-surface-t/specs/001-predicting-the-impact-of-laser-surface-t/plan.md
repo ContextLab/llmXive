@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature implements a reproducible, CPU-first machine learning pipeline to aggregate open tribological datasets, normalize wear rates using Archard's law, and train regression models (Linear, RF, GB) to predict wear resistance from Laser Surface Texturing (LST) parameters. The plan strictly adheres to the project constitution's constraints on data hygiene, numerical stability, and cross-material generalizability validation, while operating within the GitHub Actions free-tier compute limits (2 CPU, 7GB RAM, 6h).
+This feature implements a reproducible, CPU-first machine learning pipeline to aggregate open tribological datasets, normalize wear rates using Archard's law, and train regression models (Linear, RF, GB) to predict wear resistance from Laser Surface Texturing (LST) parameters. The plan strictly adheres to the project constitution's constraints on data hygiene, numerical stability, and cross-material generalizability validation, while operating within the GitHub Actions free-tier compute limits (limited CPU, limited RAM, 6h).
 
 The plan explicitly acknowledges the high risk of data insufficiency given the single verified source. It defines a strict "Data Sufficiency Gate" that halts or degrades scope if the dataset lacks the required schema or volume.
 

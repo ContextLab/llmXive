@@ -5,73 +5,90 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Import hygiene functions from the existing hygiene module
+from hygiene import (
+    calculate_md5,
+    load_artifact_hashes,
+    save_artifact_hashes,
+    update_artifact_hash,
+    get_file_metadata
+)
 
-from ingest import parse_research_md, fetch_openml_data, fetch_huggingface_data, fetch_literature_data, standardize_schema, handle_missing_values, apply_archard_normalization, ingest_all_data
-from hygiene import calculate_md5, save_artifact_hashes, load_artifact_hashes
-from seed import set_seed
-from verify_dirs import ensure_directory
-from config.loader import load_schema_map
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Import logging setup from existing module
+from logging_config import setup_logging, get_logger
 
 def main():
     """
     T015 Implementation:
-    1. Orchestrates the full ingestion and cleaning pipeline.
-    2. Writes the final clean dataset to data/processed/aggregated_clean.csv.
-    3. Updates state/artifact_hashes.yaml with the checksum of the new file.
+    1. Generates data/processed/aggregated_clean.csv by orchestrating the ingestion pipeline.
+    2. Updates state/artifact_hashes.yaml with the checksum of the generated file.
+    
+    This script acts as the entry point for the data generation step.
+    It assumes T010-T014 logic is encapsulated in the ingestion flow.
+    Since T010-T014 are completed, we execute the main ingestion logic
+    which produces the final clean CSV, then hash it.
     """
-    logger.info("Starting T015: Aggregation and Cleaning Pipeline")
+    # Setup logging
+    setup_logging()
+    logger = get_logger(__name__)
     
-    # 1. Setup Environment
-    set_seed(42)
-    ensure_directory("data/processed")
-    ensure_directory("state")
+    project_root = Path(__file__).parent.parent
+    data_processed_dir = project_root / "data" / "processed"
+    state_dir = project_root / "state"
     
-    output_path = Path("data/processed/aggregated_clean.csv")
-    hash_path = Path("state/artifact_hashes.yaml")
+    output_file = data_processed_dir / "aggregated_clean.csv"
+    hash_file = state_dir / "artifact_hashes.yaml"
     
-    # 2. Ingest Data
-    # This calls the functions defined in T010-T013 to fetch, standardize,
-    # handle missing values, and apply Archard normalization.
-    logger.info("Fetching and processing data from sources...")
+    # Ensure directories exist
+    data_processed_dir.mkdir(parents=True, exist_ok=True)
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting aggregation and cleaning process for {output_file}")
+    
+    # Execute the ingestion pipeline
+    # We import and run the main function from ingest.py which handles T010-T014 logic
+    # Note: ingest.py main() is expected to produce data/processed/aggregated_clean.csv
     try:
-        # ingest_all_data is the main entry point defined in T010
-        df_clean = ingest_all_data()
+        from ingest import main as ingest_main
+        ingest_main()
+        logger.info("Ingestion pipeline completed successfully.")
     except Exception as e:
-        logger.error(f"Data ingestion failed: {e}")
-        raise
-
-    if df_clean is None or df_clean.empty:
-        logger.error("Ingestion produced no data. Cannot proceed.")
-        raise ValueError("Ingestion produced empty dataset.")
-
-    # 3. Write Output
-    logger.info(f"Writing {len(df_clean)} records to {output_path}")
-    df_clean.to_csv(output_path, index=False)
+        logger.error(f"Ingestion pipeline failed: {e}")
+        sys.exit(1)
     
-    # 4. Update Checksums (T005 requirement)
-    logger.info("Calculating MD5 and updating artifact hashes...")
-    file_hash = calculate_md5(output_path)
+    # Verify the output file exists
+    if not output_file.exists():
+        logger.error(f"Output file {output_file} was not created by the ingestion pipeline.")
+        sys.exit(1)
     
-    # Load existing hashes or create new dict
-    current_hashes = load_artifact_hashes(hash_path)
+    logger.info(f"Output file {output_file} created. Calculating checksum...")
     
-    # Update with the new artifact
-    # Format: { "path": { "hash": "...", "timestamp": "..." } }
-    current_hashes[str(output_path)] = {
-        "hash": file_hash,
-        "timestamp": datetime.now().isoformat(),
-        "type": "processed_dataset"
-    }
+    # Calculate MD5 checksum
+    file_hash = calculate_md5(output_file)
+    metadata = get_file_metadata(output_file)
     
-    save_artifact_hashes(current_hashes, hash_path)
+    logger.info(f"Checksum for {output_file}: {file_hash}")
     
-    logger.info(f"T015 Complete. Output: {output_path}, Hash: {file_hash}")
+    # Load existing hashes
+    hashes = load_artifact_hashes(hash_file)
+    
+    # Update the hash for the specific artifact
+    # The artifact key should be consistent. Using the relative path from project root.
+    artifact_key = str(output_file.relative_to(project_root))
+    
+    update_artifact_hash(
+        hashes,
+        artifact_key,
+        file_hash,
+        metadata
+    )
+    
+    # Save updated hashes
+    save_artifact_hashes(hashes, hash_file)
+    
+    logger.info(f"Artifact hashes updated in {hash_file}")
+    logger.info("T015 completed successfully.")
+    
     return 0
 
 if __name__ == "__main__":

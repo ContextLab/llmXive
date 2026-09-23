@@ -7,6 +7,39 @@ T005:
     which cannot be verified without a concrete file and a complete save routine.
     The missing file and incomplete function must be added for the task to be considered
     complete.'
+T012:
+  c: false
+  h: 1ab623743bc508ef980d8b4a0d963cc22e744bcea2e7eda7e459d6b17976da5d
+  r: The repository lacks a `handle_missing_values` implementation in `code/ingest.py`
+    (no such function appears in the shown code) and the required output file `data/processed/aggregated_clean.csv`
+    does not exist. Both the core functionality and the expected artifact are missing.
+T014:
+  c: false
+  h: 78002002dbc5ad4e1b3f371c517f6bdb74d233de62252df418e1f3140fd80e18
+  r: "The repository lacks a `split_dataset` function in `code/ingest.py` that performs\
+    \ the required CSV split, and the expected output files (`data/processed/normalized_only.csv`,\
+    \ `raw_only.csv`, and `split_summary.json`) are absent. Consequently the task\u2019\
+    s core requirement is not satisfied."
+T015:
+  c: false
+  h: 21e3b22383c18223c24525ee4ba3d73e149b288372407c51ec578c39905be7fe
+  r: "The required `data/processed/aggregated_clean.csv` file is absent, and `state/artifact_hashes.yaml`\
+    \ contains no entries for the artifact\u2019s checksum, so neither output was\
+    \ produced nor recorded."
+T016a:
+  c: false
+  h: 0c247beeb87e99154772cc5a640cef1040a4533ce3ca449f0f92a2e8fb07af22
+  r: The `count_records` function in `code/ingest.py` only returns a dict and never
+    writes `data/processed/record_counts.json`, and the expected output file is absent
+    from the repository. The implementation also contains placeholder logic that defaults
+    normalized and raw counts to zero when the required column is missing.
+T016b:
+  c: false
+  h: b68669f01c9f52edbf9847085df4e30096f4c8735fbd1dcddf86022ce46ef438
+  r: The `compare_thresholds` function is only partially implemented, does not set
+    `study_scope` to the required `"pilot_study"` or `"full_study"` values, and never
+    writes the result to `data/processed/threshold_check.json` (the file is missing).
+    The required output artifact is absent, so the task is not fulfilled.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,3 +53,17 @@ T021:
   r: "No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out)\
     \ logic was provided; there is no evidence of class\u2011size checks, fallback\
     \ to K\u2011Fold, or warning logging, so the task is not satisfied."
+T040:
+  c: false
+  h: ed2668a268d2742da9b1556607b44f69c05e3080bd88c8393e4791b6ef9f8b9d
+  r: "The provided `code/validate.py` does not contain a `run_power_analysis` function\
+    \ (only helper utilities are shown and the file is truncated), and the required\
+    \ output `reports/power_analysis.json` is absent. Consequently the task\u2019\
+    s core functionality and expected report are not delivered."
+T041:
+  c: false
+  h: becffbb11e74ad695dfd2f502de3175f8f2b4cc096c14fd116744873a6dca4be
+  r: The `log_source_warning` function in `code/ingest.py` contains only a placeholder
+    (`pass`) and does not count distinct sources or generate any warning. Additionally,
+    the required output file `reports/source_validation.json` does not exist. Both
+    the implementation and the expected artifact are missing.
