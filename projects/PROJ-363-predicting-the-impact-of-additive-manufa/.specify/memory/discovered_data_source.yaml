@@ -1,12 +1,12 @@
 status: none
-intent: Laser powder bed fusion 316L dataset Zenodo OpenML download python package
-  dataset
+intent: LPBF 316L additive manufacturing dataset CSV Zenodo OpenML download python
+  package dataset
 required_fields:
 - laser_power
 - scan_speed
 - hatch_spacing
 - layer_thickness
 - porosity
-cache_key: e528f2788f7801bb40c036bfff40ef57c0553e8504adaa8b36f2669a7a4c260e
-searched_at: '2026-09-20T05:27:05.817735+00:00'
+cache_key: 75b2a172440bc6b9bf5da0935454ed372228689a66c4552ef4d7229fffbb76ab
+searched_at: '2026-09-23T15:39:26.046618+00:00'
 retry_count: 1

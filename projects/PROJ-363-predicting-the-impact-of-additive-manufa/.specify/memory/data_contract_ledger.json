@@ -1,6 +1,14 @@
 [
   {
+    "data_file": "data/processed/cleaned_316L.csv",
+    "required": []
+  },
+  {
     "data_file": "data/raw/316L_LPBF_dataset.csv",
+    "required": []
+  },
+  {
+    "data_file": "models/artifacts/best_raw_model.pkl",
     "required": []
   }
 ]

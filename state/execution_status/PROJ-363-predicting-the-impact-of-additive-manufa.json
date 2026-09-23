@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-363-predicting-the-impact-of-additive-manufa",
   "ok": false,
-  "reason": "4 command(s) failed: python code/download_data.py (rc=1); python code/preprocess.py (rc=1); python code/train_models.py (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_316L.csv; data/processed/degenerate_flag.json",
+  "reason": "4 command(s) failed: python code/download_data.py (rc=1); python code/preprocess.py (rc=1); python code/train_models.py (rc=1); 4 declared deliverable(s) absent: data/processed/X_derived.csv; data/processed/X_raw.csv; data/processed/cleaned_316L.csv",
   "artifacts": [],
   "failures": [
-    "python code/download_data.py -> rc=1\n    2026-09-20 05:26:17,403 - INFO - Starting 316L LPBF dataset download\n2026-09-20 05:26:17,403 - INFO - Fetching metadata from Zenodo record 6826006\n2026-09-20 05:26:18,095 - INFO - Verifying material type is 316L\n2026-09-20 05:26:18,096 - ERROR - Material verification failed: Dataset does not appear to be for 316L stainless steel. Title: 24. increased mobilization of toxic elements from permafrost areas in the eastern alps, Description: <p>poster presentation</p>...",
-    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py\", line 296, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py\", line 284, in main\n    raise FileNotFoundError(f\"Input file not found: {input_file}\")\nFileNotFoundError: Input file not found: data/raw/316L_LPBF_dataset.csv",
-    "python code/train_models.py -> rc=1\n    2026-09-20 05:26:19,776 - llmXive_pipeline - INFO - Starting Model Training Pipeline (US2)\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/train_models.py\", line 318, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/train_models.py\", line 176, in main\n    base_dir = Path(__file__).parent.parent\n               ^^^^\nNameError: name 'Path' is not defined",
-    "python code/analyze_explainability.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py\", line 14, in <module>\n    import seaborn as sns\nModuleNotFoundError: No module named 'seaborn'"
+    "python code/download_data.py -> rc=1\n    2026-09-23 15:37:48,960 - root - INFO - Starting 316L LPBF dataset download\n2026-09-23 15:37:48,960 - root - INFO - Fetching metadata from Zenodo record 6826006\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py\", line 117, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py\", line 100, in main\n    verify_material_type(metadata)\n  File \"/home/runner/work/",
+    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py\", line 232, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py\", line 226, in main\n    raise FileNotFoundError(f\"Input file not found: {input_file}\")\nFileNotFoundError: Input file not found: data/raw/316L_LPBF_dataset.csv",
+    "python code/train_models.py -> rc=1\n    ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 1643, in __init__\n    self._engine = self._make_engine(f, se",
+    "python code/analyze_explainability.py -> rc=1\n    2026-09-23 15:38:18,737 - root - INFO - Starting Explainability Analysis (US3)\n\nMatplotlib is building the font cache; this may take a moment.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py\", line 195, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py\", line 154, in main\n    model = load_model_from_path(model_path)\n        "
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-20T05:26:23Z"
+  "updated_at": "2026-09-23T15:38:41Z"
 }

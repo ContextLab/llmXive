@@ -6,4 +6,4 @@ seaborn
 pyyaml
 jsonschema
 numpy
-requests
+scipy

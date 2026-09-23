@@ -43,14 +43,14 @@ def test_schema_validation_fail(tmp_path):
 def test_cleaned_dataset_contract():
     """
     Contract test: Validate data/processed/cleaned_316L.csv against contracts/dataset.schema.yaml.
-    This test expects the file to exist after T018 completes.
+    This test expects the file to exist after T014 completes.
     """
     base_dir = Path(__file__).parent.parent.parent
     data_file = base_dir / "data" / "processed" / "cleaned_316L.csv"
     schema_file = base_dir / "contracts" / "dataset.schema.yaml"
     
     if not data_file.exists():
-        pytest.skip("cleaned_316L.csv not found. Run T018 first.")
+        pytest.skip("cleaned_316L.csv not found. Run T014 first.")
     
     if not schema_file.exists():
         pytest.skip("dataset.schema.yaml not found.")
