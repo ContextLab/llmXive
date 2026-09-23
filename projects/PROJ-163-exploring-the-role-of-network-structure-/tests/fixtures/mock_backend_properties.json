@@ -1,0 +1,86 @@
+{
+  "backend_name": "ibmq_manila",
+  "backend_version": "1.2.3",
+  "last_update_date": "2023-10-27T10:00:00Z",
+  "operational": true,
+  "qubits": [
+    [
+      {"name": "T1", "value": 107.5, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "T2", "value": 156.2, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "frequency", "value": 5.1, "unit": "GHz", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutError", "value": 0.02, "unit": "", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutLength", "value": 3.5, "unit": "us", "date": "2023-10-27T10:00:00Z"}
+    ],
+    [
+      {"name": "T1", "value": 98.3, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "T2", "value": 142.1, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "frequency", "value": 5.2, "unit": "GHz", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutError", "value": 0.03, "unit": "", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutLength", "value": 3.5, "unit": "us", "date": "2023-10-27T10:00:00Z"}
+    ],
+    [
+      {"name": "T1", "value": 110.0, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "T2", "value": 160.5, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "frequency", "value": 5.3, "unit": "GHz", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutError", "value": 0.025, "unit": "", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutLength", "value": 3.5, "unit": "us", "date": "2023-10-27T10:00:00Z"}
+    ],
+    [
+      {"name": "T1", "value": 95.0, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "T2", "value": 130.0, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "frequency", "value": 5.4, "unit": "GHz", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutError", "value": 0.04, "unit": "", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutLength", "value": 3.5, "unit": "us", "date": "2023-10-27T10:00:00Z"}
+    ],
+    [
+      {"name": "T1", "value": 102.0, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "T2", "value": 145.0, "unit": "us", "date": "2023-10-27T10:00:00Z"},
+      {"name": "frequency", "value": 5.5, "unit": "GHz", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutError", "value": 0.035, "unit": "", "date": "2023-10-27T10:00:00Z"},
+      {"name": "readoutLength", "value": 3.5, "unit": "us", "date": "2023-10-27T10:00:00Z"}
+    ]
+  ],
+  "coupling_map": [[0, 1], [1, 0], [1, 2], [2, 1], [2, 3], [3, 2], [3, 4], [4, 3]],
+  "basis_gates": ["x", "y", "z", "sx", "rz", "cx"],
+  "gates": [
+    {
+      "gate": "cx",
+      "qubits": [0, 1],
+      "parameters": [{"name": "gate_error", "value": 0.01, "unit": ""}],
+      "name": "cx_0_1"
+    },
+    {
+      "gate": "cx",
+      "qubits": [1, 2],
+      "parameters": [{"name": "gate_error", "value": 0.015, "unit": ""}],
+      "name": "cx_1_2"
+    },
+    {
+      "gate": "cx",
+      "qubits": [2, 3],
+      "parameters": [{"name": "gate_error", "value": 0.012, "unit": ""}],
+      "name": "cx_2_3"
+    },
+    {
+      "gate": "cx",
+      "qubits": [3, 4],
+      "parameters": [{"name": "gate_error", "value": 0.018, "unit": ""}],
+      "name": "cx_3_4"
+    }
+  ],
+  "meas_map": [[0, 1, 2, 3, 4]],
+  "max_shots": 100000,
+  "max_experiments": 300,
+  "n_qubits": 5,
+  "local": false,
+  "simulator": false,
+  "conditional": true,
+  "open_pulse": false,
+  "memory": true,
+  "channel": "dd",
+  "processor_type": {
+    "family": "Eagle",
+    "variant": "R2",
+    "generation": "Gen 1"
+  }
+}

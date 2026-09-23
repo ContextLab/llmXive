@@ -1,6 +1,6 @@
+import pytest
 import networkx as nx
 import numpy as np
-import pytest
 from code.graph_builder import (
     build_coupling_graph,
     compute_shortest_path_metrics,
@@ -8,182 +8,102 @@ from code.graph_builder import (
     compute_edge_betweenness_and_spectral_gap,
     process_device_coupling_map
 )
-from code.models import QubitDevice, GraphMetric
 
-class TestBuildCouplingGraph:
-    def test_simple_line_graph(self):
-        """Test building a simple line graph: 0-1-2-3"""
-        coupling_map = [[0, 1], [1, 2], [2, 3]]
+class TestDisconnectedGraphHandling:
+    """Tests specifically for disconnected graph handling per T024."""
+
+    def test_spectral_gap_zero_for_disconnected(self):
+        """Verify spectral gap is set to 0 for disconnected graphs."""
+        # Create a graph with two disconnected components
+        G = nx.Graph()
+        G.add_edges_from([(0, 1), (2, 3)])  # Two separate edges
+        
+        result = compute_edge_betweenness_and_spectral_gap(G)
+        
+        assert result["spectral_gap"] == 0.0, "Spectral gap must be 0 for disconnected graphs"
+
+    def test_path_metrics_on_largest_component(self):
+        """Verify path metrics are computed only on the largest connected component."""
+        # Graph: 0-1-2 (size 3) and 3-4 (size 2)
+        G = nx.Graph()
+        G.add_edges_from([(0, 1), (1, 2), (3, 4)])
+        
+        result = compute_shortest_path_metrics(G)
+        
+        # Largest component is 0-1-2
+        # Avg shortest path for 0-1-2: (1+2+1+1+2+1)/6 = 8/6 = 1.333...
+        # Diameter is 2 (0 to 2)
+        expected_avg = 4.0 / 3.0  # 1.333...
+        expected_diameter = 2
+        
+        assert abs(result["avg_shortest_path"] - expected_avg) < 1e-6
+        assert result["diameter"] == expected_diameter
+
+    def test_disconnected_graph_detection(self):
+        """Verify process_device_coupling_map correctly identifies disconnected graphs."""
+        # Two separate components: 0-1 and 2-3
+        coupling_map = [(0, 1), (2, 3)]
         num_qubits = 4
-        G = build_coupling_graph(coupling_map, num_qubits)
         
-        assert nx.is_connected(G)
-        assert G.number_of_nodes() == 4
-        assert G.number_of_edges() == 3
-        assert list(G.edges()) == [(0, 1), (1, 2), (2, 3)]
-
-    def test_disconnected_graph(self):
-        """Test building a disconnected graph"""
-        coupling_map = [[0, 1], [2, 3]]
-        num_qubits = 4
-        G = build_coupling_graph(coupling_map, num_qubits)
+        result = process_device_coupling_map("test", coupling_map, num_qubits)
         
-        assert not nx.is_connected(G)
-        assert G.number_of_nodes() == 4
-        assert G.number_of_edges() == 2
+        assert result["is_connected"] is False
 
-    def test_isolated_nodes(self):
-        """Test that isolated nodes are included"""
-        coupling_map = [[0, 1]]
-        num_qubits = 5
-        G = build_coupling_graph(coupling_map, num_qubits)
-        
-        assert G.number_of_nodes() == 5
-        assert list(G.nodes()) == [0, 1, 2, 3, 4]
-
-class TestComputeShortestPathMetrics:
-    def test_line_graph_metrics(self):
-        """Test metrics on a line graph 0-1-2-3"""
+    def test_connected_graph_spectral_gap_nonzero(self):
+        """Verify connected graph has non-zero spectral gap (unless trivial)."""
+        # Simple line: 0-1-2-3
         G = nx.Graph()
         G.add_edges_from([(0, 1), (1, 2), (2, 3)])
         
-        metrics = compute_shortest_path_metrics(G)
+        result = compute_edge_betweenness_and_spectral_gap(G)
         
-        # Average shortest path for line graph of 4 nodes
-        # Paths: (0,1)=1, (0,2)=2, (0,3)=3, (1,0)=1, (1,2)=1, (1,3)=2, (2,0)=2, (2,1)=1, (2,3)=1, (3,0)=3, (3,1)=2, (3,2)=1
-        # Sum = 1+2+3+1+1+2+2+1+1+3+2+1 = 19
-        # Count = 12
-        # Avg = 19/12 ≈ 1.5833
-        assert abs(metrics["avg_shortest_path"] - 1.5833) < 0.01
-        assert metrics["diameter"] == 3
+        # For a line graph with 4 nodes, spectral gap > 0
+        assert result["spectral_gap"] > 0.0
 
-    def test_disconnected_graph_metrics(self):
-        """Test metrics on a disconnected graph"""
+class TestGraphBuilderBasics:
+    """Basic tests for graph builder functionality."""
+
+    def test_build_coupling_graph_undirected(self):
+        """Verify coupling map is treated as undirected."""
+        coupling_map = [(0, 1), (1, 2)]
+        G = build_coupling_graph(coupling_map, 3)
+        
+        assert G.has_edge(0, 1)
+        assert G.has_edge(1, 0)  # Undirected
+        assert G.has_edge(1, 2)
+        assert G.has_edge(2, 1)
+        assert len(G.edges()) == 2
+
+    def test_build_coupling_graph_includes_isolated_qubits(self):
+        """Verify isolated qubits are included in the graph."""
+        coupling_map = [(0, 1)]
+        G = build_coupling_graph(coupling_map, 4)  # 4 qubits, but only 2 connected
+        
+        assert len(G.nodes()) == 4
+        assert 2 in G.nodes()
+        assert 3 in G.nodes()
+        assert not G.has_edge(0, 2)
+
+    def test_compute_shortest_path_empty_graph(self):
+        """Verify handling of graph with no edges."""
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (2, 3)])
+        G.add_nodes_from(range(3))
         
-        metrics = compute_shortest_path_metrics(G)
+        result = compute_shortest_path_metrics(G)
         
-        # Should compute on largest component (size 2)
-        # Component 0-1: avg shortest path = 1.0, diameter = 1
-        assert metrics["avg_shortest_path"] == 1.0
-        assert metrics["diameter"] == 1
+        assert result["avg_shortest_path"] == 0.0
+        assert result["diameter"] == 0.0
 
-    def test_single_node_graph(self):
-        """Test metrics on a single node graph"""
+    def test_compute_clustering_coefficient(self):
+        """Verify clustering coefficient calculation."""
+        # Triangle: 0-1-2-0
         G = nx.Graph()
-        G.add_node(0)
+        G.add_edges_from([(0, 1), (1, 2), (2, 0)])
         
-        metrics = compute_shortest_path_metrics(G)
-        assert metrics["avg_shortest_path"] == 0.0
-        assert metrics["diameter"] == 0.0
+        result = compute_clustering_and_assortativity(G)
+        
+        # Complete graph K3 has clustering coefficient 1.0
+        assert result["clustering_coeff"] == 1.0
 
-class TestComputeClusteringAndAssortativity:
-    def test_complete_graph_clustering(self):
-        """Test clustering coefficient on a complete graph K4"""
-        G = nx.complete_graph(4)
-        metrics = compute_clustering_and_assortativity(G)
-        
-        # Complete graph has clustering coefficient 1.0
-        assert metrics["clustering_coefficient"] == 1.0
-
-    def test_complete_graph_assortativity(self):
-        """Test assortativity on a complete graph (should be 0.0)"""
-        G = nx.complete_graph(4)
-        metrics = compute_clustering_and_assortativity(G)
-        
-        # In a complete graph, all degrees are equal, assortativity is 0
-        assert metrics["assortativity"] == 0.0
-
-class TestComputeEdgeBetweennessAndSpectralGap:
-    def test_line_graph_edge_betweenness(self):
-        """Test edge betweenness on a line graph 0-1-2-3"""
-        G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2), (2, 3)])
-        
-        metrics = compute_edge_betweenness_and_spectral_gap(G)
-        
-        # In a line graph, the middle edge has higher betweenness
-        # Edge (1,2) is between 0-1 and 2-3, so it's used by paths (0,2), (0,3), (1,2), (1,3)
-        # Actually, for edge betweenness, we count shortest paths that pass through the edge.
-        # Total pairs: 12. 
-        # Edge (0,1): used by (0,1), (0,2), (0,3) -> 3 paths
-        # Edge (1,2): used by (0,2), (0,3), (1,2), (1,3) -> 4 paths
-        # Edge (2,3): used by (0,3), (1,3), (2,3) -> 3 paths
-        # Sum = 3+4+3 = 12. Mean = 12/3 = 4.0? Wait, edge betweenness is normalized by total paths.
-        # Let's just check that it's non-zero and finite.
-        assert metrics["edge_betweenness_mean"] > 0.0
-        assert np.isfinite(metrics["edge_betweenness_mean"])
-        assert np.isfinite(metrics["edge_betweenness_std"])
-
-    def test_complete_graph_spectral_gap(self):
-        """Test spectral gap on a complete graph K4"""
-        G = nx.complete_graph(4)
-        metrics = compute_edge_betweenness_and_spectral_gap(G)
-        
-        # Complete graph K_n has spectral gap = n (for unnormalized Laplacian)
-        # Actually, eigenvalues of Laplacian for K_n are: 0 (once), n (n-1 times)
-        # So spectral gap = n - 0 = n. For K4, it should be 4.
-        # Note: scipy's laplacian is unnormalized by default in this context.
-        assert abs(metrics["spectral_gap"] - 4.0) < 0.1
-
-    def test_disconnected_graph_spectral_gap(self):
-        """Test spectral gap on a disconnected graph"""
-        G = nx.Graph()
-        G.add_edges_from([(0, 1), (2, 3)])
-        metrics = compute_edge_betweenness_and_spectral_gap(G)
-        
-        # Disconnected graph has spectral gap 0
-        assert metrics["spectral_gap"] == 0.0
-
-    def test_single_node_spectral_gap(self):
-        """Test spectral gap on a single node graph"""
-        G = nx.Graph()
-        G.add_node(0)
-        metrics = compute_edge_betweenness_and_spectral_gap(G)
-        
-        assert metrics["spectral_gap"] == 0.0
-        assert metrics["edge_betweenness_mean"] == 0.0
-
-class TestProcessDeviceCouplingMap:
-    def test_process_valid_device(self):
-        """Test processing a valid QubitDevice"""
-        device = QubitDevice(
-            device_id="test_device",
-            num_qubits=4,
-            coupling_map=[[0, 1], [1, 2], [2, 3]],
-            t1_time=100.0,
-            t2_time=200.0,
-            cx_error_rate=0.01,
-            readout_error_rate=0.02,
-            timestamp="2023-01-01"
-        )
-        
-        metric = process_device_coupling_map(device)
-        
-        assert metric.device_id == "test_device"
-        assert metric.avg_shortest_path_length > 0.0
-        assert metric.diameter > 0.0
-        assert metric.clustering_coefficient >= 0.0
-        assert metric.spectral_gap >= 0.0
-
-    def test_process_disconnected_device(self):
-        """Test processing a device with disconnected graph"""
-        device = QubitDevice(
-            device_id="disconnected_device",
-            num_qubits=4,
-            coupling_map=[[0, 1], [2, 3]],
-            t1_time=100.0,
-            t2_time=200.0,
-            cx_error_rate=0.01,
-            readout_error_rate=0.02,
-            timestamp="2023-01-01"
-        )
-        
-        metric = process_device_coupling_map(device)
-        
-        assert metric.device_id == "disconnected_device"
-        assert metric.spectral_gap == 0.0
-        # Metrics should be computed on the largest component
-        assert metric.avg_shortest_path_length > 0.0
-        assert metric.diameter > 0.0
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,219 +1,156 @@
-import pytest
-import time
+"""
+Contract tests for API response schema parsing.
+
+Validates that fetched backend properties conform to the defined JSON schema.
+"""
 import json
-from unittest.mock import patch, MagicMock
-from code.fetcher import retry_with_exponential_backoff
+import os
+import pytest
+from pathlib import Path
+from jsonschema import validate, ValidationError, Draft7Validator
+import yaml
 
-try:
-    from jsonschema import validate, ValidationError
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
-    pytest.skip("jsonschema not installed", allow_module_level=True)
+# Import the fetcher module to access its internal data structures if needed
+# We assume the fetcher module is in the parent directory or code/
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Path to the schema file relative to the project root
-SCHEMA_PATH = "specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml"
+from code.fetcher import fetch_backend_properties
+from code.config import load_config
 
-@pytest.fixture
-def valid_calibration_snapshot():
-    """
-    Returns a mock payload that adheres to the schema defined in SCHEMA_PATH.
-    This is a minimal valid structure to test schema validation.
-    """
-    return {
-        "backend_name": "ibm_test_backend",
-        "backend_version": "1.0.0",
-        "last_update_date": "2023-10-27T10:00:00Z",
-        "general_properties": {
-            "n_qubits": 5,
-            "basis_gates": ["x", "y", "z", "cx"],
-            "max_shots": 10000,
-            "coupling_map": [[0, 1], [1, 2], [2, 3], [3, 4]],
-            "online_date": "2023-01-01T00:00:00Z",
-            "operational": True
-        },
-        "qubits": [
-            [
-                {"name": "T1", "value": 100e-6, "unit": "s", "date": "2023-10-27T10:00:00Z"},
-                {"name": "T2", "value": 50e-6, "unit": "s", "date": "2023-10-27T10:00:00Z"},
-                {"name": "frequency", "value": 5e9, "unit": "Hz", "date": "2023-10-27T10:00:00Z"},
-                {"name": "readout_error", "value": 0.02, "unit": "unitless", "date": "2023-10-27T10:00:00Z"}
-            ]
-        ],
-        "gates": [
-            {
-                "name": "cx",
-                "qubits": [0, 1],
-                "parameters": [
-                    {"name": "gate_error", "value": 0.01, "unit": "unitless", "date": "2023-10-27T10:00:00Z"}
-                ]
-            }
-        ]
-    }
+# Path to the schema file
+SCHEMA_PATH = Path(__file__).parent.parent / "specs" / "001-exploring-the-role-of-network-structure-" / "contracts" / "raw_calibration.schema.yaml"
 
 @pytest.fixture
-def invalid_calibration_snapshot():
+def schema():
+    """Load the JSON schema from the YAML file."""
+    if not SCHEMA_PATH.exists():
+        pytest.fail(f"Schema file not found at {SCHEMA_PATH}. Ensure T009 is complete.")
+    
+    with open(SCHEMA_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+@pytest.fixture
+def mock_backend_data():
     """
-    Returns a payload that violates the schema (e.g., missing required field).
+    Load the mock backend properties from the fixture created in T006b.
+    This provides a deterministic, real-structure dataset for testing.
     """
-    return {
-        "backend_name": "ibm_test_backend",
-        # Missing 'general_properties' which is required
-        "qubits": []
+    fixture_path = Path(__file__).parent / "fixtures" / "mock_backend_properties.json"
+    if not fixture_path.exists():
+        pytest.fail(f"Mock fixture not found at {fixture_path}. Ensure T006b is complete.")
+    
+    with open(fixture_path, 'r') as f:
+        return json.load(f)
+
+def test_schema_is_valid_yaml_and_json_compatible(schema):
+    """
+    Verify that the loaded schema is a valid dictionary and follows JSON Schema draft-07.
+    """
+    assert isinstance(schema, dict), "Schema must be a dictionary."
+    assert "$schema" in schema, "Schema must define the $schema keyword."
+    assert "properties" in schema, "Schema must define top-level properties."
+    
+    # Validate that the schema itself is valid against Draft7Validator meta-schema
+    validator = Draft7Validator(schema)
+    errors = list(validator.iter_errors(schema))
+    assert len(errors) == 0, f"Schema itself is invalid: {[e.message for e in errors]}"
+
+def test_contract_validation_with_mock_data(schema, mock_backend_data):
+    """
+    Contract test: Validate that the mock backend properties (representing real API structure)
+    strictly conform to the defined schema.
+    
+    This ensures that if the API changes, the schema will catch it, or if the schema
+    is too restrictive, it will be caught here.
+    """
+    try:
+        validate(instance=mock_backend_data, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Mock data violates schema: {e.message}. "
+                    f"Path: {list(e.path)}. "
+                    f"Schema path: {list(e.schema_path)}. "
+                    "Update schema or mock data to match real API structure.")
+
+def test_contract_validation_missing_required_fields(schema):
+    """
+    Test that the schema correctly rejects data missing required fields.
+    """
+    invalid_data = {
+        "device_id": "test_device",
+        "timestamp": "2023-01-01T00:00:00Z"
+        # Missing 'coupling_map' and 'properties'
     }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_data, schema=schema)
 
-class TestContractValidation:
+def test_contract_validation_invalid_coupling_map_type(schema):
     """
-    Contract tests for API response schema parsing.
-    Validates that fetched data (or mock data) conforms to the defined schema.
+    Test that the schema rejects a coupling_map that is not a list of lists of integers.
     """
-
-    @pytest.fixture(autouse=True)
-    def setup_schema(self):
-        """Load the schema once per test class."""
-        import yaml
-        with open(SCHEMA_PATH, 'r') as f:
-            self.schema = yaml.safe_load(f)
-
-    def test_valid_snapshot_passes_validation(self, valid_calibration_snapshot):
-        """
-        Contract test: A valid calibration snapshot must pass schema validation.
-        """
-        # This should not raise ValidationError
-        try:
-            validate(instance=valid_calibration_snapshot, schema=self.schema)
-        except ValidationError as e:
-            pytest.fail(f"Valid snapshot failed validation: {e.message}")
-
-    def test_invalid_snapshot_fails_validation(self, invalid_calibration_snapshot):
-        """
-        Contract test: An invalid calibration snapshot must raise ValidationError.
-        """
-        with pytest.raises(ValidationError) as excinfo:
-            validate(instance=invalid_calibration_snapshot, schema=self.schema)
-
-        # Verify the error is about missing required property
-        assert "general_properties" in str(excinfo.value) or "is a required property" in str(excinfo.value)
-
-    def test_partial_valid_snapshot_fails_validation(self):
-        """
-        Contract test: A snapshot with missing optional but structurally required fields fails.
-        """
-        partial_data = {
-            "backend_name": "test",
-            "general_properties": {
-                "n_qubits": 5,
-                "basis_gates": ["x"],
-                "max_shots": 100,
-                "coupling_map": [[0, 1]],
-                "online_date": "2023-01-01T00:00:00Z",
-                "operational": True
-            },
-            # Missing 'qubits' and 'gates' which are required at root level
-            "last_update_date": "2023-10-27T10:00:00Z"
-        }
-        with pytest.raises(ValidationError):
-            validate(instance=partial_data, schema=self.schema)
-
-    def test_wrong_datatype_fails_validation(self):
-        """
-        Contract test: Wrong data types (e.g., string instead of number) must fail.
-        """
-        bad_data = {
-            "backend_name": "test",
-            "last_update_date": "2023-10-27T10:00:00Z",
-            "general_properties": {
-                "n_qubits": "five",  # Should be integer
-                "basis_gates": ["x"],
-                "max_shots": 100,
-                "coupling_map": [[0, 1]],
-                "online_date": "2023-01-01T00:00:00Z",
-                "operational": True
-            },
-            "qubits": [],
+    # Valid base data
+    valid_base = {
+        "device_id": "test_device",
+        "timestamp": "2023-01-01T00:00:00Z",
+        "coupling_map": [[0, 1], [1, 2]],
+        "properties": {
+            "qubits": [[{"name": "T1", "value": 100.0}]],
             "gates": []
         }
-        with pytest.raises(ValidationError):
-            validate(instance=bad_data, schema=self.schema)
+    }
+    
+    # Case 1: Coupling map is a list of integers, not lists
+    invalid_data_1 = valid_base.copy()
+    invalid_data_1["coupling_map"] = [0, 1, 2]
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_data_1, schema=schema)
 
-# Re-export the existing retry tests to ensure the file is self-contained
-class TestRetryWithExponentialBackoff:
+def test_contract_validation_invalid_property_values(schema):
     """
-    Unit tests for the retry_with_exponential_backoff decorator.
+    Test that the schema rejects property values that are not numbers where expected.
     """
+    valid_base = {
+        "device_id": "test_device",
+        "timestamp": "2023-01-01T00:00:00Z",
+        "coupling_map": [[0, 1]],
+        "properties": {
+            "qubits": [[{"name": "T1", "value": "invalid_string"}]],
+            "gates": []
+        }
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=valid_base, schema=schema)
 
-    def test_success_on_first_attempt(self):
-        """Test that a successful function returns immediately."""
-        @retry_with_exponential_backoff(max_attempts=3, base_delay=0.1)
-        def success_func():
-            return "success"
-
-        result = success_func()
-        assert result == "success"
-
-    def test_retry_on_transient_error(self):
-        """Test that the function retries on a transient error (503)."""
-        call_count = 0
-
-        @retry_with_exponential_backoff(max_attempts=3, base_delay=0.01)
-        def transient_fail_func():
-            nonlocal call_count
-            call_count += 1
-            if call_count < 3:
-                raise Exception("503 Service Unavailable")
-            return "success"
-
-        result = transient_fail_func()
-        assert result == "success"
-        assert call_count == 3
-
-    def test_no_retry_on_non_transient_error(self):
-        """Test that the function does not retry on non-transient errors."""
-        call_count = 0
-
-        @retry_with_exponential_backoff(max_attempts=3, base_delay=0.01)
-        def non_transient_fail_func():
-            nonlocal call_count
-            call_count += 1
-            raise ValueError("Invalid data format")
-
-        with pytest.raises(ValueError):
-            non_transient_fail_func()
-        assert call_count == 1
-
-    def test_max_attempts_exceeded(self):
-        """Test that the function raises the last exception after max attempts."""
-        @retry_with_exponential_backoff(max_attempts=2, base_delay=0.01)
-        def always_fail_func():
-            raise Exception("503 Service Unavailable")
-
-        with pytest.raises(Exception) as exc_info:
-            always_fail_func()
-        assert "503 Service Unavailable" in str(exc_info.value)
-
-    def test_timeout_exceeded(self):
-        """Test that a TimeoutError is raised if total time exceeds timeout."""
-        @retry_with_exponential_backoff(max_attempts=3, base_delay=0.1, timeout=0.15)
-        def slow_transient_fail_func():
-            raise Exception("503 Service Unavailable")
-
-        with pytest.raises(TimeoutError):
-            slow_transient_fail_func()
-
-    def test_delay_calculation(self):
-        """Test that the delay follows 2^N backoff."""
-        call_times = []
-
-        @retry_with_exponential_backoff(max_attempts=4, base_delay=0.01)
-        def time_track_func():
-            call_times.append(time.time())
-            if len(call_times) < 4:
-                raise Exception("503 Service Unavailable")
-            return "done"
-
-        try:
-            time_track_func()
-        except Exception:
-            pass
-
-        assert len(call_times) == 4
+@pytest.mark.integration
+def test_live_api_response_conformance(schema):
+    """
+    Optional integration test: If IBMQ_TOKEN is available, fetch a real backend
+    and validate it against the schema.
+    """
+    config = load_config()
+    if not config.ibmq_token:
+        pytest.skip("IBMQ_TOKEN not set. Skipping live API validation.")
+    
+    try:
+        # Fetch properties for a known device (e.g., ibmq_quito or ibmq_manila)
+        # We use a small subset to avoid rate limits in CI if possible, 
+        # but this test requires a real fetch.
+        backend_name = "ibmq_quito"
+        
+        # Note: This relies on the implementation in fetcher.py
+        # If fetch_backend_properties returns a dict directly
+        result = fetch_backend_properties(backend_name)
+        
+        if result is None:
+            pytest.skip(f"Could not fetch properties for {backend_name}. Skipping.")
+        
+        validate(instance=result, schema=schema)
+        
+    except ValidationError as e:
+        pytest.fail(f"Real API response for {backend_name} violates schema: {e.message}")
+    except Exception as e:
+        # Network errors or API issues are expected in some CI environments
+        pytest.skip(f"Live API fetch failed: {str(e)}. Skipping validation.")

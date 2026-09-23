@@ -2,10 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence of the required directory hierarchy (`code/`, `data/raw/`, `data/processed/`, `tests/`) is provided; the implementer did not supply any artifact showing these folders exist or contain files. The task cannot be considered completed until the project structure is created and visible.
-- **T002** — No project files (e.g., `pyproject.toml`, `requirements.txt`, or a `setup.cfg`) are present to demonstrate that a Python 3.11 project was created and that the listed dependencies (`qiskit-ibm-runtime`, `networkx`, `pandas`, `scipy`, `matplotlib`, `requests`, `pytest`) are declared. The implementer must provide the initialized project structure with the required dependency specifications.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, `.flake8`) are present in the provided evidence, so the requirement to configure ruff/flake8 and Black cannot be verified. The task lacks the necessary artifacts to confirm completion.
-- **T006** — No code, configuration file, or documentation was provided that demonstrates loading IBM Quantum API tokens or setting default environment parameters. The required artifact for task T006 (e.g., a Python module or YAML/JSON config handling token retrieval and defaults) is missing, so the claim cannot be verified.
-- **T010** — The test file `tests/test_fetcher.py` is present and attempts to load a schema, but the required schema file `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml` is missing, so the contract validation cannot actually be performed. Add the missing schema file (non‑empty) at the specified path.
-- **T016** — No evidence of any files under `data/raw/` containing the raw JSON calibration snapshots, nor any accompanying timestamps or checksum metadata, is provided. The required artifact is missing, so the task is not satisfied.
+- **T009** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T016** — No code, script, or data files were provided that create or store raw JSON snapshots in `data/raw/…`, nor is there a `state/projects/...yaml` entry with a matching SHA‑256 hash to verify. Consequently the required artifact (the saved raw file and its hash verification) is missing.
 - **T017** — declared artifact(s) missing/empty/invalid: data/processed/raw_calibration.csv
+- **T034** — declared artifact(s) missing/empty/invalid: data/processed/correlation_results.csv
+- **T037** — declared artifact(s) missing/empty/invalid: docs/report.md
