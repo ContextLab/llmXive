@@ -22,13 +22,6 @@ T015#1:
     actually ingests MFQ and Moral Stories data, validates them against the Pydantic
     schemas, and maps them to VR salience conditions as required by US1. Without concrete
     artifacts, the claim cannot be verified.
-T016b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or documentation artifacts were presented to demonstrate that
-    US1 (data ingestion and preprocessing) has been implemented, nor any evidence
-    of schema validation, mapping to VR salience conditions, or quality checks. Without
-    tangible artifacts, the claim cannot be verified as meeting the task requirements.
 T018:
   c: false
   h: 07d4d7342729102ce6c45a935db87aab1ad7d7d94446ca6891aa9705432a016b
@@ -44,14 +37,12 @@ T027c:
     \ unfinished line `coverage_95ci = covered / n_samples if n_samp`). It never writes\
     \ the required `data/results/parameter_recovery.json`, and that JSON file is absent\
     \ from the repository. The task\u2019s deliverable is therefore not fulfilled."
-T031:
+T027d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no data, code, figures, or analysis artifacts for US3\
-    \ (sensitivity analysis and mixed\u2011effects regression with Bonferroni correction);\
-    \ instead they merely noted the task was \u201Cremoved\u201D and merged elsewhere,\
-    \ which does not satisfy the required deliverables. The necessary statistical\
-    \ validation outputs are missing."
+  r: The implementer provided no code, model, or results for US2 (Bayesian Model Execution);
+    there is no evidence of a PyMC5 hierarchical model, data ingestion, or model comparison
+    artifacts. Consequently, the required deliverables are missing.
 T032:
   c: false
   h: 20289c6dc2e521952af44a099e8e34c39b96ccde9568c4a1506f73fac12162d0
@@ -74,6 +65,12 @@ T038:
   r: "The required `code/unity_verification.py` file is missing, so no verification\
     \ logic or output JSON (`state/unity_fidelity.json`) was produced. The task\u2019\
     s deliverable is therefore not satisfied."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no test files, code, or documentation for edge\u2011\
+    case tests of data ingestion, model convergence, or VR rendering failures. Consequently,\
+    \ there is no artifact to verify that the required tests were implemented."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,6 +78,14 @@ T040:
     is no evidence of running a `quickstart.md` validation, nor any checksum files
     or logs confirming that all artifacts have been checksummed. The required validation
     and checksum verification artifacts are missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, scripts, or documentation showing an end\u2011\
+    to\u2011end pipeline that fetches real MFQ and VR logs from OSF/HuggingFace, validates\
+    \ them with Pydantic models, runs a PyMC5 Bayesian model, and performs the required\
+    \ model comparison and sensitivity analyses. Consequently, the core requirement\
+    \ of US4 (real data acquisition and processing) is not demonstrated."
 T043:
   c: false
   h: 77684035ae9bf4eeb52e7bb2efbad3c5109449e3487682a14b31bbce69160ec6
@@ -89,13 +94,15 @@ T043:
     \ are missing, and `ingest.py` does not import or call them (it references a non\u2011\
     existent `code.data.ingest_real` module and raises a placeholder RuntimeError).\
     \ The real\u2011data routing and hard assertion are therefore not fully implemented."
-T054c#1:
+T054d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (code, data files, logs, or results) were provided showing that
-    real VR interaction logs were fetched, processed, and used to verify the VR salience
-    mapping. Consequently, the requirement to validate the mapping with actual data
-    is not demonstrated.
+  r: "The implementer provided no artifacts\u2014no test scripts, execution logs,\
+    \ or results demonstrating an end\u2011to\u2011end run on real MFQ and VR logs.\
+    \ Consequently there is no evidence that the system fetched real data, processed\
+    \ it, ran the Bayesian model, and produced the required validation outputs, as\
+    \ required by US4. The missing deliverables are the actual real\u2011data integration\
+    \ test execution and its outcomes."
 T069:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -124,3 +131,11 @@ T076:
     artifacts `data/config/unity_simulation_fidelity.yaml`, `data/logs/simulation_params.log`,
     and `state/artifact_hashes.yaml` are all missing. Consequently, no verification,
     logging, or checksum updates have been performed.
+T079:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No concrete artifact (code, notebook, results, or documentation) showing the\
+    \ sensitivity\u2011analysis sweep over the required thresholds {2,\u202F10,\u202F\
+    20} is provided; the claim that it was merged into T027c\u2011Sensitivity\u2011\
+    Analysis cannot be verified from the available evidence. The implementer must\
+    \ supply the actual implementation or output demonstrating the correct sweep."

@@ -12257,3 +12257,437 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T09:50:14Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 version 5.12.0 is mandated per spec.md FR-002
+  claim_id: c_f77e1d6f
+  context: 'Initialize Python 3.11 project with requirements.txt (pymc==5.12.0, pandas,
+    numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels, torch). Requirement
+    Note: PyMC5 is the mandated version per spec.md FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task must document this requirement in the requirements.txt header
+    comment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:23:19Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: N_CONFIG default value is 100
+  claim_id: c_bcccf641
+  context: 'Create code/config.py defining paths, random seeds, and constants. Deliverable:
+    Include N_CONFIG = 100 as a default for MDES fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include N_CONFIG = 100 as a default for MDES fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:25:43Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Simulation MFQ distribution test asserts mean difference < 0.05
+  claim_id: c_ebcea1bc
+  context: 'Unit test for Simulation MFQ generator in code/tests/test_ingest_mfq.py.
+    Deliverable: Function test_mfq_distribution_matches_norms that asserts assert
+    abs(mean - expected_mean) < 0.05 using values explicitly loaded from data/config/gervais_norms.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function test_mfq_distribution_matches_norms that asserts assert abs(mean
+    - expected_mean) < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:25:45Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: 'Synthetic logs distribution: response_time LogNormal(3.5, 0.5), gaze_metrics
+    Normal(0.5, 0.1)'
+  claim_id: c_679ea828
+  context: 'Implement code/data/simulation_stories.py... Distribution: response_time
+    ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5, 0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Distributions: response_time ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5,
+    0.1)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:26:27Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MCMC sampling uses chains=4, draws=2000, target_accept=0.9
+  claim_id: c_8ba8d960
+  context: 'Implement MCMC sampling execution in code/models/run_bayesian.py. Deliverable:
+    A function sample_model(model) using pm.sample(chains=4, draws=2000, target_accept=0.9)
+    that returns samples AND explicitly outputs the posterior distributions as a distinct
+    artifact.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pm.sample(chains=4, draws=2000, target_accept=0.9)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:27:27Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 convergence check requires R-hat < 1.05 and ESS > 200
+  claim_id: c_7bf71bbc
+  context: 'Implement PyMC5 Convergence Check in code/tests/test_migration.py. Deliverable:
+    A script that verifies R-hat < 1.05 and effective sample size > 200 for all parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verifies R-hat < 1.05 and effective sample size > 200 for all parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:27:29Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Posterior predictive check fails if p-value < 0.05
+  claim_id: c_4d303853
+  context: 'Implement code/analysis/model_comparison.py to perform Posterior Predictive
+    Checks (PPC). ... Constraint: Must fail if p-value < 0.05 (indicates poor fit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must fail if p-value < 0.05 (indicates poor fit).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:27:31Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Delta AIC report does not raise error if delta_aic <= 10
+  claim_id: c_98da8697
+  context: 'Implement code/analysis/simulation_delta_aic.py to read baseline and bayesian
+    AIC... Constraint: Does NOT raise an error if delta_aic <= 10. Instead, it reports
+    the value and sets a status field.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Does NOT raise an error if delta_aic <= 10. Instead, it reports the value
+    and sets a status field.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:28:18Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Parameter recovery calculates bias and 95% CI coverage
+  claim_id: c_4d3b2fda
+  context: 'Implement code/analysis/parameter_recovery.py to calculate Parameter Recovery
+    metrics. ... Metrics: Calculate bias (mean - truth) and coverage (proportion of
+    truth within 95% CI).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate bias (mean - truth) and coverage (proportion of truth within
+    95% CI).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:28:20Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: CPU sampling timeout is 4 hours; fails if R-hat > 1.05
+  claim_id: c_02bd420e
+  context: 'If CPU sampling fails to converge (R-hat > 1.05) within the 4-hour limit,
+    the script must raise a RuntimeError with a specific message: Convergence failed
+    on CPU. Re-run on GPU. ... Wrap pm.sample in a time.time() check loop that raises
+    RuntimeError if elapsed > 14400.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If CPU sampling fails to converge (R-hat > 1.05) within the 4-hour limit,
+    the script must raise a RuntimeError...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:28:23Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 is the mandated version per spec.md FR-002
+  claim_id: c_90190be5
+  context: 'Initialize Python 3.11 project with requirements.txt (pymc==5.12.0, pandas,
+    numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels, torch). Requirement
+    Note: PyMC5 is the mandated version per spec.md FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task must document this requirement in the requirements.txt header
+    comment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:37:29Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 2
+  canonical: MDES calculation uses alpha=0.05 and power=0.8
+  claim_id: c_aef4b564
+  context: 'Implement MDES calculation logic in code/analysis/power_analysis.py. Deliverable:
+    A function that calculates MDES using statsmodels.stats.power.tt_solve_power with
+    alpha=0.05, power=0.8 and writes state/mdes_report.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement MDES calculation logic... with alpha=0.05, power=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:37:32Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: N_CONFIG default is 100
+  claim_id: c_cc23ed31
+  context: 'Create code/config.py defining paths, random seeds, and constants. Deliverable:
+    Include N_CONFIG = 100 as a default for MDES fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for N_CONFIG is 100 for MDES fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:37:58Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: HF dataset ID for MFQ is moral-foundations/mfq-v1
+  claim_id: c_eae77b5b
+  context: 'Define Real Data Architecture Interfaces in code/data/ingest_real.py.
+    Deliverable: A module defining explicit constants and schemas: OSF_API_URL (base
+    URL: ""), HF_DATASET_ID ("moral-foundations/mfq-v1")...'
+  evidence:
+    entailment_evidence: HF dataset ID for MFQ is moral-foundations/mfq-v1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HF_dataset_ID_for_MFQ_is_moral-foundations/mfq-v1
+  kind: entity_fact
+  raw_text: The HF_DATASET_ID for MFQ is moral-foundations/mfq-v1.
+  resolved_value: HF dataset ID for MFQ is moral-foundations/mfq-v1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:38:03Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: VR log schema columns are response_time, gaze_metrics, judgment_rating
+  claim_id: c_c74946c3
+  context: 'Define Real Data Architecture Interfaces in code/data/ingest_real.py.
+    Deliverable: ... VR_LOG_SCHEMA_COLUMNS (list: ["response_time", "gaze_metrics",
+    "judgment_rating"]).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VR_log_schema_columns_are_response_time,_gaze_metrics,_judgm
+  kind: entity_fact
+  raw_text: The VR_LOG_SCHEMA_COLUMNS list includes response_time, gaze_metrics, and
+    judgment_rating.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:38:47Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model threshold sensitivity analysis uses thresholds 2, 10, 20
+  claim_id: c_970d24d9
+  context: Implement code/analysis/parameter_recovery.py to perform sensitivity analysis
+    on model thresholds exactly {2, 10, 20} as required by FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis on model thresholds sweeps the set {2, 10, 20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:39:15Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MCMC sampling uses 4 chains and 2000 draws
+  claim_id: c_f17b3c83
+  context: 'Implement MCMC sampling execution in code/models/run_bayesian.py. Deliverable:
+    A function sample_model(model) using pm.sample(chains=4, draws=2000, target_accept=0.9)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MCMC sampling uses chains=4 and draws=2000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:39:43Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MCMC target_accept is 0.9
+  claim_id: c_69faeace
+  context: 'Implement MCMC sampling execution in code/models/run_bayesian.py. Deliverable:
+    A function sample_model(model) using pm.sample(chains=4, draws=2000, target_accept=0.9)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target_accept parameter for MCMC sampling is 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:40:21Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic response_time follows LogNormal(3.5, 0.5)
+  claim_id: c_bd72a20d
+  context: 'Implement code/data/simulation_stories.py to generate synthetic Moral
+    Stories and VR interaction logs... Distribution: response_time ~ LogNormal(3.5,
+    0.5)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The response_time distribution for synthetic logs is LogNormal(3.5, 0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:40:49Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic gaze_metrics follows Normal(0.5, 0.1)
+  claim_id: c_fbf44661
+  context: 'Implement code/data/simulation_stories.py to generate synthetic Moral
+    Stories and VR interaction logs... Distribution: ... gaze_metrics ~ Normal(0.5,
+    0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gaze_metrics distribution for synthetic logs is Normal(0.5, 0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:41:30Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 convergence check requires R-hat < 1.05
+  claim_id: c_3bf48904
+  context: 'Implement PyMC5 Convergence Check in code/tests/test_migration.py. Deliverable:
+    A script that verifies R-hat < 1.05 and effective sample size > 200 for all parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The R-hat convergence check requires R-hat < 1.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:41:32Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 convergence requires effective sample size > 200
+  claim_id: c_4a2b9d18
+  context: 'Implement PyMC5 Convergence Check in code/tests/test_migration.py. Deliverable:
+    A script that verifies R-hat < 1.05 and effective sample size > 200 for all parameters.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PyMC5_convergence_requires_effective_sample_size_%3E_200
+  kind: magnitude
+  raw_text: The effective sample size must be greater than 200 for PyMC5 convergence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:42:10Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PPC fails if p-value < 0.05
+  claim_id: c_f78e944e
+  context: 'Implement code/analysis/model_comparison.py to perform Posterior Predictive
+    Checks (PPC). ... Constraint: Must fail if p-value < 0.05 (indicates poor fit).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PPC_fails_if_p-value_%3C_0.05
+  kind: magnitude
+  raw_text: The PPC test fails if the p-value is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:43:02Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: CPU sampling time limit is 4 hours
+  claim_id: c_92afd558
+  context: If CPU sampling fails to converge (R-hat > 1.05) within the 4-hour limit,
+    the script must raise a RuntimeError... Wrap pm.sample in a time.time() check
+    loop that raises RuntimeError if elapsed > 14400.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU sampling time limit is 4 hours (14400 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:43:27Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Real Moral Stories dataset ID is hf://moral-foundations/stories-v1
+  claim_id: c_0b8c6709
+  context: 'Implement code/data/fetch_real.py to fetch Real MFQ and Real Moral Stories
+    from OSF/HuggingFace (IDs: hf://moral-foundations/mfq-v1, hf://moral-foundations/stories-v1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_Moral_Stories_dataset_ID_is_hf://moral-foundations/stor
+  kind: entity_fact
+  raw_text: The dataset ID for real Moral Stories is hf://moral-foundations/stories-v1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:43:56Z'
