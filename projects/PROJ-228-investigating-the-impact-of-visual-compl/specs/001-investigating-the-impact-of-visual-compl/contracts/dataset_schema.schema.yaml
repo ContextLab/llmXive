@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Stimulus Complexity Record"
-description: "Schema for a single timepoint (TR) with computed complexity metrics, confounds, and HRF-convolved scores."
+title: "Stimulus Complexity Record Schema"
+description: "Schema for data/interim/complexity_metrics.csv"
 type: "object"
 properties:
   tr_index:

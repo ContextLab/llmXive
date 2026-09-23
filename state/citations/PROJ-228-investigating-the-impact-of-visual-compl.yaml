@@ -1,33 +1,22 @@
-- artifact_hash: 684a0baff1e51bc1af8ff9a08e596f5ae2230b6101646bd1eecfa951e3325ae3
+- artifact_hash: efa6278b2e189c97ca3c96fa7d5e80181f4639cba9502caf62cd9fef214c1fff
   artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: OpenNeuro
   kind: url
-  value: https://openneuro.org/datasets/ds000248
-  verification_status: verified
-  verified_against_url: https://openneuro.org/datasets/ds000248
-  verified_at: '2026-06-30T11:00:09.357862Z'
-- artifact_hash: 17e64c94f59ff6481177a1348573c9bc95c48b50140d1f67449aa4c049941a94
-  artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Samsung Galaxy A50 - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+  value: https://openneuro.org/datasets/ds000246/versions/1.4.0`
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
-  verified_at: '2026-09-20T12:36:42.361868Z'
-- artifact_hash: 17e64c94f59ff6481177a1348573c9bc95c48b50140d1f67449aa4c049941a94
-  artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  verified_against_url: https://openneuro.org/datasets/ds000246/versions/1.4.0
+  verified_at: '2026-09-23T23:36:53.191350Z'
+- artifact_hash: efa6278b2e189c97ca3c96fa7d5e80181f4639cba9502caf62cd9fef214c1fff
+  artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "Benjamini\u2013Hochberg procedure - Wikidata"
+  fetched_title: OpenNeuro
   kind: url
-  value: https://www.wikidata.org/wiki/Q136366870
+  value: https://openneuro.org/datasets/ds003392/versions/1.0.0`
   verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q136366870
-  verified_at: '2026-09-20T12:36:42.361868Z'
+  verified_against_url: https://openneuro.org/datasets/ds003392/versions/1.0.0
+  verified_at: '2026-09-23T23:36:53.191350Z'
