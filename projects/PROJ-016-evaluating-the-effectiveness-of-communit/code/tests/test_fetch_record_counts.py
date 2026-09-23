@@ -2,80 +2,86 @@ import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 import pytest
 import pandas as pd
+import sys
+import os
 
-from data.fetch_record_counts import get_world_bank_countries_by_income, fetch_world_bank_records, save_outputs
+# Ensure code path is available
+_CODE_PATH = Path(__file__).parent.parent
+if str(_CODE_PATH) not in sys.path:
+    sys.path.insert(0, str(_CODE_PATH))
+
+from data.fetch_record_counts import fetch_world_bank_records, save_outputs, get_wb_stream_url
 
 @pytest.fixture
-def mock_wb_countries_response():
-    return {
-        "page": 1,
-        "pages": 1,
-        "per_page": 500,
-        "total": 2,
-        "country": [
-            {"id": "AFG", "iso2Code": "AF", "name": "Afghanistan", "region": {"id": "SAS", "iso2code": "8S", "value": "South Asia"}, "adminregion": {"id": "SAS", "iso2code": "8S", "value": "South Asia"}, "incomeLevel": {"id": "LIC", "iso2code": "XM", "value": "Low income"}, "lendingType": {"id": "IDX", "iso2code": "XI", "value": "IDA"}, "capitalCity": "Kabul", "longitude": "69.1761", "latitude": "34.5228"},
-            {"id": "ALB", "iso2Code": "AL", "name": "Albania", "region": {"id": "ECS", "iso2code": "ZJ", "value": "Europe & Central Asia"}, "adminregion": {"id": "ECS", "iso2code": "ZJ", "value": "Europe & Central Asia"}, "incomeLevel": {"id": "UMC", "iso2code": "XT", "value": "Upper middle income"}, "lendingType": {"id": "IBD", "iso2code": "XF", "value": "IBRD"}, "capitalCity": "Tirana", "longitude": "19.8172", "latitude": "41.3317"}
-        ]
-    }
+def temp_data_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 @pytest.fixture
 def mock_wb_indicator_response():
-    return {
-        "page": 1,
-        "pages": 1,
-        "per_page": 500,
-        "total": 2,
-        "data": [
-            {"country": {"id": "AFG", "value": "AF"}, "countryiso3code": "AFG", "date": "2000", "value": 10.5, "unit": "", "obs_status": "", "decimal": 1},
-            {"country": {"id": "ALB", "value": "AL"}, "countryiso3code": "ALB", "date": "2000", "value": None, "unit": "", "obs_status": "", "decimal": 1}
-        ]
-    }
+    """Mock response for World Bank API indicating 2 pages of data."""
+    page_1_meta = {"page": 1, "pages": 2, "per_page": 50000, "total": 100}
+    page_1_data = [
+        {"countryiso3code": "USA", "date": "2000", "value": 0.5},
+        {"countryiso3code": "USA", "date": "2001", "value": 0.6},
+        {"countryiso3code": "CAN", "date": "2000", "value": 0.4},
+    ]
+    
+    page_2_meta = {"page": 2, "pages": 2, "per_page": 50000, "total": 100}
+    page_2_data = [
+        {"countryiso3code": "USA", "date": "2020", "value": 0.7},
+    ]
+    
+    return [page_1_meta, page_1_data], [page_2_meta, page_2_data]
 
-def test_get_world_bank_countries_by_income(mock_wb_countries_response):
-    with patch('data.fetch_record_counts.requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.json.return_value = mock_wb_countries_response
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
+def test_get_world_bank_url():
+    url, params = get_wb_stream_url("EG.GOV.POLI.ZS", 2000, 2020)
+    assert "EG.GOV.POLI.ZS" in url
+    assert params['date'] == '2000:2020'
 
-        countries = get_world_bank_countries_by_income(["low", "lower_middle", "upper_middle"])
+@patch('data.fetch_record_counts.requests.get')
+def test_fetch_world_bank_records(mock_get, mock_wb_indicator_response):
+    """
+    Verifies that the function correctly iterates pages and counts rows.
+    """
+    page_1, page_2 = mock_wb_indicator_response
+    
+    # Mock the response sequence
+    mock_response_1 = MagicMock()
+    mock_response_1.json.return_value = page_1
+    mock_response_1.raise_for_status = MagicMock()
+    
+    mock_response_2 = MagicMock()
+    mock_response_2.json.return_value = page_2
+    mock_response_2.raise_for_status = MagicMock()
+    
+    mock_get.side_effect = [mock_response_1, mock_response_2]
 
-        assert len(countries) == 2
-        assert countries[0]["id"] == "AFG"
-        assert countries[1]["id"] == "ALB"
+    count = fetch_world_bank_records("EG.GOV.POLI.ZS", 2000, 2020)
+    
+    # Page 1 has 3 valid rows, Page 2 has 1 valid row
+    expected_count = 4
+    assert count == expected_count
+    assert mock_get.call_count == 2
 
-def test_fetch_world_bank_records(mock_wb_countries_response, mock_wb_indicator_response):
-    with patch('data.fetch_record_counts.requests.get') as mock_get:
-        # First call for countries
-        mock_response_countries = MagicMock()
-        mock_response_countries.json.return_value = mock_wb_countries_response
-        mock_response_countries.raise_for_status = MagicMock()
+@patch('data.fetch_record_counts.requests.get')
+def test_fetch_handles_api_error(mock_get):
+    """Verifies that the function raises an error on persistent API failure."""
+    mock_get.side_effect = Exception("Network Error")
+    
+    with pytest.raises(RuntimeError, match="Data fetch failed"):
+        fetch_world_bank_records("EG.GOV.POLI.ZS", 2000, 2020)
 
-        # Second call for indicator
-        mock_response_indicator = MagicMock()
-        mock_response_indicator.json.return_value = mock_wb_indicator_response
-        mock_response_indicator.raise_for_status = MagicMock()
-
-        mock_get.side_effect = [mock_response_countries, mock_response_indicator]
-
-        count = fetch_world_bank_records([2000], ["low", "lower_middle", "upper_middle"])
-
-        # Only 1 record has a non-null value (AFG)
-        assert count == 1
-
-def test_save_outputs():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_output.json"
-        save_outputs(100, output_path)
-
-        assert output_path.exists()
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["total_available_records"] == 100
-        assert "year_range" in data
-        assert "income_levels" in data
-        assert "source" in data
+def test_save_outputs(temp_data_dir):
+    """Verifies that outputs are saved correctly to JSON."""
+    output_path = temp_data_dir / "test_counts.json"
+    save_outputs(150, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert data["total_wb_available"] == 150
+    assert data["indicator"] == "EG.GOV.POLI.ZS"

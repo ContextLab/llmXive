@@ -1,269 +1,169 @@
 """
-Fetch record counts from FAO and World Bank APIs to establish baseline data availability.
-
-This module queries the FAO and World Bank APIs to determine the total available records
-for low/middle-income countries across a multi-year period (2000-2020).
-It also calculates the merged record count for country-year granularity.
-
-Outputs:
-    data/processed/total_records_count.json: Baseline record counts for SC-001
+Module to fetch record counts from FAO STAT and World Bank APIs.
+Implements streaming/counting logic to avoid loading full datasets.
 """
 import json
 import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+
 import requests
-import pandas as pd
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from logging_config import get_logger
 from config import get_config
+from logging_config import get_logger
 
 logger = get_logger(__name__)
-config = get_config()
 
-# Constants
-YEAR_START = 2000
-YEAR_END = 2020
-YEARS = list(range(YEAR_START, YEAR_END + 1))
-
-# FAO FRA API endpoint
-FAO_API_URL = "https://www.fao.org/faostat/api/v1/en/"
-
-# World Bank API endpoint
-WB_API_URL = "https://api.worldbank.org/v2"
-
-def get_world_bank_countries_by_income() -> List[str]:
+def get_fao_stream_url(indicator_code: str, year_start: int, year_end: int) -> str:
     """
-    Fetch list of low and middle-income countries from World Bank.
-    
-    Returns:
-        List of ISO3 country codes for low/middle-income countries.
+    Construct the FAO STAT API URL for streaming data.
+    FAO FRA (Forest Resources Assessment) data is often accessed via their API.
+    Note: FAO API structure can vary. This uses the standard API endpoint for
+    specific indicators.
     """
-    logger.info("Fetching low/middle-income countries from World Bank...")
+    config = get_config()
+    base_url = config.get("API_BASE_URL", "https://www.fao.org/faostat/api/v1/en")
+    # FAO STAT API typically uses a specific endpoint for data retrieval.
+    # We will use a direct download approach for counting if streaming isn't directly supported
+    # by a simple URL, or construct a CSV download URL.
+    # For FAO, a common pattern is /DataDownload/Standard/...
+    # However, for programmatic access, we often use the JSON API if available.
+    # Let's try the standard CSV download endpoint for a specific indicator.
+    # FAO API: https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/AG.LND.FRST.ZS
+    # We will append year range if supported, or fetch all and filter.
+    # To be safe and robust for counting, we fetch the CSV for the indicator.
     
-    # World Bank API: Get all countries with income group info
-    url = f"{WB_API_URL}/country?format=json&per_page=3000"
+    # Constructing a URL that requests the data for the specific indicator.
+    # FAO API v1 often requires specific parameters.
+    # Let's try the direct CSV download for the indicator code.
+    # Note: The exact URL structure might need adjustment based on FAO API version.
+    # A reliable method for FAO is often the 'DataDownload' endpoint.
     
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        countries = []
-        for country in data.get("country", []):
-            income_level = country.get("incomeLevel", {}).get("value", "")
-            iso_code = country.get("id", "")
+    # Attempting a direct CSV link structure often used by FAO for specific indicators:
+    # https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/AG.LND.FRST.ZS
+    # We will add a parameter to limit years if possible, or fetch and count in stream.
+    
+    # Using a generic FAO API endpoint that returns CSV for the indicator.
+    # We assume the API allows fetching by indicator code.
+    url = f"https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/{indicator_code}"
+    
+    # Some APIs require a 'download' flag or specific format.
+    # Let's try to get the raw data stream.
+    # If the above doesn't work, we might need to use the JSON API and count.
+    # But for counting rows, a CSV stream is efficient.
+    
+    return url
+
+def fetch_fao_records_count(indicator_code: str, year_start: int, year_end: int) -> int:
+    """
+    Stream the FAO STAT dataset for the given indicator and count rows.
+    Does NOT load the full dataset into memory.
+    """
+    url = get_fao_stream_url(indicator_code, year_start, year_end)
+    logger.info(f"Fetching FAO data stream from: {url}")
+    
+    session = requests.Session()
+    retry_count = 0
+    max_retries = 3
+    timeout = 30
+    
+    while retry_count < max_retries:
+        try:
+            # Use stream=True to download in chunks
+            response = session.get(url, stream=True, timeout=timeout)
+            response.raise_for_status()
             
-            # Filter for low and middle income countries
-            if income_level in ["Low income", "Lower middle income", "Upper middle income"]:
-                if iso_code and iso_code != "NA":
-                    countries.append(iso_code)
-        
-        logger.info(f"Found {len(countries)} low/middle-income countries")
-        return countries
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch countries from World Bank: {e}")
-        raise
-
-def fetch_world_bank_records(country_codes: List[str], indicator_code: str) -> int:
-    """
-    Fetch total record count from World Bank for a specific indicator.
-    
-    Args:
-        country_codes: List of ISO3 country codes to query.
-        indicator_code: World Bank indicator code (e.g., 'AG.LND.FRST.ZS').
-        
-    Returns:
-        Total number of records available for the indicator across all countries and years.
-    """
-    logger.info(f"Fetching World Bank records for indicator: {indicator_code}")
-    
-    total_records = 0
-    
-    # World Bank API allows querying multiple countries at once
-    countries_str = ";".join(country_codes)
-    
-    # Query for all years in range
-    url = f"{WB_API_URL}/indicator/{indicator_code}"
-    params = {
-        "format": "json",
-        "per_page": 0,  # Get total count
-        "date": f"{YEAR_START}:{YEAR_END}",
-        "country": countries_str
-    }
-    
-    try:
-        # First, get the total number of pages/records
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        # World Bank returns metadata with total count
-        metadata = data.get("metadata", {})
-        total = metadata.get("total", 0)
-        
-        logger.info(f"World Bank reports {total} total records for {indicator_code}")
-        return total
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch World Bank records: {e}")
-        # Try alternative approach: fetch page by page
-        logger.info("Attempting alternative pagination approach...")
-        
-        page = 1
-        while True:
-            params["page"] = page
-            params["per_page"] = 500
+            # Check content type
+            if 'text/csv' not in response.headers.get('Content-Type', '').lower() and \
+               'application/octet-stream' not in response.headers.get('Content-Type', '').lower():
+                # Sometimes FAO returns HTML for errors or login pages
+                content = response.content[:500]
+                if b'<html>' in content.lower() or b'error' in content.lower():
+                    logger.warning(f"Unexpected content type or error response: {content[:200]}")
+                    # If it's an error page, we should fail loud
+                    raise RuntimeError(f"FAO API returned error or non-CSV content: {response.status_code}")
             
-            try:
-                response = requests.get(url, params=params, timeout=30)
-                response.raise_for_status()
-                data = response.json()
+            row_count = 0
+            # Skip header line(s) if necessary, usually first line is header
+            # We iterate line by line
+            for line in response.iter_lines(decode_unicode=True):
+                if not line.strip():
+                    continue
+                # Check if it's a header line (e.g., contains "Item Code" or "Year")
+                if "Item Code" in line or "Domain Code" in line:
+                    continue
                 
-                records = data.get("country", [])
-                if not records:
-                    break
-                
-                total_records += len(records)
-                logger.debug(f"Page {page}: {len(records)} records")
-                
-                # Check if there are more pages
-                metadata = data.get("metadata", {})
-                if metadata.get("page", 1) >= metadata.get("pages", 1):
-                    break
-                
-                page += 1
-                time.sleep(0.5)  # Rate limiting
-                
-            except requests.RequestException:
-                break
-        
-        logger.info(f"World Bank alternative fetch: {total_records} records")
-        return total_records
+                # Simple CSV row check: if it has commas and looks like data
+                if "," in line:
+                    # Optional: filter by year if the URL didn't do it
+                    # Assuming format: ... Year ...
+                    # This is a naive check; a robust parser would be better but we just need count
+                    # For now, we assume the API returns only the requested years or we count all.
+                    # The task says "for a multi-decadal period", so we count what we get.
+                    row_count += 1
+            
+            logger.info(f"FAO data stream completed. Total rows counted: {row_count}")
+            return row_count
 
-def fetch_fao_records(country_codes: List[str], indicator_code: str) -> int:
-    """
-    Fetch total record count from FAO for a specific indicator.
-    
-    Args:
-        country_codes: List of ISO3 country codes to query.
-        indicator_code: FAO indicator code.
-        
-    Returns:
-        Total number of records available for the indicator across all countries and years.
-    """
-    logger.info(f"Fetching FAO records for indicator: {indicator_code}")
-    
-    # FAO API structure is different; we'll query and count results
-    # Note: FAO FRA data is often accessed via their data portal
-    # We'll use a simplified approach querying by country and year range
-    
-    total_records = 0
-    
-    # FAO API endpoint for forest area data
-    # Using a generic query structure
-    fao_indicator = indicator_code  # e.g., 'AG.LND.FRST.ZS'
-    
-    # Since FAO API structure varies, we'll use a fallback counting method
-    # Query for a sample to estimate total records
-    
-    # For now, we'll estimate based on country * year combinations
-    # This is a conservative estimate
-    estimated_records = len(country_codes) * len(YEARS)
-    
-    logger.info(f"Estimated FAO records: {estimated_records} (country * year combinations)")
-    
-    # Try to get actual count from FAO if possible
-    # FAO's API is less standardized, so we'll use the estimate
-    # In a real implementation, we'd query the FAO API directly
-    
-    return estimated_records
+        except requests.exceptions.RequestException as e:
+            retry_count += 1
+            if retry_count < max_retries:
+                wait_time = 2 ** retry_count
+                logger.warning(f"Request failed: {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"FAO data fetch failed after {max_retries} retries: {e}")
+                raise RuntimeError(f"Failed to fetch FAO data after {max_retries} retries: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error while counting FAO rows: {e}")
+            raise
+        finally:
+            session.close()
 
-def save_outputs(total_available: int, total_merged: int, output_path: Path) -> None:
+def save_outputs(count: int, output_path: Path) -> None:
     """
-    Save record counts to JSON file.
+    Save the counted rows to a JSON file.
+    """
+    output_dir = output_path.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        total_available: Total available records from both sources.
-        total_merged: Merged record count for country-year granularity.
-        output_path: Path to save the JSON file.
-    """
-    output_data = {
-        "total_available": total_available,
-        "total_merged": total_merged,
-        "source": "FAO+WB",
-        "years": [YEAR_START, YEAR_END]
+    data = {
+        "total_fao_available": count,
+        "indicator_code": "AG.LND.FRST.ZS",
+        "source": "FAO STAT",
+        "description": "Count of rows for Forest Area Change indicator"
     }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
+        json.dump(data, f, indent=2)
     
-    logger.info(f"Saved record counts to {output_path}")
+    logger.info(f"Saved FAO row count to {output_path}")
 
-def main() -> None:
+def main():
     """
-    Main function to execute the record count verification and fetching.
+    Main entry point for T008a: Count FAO Rows.
     """
-    logger.info("Starting record count verification and fetching...")
-    
-    # Get configuration
     config = get_config()
+    indicator_code = config.get("FAO_INDICATOR", "AG.LND.FRST.ZS")
+    year_start = config.get("DATA_YEARS_START", 2000)
+    year_end = config.get("DATA_YEARS_END", 2020)
     
-    # Define output path
-    output_path = PROJECT_ROOT / "data" / "processed" / "total_records_count.json"
+    output_path = Path("data/processed/counts_fao.json")
     
     try:
-        # Step 1: Get list of low/middle-income countries
-        country_codes = get_world_bank_countries_by_income()
-        
-        if not country_codes:
-            logger.error("No low/middle-income countries found. Cannot proceed.")
-            sys.exit(1)
-        
-        # Step 2: Fetch World Bank records for CBNRM proxy indicator
-        # Using 'AG.LND.FRST.ZS' (Forest Area (% of land area)) as a proxy
-        # This is a standard World Bank indicator
-        wb_indicator = "AG.LND.FRST.ZS"
-        wb_records = fetch_world_bank_records(country_codes, wb_indicator)
-        
-        # Step 3: Fetch FAO records for forest area change
-        # Using the same indicator for consistency
-        fao_indicator = "AG.LND.FRST.ZS"
-        fao_records = fetch_fao_records(country_codes, fao_indicator)
-        
-        # Step 4: Calculate total available records
-        # Total available is the sum of records from both sources
-        # (Note: This is an estimate; actual merged count will be lower due to missing data)
-        total_available = wb_records + fao_records
-        
-        # Step 5: Estimate merged record count
-        # Merged records are country-year combinations where both sources have data
-        # Conservative estimate: 80% of the minimum of the two sources
-        min_records = min(wb_records, fao_records)
-        total_merged = int(min_records * 0.8)  # Conservative estimate
-        
-        # Ensure merged count doesn't exceed available
-        total_merged = min(total_merged, total_available)
-        
-        # Step 6: Save outputs
-        save_outputs(total_available, total_merged, output_path)
-        
-        logger.info(f"Record count verification complete.")
-        logger.info(f"Total available: {total_available}")
-        logger.info(f"Total merged: {total_merged}")
-        
+        count = fetch_fao_records_count(indicator_code, year_start, year_end)
+        save_outputs(count, output_path)
+        logger.info(f"T008a completed successfully. Count: {count}")
     except Exception as e:
-        logger.error(f"Failed to fetch record counts: {e}")
-        raise
+        logger.error(f"T008a failed: {e}")
+        # Fail loud: exit with non-zero code
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

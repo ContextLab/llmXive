@@ -1,0 +1,6 @@
+'|alpha benjamini correction fdr hochberg method use':
+  quote: "and \u03B1 = 0.05. Each row corresponds to a different simulation setting,\
+    \ and signal strength values"
+  source_id: '2602.11610'
+  url: https://arxiv.org/abs/2602.11610
+  value: '0.05'

@@ -258,3 +258,597 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T07:52:09Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: CBNRM proxy indicator is EG.GOV.POLI.ZS (Political Stability)
+  claim_id: c_d669f70c
+  context: Query the World Bank API for the specific CBNRM policy indicator EG.GOV.POLI.ZS
+    (Political Stability, used as a validated proxy per research.md) for years covering
+    the early 21st century.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CBNRM_proxy_indicator_is_EG.GOV.POLI.ZS_(Political_Stability
+  kind: entity_fact
+  raw_text: The CBNRM proxy indicator is 'EG.GOV.POLI.ZS' (Political Stability), used
+    as a validated proxy per research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:41:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO Forest Area Change indicator code is AG.LND.FRST.ZS
+  claim_id: c_b50a7f4b
+  context: Implement a pre-flight check in code/data/download.py to verify that the
+    'Forest Area Change' indicator (AG.LND.FRST.ZS) exists in the FAO STAT API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_Forest_Area_Change_indicator_code_is_AG.LND.FRST.ZS
+  kind: entity_fact
+  raw_text: The FAO STAT dataset for 'Forest Area Change' uses the indicator code
+    'AG.LND.FRST.ZS'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:43:09Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank CBNRM proxy indicator code is EG.GOV.POLI.ZS
+  claim_id: c_b8864886
+  context: "Stream the World Bank dataset for the CBNRM proxy (indicator EG.GOV.POLI.ZS\
+    \ per research.md) and GDP/Pop data for years 2000\u20132020."
+  evidence:
+    entailment_evidence: World Bank CBNRM proxy indicator code is EG.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/World_Bank_CBNRM_proxy_indicator_code_is_EG.GOV.POLI.ZS
+  kind: entity_fact
+  raw_text: The World Bank dataset for the CBNRM proxy uses the indicator code 'EG.GOV.POLI.ZS'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T02:44:24Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Analysis period covers years 2000 to 2020
+  claim_id: c_5c058c12
+  context: Load the FAO and World Bank data... and perform the merge on iso_code and
+    year.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis covers the period from 2000 to 2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:44:58Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pandas 2.0.3
+  claim_id: c_b887a88c
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:46:45Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires numpy 1.24.3
+  claim_id: c_8b16a635
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.24.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:47:02Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires statsmodels 0.14.0
+  claim_id: c_4a32600b
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    ... statsmodels==0.14.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires statsmodels version 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:47:22Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires matplotlib 3.7.2
+  claim_id: c_c0bba43b
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    ... matplotlib==3.7.2 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires matplotlib version 3.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:47:51Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires requests 2.31.0
+  claim_id: c_c9ff40bf
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    ... requests==2.31.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:48:21Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pyyaml 6.0.1
+  claim_id: c_f696151f
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    ... pyyaml==6.0.1 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:48:46Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pytest 7.4.0
+  claim_id: c_ce82e2e5
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    ... pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:49:11Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Data ingestion produces CSV with at least 50 rows
+  claim_id: c_f2c2c07c
+  context: "Independent Test: Run the ingestion script in isolation. Verify it produces\
+    \ a CSV with \u226550 rows (or all available if <50)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_produces_CSV_with_at_least_50_rows
+  kind: magnitude
+  raw_text: The data ingestion script is expected to produce a CSV with at least 50
+    rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:50:01Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Data loader retries up to 3 times with exponential backoff
+  claim_id: c_0d20eea9
+  context: Implement a robust fetch function that retries up to 3 times with exponential
+    backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data loader retries up to 3 times with exponential backoff.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:50:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: 'Coverage rate formula: total_merged / min(total_fao_available, total_wb_available)'
+  claim_id: c_7e534847
+  context: Calculate the coverage rate as total_merged / min(total_fao_available,
+    total_wb_available) to represent the intersection of available records.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coverage_rate_formula:_total_merged_/_min(total_fao_availabl
+  kind: entity_fact
+  raw_text: The coverage rate is calculated as total_merged divided by the minimum
+    of total_fao_available and total_wb_available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:50:58Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: 'Country exclusion threshold: >20% missing years for primary variables'
+  claim_id: c_3d6f1e97
+  context: If >20% of a country's years are missing for a primary variable, exclude
+    the entire country.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Country_exclusion_threshold:_%3E20%25_missing_years_for_primary_
+  kind: magnitude
+  raw_text: Countries are excluded if more than 20% of their years are missing for
+    a primary variable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:52:36Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: 'Synthetic data test parameters: seed=42, beta=0.15, sigma=0.1'
+  claim_id: c_1311db4d
+  context: "Independent Test: Run regression script on synthetic dataset (seed=42,\
+    \ \u03B2=0.15, \u03C3=0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data test uses a seed of 42, a beta of 0.15, and a sigma
+    of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:53:05Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Regression coefficient matches synthetic truth within 1% tolerance
+  claim_id: c_9c643988
+  context: Verify output coefficient matches synthetic truth within 1% tolerance and
+    output is labeled 'associational'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression coefficient must match synthetic truth within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:53:05Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction alpha is 0.05
+  claim_id: c_4b89bcb9
+  context: Apply correction using alpha=0.05 and the Benjamini-Hochberg step-up method.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T02:53:31Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Chunked data processing uses chunksize 10000
+  claim_id: c_803b9c4b
+  context: Use pandas.read_csv(..., chunksize=10000) or chunked HTTP requests to iterate
+    row-by-row...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunked data processing uses a chunksize of 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:54:04Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank EG.GOV.POLI.ZS used as validated proxy for CBNRM
+  claim_id: c_ca059dc0
+  context: Query the World Bank API for the specific CBNRM policy indicator EG.GOV.POLI.ZS
+    (Political Stability, used as a validated proxy per research.md) for years covering
+    the early 21st century.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_EG.GOV.POLI.ZS_used_as_validated_proxy_for_CBNRM
+  kind: entity_fact
+  raw_text: The World Bank indicator EG.GOV.POLI.ZS (Political Stability) is used
+    as a validated proxy for CBNRM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:55:41Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT AG.LND.FRST.ZS represents Forest Area Change
+  claim_id: c_bd93fbb8
+  context: Stream the FAO STAT dataset for 'Forest Area Change' (AG.LND.FRST.ZS) for
+    a multi-decadal period.
+  evidence:
+    entailment_evidence: ZS represents Forest Area Change
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_AG.LND.FRST.ZS_represents_Forest_Area_Change
+  kind: entity_fact
+  raw_text: The FAO STAT indicator AG.LND.FRST.ZS represents Forest Area Change.
+  resolved_value: FAO STAT AG.LND.FRST.ZS represents Forest Area Change
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T02:55:43Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Synthetic regression test parameters seed 42 beta 0.15 sigma 0.1
+  claim_id: c_8ceb29fb
+  context: "Run regression script on synthetic dataset (seed=42, \u03B2=0.15, \u03C3\
+    =0.1). Verify output coefficient matches synthetic truth within 1% tolerance and\
+    \ output is labeled 'associational'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression analysis uses a synthetic dataset with seed=42, beta=0.15,
+    and sigma=0.1 for testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:56:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 2
+  canonical: Project requires Python 3.11
+  claim_id: c_3621fde0
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:56:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pandas version 2.0.3
+  claim_id: c_0d0b010f
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version 2.0.3 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:57:06Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires numpy version 1.24.3
+  claim_id: c_1d9df588
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy library version 1.24.3 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:57:54Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires statsmodels version 0.14.0
+  claim_id: c_3269fdf9
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels library version 0.14.0 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:58:19Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires matplotlib version 3.7.2
+  claim_id: c_e363c64d
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The matplotlib library version 3.7.2 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:58:50Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires requests version 2.31.0
+  claim_id: c_c22be351
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests library version 2.31.0 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:59:10Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pyyaml version 6.0.1
+  claim_id: c_098b0ffb
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyyaml library version 6.0.1 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T02:59:53Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Project requires pytest version 7.4.0
+  claim_id: c_a26552eb
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest library version 7.4.0 is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:00:19Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction uses alpha 0.05
+  claim_id: c_f7488a1a
+  context: If count >= 2, aggregate p-values from Primary (T023a), Interaction (T028),
+    and Non-linearity (T025) tests and apply correction using alpha=0.05 (1906.01701,
+    https://arxiv.org/abs/1906.01701) and the Benjamini-Hochberg step-up method.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "and \u03B1 = 0.05. Each row corresponds to a different simulation setting,\
+        \ and signal strength values"
+      source_id: '2602.11610'
+      url: https://arxiv.org/abs/2602.11610
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction method uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T03:02:41Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT Forest Area Change indicator AG.LND.FRST.ZS
+  claim_id: c_2f56b71a
+  context: Stream the FAO STAT dataset for 'Forest Area Change' (AG.LND.FRST.ZS) for
+    a multi-decadal period.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_Forest_Area_Change_indicator_AG.LND.FRST.ZS
+  kind: entity_fact
+  raw_text: The FAO STAT dataset indicator for Forest Area Change is AG.LND.FRST.ZS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:03:10Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank CBNRM proxy indicator EG.GOV.POLI.ZS
+  claim_id: c_53723b3c
+  context: "Stream the World Bank dataset for the CBNRM proxy (indicator EG.GOV.POLI.ZS\
+    \ per research.md) and GDP/Pop data for years 2000\u20132020."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_CBNRM_proxy_indicator_EG.GOV.POLI.ZS
+  kind: entity_fact
+  raw_text: The World Bank CBNRM proxy indicator is EG.GOV.POLI.ZS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:04:02Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank GDP and Population data covers years 2000 to 2020
+  claim_id: c_e6729cbc
+  context: "Stream the World Bank dataset for the CBNRM proxy (indicator EG.GOV.POLI.ZS\
+    \ per research.md) and GDP/Pop data for years 2000\u20132020."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The World Bank GDP and Population data covers the years 2000 to 2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:09:43Z'
