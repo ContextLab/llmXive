@@ -16,6 +16,12 @@ T001e:
   r: No evidence was provided that a `tests/integration/` directory exists in the
     repository, nor any files within it; the claim lacks any artifact confirming the
     directory was created.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory (or its subfolders `data/raw/` and `data/processed/`)
+    is provided; the artifact list is empty, so the required directories have not
+    been shown to exist. The implementer must create and commit these directories.
 T001g:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

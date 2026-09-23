@@ -18,11 +18,35 @@ T012:
     in the repository, so the integration test for the US1 pipeline on 2 subjects
     is missing. The task cannot be considered completed until this test file is added
     with appropriate test code.
+T015:
+  c: false
+  h: 38238a1e7b280f126099f30611ac92b1fec3a7d4aa4c5b1af4010133592f01d7
+  r: "The repository contains a partially\u2011implemented `code/entropy_engine.py`\
+    \ (only a `calculate_sampen` helper is shown and the file is truncated), and the\
+    \ required output file `data/processed/subject_entropy_features.csv` does not\
+    \ exist. Consequently the script does not read the NIfTI files, perform the N=120\
+    \ truncation, compute SD\u2011scaled SampEn for the specified parcels, nor write\
+    \ the CSV output as the task demands. The missing CSV and incomplete implementation\
+    \ must be added."
+T018:
+  c: false
+  h: 755622efc9e58e788c4206ceebcbc502247ec8c744445639cac2eb7199c30d10
+  r: The repository contains a partially shown `code/main.py` but it does not include
+    a `run_pipeline()` function, and the required output file `data/processed/subject_entropy_features.csv`
+    is absent. Consequently the pipeline cannot be verified to produce the CSV with
+    no missing values.
 T023c:
   c: false
-  h: 7591dcba3fdbc620bbea0ff2ae3f20060b4de16622e4c180d44b606e4a713141
-  r: "The provided `code/connectivity_engine.py` contains PCA logic but no implementation\
-    \ of RFE/Lasso feature selection nor any code that writes `data/derived/connectivity_features_reduced.csv`.\
-    \ Moreover, the expected output CSV file is absent from the repository. The task\u2019\
-    s core requirement\u2014reducing the 200 PCA components to 20\u201150 stable features\
-    \ and saving them\u2014is therefore not satisfied."
+  h: 9e78760010710e9b93c481ee7d24d7f0f829c3714766da6ae91612078860d4fd
+  r: "The provided `code/connectivity_engine.py` only loads connectivity matrices\
+    \ and applies PCA; it does not perform L\u2011regularized logistic regression\
+    \ feature selection nor write a `data/derived/connectivity_features_reduced.csv`\
+    \ file. Moreover, the required output CSV is missing from the repository."
+T035:
+  c: false
+  h: 1be8bc9637da58e1fc8a84d0b924ff60bf06e8632c61363268d4eee100f6e3f7
+  r: "The `code/validation.py` file is present but its implementation is unfinished\
+    \ (the correlation logic is not completed and ends mid\u2011comment). Moreover,\
+    \ the required input files `data/raw/exclusions.log` and `data/processed/subject_entropy_features.csv`\
+    \ are absent, so the script cannot perform the requested calculation or flagging.\
+    \ The task therefore remains incomplete."

@@ -1,28 +1,26 @@
-"""
-Setup script to initialize the data directory structure.
-Creates data/raw/ and data/processed/ directories.
-"""
 import os
 from pathlib import Path
 
 def setup_data_directories():
-    """Create the required data directory structure."""
-    base_path = Path(__file__).resolve().parent.parent
-    data_dir = base_path / "data"
+    """
+    Create the required data directory structure:
+    - data/raw/
+    - data/processed/
+    
+    Also ensures the parent 'data' directory exists.
+    """
+    base_dir = Path(__file__).resolve().parent.parent
+    data_dir = base_dir / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
 
-    # Create directories if they don't exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
+    for directory in [data_dir, raw_dir, processed_dir]:
+        directory.mkdir(parents=True, exist_ok=True)
+    
     # Create .gitkeep files to ensure directories are tracked by git
-    (raw_dir / ".gitkeep").touch()
-    (processed_dir / ".gitkeep").touch()
+    for directory in [data_dir, raw_dir, processed_dir]:
+        gitkeep = directory / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
 
-    print(f"Created directory: {raw_dir}")
-    print(f"Created directory: {processed_dir}")
     return True
-
-if __name__ == "__main__":
-    setup_data_directories()

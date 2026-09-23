@@ -939,26 +939,6 @@
   updated_at: '2026-09-18T18:32:49Z'
 - artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
   attempts: 1
-  canonical: Cryptographic hash functions ensure data integrity in distributed systems
-  claim_id: c_a60a4683
-  context: The research question investigates whether cryptographic hash functions
-    can ensure data integrity in distributed systems. The method involves a systematic
-    literature review and comparative analysis of hash algorithm properties.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Cryptographic_hash_functions_ensure_data_integrity_in_distri
-  kind: entity_fact
-  raw_text: The research question investigates whether cryptographic hash functions
-    can ensure data integrity in distributed systems.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-18T18:33:51Z'
-- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
-  attempts: 1
   canonical: Systematic literature review and comparative analysis of hash algorithm
     properties used as method
   claim_id: c_c1f07578
@@ -978,3 +958,304 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T18:34:44Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Wikidata Q115139582 is the golden ratio
+  claim_id: c_4854de54
+  context: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),
+    filter for valid sessions...
+  evidence:
+    entailment_evidence: Wikidata Q115139582 is the golden ratio
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q115139582_is_the_golden_ratio
+  kind: entity_fact
+  raw_text: The golden ratio is identified by the Wikidata ID Q115139582.
+  resolved_value: Wikidata Q115139582 is the golden ratio
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T00:55:22Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Wikidata Q115139582 dataset available at https://www.wikidata.org/wiki/Q115139582
+  claim_id: c_32afad8b
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_evidence: Wikidata Q115139582 dataset available at https://www.wikidat
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q115139582_dataset_available_at_https://www.wikidat
+  kind: entity_fact
+  raw_text: download Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582
+  resolved_value: Wikidata Q115139582 dataset available at https://www.wikidata.org/wiki/Q115139582
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T00:55:50Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: cryptographic hash functions ensure data integrity in distributed systems
+  claim_id: c_17191543
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cryptographic_hash_functions_ensure_data_integrity_in_distri
+  kind: entity_fact
+  raw_text: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:56:07Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: method involves systematic literature review and comparative analysis
+    of hash algorithm properties
+  claim_id: c_7b31cc6f
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_systematic_literature_review_and_comparative
+  kind: entity_fact
+  raw_text: The method involves a systematic literature review and comparative analysis
+    of hash algorithm properties.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:56:43Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Wikidata Q115139582
+  claim_id: c_a99e4e6b
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q115139582
+  kind: entity_fact
+  raw_text: Wikidata Q115139582
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:57:02Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Dataset Wikidata Q115139582 used for analysis
+  claim_id: c_2ce3b9b3
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_Wikidata_Q115139582_used_for_analysis
+  kind: entity_fact
+  raw_text: The dataset Wikidata Q115139582 (https://www.wikidata.org/wiki/Q115139582)
+    is used for the analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T00:57:41Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Golden ratio referenced regarding cryptographic hash functions and data
+    integrity
+  claim_id: c_d8a6b743
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties. ({{claim:c_aad724a3}}
+    (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE
+    filtering...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Golden_ratio_referenced_regarding_cryptographic_hash_functio
+  kind: entity_fact
+  raw_text: The golden ratio (https://en.wikipedia.org/wiki/Golden_ratio) is referenced
+    in the context of cryptographic hash functions ensuring data integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:58:26Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 0
+  canonical: Download Wikidata Q115139582
+  claim_id: c_dd37b5f6
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_evidence: Wikidata Q115139582 dataset identified as Q115139582
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q115139582_dataset_identified_as_Q115139582
+  kind: entity_fact
+  raw_text: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582)
+  resolved_value: Wikidata Q115139582 dataset identified as Q115139582
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T00:58:59Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 3
+  canonical: Cryptographic hash functions ensure data integrity in distributed systems
+  claim_id: c_a60a4683
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cryptographic_hash_functions_ensure_data_integrity_in_distri
+  kind: entity_fact
+  raw_text: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:59:01Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Sentiment analysis using model 2511.22313
+  claim_id: c_6c4625a8
+  context: Implement `code/metrics.py` with sentiment analysis using `{{claim:c_bbc37927}}
+    (2511.22313, 2511.22313)` (CPU mode) and fallback model loading logic (via config/env
+    var) if default fails
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sentiment analysis using {{claim:c_bbc37927}} (2511.22313, 2511.22313)
+    (CPU mode)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:59:31Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: 'requirements pinned versions: datasets 2.14.0, pandas 2.0.3, numpy 1.24.3,
+    scikit-learn 1.3.0, statsmodels 0.14.0, torch 2.0.1, transformers 4.30.2, seaborn
+    0.12.2, matplotlib 3.7.2, pyyaml 6.0, pytest 7.4.0, pytest-cov 4.1.0'
+  claim_id: c_f667bf06
+  context: 'Phase 1: Setup - T002a Create code/requirements.txt with pinned versions'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Implement code/requirements.txt with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T01:00:10Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: dynamic batch size calculator ensures less than 7GB RAM usage
+  claim_id: c_71c39e51
+  context: 'Phase 2: Foundational - T005 Implement code/utils.py with dynamic batch
+    size calculator'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dynamic_batch_size_calculator_ensures_less_than_7GB_RAM_usag
+  kind: magnitude
+  raw_text: Implement code/utils.py with dynamic batch size calculator (ensuring <7GB
+    RAM usage)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:01:35Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: download retry logic asserts retry count equals 3 on failure
+  claim_id: c_f2a11bb7
+  context: Tests for User Story 1 - T011 Integration test for download retry logic
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mock datasets.load_dataset to raise HTTPError on first call; assert retry
+    count == 3 and final state is failure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:02:28Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: filter for valid sessions with 3 or more turns
+  claim_id: c_c885c8f1
+  context: 'Phase 3: User Story 1 - Goal description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter for valid sessions (\u22653 turns)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:02:28Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: metrics match pre-calculated values within 0.01 tolerance
+  claim_id: c_71d9610a
+  context: 'Phase 4: User Story 2 - Independent Test description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify metrics match pre-calculated values within 0.01 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:03:16Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: verify runtime less than or equal to 6 hours on free-tier
+  claim_id: c_92fd5e65
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T045 Performance optimization'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_6_hours_on_free-tier
+  kind: magnitude
+  raw_text: "verify runtime \u2264 6 hours on free-tier"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T01:04:06Z'

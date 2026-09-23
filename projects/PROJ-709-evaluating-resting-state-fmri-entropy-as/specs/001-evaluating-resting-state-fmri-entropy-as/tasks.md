@@ -106,7 +106,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022a [P] [US2] [Depends: T018] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using chunked processing; **Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy`** (FR-008); **ensure the entropy feature set construction strictly excludes motion covariates (e.g., scrub_fraction)**.
+- [X] T022a [P] [US2] [Depends: T018] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using chunked processing; **Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy`** (FR-008); **ensure the entropy feature set construction strictly excludes motion covariates (e.g., scrub_fraction)**. <!-- FAILED: unspecified -->
 - [X] T022b [US2] Implement aggregation logic in `code/connectivity_engine.py`: If multiple runs are merged, combine matrices from `data/processed/` into a unified list; ensure the Single Source of Truth is the individual subject matrix file.
 - [X] T023a [US2] Implement `code/connectivity_engine.py`: Apply PCA to reduce the 200x200 connectivity matrix to **200 components** (no reduction) as the intermediate baseline representation (FR-008). **Output**: `data/derived/connectivity_features_baseline.csv`.
 - [ ] T023c [US2] [Depends: T023a] Implement `code/connectivity_engine.py`: **Perform Feature Selection (L-Regularized Logistic Regression) on the PCA components to reduce the feature space to a smaller, optimized subset of features** to address the N=100, p=200 underpowered ratio. **Output**: `data/derived/connectivity_features_reduced.csv`. **Note**: This is for exploratory analysis; the primary baseline comparison uses the 200-component set from T023a.
@@ -115,7 +115,7 @@
 - [X] T025 [US2] Implement `code/modeling.py`: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-Baseline, Combined) (FR-003).
 - [X] T026 [US2] Implement `code/modeling.py`: Execute k-fold stratified cross-validation preserving label balance (FR-002).
 - [X] T027 [US2] Implement `code/modeling.py`: Calculate mean Pearson r and AUC with standard deviations for all models (both primary and exploratory).
-- [ ] T028 [US2] Implement `code/modeling.py`: Perform Nested Model Comparison (Likelihood Ratio Test) to verify unique value of entropy (FR-003).
+- [X] T028 [US2] Implement `code/modeling.py`: Perform Nested Model Comparison (Likelihood Ratio Test) to verify unique value of entropy (FR-003).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,14 +129,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for permutation logic in `tests/unit/test_validation.py`
-- [ ] T031 [P] [US3] Unit test for FDR logic and verify count > 0 logic (SC-005) in `tests/unit/test_validation.py`
+- [X] T030 [P] [US3] Unit test for permutation logic in `tests/unit/test_validation.py`
+- [X] T031 [P] [US3] Unit test for FDR logic and verify count > 0 logic (SC-005) in `tests/unit/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `code/validation.py`: Perform a sufficient number of permutations of outcome labels to derive empirical p-values (FR-004).
-- [ ] T033 [US3] Implement `code/validation.py`: Sweep `r` across a range of low values and calculate performance variance (FR-005).
-- [ ] T034 [US3] Implement `code/validation.py`: Apply FDR correction to parcel-level coefficients; output `significant_parcels.csv`; **record the count of significant parcels (even if zero) and flag the result in the report; do NOT raise an exception** (FR-006, SC-005).
+- [X] T032 [P] [US3] Implement `code/validation.py`: Perform a sufficient number of permutations of outcome labels to derive empirical p-values (FR-004).
+- [X] T033 [US3] Implement `code/validation.py`: Sweep `r` across a range of low values and calculate performance variance (FR-005).
+- [X] T034 [US3] Implement `code/validation.py`: Apply FDR correction to parcel-level coefficients; output `significant_parcels.csv`; **record the count of significant parcels (even if zero) and flag the result in the report; do NOT raise an exception** (FR-006, SC-005).
 - [ ] T035 [US3] Implement `code/validation.py`: Calculate correlation between mean entropy and mean FD using `data/raw/exclusions.log` and `data/processed/subject_entropy_features.csv`; flag if |r| ≥ 0.3 (SC-006).
 - [ ] T036a [US3] [Depends: T027, T024a, T023a] Implement `code/validation.py`: **Calculate the raw difference in mean Pearson correlation (Δr) between Entropy-only and Connectivity-Baseline (200 components from T023a) models; output `delta_r` to `model_metrics.json`** (SC-001).
 - [ ] T036b [US3] [Depends: T027, T024a, T023a] Implement `code/validation.py`: Perform paired t-test on fold differences (Entropy vs Connectivity) to assess statistical significance of Δr (separate from the effect size check).

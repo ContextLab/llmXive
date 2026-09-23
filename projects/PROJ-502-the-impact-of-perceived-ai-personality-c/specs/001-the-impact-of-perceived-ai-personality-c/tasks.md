@@ -73,7 +73,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Session Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582), filter for valid sessions (≥3 turns), and persist clean data.
+**Goal**: {{claim:c_dd37b5f6}}, filter for valid sessions (≥3 turns) [UNRESOLVED-CLAIM: c_c885c8f1 — status=not_enough_info], and persist clean data.
 
 **Independent Test**: Run ingestion script on a small subset; verify sessions <3 turns are excluded, sessions ≥3 turns included, no null text, and output matches schema.
 
@@ -93,7 +93,7 @@
 - [ ] T016 [US1] Persist filtered data to `data/processed/sessions.json` (or CSV)
 - [ ] T015 [US1] Implement checksumming of raw data in `code/ingestion.py` (Cryptographic hash validation
 
-The research question investigates whether cryptographic hash functions can ensure data integrity in distributed systems. [UNRESOLVED-CLAIM: c_a60a4683 — status=not_enough_info] The method involves a systematic literature review and comparative analysis of hash algorithm properties. [UNRESOLVED-CLAIM: c_c1f07578 — status=not_enough_info] ({{claim:c_aad724a3}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE filtering, placed after T016 execution in pipeline)
+The research question investigates whether cryptographic hash functions can ensure data integrity in distributed systems.. The method involves a systematic literature review and comparative analysis of hash algorithm properties. ({{claim:c_aad724a3}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE filtering, placed after T016 execution in pipeline)
 - [ ] T017 [US1] Add logging for download status and filtering results
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,7 +104,7 @@ The research question investigates whether cryptographic hash functions can ensu
 
 **Goal**: Compute "Consistency Score" (sentiment variance + lexical diversity) and "Engagement Indicators" (interaction length, session count). *Note: 'Trust' and 'Session Frequency (days)' are replaced per Plan constraints due to missing timestamps.*
 
-**Independent Test**: Run on hardcoded reference data; verify metrics match pre-calculated values within 0.01 tolerance.
+**Independent Test**: Run on hardcoded reference data; verify metrics match pre-calculated values within 0.01 tolerance [UNRESOLVED-CLAIM: c_71d9610a — status=not_enough_info].
 
 ### Tests for User Story 2
 
@@ -164,7 +164,7 @@ The research question investigates whether cryptographic hash functions can ensu
 - [ ] T043a Update `README.md` with usage instructions and scope limitations (AI Personality removed, Survival Analysis replaced by Poisson Regression)
 - [ ] T043b Add docstrings to `code/ingestion.py`, `code/metrics.py`, and `code/analysis.py`
 - [ ] T044 Code cleanup and refactoring
-- [ ] T045 Performance optimization (verify runtime ≤ 6 hours on free-tier)
+- [ ] T045 Performance optimization (verify runtime ≤ 6 hours on free-tier [UNRESOLVED-CLAIM: c_92fd5e65 — status=not_enough_info])
 - [ ] T046 [P] Additional unit tests (if requested) in `tests/unit/`
 - [ ] T047 Security hardening (ensure no PII leakage in logs)
 - [ ] T048 Run `quickstart.md` validation
