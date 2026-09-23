@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-anyflow-any/`
@@ -5,7 +9,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -18,23 +22,23 @@
 - **Single project**: `code/`, `tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -42,7 +46,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create directory structure: `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`
-- [ ] T002 [P] Initialize Python 3.11 project with pinned `requirements.txt` (include `onnxruntime`, `torch`, `scikit-learn`, `pandas`, `opencv-python-headless`, `datasets`, `ucimlrepo`, `raft-torch`, `rich`, `scipy`, `huggingface_hub`)
+- [X] T002 [P] Initialize Python 3.11 project with pinned `requirements.txt` (include `onnxruntime`, `torch`, `scikit-learn`, `pandas`, `opencv-python-headless`, `datasets`, `ucimlrepo`, `raft-torch`, `rich`, `scipy`, `huggingface_hub`, `diptest`, `streamlit`)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 [P] Setup `pytest` configuration and directory structure
 
@@ -54,197 +58,100 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `code/utils/logging.py` for standardized logging across pipeline
-- [ ] T006 [P] Implement `code/utils/memory_utils.py` for explicit CPU memory clearing (garbage collection) after each clip
-- [ ] T007 [P] Implement `code/utils/hash_utils.py` for SHA-256 checksumming of raw data and model weights
+- [X] T005 [P] Implement `code/utils/logging.py` for standardized logging across pipeline
+- [X] T006 [P] Implement `code/utils/memory_utils.py` for explicit CPU memory clearing (garbage collection) after each clip
+- [X] T007 [P] Implement `code/utils/hash_utils.py` for SHA-256 checksumming of raw data and model weights
 - [ ] T008 [P] Create base schema definitions in `contracts/` (annotation, metric, result, sensitivity)
-- [ ] T008a [US1] Implement `code/data_curation/generate_verified_pool.py` to perform manual verification of a large candidate pool and output `data/raw/manually_verified_pool.csv`. This task MUST explicitly label each clip as 'continuous' or 'cut' based on human review. Output: `data/raw/manually_verified_pool.csv`. (Satisfies FR-001).
-- [ ] T008b [US1] Implement `code/data_curation/select_pilot_subset.py` to select a distinct subset of 50 clips from `data/raw/manually_verified_pool.csv` for the pilot study. This subset MUST be disjoint from the main 500 used in T009. Output: `data/raw/pilot_subset_ids.csv`. (Satisfies FR-010).
-- [ ] T008c [US1] Implement `code/data_curation/setup_experts.py` to generate `data/raw/experts.json` (list of expert IDs) and `data/raw/rubric_definition.md` (annotation guidelines). Output: `data/raw/experts.json`, `data/raw/rubric_definition.md`. (Satisfies FR-014, FR-031).
-- [ ] T009 [US1] Implement `code/data_curation/download_clips.py` to fetch clips from Kinetics (`datasets.load_dataset`) and UCF101 (`ucimlrepo`). **MUST READ from `data/raw/manually_verified_pool.csv`** (generated by T008a) and select a sufficient number of clips ensuring a 50/50 mix of continuous motion and scene cuts using a stratified sampling strategy. Output: `data/raw/clips/`. **Depends on: T008a**. (Satisfies FR-001).
-- [ ] T010 [US1] Implement `code/data_curation/download_ucf101_manual.py` as a fallback for manual download if `ucimlrepo` fails.
-- [ ] T011a [US1] Implement `code/data_curation/annotate_pilot.py` to collect dual-annotator scores for the pilot subset defined in `data/raw/pilot_subset_ids.csv` (N=50). **MUST enforce strict blinding**: The UI must display ONLY pixel frames and MUST NOT display any model-derived metrics. Annotators record a score based solely on pixel-space visual inspection. Output `data/raw/calibration_scores.csv` with columns: `video_id`, `annotator_id`, `score`. (Satisfies FR-010 Dual-Annotator Pilot). **Depends on: T008b**.
-- [ ] T011b [US1] Implement `code/data_curation/validate_kappa.py` to read `data/raw/calibration_scores.csv`, calculate Cohen's Kappa, and generate `data/processed/kappa_report.json`. **MUST implement hard halt**: If Kappa < 0.81, the script MUST exit with code 1 and print "Insufficient Annotation Agreement". (Satisfies FR-010 Reliability Gate). **Depends on: T011a**.
-- [ ] T011 [US1] Implement `code/data_curation/annotate.py` CLI tool using `rich` library. **MUST enforce strict blinding**: The UI must display ONLY pixel frames and MUST NOT display any model-derived metrics. The annotator must record a score [0.0, 1.0] based solely on pixel-space visual inspection to satisfy FR-002. **MUST implement immutability**: Immediately after writing `data/raw/annotations.csv`, set file permissions to read-only (chmod 444) and generate a SHA-256 checksum lock file `data/raw/annotations.csv.sha256`. **MUST implement adjudication logic**: If two annotators disagree by >1 point, select a third expert from `data/raw/experts.json`, record the resolution in `data/raw/adjudication_log.csv` with the expert ID. Output CSV `data/raw/annotations.csv` with columns: `video_id`, `file_path`, `score`, `annotator_id`. **Depends on: T009, T010, T011b, T008c**. (Satisfies FR-002, FR-014).
+
+- **Verification Tasks for Phase 2**
+- [X] T041 [P] Add unit test `tests/unit/test_logging.py` confirming `logging.py` creates a logger with expected format and writes to a test log file.
+- [X] T042 [P] Add unit test `tests/unit/test_memory_utils.py` that forces a large NumPy array, calls `clear_memory()`, and asserts no residual memory usage via `psutil`.
+- [X] T043 [P] Add unit test `tests/unit/test_hash_utils.py` that hashes a known file and checks against a pre‑computed SHA‑256 digest.
+- [X] T044 [P] Add schema validation tests `tests/contract/test_schemas.py` that load each contract YAML/JSON and validate against a generated JSON Schema.
+
+- [ ] T008a [US1] Implement `code/data_curation/annotation_tool.py` as a Streamlit application for human experts to label clips as 'continuous' or 'cut'. The tool MUST display ONLY pixel frames (blinding), accept a score [0.0, 1.0], and output `data/raw/manually_verified_pool.csv`. This task satisfies the human-in-the-loop requirement of FR-001 and FR-013. Output: `code/data_curation/annotation_tool.py`.
+- [ ] T008b [US1] Implement `code/data_curation/define_verification_workflow.py` to generate `data/raw/verification_workflow.md` describing the expert roster, the blinding protocol, and the adjudication process for the human verification pool. Output: `data/raw/verification_workflow.md`. (Satisfies FR-001, FR-013).
+- [ ] T008c [US1] Implement `code/data_curation/setup_experts.py` to generate `data/raw/experts.json` (list of expert IDs) and `data/raw/rubric_definition.md` (annotation guidelines). Output `data/raw/experts.json`, `data/raw/rubric_definition.md`. (Satisfies FR-014, FR-031).
+- [ ] T009 [US1] Implement `code/data_curation/download_clips.py` to fetch clips from Kinetics (`datasets.load_dataset`) and UCF101 (`ucimlrepo`). **MUST READ from `data/raw/manually_verified_pool.csv`** (generated by T008a) and select a sufficient number of clips ensuring an equal proportion of continuous motion and scene cuts using a stratified sampling strategy. Output `data/raw/clips/`. **Depends on: T008a, T008b**. (Satisfies FR-001).
+- [X] T010 [US1] Implement `code/data_curation/download_ucf101_manual.py` as a fallback for manual download if `ucimlrepo` fails.
+- [ ] T011a [US1] Implement `code/data_curation/annotate_pilot.py` as a Streamlit app to collect dual-annotator scores for the pilot subset defined in `data/raw/pilot_subset_ids.csv` (N=50). **MUST enforce strict blinding**: UI displays ONLY pixel frames, no model metrics. Output `data/raw/calibration_scores.csv` with columns: `video_id`, `annotator_id`, `score`. (Satisfies FR-010 Dual‑Annotator Pilot). **Depends on: T008b**.
+- [ ] T011b [US1] Implement `code/data_curation/validate_kappa.py` to read `data/raw/calibration_scores.csv`, calculate Cohen's Kappa, and generate `data/processed/kappa_report.json`. **MUST implement hard halt**: If Kappa < 0.81, exit with code 1 and print "Insufficient Annotation Agreement". (Satisfies FR-010 Reliability Gate). **Depends on: T011a**.
+- [ ] T011c [US1] Implement `code/data_curation/run_pilot_inference.py` to execute the pilot inference on the 10 pre-annotated clips from the pilot subset, calculate the correlation (r) between divergence and manual scores, and enforce the "halt or reduce N" logic mandated by FR-009. **MUST halt** if r < 0.7. Output `data/processed/pilot_correlation.json`. **Depends on: T011b, T016**. (Satisfies FR-009).
+- [ ] T011 [US1] Implement `code/data_curation/annotate.py` as a Streamlit app. **MUST enforce strict blinding**: UI displays ONLY pixel frames, no model metrics. Annotator records a score [0.0, 1.0] based solely on pixel‑space visual inspection to satisfy FR-002. **MUST implement immutability**: After writing `data/raw/annotations.csv`, set file permissions to read‑only (chmod 444) and generate a SHA-256 checksum lock file `data/raw/annotations.csv.sha256`. **MUST implement adjudication logic**: If two annotators disagree by >1 point, select a third expert from `data/raw/experts.json`, record the resolution in `data/raw/adjudication_log.csv` with the expert ID. Output CSV `data/raw/annotations.csv` with columns: `video_id`, `file_path`, `score`, `annotator_id`. **Depends on: T009, T010, T011b, T011c, T008c**. (Satisfies FR-002, FR-014).
 - [ ] T012 [US1] Implement `code/data_curation/validate_annotations.py` to ensure `data/raw/annotations.csv` has valid paths and scores in [0.0, 1.0] range, verify the checksum lock matches the file content, and verify `data/raw/adjudication_log.csv` and `data/raw/rubric_definition.md` exist. (Depends on T011).
-- [ ] T012c [US1] Implement `code/data_curation/select_control_subset.py` to select a distinct subset of 50 clips (n=50 known-smooth/known-cut) from `data/raw/manually_verified_pool.csv` for the control analysis. Output: `data/raw/control_subset_ids.csv`. (Satisfies FR-004, FR-015).
+- [ ] T012c [US1] Implement `code/data_curation/select_control_subset.py` to select a distinct subset of 50 clips (n=50 known‑smooth/known‑cut) from `data/raw/manually_verified_pool.csv` for the control analysis. Output: `data/raw/control_subset_ids.csv`. (Satisfies FR-004, FR-015).
 - [ ] T013 [US1] Implement `code/data_curation/binarize_labels.py` to create binary labels (Continuous < 0.4, Discontinuous > 0.6) from `data/raw/annotations.csv` and output `data/processed/binary_labels.csv`. **CRITICAL: These labels are for AUXILIARY CHECKS ONLY and MUST NOT be used in T022 or T023 primary analysis.** (Note: Used for auxiliary checks only, not primary sensitivity analysis).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 3: User Story 2 - CPU-Tractable Latent Divergence Calculation (Priority: P2)
+## Phase 3: User Story 2 - CPU‑Tractable Latent Divergence Calculation (Priority: P2)
 
-**Goal**: Load a frozen AnyFlow model in ONNX Runtime (CPU-only) and compute "flow-map divergence" for every video clip without GPU.
+**Goal**: Load a frozen AnyFlow model in ONNX Runtime (CPU‑only) and compute "flow‑map divergence" for every video clip without GPU.
 
-**Independent Test**: A script processes 500 clips on a CPU-only runner, completes in ≤6 hours, uses <7GB RAM, and outputs a CSV with divergence scores.
+**Independent Test**: A script processes 500 clips on a CPU‑only runner, completes in ≤6 h, uses <7 GB RAM, and outputs a CSV with divergence scores. [UNRESOLVED-CLAIM: c_6e7329f3 — status=refuted]
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Implement `code/metric_calculation/load_model.py` to load AnyFlow to ONNX, verify SHA-256 hash, and check layer count/input-output shapes against architecture spec.
-- [ ] T015 [US2] Implement `code/metric_calculation/extract_latents.py` to extract latent trajectories for 16-frame sequences using ONNX Runtime (CPU) and write to `data/processed/latents.npy`.
-- [ ] T016 [US2] Implement `code/metric_calculation/preflight_check.py` to run the first 5 clips, estimate total runtime, and enforce the time budget constraint (FR-009). **MUST implement fallback**: If projected runtime > 5.5h, reduce Euler steps to N=200 (if validated) instead of halting. Output `data/processed/runtime_estimate.json` with the selected N and estimated total time. (Satisfies FR-009).
-- [ ] T016a [US2] Implement `code/metric_calculation/runtime_enforcer.py` to wrap the full batch process with a hard 6-hour timeout using `subprocess.run(timeout=21600)`. **MUST log actual duration** to `data/processed/runtime_log.json` upon completion or timeout. (Satisfies SC-002).
-- [ ] T016b [US2] Implement `code/metric_calculation/generate_baseline.py` to generate the **High-Resolution Euler Baseline** trajectories (N=500) for all clips and save to `data/processed/euler_baseline_N500.npy`. This artifact is required for T017 to compute the L2 distance. (Satisfies FR-004).
-- [ ] T016c [US2] Implement `code/metric_calculation/generate_golden_values.py` to compute and store `tests/integration/expected_static_divergence.json` for the integration test T028. (Satisfies executability requirements).
-- [ ] T016d [US2] Implement `code/metric_calculation/generate_unit_golden_values.py` to compute and store `tests/unit/golden_values.json` with expected values for `test_euler_step` and `test_l2_normalization`. (Satisfies executability requirements).
-- [ ] T017 [US2] Implement `code/metric_calculation/compute_divergence.py` to read `data/processed/latents.npy` and `data/processed/euler_baseline_N500.npy` (from T016b), use a **custom Explicit Euler implementation** (x_{t+1} = x_t + h * f(x_t)) with N from `runtime_estimate.json` (default N=500), calculate L2 distance between model prediction and baseline, and extract **temporal pattern features (kurtosis, temporal clustering)** from the divergence trajectory. Output `data/processed/divergence_features.csv` with columns `clip_id`, `divergence`, `kurtosis`, `temporal_clustering`. (Satisfies FR-004). **Depends on: T016b**.
-- [ ] T017b [US2] Implement `code/metric_calculation/compute_multi_resolution.py` to re-run the divergence calculation for N in a set of representative magnitudes (or restricted set per FR-006) **AND** sweep classification thresholds across a range of low values against manual scores. Aggregate results into `data/processed/divergence_multi_resolution.csv` and `data/processed/sensitivity_thresholds.csv`. (Satisfies FR-006 N-Sweep and Threshold Sweep).
-- [ ] T018 [US2] Implement batch processing logic in `code/main.py` to iterate clips, clear memory after each, and log progress/errors without crashing. This task drives T017 and T017b. (Depends on T016, T016a).
-- [ ] T019 [US2] Implement error handling for static images (assign baseline divergence) and corrupted files (skip and flag in `data/processed/error_log.csv`). **This task handles static/corrupted files only; control set processing is handled by T022a.**
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 4: User Story 3 - Correlation Analysis and Threshold Sensitivity (Priority: P3)
-
-**Goal**: Perform Pearson/Spearman correlation between manual continuity scores and divergence metrics, and run sensitivity analysis on classification thresholds.
-
-**Independent Test**: A statistical script reads `data/raw/annotations.csv` (Manual Continuity Scores) and `data/processed/divergence_features.csv`, outputs Pearson $r$, Spearman $\rho$, p-value, and a sensitivity report for thresholds {0.01, 0.05, 0.1} AND N {500, 200, 100}.
-
-### Implementation for User Story 3
-
-- [ ] T020 [US3] Implement `code/analysis/distribution.py` to calculate variance and histogram of manual scores from `data/raw/annotations.csv`. **MUST implement Hartigan's Dip Test** for bimodality. If bimodal (p < 0.05) and N >= 50, flag for Fisher's Exact Test. If variance < 0.05 and not bimodal, halt with "Insufficient Variance". Output `data/processed/variance_report.csv` **AND** `data/processed/dip_test_results.csv` with p-value and bimodality flag. (Satisfies FR-010 Bimodality/Variance Check, FR-016).
-- [ ] T021 [US3] Implement `code/analysis/power_analysis.py` to perform a **formal power analysis** to justify sample size N=500, ensuring the study is powered to detect the minimum effect size (r ≈ 0.12) at 80% power (alpha=0.05). Output `artifacts/power_analysis_report.md`. (Satisfies FR-011, SC-010).
-- [ ] T022 [US3] Implement `code/analysis/correlation.py` to read `data/processed/divergence_features.csv` (from T017) and `data/raw/annotations.csv` (from T011), compute Pearson $r$ and Spearman $\rho$ between **Divergence** and **Manual Continuity Scores** (Ground Truth), and write `data/processed/correlation_results.json` with p-value. (Satisfies FR-005 Primary Analysis).
-- [ ] T022a [US3] Implement `code/analysis/control_analysis.py` to perform Mann-Whitney U test (or t-test if normality holds) comparing divergence scores between continuous and discontinuous groups using the **separate control subset** defined in `data/raw/control_subset_ids.csv` (n=50). Output `data/processed/control_analysis.csv` (NOT JSON). (Satisfies FR-005 Control Analysis, FR-015).
-- [ ] T022b [US3] Implement `code/analysis/generate_synthetic_subset.py` to generate a synthetic subset of clips with known labels by physically modifying real video frames (e.g., swapping frames to create a hard cut). Compute divergence on these and output `data/processed/manual_calculation_expected.json` to validate error rates. (Satisfies FR-012).
-- [ ] T022c [US3] Implement `code/analysis/fisher_z_test.py` to perform the Fisher's r-to-z transformation comparing 'cut' vs 'continuous' group correlations and output `data/processed/fisher_z_test_results.csv`. (Satisfies FR-028, SC-018).
-- [ ] T023 [US3] Implement `code/analysis/sensitivity.py` to read `data/raw/annotations.csv` and `data/processed/divergence_multi_resolution.csv` (from T017b), sweep thresholds {low, 0.05, 0.1} AND baseline resolutions N {500, 200, 100}, and report false-positive/negative rates for each combination in `data/processed/sensitivity_report.csv`. (Satisfies FR-006).
-- [ ] T024 [US3] Implement `code/analysis/report.py` to generate final JSON report including Runtime Environment (SC-005), Provenance Declaration, explicit "CPU-only" statement, the **mandatory injection** of the string: "The 'flow-map divergence' metric is a proxy for model instability and the correlation analysis tests the hypothesis that this instability correlates with semantic discontinuity." (FR-007, FR-008), and the results of the Control Analysis (T022a). **MUST ALSO generate `artifacts/final_report_manifest.json` containing checksums for all artifacts (including `variance_report.csv`, `manual_calculation_expected.json`, `control_analysis.csv`, etc.).**
-- [ ] T025 [US3] Implement variance check enforcement in `code/main.py` to prevent correlation analysis (T022) and report generation (T024) if `variance_report.csv` indicates insufficient variance or failed Kappa gate. This must run BEFORE T022 and T024. **MUST check for existence of `data/raw/adjudication_log.csv` and `data/raw/rubric_definition.md`.**
+- [ ] T014 [US2] Implement `code/metric_calculation/load_model.py` to load AnyFlow to ONNX, verify SHA‑256 hash, and check layer count/input‑output shapes against architecture spec.
+- [ ] T050 [US2] Add unit test `tests/unit/test_load_model.py` that loads the model and asserts the hash matches the expected value and that expected input dimensions are present.
+- [ ] T015 [US2] Implement `code/metric_calculation/extract_latents.py` to extract latent trajectories for 16‑frame sequences using ONNX Runtime (CPU) and write to `data/processed/latents.npy`.
+- [ ] T051 [US2] Add unit test `tests/unit/test_extract_latents.py` that loads `latents.npy` and checks shape `(num_clips, 16, latent_dim)` and dtype `float32`, plus checksum verification.
+- [ ] T016 [US2] Implement `code/metric_calculation/preflight_check.py` to run the first 5 clips, estimate total runtime, and enforce the time‑budget constraint (FR-009). **MUST implement fallback**: If projected runtime > 5.5 h, reduce Euler steps to N=200 (if validated) instead of halting. **MUST also include the mandatory re-correlation pilot step**: if N is reduced, re-run a pilot on 10 pre-annotated clips to verify the correlation coefficient (r) remains > 0.7. Output `data/processed/runtime_estimate.json` with the selected N, estimated total time, and pilot correlation status. (Satisfies FR-009).
+- [ ] T052 [US2] Add verification step in `preflight_check.py` that writes a log entry `fallback_applied: true/false` into `runtime_estimate.json` and unit test `tests/unit/test_preflight.py` asserting the flag reflects the fallback decision.
+- [ ] T016a [US2] Implement `code/metric_calculation/runtime_enforcer.py` to wrap the full batch process with a hard 6‑hour timeout using `subprocess.run(timeout=21600)`. **MUST log actual duration** to `data/processed/runtime_log.json` upon completion or timeout. (Satisfies SC-002). **Depends on: T016**.
+- [ ] T016b [US2] Implement `code/metric_calculation/generate_baseline.py` to generate the **High‑Resolution Euler Baseline** trajectories (N=500) for all clips using Explicit Euler integration with step size h=1/N and initial state x0 extracted from T015, and save to `data/processed/euler_baseline_N500.npy`. This artifact is required for T017 to compute the L2 distance. (Satisfies FR-004). **Depends on: T015**.
+- [ ] T016c [US2] Implement `code/metric_calculation/generate_golden_values.py` to generate `tests/integration/expected_static_divergence.json` for the integration test T028. Use N=10000 as ground truth for expected values. [UNRESOLVED-CLAIM: c_074798ea — status=not_enough_info] (Satisfies executability requirements).
+- [ ] T016d [US2] Implement `code/metric_calculation/generate_unit_golden_values.py` to generate `tests/unit/golden_values.json` with expected values for `test_euler_step` and `test_l2_normalization`. Use N=10000 as ground truth. (Satisfies executability requirements).
+- [ ] T017 [US2] Implement `code/metric_calculation/compute_divergence.py` to read `data/processed/latents.npy` and `data/processed/euler_baseline_N500.npy` (from T016b), use a **custom Explicit Euler implementation** (x_{t+1} = x_t + h * f(x_t)) with N from `runtime_estimate.json` (default N=500), calculate L2 distance between model prediction and baseline, and extract **temporal pattern features (kurtosis, temporal clustering)** from the divergence trajectory. Output `data/processed/divergence_features.csv` with columns `clip_id`, `divergence`, `kurtosis`, `temporal_clustering`. (Satisfies FR-004). **Depends on: T016b, T016a**.
+- [ ] T017c [US2] Implement `code/metric_calculation/process_control_subset.py` to run the divergence calculation pipeline (T017) specifically on the control subset defined in `data/raw/control_subset_ids.csv` (n=50) and output `data/processed/control_analysis.csv`. **Depends on: T017, T012c**. (Satisfies FR-004, FR-015, SC-008).
+- [ ] T017d [US2] Implement `code/metric_calculation/validate_features.py` to verify that temporal pattern features (kurtosis, temporal clustering) are correctly extracted and normalized from `data/processed/divergence_features.csv` before being used in T036. Output `data/processed/feature_validation.json`. **Depends on: T017**. (Satisfies FR-004 feature validation).
+- [ ] T053 [US2] Add unit test `tests/unit/test_divergence_features.py` that loads `divergence_features.csv` and asserts presence of required columns and that `divergence` values are non‑negative floats.
+- [ ] T038 [US2] Implement `code/metric_calculation/export_raw_scores.py` to extract the `divergence` column from `divergence_features.csv` and write a dedicated `data/processed/divergence_scores.csv`. (Satisfies SC-006).
+- [ ] T017b [US2] Implement `code/metric_calculation/compute_multi_resolution.py` to re‑run the divergence calculation for N in a set of representative magnitudes (or restricted set per FR-006) **AND** sweep classification thresholds across a range of low values against manual scores. Aggregate results into `data/processed/divergence_multi_resolution.csv` and `data/processed/sensitivity_thresholds.csv`. (Satisfies FR-006 N‑Sweep and Threshold Sweep). **Depends on: T017**.
+- [ ] T018 [US2] Implement batch processing logic in `code/main.py` to iterate clips, clear memory after each, and log progress/errors without crashing. This task drives T017 and T017b. **Depends on: T016, T016a**.
+- [ ] T019 [US2] Implement error handling for static images (assign baseline divergence) and corrupted files (skip and flag in `data/processed/error_log.csv`). **This task handles static/corrupted files only; control set processing is handled by T017c.** **Depends on: T018**.
+- [ ] T055 [US3] Implement `code/analysis/distribution.py` to calculate variance and histogram of manual scores from `data/raw/annotations.csv`. **MUST implement Hartigan's Dip Test** for bimodality using `diptest.diptest` from the `diptest` library. If bimodal (p < 0.05) and N ≥ 50, flag for Fisher's Exact Test. If variance < 0.05 and not bimodal, halt with "Insufficient Variance". Output `data/processed/variance_report.csv` **AND** `data/processed/dip_test_results.csv` with p‑value and bimodality flag. (Satisfies FR-010 Bimodality/Variance Check, FR-016). **Depends on: T011**.
+- [ ] T021 [US3] Implement `code/analysis/power_analysis.py` to perform a **formal power analysis** to justify sample size N=500, ensuring the study is powered to detect the minimum effect size (r ≈ 0.12) at 80% power (alpha=0.05). [UNRESOLVED-CLAIM: c_28a7d59c — status=not_enough_info] Output `artifacts/power_analysis_report.md`. (Satisfies FR-011, SC-010). **Depends on: T055**.
+- [ ] T025 [US3] Implement `code/analysis/variance_check_enforcer.py` to read `variance_report.csv` and abort if variance insufficient or Kappa gate failed. Must run **before** T022 and T024. **Depends on: T055, T011b**. (Ensures correct ordering).
+- [ ] T046 [US3] Implement IPW weighting logic in `code/analysis/ipw.py` and output `data/processed/ipw_log.json` containing the calculated weights for each clip. (Fulfills FR‑032). **Depends on: T011**.
+- [ ] T047 [US3] Add verification test `tests/unit/test_ipw_weights.py` that loads `ipw_log.json` and checks that weights sum to 1 (within tolerance) and that no weight is negative. **Depends on: T046**.
+- [ ] T022 [US3] Implement `code/analysis/correlation.py` to read `data/processed/divergence_features.csv` (from T017) and `data/raw/annotations.csv` (from T011), compute Pearson r and Spearman ρ between **Divergence** and **Manual Continuity Scores** (Ground Truth), apply IPW weights from `data/processed/ipw_log.json` (from T046), and write `data/processed/correlation_results.csv` (columns: `pearson_r`, `spearman_rho`, `p_value`). Also output a JSON copy `data/processed/correlation_results.json` for downstream consumption. (Satisfies FR-005 Primary Analysis with IPW). **Depends on: T017, T011, T046, T025**.
+- [ ] T054 [US3] Add unit test `tests/unit/test_correlation_schema.py` that validates `correlation_results.csv` against the expected schema (numeric columns, no missing values). **Depends on: T022**.
+- [ ] T022a [US3] Implement `code/analysis/control_analysis.py` to perform Mann‑Whitney U test (or t‑test if normality holds) comparing divergence scores between continuous and discontinuous groups using the **separate control subset** defined in `data/raw/control_subset_ids.csv` (n=50) and processed by T017c. Output `data/processed/control_analysis.csv` (NOT JSON). (Satisfies FR-005 Control Analysis, FR-015). **Depends on: T017c, T017**.
+- [ ] T022b [US3] Implement `code/analysis/generate_synthetic_subset.py` to generate a synthetic subset of clips with known labels by physically modifying real video frames (e.g., swap the middle two frames of every 16-frame clip to create a hard cut, assigning a label of 1.0). Compute divergence on these and output `data/processed/manual_calculation_expected.json` with the calculated expected error based on the physical modification. (Satisfies FR-012). **Depends on: T017**.
+- [ ] T039 [US3] Implement `code/analysis/synthetic_validation_report.py` to read `manual_calculation_expected.json` and produce `artifacts/synthetic_validation_report.md` summarizing validation metrics (e.g., mean absolute error vs. known labels). (Fulfills FR-018). **Depends on: T022b**.
+- [ ] T022c [US3] Implement `code/analysis/fisher_z_test.py` to perform the Fisher's r‑to‑z transformation comparing 'cut' vs 'continuous' group correlations and output `data/processed/fisher_z_test_results.csv`. (Satisfies FR-028, SC-018). **Depends on: T022**.
+- [ ] T023 [US3] Implement `code/analysis/sensitivity.py` to read `data/raw/annotations.csv` and `data/processed/divergence_multi_resolution.csv` (from T017b), sweep thresholds {0.01, 0.05, 0.1} **AND** baseline resolutions N {500, 200, 100}, **join with manual scores**, and report false‑positive/negative rates for each combination in `data/processed/sensitivity_report.csv`. (Satisfies FR-006). **Depends on: T017b, T011**.
+- [ ] T056 [US3] Add verification task `tests/unit/test_sensitivity_report.py` that checks `sensitivity_report.csv` contains rows for all 9 threshold/N combos. **Depends on: T023**.
+- [ ] T036 [US3] Implement `code/analysis/logistic_regression.py` to train a multivariate logistic regression model (features: divergence, kurtosis, temporal_clustering, IPW weights) predicting discontinuity type (binary). Output `data/processed/logistic_regression_results.csv` with predicted probabilities and evaluation metrics (AUC, accuracy). (Fulfills FR-005 multivariate logistic regression requirement). **Depends on: T017, T017d, T046**.
+- [ ] T037 [US3] Implement `code/analysis/runtime_pilot_report.py` to generate `artifacts/runtime_pilot_report.md` documenting the pre‑flight runtime pilot: estimated runtime, chosen N, confidence interval, and pilot correlation verification. (Fulfills FR-019 / SC-012). **Depends on: T016, T016a, T011c**.
+- [ ] T024 [US3] Implement `code/analysis/report.py` to generate final JSON report including Runtime Environment (SC-005), Provenance Declaration, explicit "CPU‑only" statement, and the mandatory injection of the string: "The 'flow‑map divergence' metric is a proxy for model instability and the correlation analysis tests the hypothesis that this instability correlates with semantic discontinuity." (FR-007, FR-008, FR-009), and the results of the Control Analysis (T022a). **MUST also enforce non‑causal language by scanning the report for causal verbs (causes, leads to, proves, demonstrates) and failing if found, using a configuration file.** Generate `artifacts/final_report_manifest.json` containing checksums for all artifacts. (Addresses FR-007, FR-008, FR-009, and constraint preservation‑989e45fd). **Depends on: T022, T022a, T023, T036, T031, T028**.
+- [ ] T045 [US3] Add unit test `tests/unit/test_correlation_no_optical_flow.py` that imports `code/analysis/correlation.py` with a mocked environment and asserts that no optical‑flow‑related modules or fields are accessed. **Depends on: T022**.
+- [ ] T048 [US3] Extend `code/analysis/report.py` to embed a reference to `artifacts/traceability_matrix.json` within the final JSON report, guaranteeing traceability of all reported figures and statistics. (Completes FR‑023 linkage). **Depends on: T024, T031**.
+- [ ] T049 [US3] Add verification test `tests/unit/test_traceability_reference.py` that parses the final JSON report and confirms the presence and correct JSON‑path to `traceability_matrix.json`. **Depends on: T024, T031**.
+- [ ] T031 [US3] Generate `artifacts/traceability_matrix.json` that maps every figure, statistic, or interpretation in the final report to exactly one row in the data and one code block in the code directory. **Output schema**: `{figure_id: {data_row_id, code_block_id}}`. **Source of figure list**: `artifacts/final_report_manifest.json`. **Depends on: T017, T017b, T020, T021, T022, T023, T036**. (Supports FR-023 & FR-029).
+- [ ] T032 [US3] Update `plan.md` to remove any reference to "External Optical Flow Variance" and explicitly state that correlation analyses use **Manual Continuity Scores** as the ground‑truth target, aligning the plan with the specification. (Resolves plan/spec contradiction). **Depends on: T022, T023, T036**.
+- [ ] T033 [US3] Add unit test `tests/unit/test_correlation.py` that asserts `code/analysis/correlation.py` reads scores from `data/raw/annotations.csv` and never accesses any optical‑flow‑derived fields. (Ensures compliance with FR‑005). **Depends on: T022**.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross‑Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T026 [P] Documentation updates: Create `docs/quickstart.md` with installation steps and `docs/data-model.md` with new schema.
-- [ ] T027 [P] Code cleanup and refactoring for memory efficiency: Specifically target `code/metric_calculation/inference.py` and `code/data_curation/download_clips.py` to reduce peak RAM usage to <6GB. Verify success via memory profiling logs.
-- [ ] T028 Run full pipeline integration test on CI (verify ≤6h runtime). **MUST verify against `tests/integration/expected_static_divergence.json` (generated by T016c).**
-- [ ] T029 [P] Additional unit tests for metric logic: Implement `tests/unit/test_divergence.py` with specific tests `test_euler_step`, `test_l2_normalization`, and `test_feature_extraction`. **MUST verify against `tests/unit/golden_values.json` (generated by T016d).**
-- [ ] T030 [P] Verify `run_quickstart.sh` validates all artifacts including `final_report_manifest.json`, `traceability_matrix.json`, `control_analysis.csv`, `dip_test_results.csv`, `fisher_z_test_results.csv`.
+- [ ] T026 [P] Documentation updates: Create `docs/quickstart.md` with installation steps and `docs/data-model.md` with new schema. **Depends on: T001, T002**.
+- [ ] T027 [P] Code cleanup and refactoring for memory efficiency: Specifically target `code/metric_calculation/inference.py` and `code/data_curation/download_clips.py` to reduce peak RAM usage to <6 GB. Verify success via memory profiling logs. **Depends on: T017, T009**.
+- [ ] T028 [P] Run full pipeline integration test on CI (verify ≤6 h runtime, ≤7 GB peak RAM). [UNRESOLVED-CLAIM: c_209c2358 — status=not_enough_info] **Now also asserts runtime and memory constraints using `data/processed/runtime_log.json`**. **Depends on: T018, T016a**.
+- [ ] T029 [P] Additional unit tests for metric logic: Implement `tests/unit/test_divergence.py` with specific tests `test_euler_step`, `test_l2_normalization`, and `test_feature_extraction`. **Must verify against `tests/unit/golden_values.json` (generated by T016d) and assert values within tolerance**.
+- [ ] T030 [P] Verify `run_quickstart.sh` validates all artifacts including `final_report_manifest.json`, `traceability_matrix.json`, `control_analysis.csv`, `dip_test_results.csv`, `fisher_z_test_results.csv`. **Depends on: T024, T031**.
 
----
+- [ ] T062 [US3] Validation task to ensure `artifacts/runtime_pilot_report.md` exists and conforms to its schema after T037. **Depends on: T037**.
+- [ ] T063 [US3] Validation task to check that `data/processed/correlation_results.csv` contains the required columns `pearson_r`, `spearman_rho`, `p_value` as mandated by SC‑001. **Depends on: T022**.
+- [ ] T064 [US3] Validation task to schema‑validate `artifacts/final_report_manifest.json` and verify checksums of all listed artifacts, completing the missing validation for T024. **Depends on: T024**.
+- [ ] T065 [US3] Validation task to parse `data/processed/runtime_log.json` and assert that total runtime ≤ 6 h and peak RAM ≤ 7 GB, reinforcing the constraints checked in T028. **Depends on: T016a, T028**.
 
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US1 (Manual Scores) and US2 (Divergence)** for the primary correlation analysis.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
-### Critical Data Flow & Prerequisites
-
-- **T008a (Verified Pool)** -> **T009 (Download)**: T009 MUST read from the verified pool generated by T008a.
-- **T008b (Pilot Selection)** -> **T011a (Pilot Annotation)**: T011a MUST use the distinct pilot subset from T008b.
-- **T011a (Pilot)** -> **T011b (Kappa Gate)** -> **T011 (Full Annotation)**: The dual-annotator pilot MUST pass (Kappa >= 0.81) before full annotation and validation proceed.
-- **T008c (Experts/Rubric)** -> **T011 (Annotation)**: T011 requires `experts.json` and `rubric_definition.md` for adjudication.
-- **T016 (Preflight)** -> **T017 (Divergence)**: T017 consumes `runtime_estimate.json` from T016 to select N.
-- **T016a (Timeout)** -> **T018 (Batch)**: T018 is wrapped by T016a to enforce the 6-hour limit.
-- **T016b (Baseline)** -> **T017 (Divergence)**: T017 requires the baseline artifact from T016b.
-- **T017 (Features)** -> **T022 (Correlation)**: T022 requires the feature columns (kurtosis, clustering) from T017.
-- **T017b (Multi-Res/Thresholds)** -> **T023 (Sensitivity)**: T023 requires the multi-resolution data and threshold sweep from T017b.
-- **T022a (Control)** -> **T024 (Report)**: T024 requires the control analysis results from T022a.
-- **T022b (Synthetic)** -> **T024 (Report)**: T024 requires the synthetic validation artifact from T022b.
-- **T022c (Fisher Z)** -> **T024 (Report)**: T024 requires the Fisher Z results from T022c.
-- **T020 (Distribution)** -> **T022/T024**: T022 and T024 cannot run if T020 halts due to insufficient variance or bimodality issues (unless Fisher's Exact branch is triggered).
-- **T016c (Golden Values)** -> **T028 (Integration Test)**: T028 requires the golden values from T016c.
-- **T016d (Unit Golden Values)** -> **T029 (Unit Tests)**: T029 requires the golden values from T016d.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T011a/T011b pilot)
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify Kappa gate)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (including Pilot/Kappa)
-   - Developer B: User Story 2 (including Preflight/Timeout)
-   - Developer C: User Story 3 (including Correlation/Sensitivity)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Note on Plan vs. Spec**: The `plan.md` document currently contains a contradiction in its "Technical Approach" and "Phase 2" sections, suggesting correlation with "External Optical Flow Variance". The `spec.md` (FR-005) and `Constitution` (Principle VII) explicitly mandate correlation with **Manual Continuity Scores**. This `tasks.md` follows the `spec.md` and `Constitution` as the source of truth. The `plan.md` must be updated to reflect this correction: Optical Flow is an auxiliary metric, but Manual Scores are the ground truth for the primary hypothesis.
-- **Compute Feasibility**: All inference tasks (T014-T019) are strictly CPU-bound. No CUDA, no GPU quantization, no large model loading. The Euler baseline uses N=500 steps with a preflight check (T016) to fallback to N=200 if necessary to meet the 6-hour budget.
-- **Data Integrity**: T009 and T010 ensure real data from verified sources. T011 ensures ground truth is human-annotated and blinded to model metrics. No synthetic data or fake metrics are generated.
-- **Ordering**: T017 (Divergence) and T011 (Annotations) must complete before T022 (Correlation). T016 (Preflight) must run before T017. T025 (Variance Check) must run before T022 and T024. **Crucially, T011a/T011b (Pilot/Kappa) must pass before T011 runs.**
-- **Golden Values**: T016c and T016d generate necessary golden values for deterministic testing.
-- **Control Set**: T012c and T022a handle the control subset logic; T019 is for error handling only.
-- **Adjudication**: T008c provides experts; T011 performs adjudication.
-- **Manifest**: T024 generates the final manifest with checksums.
+**Note**: Duplicate tasks T034, T035, T061 have been removed to eliminate ID conflicts.

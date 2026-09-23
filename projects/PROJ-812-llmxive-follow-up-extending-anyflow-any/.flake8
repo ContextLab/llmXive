@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist,.venv
+extend-ignore = E203,W503
+# Enable flake8-bugbear and other plugins if installed
+# (they will be auto‑discovered by flake8)

@@ -1,0 +1,46 @@
+- **FR-011**: System MUST perform a formal power analysis to justify the sample size of 500, ensuring the study is powered to detect the minimum effect size (r ≈ 0.12) at 80% power (alpha=0.05). The power analysis MUST be based on the correlation between divergence and *manually verified* scores. (See US-1)
+- **FR-012**: System MUST generate a synthetic subset of clips with known labels for validation by physically modifying real video frames (e.g., swapping frames to create a hard cut). The 'known labels' for this subset MUST be derived from the physical modification (e.g., exact frame swap = 1.0 discontinuity). The system MUST generate a 'manual_calculation_expected.json' artifact containing the expected error for these modifications and verify that the false-positive and false-negative rates match this manual calculation within an absolute error < 0.01. The system MUST also output a 'validate_synthetic_subset.py' script and a 'synthetic_validation_report.md' artifact. (See US-3)
+- **FR-013**: System MUST manually verify a subset of clips (a balanced mix of cut and continuous) to establish ground-truth labels for the 50/50 mix. This verification MUST be performed by a human expert and recorded in a raw, immutable CSV. (See US-1)
+- **FR-014**: System MUST record the 'expert ID' of the third adjudicator in `adjudication_log.csv`. The 'expert ID' MUST match an entry in `experts.json`. (See US-1)
+- **FR-015**: System MUST output a distinct artifact `control_analysis.csv` containing the results of the control analysis comparing divergence scores on known-smooth vs. known-cut clips. (See US-2)
+- **FR-016**: System MUST output a distinct artifact `dip_test_results.csv` containing the p-value from Hartigan's Dip Test and a boolean flag indicating the bimodality decision (True/False). (See US-3)
+- **FR-017**: System MUST output a distinct artifact `power_analysis_report.md` containing the parameters (effect size r=0.12, power=80%, alpha=0.05) and results of the power analysis. (See US-1)
+- **FR-018**: System MUST output a distinct artifact `synthetic_validation_report.md` containing the results of the synthetic subset validation. (See US-3)
+- **FR-019**: System MUST output a distinct artifact `runtime_pilot_report.md` containing the 95% confidence interval for the runtime pilot, the estimated total runtime, the decision (N=500 vs N=200), and the pilot correlation verification result (r > 0.7). (See US-2)
+- **FR-020**: System MUST output a distinct artifact `adjudication_log.csv` containing the expert ID and resolution for each disagreement. (See US-1)
+- **FR-023**: System MUST generate a `traceability_matrix.json` that maps every figure, statistic, or interpretation in the final report to exactly one row in the data and one code block in the code directory. (See US-1)
+- **FR-025**: System MUST ensure that the '50/50 mix' refers to the stratified sampling of source clips (Cut vs. Continuous categories) as verified by a pre-flight scene-cut detection tool, not the distribution of the final manual scores. (See US-1)
+- **FR-028**: System MUST output a distinct artifact `fisher_z_test_results.csv` containing the p-value and the decision (reject/fail to reject) for the null hypothesis test. (See US-3)
+- **FR-029**: System MUST generate a `traceability_matrix.json` that links every paper figure/statistic to a specific data row and code block. (See US-1)
+- **FR-030**: System MUST generate a `final_report_manifest.json` that contains file paths and checksums for all artifacts, including `variance_report.csv`, `manual_calculation_expected.json`, and `dip_test_results.csv`, providing a verifiable link mechanism. (See US-1)
+- **FR-031**: System MUST generate a `rubric_definition.md` file that explicitly defines how annotators distinguish 'scene cuts' from 'rapid motion' using pixel-space features (e.g., sudden global brightness change, edge discontinuity). (See US-1)
+- **FR-032**: System MUST implement Inverse-Probability Weighting (IPW) logic in the analysis pipeline and output a `ipw_log.json` detailing the weights applied. (See US-3)
+- **FR-033**: System MUST store all analysis scripts (including `manual_calculation.py`) in the `code/` directory with a specific naming convention and version them in git. (See US-3)
+
+### Key Entities
+
+- **VideoClip**: A short video segment with a unique ID, source URL, and file path (a sequence of frames at 30fps).
+- **ContinuityScore**: A manual ground-truth label representing temporal stability. This score is derived solely from pixel-space visual inspection using a 5-point Likert scale rubric distinguishing motion continuity from scene cuts.
+- **DivergenceMetric**: A computed float value representing the sum of squared L2 distances (normalized by dimension D) between the model's predicted latent state and a High-Resolution Euler Baseline (high-resolution Euler rollout). This metric quantifies numerical integration error (model instability). The metric is labeled as "flow-map divergence (N=500)" or "flow-map divergence (N=<N_max>)" depending on the baseline steps used.
+- **SensitivityReport**: A structured output listing threshold values {, 0.05, 0.1} and baseline resolutions {500, 200, 100} (or restricted set) and their corresponding classification error rates.
+- **VarianceReport**: A distinct output artifact (variance_report.csv) containing the calculated variance of the ContinuityScore distribution.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: The analysis script MUST output a Pearson $r$ value, a Spearman $\rho$ value, and a p-value; the result is recorded regardless of magnitude. (See US-3)
+- **SC-002**: The full pipeline (download, annotation, inference, analysis) MUST complete within 6 hours on a CPU-only runner (ubuntu-22.04, 2-core vCPU, 7GB RAM) with peak memory usage ≤ 7 GB. If N=200 is used, the report MUST state this. (See US-2)
+- **SC-003**: The sensitivity analysis MUST report distinct classification rates (false-positive rate and false-negative rate) for a range of threshold values {0.01, 0.05, 0.1} AND baseline resolutions, using manual scores > 0.5 as positive labels. (See US-3)
+- **SC-004**: The system MUST output a distinct artifact variance_report.csv containing the variance of the ContinuityScore distribution, and this artifact MUST be linked to the final report via `final_report_manifest.json`. (See US-1)
+- **SC-005**: The final report MUST explicitly state that the AnyFlow model was run in CPU-only mode without CUDA or quantization methods requiring GPU hardware. (See US-2)
+- **SC-006**: The system MUST output the divergence scores in CSV format and link this file to the final report. (See US-2)
+- **SC-007**: The system MUST output an `adjudication_log.csv` file containing the expert ID and resolution for each disagreement. (See US-1)
+- **SC-008**: The system MUST output a `control_analysis.csv` file containing the results of the control analysis. (See US-2)
+- **SC-009**: The system MUST output a `dip_test_results.csv` file containing the p-value from Hartigan's Dip Test and the bimodality decision. (See US-3)
+- **SC-010**: The system MUST output a `power_analysis_report.md` file containing the parameters (effect size r=0.12, power=80%, alpha=0.05) and results of the power analysis. (See US-1)
+- **SC-011**: The system MUST output a `synthetic_validation_report.md` file containing the results of the synthetic subset validation. (See US-3)
+- **SC-012**: The system MUST output a `runtime_pilot_report.md` file containing the 95% confidence interval for the runtime pilot, the estimated total runtime, the decision (N=500 vs N=200), and the pilot correlation verification result (r > 0.7). (See US-2)
+- **SC-018**: The system MUST output a `fisher_z_test_results.csv` file containing the p-value and the decision for the null hypothesis test. (See US-3)
+- **SC-019**: The system MUST output a `traceability_matrix.json` file that maps every figure/statistic to a data row and code block. (See US-1)
+

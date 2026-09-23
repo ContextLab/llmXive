@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:07:49.654011Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-812-llmxive-follow-up-extending-anyflow-any
-last_run_id: 9476b774-d1d8-4e85-a13f-4258d98ec4dc
+last_run_id: 0a9b7398-16c9-40c2-8080-9e72fc4738c8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any
 title: 'llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with
   On-Policy Flow Map Distil"'
-updated_at: '2026-09-19T12:56:48.911352Z'
+updated_at: '2026-09-23T09:40:44.261087Z'

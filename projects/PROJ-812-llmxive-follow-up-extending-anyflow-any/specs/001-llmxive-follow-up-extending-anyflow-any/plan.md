@@ -23,7 +23,7 @@ References: [Insert References], utilizing ONNX Runtime for inference and stream
 **Project Type**: Research/Data Pipeline  
 **Performance Goals**: Full pipeline (500 clips) ≤ 6 hours; Peak RAM ≤ 7 GB  
 **Constraints**: NO GPU; NO external API calls for data download; strict adherence to stratified sampling; manual annotation required for ground truth.  
-**Scale/Scope**: 500 video clips (16 frames each @ 30fps); 50 clips for control analysis; 50 clips for pilot.
+**Scale/Scope**: A sufficient number of video clips (16 frames each @ 30 fps); A sufficient number of clips for control analysis.; A sufficient number of clips for the pilot..
 
 > **Dataset & Model Gap**: The spec references UCF101, Kinetics, and DAVIS. The verified dataset block indicates **NO verified source** for UCF101, DAVIS, or a direct CPU-optimized AnyFlow model.
 > - **Data**: The pipeline will attempt to load a verified video dataset via `datasets.load_dataset("kinetics-400")` (if available in the HF Hub with verified URL). **If no verified source is found, the pipeline HALTS with "Data Availability Failure"**. The 'verified_small_set' is ONLY for pipeline validation, not the main study.

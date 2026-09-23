@@ -1,0 +1,15 @@
+onnxruntime
+torch
+scikit-learn
+pandas
+opencv-python-headless
+datasets
+ucimlrepo
+raft-torch
+rich
+scipy
+huggingface_hub
+diptest
+streamlit
+pyyaml
+jsonschema
