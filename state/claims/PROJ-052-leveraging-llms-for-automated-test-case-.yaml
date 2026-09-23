@@ -2317,3 +2317,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T14:05:08Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Q4_K_M quantization with 7GB RAM constraint for Phi-2 loading
+  claim_id: c_fed93b92
+  context: T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in code/llm_generator.py loading phase to satisfy FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in code/llm_generator.py loading phase
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:46:37Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Test timeout enforced with 30 second subprocess timeout
+  claim_id: c_1fa54983
+  context: 'T066 [P] [US2] **Infinite Loop Mitigation**: Implement enforce_test_timeout
+    in code/test_executor.py using subprocess.Popen with communicate(timeout=30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use subprocess.Popen with communicate(timeout=30) to enforce test timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:47:09Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Process termination verified after 30 seconds
+  claim_id: c_6473c381
+  context: 'Verification: Add unit test tests/unit/test_executor.py::test_timeout_kills_hanging_process
+    (T066v) verifying the process is terminated after 30s and CSV is updated.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process is terminated after 30s and CSV is updated
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:47:48Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Compilation retry limit set to 3 attempts by default
+  claim_id: c_83438cc2
+  context: T023b [US2] Implement retry loop logic in code/test_executor.py to execute
+    compilation/execution up to config.RETRY_LIMIT attempts (read from config.py,
+    default 3) before marking as failed, satisfying FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry loop logic to execute compilation/execution up to config.RETRY_LIMIT
+    attempts (default 3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:48:10Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Retry loop verified to execute exactly 3 attempts
+  claim_id: c_6a4f7733
+  context: T021 [P] [US2] Unit test in tests/unit/test_timeout_retry.py::test_retry_logic_retries__times
+    verifying the retry loop executes exactly 3 attempts before failure.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the loop executes exactly 3 attempts before failure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:48:36Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Phi-2 generation uses seed 42 and temperature 0
+  claim_id: c_241d027f
+  context: T016 [US1] Implement generate_test_code in code/llm_generator.py to generate
+    JUnit test code using Phi-2 with deterministic settings (seed=42, temperature=0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use deterministic settings (seed=42, temperature=0) for Phi-2 generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:49:05Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Ambiguous prompt retry limit is 3 attempts with seed 42
+  claim_id: c_6e4ae6c6
+  context: 'T018 [US1] **Ambiguous Prompt Handling Wrapper**: Implement handle_ambiguous_prompt
+    in code/data_loader.py. Logic: If prompt length < 20 chars or validation fails,
+    retry generation up to 3 times with a deterministic template using the LLM (T016)
+    with seed=42, temperature=0.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry generation up to 3 times with seed=42, temperature=0.0 for ambiguous
+    prompts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:49:28Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Warning triggered if sample size N < 30 or power < 0.5
+  claim_id: c_4b59447d
+  context: 'T037 [US3] **Generate Final Report**: ... 5. If N < 30 or power < 0.5,
+    prepend "WARNING: Sample size (N={N}) < 30. Results are exploratory." to data/final_report.md
+    at line 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prepend warning if N < 30 or power < 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:49:28Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Warning triggered if sample size N < 30
+  claim_id: c_a38cda6c
+  context: 'T038 [US3] **Small Sample Warning**: Implement logic to handle small sample
+    sizes: If N < 30, prepend the warning block "WARNING: Sample size (N={N}) < 30.
+    Results are exploratory." to data/final_report.md at line 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prepend warning if N < 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:49:28Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: LLM inference time verified under 10 seconds for 100 samples
+  claim_id: c_ca9d2012
+  context: 'T071 [P] **Optimize LLM Inference**: Optimize LLM inference loop in code/llm_generator.py
+    by implementing batch_inference using llama-cpp-python''s batch_size parameter.
+    **Deliverable**: Verify inference time per sample < 10 seconds for N=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify inference time per sample < 10 seconds for N=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:50:55Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: JaCoCo execution time reduced by at least 20% for 10 samples
+  claim_id: c_37cbf1cf
+  context: 'T074 [P] **Optimize JaCoCo Execution**: Optimize JaCoCo execution in code/test_executor.py
+    by implementing parallel_jacoco for concurrent test runs. **Deliverable**: Verify
+    execution time reduction by at least 20% for N=10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/JaCoCo_execution_time_reduced_by_at_least_20%25_for_10_samples
+  kind: magnitude
+  raw_text: Verify execution time reduction by at least 20% for N=10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:51:49Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Coverage ratio calculated as mean generated coverage divided by mean
+    manual coverage
+  claim_id: c_d6b86f3d
+  context: 'T037 [US3] **Generate Final Report**: ... 2. Calculate ratio as mean(generated_coverage)
+    / mean(manual_coverage) from the paired subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coverage_ratio_calculated_as_mean_generated_coverage_divided
+  kind: entity_fact
+  raw_text: Calculate ratio as mean(generated_coverage) / mean(manual_coverage)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:52:30Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Hypothesis range check for ratio between 0.4 and 0.6
+  claim_id: c_b577dad0
+  context: 'T037 [US3] **Generate Final Report**: ... 3. Calculate within_hypothesis_range
+    (boolean) if 0.4 <= ratio <= 0.6.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: cond-mat/0503040
+        url: https://arxiv.org/abs/cond-mat/0503040
+        value: '0.34'
+      quote: "Ba0.85Ca0.15Zr0.10Ti0.90O3 \u20130.6 Ba0.9Sr0.1Ti0.9Sn0.1O3 (abbreviated\
+        \ as 0.4BCZT\u20130.6BSTSn) were"
+      source_id: '2508.12357'
+      url: https://arxiv.org/abs/2508.12357
+      value: "0.4BCZT\u20130.6BSTSn"
+    filled: true
+  kind: numeric
+  raw_text: Check if ratio is within 0.4 <= ratio <= 0.6
+  resolved_value: "0.4BCZT\u20130.6BSTSn"
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T18:53:05Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Warning triggered if exclusion rate exceeds 0.5
+  claim_id: c_99a94a42
+  context: 'T037 [US3] **Generate Final Report**: ... 4. If exclusion_rate > 0.5,
+    prepend a "Study Limitation: High Exclusion Rate" warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prepend warning if exclusion_rate > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T18:53:06Z'

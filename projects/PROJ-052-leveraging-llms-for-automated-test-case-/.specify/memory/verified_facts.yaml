@@ -1,5 +1,6 @@
--2|deterministic phi setting using:
-  quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
-  source_id: golden_ratio
-  url: https://en.wikipedia.org/wiki/Golden_ratio
-  value: '1.618033988749895'
+0.4|check if ratio within:
+  quote: "Ba0.85Ca0.15Zr0.10Ti0.90O3 \u20130.6 Ba0.9Sr0.1Ti0.9Sn0.1O3 (abbreviated\
+    \ as 0.4BCZT\u20130.6BSTSn) were"
+  source_id: '2508.12357'
+  url: https://arxiv.org/abs/2508.12357
+  value: "0.4BCZT\u20130.6BSTSn"
