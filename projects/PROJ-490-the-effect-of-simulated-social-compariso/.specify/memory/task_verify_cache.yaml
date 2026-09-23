@@ -1,16 +1,27 @@
-T013b:
+T016:
   c: false
-  h: 699c2e4bf81d239a7e938085408027d4f2b2dccd00a34b4e746f3e8bb0d9096e
-  r: The required file `data/processed/imputed_data.csv` does not exist, so the validation
-    step cannot actually verify any data. Only the JSON status file is present, which
-    is insufficient because the primary artifact to be validated is missing. The task
-    is therefore not genuinely completed.
+  h: bfc067fe2d262b416b46c8919c34b4fb61d19244f99d638d72d840e475563cd9
+  r: "The repository contains `preprocess.py`, but the shown code stops before any\
+    \ imputation or file\u2011write logic and the required output file `data/processed/imputed_data.csv`\
+    \ is absent. Consequently the task\u2019s critical output (saving the imputed\
+    \ DataFrame) is not present. The implementer must add the imputation step (using\
+    \ miceforest or IterativeImputer) and write the resulting DataFrame to the specified\
+    \ CSV path."
 T022:
   c: false
   h: 7d6c5d0e392e7c229f9f85b030c278f6e58155811f776606ee7d4a8671a41711
   r: "The required `data/processed/model_diagnostics.json` file is missing, so the\
     \ collinearity warning cannot be recorded as specified. The task\u2019s primary\
     \ artifact does not exist."
+T028a:
+  c: false
+  h: ba4a2e949ab7987ca7e3ae8a11e26a4a824ad3eb1810b75bca462f336510eff7
+  r: "The required output file `data/processed/sensitivity_sweep_results.csv` does\
+    \ not exist, and the provided `sensitivity.py` only contains utility functions\
+    \ for loading data and computing bias\u2014it lacks any implementation of a p\u2011\
+    value/ imputation\u2011limit sweep, logging to `logs/sensitivity.log`, or generation\
+    \ of the specified CSV columns. The task\u2019s core functionality is therefore\
+    \ not fulfilled."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,17 +38,3 @@ T032a:
     were addressed. The provided text only contains project specifications and user
     stories, not the actual code artifacts or the output of the linting process required
     to verify completion.
-T041:
-  c: false
-  h: d22061510d7b7bb9a1fcea365417db43c1bd9e68653e4c40c1ba641a050f0506
-  r: "The required output file `data/processed/final_report.json` does not exist,\
-    \ so the pipeline cannot have logged the stopping criterion, warning, or final\
-    \ variance as specified. Without this artifact, the task\u2019s core requirement\
-    \ is unmet."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact was provided that shows the sensitivity analysis (T028) was updated\
-    \ to include a distinct \u201Ccomplete case\u201D (no imputation) condition in\
-    \ the threshold sweep, nor any output reporting bias/variance relative to this\
-    \ baseline. The required evidence is missing."

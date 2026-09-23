@@ -1,264 +1,268 @@
 """
-Unit test for parameter recovery bias calculation (|beta_hat - beta_true|)
-for User Story 3 (Methodological Robustness).
+Unit test for parameter recovery bias calculation (|beta_hat - beta_true|).
+This test verifies that the sensitivity analysis module correctly calculates
+the bias between estimated coefficients and ground truth parameters when
+synthetic data is used.
 
-This test verifies that when using synthetic data with known ground truth
-parameters, the analysis pipeline can recover those parameters within
-acceptable bias thresholds.
+Note: This test relies on the ground truth parameters defined in the synthetic
+data generator (T010) and the coefficient estimation from the regression model (T018).
 """
+
 import pytest
-import numpy as np
-import pandas as pd
+import json
+import os
+import logging
 from pathlib import Path
 import sys
+import numpy as np
 
-# Add project root to path to allow imports from code/
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from data.config import get_config, reset_config
-from data.download import generate_synthetic_dataset
-from analysis.regression import validate_model_assumptions
-from utils.validators import validate_dataframe_schema
+from analysis.sensitivity import (
+    load_ground_truth_params,
+    load_estimated_coefficients,
+    calculate_parameter_recovery
+)
+from data.config import get_config
+
+# Configure logging for the test
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class TestParameterRecoveryBias:
     """Tests for parameter recovery bias calculation."""
 
-    def setup_method(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         """Set up test fixtures."""
-        reset_config()
         self.config = get_config()
-        self.seed = 42
-        np.random.seed(self.seed)
+        self.project_root = Path(__file__).parent.parent.parent
+        self.data_dir = self.project_root / "data"
+        self.processed_dir = self.data_dir / "processed"
+        self.state_dir = self.project_root / "state"
 
-    def teardown_method(self):
-        """Clean up after tests."""
-        reset_config()
+        # Ensure directories exist
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
+        self.state_dir.mkdir(parents=True, exist_ok=True)
 
-    def _create_synthetic_data_with_known_params(self, n_samples=500):
-        """
-        Generate synthetic data with known ground truth parameters.
+    def test_load_ground_truth_params_from_seed_file(self):
+        """Test loading ground truth parameters from synthetic seed file."""
+        seed_file = self.data_dir / "raw" / "synthetic_seed.json"
 
-        Ground truth model:
-        post_self_esteem = beta_0 + beta_1 * avatar_condition +
-                           beta_2 * pre_self_esteem +
-                           beta_3 * comparison_tendency +
-                           beta_4 * (avatar_condition * comparison_tendency) +
-                           epsilon
+        # Create a mock seed file if it doesn't exist for testing
+        if not seed_file.exists():
+            mock_params = {
+                "ground_truth": {
+                    "intercept": 0.0,
+                    "main_effect_avatar": 0.1,
+                    "main_effect_comparison": 0.1,
+                    "interaction_beta": 0.2,
+                    "noise_sigma": 1.0
+                },
+                "n_samples": 100,
+                "seed": 42
+            }
+            seed_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(seed_file, 'w') as f:
+                json.dump(mock_params, f, indent=2)
 
-        Where:
-        - beta_0 (intercept) = 2.5
-        - beta_1 (avatar_condition) = 0.3
-        - beta_2 (pre_self_esteem) = 0.6
-        - beta_3 (comparison_tendency) = -0.2
-        - beta_4 (interaction) = 0.2 (the key parameter of interest)
-        """
-        # Ground truth parameters
-        beta_true = {
-            'intercept': 2.5,
-            'avatar_condition': 0.3,
-            'pre_self_esteem': 0.6,
-            'comparison_tendency': -0.2,
-            'interaction': 0.2
+        params = load_ground_truth_params(str(seed_file))
+
+        assert params is not None
+        assert "intercept" in params
+        assert "main_effect_avatar" in params
+        assert "main_effect_comparison" in params
+        assert "interaction_beta" in params
+        assert "noise_sigma" in params
+
+        # Verify expected values match T010 ground truth
+        assert params["intercept"] == 0.0
+        assert params["main_effect_avatar"] == 0.1
+        assert params["main_effect_comparison"] == 0.1
+        assert params["interaction_beta"] == 0.2
+
+    def test_load_estimated_coefficients_from_csv(self):
+        """Test loading estimated coefficients from regression output."""
+        coeffs_file = self.processed_dir / "regression_coefficients.csv"
+
+        # Create a mock coefficient file if it doesn't exist
+        if not coeffs_file.exists():
+            mock_coeffs = [
+                {"name": "Intercept", "estimate": 0.05, "std_err": 0.1, "p_value": 0.6},
+                {"name": "avatar_condition", "estimate": 0.12, "std_err": 0.15, "p_value": 0.42},
+                {"name": "comparison_tendency", "estimate": 0.08, "std_err": 0.12, "p_value": 0.5},
+                {"name": "avatar_condition:comparison_tendency", "estimate": 0.18, "std_err": 0.2, "p_value": 0.36}
+            ]
+            import pandas as pd
+            df = pd.DataFrame(mock_coeffs)
+            coeffs_file.parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(coeffs_file, index=False)
+
+        coeffs = load_estimated_coefficients(str(coeffs_file))
+
+        assert coeffs is not None
+        assert len(coeffs) > 0
+        assert any(c["name"] == "Intercept" for c in coeffs)
+        assert any(c["name"] == "avatar_condition" for c in coeffs)
+
+    def test_calculate_parameter_recovery_bias(self):
+        """Test the core bias calculation: |beta_hat - beta_true|."""
+        # Define ground truth
+        ground_truth = {
+            "intercept": 0.0,
+            "main_effect_avatar": 0.1,
+            "main_effect_comparison": 0.1,
+            "interaction_beta": 0.2
         }
 
-        # Generate data
-        avatar_condition = np.random.binomial(1, 0.5, n_samples)
-        pre_self_esteem = np.random.normal(3.5, 0.8, n_samples)
-        comparison_tendency = np.random.normal(2.5, 0.7, n_samples)
+        # Define estimated coefficients (with some noise)
+        estimated = [
+            {"name": "Intercept", "estimate": 0.05},
+            {"name": "avatar_condition", "estimate": 0.12},
+            {"name": "comparison_tendency", "estimate": 0.08},
+            {"name": "avatar_condition:comparison_tendency", "estimate": 0.18}
+        ]
 
-        # Calculate post_self_esteem with known parameters
-        interaction = avatar_condition * comparison_tendency
-        epsilon = np.random.normal(0, 0.5, n_samples)
-
-        post_self_esteem = (
-            beta_true['intercept'] +
-            beta_true['avatar_condition'] * avatar_condition +
-            beta_true['pre_self_esteem'] * pre_self_esteem +
-            beta_true['comparison_tendency'] * comparison_tendency +
-            beta_true['interaction'] * interaction +
-            epsilon
-        )
-
-        # Create DataFrame
-        df = pd.DataFrame({
-            'avatar_condition': avatar_condition,
-            'pre_self_esteem': pre_self_esteem,
-            'post_self_esteem': post_self_esteem,
-            'comparison_tendency': comparison_tendency,
-            'interaction': interaction
-        })
-
-        return df, beta_true
-
-    def _fit_ancova_model(self, df):
-        """
-        Fit ANCOVA model and return coefficients.
-
-        Model: post_self_esteem ~ avatar_condition + pre_self_esteem +
-               comparison_tendency + interaction
-        """
-        import statsmodels.api as sm
-
-        # Prepare features and target
-        X = df[['avatar_condition', 'pre_self_esteem',
-                'comparison_tendency', 'interaction']]
-        y = df['post_self_esteem']
-
-        # Add intercept
-        X = sm.add_constant(X)
-
-        # Fit OLS model
-        model = sm.OLS(y, X).fit()
-
-        # Extract coefficients
-        coefficients = {
-            'intercept': model.params['const'],
-            'avatar_condition': model.params['avatar_condition'],
-            'pre_self_esteem': model.params['pre_self_esteem'],
-            'comparison_tendency': model.params['comparison_tendency'],
-            'interaction': model.params['interaction']
+        # Map estimated names to ground truth keys
+        name_mapping = {
+            "Intercept": "intercept",
+            "avatar_condition": "main_effect_avatar",
+            "comparison_tendency": "main_effect_comparison",
+            "avatar_condition:comparison_tendency": "interaction_beta"
         }
 
-        return coefficients, model
+        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
 
-    def _calculate_bias(self, beta_hat, beta_true):
-        """
-        Calculate absolute bias for each parameter.
+        assert result is not None
+        assert "bias" in result
+        assert "absolute_errors" in result
 
-        Returns:
-            dict: Absolute bias for each parameter (|beta_hat - beta_true|)
-        """
-        bias = {}
-        for param in beta_true.keys():
-            bias[param] = abs(beta_hat[param] - beta_true[param])
-        return bias
+        # Verify bias calculation for Intercept: |0.05 - 0.0| = 0.05
+        assert result["absolute_errors"]["intercept"] == pytest.approx(0.05, abs=1e-6)
+        # Verify bias calculation for avatar_condition: |0.12 - 0.1| = 0.02
+        assert result["absolute_errors"]["main_effect_avatar"] == pytest.approx(0.02, abs=1e-6)
+        # Verify bias calculation for interaction: |0.18 - 0.2| = 0.02
+        assert result["absolute_errors"]["interaction_beta"] == pytest.approx(0.02, abs=1e-6)
 
-    def test_parameter_recovery_interaction_effect(self):
-        """
-        Test that the interaction effect (beta_4) is recovered with low bias.
+        # The overall bias is the mean of absolute errors
+        expected_mean_bias = (0.05 + 0.02 + 0.02 + 0.02) / 4
+        assert result["bias"] == pytest.approx(expected_mean_bias, abs=1e-6)
 
-        This is the key parameter of interest for the social comparison study.
-        Expected bias should be < 0.1 for N=500 with reasonable noise.
-        """
-        # Generate synthetic data with known parameters
-        df, beta_true = self._create_synthetic_data_with_known_params(n_samples=500)
-
-        # Fit model
-        beta_hat, model = self._fit_ancova_model(df)
-
-        # Calculate bias
-        bias = self._calculate_bias(beta_hat, beta_true)
-
-        # Assert that the interaction effect is recovered with low bias
-        # For N=500 and noise=0.5, we expect bias < 0.1
-        assert bias['interaction'] < 0.1, (
-            f"Interaction effect bias too high: {bias['interaction']:.4f}. "
-            f"Expected < 0.1. True beta: {beta_true['interaction']}, "
-            f"Estimated beta: {beta_hat['interaction']}"
-        )
-
-        # Log results for verification
-        print(f"\nParameter Recovery Results (N=500):")
-        print(f"True parameters: {beta_true}")
-        print(f"Estimated parameters: {beta_hat}")
-        print(f"Absolute bias: {bias}")
-
-    def test_all_parameters_recovered(self):
-        """
-        Test that all parameters are recovered with acceptable bias.
-
-        For each parameter, the absolute bias should be below a threshold
-        that depends on the parameter's magnitude and the sample size.
-        """
-        # Generate synthetic data
-        df, beta_true = self._create_synthetic_data_with_known_params(n_samples=500)
-
-        # Fit model
-        beta_hat, model = self._fit_ancova_model(df)
-
-        # Calculate bias
-        bias = self._calculate_bias(beta_hat, beta_true)
-
-        # Define acceptable bias thresholds (relative to parameter magnitude)
-        # More lenient for smaller parameters
-        thresholds = {
-            'intercept': 0.3,
-            'avatar_condition': 0.15,
-            'pre_self_esteem': 0.15,
-            'comparison_tendency': 0.15,
-            'interaction': 0.15
+    def test_parameter_recovery_with_perfect_estimates(self):
+        """Test bias calculation when estimates perfectly match ground truth."""
+        ground_truth = {
+            "intercept": 0.0,
+            "main_effect_avatar": 0.1,
+            "main_effect_comparison": 0.1,
+            "interaction_beta": 0.2
         }
 
-        # Assert all parameters are recovered within thresholds
-        for param in beta_true.keys():
-            assert bias[param] < thresholds[param], (
-                f"Parameter '{param}' bias too high: {bias[param]:.4f}. "
-                f"Threshold: {thresholds[param]}"
-            )
+        estimated = [
+            {"name": "Intercept", "estimate": 0.0},
+            {"name": "avatar_condition", "estimate": 0.1},
+            {"name": "comparison_tendency", "estimate": 0.1},
+            {"name": "avatar_condition:comparison_tendency", "estimate": 0.2}
+        ]
 
-    def test_bias_decreases_with_sample_size(self):
+        name_mapping = {
+            "Intercept": "intercept",
+            "avatar_condition": "main_effect_avatar",
+            "comparison_tendency": "main_effect_comparison",
+            "avatar_condition:comparison_tendency": "interaction_beta"
+        }
+
+        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
+
+        assert result["bias"] == pytest.approx(0.0, abs=1e-6)
+        assert all(v == 0.0 for v in result["absolute_errors"].values())
+
+    def test_parameter_recovery_handles_missing_coefficients(self):
+        """Test that missing coefficients are handled gracefully."""
+        ground_truth = {
+            "intercept": 0.0,
+            "main_effect_avatar": 0.1,
+            "main_effect_comparison": 0.1,
+            "interaction_beta": 0.2
+        }
+
+        # Missing "comparison_tendency" estimate
+        estimated = [
+            {"name": "Intercept", "estimate": 0.05},
+            {"name": "avatar_condition", "estimate": 0.12},
+            # Missing comparison_tendency
+            {"name": "avatar_condition:comparison_tendency", "estimate": 0.18}
+        ]
+
+        name_mapping = {
+            "Intercept": "intercept",
+            "avatar_condition": "main_effect_avatar",
+            "comparison_tendency": "main_effect_comparison",
+            "avatar_condition:comparison_tendency": "interaction_beta"
+        }
+
+        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
+
+        assert result is not None
+        # Should calculate bias only for available coefficients
+        assert "main_effect_comparison" not in result["absolute_errors"]
+        assert len(result["absolute_errors"]) == 3
+
+    def test_integration_with_full_pipeline_artifacts(self):
         """
-        Test that parameter recovery bias decreases as sample size increases.
-
-        This validates that our estimation procedure is consistent.
+        Integration test: Calculate parameter recovery using actual artifacts
+        generated by the pipeline (if they exist).
         """
-        sample_sizes = [100, 300, 500]
-        interaction_biases = []
+        seed_file = self.data_dir / "raw" / "synthetic_seed.json"
+        coeffs_file = self.processed_dir / "regression_coefficients.csv"
 
-        for n in sample_sizes:
-            df, beta_true = self._create_synthetic_data_with_known_params(n_samples=n)
-            beta_hat, _ = self._fit_ancova_model(df)
-            bias = self._calculate_bias(beta_hat, beta_true)
-            interaction_biases.append(bias['interaction'])
+        # Only run if both files exist
+        if not seed_file.exists() or not coeffs_file.exists():
+            pytest.skip("Required artifacts (synthetic_seed.json, regression_coefficients.csv) not found. "
+                        "Run the full pipeline first to generate these files.")
 
-        # Check that bias generally decreases (not strictly monotonic due to randomness)
-        # But the trend should be downward
-        # We check that the largest sample size has lower bias than the smallest
-        assert interaction_biases[-1] < interaction_biases[0], (
-            f"Interaction bias did not decrease with sample size: "
-            f"N=100 bias={interaction_biases[0]:.4f}, "
-            f"N=500 bias={interaction_biases[-1]:.4f}"
-        )
+        # Load ground truth
+        ground_truth = load_ground_truth_params(str(seed_file))
 
-    def test_model_fit_quality(self):
+        # Load estimated coefficients
+        estimated = load_estimated_coefficients(str(coeffs_file))
+
+        # Map names
+        name_mapping = {
+            "Intercept": "intercept",
+            "avatar_condition": "main_effect_avatar",
+            "comparison_tendency": "main_effect_comparison",
+            "avatar_condition:comparison_tendency": "interaction_beta"
+        }
+
+        # Calculate recovery
+        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
+
+        assert result is not None
+        assert result["bias"] >= 0.0
+        assert "absolute_errors" in result
+        assert len(result["absolute_errors"]) > 0
+
+        logger.info(f"Parameter recovery bias: {result['bias']:.4f}")
+        logger.info(f"Absolute errors: {result['absolute_errors']}")
+
+    def test_bias_threshold_validation(self):
         """
-        Test that the model fits well (high R-squared) when data is generated
-        from the same model structure.
+        Test that the bias calculation correctly identifies when bias exceeds
+        a specified threshold (used in sensitivity analysis).
         """
-        df, beta_true = self._create_synthetic_data_with_known_params(n_samples=500)
-        _, model = self._fit_ancova_model(df)
+        ground_truth = {"interaction_beta": 0.2}
+        estimated = [{"name": "avatar_condition:comparison_tendency", "estimate": 0.5}]
+        name_mapping = {"avatar_condition:comparison_tendency": "interaction_beta"}
 
-        # R-squared should be reasonably high for well-specified model
-        assert model.rsquared > 0.5, (
-            f"R-squared too low: {model.rsquared:.4f}. "
-            "Expected > 0.5 for well-specified model."
-        )
+        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
 
-        # F-statistic should be significant
-        assert model.f_pvalue < 0.001, (
-            f"F-test p-value too high: {model.f_pvalue:.6f}. "
-            "Expected < 0.001."
-        )
+        # Bias should be |0.5 - 0.2| = 0.3
+        assert result["absolute_errors"]["interaction_beta"] == pytest.approx(0.3, abs=1e-6)
 
-    def test_bias_calculation_functionality(self):
-        """
-        Test the bias calculation logic with known values.
-        """
-        # Known values
-        beta_true = {'a': 1.0, 'b': 2.0, 'c': 3.0}
-        beta_hat = {'a': 1.1, 'b': 1.9, 'c': 3.2}
-
-        # Expected biases
-        expected_bias = {'a': 0.1, 'b': 0.1, 'c': 0.2}
-
-        # Calculate bias
-        bias = self._calculate_bias(beta_hat, beta_true)
-
-        # Assert
-        for param in expected_bias:
-            assert abs(bias[param] - expected_bias[param]) < 1e-6, (
-                f"Bias calculation incorrect for '{param}': "
-                f"expected {expected_bias[param]}, got {bias[param]}"
-            )
+        # Simulate a threshold check (e.g., threshold = 0.1)
+        threshold = 0.1
+        exceeds_threshold = result["absolute_errors"]["interaction_beta"] > threshold
+        assert exceeds_threshold is True

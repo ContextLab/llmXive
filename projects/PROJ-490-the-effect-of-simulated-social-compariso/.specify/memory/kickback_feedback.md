@@ -4,11 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T002a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T002b` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T002c` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T011a` (rejected 1x): No code, configuration, or log files were provided that demonstrate the implementation of the fallback trigger logic described in T011a. The required artifact (e.g., a script or module that checks for real data presence, IRB/consent status, and required variables and then calls T010 to generate synthetic data) is missing, so the task cannot be confirmed as completed.
-- `T011c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/synthetic_seed.json
+- `T013b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/imputed_data.csv, data/processed/post_imputation_validation.json
 
 ## Required change
 

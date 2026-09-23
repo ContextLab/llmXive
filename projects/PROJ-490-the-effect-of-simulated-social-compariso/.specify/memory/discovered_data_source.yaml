@@ -1,0 +1,15 @@
+status: none
+intent: downloadable dataset containing RSES INCOM longitudinal pre post VR exposure
+  participants python package dataset
+required_fields:
+- participant_id
+- pre_RSES
+- post_RSES
+- INCOM_score
+- condition
+- time_point
+- age
+- gender
+cache_key: 1c41f4b3a11dd1ab133079094291a3af6b4cc0ab382137bbd9bc6cb232bb1bab
+searched_at: '2026-09-23T16:32:54.578665+00:00'
+retry_count: 1

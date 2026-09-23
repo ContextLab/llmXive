@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
+  "ok": false,
+  "reason": "16 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026'synthetic' for simulated data.      Returns:         s\u2026\u201d; code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ysis \"             \"used synthetic data generated with known gro\u2026\u201d; code/analysis/report_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026e parameter recovery (if synthetic data)     if sensitivity_resu\u2026\u201d; 4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --action download; python code/main.py --action preprocess; python code/main.py --action analyze; 5 declared deliverable(s) absent: data/processed/final_report.json; data/processed/imputed_data.csv; data/processed/pre_imputation_validation.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --action download -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --action preprocess -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --action analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --action validate -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-23T16:32:30Z"
+}
