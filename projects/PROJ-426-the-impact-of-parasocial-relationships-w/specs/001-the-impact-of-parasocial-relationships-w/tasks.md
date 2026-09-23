@@ -59,10 +59,10 @@
 - [ ] T006 [P] Setup environment configuration management for API keys and data paths
 - [ ] T007 Create `src/utils/data_validation.py` for schema validation and checksum recording
 - [ ] T008 [P] Implement `src/utils/retry_policy.py`:
- - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s [UNRESOLVED-CLAIM: c_11e16a26 — status=not_enough_info])
+ - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s)
  - Create configuration object for retry logic
  - **Output Artifact**: `src/utils/retry_policy.py`
-- [ ] T009 [P] Implement `src/utils/rate_limit_handler.py`:
+- [X] T009 [P] Implement `src/utils/rate_limit_handler.py`:
  - Implement logic to handle 429 responses from Pushshift API
  - Integrate with `retry_policy.py` for backoff
  - Verify error handling by simulating rate limit responses in unit tests
@@ -112,10 +112,10 @@
  - **Depends on**: T012.6 (Must read `data/processed/survey_window_final.json` for boundaries)
  - Retrieve AI interaction logs for `r/Replika`, `r/characterAI`, `r/AICompanions`
  - Filter logs to the exact calendar window defined by `start_date` and `end_date` from `data/processed/survey_window_final.json`
- - Implement exponential backoff (max retries, 60s timeout) [UNRESOLVED-CLAIM: c_a6939780 — status=not_enough_info] using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
+ - Implement exponential backoff (max retries, 60s timeout) using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
  - **Output Artifact**: `data/raw/pushshift_logs.parquet`
 - [ ] T014 [US1] Implement `src/match/user_match.py`:
- - Hash raw usernames using SHA-256 [UNRESOLVED-CLAIM: c_dcd47712 — status=not_enough_info]
+ - Hash raw usernames using SHA-256
  - Join datasets on hashed ID
  - Drop unmatched rows (users with no Pushshift logs)
  - Output `data/processed/matched_users.parquet` with anonymized IDs

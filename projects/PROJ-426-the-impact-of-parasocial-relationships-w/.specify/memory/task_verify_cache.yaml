@@ -5,3 +5,9 @@ T001a:
     `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`) was provided;
     the claim lacks any artifact or listing confirming they exist. The task therefore
     remains unfinished.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation were presented to show that
+    API keys and data paths are managed via environment variables, a `.env` file,
+    or a configuration management system. The required artifact for task T006 is missing.

@@ -70,7 +70,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API (URL: `). **Logic**: Read target species list from `code/config.py`; use `maxResults=300` pagination and `year` filters (1970-2000). Map API response fields to CSV columns: `scientificName` -> `species`, `decimalLatitude` -> `decimalLatitude`, `decimalLongitude` -> `decimalLongitude`, `eventDate` -> `eventDate`, `basisOfRecord` -> `source_identifier`, `downloadDateTime` -> `download_timestamp`, `datasetKey` -> `original_dataset_name`. Save to `data/raw/occurrence_1970_2000.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI).
+- [ ] T010 [P] [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API (URL: `https://api.gbif.org/v1/occurrence/search`). **Logic**: Read target species list from `code/config.py`; use `maxResults=300` pagination and `year` filters (1970-2000). Map API response fields to CSV columns: `scientificName` -> `species`, `decimalLatitude` -> `decimalLatitude`, `decimalLongitude` -> `decimalLongitude`, `eventDate` -> `eventDate`, `basisOfRecord` -> `source_identifier`, `downloadDateTime` -> `download_timestamp`, `datasetKey` -> `original_dataset_name`. Save to `data/raw/occurrence_1970_2000.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI).
 - [ ] T011 [P] [US1] Implement `code/download.py` to fetch recent occurrence data (2005-2020) for evaluation. **Logic**: Same as T010 but year filter 2005-2020. Save to `data/raw/occurrence_2005_2020.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI).
 - [X] T015 [P] [US1] Implement `code/download.py` to download WorldClim v2 historical climate rasters (1970-2000) for **all Bioclim variables** (bio1 through bio19), saving as individual rasters (e.g., `bio1.tif`, `bio2.tif`) to `data/raw/climate_historical/` to ensure all required predictor variables are present (FR-001).
 - [X] T015b [P] [US1] Implement `code/download.py` to download CMIP6 SSP2-4.5 future climate rasters (2050) for **all 19 Bioclim variables** (bio1 through bio19), saving as individual rasters to `data/raw/cmip6_future/` (FR-001, FR-009).
@@ -126,7 +126,7 @@
 - [ ] T034 [P] [US3] Implement `code/sensitivity.py` to sweep suitability thresholds (low, low-moderate, moderate) and apply **Holm-Bonferroni correction at alpha=0.05** for the family of tests, outputting `metrics/sensitivity_report.csv` with corrected p-values (FR-005, SC-003).
 - [ ] T035 [US3] Save final results to `metrics/final_results.csv` and `metrics/sensitivity_report.csv`
 - [ ] T036 [US3] Generate `reports/associational_disclaimer.txt` explicitly stating findings are associational (FR-008)
-- [ ] T037 [US3] Verify total compute time stays within 6-hour limit (SC-002). **Logic**: Wrap pipeline execution in `time` command or log start/end timestamps to `metrics/runtime.log`; verify duration <= A duration of several hours.
+- [ ] T037 [US3] Verify total compute time stays within 6-hour limit (SC-002). **Logic**: Wrap pipeline execution in `time` command or log start/end timestamps to `metrics/runtime.log`; verify duration <= 360 minutes.
 
 **Checkpoint**: All user stories should now be independently functional
 

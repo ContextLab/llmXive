@@ -4,17 +4,32 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project root directory structure for PROJ-426.
-    Implements Task T001a and T001b.
+    Creates the root directory structure for the project.
+    Directories created:
+    - src/
+    - tests/
+    - data/
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - docs/
+    - contracts/
+    - config/
     """
-    # Define the root directory (assuming code/ is the working directory or we are at root)
-    # The task asks for paths relative to project root.
-    # We will assume the script is run from the project root or code/ directory.
-    # To be safe, we define the base as the current working directory.
-    base_dir = Path.cwd()
+    # Determine the project root.
+    # If this script is run from code/, we go up one level.
+    # If run from root, we stay.
+    script_path = Path(__file__).resolve()
+    # Heuristic: if 'code' is in the path, assume we are inside the code folder
+    # and need to go up to project root.
+    if script_path.parent.name == 'code':
+        project_root = script_path.parent
+    else:
+        # Fallback: assume current working directory is project root
+        project_root = Path.cwd()
 
-    # Define the required directories
-    dirs = [
+    # Define relative directories to create
+    directories = [
         "src",
         "tests",
         "data",
@@ -26,60 +41,17 @@ def main():
         "config"
     ]
 
-    created_dirs = []
-    created_files = []
-
-    # Create directories
-    for d in dirs:
-        target = base_dir / d
-        if not target.exists():
-            target.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(target))
+    created_count = 0
+    for dir_name in directories:
+        target_path = project_root / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
+            created_count += 1
         else:
-            created_dirs.append(str(target)) # Report as existing
+            print(f"Directory already exists: {target_path}")
 
-    # Create initialization files (T001b)
-    init_files = [
-        ("src", "__init__.py"),
-        ("tests", "__init__.py"),
-        ("tests", "conftest.py"),
-        ("data", ".gitkeep"),
-        ("docs", ".gitkeep"),
-        ("config", ".gitkeep")
-    ]
-
-    for folder, filename in init_files:
-        target = base_dir / folder / filename
-        if not target.exists():
-            # Create empty file or minimal content
-            target.touch()
-            created_files.append(str(target))
-        else:
-            created_files.append(str(target))
-
-    # Generate a manifest file to satisfy the "evidence" requirement
-    # This file lists all created directories and files, serving as proof of execution.
-    manifest_path = base_dir / "PROJECT_STRUCTURE_MANIFEST.txt"
-    with open(manifest_path, "w") as f:
-        f.write("# Project Structure Manifest\n")
-        f.write(f"# Generated at: {Path.cwd()}\n\n")
-        
-        f.write("## Directories Created/Verified:\n")
-        for d in sorted(created_dirs):
-            f.write(f"- {d}\n")
-        
-        f.write("\n## Initialization Files Created/Verified:\n")
-        for f_path in sorted(created_files):
-            f.write(f"- {f_path}\n")
-        
-        f.write("\n## Verification Note:\n")
-        f.write("This file serves as evidence that T001a and T001b have been executed.\n")
-        f.write("The directory structure matches the requirements in tasks.md.\n")
-
-    print(f"Project structure created at: {base_dir}")
-    print(f"Directories: {len(created_dirs)}")
-    print(f"Init files: {len(created_files)}")
-    print(f"Manifest written to: {manifest_path}")
+    print(f"Setup complete. {created_count} new directories created.")
     return 0
 
 if __name__ == "__main__":
