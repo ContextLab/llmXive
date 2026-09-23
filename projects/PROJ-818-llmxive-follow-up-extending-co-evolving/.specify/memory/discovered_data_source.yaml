@@ -1,0 +1,19 @@
+status: none
+intent: synthetic propositional logic proof generator and grid world task generator
+  python package dataset
+required_fields:
+- proof_id
+- premises
+- conclusion
+- axioms_used
+- proof_steps
+- proof_difficulty_level
+- task_id
+- grid_dimensions
+- obstacle_map
+- start_cell
+- goal_cell
+- rule_set
+cache_key: a3ff47707c81faf1162394ea2f7c356cc573dcdd6e9fb06a5f0ad7aed04b0e74
+searched_at: '2026-09-23T03:42:50.971258+00:00'
+retry_count: 1

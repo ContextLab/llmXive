@@ -1,18 +1,74 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any `__init__.py` files was provided; the claim lacks the required
+    empty files in the `src/` and `tests/` subdirectories. The implementer must add
+    an empty `__init__.py` to every subdirectory under both `src/` and `tests/`.
 T005:
   c: true
   h: 7dbb750388072e7262743b89c5d808928010af6053443d8db121b6b526e0ab5f
   r: "The `src/utils/checksums.py` file exists, is non\u2011empty, and provides SHA\u2011\
     256 computation, registration, verification, and JSON persistence for `data/checksums.json`.\
     \ The utility creates the JSON file on first save, satisfying the management requirement."
+T015a:
+  c: false
+  h: 204090d1ef02832af18c361fddd0fe964e65b6fd67f6af1813eed797093d012d
+  r: The repository lacks the required input files (`data/generated_proofs.json`,
+    `data/generated_grids.json`) and the expected output (`data/validation_report.json`).
+    Moreover, the provided `validate_dataset.py` does not demonstrably load a `VALIDITY_THRESHOLD`
+    from `config.py` nor does it show logic for exiting with an error code when thresholds
+    are not met. These missing artifacts and incomplete functionality prevent the
+    task from being satisfied.
 T017:
   c: false
   h: b6a01cc2e783e4cffd33b623cf01832c22c25c285b43ee180c2150e73de07a58
   r: The required file `tests/unit/test_agent_conditions.py` does not exist, so no
     unit test for the bidirectional exchange logic is present. The artifact is missing,
     failing the task requirement.
+T026:
+  c: false
+  h: d0f3dc4f5308dd45a0d775a2fbc6afba4b5e8d9abcb9e3b83dc0c7dbaf6c1cb9
+  r: All required artifacts (`src/analysis/forgetting_metrics.py`, `data/test_instances.json`,
+    `data/results/initial_metrics.json`, `data/results/baseline_metrics.json`, `data/results/final_metrics.json`)
+    are missing, so the evaluation logic and output files were not produced. The task
+    requirements are not satisfied.
+T028:
+  c: false
+  h: 956388e15cd1eac269d4e27c60143abcdd991f2feb6b1f11c448bb44a373616e
+  r: "The provided `src/cli.py` does not contain any implementation that runs a single\
+    \ warm\u2011up run per condition, measures wall\u2011clock time, estimates total\
+    \ runtime, or aborts when the estimate exceeds 5.5\u202Fhours. Moreover, the required\
+    \ `data/batch_config.json` file is absent, so the script cannot even read the\
+    \ seeds needed for the warm\u2011up. Both the core functionality and a required\
+    \ data artifact are missing."
+T029:
+  c: false
+  h: 956388e15cd1eac269d4e27c60143abcdd991f2feb6b1f11c448bb44a373616e
+  r: "The repository lacks the required `data/batch_config.json` file, so the CLI\
+    \ cannot read the unique seeds needed for batch execution. Moreover, the provided\
+    \ `src/cli.py` excerpt shows only utility imports and a partial dependency check;\
+    \ there is no visible implementation of a batch\u2011runner that iterates over\
+    \ conditions and seeds. Both the essential input file and the core batch\u2011\
+    running logic are missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, script, or data file was presented that gathers the batch runner outputs
     from `data/results/` nor checks that at least 30 runs exist before analysis. The
     required aggregation logic and verification step are missing.
+T041:
+  c: false
+  h: 2a5a7ccbda45ede70f851bfb12fbc89f7315bdfd168e48043019c8505fb282d7
+  r: "The `parity_report.json` file was not generated (it is missing), and the `src/analysis/parity_checker.py`\
+    \ implementation is incomplete\u2014e.g., the `generate_parity_report` function\
+    \ is truncated and never writes the report to `data/results/parity_report.json`.\
+    \ The required post\u2011run verification output is therefore absent."
+T045:
+  c: false
+  h: 8a7b7cff639b806555456f56dbabe65d6bc0ed52c7647806ca5073fd78f32504
+  r: The test file `tests/integration/test_reproducibility.py` exists, but the required
+    data files (`data/batch_config.json`, `data/checksums.json`, and `data/results/forgetting_analysis.json`)
+    are missing, so the script cannot actually load seeds, original checksums, or
+    original metrics to perform the reproducibility verification. These files must
+    be provided (with correct content) and the script must successfully execute the
+    full pipeline for the task to be considered complete.

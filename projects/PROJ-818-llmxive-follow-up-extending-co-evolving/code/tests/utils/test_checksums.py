@@ -1,7 +1,6 @@
 """
-Unit tests for the checksum utility module.
+Unit tests for the checksum utility.
 """
-
 import json
 import os
 import tempfile
@@ -9,145 +8,116 @@ from pathlib import Path
 import pytest
 import sys
 
-# Add the project root to the path to allow imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add code to path if running standalone
+if str(Path(__file__).parent.parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.utils.checksums import (
+    ChecksumError,
     compute_file_sha256,
     load_checksums,
     save_checksums,
     update_checksum_for_file,
-    verify_file_integrity,
-    ChecksumError,
-    CHECKSUM_REGISTRY_PATH
+    verify_file_integrity
 )
 
 
 class TestChecksums:
-    """Test suite for checksum utilities."""
+    @pytest.fixture
+    def temp_data_dir(self, tmp_path):
+        """Create a temporary directory for test artifacts."""
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        return str(data_dir)
 
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Setup and teardown for each test."""
-        # Use a temporary directory for the data folder during tests
-        self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        
-        # Create a temporary data directory structure
-        self.temp_data_path = Path(self.temp_dir) / "data"
-        self.temp_data_path.mkdir(parents=True, exist_ok=True)
-        
-        # Temporarily override the global registry path
-        global CHECKSUM_REGISTRY_PATH
-        self.original_registry_path = CHECKSUM_REGISTRY_PATH
-        CHECKSUM_REGISTRY_PATH = self.temp_data_path / "checksums.json"
-        
-        os.chdir(self.temp_dir)
-        yield
+    @pytest.fixture
+    def test_file(self, temp_data_dir):
+        """Create a temporary test file."""
+        file_path = Path(temp_data_dir) / "test_file.txt"
+        file_path.write_text("Hello, World!")
+        return str(file_path)
 
-        # Restore original state
-        os.chdir(self.original_cwd)
-        CHECKSUM_REGISTRY_PATH = self.original_registry_path
-        import shutil
-        shutil.rmtree(self.temp_dir)
+    @pytest.fixture
+    def checksum_file(self, temp_data_dir):
+        """Path to a temporary checksum file."""
+        return str(Path(temp_data_dir) / "checksums.json")
 
-    def test_compute_file_sha256(self):
-        """Test that we can compute a SHA-256 hash for a file."""
-        test_file = Path(self.temp_dir) / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+    def test_compute_file_sha256(self, test_file):
+        """Test that compute_file_sha256 returns a valid hash."""
+        hash_val = compute_file_sha256(test_file)
+        assert isinstance(hash_val, str)
+        assert len(hash_val) == 64  # SHA-256 hex length
+        assert all(c in "0123456789abcdef" for c in hash_val)
 
-        hash_result = compute_file_sha256(test_file)
-        
-        # Verify it's a valid hex string of correct length
-        assert isinstance(hash_result, str)
-        assert len(hash_result) == 64  # SHA-256 hex length
-        assert all(c in '0123456789abcdef' for c in hash_result)
-
-    def test_compute_file_sha256_file_not_found(self):
-        """Test that computing hash for non-existent file raises error."""
+    def test_compute_file_sha256_not_found(self, temp_data_dir):
+        """Test that compute_file_sha256 raises error for missing file."""
         with pytest.raises(ChecksumError, match="File not found"):
-            compute_file_sha256(Path("non_existent_file.txt"))
+            compute_file_sha256(str(Path(temp_data_dir) / "nonexistent.txt"))
 
-    def test_load_checksums_empty(self):
-        """Test loading checksums when registry doesn't exist."""
-        # Ensure the file doesn't exist
-        if CHECKSUM_REGISTRY_PATH.exists():
-            CHECKSUM_REGISTRY_PATH.unlink()
+    def test_load_checksums_empty(self, temp_data_dir):
+        """Test loading checksums from a non-existent file."""
+        checksum_path = str(Path(temp_data_dir) / "nonexistent.json")
+        data = load_checksums(checksum_path)
+        assert "files" in data
+        assert "metadata" in data
+        assert data["files"] == {}
 
-        result = load_checksums()
-        assert result == {"files": {}}
+    def test_load_checksums_with_data(self, temp_data_dir, checksum_file):
+        """Test loading checksums from an existing file."""
+        initial_data = {
+            "files": {"test.txt": {"hash": "abc123", "updated_at": "2023-01-01"}},
+            "metadata": {"last_updated": "2023-01-01"}
+        }
+        with open(checksum_file, "w") as f:
+            json.dump(initial_data, f)
 
-    def test_load_checksums_with_data(self):
-        """Test loading checksums when registry exists."""
-        # Create a mock registry
-        mock_data = {"files": {"test.txt": {"hash": "abc123", "algorithm": "sha256"}}}
-        with open(CHECKSUM_REGISTRY_PATH, "w") as f:
-            json.dump(mock_data, f)
+        loaded = load_checksums(checksum_file)
+        assert loaded["files"]["test.txt"]["hash"] == "abc123"
 
-        result = load_checksums()
-        assert result == mock_data
+    def test_save_checksums(self, temp_data_dir, checksum_file):
+        """Test saving checksums to a file."""
+        data = {
+            "files": {"test.txt": {"hash": "def456", "updated_at": "2023-01-02"}},
+            "metadata": {"last_updated": None}
+        }
+        save_checksums(data, checksum_file)
 
-    def test_update_checksum_for_file(self):
-        """Test updating a checksum for a file."""
-        test_file = Path(self.temp_dir) / "update_test.txt"
-        test_file.write_text("Test content")
+        assert os.path.exists(checksum_file)
+        with open(checksum_file, "r") as f:
+            loaded = json.load(f)
+        assert loaded["files"]["test.txt"]["hash"] == "def456"
+        assert loaded["metadata"]["last_updated"] is not None
 
-        result = update_checksum_for_file(test_file)
+    def test_update_checksum_for_file(self, test_file, checksum_file):
+        """Test updating a file's checksum in the database."""
+        hash_val = update_checksum_for_file(test_file, checksum_file)
 
-        assert "path" in result
-        assert "hash" in result
-        assert result["path"].endswith("update_test.txt")
-        
-        # Verify it's in the registry
-        registry = load_checksums()
-        assert result["path"] in registry["files"]
-        assert registry["files"][result["path"]]["hash"] == result["hash"]
+        # Verify the returned hash matches the computed one
+        assert hash_val == compute_file_sha256(test_file)
 
-    def test_verify_file_integrity_success(self):
+        # Verify it was saved
+        checksums = load_checksums(checksum_file)
+        # The key might be relative or absolute depending on implementation,
+        # but the file should be in the dict.
+        keys = list(checksums["files"].keys())
+        assert any("test_file.txt" in k for k in keys)
+
+    def test_verify_file_integrity_success(self, test_file, checksum_file):
         """Test successful integrity verification."""
-        test_file = Path(self.temp_dir) / "verify_test.txt"
-        test_file.write_text("Verify me")
+        update_checksum_for_file(test_file, checksum_file)
+        assert verify_file_integrity(test_file, checksum_file) is True
 
-        # First, update the checksum
-        update_checksum_for_file(test_file)
+    def test_verify_file_integrity_failure(self, test_file, checksum_file):
+        """Test integrity verification failure after file modification."""
+        update_checksum_for_file(test_file, checksum_file)
 
-        # Then verify
-        assert verify_file_integrity(test_file) is True
+        # Modify the file
+        Path(test_file).write_text("Modified content")
 
-    def test_verify_file_integrity_failure(self):
-        """Test integrity verification fails when file is modified."""
-        test_file = Path(self.temp_dir) / "modify_test.txt"
-        test_file.write_text("Original content")
+        assert verify_file_integrity(test_file, checksum_file) is False
 
-        # Update checksum
-        update_checksum_for_file(test_file)
-
-        # Modify file
-        test_file.write_text("Modified content")
-
-        # Verification should fail
-        with pytest.raises(ChecksumError, match="Integrity check failed"):
-            verify_file_integrity(test_file)
-
-    def test_verify_file_integrity_not_registered(self):
-        """Test verification fails for unregistered file."""
-        test_file = Path(self.temp_dir) / "unregistered.txt"
-        test_file.write_text("I am not registered")
-
-        with pytest.raises(ChecksumError, match="No stored checksum found"):
-            verify_file_integrity(test_file)
-
-    def test_save_checksums_creates_directory(self):
-        """Test that saving checksums creates the data directory if needed."""
-        # Remove the data directory
-        if self.temp_data_path.exists():
-            import shutil
-            shutil.rmtree(self.temp_data_path)
-
-        # Save should create it
-        save_checksums({"files": {}})
-        
-        assert self.temp_data_path.exists()
-        assert CHECKSUM_REGISTRY_PATH.exists()
+    def test_verify_file_integrity_not_registered(self, test_file, checksum_file):
+        """Test verification fails if file is not registered."""
+        # Don't update checksum first
+        with pytest.raises(ChecksumError, match="not registered"):
+            verify_file_integrity(test_file, checksum_file)

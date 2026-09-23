@@ -1,124 +1,144 @@
+"""
+Unit tests for statistical power analysis and sample size calculation.
+"""
 import pytest
 import json
 import tempfile
 import os
 from pathlib import Path
 import sys
-import numpy as np
 
-# Add the project root to the path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.analysis.statistical_tests import (
     calculate_power_and_sample_size,
     check_power_requirement,
-    StatisticalAnalysisError
+    generate_batch_config
 )
 
+
 class TestStatisticalPower:
-    @pytest.fixture
-    def sample_data_with_variance(self):
-        """Generate sample data with realistic variance."""
-        return {
-            "Sequential": [0.1, 0.15, 0.12, 0.18, 0.14, 0.11, 0.16, 0.13, 0.17, 0.12],
-            "Mixed": [0.05, 0.08, 0.06, 0.09, 0.07, 0.05, 0.08, 0.06, 0.07, 0.06],
-            "Coevolving": [0.02, 0.04, 0.03, 0.05, 0.03, 0.02, 0.04, 0.03, 0.04, 0.03]
-        }
+    """Tests for statistical power functions."""
 
-    @pytest.fixture
-    def sample_data_zero_variance(self):
-        """Generate sample data with zero variance in all groups."""
-        return {
-            "GroupA": [0.5, 0.5, 0.5, 0.5, 0.5],
-            "GroupB": [0.5, 0.5, 0.5, 0.5, 0.5]
-        }
+    def test_calculate_sample_size_medium_effect(self):
+        """Test sample size calculation with medium effect size (0.25)."""
+        n = calculate_power_and_sample_size(
+            alpha=0.05,
+            power=0.8,
+            effect_size=0.25
+        )
+        # For medium effect size with 3 groups, we expect N around 50-60 per group
+        assert n > 0
+        assert isinstance(n, int)
+        # Verify the calculated N actually achieves the desired power
+        meets, achieved_power = check_power_requirement(n, 0.05, 0.8, 0.25)
+        assert meets, f"Calculated N={n} does not achieve power >= 0.8 (achieved: {achieved_power})"
 
-    @pytest.fixture
-    def sample_data_small_n(self):
-        """Generate sample data with small N per group."""
-        return {
-            "GroupA": [0.1, 0.2],
-            "GroupB": [0.3, 0.4],
-            "GroupC": [0.5, 0.6]
-        }
+    def test_calculate_sample_size_large_effect(self):
+        """Test sample size calculation with large effect size (0.4)."""
+        n = calculate_power_and_sample_size(
+            alpha=0.05,
+            power=0.8,
+            effect_size=0.4
+        )
+        # Larger effect size should require smaller sample size
+        assert n > 0
+        assert isinstance(n, int)
+        meets, _ = check_power_requirement(n, 0.05, 0.8, 0.4)
+        assert meets
 
-    def test_calculate_power_with_variance(self, sample_data_with_variance):
-        """Test power calculation with realistic variance."""
-        result = calculate_power_and_sample_size(sample_data_with_variance)
-        
-        assert result["status"] == "success"
-        assert "effect_size_f" in result
-        assert "estimated_n_per_group" in result
-        assert result["estimated_n_per_group"] > 0
-        assert result["current_n_per_group"] > 0
+    def test_calculate_sample_size_small_effect(self):
+        """Test sample size calculation with small effect size (0.1)."""
+        n = calculate_power_and_sample_size(
+            alpha=0.05,
+            power=0.8,
+            effect_size=0.1
+        )
+        # Smaller effect size should require larger sample size
+        assert n > 0
+        assert isinstance(n, int)
+        # Should be larger than for medium effect
+        n_medium = calculate_power_and_sample_size(effect_size=0.25)
+        assert n > n_medium
 
-    def test_calculate_power_zero_variance(self, sample_data_zero_variance):
-        """Test power calculation with zero variance (should default to conservative)."""
-        result = calculate_power_and_sample_size(sample_data_zero_variance)
-        
-        assert result["status"] == "success"
-        # Should not crash and should provide a conservative estimate
-        assert "estimated_n_per_group" in result
-        # The conservative estimate should be reasonable (e.g., not 0)
-        assert result["estimated_n_per_group"] > 0
+    def test_check_power_requirement(self):
+        """Test power requirement checking."""
+        # A very large sample should definitely meet the requirement
+        meets, power = check_power_requirement(
+            current_n=1000,
+            alpha=0.05,
+            power=0.8,
+            effect_size=0.25
+        )
+        assert meets
+        assert power >= 0.8
 
-    def test_check_power_requirement_pass(self, sample_data_with_variance):
-        """Test that check_power_requirement returns True when N is sufficient."""
-        # Mock a result where estimated N is 35 (above 30)
-        mock_result = {
-            "status": "success",
-            "estimated_n_per_group": 35
-        }
-        assert check_power_requirement(mock_result, min_required_n=30) is True
+        # A very small sample might not meet the requirement
+        meets, power = check_power_requirement(
+            current_n=5,
+            alpha=0.05,
+            power=0.8,
+            effect_size=0.25
+        )
+        # This might or might not meet, but we can check the logic
+        assert isinstance(meets, bool)
+        assert 0 <= power <= 1
 
-    def test_check_power_requirement_fail(self, sample_data_with_variance):
-        """Test that check_power_requirement returns False when N is insufficient."""
-        # Mock a result where estimated N is 20 (below 30)
-        mock_result = {
-            "status": "success",
-            "estimated_n_per_group": 20
-        }
-        assert check_power_requirement(mock_result, min_required_n=30) is False
+    def test_generate_batch_config(self):
+        """Test batch config generation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'batch_config.json')
+            conditions = ['sequential', 'mixed', 'coevolving']
+            n_per_condition = 30
 
-    def test_check_power_requirement_error_status(self):
-        """Test that check_power_requirement returns False if status is error."""
-        mock_result = {
-            "status": "error",
-            "message": "Calculation failed"
-        }
-        assert check_power_requirement(mock_result, min_required_n=30) is False
+            config = generate_batch_config(
+                output_path=output_path,
+                n_per_condition=n_per_condition,
+                conditions=conditions
+            )
 
-    def test_insufficient_samples_raises_error(self, sample_data_small_n, tmp_path):
-        """Test that running analysis on insufficient data raises an error if power check is on."""
-        # Create a temporary directory with small data
-        results_dir = tmp_path / "results"
-        results_dir.mkdir()
-        
-        # Create run directories with small N
-        for i in range(3):
-            run_dir = results_dir / f"run_{i}"
-            run_dir.mkdir()
-            metrics = {
-                "condition": "GroupA",
-                "forgetting_rate": 0.1
-            }
-            with open(run_dir / "final_metrics.json", 'w') as f:
-                json.dump(metrics, f)
-        
-        # We need to test the function that loads and checks
-        # Since the main function raises StatisticalAnalysisError on power failure,
-        # we test the logic directly or via the main function if we set up enough data.
-        # Here we test the helper functions primarily.
-        pass
+            # Verify file was created
+            assert os.path.exists(output_path)
 
-    def test_power_analysis_integration(self, sample_data_with_variance):
-        """Integration test for power analysis logic."""
-        # Simulate a scenario where we have enough data
-        large_data = {k: v * 5 for k, v in sample_data_with_variance.items()} # Repeat to increase N
-        
-        result = calculate_power_and_sample_size(large_data)
-        assert result["status"] == "success"
-        
-        # If effect size is large, required N might be small, but we enforce min 30
-        # The check function handles the min 30 logic
-        assert check_power_requirement(result, min_required_n=30) == (result["estimated_n_per_group"] >= 30)
+            # Verify config structure
+            assert config['n_per_condition'] == n_per_condition
+            assert config['conditions'] == conditions
+            assert 'seeds' in config
+
+            # Verify seeds for each condition
+            for cond in conditions:
+                assert cond in config['seeds']
+                assert len(config['seeds'][cond]) == n_per_condition
+                # Verify seeds are unique within a condition
+                assert len(set(config['seeds'][cond])) == n_per_condition
+                # Verify seeds are integers
+                for seed in config['seeds'][cond]:
+                    assert isinstance(seed, int)
+
+    def test_generate_batch_config_default_conditions(self):
+        """Test batch config generation with default conditions."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'batch_config.json')
+
+            config = generate_batch_config(
+                output_path=output_path,
+                n_per_condition=30
+            )
+
+            expected_conditions = ['sequential', 'mixed', 'coevolving']
+            assert config['conditions'] == expected_conditions
+
+    def test_generate_batch_config_file_content(self):
+        """Test that the generated file is valid JSON."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'batch_config.json')
+
+            generate_batch_config(output_path=output_path, n_per_condition=30)
+
+            with open(output_path, 'r') as f:
+                loaded_config = json.load(f)
+
+            assert 'seeds' in loaded_config
+            assert 'sequential' in loaded_config['seeds']
+            assert len(loaded_config['seeds']['sequential']) == 30

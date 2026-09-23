@@ -1,6 +1,3 @@
-"""
-Unit tests for forgetting_metrics module (T026).
-"""
 import json
 import os
 import tempfile
@@ -8,157 +5,298 @@ import pytest
 from pathlib import Path
 import sys
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.analysis.forgetting_metrics import (
+    ForgettingResult,
+    RetentionMetrics,
+    RuleIdentityRecord,
     load_test_instances,
     load_agent_state,
+    get_agent_rule_ids,
     evaluate_agent_on_instances,
-    calculate_accuracy_drop,
     calculate_retention_rate,
     compute_forgetting_metrics,
     compute_retention_metrics,
-    ForgettingResult,
-    RetentionMetrics
+    save_forgetting_metrics,
+    save_retention_metrics
 )
 
+
 class TestForgettingMetrics:
-    """Tests for the forgetting metrics module."""
+    """Unit tests for forgetting metrics calculation."""
 
-    def test_load_test_instances_success(self, tmp_path):
-        """Test loading valid test instances."""
-        data = [
-            {"id": "t1", "domain": "logic", "rule_set_id": "r1", "instance_data": {"required_rules": ["rule_a"]}},
-            {"id": "t2", "domain": "grid", "rule_set_id": "r2", "instance_data": {"required_rules": ["rule_b"]}}
+    def test_load_test_instances_success(self, temp_data_dir):
+        """Test loading test instances from a valid JSON file."""
+        test_data = [
+            {"id": "test_1", "domain": "logic", "rule_set_id": "rs1", "instance_data": {"problem": "A->B", "solution": "B"}},
+            {"id": "test_2", "domain": "grid", "rule_set_id": "rs2", "instance_data": {"problem": "grid_3x3", "solution": "path"}}
         ]
-        file_path = tmp_path / "test_instances.json"
-        with open(file_path, 'w') as f:
-            json.dump(data, f)
         
-        result = load_test_instances(str(file_path))
+        test_file = temp_data_dir / "test_instances.json"
+        with open(test_file, 'w') as f:
+            json.dump(test_data, f)
+        
+        result = load_test_instances(str(test_file))
         assert len(result) == 2
-        assert result[0]['id'] == 't1'
+        assert result[0]['id'] == 'test_1'
+        assert result[1]['id'] == 'test_2'
 
-    def test_load_test_instances_not_found(self):
-        """Test loading non-existent file raises error."""
+    def test_load_test_instances_not_found(self, temp_data_dir):
+        """Test that loading from a non-existent file raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
-            load_test_instances("non_existent_file.json")
+            load_test_instances(str(temp_data_dir / "nonexistent.json"))
 
-    def test_load_test_instances_invalid_json(self, tmp_path):
-        """Test loading invalid JSON raises error."""
-        file_path = tmp_path / "invalid.json"
-        with open(file_path, 'w') as f:
-            f.write("not json")
+    def test_load_test_instances_invalid_format(self, temp_data_dir):
+        """Test that loading a non-list JSON raises ValueError."""
+        test_file = temp_data_dir / "invalid.json"
+        with open(test_file, 'w') as f:
+            json.dump({"not": "a list"}, f)
         
-        with pytest.raises(json.JSONDecodeError):
-            load_test_instances(str(file_path))
+        with pytest.raises(ValueError):
+            load_test_instances(str(test_file))
 
-    def test_calculate_accuracy_drop(self):
-        """Test accuracy drop calculation."""
-        assert calculate_accuracy_drop(0.9, 0.7) == 0.2
-        assert calculate_accuracy_drop(0.5, 0.5) == 0.0
-        assert calculate_accuracy_drop(1.0, 0.0) == 1.0
+    def test_load_agent_state_success(self, temp_data_dir):
+        """Test loading agent state from a valid JSON file."""
+        state_data = {
+            "population": [
+                {"rule_set": [{"rule_id": "rule_1"}, {"rule_id": "rule_2"}]},
+                {"rule_set": [{"rule_id": "rule_3"}]}
+            ],
+            "generation_count": 10
+        }
+        
+        state_file = temp_data_dir / "agent_state.json"
+        with open(state_file, 'w') as f:
+            json.dump(state_data, f)
+        
+        result = load_agent_state(str(state_file))
+        assert result['generation_count'] == 10
+        assert len(result['population']) == 2
 
-    def test_calculate_retention_rate(self):
-        """Test retention rate calculation."""
-        initial = ["a", "b", "c"]
-        final = ["a", "b", "d"]
-        rate, retained, lost = calculate_retention_rate(initial, final)
+    def test_get_agent_rule_ids_from_list_population(self, temp_data_dir):
+        """Test extracting rule IDs from a list-based population."""
+        state_data = {
+            "population": [
+                {"rule_set": [{"rule_id": "r1"}, {"rule_id": "r2"}]},
+                {"rule_set": [{"rule_id": "r3"}]}
+            ]
+        }
         
-        assert rate == 2/3
-        assert set(retained) == {"a", "b"}
-        assert set(lost) == {"c"}
+        state_file = temp_data_dir / "state.json"
+        with open(state_file, 'w') as f:
+            json.dump(state_data, f)
         
-        # Edge case: empty initial
-        rate, _, _ = calculate_retention_rate([], ["a"])
+        state = load_agent_state(str(state_file))
+        rule_ids = get_agent_rule_ids(state)
+        
+        assert len(rule_ids) == 3
+        assert "r1" in rule_ids
+        assert "r2" in rule_ids
+        assert "r3" in rule_ids
+
+    def test_get_agent_rule_ids_empty_population(self, temp_data_dir):
+        """Test extracting rule IDs from an empty population."""
+        state_data = {"population": []}
+        
+        state_file = temp_data_dir / "state.json"
+        with open(state_file, 'w') as f:
+            json.dump(state_data, f)
+        
+        state = load_agent_state(str(state_file))
+        rule_ids = get_agent_rule_ids(state)
+        
+        assert len(rule_ids) == 0
+
+    def test_get_agent_rule_ids_no_population_key(self, temp_data_dir):
+        """Test extracting rule IDs when population key is missing."""
+        state_data = {"generation_count": 5}
+        
+        state_file = temp_data_dir / "state.json"
+        with open(state_file, 'w') as f:
+            json.dump(state_data, f)
+        
+        state = load_agent_state(str(state_file))
+        rule_ids = get_agent_rule_ids(state)
+        
+        assert len(rule_ids) == 0
+
+    def test_calculate_retention_rate_full(self):
+        """Test retention rate calculation with 100% retention."""
+        initial = {"r1", "r2", "r3"}
+        final = {"r1", "r2", "r3"}
+        
+        rate = calculate_retention_rate(initial, final)
+        assert rate == 1.0
+
+    def test_calculate_retention_rate_partial(self):
+        """Test retention rate calculation with partial retention."""
+        initial = {"r1", "r2", "r3", "r4"}
+        final = {"r1", "r2"}
+        
+        rate = calculate_retention_rate(initial, final)
+        assert rate == 0.5
+
+    def test_calculate_retention_rate_zero(self):
+        """Test retention rate calculation with 0% retention."""
+        initial = {"r1", "r2"}
+        final = {"r3", "r4"}
+        
+        rate = calculate_retention_rate(initial, final)
         assert rate == 0.0
 
-    def test_evaluate_agent_on_instances_empty_instances(self):
-        """Test evaluation with no instances."""
-        state = {"rule_sets": []}
-        acc, count = evaluate_agent_on_instances(state, [])
-        assert acc == 0.0
-        assert count == 0
+    def test_calculate_retention_rate_empty_initial(self):
+        """Test retention rate calculation with empty initial set."""
+        initial = set()
+        final = {"r1", "r2"}
+        
+        rate = calculate_retention_rate(initial, final)
+        assert rate == 0.0
 
-    def test_evaluate_agent_on_instances_coverage(self):
-        """Test evaluation logic when rules match."""
-        # State has rule_a, instance requires rule_a -> should be correct
-        state = {
-            "rule_sets": [
-                {"rule_ids": ["rule_a", "rule_c"]}
+    def test_compute_forgetting_metrics(self, temp_data_dir):
+        """Test computing forgetting metrics."""
+        # Create initial metrics
+        initial_data = {"accuracy": 0.9, "metrics": {"accuracy": 0.9}}
+        initial_file = temp_data_dir / "initial.json"
+        with open(initial_file, 'w') as f:
+            json.dump(initial_data, f)
+        
+        # Create final metrics
+        final_data = {"accuracy": 0.7, "metrics": {"accuracy": 0.7}}
+        final_file = temp_data_dir / "final.json"
+        with open(final_file, 'w') as f:
+            json.dump(final_data, f)
+        
+        result = compute_forgetting_metrics(
+            run_id="test_run",
+            condition="sequential",
+            initial_metrics_path=str(initial_file),
+            final_metrics_path=str(final_file)
+        )
+        
+        assert result.run_id == "test_run"
+        assert result.condition == "sequential"
+        assert result.initial_accuracy == 0.9
+        assert result.final_accuracy == 0.7
+        # Forgetting rate = (0.9 - 0.7) / 0.9 = 0.222...
+        assert abs(result.forgetting_rate - 0.2222222222222222) < 1e-6
+
+    def test_compute_forgetting_metrics_zero_initial(self, temp_data_dir):
+        """Test computing forgetting metrics when initial accuracy is zero."""
+        initial_data = {"accuracy": 0.0}
+        initial_file = temp_data_dir / "initial.json"
+        with open(initial_file, 'w') as f:
+            json.dump(initial_data, f)
+        
+        final_data = {"accuracy": 0.0}
+        final_file = temp_data_dir / "final.json"
+        with open(final_file, 'w') as f:
+            json.dump(final_data, f)
+        
+        result = compute_forgetting_metrics(
+            run_id="test_run",
+            condition="mixed",
+            initial_metrics_path=str(initial_file),
+            final_metrics_path=str(final_file)
+        )
+        
+        assert result.forgetting_rate == 0.0
+
+    def test_compute_forgetting_metrics_file_not_found(self, temp_data_dir):
+        """Test that missing initial metrics file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            compute_forgetting_metrics(
+                run_id="test_run",
+                condition="sequential",
+                initial_metrics_path=str(temp_data_dir / "missing.json"),
+                final_metrics_path=str(temp_data_dir / "final.json")
+            )
+
+    def test_compute_retention_metrics(self, temp_data_dir):
+        """Test computing retention metrics."""
+        # Create initial state
+        initial_state = {
+            "population": [
+                {"rule_set": [{"rule_id": "r1"}, {"rule_id": "r2"}, {"rule_id": "r3"}]}
             ]
         }
-        instances = [
-            {"id": "1", "instance_data": {"required_rules": ["rule_a"]}}
-        ]
-        acc, count = evaluate_agent_on_instances(state, instances)
-        assert count == 1
-        assert acc == 1.0
-
-    def test_evaluate_agent_on_instances_missing_rules(self):
-        """Test evaluation logic when rules are missing."""
-        state = {
-            "rule_sets": [
-                {"rule_ids": ["rule_c"]}
+        initial_file = temp_data_dir / "initial_state.json"
+        with open(initial_file, 'w') as f:
+            json.dump(initial_state, f)
+        
+        # Create final state
+        final_state = {
+            "population": [
+                {"rule_set": [{"rule_id": "r1"}, {"rule_id": "r2"}]}
             ]
         }
-        instances = [
-            {"id": "1", "instance_data": {"required_rules": ["rule_a", "rule_b"]}}
+        final_file = temp_data_dir / "final_state.json"
+        with open(final_file, 'w') as f:
+            json.dump(final_state, f)
+        
+        result = compute_retention_metrics(
+            run_id="test_run",
+            condition="coevolving",
+            initial_state_path=str(initial_file),
+            final_state_path=str(final_file)
+        )
+        
+        assert result.run_id == "test_run"
+        assert result.retention_rate == 2/3  # 2 out of 3 retained
+        assert len(result.rule_identity_record['retained_rule_ids']) == 2
+        assert len(result.rule_identity_record['lost_rule_ids']) == 1
+
+    def test_save_forgetting_metrics(self, temp_data_dir):
+        """Test saving forgetting metrics to JSON."""
+        results = [
+            ForgettingResult(
+                run_id="run_1",
+                condition="sequential",
+                initial_accuracy=0.9,
+                final_accuracy=0.7,
+                forgetting_rate=0.222,
+                initial_metrics_source="initial.json",
+                final_metrics_source="final.json"
+            )
         ]
-        acc, count = evaluate_agent_on_instances(state, instances)
-        assert count == 1
-        # Since required (a, b) is not subset of (c), correct=0
-        assert acc == 0.0
+        
+        output_file = temp_data_dir / "output.json"
+        save_forgetting_metrics(results, str(output_file))
+        
+        assert output_file.exists()
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        assert len(data) == 1
+        assert data[0]['run_id'] == "run_1"
+        assert data[0]['forgetting_rate'] == 0.222
 
-    def test_compute_forgetting_metrics_success(self):
-        """Test full forgetting metrics computation."""
-        state = {
-            "initial_state": {
-                "rule_sets": [{"rule_ids": ["r1", "r2"]}]
-            },
-            "final_state": {
-                "rule_sets": [{"rule_ids": ["r1"]}]
-            }
-        }
-        instances = [
-            {"id": "1", "instance_data": {"required_rules": ["r1"]}}, # Initial: has r1 -> correct. Final: has r1 -> correct.
-            {"id": "2", "instance_data": {"required_rules": ["r2"]}}  # Initial: has r2 -> correct. Final: missing r2 -> incorrect.
+    def test_save_retention_metrics(self, temp_data_dir):
+        """Test saving retention metrics to JSON."""
+        results = [
+            RetentionMetrics(
+                run_id="run_1",
+                condition="mixed",
+                rule_identity_record={
+                    "initial_rule_ids": ["r1", "r2"],
+                    "final_rule_ids": ["r1"],
+                    "retained_rule_ids": ["r1"],
+                    "lost_rule_ids": ["r2"],
+                    "retention_rate": 0.5
+                },
+                retention_rate=0.5,
+                initial_state_source="initial.json",
+                final_state_source="final.json"
+            )
         ]
         
-        result = compute_forgetting_metrics(state, instances, "agent_1", "mixed")
+        output_file = temp_data_dir / "output.json"
+        save_retention_metrics(results, str(output_file))
         
-        assert result.agent_id == "agent_1"
-        assert result.condition == "mixed"
-        assert result.initial_accuracy == 1.0 # Both r1 and r2 present
-        assert result.final_accuracy == 0.5   # Only r1 present (1/2 correct)
-        assert result.accuracy_drop == 0.5
-
-    def test_compute_retention_metrics_success(self):
-        """Test full retention metrics computation."""
-        state = {
-            "initial_state": {
-                "rule_sets": [{"rule_ids": ["r1", "r2", "r3"]}]
-            },
-            "final_state": {
-                "rule_sets": [{"rule_ids": ["r1", "r2"]}]
-            }
-        }
+        assert output_file.exists()
+        with open(output_file, 'r') as f:
+            data = json.load(f)
         
-        result = compute_retention_metrics(state, "agent_1", "mixed")
-        
-        assert result.total_rules_initial == 3
-        assert result.total_rules_final == 2
-        assert result.retained_rules_count == 2
-        assert result.retention_rate == 2/3
-        assert "r3" in result.lost_rule_ids
-
-    def test_compute_forgetting_metrics_missing_states(self):
-        """Test error when states are missing."""
-        state = {"initial_state": {}} # Missing final
-        with pytest.raises(ValueError):
-            compute_forgetting_metrics(state, [], "id", "cond")
-        
-        state = {"final_state": {}} # Missing initial
-        with pytest.raises(ValueError):
-            compute_forgetting_metrics(state, [], "id", "cond")
+        assert len(data) == 1
+        assert data[0]['run_id'] == "run_1"
+        assert data[0]['retention_rate'] == 0.5

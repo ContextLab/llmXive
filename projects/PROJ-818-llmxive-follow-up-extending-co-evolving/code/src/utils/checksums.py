@@ -1,28 +1,20 @@
 """
-Checksum utility module for managing SHA-256 hashes of data artifacts.
-
-This module provides functionality to:
-- Compute SHA-256 hashes for files
-- Load and save a central checksum registry (data/checksums.json)
-- Verify file integrity against stored checksums
-- Update checksums for modified files
+Checksum utility for managing SHA-256 hashes of data artifacts.
 """
-
 import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from datetime import datetime
 
-# Define the checksum registry path relative to project root
-CHECKSUM_REGISTRY_PATH = Path("data/checksums.json")
 
 class ChecksumError(Exception):
     """Custom exception for checksum-related errors."""
     pass
 
 
-def compute_file_sha256(file_path: Path) -> str:
+def compute_file_sha256(file_path: str) -> str:
     """
     Compute the SHA-256 hash of a file.
 
@@ -35,131 +27,185 @@ def compute_file_sha256(file_path: Path) -> str:
     Raises:
         ChecksumError: If the file does not exist or cannot be read.
     """
-    if not file_path.exists():
+    path = Path(file_path)
+    if not path.exists():
         raise ChecksumError(f"File not found: {file_path}")
 
     sha256_hash = hashlib.sha256()
     try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
+        with open(path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except IOError as e:
-        raise ChecksumError(f"Failed to read file {file_path}: {e}")
+        raise ChecksumError(f"Error reading file {file_path}: {e}")
 
 
-def load_checksums() -> Dict[str, Any]:
+def load_checksums(checksum_file_path: str = "data/checksums.json") -> Dict[str, Any]:
     """
-    Load the checksum registry from data/checksums.json.
+    Load the checksums database from disk.
+
+    Args:
+        checksum_file_path: Path to the checksums JSON file.
 
     Returns:
-        Dictionary containing the checksum registry.
-        Returns an empty registry structure if the file does not exist.
+        Dictionary containing the checksums data.
+        Returns an empty dict if the file does not exist.
     """
-    if not CHECKSUM_REGISTRY_PATH.exists():
-        # Ensure the data directory exists
-        CHECKSUM_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
-        return {"files": {}}
+    path = Path(checksum_file_path)
+    if not path.exists():
+        return {"files": {}, "metadata": {"last_updated": None}}
 
     try:
-        with open(CHECKSUM_REGISTRY_PATH, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        raise ChecksumError(f"Invalid JSON in checksum registry: {e}")
-    except IOError as e:
-        raise ChecksumError(f"Failed to load checksum registry: {e}")
+        raise ChecksumError(f"Invalid JSON in checksum file {checksum_file_path}: {e}")
 
 
-def save_checksums(data: Dict[str, Any]) -> None:
+def save_checksums(checksums: Dict[str, Any], checksum_file_path: str = "data/checksums.json") -> None:
     """
-    Save the checksum registry to data/checksums.json.
+    Save the checksums database to disk.
 
     Args:
-        data: The checksum registry dictionary to save.
-
-    Raises:
-        ChecksumError: If the file cannot be written.
+        checksums: Dictionary containing the checksums data.
+        checksum_file_path: Path to the checksums JSON file.
     """
-    # Ensure the data directory exists
-    CHECKSUM_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        with open(CHECKSUM_REGISTRY_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except IOError as e:
-        raise ChecksumError(f"Failed to save checksum registry: {e}")
+    path = Path(checksum_file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    checksums["metadata"]["last_updated"] = datetime.utcnow().isoformat()
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2)
 
 
-def update_checksum_for_file(file_path: Path) -> Dict[str, str]:
+def update_checksum_for_file(file_path: str, checksum_file_path: str = "data/checksums.json") -> str:
     """
-    Compute the hash for a file and update the registry.
+    Compute the hash of a file and update the checksums database.
 
     Args:
-        file_path: Path to the file to register.
+        file_path: Path to the file to hash and register.
+        checksum_file_path: Path to the checksums JSON file.
 
     Returns:
-        Dictionary with the file path and its new hash.
-
-    Raises:
-        ChecksumError: If file operations fail.
+        The computed SHA-256 hash.
     """
-    if not file_path.exists():
-        raise ChecksumError(f"Cannot update checksum: file not found {file_path}")
+    hash_value = compute_file_sha256(file_path)
+    checksums = load_checksums(checksum_file_path)
 
-    file_hash = compute_file_sha256(file_path)
-    registry = load_checksums()
+    # Use relative path from project root for consistency if possible,
+    # otherwise store absolute or provided path.
+    file_key = str(Path(file_path).relative_to(Path.cwd())) if Path(file_path).is_relative_to(Path.cwd()) else file_path
 
-    # Store relative path from project root for portability
-    try:
-        relative_path = str(file_path.relative_to(Path.cwd()))
-    except ValueError:
-        # If not under current working directory, use absolute path
-        relative_path = str(file_path)
-
-    registry["files"][relative_path] = {
-        "hash": file_hash,
-        "algorithm": "sha256"
+    checksums["files"][file_key] = {
+        "hash": hash_value,
+        "updated_at": datetime.utcnow().isoformat()
     }
 
-    save_checksums(registry)
-    return {"path": relative_path, "hash": file_hash}
+    save_checksums(checksums, checksum_file_path)
+    return hash_value
 
 
-def verify_file_integrity(file_path: Path) -> bool:
+def verify_file_integrity(file_path: str, checksum_file_path: str = "data/checksums.json") -> bool:
     """
-    Verify a file's integrity against its stored checksum.
+    Verify a file's integrity against the stored checksum.
 
     Args:
         file_path: Path to the file to verify.
+        checksum_file_path: Path to the checksums JSON file.
 
     Returns:
-        True if the file matches the stored checksum.
+        True if the file matches the stored checksum, False otherwise.
 
     Raises:
-        ChecksumError: If the file is not in the registry or verification fails.
+        ChecksumError: If the file is not registered in the checksums database.
     """
-    try:
-        relative_path = str(file_path.relative_to(Path.cwd()))
-    except ValueError:
-        relative_path = str(file_path)
+    path = Path(file_path)
+    if not path.exists():
+        raise ChecksumError(f"File not found for verification: {file_path}")
 
-    registry = load_checksums()
+    checksums = load_checksums(checksum_file_path)
 
-    if relative_path not in registry["files"]:
-        raise ChecksumError(f"No stored checksum found for: {relative_path}")
+    file_key = str(Path(file_path).relative_to(Path.cwd())) if Path(file_path).is_relative_to(Path.cwd()) else file_path
 
-    stored_entry = registry["files"][relative_path]
-    if stored_entry.get("algorithm") != "sha256":
-        raise ChecksumError(f"Unsupported algorithm in registry: {stored_entry.get('algorithm')}")
+    if file_key not in checksums.get("files", {}):
+        raise ChecksumError(f"File not registered in checksums database: {file_key}")
 
+    stored_hash = checksums["files"][file_key]["hash"]
     current_hash = compute_file_sha256(file_path)
-    stored_hash = stored_entry["hash"]
 
-    if current_hash != stored_hash:
-        raise ChecksumError(
-            f"Integrity check failed for {relative_path}. "
-            f"Expected: {stored_hash}, Found: {current_hash}"
-        )
+    return stored_hash == current_hash
 
-    return True
+
+def main() -> None:
+    """
+    CLI entry point for checksum utility.
+    Usage:
+      python -m src.utils.checksums compute <file_path>
+      python -m src.utils.checksums update <file_path>
+      python -m src.utils.checksums verify <file_path>
+      python -m src.utils.checksums list
+    """
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: python -m src.utils.checksums <command> [args]")
+        print("Commands: compute, update, verify, list")
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    if command == "compute":
+        if len(sys.argv) < 3:
+            print("Error: Missing file path")
+            sys.exit(1)
+        file_path = sys.argv[2]
+        try:
+            h = compute_file_sha256(file_path)
+            print(f"SHA-256: {h}")
+        except ChecksumError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+    elif command == "update":
+        if len(sys.argv) < 3:
+            print("Error: Missing file path")
+            sys.exit(1)
+        file_path = sys.argv[2]
+        try:
+            h = update_checksum_for_file(file_path)
+            print(f"Updated checksum for {file_path}: {h}")
+        except ChecksumError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+    elif command == "verify":
+        if len(sys.argv) < 3:
+            print("Error: Missing file path")
+            sys.exit(1)
+        file_path = sys.argv[2]
+        try:
+            valid = verify_file_integrity(file_path)
+            if valid:
+                print(f"Integrity check passed for {file_path}")
+            else:
+                print(f"Integrity check FAILED for {file_path}")
+                sys.exit(1)
+        except ChecksumError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+    elif command == "list":
+        checksums = load_checksums()
+        if not checksums.get("files"):
+            print("No checksums registered.")
+        else:
+            print("Registered files:")
+            for fname, info in checksums["files"].items():
+                print(f"  {fname}: {info['hash'][:16]}... (updated: {info['updated_at']})")
+    else:
+        print(f"Unknown command: {command}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,12 +1,17 @@
+"""
+Propositional logic proof generator using sympy.
+Implements T011: Generate valid proofs from parameterized axioms.
+"""
 import random
 import json
 import os
 import logging
 from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
-from sympy import symbols, Implies, And, Or, Not, simplify_logic, Symbol, Eq
-from sympy.logic.boolalg import BooleanFunction
+from sympy import simplify_logic, symbols, Implies, And, Or, Not, Symbol
+from sympy.logic.boolalg import to_cnf
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class LogicGenerationError(Exception):
@@ -14,280 +19,145 @@ class LogicGenerationError(Exception):
     pass
 
 class LogicProofGenerator:
-    """
-    Generates valid propositional logic proofs using sympy.
-    Implements bounded retry logic for invalid generations.
-    """
+    """Generates valid propositional logic proofs."""
 
     def __init__(self, seed: Optional[int] = None):
         if seed is not None:
             random.seed(seed)
         self.symbol_counter = 0
-        self._symbol_pool: List[Symbol] = []
+        self.axiom_templates = [
+            # Modus Ponens: (A -> B), A |- B
+            lambda A, B: (Implies(A, B), A, B),
+            # Hypothetical Syllogism: (A -> B), (B -> C) |- (A -> C)
+            lambda A, B, C: (Implies(A, B), Implies(B, C), Implies(A, C)),
+            # Disjunctive Syllogism: (A v B), ~A |- B
+            lambda A, B: (Or(A, B), Not(A), B),
+            # Conjunction: A, B |- (A ^ B)
+            lambda A, B: (A, B, And(A, B)),
+        ]
 
-    def _get_symbol(self, name_base: str = "p") -> Symbol:
-        """Get or create a new unique symbol."""
-        if not self._symbol_pool:
-            # Pre-generate a pool of symbols to ensure consistency within a run
-            # We create enough for the max expected usage in a single proof
-            self._symbol_pool = [Symbol(f"{name_base}{i}") for i in range(20)]
-        return self._symbol_pool.pop()
+    def _new_symbol(self, prefix: str = "P") -> Symbol:
+        """Generate a new unique symbol."""
+        sym = Symbol(f"{prefix}{self.symbol_counter}")
+        self.symbol_counter += 1
+        return sym
 
-    def _restore_symbol(self, sym: Symbol):
-        """Return a symbol to the pool for reuse."""
-        self._symbol_pool.append(sym)
+    def _reset_symbols(self):
+        """Reset symbol counter for reproducibility."""
+        self.symbol_counter = 0
 
-    def _generate_random_axiom_set(self, num_axioms: int = 3, num_vars: int = 3) -> Tuple[List[Symbol], List[BooleanFunction]]:
-        """Generate a set of random axioms involving a subset of variables."""
-        vars_list = [self._get_symbol(f"p{i}") for i in range(num_vars)]
-        
-        axioms = []
-        # Create a mix of simple implications and conjunctions
-        for i in range(num_axioms):
-            if i == 0:
-                # First axiom is often a simple implication to start the chain
-                p = random.choice(vars_list)
-                q = random.choice([v for v in vars_list if v != p])
-                axioms.append(Implies(p, q))
-            elif i == 1 and num_axioms > 1:
-                # Second axiom connects back or adds complexity
-                p = random.choice(vars_list)
-                q = random.choice([v for v in vars_list if v != p])
-                axioms.append(And(p, q))
-            else:
-                # Random boolean expression
-                p = random.choice(vars_list)
-                q = random.choice([v for v in vars_list if v != p])
-                r = random.choice([v for v in vars_list if v != p and v != q])
-                expr_type = random.randint(0, 3)
-                if expr_type == 0:
-                    axioms.append(Implies(p, q))
-                elif expr_type == 1:
-                    axioms.append(Or(p, Not(q)))
-                elif expr_type == 2:
-                    axioms.append(And(p, Implies(q, r)))
-                else:
-                    axioms.append(Implies(And(p, q), r))
-        
-        return vars_list, axioms
-
-    def _generate_consequent(self, vars_list: List[Symbol], axioms: List[BooleanFunction]) -> Optional[BooleanFunction]:
+    def generate_proof(self, seed: Optional[int] = None) -> Dict[str, Any]:
         """
-        Generate a valid consequent derived from axioms.
-        We use a simple forward-chaining approach on a subset of axioms.
+        Generate a single valid logic proof.
+
+        Args:
+            seed: Optional seed for this specific generation.
+
+        Returns:
+            Dictionary with proof details.
         """
-        if not axioms:
-            return None
+        if seed is not None:
+            random.seed(seed)
+        self._reset_symbols()
 
-        # Try to find a chain: A -> B, B -> C, therefore A -> C
-        # Or A, A -> B, therefore B
-        
-        # Strategy: Pick a random variable as the start, try to derive a target
-        start_var = random.choice(vars_list)
-        
-        # Simple derivation: If we have (A & B) -> C, and we have A and B, then C.
-        # Or if we have A -> B, and A, then B.
-        
-        # Let's try a specific pattern:
-        # 1. Find an implication P -> Q
-        # 2. Find P in axioms (or a conjunction containing P)
-        # 3. Conclude Q
-        
-        for axiom in axioms:
-            if isinstance(axiom, Implies):
-                antecedent = axiom.args[0]
-                consequent = axiom.args[1]
-                
-                # Case 1: Antecedent is a single symbol present as a standalone axiom or part of a conjunction
-                if isinstance(antecedent, Symbol):
-                    # Check if antecedent is in axioms
-                    if antecedent in axioms:
-                        return consequent
-                    # Check if antecedent is part of a conjunction in axioms
-                    for other_axiom in axioms:
-                        if isinstance(other_axiom, And) and antecedent in other_axiom.args:
-                            return consequent
-                
-                # Case 2: Antecedent is a conjunction
-                if isinstance(antecedent, And):
-                    required_vars = set(antecedent.args)
-                    available_vars = set()
-                    for other_axiom in axioms:
-                        if other_axiom == antecedent:
-                            return consequent
-                        if isinstance(other_axiom, And):
-                            available_vars.update(other_axiom.args)
-                        elif isinstance(other_axiom, Symbol):
-                            available_vars.add(other_axiom)
-                    
-                    if required_vars.issubset(available_vars):
-                        return consequent
+        # Select a random axiom template
+        template = random.choice(self.axiom_templates)
 
-        # Fallback: If no complex derivation found, try a simple tautology check on a random subset
-        # This is less "derived" but valid if we construct the proof statement carefully.
-        # Instead, let's construct a proof where we assert the axioms imply the conclusion.
-        # We'll pick a random subset of axioms and see if their conjunction implies a random variable.
-        # This is risky for "validity" without a solver, so we stick to the constructive method above.
-        
-        # If we can't find a natural deduction, we construct a trivial one:
-        # If we have P, then P v Q.
-        for axiom in axioms:
-            if isinstance(axiom, Symbol):
-                return Or(axiom, random.choice([s for s in vars_list if s != axiom]))
-        
-        return None
+        # Determine number of symbols needed
+        num_symbols = template.__code__.co_argcount
+        sym_args = [self._new_symbol() for _ in range(num_symbols)]
 
-    def generate_proof(self, max_vars: int = 4, max_axioms: int = 4) -> Dict[str, Any]:
-        """
-        Generate a single valid logic proof instance.
-        Returns a dictionary with 'axioms', 'consequent', 'proof_steps'.
-        """
-        vars_list, axioms = self._generate_random_axiom_set(num_axioms=max_axioms, num_vars=max_vars)
-        consequent = self._generate_consequent(vars_list, axioms)
-        
-        if consequent is None:
-            # Fallback: construct a trivial valid proof
-            # A, (A -> B) |- B
-            p = self._get_symbol("p")
-            q = self._get_symbol("q")
-            # Reset pool to avoid duplicates if we reuse symbols, but for now just return
-            self._restore_symbol(p)
-            self._restore_symbol(q)
-            
-            # Construct specific valid case
-            axiom1 = p
-            axiom2 = Implies(p, q)
-            consequent = q
-            axioms = [axiom1, axiom2]
-            vars_list = [p, q]
+        # Generate premises and conclusion
+        premises_and_conclusion = template(*sym_args)
+        premises = premises_and_conclusion[:-1]
+        conclusion = premises_and_conclusion[-1]
 
-        # Reconstruct proof steps for clarity
-        proof_steps = []
-        proof_steps.append({"step": 1, "formula": str(axioms[0]), "reason": "Premise"})
-        proof_steps.append({"step": 2, "formula": str(axioms[1]), "reason": "Premise"})
-        
-        if len(axioms) > 2:
-            for i, axiom in enumerate(axioms[2:], start=3):
-                proof_steps.append({"step": i, "formula": str(axiom), "reason": "Premise"})
+        # Verify validity (tautology check)
+        # Construct implication: (Premise1 ^ Premise2 ^ ...) -> Conclusion
+        if len(premises) == 1:
+            implication = Implies(premises[0], conclusion)
+        else:
+            premise_conjunction = And(*premises)
+            implication = Implies(premise_conjunction, conclusion)
 
-        # Deduction step
-        proof_steps.append({
-            "step": len(proof_steps) + 1,
-            "formula": str(consequent),
-            "reason": "Modus Ponens / Simplification from previous steps"
-        })
+        # Simplify and check if tautology
+        simplified = simplify_logic(implication)
+        # In sympy, a tautology simplifies to True
+        is_valid = simplified is True or simplified == True
 
-        # Verify validity using sympy
-        # Construct the implication: (A1 & A2 & ... & An) -> C
-        conjunction = axioms[0]
-        for axiom in axioms[1:]:
-            conjunction = And(conjunction, axiom)
-        
-        implication = Implies(conjunction, consequent)
-        
-        # Check if the implication is a tautology
-        # sympy's simplify_logic might not directly say "tautology" for all forms,
-        # but we can check if it's equivalent to True or if the negation is unsatisfiable.
-        # A simpler check for validity in this context:
-        # If we constructed it via Modus Ponens, it should be valid.
-        # Let's double check with a truth table check if possible or simplify.
-        
-        try:
-            # Check if the implication is a tautology
-            # We can check if the negation is unsatisfiable or if it simplifies to True
-            # However, simplify_logic on implications can be tricky.
-            # A robust check: check if the implication is True for all assignments?
-            # For small n, we can iterate, but sympy has `is_tautology` in some versions or via satisfiability.
-            # Let's use `simplify_logic` to see if it reduces to True.
-            simplified = simplify_logic(implication)
-            if simplified is not True:
-                # If it doesn't simplify to True, it might still be a tautology in a different form.
-                # But for our constructive method, it should be.
-                # If it fails, we mark it invalid.
-                return None 
-        except Exception:
-            return None
+        if not is_valid:
+            # Fallback: try to verify via CNF
+            cnf = to_cnf(implication)
+            # If CNF is a tautology, it should be True
+            is_valid = cnf is True or cnf == True
+
+        if not is_valid:
+            raise LogicGenerationError("Generated proof is not valid.")
 
         return {
             "id": f"proof_{random.randint(10000, 99999)}",
-            "domain": "propositional_logic",
-            "rule_set_id": "implication_chain",
-            "instance_data": {
-                "axioms": [str(a) for a in axioms],
-                "consequent": str(consequent),
-                "proof_steps": proof_steps,
-                "variables": [str(v) for v in vars_list]
-            }
+            "domain": "logic",
+            "rule_set_id": f"axiom_{template.__name__ if hasattr(template, '__name__') else 'template'}",
+            "premises": [str(p) for p in premises],
+            "conclusion": str(conclusion),
+            "implication": str(implication),
+            "is_valid": is_valid,
+            "seed": seed
         }
 
-    def generate_proofs_with_retry(self, count: int, max_retries: int = 3) -> List[Dict[str, Any]]:
+    def generate_proofs(self, count: int, seed_start: int = 0) -> List[Dict[str, Any]]:
         """
-        Generate `count` valid proofs with bounded retry logic.
-        If a proof fails validation after max_retries, it is skipped and a warning is logged.
+        Generate multiple valid logic proofs.
+
+        Args:
+            count: Number of proofs to generate.
+            seed_start: Starting seed offset.
+
+        Returns:
+            List of proof dictionaries.
         """
         proofs = []
-        failed_instances = []
+        max_retries = 3
 
         for i in range(count):
-            attempt = 0
-            proof = None
-            while attempt < max_retries:
+            seed = seed_start + i
+            attempts = 0
+            success = False
+
+            while attempts < max_retries and not success:
                 try:
-                    proof = self.generate_proof()
-                    if proof is not None:
-                        break
-                except Exception as e:
-                    logger.warning(f"Generation attempt {attempt + 1} failed with exception: {e}")
-                
-                attempt += 1
-                if attempt < max_retries:
-                    # Reset symbol pool for fresh attempt to avoid state pollution
-                    self._symbol_pool = []
-
-            if proof:
-                proofs.append(proof)
-            else:
-                logger.warning(f"Retry limit reached for instance {i}. Skipping.")
-                failed_instances.append(i)
-
-        if failed_instances:
-            logger.warning(f"Skipped {len(failed_instances)} instances due to generation failures.")
+                    proof = self.generate_proof(seed=seed + attempts)
+                    proofs.append(proof)
+                    success = True
+                except LogicGenerationError as e:
+                    attempts += 1
+                    if attempts == max_retries:
+                        logger.warning(f"Retry limit reached for instance {i}: {e}")
+                    # Skip this instance if retries exhausted
+            if not success:
+                logger.warning(f"Skipping instance {i} after {max_retries} failed attempts.")
 
         return proofs
 
 def main():
-    """Main entry point for the logic generator script."""
+    """CLI entry point for logic generation."""
     import argparse
-    import sys
-
-    parser = argparse.ArgumentParser(description="Generate propositional logic proofs.")
-    parser.add_argument("--count", type=int, default=10, help="Number of proofs to generate.")
-    parser.add_argument("--output", type=str, default="data/generated_proofs.json", help="Output file path.")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility.")
-    parser.add_argument("--max-retries", type=int, default=3, help="Max retry attempts per instance.")
-    
+    parser = argparse.ArgumentParser(description="Generate logic proofs")
+    parser.add_argument('--count', type=int, default=10, help='Number of proofs')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--output', type=str, default='data/generated_proofs.json', help='Output file')
     args = parser.parse_args()
 
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
     generator = LogicProofGenerator(seed=args.seed)
-    proofs = generator.generate_proofs_with_retry(args.count, max_retries=args.max_retries)
+    proofs = generator.generate_proofs(count=args.count, seed_start=args.seed)
 
-    if not proofs:
-        logger.error("No valid proofs were generated.")
-        sys.exit(1)
+    # Ensure output directory exists
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w') as f:
+    with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(proofs, f, indent=2)
 
-    logger.info(f"Successfully generated {len(proofs)} proofs to {output_path}")
+    logger.info(f"Generated {len(proofs)} proofs to {args.output}")
 
 if __name__ == "__main__":
     main()
