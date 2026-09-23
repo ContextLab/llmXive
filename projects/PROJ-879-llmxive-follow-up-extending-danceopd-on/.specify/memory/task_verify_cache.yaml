@@ -6,3 +6,20 @@ T020:
     \ columns, flattens embeddings, encodes labels, and performs an 80/20 train\u2011\
     test split (stratified when possible). This satisfies the requirement to implement\
     \ the data splitting logic that consumes the specified Parquet file."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that T030c now includes an explicit statistical power check\
+    \ was provided; the only evidence relates to data generation and decision\u2011\
+    tree training, not to a power\u2011calculation validation. The required code/documentation\
+    \ confirming the power check is missing."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test results, or documentation were provided showing\
+    \ that explicit overfitting checks were added to the decision\u2011tree training\
+    \ pipeline (T021). Without such artifacts, we cannot confirm that the requirement\
+    \ to prevent overfitting has been implemented. The next implementer must supply\
+    \ the modified training script, description of the overfitting checks (e.g., validation\u2011\
+    train accuracy gap monitoring, early stopping criteria), and evidence (logs or\
+    \ test output) that they are active."

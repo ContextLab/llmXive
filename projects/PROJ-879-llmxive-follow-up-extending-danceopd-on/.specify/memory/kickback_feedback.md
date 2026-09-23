@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): The provided `code/00_data_extraction.py` is incomplete (the core extraction and write‑to‑Parquet logic is truncated and not present), and the required output file `data/processed/teacher_routing_dataset.parquet` does not exist. Consequently the task’s requirement—to extract the four fields and stream them to the specified Parquet file—has not been fulfilled.
+- `T043` (rejected 1x): No code, configuration, tests, or documentation showing that T012 was extended to verify streamed data integrity or compute hashes is present. The only artifacts described relate to generating teacher routing data and training decision trees, which do not address the required data‑source verification feature. The required implementation and evidence are missing.
+- `T044` (rejected 1x): No code, configuration, log output, or documentation was provided showing that T013b was refined to log and handle undefined expert routing paths. The required artifact (implementation of explicit handling and logging) is missing, so the task is not satisfied.
 
 ## Required change
 

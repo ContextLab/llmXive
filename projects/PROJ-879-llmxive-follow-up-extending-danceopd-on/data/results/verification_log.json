@@ -1,0 +1,16 @@
+{
+  "timestamp": "pending_execution",
+  "all_passed": false,
+  "details": [
+    {
+      "file": "imagenet_samples.parquet",
+      "status": "missing",
+      "message": "File imagenet_samples.parquet not found in data/raw"
+    },
+    {
+      "file": "laion_samples.parquet",
+      "status": "missing",
+      "message": "File laion_samples.parquet not found in data/raw"
+    }
+  ]
+}

@@ -1352,25 +1352,6 @@
   updated_at: '2026-08-20T05:27:08Z'
 - artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
   attempts: 1
-  canonical: teacher ground truth dataset contains at least 1000 rows
-  claim_id: c_41774a88
-  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
-    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows
-  kind: magnitude
-  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
-    \ identifiers, and consistent velocity vector dimensions."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-20T05:29:21Z'
-- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
-  attempts: 1
   canonical: data streaming targets 1200 raw samples
   claim_id: c_9b24c72e
   context: 'Sampling Strategy: Use a fixed random seed. Target 1200 raw samples (oversampled
@@ -3720,26 +3701,6 @@
   status: not_enough_info
   updated_at: '2026-09-03T09:56:14Z'
 - artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
-  attempts: 2
-  canonical: Teacher ground truth dataset contains at least 1000 rows with valid expert
-    identifiers
-  claim_id: c_0f00b2e0
-  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
-    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows_wit
-  kind: magnitude
-  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
-    \ identifiers, and consistent velocity vector dimensions."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-19T18:38:51Z'
-- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
   attempts: 1
   canonical: Target 2500 raw samples from ImageNet-1K and LAION-400M
   claim_id: c_23cce92f
@@ -4629,3 +4590,1037 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-19T19:10:23Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher ground truth dataset contains at least 1000 rows with valid routing
+    labels and velocity vectors
+  claim_id: c_cdb0c9bd
+  context: "Independent Test for User Story 1: The system produces a CSV/Parquet file\
+    \ with \u22651,000 rows, valid expert identifiers, and consistent velocity vector\
+    \ dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows_wit
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:40:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data streaming process fails if total samples are fewer than 1000
+  claim_id: c_d60cb6a3
+  context: 'Sampling Strategy: Use seed=42. Target N=2500 (configurable via config.N_TARGET).
+    Dynamic Adjustment: Stream until N_TARGET is reached or stream ends. If total
+    samples < 1000, exit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_streaming_process_fails_if_total_samples_are_fewer_than
+  kind: magnitude
+  raw_text: Stream until N_TARGET is reached or stream ends. If total samples < 1000,
+    exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:40:55Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher inference fails if fewer than 1000 valid samples are produced
+  claim_id: c_57ebe185
+  context: "Constraint: If CPU inference fails to produce \u22651,000 valid samples,\
+    \ exit with code 1 (fail loud). Do NOT generate an empty file."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_inference_fails_if_fewer_than_1000_valid_samples_are
+  kind: magnitude
+  raw_text: "If CPU inference fails to produce \u22651,000 valid samples, exit with\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:41:21Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Dataset filtering fails if fewer than 1000 rows remain
+  claim_id: c_761fe65d
+  context: 'Fail Loud: If the filtered dataset has < 1000 rows, exit with code 1.
+    Do NOT pass an empty file to the next step.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_filtering_fails_if_fewer_than_1000_rows_remain
+  kind: magnitude
+  raw_text: The filtered dataset has < 1000 rows, exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:41:42Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Final teacher routing dataset must contain at least 1000 rows
+  claim_id: c_ce1129b2
+  context: "Verification: Verify data/processed/teacher_routing_dataset.parquet exists,\
+    \ is a valid Parquet file, and contains the expected columns (prompt_embedding,\
+    \ noise_level, routing_label, velocity_vector) with \u22651000 rows."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_teacher_routing_dataset_must_contain_at_least_1000_row
+  kind: magnitude
+  raw_text: "Verify data/processed/teacher_routing_dataset.parquet exists... with\
+    \ \u22651000 rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:42:05Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data extraction fails if input file has fewer than 1000 rows
+  claim_id: c_bf592b9e
+  context: 'Pre-check: Verify input exists. If the input file has < 1000 rows, exit
+    with code 1 (fail loud) to prevent silent relaxation of constraints.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_extraction_fails_if_input_file_has_fewer_than_1000_rows
+  kind: magnitude
+  raw_text: If the input file has < 1000 rows, exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:42:28Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Decision trees trained for max depths from 2 to 50
+  claim_id: c_92dfd8e8
+  context: Implement a loop to train DecisionTreeClassifier (scikit-learn, CPU) for
+    max_depth values range(2, 51) (step 1) in code/01_train_trees.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values range(2, 51) (step
+    1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:42:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Overfitting warning logged if train and test accuracy difference exceeds
+    0.1
+  claim_id: c_c8e65d4d
+  context: 'Overfitting Check: Calculate train_accuracy and test_accuracy. If difference
+    > 0.1, log warning to data/results/overfitting_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If difference > 0.1, log warning to data/results/overfitting_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:42:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Pilot run sample size is 50
+  claim_id: c_71789f1c
+  context: Run Pilot. Execute a pilot run (N=50) to estimate variance for power calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run (N=50) to estimate variance for power calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:43:17Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Sample size calculation uses target power of 0.8 and medium effect size
+    of 0.5
+  claim_id: c_e41ca4b7
+  context: 'Logic: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:43:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Minimum sample size enforced is 1000 if time permits
+  claim_id: c_03750849
+  context: 'Constraint: Check timer.check_timeout() (see T033b). If time remains sufficient,
+    enforce min_samples=1000. If time is running out, use the current N (but not below
+    1000 if possible) and set a status: partial flag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If time remains sufficient, enforce min_samples=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:43:37Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data sampling uses random seed 42
+  claim_id: c_45e77dd8
+  context: 'Sampling Strategy: Use seed=42. Target N=2500 (configurable via config.N_TARGET).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for sampling strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:44:36Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Target sample size for data streaming is 2500
+  claim_id: c_5b894043
+  context: 'Sampling Strategy: Use seed=42. Target N=2500 (configurable via config.N_TARGET).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target N=2500 (configurable via config.N_TARGET).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:45:00Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: CLIP model ViT-B/32 is used for metrics
+  claim_id: c_f792c400
+  context: 'Initialize CLIP model for metrics in code/utils/models.py. Model: ViT-B/32.
+    Device: Explicitly set device=''cpu''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize CLIP model for metrics: Model: ViT-B/32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:45:15Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Image normalization uses ImageNet mean and std values
+  claim_id: c_5abed807
+  context: 'Input Logic: Convert PIL Images to tensors using transforms.ToTensor(),
+    normalize using ImageNet mean/std ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    and move to CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Normalize using ImageNet mean/std ([0.485, 0.456, 0.406], [0.229, 0.224,
+    0.225]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:45:41Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: PyTorch configured for CPU-only execution
+  claim_id: c_53d84e31
+  context: 'Constraint: Ensure torch is installed with cpuonly flag or configured
+    to default to CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PyTorch_configured_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: Ensure torch is installed with cpuonly flag or configured to default to
+    CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:46:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: CLIP and FID functions enforce CPU-only execution
+  claim_id: c_a9d0eb78
+  context: 'Constraint: Enforce device=''cpu'' and torch.set_default_device(''cpu'')
+    at the start of both functions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLIP_and_FID_functions_enforce_CPU-only_execution
+  kind: entity_fact
+  raw_text: Enforce device='cpu' and torch.set_default_device('cpu') at the start
+    of both functions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:46:40Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Project initialization requires 11 specific Python files to exist and
+    be non-empty
+  claim_id: c_3d464aab
+  context: 'Verification: Verify all 11 files exist and contain #!/usr/bin/env python
+    or # Implementation string (ensuring >0 bytes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify all 11 files exist and contain #!/usr/bin/env python or # Implementation
+    string (ensuring >0 bytes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:46:53Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Analysis identified risk of data fabrication if fallbacks are used
+  claim_id: c_ed969edf
+  context: 'Rationale: The plan currently assumes pre-fetched data, which violates
+    the ''Real Data Only'' principle if the fetch fails silently or if the source
+    is unavailable. The analysis flagged a risk of fabrication if fallbacks are used.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_identified_risk_of_data_fabrication_if_fallbacks_ar
+  kind: entity_fact
+  raw_text: The analysis flagged a risk of fabrication if fallbacks are used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:47:19Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 0
+  canonical: sample size calculation uses power 0.8 and effect size 0.5
+  claim_id: c_e8a78214
+  context: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:49:23Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: teacher ground truth dataset contains at least 1000 rows
+  claim_id: c_41774a88
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:49:38Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher ground truth parquet file has at least 1000 rows
+  claim_id: c_c052b1a9
+  context: "Integration test for data generation pipeline... Verify teacher_ground_truth.parquet\
+    \ exists, has \u22651000 rows, and valid routing labels matching the teacher's\
+    \ known architecture."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_parquet_file_has_at_least_1000_rows
+  kind: magnitude
+  raw_text: "Verify teacher_ground_truth.parquet exists, has \u22651000 rows, and\
+    \ valid routing labels matching the teacher's known architecture."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:49:57Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: target sample size is 2500
+  claim_id: c_d786e6d3
+  context: 'Sampling Strategy: Use seed=42. Target N=2500 (configurable via config.N_TARGET).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target N=2500 (configurable via config.N_TARGET).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:49:58Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: data stream fails if total samples are less than 1000
+  claim_id: c_6c43e411
+  context: 'Dynamic Adjustment: Stream until N_TARGET is reached or stream ends. If
+    total samples < 1000, exit with code 1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_stream_fails_if_total_samples_are_less_than_1000
+  kind: magnitude
+  raw_text: If total samples < 1000, exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:50:27Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: warning logged if sample count is between 1000 and 2500
+  claim_id: c_46c53fa0
+  context: 'Dynamic Adjustment: Stream until N_TARGET is reached or stream ends. If
+    total samples < 1000, exit with code 1. If 1000 <= samples < 2500, log warning
+    and proceed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 1000 <= samples < 2500, log warning and proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:50:54Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher inference fails if fewer than 1000 valid samples produced
+  claim_id: c_bccfd548
+  context: "Constraint: If CPU inference fails to produce \u22651,000 valid samples,\
+    \ exit with code 1 (fail loud)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_inference_fails_if_fewer_than_1000_valid_samples_pro
+  kind: magnitude
+  raw_text: "If CPU inference fails to produce \u22651,000 valid samples, exit with\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:50:57Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: filtered dataset fails if fewer than 1000 rows
+  claim_id: c_83594275
+  context: 'Fail Loud: If the filtered dataset has < 1000 rows, exit with code 1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtered_dataset_fails_if_fewer_than_1000_rows
+  kind: magnitude
+  raw_text: If the filtered dataset has < 1000 rows, exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:51:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: final teacher routing dataset has at least 1000 rows
+  claim_id: c_789450c1
+  context: "Verification: Verify data/processed/teacher_routing_dataset.parquet exists,\
+    \ is a valid Parquet file, and contains the expected columns... with \u22651000\
+    \ rows."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_teacher_routing_dataset_has_at_least_1000_rows
+  kind: magnitude
+  raw_text: "Verify data/processed/teacher_routing_dataset.parquet exists, is a valid\
+    \ Parquet file, and contains the expected columns with \u22651000 rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:08Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: decision tree with max depth 5 saved with reproducible validation accuracy
+  claim_id: c_3a08368c
+  context: "Independent Test: A tree with max_depth=5 is saved and reports a reproducible\
+    \ validation accuracy on a held\u2011out test split."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A tree with max_depth=5 is saved and reports a reproducible validation\
+    \ accuracy on a held\u2011out test split."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:32Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: decision tree training loop covers max depth from 2 to 51
+  claim_id: c_f9013381
+  context: "Implement a loop to train DecisionTreeClassifier (scikit\u2011learn, CPU)\
+    \ for max_depth values range(2, 51) (step 1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values range(2, 51) (step
+    1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:33Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: overfitting warning logged if train test accuracy difference exceeds
+    0.1
+  claim_id: c_4777aa6b
+  context: 'Overfitting Check: Calculate train_accuracy and test_accuracy. If difference
+    > 0.1, log warning to data/results/overfitting_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If difference > 0.1, log warning to data/results/overfitting_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:34Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: pilot run sample size is 50
+  claim_id: c_5c0d214b
+  context: Run Pilot. Execute a pilot run (N=50) to estimate variance for power calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run (N=50) to estimate variance for power calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:35Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: minimum sample size enforced is 1000
+  claim_id: c_2834f144
+  context: 'Constraint: Check timer.check_timeout(). If time remains sufficient, enforce
+    min_samples=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce min_samples=1000 if time remains sufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:36Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: fidelity evaluation compares teacher and depth 5 tree on full dataset
+    with p-values
+  claim_id: c_073fb615
+  context: 'Independent Test: The system calculates FID/CLIP for teacher vs. tree
+    (depth=5) on the full dataset and outputs valid p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full
+    dataset and outputs valid p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:52:56Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: euler integrator uses step size 0.1 and 10 steps
+  claim_id: c_d27bb721
+  context: 'Implement the Euler integration loop... Parameters: step_size=0.1, steps=10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use a fixed step size and step count, and invoke the specific expert
+    field logic to generate the image. Parameters: step_size=0.1, steps=10.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:53:33Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: CLIP model ViT-B/32 initialized for metrics
+  claim_id: c_7b47f3f3
+  context: 'Initialize CLIP model for metrics in code/utils/models.py. Model: ViT-B/32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize CLIP model for metrics in code/utils/models.py. Model: ViT-B/32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:54:02Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: image normalization uses ImageNet mean and std
+  claim_id: c_e618e15f
+  context: 'Input Logic: Convert PIL Images to tensors using transforms.ToTensor(),
+    normalize using ImageNet mean/std ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    and move to CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Normalize using ImageNet mean/std ([0.485, 0.456, 0.406], [0.229, 0.224,
+    0.225]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:54:03Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_ec4186b0
+  context: Initialize Python 3.11 project with requirements.txt in projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:54:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: project dependencies include torch scikit-learn pandas numpy datasets
+    transformers accelerate pillow scipy torch-fidelity pyyaml pytest
+  claim_id: c_447f04d0
+  context: 'Initialize Python 3.11 project with requirements.txt... including pinned
+    dependencies: torch, scikit-learn, pandas, numpy, datasets, transformers, accelerate,
+    pillow, scipy, torch-fidelity, pyyaml, pytest.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_include_torch_scikit-learn_pandas_numpy
+  kind: entity_fact
+  raw_text: 'Include pinned dependencies: torch, scikit-learn, pandas, numpy, datasets,
+    transformers, accelerate, pillow, scipy, torch-fidelity, pyyaml, pytest.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:54:46Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: data streaming sources are huggan/imagenet-1k and laion/laion400m
+  claim_id: c_6dce70b0
+  context: If pre-fetched missing, attempt to stream from huggan/imagenet-1k and laion/laion400m
+    (filtered).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream from huggan/imagenet-1k and laion/laion400m (filtered).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:55:03Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: random seed set to 42
+  claim_id: c_3c1e4baf
+  context: 'Sampling Strategy: Use seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:55:23Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: weight manifest verification initializes missing manifest verifies checksums
+    and raises error on missing files
+  claim_id: c_80b5ffcd
+  context: 'Implement weight manifest verification logic in code/utils/check_weights.py.
+    Logic: 1. Initialize manifest if missing. 2. Verify checksums against manifest.
+    3. Handle missing files by raising an error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize manifest if missing. 2. Verify checksums against manifest.
+    3. Handle missing files by raising an error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:56:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: SHA256 hash computed for raw stream buffer
+  claim_id: c_c919df31
+  context: Before writing any data to disk, compute the SHA256 hash of the raw stream
+    buffer (the exact bytes received from the source) for each chunk and aggregate
+    to a total hash.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_hash_computed_for_raw_stream_buffer
+  kind: entity_fact
+  raw_text: Compute SHA256 hash of the raw stream buffer for each chunk and aggregate
+    to a total hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:56:40Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: stream hash stored in state/artifact_hashes.yaml
+  claim_id: c_4fce267e
+  context: Store this stream hash in state/artifact_hashes.yaml under a key source_stream_hash_<dataset_name>.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_hash_stored_in_state/artifact_hashes.yaml
+  kind: entity_fact
+  raw_text: Store this stream hash in state/artifact_hashes.yaml under a key source_stream_hash_<dataset_name>.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:57:08Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: dataset fails if exclusion reduces size below statistical power threshold
+  claim_id: c_bb10f534
+  context: If the exclusion reduces the dataset below a sufficient threshold for statistical
+    power, fail loud (exit with a non-zero status).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fails_if_exclusion_reduces_size_below_statistical_po
+  kind: entity_fact
+  raw_text: If the exclusion reduces the dataset below a sufficient threshold for
+    statistical power, fail loud (exit with a non-zero status).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:57:56Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: overfitting warning if train accuracy exceeds test accuracy by 0.1
+  claim_id: c_569e9b4f
+  context: If train_accuracy is significantly higher than test_accuracy (e.g., difference
+    > 0.1), log a warning to data/results/overfitting_log.json.
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: If train_accuracy is significantly higher than test_accuracy (e.g., difference
+    > 0.1), log a warning.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:57:57Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 0
+  canonical: Statistical power calculation targets 0.8 power with 0.5 effect size
+  claim_id: c_9339ce4e
+  context: 'Logic: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate N based on pilot variance using statsmodels.stats.power.TTestIndPower
+    with target_power=0.8 and effect_size=0.5 (medium).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:58:45Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 3
+  canonical: Teacher ground truth dataset contains at least 1000 rows with valid expert
+    identifiers
+  claim_id: c_0f00b2e0
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows_wit
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:58:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data streaming process requires minimum 1000 samples to proceed; target
+    is 2500
+  claim_id: c_d646f465
+  context: 'Sampling Strategy: Use seed=42. Target N=2500 (configurable via config.N_TARGET).
+    Dynamic Adjustment: Stream until N_TARGET is reached or stream ends. If total
+    samples < 1000, exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream until N_TARGET is reached or stream ends. If total samples < 1000,
+    exit with code 1. If 1000 <= samples < 2500, log warning and proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:13Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher inference requires minimum 1000 valid samples
+  claim_id: c_2dad20b1
+  context: "Constraint: If CPU inference fails to produce \u22651,000 valid samples,\
+    \ exit with code 1 (fail loud). Do NOT generate an empty file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If CPU inference fails to produce \u22651,000 valid samples, exit with\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:14Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Decision tree training covers max_depth range from 2 to 50
+  claim_id: c_b2610ff3
+  context: Implement a loop to train DecisionTreeClassifier (scikit-learn, CPU) for
+    max_depth values range(2, 51) (step 1) in code/01_train_trees.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values range(2, 51) (step
+    1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:15Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Overfitting warning triggered when train/test accuracy difference exceeds
+    0.1
+  claim_id: c_fd458ae2
+  context: 'Overfitting Check: Calculate train_accuracy and test_accuracy. If difference
+    > 0.1, log warning to data/results/overfitting_log.json.'
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: If train_accuracy and test_accuracy difference > 0.1, log warning to data/results/overfitting_log.json.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:59:16Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 2
+  canonical: Euler integrator uses step size 0.1 and 10 steps
+  claim_id: c_3b28d620
+  context: 'Logic: Implement the Euler integration loop with noise injection: x_{t+1}
+    = x_t + step_size * v_t + sqrt(step_size) * noise. Parameters: step_size=0.1,
+    steps=10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement the Euler integration loop with noise injection: x_{t+1} =
+    x_t + step_size * v_t + sqrt(step_size) * noise. Parameters: step_size=0.1, steps=10.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:17Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Pilot run for variance estimation uses 50 samples
+  claim_id: c_55bf4a25
+  context: 'Run Pilot: Execute a pilot run (N=50) to estimate variance for power calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run (N=50) to estimate variance for power calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Statistical evaluation minimum sample size is 1000
+  claim_id: c_d902c77b
+  context: 'Constraint: Check timer.check_timeout(). If time remains sufficient, enforce
+    min_samples=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If time remains sufficient, enforce min_samples=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:19Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Statistical test output includes FID and CLIP p-values
+  claim_id: c_02124a3e
+  context: 'Deliverable: Statistical test outputs saved in data/results/statistical_tests.json
+    with schema: { p_value_fid: float, p_value_clip: float, conclusion: str, n_samples:
+    int, status: complete|partial }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_output_includes_FID_and_CLIP_p-values
+  kind: entity_fact
+  raw_text: The statistical test outputs saved in data/results/statistical_tests.json
+    include p_value_fid, p_value_clip, conclusion, n_samples, and status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Dataset exclusion below statistical power threshold triggers failure
+  claim_id: c_a34d1a24
+  context: If the exclusion reduces the dataset below a sufficient threshold for statistical
+    power, fail loud (exit with a non-zero status).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_exclusion_below_statistical_power_threshold_triggers
+  kind: entity_fact
+  raw_text: If the exclusion reduces the dataset below a sufficient threshold for
+    statistical power, fail loud (exit with a non-zero status).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:59:28Z'
