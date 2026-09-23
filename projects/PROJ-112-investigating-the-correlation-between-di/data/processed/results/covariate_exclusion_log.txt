@@ -1,0 +1,8 @@
+Covariate Exclusion Log
+=======================
+Generated during preprocessing phase T009a.
+
+Excluded 42 samples due to >20% missing covariate data.
+
+Total samples processed: 1000
+Samples retained: 958

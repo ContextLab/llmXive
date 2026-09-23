@@ -1,35 +1,37 @@
-# llmXive Research Pipeline: Dietary Fiber and Gut Microbiome
+# llmXive Project: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
 
-## Linting and Formatting
+## Overview
+This project implements a pipeline to analyze the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
 
-This project uses **ruff** for linting and **black** for code formatting.
+## Project Structure
+- `src/`: Source code for the pipeline
+ - `ingestion/`: Data loading and harmonization
+ - `preprocessing/`: Data cleaning, imputation, and transformation
+ - `analysis/`: Statistical analysis and correlation testing
+ - `utils/`: Utility functions (logging, power analysis)
+- `tests/`: Unit, integration, and contract tests
+- `data/`: Raw and processed data
+ - `raw/`: Downloaded raw data
+ - `processed/`: Cleaned and transformed data
+- `docs/`: Documentation
+- `state/`: State files and checksums
 
-### Installation
+## Requirements
+- Python 3.11+
+- See `requirements.txt` for dependencies
 
-Install dependencies including linting tools:
+## Installation
 ```bash
 pip install -r requirements.txt
 ```
 
-### Configuration
-
-Configuration files are provided in the project root:
-- `.ruff.toml`: Ruff linting rules
-- `.black.toml`: Black formatting rules
-
-### Usage
-
-Run linting:
+## Usage
+Run the setup script to create the directory structure:
 ```bash
-ruff check.
+python src/setup_data_structure.py
 ```
 
-Format code:
+## Testing
 ```bash
-black.
-```
-
-Run both checks before committing:
-```bash
-./scripts/config_linters.sh
+pytest
 ```

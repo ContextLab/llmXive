@@ -1,134 +1,157 @@
-"""
-Logging configuration for ingestion steps.
-
-This module provides utility functions to log ingestion steps including
-download status, filter counts, and harmonization results.
-"""
 import logging
+import sys
 from typing import Dict, Any, Optional
+from pathlib import Path
 from src.utils.logger import get_logger
 
-# Define log categories for ingestion
-LOG_DOWNLOAD = "ingestion.download"
-LOG_FILTER = "ingestion.filter"
-LOG_HARMONIZE = "ingestion.harmonize"
-LOG_VALIDATION = "ingestion.validation"
+# Constants for log file locations
+LOG_DIR = Path("data/processed/results")
+INGESTION_LOG_FILE = "ingestion_pipeline.log"
 
-def get_ingestion_logger(category: str) -> logging.Logger:
+_logger_instance: Optional[logging.Logger] = None
+
+def get_ingestion_logger() -> logging.Logger:
     """
-    Get a logger configured for a specific ingestion category.
-    
-    Args:
-        category: One of LOG_DOWNLOAD, LOG_FILTER, LOG_HARMONIZE, LOG_VALIDATION
+    Returns a singleton logger instance configured for ingestion tasks.
+    Logs are written to data/processed/results/ingestion_pipeline.log
+    and also to stdout/stderr.
+    """
+    global _logger_instance
+    if _logger_instance is None:
+        logger = get_logger("ingestion_pipeline")
         
-    Returns:
-        Configured logger instance
-    """
-    return get_logger(category)
+        # Ensure log directory exists
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # File handler
+        file_handler = logging.FileHandler(LOG_DIR / INGESTION_LOG_FILE)
+        file_handler.setLevel(logging.INFO)
+        file_format = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_format)
+        
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_format = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s'
+        )
+        console_handler.setFormatter(console_format)
+        
+        # Add handlers if not already present (avoid duplication on cache hit)
+        if not logger.handlers:
+            logger.addHandler(file_handler)
+            logger.addHandler(console_handler)
+        
+        _logger_instance = logger
+    
+    return _logger_instance
 
-def log_download_status(logger: logging.Logger, source: str, status: str, 
-                         file_size: Optional[int] = None, 
-                         checksum: Optional[str] = None) -> None:
+def log_download_status(
+    source_name: str, 
+    status: str, 
+    details: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Log download status for a data source.
+    Logs the status of a data download operation.
     
     Args:
-        logger: Logger instance to use
-        source: Name/URL of the data source
-        status: Status of the download (e.g., 'SUCCESS', 'FAILED', 'SKIPPED')
-        file_size: Size of downloaded file in bytes (optional)
-        checksum: SHA256 checksum of downloaded file (optional)
+        source_name: Name of the data source (e.g., 'AGP', 'UKBB')
+        status: Status string (e.g., 'STARTED', 'COMPLETED', 'FAILED')
+        details: Optional dict with extra info (size, checksum, duration)
     """
-    msg = f"Download status | source={source} | status={status}"
-    if file_size is not None:
-        msg += f" | size={file_size} bytes"
-    if checksum is not None:
-        msg += f" | checksum={checksum}"
-    
-    if status == "SUCCESS":
-        logger.info(msg)
-    elif status == "FAILED":
-        logger.error(msg)
-    else:
-        logger.warning(msg)
-
-def log_filter_counts(logger: logging.Logger, step_name: str, 
-                      initial_count: int, final_count: int, 
-                      excluded_count: int, reason: str) -> None:
-    """
-    Log filter step results.
-    
-    Args:
-        logger: Logger instance to use
-        step_name: Name of the filter step (e.g., 'read_depth', 'fiber_range')
-        initial_count: Number of samples before filtering
-        final_count: Number of samples after filtering
-        excluded_count: Number of samples excluded
-        reason: Reason for exclusion
-    """
-    logger.info(
-        f"Filter applied | step={step_name} | "
-        f"initial={initial_count} | final={final_count} | "
-        f"excluded={excluded_count} | reason={reason}"
-    )
-
-def log_harmonization_result(logger: logging.Logger, 
-                             source: str, 
-                             column_mapping: Dict[str, str],
-                             unit_conversion: Optional[Dict[str, str]] = None) -> None:
-    """
-    Log harmonization results for a dataset.
-    
-    Args:
-        logger: Logger instance to use
-        source: Name of the dataset source
-        column_mapping: Dictionary mapping original columns to standardized columns
-        unit_conversion: Dictionary showing unit conversions performed (optional)
-    """
-    logger.info(f"Harmonization complete | source={source}")
-    logger.info(f"Column mapping: {column_mapping}")
-    if unit_conversion:
-        logger.info(f"Unit conversions: {unit_conversion}")
-
-def log_merge_result(logger: logging.Logger, 
-                     agp_count: int, 
-                     ukbb_count: int, 
-                     merged_count: int,
-                     duplicate_count: int = 0) -> None:
-    """
-    Log dataset merge results.
-    
-    Args:
-        logger: Logger instance to use
-        agp_count: Number of samples from AGP
-        ukbb_count: Number of samples from UKBB
-        merged_count: Total number of samples in merged dataset
-        duplicate_count: Number of duplicate samples found (optional)
-    """
-    logger.info(
-        f"Dataset merge complete | AGP={agp_count} | UKBB={ukbb_count} | "
-        f"merged={merged_count}"
-    )
-    if duplicate_count > 0:
-        logger.warning(f"Duplicates found and handled: {duplicate_count}")
-
-def log_validation_result(logger: logging.Logger, 
-                          validation_type: str, 
-                          passed: bool, 
-                          details: Optional[str] = None) -> None:
-    """
-    Log validation results.
-    
-    Args:
-        logger: Logger instance to use
-        validation_type: Type of validation performed
-        passed: Whether validation passed
-        details: Additional details about the validation (optional)
-    """
-    status = "PASSED" if passed else "FAILED"
-    msg = f"Validation {status} | type={validation_type}"
+    logger = get_ingestion_logger()
+    msg = f"Download [{source_name}]: {status}"
     if details:
-        msg += f" | details={details}"
+        msg += f" | Details: {details}"
+    
+    if status == "FAILED":
+        logger.error(msg)
+    elif status == "COMPLETED":
+        logger.info(msg)
+    else:
+        logger.info(msg)
+
+def log_filter_counts(
+    step_name: str, 
+    initial_count: int, 
+    filtered_count: int, 
+    reason: str
+) -> None:
+    """
+    Logs the results of a filtering step.
+    
+    Args:
+        step_name: Name of the filtering step (e.g., 'Read Count Filter', 'Fiber Range Filter')
+        initial_count: Number of samples before filtering
+        filtered_count: Number of samples after filtering
+        reason: Description of the filter criteria
+    """
+    logger = get_ingestion_logger()
+    removed = initial_count - filtered_count
+    logger.info(
+        f"Filter [{step_name}]: {initial_count} -> {filtered_count} "
+        f"(Removed: {removed}, Reason: {reason})"
+    )
+
+def log_harmonization_result(
+    metric_name: str, 
+    value: Any, 
+    unit: Optional[str] = None
+) -> None:
+    """
+    Logs a harmonization metric result.
+    
+    Args:
+        metric_name: Name of the metric (e.g., 'Fiber Unit Conversion', 'Read Count Normalization')
+        value: The calculated value
+        unit: Optional unit string
+    """
+    logger = get_ingestion_logger()
+    unit_str = f" ({unit})" if unit else ""
+    logger.info(f"Harmonization [{metric_name}]: {value}{unit_str}")
+
+def log_merge_result(
+    agp_count: int, 
+    ukbb_count: int, 
+    total_count: int, 
+    duplicates: int = 0
+) -> None:
+    """
+    Logs the result of merging datasets.
+    
+    Args:
+        agp_count: Number of AGP samples
+        ukbb_count: Number of UKBB samples
+        total_count: Total merged sample count
+        duplicates: Number of duplicate samples found (if any)
+    """
+    logger = get_ingestion_logger()
+    logger.info(
+        f"Merge Result: AGP={agp_count}, UKBB={ukbb_count}, Total={total_count}"
+    )
+    if duplicates > 0:
+        logger.warning(f"Duplicate samples detected: {duplicates}")
+
+def log_validation_result(
+    check_name: str, 
+    passed: bool, 
+    details: Optional[str] = None
+) -> None:
+    """
+    Logs the result of a validation check.
+    
+    Args:
+        check_name: Name of the check (e.g., 'PII Scan', 'Schema Validation')
+        passed: Boolean indicating if the check passed
+        details: Optional details about the failure or success
+    """
+    logger = get_ingestion_logger()
+    status = "PASSED" if passed else "FAILED"
+    msg = f"Validation [{check_name}]: {status}"
+    if details:
+        msg += f" | {details}"
     
     if passed:
         logger.info(msg)

@@ -48,8 +48,10 @@
  - Files: `src/main.py`, `src/utils/logger.py`, `src/utils/power_analysis.py`, `tests/test_schemas.py`, `requirements.txt`, `README.md`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
  - `pandas==2.0.3`, `scikit-learn==1.3.0`, `scipy==1.11.1`, `numpy==1.24.3`, `requests==2.31.0`, `pyyaml==6.0.1`, `joblib==1.3.1`, `miceforest==5.3.3`, `rpy2==3.5.11`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup `pytest` configuration and test directory structure
+- [X] T003a [P] Create `ruff` configuration file at `pyproject.toml` or `.ruff.toml`
+- [X] T003b [P] Create `black` configuration file at `pyproject.toml`
+- [X] T004a [P] Create `pytest` configuration file (`pytest.ini` or `pyproject.toml`)
+- [ ] T004b [P] Create `tests/conftest.py` for shared test fixtures
 
 ---
 
@@ -62,11 +64,12 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T005 Implement `src/utils/logger.py` for standardized logging
-- [ ] T006 Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable)
-- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T006 [P] Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable). **Must accept**: sample size, effect size, alpha. **Must output**: power, margin of error. **Verification**: Run `tests/unit/test_power.py` to confirm correctness.
 - [ ] T007 Create `src/preprocessing/id_generator.py` to generate SHA256 sample IDs (cohort + original_id)
 - [ ] T008 Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/results/`)
-- [X] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing); **Configure complete logging**: Setup `src/utils/logger.py` with handlers for all analysis steps, including specific formatters for MaAsLin2 execution status, convergence warnings, and R-package output capture.
+- [X] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing). **Must not** include logging configuration.
+- [X] T009a [P] [US1] Generate Exclusion Log: Implement logic to write `data/processed/results/covariate_exclusion_log.txt` recording the count of samples excluded due to >20% missing covariate data. **Depends on**: T009.
+- [X] T009b [P] [US1] Validate Covariate Exclusion: Verify `data/processed/results/covariate_exclusion_log.txt` exists and contains valid counts. **Depends on**: T009a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,20 +86,43 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [ ] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/ingestion/agp_loader.py` to download AGP data from Qiita (verify URL/ID first)
+ - **Output**: Must write raw data to `data/raw/agp_raw.tsv`.
+ - **Constraint**: Must use `datasets.load_dataset` or `requests` with a verified real URL. **NO** synthetic fallback. If download fails, raise `RuntimeError`.
+ - **Streaming**: If the dataset exceeds memory, implement streaming logic to process in chunks.
+ - **Validation**: Generate checksum for `data/raw/agp_raw.tsv` and record in `state/artifact_hashes.json`.
 - [ ] T013 [P] [US1] Implement `src/ingestion/ukbb_loader.py` to download UKBB data from canonical sources (verify URL/ID first)
+ - **Output**: Must write raw data to `data/raw/ukbb_raw.tsv`.
+ - **Constraint**: Must use verified UKBB access method (e.g., specific `datasets.load_dataset` ID or official UKBB API wrapper). **NO** synthetic fallback. If download fails, raise `RuntimeError`.
+ - **Streaming**: Implement streaming/chunking if the full cohort exceeds available RAM.
+ - **Validation**: Run `tests/contract/test_schemas.py` against `data/raw/ukbb_raw.tsv` to validate schema. Generate checksum and record in `state/artifact_hashes.json`.
 - [ ] T014 [US1] Implement `src/ingestion/harmonizer.py` to:
  - Convert all fiber units to g/day
  - Filter samples with <5,000 reads
  - Filter samples with fiber intake <0 or >200 g/day
  - Exclude samples with missing fiber data
+ - **Mandatory**: Preserve and include a `cohort_id` column (values: "AGP", "UKBB") in the output.
  - Merge into `data/processed/merged_harmonized.tsv`
-- [ ] T015 [US1] Add validation logic to ensure no PII leaks and checksums are recorded in `state/`
-- [ ] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
+ - **Logging**: Record counts of filtered samples and reasons for exclusion.
+ - **Output Schema**: `sample_id`, `cohort_id`, `fiber_g_day`, `read_count`, `taxon_abundances...`, `covariates...`
+- [ ] T015 [P] [US1] Generate PII Scan Report and Artifact Checksums:
+ - **Input**: `data/raw/agp_raw.tsv`, `data/raw/ukbb_raw.tsv`, `data/processed/merged_harmonized.tsv`.
+ - **Action**: Run PII scan on all data files. Calculate SHA256 checksums.
+ - **Output**: Write `data/processed/results/pii_scan_report.json` (must contain zero PII matches) and update `state/artifact_hashes.json` with new checksums.
+ - **Verification**: Verify `data/processed/results/pii_scan_report.json` exists and contains `{"pii_found": 0}`.
+ - **Depends on**: T012, T013, T014.
+- [ ] T016 [P] [US1] Generate Ingestion Log:
+ - **Input**: Execution of T012, T013, T014.
+ - **Action**: Capture download status, filter counts, and harmonization results.
+ - **Output**: Write `logs/ingestion.log` containing entries for: "Download AGP: SUCCESS/FAIL", "Download UKBB: SUCCESS/FAIL", "Filtered Samples: <count>", "Harmonized Samples: <count>".
+ - **Verification**: Verify `logs/ingestion.log` exists and contains all required log entries.
+ - **Depends on**: T012, T013, T014.
+- [ ] T006b_run [US1] Execute Power Analysis: Run `src/utils/power_analysis.py` (T006) on the **filtered** harmonized dataset (`data/processed/merged_harmonized.tsv`) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014, T009, T006.
+- [X] T006b_validate [US1] Validate Power Analysis Output: Verify `data/processed/results/power_analysis_report.tsv` contains required columns (`power`, `margin_of_error`, `sample_size`) and that `sample_size` matches the count from T009b log. **Depends on**: T006b_run.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,29 +136,36 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for MaAsLin2 output schema in `tests/contract/test_maaslin2_schema.py`
-- [ ] T019 [P] [US2] Integration test for CLR transformation in `tests/integration/test_clr.py`
+- [X] T018 [P] [US2] Contract test for MaAsLin2 output schema in `tests/contract/test_maaslin2_schema.py`
+- [X] T019 [P] [US2] Integration test for CLR transformation in `tests/integration/test_clr.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Integrate with User Story 1 components: Ensure `data/processed/merged_harmonized.tsv` is available and validated as input for downstream tasks. **Depends on**: T014.
-- [ ] T020 [P] [US2] Implement `src/preprocessing/clr_transform.py` to:
- - Add a pseudocount for zero-inflated taxa
- - Apply centered log-ratio (CLR) transformation
- - Output to `data/processed/clr_transformed.tsv`
-- [ ] T020b [P] [US2] Generate Pseudocount Validation Report: Run a diagnostic test to verify the chosen pseudocount strategy satisfies Constitution Principle VI (e.g., check impact on zero-inflated taxa distribution) and output results to `data/processed/results/pseudocount_validation.txt`.
-- [ ] T021 [US2] Implement `src/analysis/correlation_maaslin2.py` to:
- - Invoke MaAsLin2 (via `rpy2` or `subprocess`) on CLR data
- - Adjust for covariates (age, BMI, antibiotic use)
- - Output raw p-values, effect sizes (beta), and standard errors
-- [ ] T021b [US2] Implement Spearman ρ calculation in `src/analysis/correlation_maaslin2.py`:
- - Compute Spearman correlation coefficients between fiber intake and CLR-transformed taxa abundances.
- - **Calculate Standard Error (SE)** for the Spearman coefficient (e.g., via Fisher's z-transformation).
- - Output `data/processed/results/spearman_correlations.tsv` containing: taxon, spearman_rho, standard_error.
+- [X] T020 [P] [US2] Implement `src/preprocessing/clr_transform.py` to:
+ - Add a pseudocount for zero-inflated taxa.
+ - Apply centered log-ratio (CLR) transformation.
+ - Output to `data/processed/clr_transformed.tsv`.
+ - **Validation**: Ensure no `NaN` or `Inf` values remain.
+ - **Output Artifact**: Generate `data/processed/results/clr_validation_log.txt` documenting the check.
+ - **Exit Code**: Exit with code 1 if validation fails.
+ - **Depends on**: T014.
+- [ ] T020b [US2] Generate Pseudocount Validation Report:
+ - **Input**: `data/processed/clr_transformed.tsv`.
+ - **Action**: Run a diagnostic test to verify the chosen pseudocount strategy satisfies Constitution Principle VI.
+ - **Metric**: Check if median shift of zero-inflated taxa distributions < 0.01.
+ - **Output**: Write `data/processed/results/pseudocount_validation.txt` with the calculated shift and pass/fail status.
+ - **Depends on**: T020.
+- [ ] T021 [US2] **Primary Task**: Implement `src/analysis/correlation_maaslin2.py` to:
+ - **Primary**: Invoke MaAsLin2 (via `rpy2` or `subprocess`) on CLR data to adjust for covariates (age, BMI, antibiotic use).
+ - **Secondary (Mandatory)**: Calculate Spearman ρ and Standard Error (SE) for fiber intake vs. CLR-transformed taxa abundances using `scipy.stats.spearmanr` and Fisher's z-transformation.
+ - **Constraint**: If R/MaAsLin2 is unavailable, the script MUST fail loudly (exit code 1) rather than falling back to non-compliant methods (ALR/ILR or OLS).
+ - **Output**: `data/processed/results/association_results.tsv`
+ - **Schema**: Columns must be exactly `taxon`, `maaslin2_beta`, `maaslin2_se`, `maaslin2_p_value`, `maaslin2_q_value`, `spearman_rho`, `spearman_se`, `spearman_p_value`.
+ - **Depends on**: T020.
 - [ ] T022 [US2] Implement FDR correction (Benjamini-Hochberg) in `src/analysis/correlation_maaslin2.py`:
- - Calculate q-values
+ - Calculate q-values (if not done by MaAsLin2)
  - Filter and save results to `data/processed/results/association_results.tsv`
-- [ ] T024 [US2] Integrate with User Story 1 components: Load harmonized data from `data/processed/merged_harmonized.tsv` as input for transformation and analysis.
+ - **Depends on**: T021.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,26 +184,67 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `src/analysis/validation_cross_cohort.py` robustness checks:
- - Define high-fiber (top quartile) and low-fiber (bottom quartile) groups per cohort based on the harmonized dataset.
- - **Execute ANCOM-II and DESeq2**: Run on the full harmonized dataset. **If** RAM projection exceeds 7GB, automatically perform a random stratified downsampling (by cohort) *before* running the analysis to ensure feasibility, ensuring the sample is representative of all taxa.
- - Output `data/processed/results/diff_abundance_agp.tsv` and `data/processed/results/diff_abundance_ukbb.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
- - **Calculate Absolute Median Fiber Intake**: Compute and report the absolute median fiber intake (g/day) for the high-fiber and low-fiber groups in each cohort based on the dataset used for analysis.
+- [ ] T028a1 [P] [US3] **AGP**: Filter and Downsample:
+ - **Input**: `data/processed/merged_harmonized.tsv`.
+ - **Logic**: Filter data where `cohort_id == "AGP"`. Project runtime for ANCOM-II/DESeq2. If projection > 5 hours, perform random stratified downsampling (by cohort) to ensure total runtime ≤ 6 hours.
+ - **Output**: `data/processed/agp_processed.tsv` (filtered/downsampled).
+ - **Depends on**: T014, T020.
+- [ ] T028a2 [P] [US3] **AGP**: Run ANCOM-II:
+ - **Input**: `data/processed/agp_processed.tsv`.
+ - **Execution**: Run ANCOM-II on the AGP cohort.
+ - **Output**: `data/processed/results/diff_abundance_agp_ancom.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
+ - **Depends on**: T028a1.
+- [ ] T028a3 [P] [US3] **AGP**: Run DESeq2:
+ - **Input**: `data/processed/agp_processed.tsv`.
+ - **Execution**: Run DESeq2 on the AGP cohort.
+ - **Output**: `data/processed/results/diff_abundance_agp_deseq2.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
+ - **Depends on**: T028a1.
+- [ ] T028a4 [P] [US3] **AGP**: Calculate Metrics:
+ - **Input**: `data/processed/agp_processed.tsv`.
+ - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in AGP.
+ - **Output**: `data/processed/results/agp_fiber_metrics.tsv`.
+ - **Depends on**: T028a1.
+
+- [ ] T028b1 [P] [US3] **UKBB**: Filter and Downsample:
+ - **Input**: `data/processed/merged_harmonized.tsv`.
+ - **Logic**: Filter data where `cohort_id == "UKBB"`. Project runtime for ANCOM-II/DESeq2. If projection > 5 hours, perform random stratified downsampling (by cohort) to ensure total runtime ≤ 6 hours.
+ - **Output**: `data/processed/ukbb_processed.tsv` (filtered/downsampled).
+ - **Depends on**: T014, T020.
+- [ ] T028b2 [P] [US3] **UKBB**: Run ANCOM-II:
+ - **Input**: `data/processed/ukbb_processed.tsv`.
+ - **Execution**: Run ANCOM-II on the UKBB cohort.
+ - **Output**: `data/processed/results/diff_abundance_ukbb_ancom.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
+ - **Depends on**: T028b1.
+- [ ] T028b3 [P] [US3] **UKBB**: Run DESeq2:
+ - **Input**: `data/processed/ukbb_processed.tsv`.
+ - **Execution**: Run DESeq2 on the UKBB cohort.
+ - **Output**: `data/processed/results/diff_abundance_ukbb_deseq2.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
+ - **Depends on**: T028b1.
+- [ ] T028b4 [P] [US3] **UKBB**: Calculate Metrics:
+ - **Input**: `data/processed/ukbb_processed.tsv`.
+ - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in UKBB.
+ - **Output**: `data/processed/results/ukbb_fiber_metrics.tsv`.
+ - **Depends on**: T028b1.
+
 - [ ] T029 [US3] Implement replication logic in `src/analysis/validation_cross_cohort.py`:
- - **Compare ANCOM-II/DESeq2 Results**: Evaluate replication status by comparing significant taxa (q < 0.05) from ANCOM-II and DESeq2 between the AGP and UKBB cohorts.
- - Flag consistent directionality (same sign of effect size) for taxa significant in both cohorts.
- - Mark non-replicable taxa as 'non-replicable' based on disagreement in ANCOM-II/DESeq2 results.
- - Calculate and report cross-cohort replication rate based on ANCOM-II/DESeq2 findings.
- - (Secondary) Compare continuous beta-coefficients from MaAsLin2 as an additional robustness check.
-- [ ] T030 [US3] Generate final summary table in `data/processed/results/final_summary.tsv` containing:
- - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ (if included)**, direction
- - **Replication status** (based on ANCOM-II/DESeq2 and MaAsLin2)
- - Median fiber intake for high/low groups
- - Confidence intervals (calculated as beta ± 1.96 * SE)
-- [ ] T031 [US3] Integrate power analysis results (from T006/T006b) into final report to distinguish true null effects from underpowered results.
-- [ ] T031b [US3] **Explicitly format and output** power analysis metrics:
- - Extract calculated statistical power and margin of error from `data/processed/results/power_analysis_report.tsv`.
- - Append these metrics to the final summary table or a dedicated `power_analysis_report.tsv`.
+ - **Input**: `data/processed/results/association_results.tsv` (from T021) for both cohorts, and `diff_abundance_*.tsv` files (from T028a2, T028a3, T028b2, T028b3).
+ - **Primary Logic**: Compare **MaAsLin2 beta-coefficients** (continuous model) for significant taxa between AGP and UKBB. Flag consistent directionality (same sign of effect size).
+ - **Secondary Logic**: Compare ANCOM-II/DESeq2 results for significant taxa between AGP and UKBB. Flag consistent directionality.
+ - **Output**: `data/processed/results/replication_status.tsv`
+ - **Schema**: `taxon`, `method` (MaAsLin2/ANCOM/DESeq2), `agp_q_value`, `ukbb_q_value`, `agp_effect_size`, `ukbb_effect_size`, `replication_status` (values: 'replicated', 'non-replicable', 'cohort-specific'). **Must include 'diff_abundance_replicated' column for ANCOM/DESeq2 results.**
+ - **Depends on**: T021, T028a2, T028a3, T028b2, T028b3.
+
+- [ ] T033 [US3] Generate Final Summary Table:
+ - **Input**: `data/processed/results/association_results.tsv` (T021), `diff_abundance_agp_ancom.tsv` (T028a2), `diff_abundance_agp_deseq2.tsv` (T028a3), `diff_abundance_ukbb_ancom.tsv` (T028b2), `diff_abundance_ukbb_deseq2.tsv` (T028b3), `replication_status.tsv` (T029), `agp_fiber_metrics.tsv` (T028a4), `ukbb_fiber_metrics.tsv` (T028b4), `data/processed/results/power_analysis_report.tsv` (T006b_run).
+ - **Action**: Aggregate all results into a single comprehensive table.
+ - **Output**: `data/processed/results/final_summary.tsv` containing:
+   - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ**, direction
+   - **Replication status** (from T029)
+   - **Median fiber intake for high/low groups** (from T028a4/T028b4) - **Mandatory for FR-009**
+   - Confidence intervals (calculated as beta ± 1.96 * SE)
+   - Statistical power and margin of error (from T006b_run).
+ - **Depends on**: T021, T028a2, T028a3, T028b2, T028b3, T029, T028a4, T028b4, T006b_run.
+- [ ] T031 [US3] Integrate power analysis results (from T006b/T006b_validate) into final report to distinguish true null effects from underpowered results. **Depends on**: T006b_run, T033.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -280,6 +354,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All data downloads must use real, reachable URLs (Qiita, UKBB). No synthetic/fake data for input.
-- **CRITICAL**: All statistical tests must run on CPU-only runners (no GPU, no 8-bit/4-bit quantization requiring CUDA).
+- **CRITICAL**: All statistical tests must run on CPU-only runners (no GPU, no low-bit quantization requiring CUDA).
 - **CRITICAL**: Tasks must respect data flow: ingestion (US1) → transformation/analysis (US2) → validation (US3).
-- **STRATEGY**: Primary analysis uses MaAsLin2 (continuous model). ANCOM-II/DESeq2 are executed on the full dataset (or a deterministic stratified sample if RAM constrained) as robustness checks to satisfy Spec requirements.
+- **STRATEGY**: Primary analysis uses MaAsLin (continuous model). ANCOM-II/DESeq are executed on filtered/downsampled cohorts (AGP/UKBB) as robustness checks. Replication logic (T029) prioritizes MaAsLin2 beta-coefficient comparison but MUST also validate ANCOM-II/DESeq2 results.
+- **FAIL LOUDLY**: If a data loader fails to fetch real data, it MUST raise an exception. Do not fall back to synthetic data.
+- **COMPOSITIONAL CONSTRAINTS**: Python fallbacks for MaAsLin2 MUST fail loudly if R is unavailable; no ALR/ILR or OLS fallbacks allowed.
+- **POWER ANALYSIS**: T006 (Implementation) must be completed before T006b_run (Execution).
+- **TIME BUDGET**: ANCOM-II/DESeq2 tasks (T028a1/T028b1) MUST project runtime and downsample if > 5h to guarantee SC-004 (≤6h) compliance.

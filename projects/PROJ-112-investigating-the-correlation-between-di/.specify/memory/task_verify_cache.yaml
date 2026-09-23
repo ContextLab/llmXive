@@ -1,35 +1,36 @@
-T003:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit hook file)\
-    \ were presented, nor any evidence that ruff and Black have been installed or\
-    \ integrated into the project. Without these artifacts the requirement to configure\
-    \ linting (ruff) and formatting (black) is not satisfied."
-T004:
+  r: No project files, directories, or any structural artifacts were presented; the
+    evidence consists solely of the task description and user stories, with no actual
+    codebase, folder hierarchy, or configuration files to verify that a project structure
+    was created. The required artifact is missing.
+T003a:
+  c: true
+  h: a23e7cabe4ed97ffeacd8033a2ef65c6ed894c50678b7a3ca1d032e2cd368647
+  r: The `pyproject.toml` file is present and includes a full `[tool.ruff]` configuration
+    block (target version, line length, selected/ignored rules, isort settings, etc.),
+    satisfying the requirement to provide a Ruff config either in `pyproject.toml`
+    or a `.ruff.toml` file. No further files are needed.
+T004a:
+  c: true
+  h: 71fcb03c8d65b9b78c2a45d7f448e538f366c8b6e712c3015ec019e394af75e5
+  r: "The repository contains a non\u2011empty `pyproject.toml` (1745\u202Fbytes)\
+    \ that includes a `[tool.pytest.ini_options]` section with realistic pytest settings,\
+    \ satisfying the requirement to provide a pytest configuration file (either `pytest.ini`\
+    \ or `pyproject.toml`). No further files are needed."
+T009b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `pytest` configuration file (e.g., `pytest.ini`, `conftest.py`) or test directory
-    (e.g., `tests/` with test modules) was found in the provided artifacts, so the
-    required setup is missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/processed/results/`)\
-    \ being created is provided; the artifact list is empty, so the task\u2019s core\
-    \ deliverable is missing."
+  h: 56ac508b1aa496a06b9ac23c9a211cafc18143a26f550bb0bc0d257fa666a778
+  r: The required file `data/processed/results/covariate_exclusion_log.txt` is missing,
+    so the existence check fails and no content can be validated. The task therefore
+    is not satisfied.
 T011:
   c: false
   h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
   r: "The required file `tests/integration/test_pipeline.py` does not exist, so no\
     \ integration test for the ingestion pipeline is present. Without this artifact,\
     \ the task\u2019s requirement is not satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration file was presented that adds validation logic\
-    \ to prevent PII leakage or records checksums in the `state/` directory. The required\
-    \ artifact is missing, so the task\u2019s requirement is not satisfied."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

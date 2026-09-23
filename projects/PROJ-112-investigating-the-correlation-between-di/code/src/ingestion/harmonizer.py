@@ -1,3 +1,14 @@
+"""
+Harmonizer module for merging and filtering AGP and UKBB datasets.
+
+This module handles:
+- Loading raw AGP and UKBB data
+- Converting fiber units to g/day
+- Filtering samples based on read count and fiber intake
+- Merging datasets with cohort identification
+- Logging exclusion reasons and counts
+"""
+
 import argparse
 import logging
 import sys
@@ -5,303 +16,373 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 
 import pandas as pd
+import numpy as np
 
+# Import logger from project utils
 from src.utils.logger import get_logger
-from src.ingestion.logging_config import (
-    log_download_status,
-    log_filter_counts,
-    log_harmonization_result,
-    log_merge_result,
-    log_validation_result
-)
+from src.ingestion.logging_config import get_ingestion_logger, log_filter_counts, log_harmonization_result, log_merge_result
 
-def load_agp_data(file_path: str) -> pd.DataFrame:
+# Constants
+MIN_READ_COUNT = 5000
+MIN_FIBER = 0.0
+MAX_FIBER = 200.0
+OUTPUT_FILE = "data/processed/merged_harmonized.tsv"
+LOG_FILE = "data/processed/results/harmonization_log.txt"
+
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+def load_agp_data(filepath: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load AGP data from file.
+    Load AGP raw data from TSV file.
     
     Args:
-        file_path: Path to AGP data file
+        filepath: Path to AGP raw TSV file. If None, uses default path.
         
     Returns:
-        DataFrame with AGP data
+        DataFrame with AGP data.
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist.
+        ValueError: If required columns are missing.
     """
-    logger = get_logger(LOG_HARMONIZE)
-    logger.info(f"Loading AGP data from {file_path}")
+    if filepath is None:
+        filepath = get_project_root() / "data" / "raw" / "agp_raw.tsv"
     
-    try:
-        df = pd.read_csv(file_path, sep='\t' if file_path.endswith('.tsv') else ',')
-        log_validation_result(logger, "AGP load", True, f"Loaded {len(df)} samples")
-        return df
-    except Exception as e:
-        log_validation_result(logger, "AGP load", False, str(e))
-        raise
+    if not filepath.exists():
+        raise FileNotFoundError(f"AGP raw data file not found: {filepath}")
+    
+    logger = get_ingestion_logger("harmonizer")
+    logger.info(f"Loading AGP data from {filepath}")
+    
+    df = pd.read_csv(filepath, sep='\t', low_memory=False)
+    
+    # Expected columns based on AGP loader output
+    required_cols = ['sample_id', 'fiber_g_day', 'read_count']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        raise ValueError(f"AGP data missing required columns: {missing_cols}")
+    
+    logger.info(f"Loaded {len(df)} AGP samples")
+    return df.copy()
 
-def load_ukbb_data(file_path: str) -> pd.DataFrame:
+def load_ukbb_data(filepath: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load UKBB data from file.
+    Load UKBB raw data from TSV file.
     
     Args:
-        file_path: Path to UKBB data file
+        filepath: Path to UKBB raw TSV file. If None, uses default path.
         
     Returns:
-        DataFrame with UKBB data
+        DataFrame with UKBB data.
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist.
+        ValueError: If required columns are missing.
     """
-    logger = get_logger(LOG_HARMONIZE)
-    logger.info(f"Loading UKBB data from {file_path}")
+    if filepath is None:
+        filepath = get_project_root() / "data" / "raw" / "ukbb_raw.tsv"
     
-    try:
-        df = pd.read_csv(file_path, sep='\t' if file_path.endswith('.tsv') else ',')
-        log_validation_result(logger, "UKBB load", True, f"Loaded {len(df)} samples")
-        return df
-    except Exception as e:
-        log_validation_result(logger, "UKBB load", False, str(e))
-        raise
+    if not filepath.exists():
+        raise FileNotFoundError(f"UKBB raw data file not found: {filepath}")
+    
+    logger = get_ingestion_logger("harmonizer")
+    logger.info(f"Loading UKBB data from {filepath}")
+    
+    df = pd.read_csv(filepath, sep='\t', low_memory=False)
+    
+    # Expected columns based on UKBB loader output
+    required_cols = ['sample_id', 'fiber_g_day', 'read_count']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        raise ValueError(f"UKBB data missing required columns: {missing_cols}")
+    
+    logger.info(f"Loaded {len(df)} UKBB samples")
+    return df.copy()
 
-def harmonize_fiber_units(df: pd.DataFrame, 
-                          fiber_col: str, 
-                          unit_col: Optional[str] = None) -> pd.DataFrame:
+def harmonize_fiber_units(df: pd.DataFrame, source: str) -> pd.DataFrame:
     """
-    Harmonize fiber units to g/day.
+    Ensure fiber units are in g/day.
     
     Args:
-        df: DataFrame with fiber data
-        fiber_col: Column name containing fiber values
-        unit_col: Column name containing units (optional)
+        df: Input DataFrame with fiber data.
+        source: Source identifier ('AGP' or 'UKBB') for logging.
         
     Returns:
-        DataFrame with harmonized fiber values
+        DataFrame with harmonized fiber units.
     """
-    logger = get_logger(LOG_HARMONIZE)
-    original_count = len(df)
+    logger = get_ingestion_logger("harmonizer")
+    logger.info(f"Harmonizing fiber units for {source} data")
     
-    # If unit column exists, convert units
-    if unit_col and unit_col in df.columns:
-        logger.info(f"Converting fiber units from {unit_col} to g/day")
-        
-        # Example conversions (would need actual data-specific logic)
-        def convert_to_g_per_day(row):
-            value = row[fiber_col]
-            unit = row[unit_col]
-            
-            if pd.isna(value):
-                return value
-            
-            if unit == 'mg/day':
-                return value / 1000.0
-            elif unit == 'g/week':
-                return value / 7.0
-            elif unit == 'g/month':
-                return value / 30.0
-            else:
-                return value  # Assume already g/day
-        
-        df[fiber_col] = df.apply(convert_to_g_per_day, axis=1)
-        
-        log_harmonization_result(
-            logger,
-            "fiber_units",
-            {fiber_col: f"{fiber_col}_g_per_day"},
-            {fiber_col: "mg/day, g/week, g/month -> g/day"}
-        )
+    # Assuming data is already in g/day from loaders
+    # If conversion is needed, it would happen here
+    df = df.copy()
+    
+    # Ensure numeric type
+    df['fiber_g_day'] = pd.to_numeric(df['fiber_g_day'], errors='coerce')
     
     return df
 
-def filter_samples(df: pd.DataFrame, 
-                  min_reads: int = 5000,
-                  min_fiber: float = 0.0,
-                  max_fiber: float = 200.0,
-                  reads_col: str = 'sequence_reads',
-                  fiber_col: str = 'fiber_g_per_day') -> Tuple[pd.DataFrame, Dict[str, int]]:
+def filter_samples(df: pd.DataFrame, source: str, exclusion_log: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Filter samples based on read depth and fiber intake.
+    Filter samples based on read count and fiber intake criteria.
+    
+    Criteria:
+    - Read count >= 5000
+    - Fiber intake between 0 and 200 g/day
+    - No missing fiber data
     
     Args:
-        df: DataFrame with sample data
-        min_reads: Minimum sequence reads required
-        min_fiber: Minimum fiber intake (g/day)
-        max_fiber: Maximum fiber intake (g/day)
-        reads_col: Column name for sequence reads
-        fiber_col: Column name for fiber intake
+        df: Input DataFrame.
+        source: Source identifier ('AGP' or 'UKBB').
+        exclusion_log: List to append exclusion records to.
         
     Returns:
-        Tuple of (filtered DataFrame, filter counts)
+        Filtered DataFrame.
     """
-    logger = get_logger(LOG_FILTER)
-    filter_counts = {}
-    
+    logger = get_ingestion_logger("harmonizer")
     initial_count = len(df)
     
-    # Filter by read depth
-    if reads_col in df.columns:
-        df = df[df[reads_col] >= min_reads]
-        filtered_count = len(df)
-        filter_counts['read_depth'] = {
-            'initial': initial_count,
-            'final': filtered_count,
-            'excluded': initial_count - filtered_count,
-            'reason': f'Read depth < {min_reads}'
-        }
-        log_filter_counts(
-            logger,
-            'read_depth',
-            initial_count,
-            filtered_count,
-            initial_count - filtered_count,
-            f'Read depth < {min_reads}'
-        )
-        initial_count = filtered_count
+    # Filter 1: Missing fiber data
+    missing_fiber = df['fiber_g_day'].isna()
+    if missing_fiber.any():
+        excluded_count = missing_fiber.sum()
+        exclusion_log.append({
+            'source': source,
+            'reason': 'missing_fiber_data',
+            'count': int(excluded_count)
+        })
+        logger.warning(f"{source}: Excluded {excluded_count} samples with missing fiber data")
+        df = df[~missing_fiber]
     
-    # Filter by fiber range
-    if fiber_col in df.columns:
-        df = df[(df[fiber_col] >= min_fiber) & (df[fiber_col] <= max_fiber)]
-        filtered_count = len(df)
-        filter_counts['fiber_range'] = {
-            'initial': initial_count,
-            'final': filtered_count,
-            'excluded': initial_count - filtered_count,
-            'reason': f'Fiber outside {min_fiber}-{max_fiber} g/day'
-        }
-        log_filter_counts(
-            logger,
-            'fiber_range',
-            initial_count,
-            filtered_count,
-            initial_count - filtered_count,
-            f'Fiber outside {min_fiber}-{max_fiber} g/day'
-        )
+    # Filter 2: Read count < 5000
+    low_reads = df['read_count'] < MIN_READ_COUNT
+    if low_reads.any():
+        excluded_count = low_reads.sum()
+        exclusion_log.append({
+            'source': source,
+            'reason': f'read_count_below_{MIN_READ_COUNT}',
+            'count': int(excluded_count)
+        })
+        logger.warning(f"{source}: Excluded {excluded_count} samples with read_count < {MIN_READ_COUNT}")
+        df = df[~low_reads]
     
-    # Exclude samples with missing fiber data
-    if fiber_col in df.columns:
-        initial_count = len(df)
-        df = df.dropna(subset=[fiber_col])
-        filtered_count = len(df)
-        filter_counts['missing_fiber'] = {
-            'initial': initial_count,
-            'final': filtered_count,
-            'excluded': initial_count - filtered_count,
-            'reason': 'Missing fiber data'
-        }
-        log_filter_counts(
-            logger,
-            'missing_fiber',
-            initial_count,
-            filtered_count,
-            initial_count - filtered_count,
-            'Missing fiber data'
-        )
+    # Filter 3: Fiber < 0 or > 200 g/day
+    invalid_fiber = (df['fiber_g_day'] < MIN_FIBER) | (df['fiber_g_day'] > MAX_FIBER)
+    if invalid_fiber.any():
+        excluded_count = invalid_fiber.sum()
+        exclusion_log.append({
+            'source': source,
+            'reason': f'fiber_outside_{MIN_FIBER}_{MAX_FIBER}g_day',
+            'count': int(excluded_count)
+        })
+        logger.warning(f"{source}: Excluded {excluded_count} samples with fiber outside [{MIN_FIBER}, {MAX_FIBER}] g/day")
+        df = df[~invalid_fiber]
     
-    return df, filter_counts
+    final_count = len(df)
+    log_filter_counts(
+        logger=logger,
+        source=source,
+        initial=initial_count,
+        final=final_count,
+        excluded=initial_count - final_count
+    )
+    
+    return df.reset_index(drop=True)
 
 def merge_datasets(agp_df: pd.DataFrame, ukbb_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Merge AGP and UKBB datasets.
+    Merge AGP and UKBB datasets with cohort identification.
     
     Args:
-        agp_df: AGP DataFrame
-        ukbb_df: UKBB DataFrame
+        agp_df: Filtered AGP DataFrame.
+        ukbb_df: Filtered UKBB DataFrame.
         
     Returns:
-        Merged DataFrame
+        Merged DataFrame with cohort_id column.
     """
-    logger = get_logger(LOG_HARMONIZE)
+    logger = get_ingestion_logger("harmonizer")
+    logger.info("Merging AGP and UKBB datasets")
     
-    # Add cohort identifier
-    agp_df['cohort'] = 'AGP'
-    ukbb_df['cohort'] = 'UKBB'
+    # Add cohort_id column
+    agp_df = agp_df.copy()
+    ukbb_df = ukbb_df.copy()
     
-    # Standardize column names if needed
-    # This would be more complex in production with actual column mapping
-    merged_df = pd.concat([agp_df, ukbb_df], ignore_index=True)
+    agp_df['cohort_id'] = 'AGP'
+    ukbb_df['cohort_id'] = 'UKBB'
+    
+    # Concatenate
+    merged = pd.concat([agp_df, ukbb_df], ignore_index=True)
+    
+    # Ensure column order: sample_id, cohort_id, fiber_g_day, read_count, then others
+    # Get all columns
+    base_cols = ['sample_id', 'cohort_id', 'fiber_g_day', 'read_count']
+    other_cols = [col for col in merged.columns if col not in base_cols]
+    final_cols = base_cols + sorted(other_cols)
+    
+    merged = merged[final_cols]
     
     log_merge_result(
-        logger,
-        len(agp_df),
-        len(ukbb_df),
-        len(merged_df)
+        logger=logger,
+        agp_count=len(agp_df),
+        ukbb_count=len(ukbb_df),
+        total_count=len(merged)
     )
     
-    return merged_df
+    return merged
 
-def harmonize_and_merge(agp_path: str, ukbb_path: str, output_path: str) -> pd.DataFrame:
+def write_exclusion_log(exclusion_log: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Full harmonization and merge pipeline.
+    Write exclusion log to file.
     
     Args:
-        agp_path: Path to AGP data file
-        ukbb_path: Path to UKBB data file
-        output_path: Path to save merged output
+        exclusion_log: List of exclusion records.
+        output_path: Path to write the log file.
+    """
+    logger = get_ingestion_logger("harmonizer")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        f.write("Harmonization Exclusion Log\n")
+        f.write("=" * 50 + "\n\n")
+        
+        total_excluded = 0
+        for record in exclusion_log:
+            source = record['source']
+            reason = record['reason']
+            count = record['count']
+            total_excluded += count
+            f.write(f"Source: {source}\n")
+            f.write(f"Reason: {reason}\n")
+            f.write(f"Count: {count}\n")
+            f.write("-" * 30 + "\n")
+        
+        f.write(f"\nTotal samples excluded: {total_excluded}\n")
+    
+    logger.info(f"Wrote exclusion log to {output_path}")
+
+def harmonize_and_merge(
+    agp_path: Optional[Path] = None,
+    ukbb_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    log_path: Optional[Path] = None
+) -> pd.DataFrame:
+    """
+    Main orchestration function for harmonization and merging.
+    
+    Args:
+        agp_path: Path to AGP raw data.
+        ukbb_path: Path to UKBB raw data.
+        output_path: Path for merged output.
+        log_path: Path for exclusion log.
         
     Returns:
-        Merged and harmonized DataFrame
+        Merged and harmonized DataFrame.
     """
-    logger = get_logger(LOG_HARMONIZE)
-    logger.info("Starting harmonization and merge pipeline")
+    logger = get_ingestion_logger("harmonizer")
+    logger.info("Starting harmonization and merge process")
     
     # Load data
     agp_df = load_agp_data(agp_path)
     ukbb_df = load_ukbb_data(ukbb_path)
     
-    # Harmonize fiber units
-    agp_df = harmonize_fiber_units(agp_df, 'fiber_g_per_day')
-    ukbb_df = harmonize_fiber_units(ukbb_df, 'fiber_g_per_day')
+    # Harmonize units
+    agp_df = harmonize_fiber_units(agp_df, "AGP")
+    ukbb_df = harmonize_fiber_units(ukbb_df, "UKBB")
+    
+    # Track exclusions
+    exclusion_log: List[Dict[str, Any]] = []
     
     # Filter samples
-    agp_df, agp_filters = filter_samples(agp_df)
-    ukbb_df, ukbb_filters = filter_samples(ukbb_df)
+    agp_df = filter_samples(agp_df, "AGP", exclusion_log)
+    ukbb_df = filter_samples(ukbb_df, "UKBB", exclusion_log)
     
     # Merge datasets
     merged_df = merge_datasets(agp_df, ukbb_df)
     
-    # Save output
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Write exclusion log
+    if log_path is None:
+        log_path = get_project_root() / LOG_FILE
+    write_exclusion_log(exclusion_log, log_path)
+    
+    # Write merged data
+    if output_path is None:
+        output_path = get_project_root() / OUTPUT_FILE
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     merged_df.to_csv(output_path, sep='\t', index=False)
     
-    log_validation_result(
-        logger,
-        "harmonization_complete",
-        True,
-        f"Output saved to {output_path}"
+    log_harmonization_result(
+        logger=logger,
+        output_file=str(output_path),
+        final_count=len(merged_df)
     )
+    
+    logger.info(f"Harmonization complete. Output: {output_path}")
     
     return merged_df
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    """Build argument parser for harmonizer."""
-    parser = argparse.ArgumentParser(description="Harmonize and merge AGP and UKBB data")
+    """Build argument parser for command-line execution."""
+    parser = argparse.ArgumentParser(
+        description="Harmonize and merge AGP and UKBB datasets"
+    )
     parser.add_argument(
         "--agp-path",
-        type=str,
-        default="data/raw/agp/agp_sample_mapping.tsv",
-        help="Path to AGP data file"
+        type=Path,
+        default=None,
+        help="Path to AGP raw TSV file"
     )
     parser.add_argument(
         "--ukbb-path",
-        type=str,
-        default="data/raw/ukbb/ukbb_processed.tsv",
-        help="Path to UKBB data file"
+        type=Path,
+        default=None,
+        help="Path to UKBB raw TSV file"
     )
     parser.add_argument(
-        "--output-path",
-        type=str,
-        default="data/processed/merged_harmonized.tsv",
-        help="Path to save merged output"
+        "--output",
+        type=Path,
+        default=None,
+        help="Path for merged output TSV file"
+    )
+    parser.add_argument(
+        "--log",
+        type=Path,
+        default=None,
+        help="Path for exclusion log file"
     )
     return parser
 
-def main():
-    """Main entry point for harmonizer."""
+def main(args: Optional[List[str]] = None) -> None:
+    """Main entry point for command-line execution."""
     parser = build_arg_parser()
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
     
-    logger = get_logger(LOG_HARMONIZE)
-    logger.info("Starting harmonization pipeline")
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
     try:
-        merged_df = harmonize_and_merge(args.agp_path, args.ukbb_path, args.output_path)
-        print(f"Successfully harmonized and merged data: {len(merged_df)} samples")
+        harmonize_and_merge(
+            agp_path=parsed_args.agp_path,
+            ukbb_path=parsed_args.ukbb_path,
+            output_path=parsed_args.output,
+            log_path=parsed_args.log
+        )
+    except FileNotFoundError as e:
+        logging.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logging.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to harmonize data: {e}")
+        logging.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

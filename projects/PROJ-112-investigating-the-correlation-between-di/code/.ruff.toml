@@ -1,25 +1,76 @@
-[lint]
-select = [
-  "E",  # pycodestyle
-  "F",  # pyflakes
-  "I",  # isort
-  "W",  # pycodestyle warnings
-  "UP", # uplint
-  "D",  # pydocs
-]
-ignore = [
-  "E501", # line too long (handled by black)
-  "D100", # Missing docstring in public module
-  "D102", # Missing docstring in public method
-]
-unfixable = ["F841"]
-extend = ["E"]
+# Ruff configuration for llmXive project
+# This file configures the linter and formatter rules
 
-[lint.isort]
-known-first-party = ["src", "tests", "utils"]
+# Target Python version (matching requirements: Python 3.11)
+target-version = "py311"
 
-[format]
+# Line length for linting checks
 line-length = 88
 
-[target-version]
-python = "3.11"
+# Exclude directories that don't need linting
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "docs",
+    "state",
+]
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules that conflict with project style or are too verbose
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in pandas/argparse)
+    "C408", # Unnecessary dict call (redundant for pandas/argparse patterns)
+]
+
+# Per-file ignores if necessary
+per-file-ignores = { "tests/*" = ["S101"] } # Allow asserts in tests
+
+[lint.isort]
+# Configuration for import sorting to match project style
+known-first-party = ["src", "tests", "utils", "ingestion", "preprocessing", "analysis"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.flake8-bugbear]
+# Extend immutability checks
+extend-immutable-calls = ["argparse.Namespace", "pandas.DataFrame", "numpy.array"]
+
+[format]
+# Format configuration (compatible with Black)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
