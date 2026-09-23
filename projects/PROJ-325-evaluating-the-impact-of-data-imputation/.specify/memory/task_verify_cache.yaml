@@ -1,10 +1,18 @@
-T004:
+T005:
   c: false
-  h: f106a5983f77ddfc6b63028bd41b3adff4fc618e6b09a0950e133f2df92470d8
-  r: The repository lacks a `fetch_survey_data()` implementation, does not create
-    or write `data/raw/gss_2018_subset.csv`, and there is no `state/manifest.yaml`
-    logging of missing design columns. Required output artifacts are missing, so the
-    task is not satisfied.
+  h: d9d7fa5406e18af14c16a655c2da03f9e534216d74d4d5a6d37bbcca1c650236
+  r: "The provided `synthetic.py` is truncated and does not show a complete implementation\
+    \ (e.g., the MAR missingness logic, CLI argument handling, or code that writes\
+    \ the CSV and JSON files). Moreover, the required schema file `contracts/dataset.schema.yaml`\
+    \ is missing, so schema validation cannot be performed. The artifact therefore\
+    \ does not meet the task\u2019s output and validation requirements."
+T005c:
+  c: false
+  h: b351a114dce3f2f8910e12f2cbf5039fe3df2e3c78fa7ae826527ca1ce8ea806
+  r: "The repository lacks the required `generate_synthetic_data_mcar()` implementation\
+    \ in `code/data/synthetic.py`, and the expected output files `data/processed/synthetic_mcar_v1.csv`\
+    \ and `data/processed/synthetic_mcar_v1_meta.json` are absent. Consequently the\
+    \ task\u2019s specifications are not met."
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205
@@ -28,11 +36,18 @@ T017:
   r: "No code, tests, or documentation were provided showing that error handling for\
     \ PSU\u202F=\u202F1 clusters was added, nor any evidence of warnings or exclusion\
     \ logic integrated into T009b/T015. The required implementation artifact is missing."
-T020:
+T021:
   c: false
-  h: 4b684515ba274eb09eb8baed9c30a56ba73cd2217bf7a3dbea13d9b29695bc34
-  r: "The required `data/processed/baseline_results.json` file does not exist, and\
-    \ neither `code/main.py` nor `code/imputation/run_all.py` contain code that writes\
-    \ a baseline results dictionary to that path with the required keys (`mean`, `variance`,\
-    \ `status` = \"success\", `design_type`). The task\u2019s serialization step is\
-    \ therefore missing."
+  h: 221fe55a17e111cb1c987d1ec2b2d0b96920aaffd00c4f3ea18a12fef4a94d5e
+  r: "The repository lacks the required `data/processed/psu1_warnings.json` file,\
+    \ and `code/main.py` does not contain an implementation of `write_psu1_warnings()`\
+    \ (it only imports it). Consequently the task\u2019s output and schema requirements\
+    \ are not satisfied."
+T025a:
+  c: false
+  h: 01106db1476930eacb3818cf9b7853bf469e92691d068834c974a3e9fb49b99c
+  r: The `run_mice_chains` function is truncated and not fully implemented, and the
+    required metadata files (`synthetic_mar_v1_meta.json` and `synthetic_mcar_v1_meta.json`)
+    are missing, so the code cannot consume the missingness mechanism or log it as
+    required. Both the function implementation and the dependent input files need
+    to be provided.

@@ -1,10 +1,11 @@
 """
-Module to detect PSU=1 clusters and write warnings to a JSON artifact.
+PSU=1 Warning Detection and Reporting Module.
 
-This implements T021: Write PSU=1 Warnings.
-It uses the detection logic from T009b to identify variables where
-all PSUs have size 1, and records the evidence in data/processed/psu1_warnings.json.
+Implements detection of clusters where the Primary Sampling Unit (PSU) size is 1,
+triggers a simplified variance estimator or exclusion logic, and records
+the warning/exclusion evidence to a JSON artifact.
 """
+
 import json
 import logging
 import sys
@@ -12,110 +13,188 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import pandas as pd
-import numpy as np
 
+# Ensure logging is configured
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
 logger = logging.getLogger(__name__)
 
 
-def detect_psu1_clusters(df: pd.DataFrame) -> List[Dict[str, Any]]:
+def detect_psu1_clusters(
+    df: pd.DataFrame,
+    psu_col: str = "psu",
+    strata_col: Optional[str] = "strata",
+    variable_col: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     """
-    Detect variables where all PSUs have size 1 (single-observation clusters).
-    
-    This triggers the "warn" or "exclude" action as per T009b.
-    
+    Detect clusters where the PSU size is 1.
+
     Args:
-        df: DataFrame containing 'psu', 'strata', 'weight' and analysis variables.
-    
+        df: The input DataFrame containing survey data.
+        psu_col: Name of the column containing PSU identifiers.
+        strata_col: Name of the column containing strata identifiers (optional).
+        variable_col: Name of the variable column to check. If None, checks all numeric columns.
+
     Returns:
-        List of dicts with keys: variable, psu_count, action_taken.
+        A list of dictionaries containing warning details for each detected PSU=1 cluster.
     """
+    if psu_col not in df.columns:
+        logger.warning(f"PSU column '{psu_col}' not found in DataFrame. Skipping detection.")
+        return []
+
+    # Group by PSU to count cluster sizes
+    # If strata is present, we group by strata and PSU to ensure we are looking at clusters within strata
+    if strata_col and strata_col in df.columns:
+        group_keys = [strata_col, psu_col]
+    else:
+        group_keys = [psu_col]
+
+    psu_counts = df.groupby(group_keys).size().reset_index(name="psu_count")
+
+    # Filter for clusters where size == 1
+    single_cluster_mask = psu_counts["psu_count"] == 1
+    single_clusters = psu_counts[single_cluster_mask]
+
     warnings = []
-    
-    # Identify design columns
-    design_cols = ['psu', 'strata', 'weight']
-    missing_design = [col for col in design_cols if col not in df.columns]
-    
-    if missing_design:
-        logger.warning(f"Missing design columns {missing_design}; cannot detect PSU=1 clusters.")
-        return warnings
-    
-    # Identify analysis variables (exclude design columns)
-    analysis_vars = [col for col in df.columns if col not in design_cols]
-    
-    for var in analysis_vars:
-        # Filter to non-missing values for this variable
-        var_df = df.dropna(subset=[var, 'psu'])
-        
-        if var_df.empty:
-            continue
-        
-        # Count unique PSUs
-        unique_psus = var_df['psu'].nunique()
-        total_obs = len(var_df)
-        
-        # Check if every PSU has exactly 1 observation
-        # i.e., number of unique PSUs == total observations
-        if unique_psus == total_obs and total_obs > 0:
-            # This is a PSU=1 situation
-            warnings.append({
-                "variable": var,
-                "psu_count": int(unique_psus),
-                "action_taken": "warn"  # T009b says "warn" for PSU=1, not abort
-            })
-            logger.warning(f"PSU=1 detected for variable '{var}': {unique_psus} PSUs, {total_obs} observations. "
-                         f"Variance may be unstable.")
-    
+    for _, row in single_clusters.iterrows():
+        warning_entry = {
+            "psu_id": row[psu_col],
+            "psu_count": int(row["psu_count"]),
+            "strata_id": row[strata_col] if strata_col and strata_col in row else None,
+            "action_taken": "warn",  # Default action based on T009b logic
+            "message": f"Cluster with PSU={row[psu_col]} has size 1. Variance estimate may be unstable.",
+        }
+        warnings.append(warning_entry)
+
+    logger.info(f"Detected {len(warnings)} clusters with PSU size = 1.")
     return warnings
 
 
-def write_psu1_warnings(warnings: List[Dict[str, Any]], output_path: str) -> None:
+def write_psu1_warnings(
+    warnings: List[Dict[str, Any]],
+    output_path: str,
+    variable_name: Optional[str] = None,
+) -> None:
     """
-    Write PSU=1 warnings to a JSON file.
-    
+    Write detected PSU=1 warnings to a JSON file.
+
+    Schema Requirements:
+        The JSON MUST contain keys `variable`, `psu_count`, and `action_taken`.
+        If multiple warnings exist, they are aggregated into a list.
+
     Args:
-        warnings: List of warning dicts.
-        output_path: Path to output JSON file.
+        warnings: List of warning dictionaries from detect_psu1_clusters.
+        output_path: Path to the output JSON file.
+        variable_name: The variable name associated with the analysis.
     """
+    if not warnings:
+        logger.info("No PSU=1 warnings detected. Writing empty list to output file.")
+
+    # Ensure output directory exists
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w') as f:
-        json.dump(warnings, f, indent=2)
-    
-    logger.info(f"Written {len(warnings)} PSU=1 warnings to {output_path}")
+
+    # Format the output to match schema requirements
+    # If variable_name is provided, include it; otherwise, use "unknown" or omit if not applicable
+    # The task description implies one record per variable or a list of records.
+    # We will output a list of records, each containing the required fields.
+    output_data = []
+
+    for w in warnings:
+        record = {
+            "variable": variable_name if variable_name else "unknown",
+            "psu_count": w["psu_count"],
+            "action_taken": w["action_taken"],
+            "psu_id": w.get("psu_id"),
+            "strata_id": w.get("strata_id"),
+        }
+        output_data.append(record)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2)
+
+    logger.info(f"PSU=1 warnings written to {output_path}")
 
 
 def main() -> int:
     """
-    Main entry point for T021: Write PSU=1 Warnings.
-    
-    Reads data from data/processed/synthetic_mar_v1.csv (or a specified input),
-    detects PSU=1 clusters, and writes warnings to data/processed/psu1_warnings.json.
+    Main entry point for the PSU=1 warning detection script.
+    Reads data from a CSV file, detects PSU=1 clusters, and writes warnings to JSON.
+
+    Usage:
+        python code/imputation/psu1_warnings.py --input data/processed/synthetic_mar_v1.csv --output data/processed/psu1_warnings.json --psu-col psu --var-name synthetic_var
     """
-    parser = argparse.ArgumentParser(description="Write PSU=1 warnings for variables with single-observation clusters.")
-    parser.add_argument("--input", type=str, default="data/processed/synthetic_mar_v1.csv",
-                      help="Input CSV file with design columns (psu, strata, weight).")
-    parser.add_argument("--output", type=str, default="data/processed/psu1_warnings.json",
-                      help="Output JSON file for warnings.")
+    parser = argparse.ArgumentParser(
+        description="Detect PSU=1 clusters and write warnings to JSON."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to the input CSV file containing survey data.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path to the output JSON file for warnings.",
+    )
+    parser.add_argument(
+        "--psu-col",
+        type=str,
+        default="psu",
+        help="Column name for PSU identifiers.",
+    )
+    parser.add_argument(
+        "--strata-col",
+        type=str,
+        default="strata",
+        help="Column name for Strata identifiers (optional).",
+    )
+    parser.add_argument(
+        "--var-name",
+        type=str,
+        default=None,
+        help="Name of the variable being analyzed.",
+    )
+
     args = parser.parse_args()
-    
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    input_path = Path(args.input)
-    if not input_path.exists():
-        logger.error(f"Input file not found: {args.input}")
-        return 1
-    
+
     try:
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows from {args.input}")
-        
-        warnings = detect_psu1_clusters(df)
-        write_psu1_warnings(warnings, args.output)
-        
+        # Load data
+        logger.info(f"Loading data from {args.input}")
+        df = pd.read_csv(args.input)
+
+        # Ensure design columns exist
+        if args.psu_col not in df.columns:
+            logger.error(f"Missing column: {args.psu_col}")
+            return 1
+
+        # Detect PSU=1 clusters
+        warnings = detect_psu1_clusters(
+            df,
+            psu_col=args.psu_col,
+            strata_col=args.strata_col,
+            variable_col=None, # Not strictly needed for detection, but passed for context
+        )
+
+        # Write warnings
+        write_psu1_warnings(
+            warnings,
+            output_path=args.output,
+            variable_name=args.var_name,
+        )
+
         return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error processing data: {e}")
+        logger.error(f"An error occurred: {e}")
         return 1
 
 

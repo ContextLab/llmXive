@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T19:40:23.338881Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-325-evaluating-the-impact-of-data-imputation
-last_run_id: abbe1295-0a7c-4251-811d-25f0d3f77d05
+last_run_id: 986c4fa3-d137-4640-8852-eba33a6459fd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation
 title: Evaluating the Impact of Data Imputation on Variance Estimation in Public Surveys
-updated_at: '2026-09-20T22:14:13.889331Z'
+updated_at: '2026-09-23T00:33:35.920594Z'

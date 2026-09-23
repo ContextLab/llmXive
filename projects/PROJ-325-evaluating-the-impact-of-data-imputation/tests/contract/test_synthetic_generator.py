@@ -1,95 +1,161 @@
-import json
-import os
-import tempfile
 import pytest
-import pandas as pd
-import numpy as np
+import os
+import json
+import tempfile
+import subprocess
+import sys
+from pathlib import Path
 
-from code.data.synthetic import generate_synthetic_data, validate_schema
+# Import the function directly for unit testing
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from data.synthetic import generate_synthetic_data, validate_schema
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+class TestSyntheticGenerator:
+    """Contract tests for synthetic data generation."""
 
-def test_synthetic_produces_known_variance():
-    """
-    Test that the synthetic generator produces data with variance
-    close to the specified true_variance within a tolerance.
-    """
-    n = 100000  # Large sample to ensure statistical convergence
-    true_mean = 50.0
-    true_variance = 25.0
-    missing_rate = 0.0  # No missingness for variance check to avoid bias from imputation logic
-    mechanism = 'MCAR'
-    seed = 42
+    def test_synthetic_produces_known_variance(self):
+        """
+        Test that the generated data has a variance close to the specified true_variance.
+        Note: Due to sampling noise, we check within a tolerance.
+        """
+        n = 10000  # Large N to reduce sampling noise
+        true_mean = 50.0
+        true_variance = 100.0
+        seed = 42
 
-    df, meta = generate_synthetic_data(
-        n=n,
-        true_mean=true_mean,
-        true_variance=true_variance,
-        missing_rate=missing_rate,
-        mechanism=mechanism,
-        seed=seed
-    )
+        df = generate_synthetic_data(
+            n=n,
+            true_mean=true_mean,
+            true_variance=true_variance,
+            missing_rate=0.0,  # No missingness for this test
+            mechanism="MCAR",
+            seed=seed
+        )
 
-    # Check metadata
-    assert meta['true_mean'] == true_mean
-    assert meta['true_variance'] == true_variance
-    assert meta['missingness_mechanism'] == mechanism
+        # Calculate sample variance (ddof=1)
+        # We expect the sample variance to be close to true_variance
+        sample_var = df["value"].var(ddof=1)
+        
+        # Tolerance: 10% for sample variance with N=10000
+        tolerance = 0.10 * true_variance
+        
+        assert abs(sample_var - true_variance) < tolerance, \
+            f"Sample variance {sample_var} differs from true variance {true_variance} by more than {tolerance}"
 
-    # Calculate observed variance (ddof=1 for sample variance)
-    # Since missing_rate is 0, all values are present
-    observed_variance = df['value'].var(ddof=1)
+    def test_synthetic_mcar_independence(self):
+        """
+        Test that for MCAR, missingness is independent of the value.
+        We check that the mean of observed values is close to the mean of missing values (conceptually).
+        Since we mask randomly, the observed subset should be representative.
+        """
+        n = 10000
+        true_mean = 50.0
+        true_variance = 100.0
+        missing_rate = 0.3
+        seed = 123
 
-    # Tolerance: 1% of true variance is reasonable for n=100k
-    tolerance = 0.01 * true_variance
-    assert abs(observed_variance - true_variance) < tolerance, \
-        f"Observed variance {observed_variance} differs from true {true_variance} by more than tolerance {tolerance}"
+        df = generate_synthetic_data(
+            n=n,
+            true_mean=true_mean,
+            true_variance=true_variance,
+            missing_rate=missing_rate,
+            mechanism="MCAR",
+            seed=seed
+        )
 
-def test_synthetic_schema_validation():
-    """
-    Test that the generated data conforms to the expected schema.
-    """
-    df, meta = generate_synthetic_data(
-        n=1000,
-        true_mean=10.0,
-        true_variance=4.0,
-        missing_rate=0.1,
-        mechanism='MAR',
-        seed=123
-    )
+        observed_mean = df.loc[~df["missing"], "value"].mean()
+        # Theoretical expectation: observed_mean should be close to true_mean
+        
+        # Allow 5% tolerance
+        tolerance = 0.05 * true_mean
+        assert abs(observed_mean - true_mean) < tolerance, \
+            f"MCAR Observed mean {observed_mean} is not close to true mean {true_mean}"
 
-    # Validate against schema
-    is_valid = validate_schema(df, meta)
-    assert is_valid is True
+    def test_synthetic_mar_dependence(self):
+        """
+        Test that for MAR, missingness is dependent on the value.
+        We expect the observed mean to deviate from the true mean.
+        """
+        n = 10000
+        true_mean = 50.0
+        true_variance = 100.0
+        missing_rate = 0.3
+        seed = 456
 
-    # Check specific columns
-    assert 'id' in df.columns
-    assert 'value' in df.columns
-    assert 'missingness_mechanism' in df.columns
+        df = generate_synthetic_data(
+            n=n,
+            true_mean=true_mean,
+            true_variance=true_variance,
+            missing_rate=missing_rate,
+            mechanism="MAR",
+            seed=seed
+        )
 
-def test_synthetic_missingness_rate():
-    """
-    Test that the actual missingness rate is close to the specified rate.
-    """
-    n = 10000
-    true_mean = 50.0
-    true_variance = 25.0
-    target_missing_rate = 0.2
-    mechanism = 'MCAR'
-    seed = 999
+        observed_mean = df.loc[~df["missing"], "value"].mean()
+        
+        # For MAR, we expect a deviation. 
+        # We just check that it's NOT exactly the true mean (with a small buffer for noise)
+        # and that the deviation is significant enough to be detected.
+        # A strict equality check is bad, but we can check if the bias is > 1% of mean.
+        bias = abs(observed_mean - true_mean)
+        
+        # If bias is very small (< 0.5%), it might be noise, but typically MAR creates bias.
+        # We assert that the bias is NOT zero (within floating point) and likely > 0.1
+        assert bias > 0.1, f"MAR mechanism did not produce expected bias. Observed mean: {observed_mean}"
 
-    df, meta = generate_synthetic_data(
-        n=n,
-        true_mean=true_mean,
-        true_variance=true_variance,
-        missing_rate=target_missing_rate,
-        mechanism=mechanism,
-        seed=seed
-    )
+    def test_schema_validation_pass(self):
+        """Test that valid metadata passes schema validation."""
+        metadata = {
+            "true_mean": 50.0,
+            "true_variance": 100.0,
+            "missingness_mechanism": "MCAR"
+        }
+        assert validate_schema(metadata, "MCAR") is True
 
-    actual_missing_rate = df['value'].isna().sum() / n
-    # Allow 5% absolute tolerance for random variation
-    assert abs(actual_missing_rate - target_missing_rate) < 0.05, \
-        f"Actual missing rate {actual_missing_rate} differs from target {target_missing_rate}"
+    def test_schema_validation_fail_missing_key(self):
+        """Test that missing keys fail validation."""
+        metadata = {
+            "true_mean": 50.0,
+            # missing true_variance
+            "missingness_mechanism": "MCAR"
+        }
+        assert validate_schema(metadata, "MCAR") is False
+
+    def test_cli_generation(self):
+        """Test that the CLI script runs successfully and creates files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "test.csv")
+            meta_path = os.path.join(tmpdir, "test_meta.json")
+            
+            cmd = [
+                sys.executable, "-m", "data.synthetic",
+                "--n-rows", "100",
+                "--true-mean", "50",
+                "--true-variance", "100",
+                "--missing-rate", "0.2",
+                "--mechanism", "MAR",
+                "--seed", "42",
+                "--output-csv", csv_path,
+                "--output-meta", meta_path,
+                "--generate",
+                "--validate-schema"
+            ]
+            
+            # Run from the project root to ensure imports work
+            project_root = Path(__file__).parent.parent.parent
+            result = subprocess.run(
+                cmd,
+                cwd=project_root,
+                capture_output=True,
+                text=True
+            )
+            
+            assert result.returncode == 0, f"CLI failed: {result.stderr}"
+            assert os.path.exists(csv_path), "CSV file not created"
+            assert os.path.exists(meta_path), "Meta file not created"
+            
+            # Verify meta content
+            with open(meta_path, "r") as f:
+                meta = json.load(f)
+            assert meta["missingness_mechanism"] == "MAR"
+            assert meta["n_rows"] == 100

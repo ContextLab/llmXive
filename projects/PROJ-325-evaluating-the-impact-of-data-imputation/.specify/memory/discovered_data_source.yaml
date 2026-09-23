@@ -1,11 +1,10 @@
 status: none
-intent: download GSS 2018 and ACS Income survey design variables weights strata PSU
-  python package dataset
+intent: download GSS 2018 and ACS design-weighted survey data python package dataset
 required_fields:
 - weight
 - strata
 - psu
-- target_variable
-cache_key: 48f1bd5d2160d35d017f11b89149a00a75b13c7416313d3e2e286cb4684b4627
-searched_at: '2026-07-28T21:32:46.225642+00:00'
+- all survey variables (e.g., demographic and outcome variables)
+cache_key: 9d26357d0ae39251b2668db8b2d4d4323d582384a0a4e41728c127ce668c1839
+searched_at: '2026-09-23T00:23:00.282273+00:00'
 retry_count: 1
