@@ -2,9 +2,8 @@
 Preprocessing Module for Caco-2 Permeability Data.
 
 This module filters raw data for non-NULL SMILES and logPapp,
-reports pass rates, and handles protocol heterogeneity analysis.
-
-Traceability: FR-010
+reports pass rates, and excludes records due to protocol heterogeneity.
+It references FR-010 for data completeness requirements.
 """
 
 import csv
@@ -14,225 +13,216 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from utils.logging import get_logger, configure_root_logger
+from utils.logging import get_logger
+from utils.config import get_project_root
 from utils.checksum import scan_and_register_data_files
 
 logger = get_logger(__name__)
 
-def load_raw_data(raw_path: Path) -> List[Dict[str, Any]]:
+def load_raw_data(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Load raw CSV data from ChEMBL retrieval.
+    Load raw CSV data from the specified file.
 
     Args:
-        raw_path: Path to the raw CSV file.
+        file_path: Path to the raw CSV file.
 
     Returns:
         List of dictionaries representing rows.
     """
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
-
     data = []
-    with open(raw_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(row)
-
-    logger.info(f"Loaded {len(data)} records from {raw_path}")
+    logger.info(f"Loaded {len(data)} records from {file_path}")
     return data
 
-def parse_protocol_metadata(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def parse_protocol_metadata(record: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Parse the protocol_metadata JSON string back into an object.
+    Parse the protocol_metadata JSON string into a dictionary.
 
     Args:
-        record: A dictionary row from the CSV.
+        record: A row dictionary.
 
     Returns:
-        Parsed dictionary or None if invalid/missing.
+        Parsed protocol metadata dictionary.
     """
-    meta_str = record.get('protocol_metadata', '')
-    if not meta_str or meta_str.strip() == '':
-        return None
-
+    raw_meta = record.get('protocol_metadata', '{}')
+    if not raw_meta or raw_meta == '{}':
+        return {}
     try:
-        return json.loads(meta_str)
+        return json.loads(raw_meta)
     except json.JSONDecodeError:
         logger.warning(f"Failed to parse protocol_metadata for record: {record.get('assay_id', 'unknown')}")
-        return None
+        return {}
 
-def check_protocol_heterogeneity(records: List[Dict[str, Any]]) -> Tuple[int, List[str]]:
+def check_protocol_heterogeneity(records: List[Dict[str, Any]], threshold_variance: float = 0.5) -> Tuple[int, List[str]]:
     """
-    Count records excluded due to protocol heterogeneity.
+    Check for protocol heterogeneity based on variance in lab_id, temperature, or passage.
+    This is a simplified check: if a significant portion of records have conflicting
+    metadata (e.g., different labs or temperatures without standardization), they are flagged.
 
-    Heterogeneity is defined as significant variance in protocol_metadata fields
-    such as lab_id, temperature, or passage. For this implementation, we flag
-    records where these fields are missing, null, or inconsistent with the
-    majority mode if a clear majority exists.
+    For this implementation, we flag records if they belong to a 'minority' protocol group
+    (e.g., if >80% of data comes from one lab_id, the rest are considered heterogeneous).
+
+    Args:
+        records: List of raw records.
+        threshold_variance: Threshold for considering a group as "majority".
 
     Returns:
-        Tuple of (count_excluded, list_of_excluded_assay_ids)
+        Count of excluded records and list of excluded assay_ids.
     """
+    if not records:
+        return 0, []
+
+    # Extract metadata fields
+    meta_counts = {}
+    for record in records:
+        meta = parse_protocol_metadata(record)
+        # Create a composite key for protocol identity
+        key = (
+            meta.get('lab_id', 'unknown'),
+            meta.get('temperature', 'unknown'),
+            meta.get('passage', 'unknown')
+        )
+        meta_counts[key] = meta_counts.get(key, 0) + 1
+
+    total = len(records)
+    # Find the majority protocol group
+    if not meta_counts:
+        return 0, []
+
+    max_count = max(meta_counts.values())
+    majority_threshold = total * threshold_variance
+
+    # If the largest group is not dominant, we might consider the whole dataset heterogeneous
+    # But per FR-010, we want to filter out records that don't fit the standard protocol.
+    # We will assume the largest group is the "standard" and exclude others.
+    majority_key = max(meta_counts, key=meta_counts.get)
+
     excluded_count = 0
     excluded_ids = []
 
-    # Collect valid metadata fields
-    valid_records = []
     for record in records:
         meta = parse_protocol_metadata(record)
-        if meta and isinstance(meta, dict):
-            valid_records.append((record, meta))
-
-    if not valid_records:
-        logger.warning("No records with valid protocol metadata found. Cannot assess heterogeneity.")
-        return len(records), [r.get('assay_id', 'unknown') for r in records]
-
-    # Check for consistency in key fields: lab_id, temperature, passage
-    # We will exclude records where these fields are missing or if they deviate significantly
-    # from the most common value (mode) if the mode covers > 50% of the data.
-    # If no clear majority, we assume heterogeneity and exclude all?
-    # Per FR-010, we report excluded records due to heterogeneity.
-    # Strategy: Exclude records where critical metadata is missing.
-    # If metadata exists but is wildly different, we might need a more complex logic.
-    # For now, strict: if lab_id, temperature, or passage is missing/null, exclude.
-
-    critical_fields = ['lab_id', 'temperature', 'passage']
-
-    for record, meta in valid_records:
-        is_heterogeneous = False
-        for field in critical_fields:
-            val = meta.get(field)
-            if val is None or val == '' or (isinstance(val, str) and val.lower() == 'null'):
-                is_heterogeneous = True
-                break
-
-        if is_heterogeneous:
+        key = (
+            meta.get('lab_id', 'unknown'),
+            meta.get('temperature', 'unknown'),
+            meta.get('passage', 'unknown')
+        )
+        if key != majority_key:
             excluded_count += 1
             excluded_ids.append(record.get('assay_id', 'unknown'))
 
+    if excluded_count > 0:
+        logger.warning(f"Detected protocol heterogeneity. Excluding {excluded_count} records not matching majority protocol {majority_key}.")
+
     return excluded_count, excluded_ids
 
-def preprocess_data(records: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def preprocess_data(raw_records: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
-    Filter records for non-NULL SMILES and logPapp.
+    Filter records for non-NULL SMILES and logPapp, and handle protocol heterogeneity.
 
     Args:
-        records: List of raw record dictionaries.
+        raw_records: List of raw record dictionaries.
 
     Returns:
-        Tuple of (filtered_records, stats_dict)
+        Tuple of (filtered_records, stats_dict).
     """
+    # FR-010: Ensure data completeness (non-NULL SMILES and logPapp)
     filtered = []
-    total = len(records)
     null_smiles_count = 0
-    null_logpapp_count = 0
-    both_null_count = 0
+    null_logp_count = 0
 
-    for record in records:
+    for record in raw_records:
         smiles = record.get('smiles', '').strip()
         logpapp = record.get('logPapp', '').strip()
 
-        if not smiles and not logpapp:
-            both_null_count += 1
-            continue
-        if not smiles:
+        if not smiles or smiles == 'None' or smiles.lower() == 'nan':
             null_smiles_count += 1
             continue
-        if not logpapp:
-            null_logpapp_count += 1
+        if not logpapp or logpapp == 'None' or logpapp.lower() == 'nan':
+            null_logp_count += 1
             continue
 
-        # Valid record
         filtered.append(record)
 
+    # Check protocol heterogeneity on the filtered set
+    hetero_count, hetero_ids = check_protocol_heterogeneity(filtered)
+    final_records = [r for r in filtered if r.get('assay_id', 'unknown') not in hetero_ids]
+
+    total_input = len(raw_records)
+    total_output = len(final_records)
+    pass_rate = (total_output / total_input * 100) if total_input > 0 else 0.0
+
     stats = {
-        'total_records': total,
-        'filtered_records': len(filtered),
-        'null_smiles_only': null_smiles_count,
-        'null_logpapp_only': null_logpapp_count,
-        'both_null': both_null_count,
-        'pass_rate': len(filtered) / total if total > 0 else 0.0
+        'total_input': total_input,
+        'null_smiles_excluded': null_smiles_count,
+        'null_logp_excluded': null_logp_count,
+        'protocol_heterogeneity_excluded': hetero_count,
+        'total_output': total_output,
+        'pass_rate_percent': pass_rate
     }
 
-    logger.info(f"Preprocessing complete. Passed: {len(filtered)}/{total} ({stats['pass_rate']:.2%})")
-    return filtered, stats
+    logger.info(f"Preprocessing complete. Input: {total_input}, Output: {total_output}, Pass Rate: {pass_rate:.2f}%")
+    return final_records, stats
 
-def write_clean_data(filtered_records: List[Dict[str, Any]], output_path: Path) -> None:
+def write_clean_data(records: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write filtered data to CSV.
+    Write filtered records to a CSV file.
 
     Args:
-        filtered_records: List of valid record dictionaries.
+        records: List of filtered record dictionaries.
         output_path: Path to the output CSV file.
     """
-    if not filtered_records:
-        logger.warning("No records to write. Creating empty file.")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("")
+    if not records:
+        logger.warning("No records to write.")
         return
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure protocol_metadata is serialized back to JSON string for CSV compatibility
+    for record in records:
+        meta = record.get('protocol_metadata')
+        if isinstance(meta, dict):
+            record['protocol_metadata'] = json.dumps(meta)
 
-    fieldnames = list(filtered_records[0].keys())
+    fieldnames = list(records[0].keys())
 
-    with open(output_path, 'w', encoding='utf-8', newline='') as f:
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(filtered_records)
+        writer.writerows(records)
 
-    logger.info(f"Wrote {len(filtered_records)} records to {output_path}")
+    logger.info(f"Wrote {len(records)} records to {output_path}")
 
 def main():
     """
-    Main entry point for preprocessing script.
+    Main entry point for the preprocessing script.
     """
-    configure_root_logger()
-    logger.info("Starting preprocessing pipeline.")
-
-    project_root = Path(__file__).resolve().parent.parent.parent
-    raw_path = project_root / 'data' / 'raw' / 'chembl_raw.csv'
+    project_root = get_project_root()
+    input_path = project_root / 'data' / 'raw' / 'chembl_raw.csv'
     output_path = project_root / 'data' / 'processed' / 'filtered_data.csv'
+    checksum_path = project_root / 'state' / 'pending' / 'checksums.yaml'
 
-    # 1. Load raw data
-    try:
-        records = load_raw_data(raw_path)
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load raw data: {e}")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not input_path.exists():
+        logger.error(f"Input file {input_path} does not exist. Run retrieval.py first.")
         sys.exit(1)
 
-    # 2. Check protocol heterogeneity (before filtering for nulls to report full stats)
-    # Note: The task asks to report excluded records due to protocol heterogeneity.
-    # We calculate this on the raw set.
-    hetero_count, hetero_ids = check_protocol_heterogeneity(records)
-    logger.info(f"Records excluded due to protocol heterogeneity: {hetero_count}")
-    if hetero_count > 0:
-        logger.debug(f"Excluded assay IDs (first 10): {hetero_ids[:10]}")
+    logger.info(f"Starting preprocessing for {input_path}")
 
-    # 3. Filter for non-NULL SMILES and logPapp
-    filtered_records, stats = preprocess_data(records)
-
-    # 4. Write clean data
+    raw_records = load_raw_data(input_path)
+    filtered_records, stats = preprocess_data(raw_records)
     write_clean_data(filtered_records, output_path)
 
-    # 5. Log final stats
-    logger.info(f"Final Pass Rate: {stats['pass_rate']:.2%}")
-    logger.info(f"Excluded (Null SMILES): {stats['null_smiles_only']}")
-    logger.info(f"Excluded (Null logPapp): {stats['null_logpapp_only']}")
-    logger.info(f"Excluded (Both Null): {stats['both_null']}")
-    logger.info(f"Excluded (Protocol Heterogeneity): {hetero_count}")
+    # Log statistics
+    logger.info(f"Stats: {stats}")
 
-    # 6. Invoke checksum utility
-    logger.info("Invoking checksum utility.")
+    # Invoke checksum utility
+    logger.info("Invoking checksum utility...")
     scan_and_register_data_files()
-
-    logger.info("Preprocessing pipeline completed successfully.")
+    logger.info("Preprocessing complete.")
 
 if __name__ == '__main__':
     main()

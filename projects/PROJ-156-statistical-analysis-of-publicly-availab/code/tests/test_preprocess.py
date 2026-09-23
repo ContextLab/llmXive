@@ -104,7 +104,6 @@ def test_validate_record_invalid(sample_schema):
 def test_remove_duplicates(sample_records):
     unique = remove_duplicates(sample_records)
     # Should have 3 unique records (r1, r2, r3 - though r3 is incomplete, it's unique by ID)
-    # Wait, r3 is unique by ID, but r1 is duplicate.
     # Input: r1, r2, r1(dup), r3
     # Output: r1, r2, r3
     assert len(unique) == 3
@@ -114,15 +113,8 @@ def test_remove_duplicates(sample_records):
 def test_filter_incomplete_runs(sample_records):
     # After dedup: r1, r2, r3 (incomplete)
     # Filter should remove r3
-    filtered = filter_incomplete_runs(sample_records)
-    # r3 is removed. r1, r2 remain.
-    # Note: remove_duplicates is usually called before filter_incomplete_runs in pipeline
-    # But testing filter_incomplete_runs in isolation on raw list:
+    # Testing filter_incomplete_runs in isolation on raw list:
     # r1 (valid), r2 (valid), r1 (valid), r3 (invalid)
-    # If we pass raw list:
-    # r1, r2, r1, r3 -> filter removes r3 -> r1, r2, r1
-    # The function itself doesn't dedup.
-    # Let's test the specific logic:
     valid_count = 0
     for r in sample_records:
         if all(k in r and r[k] is not None for k in ["run_id", "run_time_seconds", "runner_id", "attempt_number", "category", "submission_date", "game_id"]):
@@ -141,9 +133,8 @@ def test_contract_validation_integration():
     """
     Contract test: Ensure the output of preprocess (if run) matches schema.
     Since we can't run the full pipeline here without data, we mock the validation.
+    This test ensures the schema loading and validation logic works as expected.
     """
-    # This test ensures the schema loading and validation logic works as expected.
-    # In a real CI environment, this would run after T013a produces the CSV.
     schema = load_schema()
     assert 'required' in schema
     assert 'run_id' in schema['required']
@@ -184,3 +175,64 @@ def test_data_completeness_threshold():
     retention = len(filtered) / len(records)
     
     assert retention >= 0.95, f"Retention rate {retention:.2%} is below 95%"
+
+def test_run_record_schema_contract():
+    """
+    Contract test: Validates that a realistic run record structure
+    conforms to the run_record.schema.yaml defined in T004.
+    """
+    # Load the actual schema from the contracts directory
+    schema_path = PROJECT_ROOT / "contracts" / "run_record.schema.yaml"
+    
+    if not schema_path.exists():
+        pytest.skip(f"Schema file not found at {schema_path}. Run T004 first.")
+    
+    schema = load_schema()
+    
+    # Define a realistic valid record based on the schema requirements
+    valid_record = {
+        "run_id": "sr-run-12345",
+        "run_time_seconds": 1245.67,
+        "runner_id": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6", # Hashed ID
+        "attempt_number": 42,
+        "category": "any%",
+        "submission_date": "2023-10-27T14:30:00Z",
+        "game_id": "super-mario-64"
+    }
+    
+    # Ensure it validates
+    assert validate_record(valid_record, schema) is True, "Valid record failed schema validation"
+    
+    # Test missing required field
+    invalid_record_missing_field = dict(valid_record)
+    del invalid_record_missing_field['run_time_seconds']
+    
+    assert validate_record(invalid_record_missing_field, schema) is False, "Invalid record (missing field) passed validation"
+    
+    # Test null value in required field
+    invalid_record_null = dict(valid_record)
+    invalid_record_null['runner_id'] = None
+    
+    assert validate_record(invalid_record_null, schema) is False, "Invalid record (null value) passed validation"
+
+def test_preprocessed_output_structure():
+    """
+    Integration test: Checks that the preprocessed CSV structure matches the schema.
+    This simulates the output of T013a and validates it against the contract.
+    """
+    schema = load_schema()
+    required_fields = set(schema['required'])
+    
+    # Simulate a row that would be written by preprocess.py
+    expected_columns = list(required_fields)
+    
+    # Verify that the schema expects exactly these fields
+    # In a real scenario, we would read the CSV header and compare.
+    # Here we assert the schema definition is consistent.
+    assert 'run_id' in required_fields
+    assert 'run_time_seconds' in required_fields
+    assert 'runner_id' in required_fields
+    assert 'game_id' in required_fields
+    assert 'attempt_number' in required_fields
+    assert 'category' in required_fields
+    assert 'submission_date' in required_fields

@@ -44,26 +44,47 @@ T008d:
     or placeholder artifacts remain.'
 T009:
   c: false
-  h: ac65bd2006559582687fc62eb0c3ce04ae47cd29de45e655550c4b1ac69b5ac5
-  r: "The repository lacks the required output files \u2013 `data/raw/chembl_raw.csv`,\
-    \ `state/pending/checksums.yaml`, and the schema file referenced in the task.\
-    \ Moreover, the provided `code/data/retrieval.py` is truncated and does not show\
-    \ CSV generation, protocol_metadata serialization, or invocation of the checksum\
-    \ utility, so the core functionality is not demonstrated. The task therefore remains\
-    \ unfinished."
+  h: 50024b01ebd86ef8f87a02c2d8760789218e7c119c82da37d6cf9bd472435ee6
+  r: The repository lacks the required output CSV (`data/raw/chembl_raw.csv`), the
+    schema file, and the generated checksum file. Moreover, `code/data/retrieval.py`
+    is truncated and does not contain code to write the CSV, enforce the schema, serialize
+    `protocol_metadata`, or invoke the checksum utility. These essential components
+    are missing, so the task is not fulfilled.
 T010:
   c: false
-  h: 7fdd775a483d23f7cfff40c90939f1ff2af57fa438895da55e3c0f115e147de6
-  r: "The `code/data/preprocessing.py` file is truncated and does not contain the\
-    \ logic to filter records, write `data/processed/filtered_data.csv`, or call the\
-    \ checksum utility. Moreover, the required input file `data/raw/chembl_raw.csv`,\
-    \ the output CSV, and the checksum YAML (`state/pending/checksums.yaml`) are all\
-    \ missing. The task\u2019s core requirements are therefore not satisfied."
+  h: 7a06a0e5ef670843774f839a5436189a86158910c3abbe5172ef9558c73bccf7
+  r: "The required input file `data/raw/chembl_raw.csv` does not exist, nor does the\
+    \ expected output `data/processed/filtered_data.csv` or the checksum file `state/pending/checksums.yaml`.\
+    \ Moreover, the provided `code/data/preprocessing.py` is truncated and never reaches\
+    \ the filtering, saving, or checksum\u2011generation steps required by the task.\
+    \ The implementation is therefore incomplete."
 T012:
   c: false
-  h: f51f1d793bb1533dc0191d164e8a3bf7af5882b0341a702c5448465f5bd3bc7f
-  r: The `tests/contract/test_dataset.py` file does not show a defined `test_schema_compliance`
-    function (the code is truncated and ends inside `validate_record`), and the required
-    schema file `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`
-    is absent. Both the test implementation and the schema it must validate against
-    are missing, so the task is not fulfilled.
+  h: 500bfa176ec261c86fefe9947aa3fcb47ad2826c2d5a3952a7ccba09ba0b0c76
+  r: The `tests/contract/test_dataset.py` file is present but does not show the required
+    `test_schema_compliance` function, and the referenced schema file `specs/.../contracts/dataset.schema.yaml`
+    is missing from the repository. Both the test implementation and the schema file
+    are required to satisfy the task.
+T013:
+  c: false
+  h: 99ed5585108923d9fba67bab4b6be1962f694d0c08b2e285a406b62896a9b2a0
+  r: The `generate_conformers` function is implemented, but the script never writes
+    the resulting data to `data/processed/conformers.pkl` (the file is missing), and
+    the provided code excerpt does not contain any saving logic. The required output
+    artifact is therefore absent.
+T014:
+  c: false
+  h: 29957688750a2a54a83e0c16e10f06db4b6a2accd996de22cb67adc52b2f3ea4
+  r: The repository lacks the required input file `data/processed/conformers.pkl`
+    and the expected output `data/processed/descriptors_raw.csv`. Moreover, the provided
+    `code/data/descriptors.py` is truncated and does not show the full implementation
+    of loading the conformer file, computing the three variances, or writing the CSV.
+    These essential artifacts are missing, so the task is not genuinely completed.
+T015:
+  c: false
+  h: d804ef7262f4ba72864d20f135b6864516e60c3111859f1b6137e17f4b918990
+  r: "The repository lacks the required `data/processed/correlation_results.csv` file,\
+    \ and the provided `code/data/analysis.py` does not contain implementations for\
+    \ Spearman correlation, confounder\u2011controlled analysis, or saving results\
+    \ to the specified CSV. The script is incomplete/truncated and does not fulfill\
+    \ the task\u2019s specifications."

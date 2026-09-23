@@ -1,25 +1,31 @@
+"""
+Task T008a: Create and verify directory structure for data and state directories.
+
+This script creates the required directory structure for the project:
+- data/raw/
+- data/processed/
+- state/projects/
+- state/pending/
+
+It also verifies that the directories were created successfully.
+"""
 import logging
 import sys
 from pathlib import Path
 from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 
-def create_directories() -> None:
+def create_directories():
     """
-    Create and verify the required directory structure for the project.
+    Create the required directory structure for the project.
     
-    Requirements:
-    - data/raw/
-    - data/processed/
-    - state/projects/
-    - state/pending/
-    
-    Verifies creation immediately after execution.
+    Returns:
+        Path: The project root path.
     """
     logger = get_logger(__name__)
     project_root = get_project_root()
     
-    # Define the directories to create relative to project root
+    # Define the directories to create
     directories = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
@@ -27,38 +33,64 @@ def create_directories() -> None:
         project_root / "state" / "pending",
     ]
     
-    logger.info("Creating required directory structure...")
+    logger.info("Creating directory structure...")
     
     for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created/verified directory: {directory}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {directory}: {e}")
-            raise
+        logger.info(f"Creating directory: {directory}")
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Successfully created directory: {directory}")
     
-    # Verification step: Assert existence immediately
-    logger.info("Verifying directory creation...")
-    
-    assert project_root.joinpath("data", "raw").is_dir(), "Verification failed: data/raw does not exist"
-    assert project_root.joinpath("data", "processed").is_dir(), "Verification failed: data/processed does not exist"
-    assert project_root.joinpath("state", "projects").is_dir(), "Verification failed: state/projects does not exist"
-    assert project_root.joinpath("state", "pending").is_dir(), "Verification failed: state/pending does not exist"
-    
-    logger.info("All required directories verified successfully.")
+    return project_root
 
-def main() -> None:
-    """Entry point for directory setup script."""
+def verify_directories(project_root: Path):
+    """
+    Verify that the required directories exist.
+    
+    Args:
+        project_root: The project root path.
+        
+    Raises:
+        AssertionError: If any required directory does not exist.
+    """
+    logger = get_logger(__name__)
+    
+    # Define the directories to verify
+    directories = {
+        "data/raw": project_root / "data" / "raw",
+        "data/processed": project_root / "data" / "processed",
+        "state/projects": project_root / "state" / "projects",
+        "state/pending": project_root / "state" / "pending",
+    }
+    
+    logger.info("Verifying directory structure...")
+    
+    for name, directory in directories.items():
+        logger.info(f"Verifying directory: {name}")
+        assert directory.is_dir(), f"Directory {name} does not exist: {directory}"
+        logger.info(f"Successfully verified directory: {name}")
+    
+    logger.info("All directories verified successfully.")
+
+def main():
+    """Main entry point for the script."""
     configure_root_logger()
     logger = get_logger(__name__)
     
     try:
-        create_directories()
-        logger.info("Directory setup completed successfully.")
-        sys.exit(0)
+        # Create directories
+        project_root = create_directories()
+        
+        # Verify directories
+        verify_directories(project_root)
+        
+        logger.info("Task T008a completed successfully.")
+        return 0
+    except AssertionError as e:
+        logger.error(f"Verification failed: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Directory setup failed: {e}")
-        sys.exit(1)
+        logger.error(f"An error occurred: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

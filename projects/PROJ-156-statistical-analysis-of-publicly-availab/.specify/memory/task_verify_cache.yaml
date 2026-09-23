@@ -1,0 +1,45 @@
+T010:
+  c: false
+  h: f38c137b34b829b5f3bd9b9dad90c29bfb0b097f382ccb568e5006ef67ea0743
+  r: The `code/tests/test_preprocess.py` file is present, but it defines an inline
+    `sample_schema` fixture instead of loading the real `run_record.schema.yaml`,
+    and the required `run_record.schema.yaml` file is missing from the repository.
+    Consequently, the contract test does not actually validate against the intended
+    schema.
+T013b:
+  c: false
+  h: a1c8fd4e356399ba89a28ecd53021c5c3019dcbac2289492eb81f1d863c8dc58
+  r: "The `preprocess.py` file contains a stub `hash_runner_id` that returns the `hashlib.sha256`\
+    \ function object instead of a salted SHA\u2011256 digest, and it never reads\
+    \ the project\u2011specific salt from `config.yaml`. Moreover, the required `config.yaml`\
+    \ file is missing entirely. Consequently, runner ID anonymization is not correctly\
+    \ implemented."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of modified `fetch_data.py` or `preprocess.py` implementing a checkpoint\
+    \ mechanism is provided; the required code artifacts are missing, so the task\u2019\
+    s requirement cannot be confirmed as satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, or documentation implementing the Anderson\u2011Darling test\
+    \ logic for sample sizes\u202Fn\u202F<\u202F100 is present; the only evidence\
+    \ is the task description itself, which does not include the required artifact.\
+    \ The implementer must add the actual implementation (e.g., a function, script,\
+    \ or library extension) that correctly handles the edge\u2011case behavior of\
+    \ the Anderson\u2011Darling test for small n."
+T023:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required schema file `contracts/distribution_fit.schema.yaml` is missing,
+    and there is no evidence of a `distribution_fits.csv` file or any validation being
+    performed. Without these artifacts, the task cannot be considered completed.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that a checkpointing mechanism was
+    added after each game's distribution fitting is present. The task required an
+    implementation (e.g., saving intermediate results to disk or a database) and evidence
+    of its operation, but the provided artifacts contain only the original specification
+    without any new files or modifications. Consequently, the requirement is not satisfied.

@@ -89,19 +89,19 @@
 - [ ] T013b [US1] Implement runner_id anonymization in `code/scripts/preprocess.py` using SHA-256 with project-specific salt (from `config.yaml`) to satisfy Constitution Principle III while preserving unique grouping for mixed-effects models (FR-006)
  - *Note*: The salted hash must be deterministic to allow grouping by `RunnerID` in T027.
  - *Output*: `runner_id` column in `run_records.csv` contains the salted hash.
-- [ ] T013c [US1] Implement `code/scripts/preprocess.py` to generate `RunnerProfile` entity:
+- [X] T013c [US1] Implement `code/scripts/preprocess.py` to generate `RunnerProfile` entity:
  - Aggregate per-runner statistics: `total_prior_runs`, `time_since_first_run_days`, `games_played_count`
  - Save to `data/processed/runner_profiles.csv` (Key Entities: RunnerProfile)
-- [ ] T014 [US1] Implement lagged `competitive_pressure` calculation in `code/scripts/preprocess.py` (Plan: Phase 0 Step 3, FR-006)
+- [X] T014 [US1] Implement lagged `competitive_pressure` calculation in `code/scripts/preprocess.py` (Plan: Phase 0 Step 3, FR-006)
  - *Note*: Must run AFTER T013c (full game data aggregation) to ensure valid 30-day rolling windows.
  - *Trigger*: Calculate `active_runners_count` in 30-day window prior to run date.
  - *Output*: Add column `lagged_competitive_pressure` to `data/processed/run_records.csv`.
  - *Dependency*: T014 must complete before T027 (US3) can run.
 - [ ] T015 [US1] Integrate checkpoint mechanism into `fetch_data.py` and `preprocess.py` to save state after each game (FR-012, Plan: Phase 0 Step 5)
  - *Note*: Must handle -hour limit.
-- [ ] T016 [US1] Implement robust data fetching with retry, caching, and logging in `code/scripts/fetch_data.py` (Plan: Risks & Mitigations, SC-005)
+- [X] T016 [US1] Implement robust data fetching with retry, caching, and logging in `code/scripts/fetch_data.py` (Plan: Risks & Mitigations, SC-005)
  - *Note*: Consolidates retry, caching, and logging logic into a single atomic implementation.
-- [ ] T017 [US1] Add logging for data acquisition and preprocessing steps in `code/scripts/fetch_data.py` and `preprocess.py` (Plan: Risks & Mitigations, SC-005)
+- [X] T017 [US1] Add logging for data acquisition and preprocessing steps in `code/scripts/fetch_data.py` and `preprocess.py` (Plan: Risks & Mitigations, SC-005)
  - *Note*: Must ensure data acquisition completes within 6-hour limit.
 
 ### Tests for User Story 1 (Mandatory per Spec) ⚠️
@@ -110,7 +110,7 @@
 
 - [ ] T010 [US1] Contract test for `run_record.schema.yaml` validation in `code/tests/test_preprocess.py`
  - *Note*: Depends on T004 (schema) and T012/T013 (data). Cannot run in parallel with T012/T013.
-- [ ] T011 [US1] Integration test for data completeness (≥95% retention) and duplicate removal in `code/tests/test_fetch.py`
+- [X] T011 [US1] Integration test for data completeness (≥95% retention) and duplicate removal in `code/tests/test_fetch.py`
  - *Note*: Depends on T012 (fetch) and T013 (preprocess). Cannot run in parallel with T012/T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -125,7 +125,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/scripts/fit_distributions.py` to:
+- [X] T020 [US2] Implement `code/scripts/fit_distributions.py` to:
  - Fit log-normal, Weibull, and gamma distributions using MLE (FR-004)
  - Perform KS tests and calculate AIC for each (FR-004)
  - Flag distributions with p < 0.05 and recommend next-best (FR-005)
@@ -141,8 +141,8 @@
 
 ### Tests for User Story 2 (Mandatory per Spec) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
-- [ ] T019 [P] [US2] Integration test for distribution fitting on a single game (KS p ≥ 0.05 check) in `code/tests/test_models.py`
+- [~] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
+- [X] T019 [P] [US2] Integration test for distribution fitting on a single game (KS p ≥ 0.05 check) in `code/tests/test_models.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

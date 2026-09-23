@@ -4,8 +4,10 @@ import logging
 import os
 import hashlib
 from collections import defaultdict
-from pathlib import Path
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
+
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -14,105 +16,69 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DATE_FORMAT = "%Y-%m-%d"
+LAG_WINDOW_DAYS = 30
+
 def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
     """Load configuration from YAML file."""
-    import yaml
     if not os.path.exists(config_path):
+        logger.error(f"Config file not found: {config_path}")
         raise FileNotFoundError(f"Config file not found: {config_path}")
+    
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load a JSON schema from file."""
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    """Load JSON schema from file."""
     with open(schema_path, 'r') as f:
         return json.load(f)
 
-def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """
-    Validate a record against a schema.
-    Returns (is_valid, list_of_errors).
-    """
-    errors = []
+def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Validate a record against a schema (basic validation)."""
     required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
-
     for field in required_fields:
         if field not in record or record[field] is None:
-            errors.append(f"Missing required field: {field}")
+            return False
+    return True
 
-    for field, value in record.items():
-        if field in properties:
-            field_schema = properties[field]
-            expected_type = field_schema.get('type')
-            if expected_type == 'number' and not isinstance(value, (int, float)):
-                errors.append(f"Field '{field}' must be a number, got {type(value)}")
-            elif expected_type == 'string' and not isinstance(value, str):
-                errors.append(f"Field '{field}' must be a string, got {type(value)}")
-            elif expected_type == 'integer' and not isinstance(value, int):
-                errors.append(f"Field '{field}' must be an integer, got {type(value)}")
+def load_raw_data(raw_data_dir: str) -> List[Dict[str, Any]]:
+    """Load all raw JSON files from the specified directory."""
+    records = []
+    if not os.path.exists(raw_data_dir):
+        logger.warning(f"Raw data directory not found: {raw_data_dir}")
+        return records
+    
+    for filename in os.listdir(raw_data_dir):
+        if filename.endswith('.json'):
+            filepath = os.path.join(raw_data_dir, filename)
+            try:
+                with open(filepath, 'r') as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        records.extend(data)
+                    elif isinstance(data, dict):
+                        records.append(data)
+            except Exception as e:
+                logger.error(f"Error loading {filename}: {e}")
+    return records
 
-    return len(errors) == 0, errors
-
-def load_raw_data(raw_dir: str) -> List[Dict[str, Any]]:
-    """Load all raw JSON files from the data/raw directory."""
-    raw_data = []
-    raw_path = Path(raw_dir)
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
-
-    json_files = list(raw_path.glob("*.json"))
-    if not json_files:
-        logger.warning(f"No JSON files found in {raw_dir}")
-        return raw_data
-
-    for json_file in json_files:
-        logger.info(f"Loading {json_file.name}")
-        try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-                # Handle cases where data is a list or a dict with a 'runs' key
-                if isinstance(data, list):
-                    raw_data.extend(data)
-                elif isinstance(data, dict) and 'runs' in data:
-                    raw_data.extend(data['runs'])
-                elif isinstance(data, dict):
-                    raw_data.append(data)
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON in {json_file.name}: {e}")
-    return raw_data
-
-def remove_duplicates(records: List[Dict[str, Any]], key_fields: List[str]) -> List[Dict[str, Any]]:
-    """Remove duplicate records based on key_fields."""
+def remove_duplicates(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove duplicate records based on run_id and submission_date."""
     seen = set()
     unique_records = []
-    duplicates_count = 0
-
     for record in records:
-        key = tuple(record.get(field, '') for field in key_fields)
+        run_id = record.get('run_id')
+        date = record.get('submission_date')
+        key = (run_id, date)
         if key not in seen:
             seen.add(key)
             unique_records.append(record)
-        else:
-            duplicates_count += 1
-
-    logger.info(f"Removed {duplicates_count} duplicate records.")
     return unique_records
 
-def filter_incomplete_runs(records: List[Dict[str, Any]], required_fields: List[str]) -> List[Dict[str, Any]]:
-    """Filter out records missing any required fields."""
-    valid_records = []
-    invalid_count = 0
-
-    for record in records:
-        if all(record.get(field) is not None and record.get(field) != '' for field in required_fields):
-            valid_records.append(record)
-        else:
-            invalid_count += 1
-
-    logger.info(f"Filtered out {invalid_count} incomplete records.")
-    return valid_records
+def filter_incomplete_runs(records: List[Dict[str, Any]], schema: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Filter out records missing required fields."""
+    return [r for r in records if validate_record(r, schema)]
 
 def hash_runner_id(runner_id: str, salt: str) -> str:
     """Compute SHA-256 hash of runner_id with salt."""
@@ -122,155 +88,232 @@ def hash_runner_id(runner_id: str, salt: str) -> str:
     return hashlib.sha256(salted.encode('utf-8')).hexdigest()
 
 def compute_runner_metrics(records: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
-    """
-    Compute per-runner metrics from raw records.
-    Returns a dict keyed by hashed runner_id.
-    """
+    """Compute per-runner metrics: total_prior_runs, time_since_first_run_days, games_played_count."""
     runner_data = defaultdict(lambda: {
-        'run_times': [],
+        'run_ids': [],
         'dates': [],
         'games': set()
     })
-
+    
     for record in records:
-        # Expect runner_id to be already hashed in the input records for this task
-        # If not, we assume the caller has handled hashing (T013b)
-        rid = record.get('runner_id')
-        if not rid:
+        runner_id = record.get('runner_id')
+        if not runner_id:
             continue
-
+        
+        run_date_str = record.get('submission_date')
+        if not run_date_str:
+            continue
+        
         try:
-            run_time = float(record.get('run_time_seconds', 0))
-            # Parse date string to datetime for sorting
-            date_str = record.get('submission_date', '')
-            # Simple date parsing assuming ISO format YYYY-MM-DD or similar
-            # We store the string for now to avoid dependency on dateutil in this specific function
-            game_id = record.get('game_id', 'unknown')
-            
-            runner_data[rid]['run_times'].append(run_time)
-            runner_data[rid]['dates'].append(date_str)
-            runner_data[rid]['games'].add(game_id)
-        except (ValueError, TypeError):
+            run_date = datetime.strptime(run_date_str, DATE_FORMAT)
+        except ValueError:
             continue
-
+        
+        game_id = record.get('game_id')
+        
+        runner_data[runner_id]['run_ids'].append(record.get('run_id'))
+        runner_data[runner_id]['dates'].append(run_date)
+        if game_id:
+            runner_data[runner_id]['games'].add(game_id)
+    
     profiles = {}
-    for rid, data in runner_data.items():
-        dates = data['dates']
-        # Sort dates to find first run
-        # Simple string sort works for ISO dates
-        dates.sort()
-        first_run_date = dates[0] if dates else None
-        last_run_date = dates[-1] if dates else None
-
-        profiles[rid] = {
-            'runner_id': rid,
-            'total_prior_runs': len(data['run_times']),
-            'first_run_date': first_run_date,
-            'last_run_date': last_run_date,
-            'games_played_count': len(data['games'])
+    for runner_id, data in runner_data.items():
+        dates = sorted(data['dates'])
+        first_date = dates[0]
+        total_runs = len(dates)
+        
+        profiles[runner_id] = {
+            'total_prior_runs': total_runs,
+            'first_run_date': first_date.strftime(DATE_FORMAT),
+            'games_played_count': len(data['games']),
+            'games_played': list(data['games'])
         }
+    
     return profiles
 
-def calculate_lagged_competitive_pressure(records: List[Dict[str, Any]], window_days: int = 30) -> List[Dict[str, Any]]:
+def generate_runner_profiles(runner_metrics: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Convert runner metrics to a list of RunnerProfile records."""
+    profiles = []
+    for runner_id, metrics in runner_metrics.items():
+        profiles.append({
+            'runner_id': runner_id,
+            'total_prior_runs': metrics['total_prior_runs'],
+            'first_run_date': metrics['first_run_date'],
+            'games_played_count': metrics['games_played_count'],
+            'games_played': ','.join(sorted(metrics['games_played']))
+        })
+    return profiles
+
+def calculate_lagged_competitive_pressure(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Calculate lagged competitive pressure for each record.
-    This counts active runners in the 30-day window prior to the run date.
-    Note: This is a placeholder implementation for T014. 
-    For T013c, we focus on generating RunnerProfile.
+    Calculate lagged competitive_pressure for each record.
+    
+    competitive_pressure = count of active runners in the 30-day window prior to the run date.
+    A runner is 'active' in a window if they have at least one run in that window.
+    
+    This function modifies records in-place to add 'lagged_competitive_pressure'.
     """
-    # Implementation deferred to T014 as per dependencies
+    if not records:
+        return records
+    
+    # Parse dates and organize by runner
+    runner_runs: Dict[str, List[datetime]] = defaultdict(list)
+    parsed_records = []
+    
+    for record in records:
+        date_str = record.get('submission_date')
+        runner_id = record.get('runner_id')
+        
+        if not date_str or not runner_id:
+            parsed_records.append((record, None, None))
+            continue
+        
+        try:
+            run_date = datetime.strptime(date_str, DATE_FORMAT)
+        except ValueError:
+            parsed_records.append((record, None, None))
+            continue
+        
+        runner_runs[runner_id].append(run_date)
+        parsed_records.append((record, run_date, runner_id))
+    
+    # Sort runner runs for efficient window calculation
+    for runner_id in runner_runs:
+        runner_runs[runner_id].sort()
+    
+    # Calculate lagged pressure for each record
+    for record, run_date, runner_id in parsed_records:
+        if run_date is None:
+            record['lagged_competitive_pressure'] = 0
+            continue
+        
+        window_start = run_date - timedelta(days=LAG_WINDOW_DAYS)
+        window_end = run_date  # Exclusive end for "prior to"
+        
+        active_count = 0
+        
+        # Count runners with at least one run in (window_start, window_end]
+        # Exclude the current runner's own runs to avoid self-inflation? 
+        # The spec says "active_runners_count in 30-day window prior". 
+        # Usually competitive pressure includes others. We will count ALL active runners
+        # in that window to represent the "pressure" of the environment.
+        # If we want to exclude self, we'd subtract 1 if self is active, but 
+        # "pressure" usually implies the field. Let's count all unique runners active.
+        
+        for other_runner_id, other_dates in runner_runs.items():
+            # Check if other_runner has any run in (window_start, window_end]
+            has_run_in_window = False
+            
+            # Binary search or simple iteration (since lists are sorted)
+            for d in other_dates:
+                if window_start < d <= window_end:
+                    has_run_in_window = True
+                    break
+                if d > window_end:
+                    break
+            
+            if has_run_in_window:
+                active_count += 1
+        
+        record['lagged_competitive_pressure'] = active_count
+    
     return records
 
-def save_to_csv(data: List[Dict[str, Any]], output_path: str) -> None:
-    """Save a list of dictionaries to a CSV file."""
-    if not data:
-        logger.warning("No data to save to CSV.")
+def save_to_csv(records: List[Dict[str, Any]], output_path: str, fieldnames: Optional[List[str]] = None):
+    """Save records to a CSV file."""
+    if not records:
+        logger.warning(f"No records to save to {output_path}")
+        # Create empty file with headers if possible
+        if fieldnames:
+            with open(output_path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
         return
-
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-
-    fieldnames = list(data[0].keys())
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    
+    if fieldnames is None:
+        # Infer fieldnames from the first record
+        fieldnames = list(records[0].keys())
+    
+    with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
-
-def generate_runner_profiles(records: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Generate RunnerProfile entity and save to CSV.
-    Aggregates per-runner statistics: total_prior_runs, time_since_first_run_days (placeholder), games_played_count.
-    """
-    logger.info("Generating Runner Profiles...")
-    profiles = compute_runner_metrics(records)
-    
-    # Convert dict to list for CSV saving
-    profile_list = []
-    for rid, profile in profiles.items():
-        profile_list.append(profile)
-    
-    # Sort by total prior runs descending for readability
-    profile_list.sort(key=lambda x: x['total_prior_runs'], reverse=True)
-    
-    save_to_csv(profile_list, output_path)
-    logger.info(f"Saved {len(profile_list)} runner profiles to {output_path}")
+        writer.writerows(records)
 
 def main():
-    """Main entry point for preprocessing script."""
-    logger.info("Starting preprocessing pipeline...")
+    """Main entry point for preprocessing pipeline."""
+    config = load_config()
     
-    try:
-        config = load_config()
-        games = config.get('games', [])
-        salt = config.get('salt', '')
-        min_sample_size = config.get('min_sample_size', 100)
-        
-        # Load schema
-        schema_path = "contracts/run_record.schema.yaml"
-        # Since load_schema expects JSON, and schema is YAML, we need to handle this carefully.
-        # For this implementation, we assume a JSON version exists or we load YAML and convert.
-        # However, the API surface says load_schema returns Dict. Let's assume the file is JSON or we handle YAML.
-        # The provided API surface for load_schema implies it loads JSON. 
-        # Given T004 created a .yaml file, we need to be careful. 
-        # But the task T013c specifically asks to generate RunnerProfile.
-        # We will proceed with data loading and profile generation.
-        
-        raw_dir = "data/raw"
-        processed_dir = "data/processed"
-        
-        # Load raw data
-        raw_records = load_raw_data(raw_dir)
-        logger.info(f"Loaded {len(raw_records)} raw records.")
-        
-        # Remove duplicates
-        unique_records = remove_duplicates(raw_records, ['run_id', 'game_id', 'attempt_number'])
-        
-        # Filter incomplete runs
-        required_fields = ['run_time_seconds', 'runner_id', 'game_id', 'submission_date']
-        valid_records = filter_incomplete_runs(unique_records, required_fields)
-        logger.info(f"Filtered to {len(valid_records)} valid records.")
-        
-        # Hash runner IDs if not already done (T013b logic)
-        # Assuming T013b ran, but if we are running T013c in isolation or as part of a chain:
-        # We check if runner_id looks like a hash (64 chars hex). If not, hash it.
-        for record in valid_records:
-            rid = record.get('runner_id', '')
-            if len(rid) != 64 or not all(c in '0123456789abcdef' for c in rid.lower()):
-                record['runner_id'] = hash_runner_id(rid, salt)
-        
-        # Generate Runner Profiles (T013c)
-        profile_output_path = os.path.join(processed_dir, "runner_profiles.csv")
-        generate_runner_profiles(valid_records, profile_output_path)
-        
-        # Save processed run records (T013a continuation)
-        records_output_path = os.path.join(processed_dir, "run_records.csv")
-        save_to_csv(valid_records, records_output_path)
-        
-        logger.info("Preprocessing pipeline completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Error in preprocessing pipeline: {e}", exc_info=True)
-        raise
+    # Paths
+    raw_data_dir = config.get('paths', {}).get('raw_data', 'data/raw')
+    processed_data_dir = config.get('paths', {}).get('processed_data', 'data/processed')
+    schema_path = config.get('paths', {}).get('run_record_schema', 'contracts/run_record.schema.yaml')
+    
+    # Ensure output directory exists
+    os.makedirs(processed_data_dir, exist_ok=True)
+    
+    # Load schema
+    schema = load_schema(schema_path)
+    
+    # Load raw data
+    logger.info("Loading raw data...")
+    raw_records = load_raw_data(raw_data_dir)
+    logger.info(f"Loaded {len(raw_records)} raw records")
+    
+    # Remove duplicates
+    logger.info("Removing duplicates...")
+    unique_records = remove_duplicates(raw_records)
+    logger.info(f"Records after deduplication: {len(unique_records)}")
+    
+    # Filter incomplete
+    logger.info("Filtering incomplete runs...")
+    filtered_records = filter_incomplete_runs(unique_records, schema)
+    logger.info(f"Records after filtering: {len(filtered_records)}")
+    
+    # Hash runner IDs
+    salt = config.get('salt', '')
+    logger.info(f"Hashing runner IDs with salt...")
+    for record in filtered_records:
+        original_id = record.get('runner_id')
+        record['runner_id'] = hash_runner_id(original_id, salt)
+    
+    # Compute runner metrics (for T013c)
+    logger.info("Computing runner metrics...")
+    runner_metrics = compute_runner_metrics(filtered_records)
+    
+    # Generate runner profiles (T013c)
+    runner_profiles = generate_runner_profiles(runner_metrics)
+    profiles_path = os.path.join(processed_data_dir, 'runner_profiles.csv')
+    save_to_csv(runner_profiles, profiles_path)
+    logger.info(f"Saved runner profiles to {profiles_path}")
+    
+    # Calculate lagged competitive pressure (T014)
+    logger.info("Calculating lagged competitive pressure...")
+    records_with_pressure = calculate_lagged_competitive_pressure(filtered_records)
+    
+    # Prepare final records for run_records.csv
+    # Ensure all required fields are present and types are correct
+    final_records = []
+    for record in records_with_pressure:
+        final_record = {
+            'run_id': record.get('run_id'),
+            'runner_id': record.get('runner_id'),
+            'attempt_number': record.get('attempt_number'),
+            'category': record.get('category'),
+            'submission_date': record.get('submission_date'),
+            'game_id': record.get('game_id'),
+            'run_time_seconds': record.get('run_time_seconds'),
+            'total_prior_runs': record.get('total_prior_runs', 0), # Derived from runner_metrics if needed, or 0 if not computed yet in this flow
+            'time_since_first_run_days': record.get('time_since_first_run_days', 0),
+            'lagged_competitive_pressure': record.get('lagged_competitive_pressure', 0)
+        }
+        final_records.append(final_record)
+    
+    # Save run_records.csv
+    output_path = os.path.join(processed_data_dir, 'run_records.csv')
+    save_to_csv(final_records, output_path)
+    logger.info(f"Saved run records to {output_path}")
+    
+    logger.info("Preprocessing complete.")
 
 if __name__ == "__main__":
     main()

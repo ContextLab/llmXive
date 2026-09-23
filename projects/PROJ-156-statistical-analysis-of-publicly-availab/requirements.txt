@@ -1,4 +1,3 @@
-# Project dependencies
-pyyaml
-jsonschema
-# Existing dependencies (if any) would be listed here as well.
+# Core dependencies
+# (No additional dependencies required beyond standard library for T017)
+# Existing project dependencies are assumed to be managed separately

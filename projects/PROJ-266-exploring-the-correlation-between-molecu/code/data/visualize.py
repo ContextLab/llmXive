@@ -35,7 +35,7 @@ def plot_flexibility_vs_permeability(
         data: DataFrame containing the data to plot.
         x_col: Column name for the x-axis (flexibility descriptor).
         y_col: Column name for the y-axis (logPapp).
-        title_suffix: Suffix for the plot title to explicitly state "Associational Relationship".
+        title_suffix: Suffix for the plot title to explicitly state "Associational Relationship" per FR-009.
         output_filename: Name of the output PNG file.
     
     Returns:

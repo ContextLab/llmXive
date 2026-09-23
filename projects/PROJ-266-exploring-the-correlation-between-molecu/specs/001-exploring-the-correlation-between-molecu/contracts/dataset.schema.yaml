@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Caco-2 Permeability Dataset Schema
-description: Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Caco-2 Permeability Dataset Schema"
+description: "JSON Schema for the Caco-2 dataset used in molecular flexibility and permeability correlation analysis."
 type: object
 required:
   - smiles
@@ -12,23 +12,29 @@ required:
 properties:
   smiles:
     type: string
-    description: Canonical SMILES string of the molecule.
+    description: "SMILES representation of the molecule."
     minLength: 1
+    pattern: "^[A-Za-z0-9@+\\-\\[\\]\\(\\)\\\\/\\.\\%#\\^\\$\\*\\&\\~\\!\\=\\<\\>]+$"
   logPapp:
     type: number
-    description: Apparent permeability coefficient (log Papp) in cm/s.
+    description: "Apparent permeability coefficient (log Papp) in cm/s."
+    minimum: -10
+    maximum: 10
   mw:
     type: number
-    description: Molecular weight in g/mol.
+    description: "Molecular weight in g/mol."
+    minimum: 0
   psa:
     type: number
-    description: Polar surface area in Å².
+    description: "Polar Surface Area in Å²."
+    minimum: 0
   assay_id:
     type: string
-    description: Unique ChEMBL assay identifier.
+    description: "Unique identifier for the assay from ChEMBL."
+    minLength: 1
   protocol_metadata:
     type: object
-    description: Metadata regarding the assay protocol.
+    description: "Metadata regarding the experimental protocol."
     required:
       - lab_id
       - temperature
@@ -36,10 +42,15 @@ properties:
     properties:
       lab_id:
         type: string
-        description: Identifier for the laboratory or source of the assay.
+        description: "Identifier for the laboratory or source of the data."
+        minLength: 1
       temperature:
         type: number
-        description: Assay temperature in Celsius.
+        description: "Temperature at which the assay was conducted, in Celsius."
+        minimum: 0
+        maximum: 100
       passage:
         type: string
-        description: Cell passage number or range used in the assay.
+        description: "Cell passage number or range used in the assay."
+        minLength: 1
+additionalProperties: false

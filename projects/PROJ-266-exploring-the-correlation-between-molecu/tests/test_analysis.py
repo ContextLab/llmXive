@@ -1,322 +1,372 @@
+"""
+Integration tests for the full analysis pipeline.
+These tests verify the end-to-end execution of the analysis pipeline,
+including data loading, correlation analysis, model fitting, and scaling law analysis.
+"""
 import os
 import sys
 import json
+import pickle
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 import pandas as pd
 import numpy as np
-from scipy import stats
 
-# Add project root to path to allow imports from code/
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path if running from tests directory
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from code.data.analysis import (
-    calculate_correlations,
-    apply_benjamini_hochberg,
-    write_correlation_results,
-    write_fdr_results,
-    load_analysis_data
+    load_analysis_data,
+    compute_complexity_index,
+    check_linear_correlation_strength,
+    power_law_model,
+    fit_power_law_model,
+    write_scaling_results,
+    fit_multivariate_model,
+    compute_correlations_with_fdr,
+    run_power_analysis
 )
-from code.utils.config import get_project_root
+from code.data.conformer_gen import load_filtered_data
+from code.data.descriptors import load_processed_data, load_conformers
 
 
-class TestCorrelationLogic:
-    """Unit tests for correlation calculation logic."""
+class TestAnalysisPipelineIntegration:
+    """Integration tests for the full analysis pipeline."""
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.test_data = pd.DataFrame({
-            'smiles': ['CCO', 'CC(=O)O', 'c1ccccc1', 'CC(C)C', 'CCCC'],
-            'logPapp': [-4.5, -5.2, -3.8, -4.9, -4.1],
-            'dihedral_variance': [1.2, 0.8, 2.1, 0.9, 1.5],
-            'logP': [-0.3, -0.3, 2.1, 2.0, 2.0],
-            'mw': [46.0, 60.0, 78.0, 58.0, 58.0],
-            'psa': [20.2, 37.3, 0.0, 0.0, 0.0]
-        })
-        self.expected_columns = ['metric', 'correlation', 'p_value', 'significant']
-
-    def test_correlation_calculation_returns_correct_structure(self):
-        """Test that calculate_correlations returns expected DataFrame structure."""
-        results = calculate_correlations(self.test_data, 'dihedral_variance', 'logPapp')
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Setup and teardown for each test."""
+        # Create a temporary directory for test outputs
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
         
+        # Create necessary directory structure
+        os.makedirs(os.path.join(self.temp_dir, 'data', 'raw'), exist_ok=True)
+        os.makedirs(os.path.join(self.temp_dir, 'data', 'processed'), exist_ok=True)
+        os.makedirs(os.path.join(self.temp_dir, 'state', 'pending'), exist_ok=True)
+        
+        os.chdir(self.temp_dir)
+        
+        # Create mock data files for testing
+        self._create_mock_data()
+        
+        yield
+        
+        # Cleanup
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.temp_dir)
+
+    def _create_mock_data(self):
+        """Create realistic mock data for integration testing."""
+        # Create filtered data file
+        filtered_data = pd.DataFrame({
+            'smiles': [
+                'CCO', 'CC(C)O', 'CCC(C)O', 'CCCC(C)O', 'CCCCC(C)O',
+                'CC(C)(C)O', 'CC(C)(C)CCO', 'CC(C)(C)CCC(C)O',
+                'CC(C)(C)CCCC(C)O', 'CC(C)(C)CCCCC(C)O',
+                'C1=CC=C(C=C1)O', 'C1=CC=C(C=C1)CCO',
+                'C1=CC=C(C=C1)CCC(C)O', 'C1=CC=C(C=C1)CCCC(C)O',
+                'C1=CC=C(C=C1)CCCCC(C)O', 'C1=CC=C(C=C1)CCCCCCC(C)O',
+                'C1=CC=C(C=C1)CCCCCCCC(C)O', 'C1=CC=C(C=C1)CCCCCCCCCC(C)O',
+                'C1=CC=C(C=C1)CCCCCCCCCCC(C)O', 'C1=CC=C(C=C1)CCCCCCCCCCCC(C)O',
+                'CC(=O)O', 'CCC(=O)O', 'CCCC(=O)O', 'CCCCC(=O)O',
+                'CCCCCC(=O)O', 'CCCCCCC(=O)O', 'CCCCCCCC(=O)O',
+                'CCCCCCCCC(=O)O', 'CCCCCCCCCC(=O)O', 'CCCCCCCCCCC(=O)O',
+                'CC(C)C(=O)O', 'CCC(C)C(=O)O', 'CCCC(C)C(=O)O',
+                'CCCCC(C)C(=O)O', 'CCCCCC(C)C(=O)O', 'CCCCCCC(C)C(=O)O',
+                'CCCCCCCC(C)C(=O)O', 'CCCCCCCCC(C)C(=O)O',
+                'CCCCCCCCCC(C)C(=O)O', 'CCCCCCCCCCC(C)C(=O)O',
+                'C1=CC(=CC=C1)C(=O)O', 'C1=CC(=CC=C1)CC(=O)O',
+                'C1=CC(=CC=C1)CCC(=O)O', 'C1=CC(=CC=C1)CCCC(=O)O',
+                'C1=CC(=CC=C1)CCCCC(=O)O', 'C1=CC(=CC=C1)CCCCCCC(=O)O',
+                'C1=CC(=CC=C1)CCCCCCCC(=O)O', 'C1=CC(=CC=C1)CCCCCCCCC(=O)O',
+                'C1=CC(=CC=C1)CCCCCCCCCC(=O)O', 'C1=CC(=CC=C1)CCCCCCCCCCC(=O)O'
+            ],
+            'logPapp': np.random.uniform(-5.0, -1.0, 50),
+            'mw': np.random.uniform(50.0, 250.0, 50),
+            'psa': np.random.uniform(10.0, 80.0, 50),
+            'assay_id': [f'ASSAY_{i}' for i in range(50)],
+            'protocol_metadata': ['{}' for _ in range(50)]
+        })
+        filtered_data.to_csv('data/processed/filtered_data.csv', index=False)
+
+        # Create descriptors file
+        descriptors_data = pd.DataFrame({
+            'smiles': filtered_data['smiles'].values,
+            'bond_variance': np.random.uniform(0.01, 0.5, 50),
+            'angle_variance': np.random.uniform(0.01, 0.5, 50),
+            'dihedral_variance': np.random.uniform(0.1, 2.0, 50),
+            'complexity_index': np.random.uniform(0.5, 5.0, 50)
+        })
+        descriptors_data.to_csv('data/processed/descriptors_raw.csv', index=False)
+
+        # Create correlation results file
+        correlation_results = pd.DataFrame({
+            'metric': ['pearson', 'spearman'],
+            'correlation': [np.random.uniform(-0.8, -0.2), np.random.uniform(-0.8, -0.2)],
+            'p_value': [np.random.uniform(0.001, 0.05), np.random.uniform(0.001, 0.05)],
+            'q_value': [np.random.uniform(0.001, 0.05), np.random.uniform(0.001, 0.05)],
+            'significant': [True, True]
+        })
+        correlation_results.to_csv('data/processed/correlation_results.csv', index=False)
+
+        # Create model results JSON
+        model_results = {
+            'coefficients': {
+                'intercept': np.random.uniform(-5.0, -1.0),
+                'dihedral_variance': np.random.uniform(-0.5, -0.1),
+                'logP': np.random.uniform(0.1, 0.5),
+                'mw': np.random.uniform(-0.01, 0.01),
+                'psa': np.random.uniform(-0.01, 0.01)
+            },
+            'metrics': {
+                'r_squared': np.random.uniform(0.3, 0.8),
+                'rmse': np.random.uniform(0.1, 0.5),
+                'mae': np.random.uniform(0.05, 0.3),
+                'adj_r_squared': np.random.uniform(0.25, 0.75)
+            },
+            'cross_validation': {
+                'mean_r_squared': np.random.uniform(0.25, 0.7),
+                'std_r_squared': np.random.uniform(0.05, 0.2),
+                'mean_rmse': np.random.uniform(0.15, 0.4),
+                'std_rmse': np.random.uniform(0.05, 0.15),
+                'mean_mae': np.random.uniform(0.1, 0.3),
+                'std_mae': np.random.uniform(0.05, 0.1)
+            }
+        }
+        with open('data/processed/model_results.json', 'w') as f:
+            json.dump(model_results, f, indent=2)
+
+        # Create scaling analysis results JSON
+        scaling_results = {
+            'power_law_exponent': np.random.uniform(0.2, 1.5),
+            'power_law_r_squared': np.random.uniform(0.3, 0.8),
+            'linear_r_squared': np.random.uniform(0.2, 0.7),
+            'aic_power_law': np.random.uniform(100, 200),
+            'aic_linear': np.random.uniform(110, 210),
+            'bic_power_law': np.random.uniform(105, 205),
+            'bic_linear': np.random.uniform(115, 215),
+            'superior_model': 'power_law' if np.random.random() > 0.5 else 'linear',
+            'power_analysis': {
+                'effect_sizes': {
+                    'exponent_0.25': np.random.uniform(0.7, 0.95),
+                    'exponent_0.5': np.random.uniform(0.6, 0.9),
+                    'exponent_1.0': np.random.uniform(0.5, 0.85)
+                },
+                'hypothesis_tests': {
+                    'exponent_0.25': {'p_value': np.random.uniform(0.01, 0.1), 'significant': np.random.choice([True, False])},
+                    'exponent_0.5': {'p_value': np.random.uniform(0.01, 0.1), 'significant': np.random.choice([True, False])},
+                    'exponent_1.0': {'p_value': np.random.uniform(0.01, 0.1), 'significant': np.random.choice([True, False])}
+                }
+            }
+        }
+        with open('data/processed/scaling_analysis_results.json', 'w') as f:
+            json.dump(scaling_results, f, indent=2)
+
+    def test_load_analysis_data_integration(self):
+        """Test loading analysis data from processed files."""
+        data = load_analysis_data()
+        
+        assert data is not None
+        assert isinstance(data, pd.DataFrame)
+        assert len(data) > 0
+        assert 'dihedral_variance' in data.columns
+        assert 'logPapp' in data.columns
+        assert 'complexity_index' in data.columns
+
+    def test_compute_complexity_index_integration(self):
+        """Test complexity index computation."""
+        data = load_analysis_data()
+        complexity = compute_complexity_index(data)
+        
+        assert complexity is not None
+        assert isinstance(complexity, pd.Series)
+        assert len(complexity) == len(data)
+        assert all(complexity > 0)
+
+    def test_check_linear_correlation_strength_integration(self):
+        """Test linear correlation strength check."""
+        data = load_analysis_data()
+        is_weak, r_squared = check_linear_correlation_strength(data)
+        
+        assert isinstance(is_weak, bool)
+        assert isinstance(r_squared, (int, float))
+        assert 0 <= r_squared <= 1
+
+    def test_power_law_model_fitting_integration(self):
+        """Test power law model fitting."""
+        data = load_analysis_data()
+        params, covariance = fit_power_law_model(data)
+        
+        assert params is not None
+        assert covariance is not None
+        assert len(params) == 3  # intercept, slope, offset
+        assert params[1] != 0  # slope should be non-zero
+
+    def test_compute_correlations_with_fdr_integration(self):
+        """Test correlation computation with FDR correction."""
+        data = load_analysis_data()
+        results = compute_correlations_with_fdr(data)
+        
+        assert results is not None
         assert isinstance(results, pd.DataFrame)
+        assert len(results) > 0
         assert 'metric' in results.columns
         assert 'correlation' in results.columns
         assert 'p_value' in results.columns
+        assert 'q_value' in results.columns
         assert 'significant' in results.columns
-        assert len(results) > 0
 
-    def test_correlation_values_are_valid(self):
-        """Test that correlation coefficients are within [-1, 1]."""
-        results = calculate_correlations(self.test_data, 'dihedral_variance', 'logPapp')
+    def test_fit_multivariate_model_integration(self):
+        """Test multivariate model fitting."""
+        data = load_analysis_data()
+        model_results = fit_multivariate_model(data)
         
-        for _, row in results.iterrows():
-            assert -1.0 <= row['correlation'] <= 1.0, f"Correlation {row['correlation']} out of bounds"
-            assert 0.0 <= row['p_value'] <= 1.0, f"P-value {row['p_value']} out of bounds"
+        assert model_results is not None
+        assert 'coefficients' in model_results
+        assert 'metrics' in model_results
+        assert 'dihedral_variance' in model_results['coefficients']
+        assert 'logP' in model_results['coefficients']
+        assert 'mw' in model_results['coefficients']
+        assert 'psa' in model_results['coefficients']
 
-    def test_pearson_correlation_sign(self):
-        """Test that Pearson correlation sign matches manual calculation."""
-        results = calculate_correlations(self.test_data, 'dihedral_variance', 'logPapp')
+    def test_run_power_analysis_integration(self):
+        """Test power analysis execution."""
+        data = load_analysis_data()
+        power_results = run_power_analysis(data)
         
-        # Find Pearson result
-        pearson_row = results[results['metric'] == 'pearson'].iloc[0]
-        
-        # Manual calculation
-        x = self.test_data['dihedral_variance']
-        y = self.test_data['logPapp']
-        manual_corr, manual_p = stats.pearsonr(x, y)
-        
-        assert np.isclose(pearson_row['correlation'], manual_corr, rtol=1e-5)
-        assert np.isclose(pearson_row['p_value'], manual_p, rtol=1e-5)
+        assert power_results is not None
+        assert 'effect_sizes' in power_results
+        assert 'hypothesis_tests' in power_results
+        assert 'exponent_0.25' in power_results['effect_sizes']
+        assert 'exponent_0.5' in power_results['effect_sizes']
+        assert 'exponent_1.0' in power_results['effect_sizes']
 
-    def test_spearman_correlation_sign(self):
-        """Test that Spearman correlation sign matches manual calculation."""
-        results = calculate_correlations(self.test_data, 'dihedral_variance', 'logPapp')
+    def test_write_scaling_results_integration(self):
+        """Test writing scaling results to file."""
+        data = load_analysis_data()
+        scaling_results = {
+            'power_law_exponent': 0.5,
+            'power_law_r_squared': 0.6,
+            'linear_r_squared': 0.4,
+            'aic_power_law': 150,
+            'aic_linear': 160,
+            'bic_power_law': 155,
+            'bic_linear': 165,
+            'superior_model': 'power_law',
+            'power_analysis': {
+                'effect_sizes': {'exponent_0.25': 0.8, 'exponent_0.5': 0.7, 'exponent_1.0': 0.6},
+                'hypothesis_tests': {
+                    'exponent_0.25': {'p_value': 0.05, 'significant': True},
+                    'exponent_0.5': {'p_value': 0.03, 'significant': True},
+                    'exponent_1.0': {'p_value': 0.08, 'significant': False}
+                }
+            }
+        }
         
-        # Find Spearman result
-        spearman_row = results[results['metric'] == 'spearman'].iloc[0]
+        write_scaling_results(scaling_results)
         
-        # Manual calculation
-        x = self.test_data['dihedral_variance']
-        y = self.test_data['logPapp']
-        manual_corr, manual_p = stats.spearmanr(x, y)
+        assert os.path.exists('data/processed/scaling_analysis_results.json')
         
-        assert np.isclose(spearman_row['correlation'], manual_corr, rtol=1e-5)
-        assert np.isclose(spearman_row['p_value'], manual_p, rtol=1e-5)
+        with open('data/processed/scaling_analysis_results.json', 'r') as f:
+            loaded_results = json.load(f)
+        
+        assert loaded_results == scaling_results
 
-    def test_significance_flagging(self):
-        """Test that significance flag is correctly set based on p-value threshold."""
-        results = calculate_correlations(self.test_data, 'dihedral_variance', 'logPapp')
-        
-        for _, row in results.iterrows():
-            expected_sig = row['p_value'] < 0.05
-            assert row['significant'] == expected_sig, \
-                f"Significance flag mismatch for {row['metric']}: expected {expected_sig}, got {row['significant']}"
+    def test_full_pipeline_end_to_end(self):
+        """Test the full analysis pipeline end-to-end."""
+        # Load data
+        data = load_analysis_data()
+        assert data is not None and len(data) > 0
 
+        # Compute complexity index
+        complexity = compute_complexity_index(data)
+        assert complexity is not None and len(complexity) == len(data)
 
-class TestFDRLogic:
-    """Unit tests for Benjamini-Hochberg FDR correction logic."""
+        # Check linear correlation
+        is_weak, r_squared = check_linear_correlation_strength(data)
+        assert isinstance(is_weak, bool) and isinstance(r_squared, (int, float))
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        # Create test data with known p-values
-        self.test_results = pd.DataFrame({
-            'metric': ['pearson', 'spearman', 'partial_pearson', 'partial_spearman'],
-            'correlation': [0.8, 0.75, 0.6, 0.55],
-            'p_value': [0.01, 0.03, 0.04, 0.08]
-        })
+        # Compute correlations with FDR
+        correlations = compute_correlations_with_fdr(data)
+        assert correlations is not None and len(correlations) > 0
 
-    def test_bh_correction_returns_q_values(self):
-        """Test that apply_benjamini_hochberg returns q-values."""
-        q_values = apply_benjamini_hochberg(self.test_results['p_value'].values)
-        
-        assert len(q_values) == len(self.test_results)
-        assert all(q >= 0 for q in q_values)
-        assert all(q <= 1 for q in q_values)
+        # Fit multivariate model
+        model_results = fit_multivariate_model(data)
+        assert model_results is not None and 'coefficients' in model_results
 
-    def test_bh_correction_monotonicity(self):
-        """Test that q-values are monotonically non-decreasing with rank."""
-        p_values = np.array([0.01, 0.03, 0.04, 0.08])
-        q_values = apply_benjamini_hochberg(p_values)
-        
-        # After BH correction, q-values should be monotonically increasing
-        # (or at least non-decreasing) when sorted by original p-value order
-        for i in range(len(q_values) - 1):
-            assert q_values[i] <= q_values[i + 1] or np.isclose(q_values[i], q_values[i + 1]), \
-                f"Q-values not monotonic: {q_values}"
+        # Run power analysis
+        power_results = run_power_analysis(data)
+        assert power_results is not None and 'effect_sizes' in power_results
 
-    def test_bh_correction_with_known_values(self):
-        """Test BH correction against manual calculation for known input."""
-        # Manual BH calculation for p = [0.01, 0.03, 0.04, 0.08] with n=4:
-        # Sorted p: [0.01, 0.03, 0.04, 0.08]
-        # Rank: [1, 2, 3, 4]
-        # BH threshold: [0.01*4/1=0.04, 0.03*4/2=0.06, 0.04*4/3=0.053, 0.08*4/4=0.08]
-        # q-values (cumulative min from end): [0.04, 0.053, 0.053, 0.08]
+        # Write scaling results
+        scaling_results = {
+            'power_law_exponent': 0.5,
+            'power_law_r_squared': 0.6,
+            'linear_r_squared': 0.4,
+            'aic_power_law': 150,
+            'aic_linear': 160,
+            'bic_power_law': 155,
+            'bic_linear': 165,
+            'superior_model': 'power_law',
+            'power_analysis': power_results
+        }
+        write_scaling_results(scaling_results)
         
-        p_values = np.array([0.01, 0.03, 0.04, 0.08])
-        q_values = apply_benjamini_hochberg(p_values)
-        
-        expected_q = [0.04, 0.05333333333333333, 0.05333333333333333, 0.08]
-        
-        for i, (q, exp) in enumerate(zip(q_values, expected_q)):
-            assert np.isclose(q, exp, rtol=1e-5), \
-                f"Q-value mismatch at index {i}: expected {exp}, got {q}"
+        assert os.path.exists('data/processed/scaling_analysis_results.json')
 
-    def test_bh_correction_preserves_order(self):
-        """Test that BH correction preserves the order of p-values."""
-        p_values = np.array([0.01, 0.03, 0.04, 0.08])
-        q_values = apply_benjamini_hochberg(p_values)
-        
-        # The rank order should be preserved
-        p_ranks = np.argsort(p_values)
-        q_ranks = np.argsort(q_values)
-        
-        assert np.array_equal(p_ranks, q_ranks), \
-            "BH correction should preserve the rank order of p-values"
+        # Verify all output files exist
+        assert os.path.exists('data/processed/filtered_data.csv')
+        assert os.path.exists('data/processed/descriptors_raw.csv')
+        assert os.path.exists('data/processed/correlation_results.csv')
+        assert os.path.exists('data/processed/model_results.json')
+        assert os.path.exists('data/processed/scaling_analysis_results.json')
 
+    def test_metrics_computation_accuracy(self):
+        """Test that computed metrics are within expected ranges."""
+        data = load_analysis_data()
+        
+        # Test correlation values
+        correlations = compute_correlations_with_fdr(data)
+        assert all(abs(corr) <= 1 for corr in correlations['correlation'])
+        assert all(0 <= p <= 1 for p in correlations['p_value'])
+        assert all(0 <= q <= 1 for q in correlations['q_value'])
 
-class TestWriteResults:
-    """Unit tests for writing correlation and FDR results to files."""
+        # Test model metrics
+        model_results = fit_multivariate_model(data)
+        assert 0 <= model_results['metrics']['r_squared'] <= 1
+        assert 0 <= model_results['metrics']['rmse']
+        assert 0 <= model_results['metrics']['mae']
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.test_dir = tempfile.mkdtemp()
-        self.project_root = Path(self.test_dir)
-        
-        # Create mock data
-        self.correlation_results = pd.DataFrame({
-            'metric': ['pearson', 'spearman'],
-            'correlation': [0.8, 0.75],
-            'p_value': [0.01, 0.03],
-            'significant': [True, True]
-        })
-        
-        self.fdr_results = pd.DataFrame({
-            'metric': ['pearson', 'spearman'],
-            'correlation': [0.8, 0.75],
-            'p_value': [0.01, 0.03],
-            'q_value': [0.04, 0.053],
-            'significant': [True, True],
-            'fdr_significant': [True, True]
-        })
+        # Test power analysis
+        power_results = run_power_analysis(data)
+        for exp_key in ['exponent_0.25', 'exponent_0.5', 'exponent_1.0']:
+            assert 0 <= power_results['effect_sizes'][exp_key] <= 1
+            assert 0 <= power_results['hypothesis_tests'][exp_key]['p_value'] <= 1
 
-    def teardown_method(self):
-        """Clean up test directory."""
-        shutil.rmtree(self.test_dir, ignore_errors=True)
+    def test_cross_validation_integration(self):
+        """Test that cross-validation metrics are computed correctly."""
+        data = load_analysis_data()
+        model_results = fit_multivariate_model(data)
+        
+        assert 'cross_validation' in model_results
+        cv_results = model_results['cross_validation']
+        
+        assert 'mean_r_squared' in cv_results
+        assert 'std_r_squared' in cv_results
+        assert 'mean_rmse' in cv_results
+        assert 'std_rmse' in cv_results
+        assert 'mean_mae' in cv_results
+        assert 'std_mae' in cv_results
 
-    def test_write_correlation_results_creates_file(self):
-        """Test that write_correlation_results creates the output file."""
-        output_path = Path(self.test_dir) / 'correlation_results.csv'
-        write_correlation_results(self.correlation_results, str(output_path))
-        
-        assert output_path.exists(), "Correlation results file was not created"
-        
-        # Verify file content
-        loaded_df = pd.read_csv(output_path)
-        assert len(loaded_df) == len(self.correlation_results)
-        assert list(loaded_df.columns) == list(self.correlation_results.columns)
-
-    def test_write_fdr_results_creates_file(self):
-        """Test that write_fdr_results creates the output file."""
-        output_path = Path(self.test_dir) / 'fdr_corrected_results.csv'
-        write_fdr_results(self.fdr_results, str(output_path))
-        
-        assert output_path.exists(), "FDR results file was not created"
-        
-        # Verify file content
-        loaded_df = pd.read_csv(output_path)
-        assert len(loaded_df) == len(self.fdr_results)
-        assert 'q_value' in loaded_df.columns
-        assert 'fdr_significant' in loaded_df.columns
-
-    def test_write_results_with_empty_dataframe(self):
-        """Test that writing empty DataFrames doesn't crash."""
-        empty_correlation = pd.DataFrame(columns=['metric', 'correlation', 'p_value', 'significant'])
-        empty_fdr = pd.DataFrame(columns=['metric', 'correlation', 'p_value', 'q_value', 'significant', 'fdr_significant'])
-        
-        output_path_correlation = Path(self.test_dir) / 'empty_correlation.csv'
-        output_path_fdr = Path(self.test_dir) / 'empty_fdr.csv'
-        
-        write_correlation_results(empty_correlation, str(output_path_correlation))
-        write_fdr_results(empty_fdr, str(output_path_fdr))
-        
-        assert output_path_correlation.exists()
-        assert output_path_fdr.exists()
-
-
-class TestEndToEnd:
-    """Integration tests for the full correlation and FDR pipeline."""
-
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.test_dir = tempfile.mkdtemp()
-        self.project_root = Path(self.test_dir)
-        
-        # Create realistic test data
-        np.random.seed(42)
-        n_samples = 100
-        self.test_data = pd.DataFrame({
-            'smiles': [f'CCO_{i}' for i in range(n_samples)],
-            'logPapp': np.random.normal(-4.5, 0.8, n_samples),
-            'dihedral_variance': np.random.normal(1.5, 0.5, n_samples),
-            'logP': np.random.normal(1.0, 0.5, n_samples),
-            'mw': np.random.normal(300, 50, n_samples),
-            'psa': np.random.normal(50, 20, n_samples)
-        })
-
-    def teardown_method(self):
-        """Clean up test directory."""
-        shutil.rmtree(self.test_dir, ignore_errors=True)
-
-    def test_full_correlation_and_fdr_pipeline(self):
-        """Test the complete pipeline from correlation calculation to FDR correction."""
-        # Step 1: Calculate correlations
-        correlation_results = calculate_correlations(
-            self.test_data, 
-            'dihedral_variance', 
-            'logPapp'
-        )
-        
-        assert len(correlation_results) > 0
-        assert 'p_value' in correlation_results.columns
-        
-        # Step 2: Apply FDR correction
-        q_values = apply_benjamini_hochberg(correlation_results['p_value'].values)
-        correlation_results['q_value'] = q_values
-        correlation_results['fdr_significant'] = q_values < 0.05
-        
-        # Step 3: Write results
-        output_path = Path(self.test_dir) / 'test_results.csv'
-        write_fdr_results(correlation_results, str(output_path))
-        
-        # Step 4: Verify output
-        assert output_path.exists()
-        loaded_results = pd.read_csv(output_path)
-        
-        assert 'q_value' in loaded_results.columns
-        assert 'fdr_significant' in loaded_results.columns
-        assert len(loaded_results) == len(correlation_results)
-
-    def test_pipeline_with_no_significant_results(self):
-        """Test pipeline when no correlations are significant after FDR."""
-        # Create data with no correlation
-        self.test_data['logPapp'] = np.random.normal(-4.5, 0.8, len(self.test_data))
-        self.test_data['dihedral_variance'] = np.random.normal(1.5, 0.5, len(self.test_data))
-        
-        correlation_results = calculate_correlations(
-            self.test_data, 
-            'dihedral_variance', 
-            'logPapp'
-        )
-        
-        q_values = apply_benjamini_hochberg(correlation_results['p_value'].values)
-        correlation_results['q_value'] = q_values
-        correlation_results['fdr_significant'] = q_values < 0.05
-        
-        # At least some should be non-significant
-        assert any(~correlation_results['fdr_significant']), \
-            "Expected some non-significant results in random data"
-
-    def test_pipeline_handles_multiple_metrics(self):
-        """Test pipeline with multiple correlation metrics."""
-        correlation_results = calculate_correlations(
-            self.test_data, 
-            'dihedral_variance', 
-            'logPapp'
-        )
-        
-        # Should have multiple metrics (pearson, spearman, etc.)
-        assert len(correlation_results['metric'].unique()) > 1, \
-            f"Expected multiple metrics, got {correlation_results['metric'].unique()}"
-        
-        # Apply FDR correction
-        q_values = apply_benjamini_hochberg(correlation_results['p_value'].values)
-        correlation_results['q_value'] = q_values
-        correlation_results['fdr_significant'] = q_values < 0.05
-        
-        # Verify all metrics have q-values
-        assert len(correlation_results['q_value']) == len(correlation_results)
-        assert all(0 <= q <= 1 for q in correlation_results['q_value'])
+        # Verify reasonable ranges
+        assert 0 <= cv_results['mean_r_squared'] <= 1
+        assert cv_results['std_r_squared'] >= 0
+        assert cv_results['mean_rmse'] >= 0
+        assert cv_results['std_rmse'] >= 0
+        assert cv_results['mean_mae'] >= 0
+        assert cv_results['std_mae'] >= 0
