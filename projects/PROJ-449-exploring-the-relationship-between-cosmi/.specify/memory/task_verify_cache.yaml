@@ -5,12 +5,6 @@ T015:
     \ == \"__main__\":` entry point, and does not clearly generate or write `data/processed/unified_timeseries.csv`.\
     \ Moreover, the required CSV file is missing from the repository. Consequently\
     \ the task\u2019s core output is not produced."
-T020:
-  c: false
-  h: 3f1de62e256d95fd99076a7db128225f6cccc3e5129f5e418af5c20ef985deba
-  r: "The required output artifacts `data/processed/correlation_results.json`, `data/processed/correlation_summary.csv`,\
-    \ and `data/processed/modulation_amplitudes_baseline.csv` are absent, so the implementation\
-    \ does not fulfill the task\u2019s saving requirements."
 T022:
   c: false
   h: 020bc3a48fbb729a5b48b0d97f1fcd25082ea022c80dbf6605cfeab05576816e
@@ -52,3 +46,18 @@ T038:
     flux, heavy flux, sunspot number) exist nor that their data types match the specification.
     The implementer must supply the actual CSV file (or a view of its header and sample
     rows) for verification.
+T056:
+  c: false
+  h: 58f573565baf72e33dac47598c4a50a686ac6afece26b0d9d6acf8d6c175800f
+  r: "The required output `data/processed/bootstrap_block_sensitivity.json` does not\
+    \ exist, and the provided `bootstrap.py` snippet shows only data loading and a\
+    \ single bootstrap function\u2014there is no evidence of a block\u2011size sensitivity\
+    \ loop, CI comparison, warning logic, or saving of results. The task\u2019s core\
+    \ requirement is therefore unmet."
+T057:
+  c: false
+  h: 65d9ce977fcd59371a40149c8e2d1a025a249773b2a5fa9a2857d2c539f1a92c
+  r: "The provided `correlation.py` snippet shows no implementation of counting valid\
+    \ points per rigidity bin, skipping bins with <\u202F100 points, or adding a `valid_data_points`\
+    \ column, and the required `data/processed/correlation_summary.csv` file is absent.\
+    \ Both the code changes and the output artifact required by the task are missing."

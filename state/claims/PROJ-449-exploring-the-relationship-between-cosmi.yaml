@@ -394,3 +394,327 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T05:57:47Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: System generates correlation matrix and time-lag plots for ratios and
+    absolute fluxes
+  claim_id: c_cb30acd2
+  context: 'Independent Test: The system generates a correlation matrix and a set
+    of time-lag plots for both ratios and absolute fluxes. The test passes if the
+    output includes correlation coefficients for lags ranging from negative to positive
+    months for both He/p and Fe/p ratios AND absolute fluxes against sunspot numbers,
+    calculated per rigidity bin, and if the statistical significance (p-value) is
+    calculated for each.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_generates_correlation_matrix_and_time-lag_plots_for_r
+  kind: entity_fact
+  raw_text: The system generates a correlation matrix and a set of time-lag plots
+    for both ratios and absolute fluxes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:39:43Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Correlation coefficients calculated for lags -12 to +12 months
+  claim_id: c_3dae74c2
+  context: Implement `code/analysis/correlation.py` function `calculate_lagged_correlations`
+    supporting Pearson and Spearman methods with a lag window spanning a range of
+    months in integer month steps. (i.e., iterate through every integer lag value
+    from -12, -11,..., 0,..., +11, +12).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation coefficients are calculated for lags ranging from -12 to +12
+    months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:40:32Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with 1000 iterations
+  claim_id: c_bb45dddb
+  context: 'Goal: Validate statistical robustness via bootstrap resampling (n=1000)
+    and fit a rigidity-dependent diffusion model to modulation amplitudes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:41:07Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Gaps greater than 30 days flagged as Data Gap and set to NaN
+  claim_id: c_fb537896
+  context: 'Logic: 1) Identify continuous valid blocks of data. 2) Flag any gaps >
+    30 days as ''Data Gap'' by setting flux values to `NaN` and adding a `gap_flag`
+    column (True/False) in the output dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gaps_greater_than_30_days_flagged_as_Data_Gap_and_set_to_NaN
+  kind: magnitude
+  raw_text: Gaps greater than 30 days are flagged as 'Data Gap' and set to NaN.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:41:36Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Missing data points less than 5 days handled by interpolation
+  claim_id: c_6b07c402
+  context: 3) Handle missing data points < 5 days by interpolation, but log them.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Missing_data_points_less_than_5_days_handled_by_interpolatio
+  kind: magnitude
+  raw_text: Missing data points less than 5 days are handled by interpolation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:42:26Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis uses 95% power and alpha=0.05
+  claim_id: c_fdc9d322
+  context: 'Logic: The function must calculate the threshold based on statistical
+    power analysis (95% power, alpha=0.05) for the provided effect size using `statsmodels.stats.power`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power analysis uses 95% power and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:43:01Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Rigidity bins with fewer than 100 valid data points skipped for correlation
+  claim_id: c_897d6c16
+  context: 'Logic: 1) Count the number of valid data points per rigidity bin after
+    gap exclusion (ignoring NaNs). 2) If a bin has < 100 points, skip the correlation
+    analysis for that bin and log a warning with the bin ID and point count.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rigidity_bins_with_fewer_than_100_valid_data_points_skipped
+  kind: magnitude
+  raw_text: Rigidity bins with fewer than 100 valid data points are skipped for correlation
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:43:26Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Solar cycle transition boundary analyzed if sample size is at least 365
+    days
+  claim_id: c_c832c7c7
+  context: Log a warning if the sample size (N) for this window is < 365 days, indicating
+    reduced statistical power.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solar_cycle_transition_boundary_analyzed_if_sample_size_is_a
+  kind: magnitude
+  raw_text: The solar cycle transition boundary is analyzed if the sample size is
+    at least 365 days.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:44:19Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Diffusion model uses Amplitude = A / (Rigidity + B)
+  claim_id: c_d11c39c5
+  context: 'Model: Use a simplified physics-based parameterization (e.g., `Amplitude
+    = A / (Rigidity + B)`) to ensure convergence without GPU acceleration.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_model_uses_Amplitude_=_A_/_(Rigidity_+_B)
+  kind: entity_fact
+  raw_text: The diffusion model uses a parameterization of Amplitude = A / (Rigidity
+    + B).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:44:56Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Sinusoidal fit uses formula A*sin(2*pi*t/T + phi) + C
+  claim_id: c_f220d5c8
+  context: 'Constraint: Use `scipy.optimize.curve_fit` with the function `A*sin(2*pi*t/T
+    + phi) + C` and specific bounds for A, T, phi, C.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sinusoidal fit uses the formula A*sin(2*pi*t/T + phi) + C.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:45:16Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Stability metric defined as width of 95% CI divided by absolute max correlation
+    coefficient
+  claim_id: c_f7559e49
+  context: 2) Calculate the stability metric as `width / abs(max_correlation_coefficient)`.
+    3) Save the width, stability metric, and a `stability_status` (e.g., `stable`
+    if ratio < 0.5, `unstable` otherwise) to `data/processed/bootstrap_stability.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_metric_defined_as_width_of_95%25_CI_divided_by_absol
+  kind: entity_fact
+  raw_text: The stability metric is defined as the width of the 95% confidence interval
+    divided by the absolute maximum correlation coefficient.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:45:48Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Result flagged as unstable if stability ratio is greater than or equal
+    to 0.5
+  claim_id: c_e7d5e85d
+  context: Save the width, stability metric, and a `stability_status` (e.g., `stable`
+    if ratio < 0.5, `unstable` otherwise) to `data/processed/bootstrap_stability.json`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Result_flagged_as_unstable_if_stability_ratio_is_greater_tha
+  kind: magnitude
+  raw_text: A result is flagged as unstable if the stability ratio is greater than
+    or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:46:53Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Effective degrees of freedom computed as N / (1 + 2 * sum(rho_k^2))
+  claim_id: c_5d83fda0
+  context: 2) Compute the EDOF as `N / (1 + 2 * sum(rho_k^2))` where `rho_k` is the
+    autocorrelation at lag `k`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effective degrees of freedom are computed as N / (1 + 2 * sum(rho_k^2)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:47:16Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Warning logged if confidence intervals vary by more than 10% across block
+    sizes
+  claim_id: c_84465ec6
+  context: 'Constraint: If the confidence intervals vary significantly (>10% width
+    difference) across block sizes, log a warning and flag the result as ''sensitive
+    to block size''.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_confidence_intervals_vary_by_more_than_10%25
+  kind: magnitude
+  raw_text: A warning is logged if confidence intervals vary by more than 10% across
+    different block sizes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T19:48:05Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Condition number greater than 1e6 for Jacobian matrix triggers warning
+  claim_id: c_50a45ca1
+  context: 3) If the fit fails to converge within the maximum iterations or the condition
+    number is high (>1e6), log a warning and save the fit parameters as `NaN` with
+    a `convergence_status` flag in `data/processed/model_fit_results.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Condition_number_greater_than_1e6_for_Jacobian_matrix_trigge
+  kind: magnitude
+  raw_text: A condition number greater than 1e6 for the Jacobian matrix triggers a
+    warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:48:43Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_ed0e9f7d
+  context: 'Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scikit-learn`,
+    `scipy`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`, `pytest`, `psutil`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:49:15Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on CPU-only with no GPU and memory usage not exceeding
+    7GB
+  claim_id: c_f8821762
+  context: "Constraint: All tasks must run on CPU-only CI (no GPU, \u22647GB RAM).\
+    \ No heavy model training or 8-bit quantization."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_CPU-only_with_no_GPU_and_memory_usage_not_e
+  kind: entity_fact
+  raw_text: The pipeline must run on CPU-only runners with no GPU and memory usage
+    not exceeding 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T19:49:37Z'

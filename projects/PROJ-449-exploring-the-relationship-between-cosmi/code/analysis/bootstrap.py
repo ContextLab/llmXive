@@ -4,328 +4,322 @@ import json
 import logging
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-from scipy import stats
+from typing import Dict, List, Tuple, Optional, Any
+import pandas as pd
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Constants
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-CORRELATION_RESULTS_FILE = PROCESSED_DIR / "correlation_results.json"
-BOOTSTRAP_RESULTS_FILE = PROCESSED_DIR / "bootstrap_results.json"
-BOOTSTRAP_SUMMARY_FILE = PROCESSED_DIR / "bootstrap_summary.csv"
+from code.utils.logging import setup_logger, log_bootstrap_result
 
-MEMORY_THRESHOLD_GB = 6.0
-BATCH_SIZE = 100  # Number of bootstrap iterations per batch
+# Configure logger
+logger = setup_logger(__name__)
 
-def load_correlation_data(filepath: Optional[Path] = None) -> Dict[str, Any]:
+def load_correlation_data(results_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load correlation results from JSON file.
+    Load correlation results from JSON or CSV.
+    Expects data from T020a (correlation_results.csv or .json).
+    """
+    if results_path is None:
+        results_path = PROJECT_ROOT / "data" / "processed" / "correlation_results.csv"
     
-    Args:
-        filepath: Path to the correlation results JSON file. Defaults to 
-                 data/processed/correlation_results.json
-                
-    Returns:
-        Dictionary containing correlation results
-        
-    Raises:
-        FileNotFoundError: If the correlation results file does not exist
-        json.JSONDecodeError: If the file contains invalid JSON
-    """
-    if filepath is None:
-        filepath = CORRELATION_RESULTS_FILE
-        
-    if not filepath.exists():
-        raise FileNotFoundError(
-            f"Correlation results file not found: {filepath}. "
-            "Please run the correlation analysis first (T020)."
-        )
-        
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-        
-    logger.info(f"Loaded correlation data from {filepath}")
-    return data
+    if not results_path.exists():
+        # Fallback to JSON if CSV doesn't exist
+        json_path = results_path.with_suffix('.json')
+        if not json_path.exists():
+            raise FileNotFoundError(f"Correlation results not found at {results_path} or {json_path}")
+        df = pd.read_json(json_path)
+    else:
+        df = pd.read_csv(results_path)
+    
+    # Ensure date column is datetime if present
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+    
+    return df
 
 def run_bootstrap_resampling(
-    data: Dict[str, Any],
+    data: pd.DataFrame,
+    target_column: str,
+    sunspot_column: str,
     n_iterations: int = 1000,
-    batch_size: Optional[int] = None,
-    random_state: Optional[int] = None
+    block_size_days: int = 30,
+    seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Perform bootstrap resampling to estimate confidence intervals for 
-    maximum correlation coefficients.
-    
-    This implementation uses a chunked/batched approach to handle memory
-    constraints. If memory usage approaches the threshold, iterations are
-    split into batches and confidence intervals are aggregated incrementally.
+    Perform Moving Block Bootstrap (MBB) resampling to estimate confidence intervals
+    for the maximum correlation coefficient.
     
     Args:
-        data: Dictionary containing correlation results per rigidity bin
-        n_iterations: Number of bootstrap iterations (default: 1000)
-        batch_size: Number of iterations per batch. If None, calculated based
-                   on memory constraints.
-        random_state: Random seed for reproducibility
-        
+        data: DataFrame with time-series data.
+        target_column: Column name for the target variable (e.g., He/p ratio).
+        sunspot_column: Column name for sunspot numbers.
+        n_iterations: Number of bootstrap iterations.
+        block_size_days: Size of the block in days for MBB.
+        seed: Random seed for reproducibility.
+    
     Returns:
-        Dictionary containing bootstrap results with confidence intervals
-        
-    Raises:
-        ValueError: If input data is malformed or missing required fields
+        Dictionary with bootstrap results (mean, std, CI, max_corr, etc.).
     """
-    if random_state is not None:
-        np.random.seed(random_state)
-        
-    if batch_size is None:
-        # Calculate batch size to stay under memory threshold
-        # Estimate memory usage: each iteration stores correlation coeffs
-        # for all bins and lags. Conservative estimate: 100KB per batch.
-        estimated_memory_per_iter = 0.0001  # GB
-        max_iterations = int(MEMORY_THRESHOLD_GB / estimated_memory_per_iter)
-        batch_size = min(BATCH_SIZE, max_iterations // 10)  # Safety margin
-        logger.info(f"Auto-calculated batch size: {batch_size}")
+    if seed is not None:
+        np.random.seed(seed)
     
-    # Validate input data structure
-    if 'results' not in data:
-        raise ValueError("Input data missing 'results' key")
-        
-    results = data['results']
-    if not isinstance(results, list) or len(results) == 0:
-        raise ValueError("Correlation results list is empty")
-        
-    # Extract unique rigidity bins and species
-    rigidity_bins = list(set(r['rigidity_bin'] for r in results))
-    species_types = list(set(r['species_type'] for r in results))
-    lags = list(set(r['lag_months'] for r in results))
+    if target_column not in data.columns or sunspot_column not in data.columns:
+        raise ValueError(f"Columns {target_column} and/or {sunspot_column} not found in data.")
     
-    logger.info(f"Performing bootstrap resampling: {n_iterations} iterations, "
-               f"batch size {batch_size}")
-    logger.info(f"Rigidity bins: {len(rigidity_bins)}, Species: {species_types}, "
-               f"Lags: {len(lags)}")
-               
-    # Initialize results storage
-    bootstrap_results = {
-        'n_iterations': n_iterations,
-        'batch_size': batch_size,
-        'results': {}
+    # Remove NaNs
+    valid_data = data[[target_column, sunspot_column]].dropna()
+    if len(valid_data) < block_size_days:
+        logger.warning(f"Data length ({len(valid_data)}) is less than block size ({block_size_days}). Adjusting block size.")
+        block_size_days = max(1, len(valid_data) // 10)
+    
+    x = valid_data[target_column].values
+    y = valid_data[sunspot_column].values
+    n = len(x)
+    
+    # Calculate block size in indices (assuming daily data)
+    # If data is not daily, we assume block_size_days maps to indices directly for simplicity
+    # or we need a mapping. Assuming daily for now as per spec.
+    block_size = block_size_days 
+    
+    num_blocks = int(np.ceil(n / block_size))
+    bootstrap_max_corrs = []
+    
+    logger.info(f"Running MBB with {n_iterations} iterations, block_size={block_size}")
+    
+    for i in range(n_iterations):
+        # Resample blocks
+        indices = []
+        while len(indices) < n:
+            start_idx = np.random.randint(0, n - block_size + 1)
+            indices.extend(range(start_idx, start_idx + block_size))
+        
+        # Truncate to original length
+        indices = indices[:n]
+        
+        x_boot = x[indices]
+        y_boot = y[indices]
+        
+        # Calculate correlation
+        if len(np.unique(x_boot)) > 1 and len(np.unique(y_boot)) > 1:
+            corr, _ = np.corrcoef(x_boot, y_boot)[0, 1], 0 # placeholder for p-value logic if needed
+            if not np.isnan(corr):
+                bootstrap_max_corrs.append(corr)
+        else:
+            # Degenerate case, skip or handle
+            pass
+    
+    if not bootstrap_max_corrs:
+        logger.error("Bootstrap resampling failed to generate valid correlations.")
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_lower": np.nan,
+            "ci_upper": np.nan,
+            "width": np.nan,
+            "status": "failed"
+        }
+    
+    bootstrap_max_corrs = np.array(bootstrap_max_corrs)
+    mean_corr = np.mean(bootstrap_max_corrs)
+    std_corr = np.std(bootstrap_max_corrs)
+    
+    # 95% Confidence Interval
+    ci_lower = np.percentile(bootstrap_max_corrs, 2.5)
+    ci_upper = np.percentile(bootstrap_max_corrs, 97.5)
+    width = ci_upper - ci_lower
+    
+    # Find max correlation in original data (for stability check)
+    original_corr, _ = np.corrcoef(x, y)[0, 1], 0
+    if np.isnan(original_corr): original_corr = 0
+    
+    stability_status = "stable"
+    if abs(original_corr) > 0:
+        stability_metric = width / abs(original_corr)
+        if stability_metric > 0.5:
+            stability_status = "unstable"
+    
+    result = {
+        "mean": float(mean_corr),
+        "std": float(std_corr),
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper),
+        "width": float(width),
+        "original_max_corr": float(original_corr),
+        "stability_status": stability_status,
+        "block_size_days": block_size_days,
+        "n_iterations": n_iterations,
+        "status": "success"
     }
     
-    # Process each rigidity bin and species combination
-    for rigidity_bin in rigidity_bins:
-        for species_type in species_types:
-            # Filter data for this bin and species
-            bin_data = [r for r in results 
-                       if r['rigidity_bin'] == rigidity_bin 
-                       and r['species_type'] == species_type]
-            
-            if not bin_data:
-                continue
-                
-            # Extract correlation coefficients for each lag
-            lag_correlations = {}
-            for lag in lags:
-                lag_entries = [r for r in bin_data if r['lag_months'] == lag]
-                if lag_entries:
-                    # Use the maximum correlation coefficient for this lag
-                    # (assuming multiple species like He/p, Fe/p are aggregated)
-                    corr_values = [entry['correlation_coefficient'] 
-                                  for entry in lag_entries]
-                    lag_correlations[lag] = corr_values
-                    
-            if not lag_correlations:
-                continue
-                
-            # Initialize storage for this bin/species
-            bootstrap_results['results'][f"{rigidity_bin}_{species_type}"] = {
-                'rigidity_bin': rigidity_bin,
-                'species_type': species_type,
-                'bootstrap_stats': {}
-            }
-            
-            # Perform bootstrap resampling in batches
-            all_bootstrap_samples = {}
-            
-            for lag, corr_values in lag_correlations.items():
-                all_bootstrap_samples[lag] = []
-                
-            # Process in batches to manage memory
-            n_batches = (n_iterations + batch_size - 1) // batch_size
-            
-            for batch_idx in range(n_batches):
-                start_idx = batch_idx * batch_size
-                end_idx = min(start_idx + batch_size, n_iterations)
-                current_batch_size = end_idx - start_idx
-                
-                logger.debug(f"Processing bootstrap batch {batch_idx + 1}/{n_batches} "
-                           f"(iterations {start_idx}-{end_idx})")
-                           
-                # Generate bootstrap samples for this batch
-                for lag, corr_values in lag_correlations.items():
-                    if len(corr_values) == 0:
-                        continue
-                        
-                    # Resample with replacement
-                    for _ in range(current_batch_size):
-                        # Resample the correlation values
-                        resampled = np.random.choice(
-                            corr_values, 
-                            size=len(corr_values), 
-                            replace=True
-                        )
-                        # Calculate max correlation for this resample
-                        max_corr = np.max(np.abs(resampled))
-                        all_bootstrap_samples[lag].append(max_corr)
-                
-                # Optional: Clear intermediate memory if approaching threshold
-                # (In practice, we'd monitor actual memory usage here)
-                
-            # Calculate confidence intervals for each lag
-            for lag, samples in all_bootstrap_samples.items():
-                if len(samples) == 0:
-                    continue
-                    
-                samples = np.array(samples)
-                mean_corr = np.mean(samples)
-                std_corr = np.std(samples)
-                
-                # Calculate 95% confidence interval
-                ci_lower = np.percentile(samples, 2.5)
-                ci_upper = np.percentile(samples, 97.5)
-                
-                bootstrap_results['results'][f"{rigidity_bin}_{species_type}"]['bootstrap_stats'][lag] = {
-                    'n_samples': len(samples),
-                    'mean': float(mean_corr),
-                    'std': float(std_corr),
-                    'ci_95_lower': float(ci_lower),
-                    'ci_95_upper': float(ci_upper),
-                    'original_correlation': float(np.mean(corr_values)) if lag_correlations[lag] else None
-                }
-                
-    logger.info(f"Bootstrap resampling completed. Results saved to {BOOTSTRAP_RESULTS_FILE}")
-    return bootstrap_results
+    log_bootstrap_result(
+        f"Bootstrap completed for {target_column} vs {sunspot_column}. CI: [{ci_lower:.4f}, {ci_upper:.4f}]",
+        result
+    )
+    
+    return result
 
-def save_bootstrap_results(results: Dict[str, Any], filepath: Optional[Path] = None) -> Path:
-    """
-    Save bootstrap results to JSON file.
-    
-    Args:
-        results: Bootstrap results dictionary
-        filepath: Output filepath. Defaults to data/processed/bootstrap_results.json
-                
-    Returns:
-        Path to the saved file
-    """
-    if filepath is None:
-        filepath = BOOTSTRAP_RESULTS_FILE
-        
-    # Ensure directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(filepath, 'w') as f:
+def save_bootstrap_results(results: Dict[str, Any], output_path: Path) -> None:
+    """Save bootstrap results to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-        
-    logger.info(f"Bootstrap results saved to {filepath}")
-    return filepath
+    logger.info(f"Bootstrap results saved to {output_path}")
 
-def generate_bootstrap_summary(results: Dict[str, Any], filepath: Optional[Path] = None) -> Path:
-    """
-    Generate a summary CSV from bootstrap results.
-    
-    Args:
-        results: Bootstrap results dictionary
-        filepath: Output filepath. Defaults to data/processed/bootstrap_summary.csv
-                
-    Returns:
-        Path to the saved file
-    """
-    import pandas as pd
-    
-    if filepath is None:
-        filepath = BOOTSTRAP_SUMMARY_FILE
-        
-    # Ensure directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Flatten results for CSV output
+def generate_bootstrap_summary(all_results: List[Dict[str, Any]]) -> pd.DataFrame:
+    """Generate a summary DataFrame from multiple bootstrap runs."""
     summary_data = []
+    for res in all_results:
+        summary_data.append({
+            "block_size_days": res.get("block_size_days"),
+            "mean": res.get("mean"),
+            "ci_lower": res.get("ci_lower"),
+            "ci_upper": res.get("ci_upper"),
+            "width": res.get("width"),
+            "stability_status": res.get("stability_status"),
+            "status": res.get("status")
+        })
+    return pd.DataFrame(summary_data)
+
+def run_block_size_sensitivity_analysis(
+    data: pd.DataFrame,
+    target_column: str,
+    sunspot_column: str,
+    block_sizes: List[int] = [10, 20, 30, 40, 50],
+    n_iterations: int = 1000,
+    output_path: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Sensitivity analysis for MBB block size.
     
-    for key, value in results.get('results', {}).items():
-        rigidity_bin = value.get('rigidity_bin')
-        species_type = value.get('species_type')
+    Runs bootstrap for multiple block sizes and compares confidence interval widths.
+    Flags if variation is > 10%.
+    """
+    if output_path is None:
+        output_path = PROJECT_ROOT / "data" / "processed" / "bootstrap_block_sensitivity.json"
+    
+    logger.info(f"Starting block size sensitivity analysis for {target_column}")
+    
+    results = {}
+    widths = []
+    
+    for bs in block_sizes:
+        logger.info(f"Running bootstrap with block_size={bs}")
+        res = run_bootstrap_resampling(
+            data,
+            target_column,
+            sunspot_column,
+            n_iterations=n_iterations,
+            block_size_days=bs
+        )
+        results[str(bs)] = res
+        if res["status"] == "success":
+            widths.append(res["width"])
+    
+    # Analyze variation
+    sensitivity_flag = "stable"
+    if len(widths) >= 2:
+        max_width = max(widths)
+        min_width = min(widths)
+        variation_pct = ((max_width - min_width) / min_width) * 100 if min_width > 0 else 0
         
-        for lag, stats in value.get('bootstrap_stats', {}).items():
-            summary_data.append({
-                'rigidity_bin': rigidity_bin,
-                'species_type': species_type,
-                'lag_months': lag,
-                'n_samples': stats.get('n_samples'),
-                'mean_correlation': stats.get('mean'),
-                'std_correlation': stats.get('std'),
-                'ci_95_lower': stats.get('ci_95_lower'),
-                'ci_95_upper': stats.get('ci_95_upper'),
-                'original_correlation': stats.get('original_correlation')
-            })
-            
-    df = pd.DataFrame(summary_data)
-    df.to_csv(filepath, index=False)
+        if variation_pct > 10:
+            sensitivity_flag = "sensitive to block size"
+            logger.warning(f"CI width variation is {variation_pct:.2f}% (>10%). Result flagged as sensitive.")
+        else:
+            logger.info(f"CI width variation is {variation_pct:.2f}%. Result is stable.")
     
-    logger.info(f"Bootstrap summary saved to {filepath}")
-    return filepath
+    final_report = {
+        "target_column": target_column,
+        "sunspot_column": sunspot_column,
+        "block_sizes_tested": block_sizes,
+        "variation_threshold_percent": 10,
+        "sensitivity_status": sensitivity_flag,
+        "results": results
+    }
+    
+    save_bootstrap_results(final_report, output_path)
+    logger.info(f"Sensitivity analysis report saved to {output_path}")
+    
+    return final_report
 
 def main():
     """
-    Main entry point for bootstrap resampling analysis.
-    
-    This function:
-    1. Loads correlation results from data/processed/correlation_results.json
-    2. Performs bootstrap resampling with memory-efficient batching
-    3. Saves results to data/processed/bootstrap_results.json
-    4. Generates summary CSV at data/processed/bootstrap_summary.csv
+    Entry point for running the bootstrap block size sensitivity analysis.
+    Reads from correlation_results.csv (or similar) and produces bootstrap_block_sensitivity.json.
     """
-    # Setup logging
-    log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
-    logging.basicConfig(
-        level=getattr(logging, log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logger.info("Starting bootstrap block size sensitivity analysis via main()")
     
-    try:
-        # Load correlation data
-        logger.info("Loading correlation data...")
-        correlation_data = load_correlation_data()
-        
-        # Run bootstrap resampling
-        logger.info("Starting bootstrap resampling...")
-        bootstrap_results = run_bootstrap_resampling(
-            correlation_data,
-            n_iterations=1000,
-            random_state=42
+    # Load data - assuming we have a unified timeseries or correlation results
+    # For this analysis, we need the actual time series data to resample.
+    # We will load the unified_timeseries.csv if available, or construct from correlation results if possible.
+    # The task requires running on the correlation data. We assume the correlation data 
+    # was derived from a time series. We need the raw time series for MBB.
+    
+    unified_path = PROJECT_ROOT / "data" / "processed" / "unified_timeseries.csv"
+    
+    if not unified_path.exists():
+        logger.error(f"Unified timeseries not found at {unified_path}. Cannot run bootstrap.")
+        sys.exit(1)
+    
+    df = pd.read_csv(unified_path)
+    
+    # We need to run this for He/p and Fe/p ratios.
+    # Assuming columns 'he_p_ratio' and 'fe_p_ratio' exist, or calculate them if not.
+    # If not present, we might need to calculate from helium_flux / proton_flux.
+    
+    target_columns = []
+    if 'he_p_ratio' in df.columns:
+        target_columns.append('he_p_ratio')
+    if 'fe_p_ratio' in df.columns:
+        target_columns.append('fe_p_ratio')
+    
+    # Fallback: calculate if columns missing
+    if not target_columns:
+        if 'helium_flux' in df.columns and 'proton_flux' in df.columns:
+            df['he_p_ratio'] = df['helium_flux'] / df['proton_flux']
+            target_columns.append('he_p_ratio')
+        if 'iron_flux' in df.columns and 'proton_flux' in df.columns:
+            df['fe_p_ratio'] = df['iron_flux'] / df['proton_flux']
+            target_columns.append('fe_p_ratio')
+    
+    if not target_columns:
+        logger.error("No valid target columns (He/p or Fe/p) found in unified timeseries.")
+        sys.exit(1)
+    
+    sunspot_col = 'sunspot_number'
+    if sunspot_col not in df.columns:
+        logger.error(f"Sunspot column '{sunspot_col}' not found.")
+        sys.exit(1)
+    
+    # Clean data for analysis (drop NaNs in ratios)
+    clean_df = df.dropna(subset=target_columns + [sunspot_col])
+    
+    block_sizes = [10, 20, 30, 40, 50]
+    n_iter = 1000
+    
+    all_reports = {}
+    
+    for col in target_columns:
+        logger.info(f"Running sensitivity analysis for {col}")
+        report = run_block_size_sensitivity_analysis(
+            clean_df,
+            col,
+            sunspot_col,
+            block_sizes=block_sizes,
+            n_iterations=n_iter,
+            output_path=PROJECT_ROOT / "data" / "processed" / f"bootstrap_block_sensitivity_{col}.json"
         )
-        
-        # Save results
-        logger.info("Saving bootstrap results...")
-        save_bootstrap_results(bootstrap_results)
-        
-        # Generate summary
-        logger.info("Generating bootstrap summary...")
-        generate_bootstrap_summary(bootstrap_results)
-        
-        logger.info("Bootstrap resampling completed successfully.")
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Invalid data format: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during bootstrap resampling: {e}", exc_info=True)
-        return 1
+        all_reports[col] = report
+    
+    # Save a combined report
+    combined_path = PROJECT_ROOT / "data" / "processed" / "bootstrap_block_sensitivity.json"
+    with open(combined_path, 'w') as f:
+        json.dump(all_reports, f, indent=2)
+    
+    logger.info(f"All sensitivity analyses complete. Combined report at {combined_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

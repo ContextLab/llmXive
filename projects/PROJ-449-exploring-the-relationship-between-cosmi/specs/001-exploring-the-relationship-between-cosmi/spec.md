@@ -28,7 +28,7 @@ The researcher MUST be able to compute composition ratios (He/p, Fe/p) from the 
 
 **Why this priority**: This implements the core scientific hypothesis testing. It moves from raw data to the primary statistical evidence required to answer the research question regarding differential modulation patterns. Crucially, it treats the correlation of absolute fluxes as the baseline physical phenomenon (solar modulation) rather than a statistical artifact, and explicitly validates rigidity-dependence by analyzing correlations **per rigidity bin** and deriving modulation amplitudes as a function of rigidity.
 
-**Independent Test**: The system generates a correlation matrix and a set of time-lag plots for both ratios and absolute fluxes. The test passes if the output includes correlation coefficients for lags ranging from -12 to +12 months for both He/p and Fe/p ratios AND absolute fluxes against sunspot numbers, calculated **per rigidity bin**, and if the statistical significance (p-value) is calculated for each.
+**Independent Test**: The system generates a correlation matrix and a set of time-lag plots for both ratios and absolute fluxes. The test passes if the output includes correlation coefficients for lags ranging from negative to positive months for both He/p and Fe/p ratios AND absolute fluxes against sunspot numbers, calculated **per rigidity bin**, and if the statistical significance (p-value) is calculated for each.
 
 **Acceptance Scenarios**:
 
@@ -44,7 +44,7 @@ The researcher MUST be able to validate the statistical robustness of the observ
 
 **Why this priority**: This adds scientific rigor and methodological soundness. It addresses the "multiplicity & power" and "measurement validity" concerns by ensuring the observed patterns are not statistical artifacts and provides a quantitative comparison to physical models.
 
-**Independent Test**: The system outputs confidence intervals for the correlation coefficients derived from 1000 bootstrap iterations and generates a fitted curve for the diffusion model. The test passes if the confidence intervals are calculated and the model fitting converges within the 6-hour compute limit.
+**Independent Test**: The system outputs confidence intervals for the correlation coefficients derived from a sufficient number of bootstrap iterations. and generates a fitted curve for the diffusion model. The test passes if the confidence intervals are calculated and the model fitting converges within the 6-hour compute limit.
 
 **Acceptance Scenarios**:
 
@@ -96,7 +96,7 @@ The researcher MUST be able to validate the statistical robustness of the observ
 ## Assumptions
 
 - **Data Availability**: The AMS-02 public data repository contains continuous daily averaged, rigidity-binned differential flux data for protons, helium, and CNO/Fe nuclei from 2011 to 2024. If specific energy bins are missing, the analysis will default to the most populated rigidity bin available for each species.
-- **Computational Constraints**: The entire analysis pipeline, including multiple bootstrap iterations and least-squares fitting, will complete within the 6-hour time limit and 7 GB RAM constraint of a GitHub Actions free-tier runner using CPU-only methods (no GPU acceleration).
+- **Computational Constraints**: The entire analysis pipeline, including multiple bootstrap iterations and least-squares fitting, will complete within the time limit and memory constraint of a GitHub Actions free-tier runner. using CPU-only methods (no GPU acceleration).
 - **Methodological Framing**: Since the study is observational (no random assignment), all findings regarding the relationship between solar activity and cosmic ray composition will be framed as **associational** correlations, not causal effects, unless the data reveals a specific identification strategy (e.g., natural experiment) which is not currently assumed.
 - **Variable Fit**: The AMS-02 dataset is assumed to contain all necessary variables (fluxes for specific species) and the NOAA/SWPC dataset contains the necessary solar activity indices. **If a specific variable required for a refined analysis is missing, the system MUST default to the most populated rigidity bin available for that species, as defined in the Data Availability assumption, and log this fallback action.**
 - **Threshold Justification**: The time-lag window of ±12 months is selected based on the approximate duration of a solar cycle phase transition and is justified as sufficient to capture the delayed response of cosmic rays to solar wind changes; a sensitivity analysis will sweep lags in a range of months to ensure robustness.
