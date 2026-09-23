@@ -79,12 +79,12 @@
 
 **Goal**: Compute spectral power and connectivity metrics, then fit a ridge regression model (or Rank‑Ridge if non‑normal). Executes only in Primary Mode.
 
-- [ ] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]**
+- [ ] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]** <!-- FAILED: unspecified -->
 - [X] T024 [P] Implement connectivity metric extraction (PLV, wPLI) for ROI pairs (C3‑C4, C3‑Cz, C4‑Cz) in `code/02_feature_extraction.py`. Append results to `spectral_power.csv`. **[FR-004]**
-- [~] T025 [P] Assemble final feature matrix with subject IDs in `code/02_feature_extraction.py`. Output `data/processed/feature_matrix.csv`. **[FR-005]**
-- [~] T027 [P] **Mode‑Gate Before Modeling**: Read mode flag; if not **Primary**, skip modeling tasks and log "Modeling Skipped: Data Insufficient". **[FR-001][FR-004]**
-- [~] T028 [D] **Normality Check**: Perform Shapiro‑Wilk on tDCS response (FR‑009). **Mandatory**: If non-normal (p < 0.05), switch to **Rank-Ridge regression** (non-parametric) and explicitly execute the Rank-Ridge model fitting as the replacement for standard Ridge. Log the change and the model type used. **[FR‑009]** *(depends on T025)*
-- [~] T026 [D] Implement **nested cross‑validation** for Ridge/Rank-Ridge Regression:
+- [ ] T025 [P] Assemble final feature matrix with subject IDs in `code/02_feature_extraction.py`. Output `data/processed/feature_matrix.csv`. **[FR-005]**
+- [ ] T027 [P] **Mode‑Gate Before Modeling**: Read mode flag; if not **Primary**, skip modeling tasks and log "Modeling Skipped: Data Insufficient". **[FR-001][FR-004]**
+- [ ] T028 [D] **Normality Check**: Perform Shapiro‑Wilk on tDCS response (FR‑009). **Mandatory**: If non-normal (p < 0.05), switch to **Rank-Ridge regression** (non-parametric) and explicitly execute the Rank-Ridge model fitting as the replacement for standard Ridge. Log the change and the model type used. **[FR‑009]** *(depends on T025)*
+- [ ] T026 [D] Implement **nested cross‑validation** for Ridge/Rank-Ridge Regression:
  - **Inner loop**: 5‑fold CV to select α from a logarithmically spaced range spanning multiple orders of magnitude.
  - **Outer loop**: 5‑fold CV to evaluate model performance (R², coefficients).
  - **Logic**: If T028 determined data is non-normal, execute Rank-Ridge; otherwise, execute standard Ridge.

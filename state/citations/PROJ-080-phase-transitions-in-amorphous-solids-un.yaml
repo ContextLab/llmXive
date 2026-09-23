@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 354fdd51d1dd8f37821b48f8d84e3ec42ca8988a06abd36cca197fe8bcf2da2d
+  artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/amorphous-silicon-shear-trajectories`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/amorphous-silicon-shear-trajectories/datasets
+  verified_at: '2026-09-23T21:48:41.140696Z'
+- artifact_hash: dbbd07878638f3b707a06125ac89553ae5d99cb9c132c8003964031e8c8b2037
+  artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/amorphous-silicon-shear-trajectories`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/amorphous-silicon-shear-trajectories/datasets
+  verified_at: '2026-09-23T21:48:54.671028Z'

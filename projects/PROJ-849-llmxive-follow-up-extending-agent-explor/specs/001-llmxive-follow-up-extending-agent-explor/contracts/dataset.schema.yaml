@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SemanticDivergenceDataset"
+description: "Schema for the processed dataset containing problem instances and divergence metrics."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem instance."
+  thinking_prefix:
+    type: "string"
+    description: "The extracted thinking trace from the agent (or static stub)."
+  question:
+    type: "string"
+    description: "The raw question text."
+  answer:
+    type: "string"
+    description: "The ground truth answer."
+  simulated_failure:
+    type: "boolean"
+    description: "Whether the simulated RL agent failed on this problem."
+  divergence_score:
+    type: "number"
+    description: "The calculated semantic divergence score (1 - cosine_similarity)."
+    minimum: 0.0
+    maximum: 1.0
+  cosine_similarity:
+    type: "number"
+    description: "The raw cosine similarity between thinking and tool vectors."
+    minimum: -1.0
+    maximum: 1.0
+  thinking_embedding:
+    type: "array"
+    description: "Vector representation of the thinking prefix."
+    items:
+      type: "number"
+    minItems: 384
+    maxItems: 384
+  tool_centroid_embedding:
+    type: "array"
+    description: "Vector representation of the centroid of retrieved tool descriptions."
+    items:
+      type: "number"
+    minItems: 384
+    maxItems: 384
+  retrieved_tool_descriptions:
+    type: "array"
+    description: "List of tool description strings retrieved by BM25."
+    items:
+      type: "string"
+  retrieval_count:
+    type: "integer"
+    description: "Number of tools retrieved."
+    minimum: 0
+  centroid_validity:
+    type: "boolean"
+    description: "Whether the tool centroid was valid (low variance)."
+  tool_variance:
+    type: "number"
+    description: "Variance of the retrieved tool embeddings."
+  lexical_overlap_flag:
+    type: "boolean"
+    description: "True if a tool name was found in the thinking trace (masked)."
+required:
+  - problem_id
+  - thinking_prefix
+  - question
+  - answer
+  - simulated_failure
+  - divergence_score
+  - cosine_similarity
+  - thinking_embedding
+  - tool_centroid_embedding
+  - retrieved_tool_descriptions
+  - retrieval_count
+  - centroid_validity
+  - tool_variance
+  - lexical_overlap_flag
+additionalProperties: false

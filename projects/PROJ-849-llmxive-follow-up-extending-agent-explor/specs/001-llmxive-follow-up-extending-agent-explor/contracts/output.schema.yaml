@@ -1,102 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Semantic Divergence Analysis Output"
-description: "Schema for the final analysis output containing divergence metrics and statistical results."
+title: "AnalysisReport"
+description: "Schema for the final analysis report including correlation and classification metrics."
 type: "object"
 properties:
-  metadata:
+  total_records:
+    type: "integer"
+    description: "Total number of records processed."
+    minimum: 0
+  mean_divergence_score:
+    type: "number"
+    description: "Mean of the divergence scores across all records."
+  pearson_correlation:
+    type: "number"
+    description: "Pearson correlation coefficient between divergence and failure."
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test."
+  logistic_regression_accuracy:
+    type: "number"
+    description: "Accuracy of the logistic regression classifier on the test set."
+  logistic_regression_auc_roc:
+    type: "number"
+    description: "AUC-ROC of the logistic regression classifier."
+  model_coefficients:
     type: "object"
-    properties:
-      run_timestamp:
-        type: "string"
-        format: "date-time"
-      sample_size:
-        type: "integer"
-        minimum: 30
-        description: "Number of valid records processed."
-      seed:
-        type: "integer"
-      config:
-        type: "object"
-        properties:
-          model_name:
-            type: "string"
-            description: "Name of the embedding model used."
-          retrieval_top_k:
-            type: "integer"
-    required:
-      - run_timestamp
-      - sample_size
-      - seed
-  statistics:
-    type: "object"
-    properties:
-      pearson_correlation:
-        type: "number"
-        description: "Correlation coefficient between divergence and failure."
-      p_value:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      logistic_regression:
-        type: "object"
-        properties:
-          accuracy:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          precision:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          recall:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          auc_roc:
-            type: "number"
-            minimum: 0
-            maximum: 1
-            description: "Area Under the ROC Curve (target: >= 0.65)."
-        required:
-          - accuracy
-          - precision
-          - recall
-          - auc_roc
-    required:
-      - pearson_correlation
-      - p_value
-      - logistic_regression
-  results:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        problem_id:
-          type: "string"
-        thinking_prefix:
-          type: "string"
-        simulated_failure:
-          type: "boolean"
-        divergence_score:
-          type: "number"
-          minimum: 0
-          maximum: 1
-        cosine_similarity:
-          type: "number"
-          minimum: -1
-          maximum: 1
-        tool_count:
-          type: "integer"
-          minimum: 0
-      required:
-        - problem_id
-        - simulated_failure
-        - divergence_score
-        - cosine_similarity
-        - tool_count
-    description: "List of processed problem instances."
+    description: "Coefficients of the logistic regression model."
+    additionalProperties:
+      type: "number"
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds."
+  memory_peak_gb:
+    type: "number"
+    description: "Peak memory usage in GB."
+  status:
+    type: "string"
+    description: "Status of the analysis (SUCCESS, TIMEOUT, MEMORY_LIMIT)."
+    enum:
+      - "SUCCESS"
+      - "TIMEOUT"
+      - "MEMORY_LIMIT"
+      - "ERROR"
 required:
-  - metadata
-  - statistics
-  - results
+  - total_records
+  - mean_divergence_score
+  - pearson_correlation
+  - p_value
+  - logistic_regression_accuracy
+  - logistic_regression_auc_roc
+  - execution_time_seconds
+  - memory_peak_gb
+  - status
 additionalProperties: false

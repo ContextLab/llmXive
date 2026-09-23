@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Precursor Metrics Schema"
+description: "Schema for computed non-affine displacement (D2_min) and yield flags."
+type: object
+properties:
+  timestep:
+    type: integer
+    description: "The timestep index."
+  particle_id:
+    type: integer
+    description: "The particle index."
+  D2_min:
+    type: number
+    description: "Non-affine displacement magnitude."
+  local_strain:
+    type: array
+    items:
+      type: number
+    description: "Local strain tensor components."
+  is_yielding:
+    type: boolean
+    description: "True if this timestep is identified as the yielding onset."
+  global_stress:
+    type: number
+    description: "Global shear stress at this timestep."
+required:
+  - timestep
+  - particle_id
+  - D2_min
+  - is_yielding
+  - global_stress
+additionalProperties: false

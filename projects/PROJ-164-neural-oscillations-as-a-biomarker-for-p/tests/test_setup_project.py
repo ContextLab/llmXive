@@ -1,51 +1,94 @@
+"""
+Unit tests for the project setup script (T001a).
+
+Verifies that the directory structure is created correctly.
+"""
 import os
-import subprocess
 import sys
+import tempfile
+import shutil
 from pathlib import Path
+import pytest
 
-def test_project_structure_created():
-    """
-    Test that running setup_project.py creates all required directories.
-    """
-    # Ensure we are running in the project root context
-    # We assume the test is run from the root where code/setup_project.py exists
-    
-    required_dirs = [
-        "code",
-        "code/utils",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "data/synthetic",
-        "models",
-        "docs",
-        "docs/contracts",
-        "state/projects",
-    ]
+# Add the code directory to the path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-    # Run the setup script
-    result = subprocess.run(
-        [sys.executable, "code/setup_project.py"],
-        capture_output=True,
-        text=True
-    )
+from setup_project import main
 
-    # Assert the script exited successfully
-    assert result.returncode == 0, f"Setup script failed: {result.stderr}"
 
-    # Verify each directory exists
-    for dir_name in required_dirs:
-        dir_path = Path(dir_name)
-        assert dir_path.exists(), f"Directory {dir_name} does not exist after running setup."
-        assert dir_path.is_dir(), f"Path {dir_name} exists but is not a directory."
+class TestProjectStructure:
+    """Tests for project directory creation."""
 
-def test_utils_directory_exists():
-    """
-    Specific check for code/utils/ as it is critical for other imports.
-    """
-    utils_path = Path("code/utils")
-    assert utils_path.exists()
-    assert utils_path.is_dir()
-    # Check that we can write a temp file there (if permissions allow, though T001a doesn't restrict this yet)
-    # This is just a structural check
-    assert (utils_path / ".gitkeep").parent == utils_path # Just checking path resolution
+    def test_creates_all_required_directories(self, tmp_path):
+        """Verify that all required directories are created."""
+        # Change to the temporary directory to simulate project root
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # Run the main function
+            result = main()
+            
+            # Check return code
+            assert result == 0, "Setup script should return 0 on success"
+            
+            # Verify specific directories exist
+            required_dirs = [
+                "code",
+                "code/utils",
+                "tests",
+                "data/raw",
+                "data/processed",
+                "data/synthetic",
+                "models",
+                "docs",
+                "docs/contracts",
+                "state/projects",
+            ]
+            
+            for dir_name in required_dirs:
+                dir_path = tmp_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_name} was not created"
+                assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+                
+        finally:
+            os.chdir(original_cwd)
+
+    def test_handles_existing_directories(self, tmp_path):
+        """Verify that the script handles pre-existing directories gracefully."""
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # Pre-create one directory
+            (tmp_path / "code").mkdir()
+            
+            # Run the main function
+            result = main()
+            
+            # Should still succeed
+            assert result == 0
+            
+            # Verify the pre-existing directory is still there
+            assert (tmp_path / "code").exists()
+            
+        finally:
+            os.chdir(original_cwd)
+
+    def test_nested_structure_created(self, tmp_path):
+        """Verify that nested directories (e.g., code/utils) are created."""
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            result = main()
+            assert result == 0
+            
+            # Check nested structure
+            assert (tmp_path / "code" / "utils").exists()
+            assert (tmp_path / "data" / "raw").exists()
+            assert (tmp_path / "docs" / "contracts").exists()
+            assert (tmp_path / "state" / "projects").exists()
+            
+        finally:
+            os.chdir(original_cwd)

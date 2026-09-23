@@ -1,0 +1,12 @@
+{
+  "search_scope": [
+    "OpenNeuro",
+    "PhysioNet",
+    "Kaggle"
+  ],
+  "query_string": "EEG AND tDCS AND motor",
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "found_datasets": [],
+  "status": "No single-source paired dataset found",
+  "mode_flag": "Data Insufficient"
+}

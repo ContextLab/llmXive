@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis and predictive validation results."
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: "Unique identifier for the analysis run."
+  group_label:
+    type: string
+    enum:
+      - "brittle"
+      - "ductile"
+    description: "The group label for this analysis."
+  test_type:
+    type: string
+    enum:
+      - "permutation"
+      - "ks_test"
+    description: "Type of statistical test used."
+  p_value:
+    type: number
+    description: "P-value from the test."
+  corrected_p_value:
+    type: number
+    description: "Bonferroni corrected p-value."
+  power_limitation_flag:
+    type: boolean
+    description: "True if sample size < 30 (n < 30)."
+  threshold_sweep:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: "The D2_min threshold value."
+        FPR:
+          type: number
+          description: "False Positive Rate."
+        FNR:
+          type: number
+          description: "False Negative Rate."
+      required:
+        - threshold
+        - FPR
+        - FNR
+    description: "Results of the sensitivity analysis."
+required:
+  - analysis_id
+  - group_label
+  - test_type
+  - p_value
+  - power_limitation_flag
+  - threshold_sweep
+additionalProperties: false

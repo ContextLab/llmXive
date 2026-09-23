@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Input Schema"
+description: "Schema for raw molecular dynamics trajectory data ingestion."
+type: object
+properties:
+  trajectory_id:
+    type: string
+    description: "Unique identifier for the trajectory."
+  source_dataset:
+    type: string
+    description: "Name of the source dataset (e.g., 'amorphous-silicon-shear-trajectories')."
+  total_timesteps:
+    type: integer
+    minimum: 1
+    description: "Total number of timesteps in the trajectory."
+  particle_count:
+    type: integer
+    minimum: 1
+    maximum: 100000
+    description: "Number of particles. Must be ≤ 100,000 (FR-006)."
+  box_dimensions:
+    type: array
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description: "Box dimensions [Lx, Ly, Lz]."
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "indeterminate"
+      - "corrupted"
+    description: "Status of the trajectory after preprocessing."
+  label:
+    type: string
+    enum:
+      - "brittle"
+      - "ductile"
+    description: "Label derived from independent mechanical response metrics."
+required:
+  - trajectory_id
+  - source_dataset
+  - total_timesteps
+  - particle_count
+  - box_dimensions
+  - status
+  - label
+additionalProperties: false

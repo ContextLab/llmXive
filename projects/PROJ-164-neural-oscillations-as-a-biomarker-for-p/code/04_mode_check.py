@@ -1,72 +1,55 @@
-"""
-T012: Mode Check Task
-
-Reads verified_source_manifest.json. If mode flag is 'Data Insufficient',
-terminates pipeline gracefully (exit code 0) after writing the manifest.
-No further tasks are executed.
-
-Dependencies: T011 (Source Verification)
-"""
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from utils.logging_setup import get_logger, log_mode_switch
-
-# Setup logging
-logger = get_logger(__name__)
-
-MANIFEST_PATH = project_root / "data" / "verified_source_manifest.json"
 
 def main():
     """
-    Main entry point for T012 Mode Check.
+    T012: Mode Check Task.
+    Reads verified_source_manifest.json. If mode flag is 'Data Insufficient',
+    terminates pipeline gracefully (exit code 0) after writing the manifest.
     """
-    if not MANIFEST_PATH.exists():
-        logger.error(f"Manifest file not found: {MANIFEST_PATH}")
-        logger.error("T011 (Source Verification) must complete successfully before T012.")
+    logger = get_logger(__name__)
+    
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    manifest_path = project_root / "data" / "verified_source_manifest.json"
+    
+    logger.info("Starting T012: Mode Check Task")
+    
+    if not manifest_path.exists():
+        logger.error(f"Manifest file not found at {manifest_path}. T011 must run first.")
         sys.exit(1)
-
+    
     try:
-        with open(MANIFEST_PATH, 'r', encoding='utf-8') as f:
+        with open(manifest_path, 'r') as f:
             manifest = json.load(f)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse manifest JSON: {e}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error reading manifest: {e}")
-        sys.exit(1)
-
-    # Extract mode flag
-    # The manifest structure from T011 is expected to have a 'mode' or 'status' field
-    # based on the description: "If none found, log 'Data Insufficient'... and set mode flag"
-    mode = manifest.get("mode", manifest.get("status", "Unknown"))
     
-    logger.info(f"Read manifest from {MANIFEST_PATH}")
-    logger.info(f"Current pipeline mode: {mode}")
-
-    if mode == "Data Insufficient":
-        logger.warning("Data Insufficient Mode detected. No single-source paired dataset found.")
-        log_mode_switch("Data Insufficient", "Terminating pipeline as per protocol.")
-        logger.info("Pipeline terminated gracefully (exit code 0) as no further tasks can be executed.")
+    mode_flag = manifest.get("mode_flag", "Unknown")
+    logger.info(f"Detected mode flag: {mode_flag}")
+    
+    if mode_flag == "Data Insufficient":
+        logger.warning("Mode is 'Data Insufficient'. Terminating pipeline gracefully.")
+        log_mode_switch(logger, "Data Insufficient", "Terminating pipeline")
+        
+        # Ensure manifest is written/updated (it was written by T011, but we confirm existence)
+        # The task requires writing the manifest if not already done, but T011 should have done it.
+        # We just confirm the file exists and exit.
+        logger.info(f"Manifest content: {json.dumps(manifest, indent=2)}")
+        
+        logger.info("Pipeline terminated successfully (exit code 0).")
         sys.exit(0)
-    
-    elif mode == "Primary":
-        logger.info("Primary Mode detected. Data exists. Proceeding to next tasks.")
-        # If we are here, we do not terminate. The script exits successfully (0)
-        # allowing the pipeline to continue to T009 or T013.
-        sys.exit(0)
-    
     else:
-        logger.error(f"Unknown mode flag found in manifest: {mode}")
-        logger.error("Cannot determine pipeline flow. Halting.")
-        sys.exit(1)
+        logger.info(f"Mode is '{mode_flag}'. Proceeding with pipeline.")
+        # Do not exit, allow downstream tasks to run
+        # In a real pipeline, this might be a check before running T013/T015 etc.
+        # Since T012 is a gate, if not Data Insufficient, we just log and return success.
+        return True
 
 if __name__ == "__main__":
     main()

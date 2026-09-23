@@ -1,12 +1,45 @@
-status: none
-intent: download MathVista multimodal reasoning dataset with chain of thought annotations
-  python package dataset
-required_fields:
-- id
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import sys
+
+  from datasets import load_dataset
+
+
+  dataset = load_dataset("AI4Math/MathVista")
+
+  total_records = sum(len(split) for split in dataset.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  first_split = next(iter(dataset.values()))
+
+  fields = list(first_split.column_names)
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 6141
+sample_fields:
+- pid
 - question
-- thinking
+- image
+- decoded_image
+- choices
+- unit
+- precision
 - answer
-- options
-cache_key: d680fdc542e054d517f828f5084d19f0698bff48c2aef52769a8e6d86323b0e8
-searched_at: '2026-07-24T04:48:50.900757+00:00'
-retry_count: 1
+- question_type
+- answer_type
+- metadata
+- query
+field_coverage: 0.667
+required_fields:
+- problem_id
+- thinking_prefix
+- question_text
+- answer_options
+- correct_answer
+- metadata
+intent: download MathVista dataset, ScienceQA dataset, and mathvista_tool_map.json
+  from HuggingFace python package dataset
+cache_key: 4e4a339c392e1b37cbcf74a4fa79a5cf15b8e326cfca9a9cc8ab4acafc156341

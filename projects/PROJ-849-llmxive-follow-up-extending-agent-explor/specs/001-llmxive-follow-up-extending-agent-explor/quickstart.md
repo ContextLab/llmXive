@@ -1,68 +1,88 @@
-# Quickstart: Semantic Divergence Diagnostic
+# Quickstart: llmXive Follow-up: Semantic Divergence Diagnostic
 
-## Prerequisites
+## 1. Prerequisites
 
 - Python 3.11+
-- Git
-- 7 GB+ RAM available
-- Internet access (for dataset download)
+- `datasets` library
+- `sentence-transformers` (CPU wheels)
+- `rank_bm25`
+- `scikit-learn`
+- `pandas`
+- `pyyaml`
 
-## Installation
+## 2. Installation
 
-1. **Clone and Navigate**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-849-llmxive-follow-up-extending-agent-explor
+    ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Data Preparation
+4.  **Install ruff and black** (for linting):
+    ```bash
+    pip install ruff black
+    ```
 
-1. **Download MathVista**:
-   The system will automatically download the dataset on first run. Ensure you have sufficient disk space for the cache.
-   ```bash
-   # Optional: Pre-download to verify access
-   python -c "from datasets import load_dataset; load_dataset('AI4Math/MathVista', split='test', streaming=True)"
-   ```
+## 3. Data Preparation
 
-2. **Verify Tool Mapping**:
-   Ensure `data/tool_mappings/mathvista_tool_map.json` exists in the project root.
-   ```bash
-   ls -la data/tool_mappings/mathvista_tool_map.json
-   ```
+1.  **Download MathVista**:
+    The system automatically downloads the dataset on first run. Ensure you have sufficient free disk space.
 
-## Running the Diagnostic
+2.  **Create Tool Mappings**:
+    Ensure `data/tool_mappings/mathvista_tool_map.json` exists. If not, create a minimal version:
+    ```json
+    {
+      "problem_id_1": ["calculator", "search_engine"],
+      "problem_id_2": ["image_cropper", "text_summarizer"]
+    }
+    ```
 
-Execute the main pipeline:
+3.  **Cache AXPO Outcomes** (Optional):
+    If you have cached results from the AXPO agent, place them in `data/cache/axpo_simulated_outcomes.jsonl`. If missing, the system will use a heuristic fallback.
+
+## 4. Running the Diagnostic
+
+Run the main pipeline:
 
 ```bash
-python src/cli/run_diagnostic.py --output data/results/divergence_analysis.json
+python -m src.cli.run_diagnostic
 ```
 
-**Options**:
-- `--limit`: Max records to process (default: a configurable upper limit).
-- `--seed`: Random seed for reproducibility (default: a fixed integer).
-- `--skip-simulation`: Skip AXPO simulation and use cached results if available.
+**Expected Output**:
+- Logs showing dataset loading, embedding, and scoring.
+- A summary report printed to stdout:
+  ```
+  Total Records: A substantial corpus of records was selected for analysis.
+  Mean Divergence Score: Moderate levels of divergence are expected.
+  Pearson Correlation: -0.32 (p < 0.05)
+  Logistic Regression AUC-ROC: The model is expected to achieve a moderate level of discriminative performance.
+  ```
+- Output files in `data/processed/`.
 
-## Expected Output
+## 5. Troubleshooting
 
-The script generates `data/results/divergence_analysis.json` containing:
-- `metadata`: Run configuration, timestamps, sample size.
-- `results`: List of processed problem instances.
-- `statistics`: Pearson correlation, p-value, and Logistic Regression metrics.
+- **Memory Error**: The system automatically downsamples to a manageable number of records. Check logs for `MemoryLimitExceededError` -> `Downsampling` message.
+- **Timeout**: If the job exceeds 5 hours, it will abort with `TimeoutExceededError`.
+- **Missing Tool Mapping**: Ensure `data/tool_mappings/mathvista_tool_map.json` exists and contains valid JSON.
+- **No Thinking Traces**: The system will skip records without thinking prefixes. Check the log for `Skipping record: missing_thinking_prefix`.
 
-## Troubleshooting
+## 6. Verification
 
-- **Memory Error**: Ensure no other heavy processes are running. The system attempts to downsample automatically if memory exceeds a predefined threshold.
-- **Timeout**: The job will abort after a predefined time limit. If this occurs, reduce the `--limit` parameter.
-- **Missing Tool Mapping**: The script will exit with "Tool Mapping Missing" if the JSON file is not found.
+Run the test suite:
+
+```bash
+pytest tests/
+```
+
+Ensure all tests pass, especially `test_metrics.py` and `test_pipeline.py`.

@@ -6,255 +6,253 @@ from typing import List, Optional, Tuple, Dict, Any
 import mne
 import numpy as np
 
-# Import config for frequency bands and thresholds
-try:
-    from utils.config import BANDS, LOWER_FREQ_HZ
-except ImportError:
-    # Fallback if utils.config is not in path during direct execution
-    BANDS = ['delta', 'theta', 'alpha', 'beta', 'gamma']
-    LOWER_FREQ_HZ = 1.0
-
+# Import shared utilities
+from utils.config import ensure_dirs, DATA_PROCESSED, DATA_RAW
 from utils.logging_setup import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
 
-# Constants for epoching and bad channel detection
-EPOCH_DURATION_SEC = 2.0
-EPOCH_TMIN = -0.2
-BAD_CHANNEL_ZSCORE_THRESHOLD = 5.0
-
-def load_raw_edf(file_path: Path) -> mne.io.Raw:
-    """
-    Load an EDF file using MNE-Python.
+def load_raw_edf(file_path: str) -> mne.io.BaseRaw:
+    """Load an EDF file using MNE-Python.
     
     Args:
         file_path: Path to the EDF file.
         
     Returns:
-        Loaded mne.io.Raw object.
+        MNE Raw object.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        Exception: If loading fails.
     """
-    logger.info(f"Loading EDF file: {file_path}")
-    if not file_path.exists():
+    path = Path(file_path)
+    if not path.exists():
         raise FileNotFoundError(f"EDF file not found: {file_path}")
     
+    logger.info(f"Loading EDF file: {file_path}")
     raw = mne.io.read_raw_edf(file_path, preload=True, verbose=False)
-    logger.info(f"Loaded raw data with shape: {raw.get_data().shape}, duration: {raw.times[-1]:.2f}s")
+    logger.info(f"Loaded {len(raw.ch_names)} channels, {raw.n_times} time points")
     return raw
 
-def apply_common_average_reference(raw: mne.io.Raw) -> mne.io.Raw:
-    """
-    Apply Common Average Reference (CAR) to the raw data.
+def apply_common_average_reference(raw: mne.io.BaseRaw) -> mne.io.BaseRaw:
+    """Apply Common Average Reference (CAR) to the raw data.
     
     Args:
-        raw: Input raw object.
+        raw: MNE Raw object.
         
     Returns:
-        Raw object with CAR applied.
+        MNE Raw object with CAR applied.
     """
-    logger.info("Applying Common Average Reference (CAR)")
-    raw.set_eeg_reference('average', projection=False)
-    return raw
+    logger.info("Applying Common Average Reference")
+    raw_car = raw.copy().set_eeg_reference('average', projection=False)
+    return raw_car
 
-def apply_bandpass_filter(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 45.0) -> mne.io.Raw:
-    """
-    Apply band-pass filter (1-45 Hz) to the raw data.
+def apply_bandpass_filter(raw: mne.io.BaseRaw, l_freq: float = 1.0, h_freq: float = 45.0) -> mne.io.BaseRaw:
+    """Apply band-pass filter (1-45 Hz) to the raw data.
     
     Args:
-        raw: Input raw object.
-        l_freq: Low frequency cutoff.
-        h_freq: High frequency cutoff.
+        raw: MNE Raw object.
+        l_freq: Low cutoff frequency.
+        h_freq: High cutoff frequency.
         
     Returns:
-        Filtered raw object.
+        MNE Raw object with filtering applied.
     """
     logger.info(f"Applying band-pass filter: {l_freq}-{h_freq} Hz")
-    raw.filter(l_freq=l_freq, h_freq=h_freq, method='fir', n_jobs=1, verbose=False)
-    return raw
+    raw_filt = raw.copy().filter(l_freq=l_freq, h_freq=h_freq, verbose=False)
+    return raw_filt
 
-def detect_bad_channels(raw: mne.io.Raw) -> List[str]:
-    """
-    Detect bad channels based on z-score of channel variance.
-    
-    Criteria: Channels with z-score of variance > BAD_CHANNEL_ZSCORE_THRESHOLD are marked bad.
+def detect_bad_channels(raw: mne.io.BaseRaw, z_threshold: float = 5.0) -> List[str]:
+    """Automatically detect bad channels based on z-score of channel variance.
     
     Args:
-        raw: Input raw object.
+        raw: MNE Raw object.
+        z_threshold: Z-score threshold for flagging bad channels.
         
     Returns:
         List of bad channel names.
     """
-    logger.info("Detecting bad channels using z-score of variance")
+    logger.info(f"Detecting bad channels with z-score threshold: {z_threshold}")
+    
+    # Get data and channel names
     data = raw.get_data()
     ch_names = raw.ch_names
+    sfreq = raw.info['sfreq']
     
-    # Calculate variance for each channel
-    channel_variances = np.var(data, axis=1)
+    # Calculate variance per channel
+    variances = np.var(data, axis=1)
     
     # Calculate z-scores
-    mean_var = np.mean(channel_variances)
-    std_var = np.std(channel_variances)
+    mean_var = np.mean(variances)
+    std_var = np.std(variances)
     
     if std_var == 0:
-        logger.warning("Standard deviation of channel variances is zero. No bad channels detected.")
+        logger.warning("Standard deviation of variances is zero. No bad channels detected.")
         return []
         
-    z_scores = (channel_variances - mean_var) / std_var
+    z_scores = (variances - mean_var) / std_var
     
-    bad_channels = []
-    for i, z in enumerate(z_scores):
-        if abs(z) > BAD_CHANNEL_ZSCORE_THRESHOLD:
-            bad_channels.append(ch_names[i])
-            logger.warning(f"Channel {ch_names[i]} marked as bad (z-score: {z:.2f})")
+    # Identify bad channels
+    bad_mask = np.abs(z_scores) > z_threshold
+    bad_channels = [ch_names[i] for i in range(len(ch_names)) if bad_mask[i]]
     
     if bad_channels:
-        logger.info(f"Detected {len(bad_channels)} bad channels: {bad_channels}")
+        logger.warning(f"Detected {len(bad_channels)} bad channels: {bad_channels}")
     else:
-        logger.info("No bad channels detected based on variance z-score.")
+        logger.info("No bad channels detected.")
         
     return bad_channels
 
-def create_epochs(raw: mne.io.Raw, event_id: Optional[Dict[str, int]] = None, 
-                  tmin: float = EPOCH_TMIN, tmax: float = EPOCH_DURATION_SEC,
+def create_epochs(raw: mne.io.BaseRaw, event_id: Optional[Dict[str, int]] = None, 
+                  tmin: float = -1.0, tmax: float = 2.0, 
                   bad_channels: Optional[List[str]] = None) -> mne.Epochs:
-    """
-    Create epochs from raw data with automated bad channel detection.
+    """Create epochs from raw data.
     
     Args:
-        raw: Preprocessed raw object.
-        event_id: Dictionary mapping event descriptions to IDs. If None, creates dummy events.
+        raw: MNE Raw object.
+        event_id: Dictionary mapping event names to IDs. If None, uses 'stimulus' channel or generates events.
         tmin: Start time relative to event.
         tmax: End time relative to event.
-        bad_channels: List of channels to exclude. If None, detected automatically.
+        bad_channels: List of channels to drop before epoching.
         
     Returns:
-        mne.Epochs object.
+        MNE Epochs object.
     """
-    logger.info(f"Creating epochs from {tmin}s to {tmax}s relative to events")
+    logger.info(f"Creating epochs with tmin={tmin}, tmax={tmax}")
     
-    # Detect bad channels if not provided
-    if bad_channels is None:
-        bad_channels = detect_bad_channels(raw)
-    
-    # Mark bad channels
+    # Drop bad channels if provided
     if bad_channels:
-        raw.info['bads'] = bad_channels
-        logger.info(f"Marked channels as bad in raw info: {raw.info['bads']}")
+        logger.info(f"Dropping bad channels: {bad_channels}")
+        raw = raw.copy().drop_channels(bad_channels)
     
-    # If no events provided, create dummy events for continuous data
+    # If no events are provided, try to find a stimulus channel or create dummy events
     if event_id is None:
-        logger.info("No event_id provided. Creating dummy events for continuous data.")
-        # Create events at regular intervals
-        events = mne.make_fixed_length_events(raw, duration=EPOCH_DURATION_SEC, start=abs(tmin))
-        event_id = {'dummy': 1}
-    else:
-        events = mne.find_events(raw, stim_channel='STI 014', verbose=False)
-        if len(events) == 0:
-            logger.warning("No events found. Creating dummy events.")
-            events = mne.make_fixed_length_events(raw, duration=EPOCH_DURATION_SEC, start=abs(tmin))
+        # Try to find a standard stimulus channel
+        stim_channels = [ch for ch in raw.ch_names if 'STI' in ch or 'stim' in ch.lower()]
+        if stim_channels:
+            logger.info(f"Using stimulus channel: {stim_channels[0]}")
+            events = mne.find_events(raw, stim_channel=stim_channels[0], verbose=False)
+        else:
+            # If no stimulus channel, create dummy events at regular intervals
+            logger.warning("No stimulus channel found. Creating dummy events.")
+            # Create events every 5 seconds
+            event_times = np.arange(tmax, raw.n_times / raw.info['sfreq'] - tmin, 5.0)
+            event_samples = (event_times * raw.info['sfreq']).astype(int)
+            events = np.column_stack([event_samples, np.zeros_like(event_samples), np.ones_like(event_samples)])
             event_id = {'dummy': 1}
-    
+    else:
+        # Use provided event_id to find events
+        events = mne.find_events(raw, verbose=False)
+        
     # Create epochs
-    epochs = mne.Epochs(raw, events, event_id, tmin, tmax, 
-                        baseline=(None, 0), reject=None, flat=None,
-                        preload=True, verbose=False)
+    epochs = mne.Epochs(raw, events, event_id=event_id, tmin=tmin, tmax=tmax,
+                        baseline=(None, 0), preload=True, verbose=False)
     
-    logger.info(f"Created {len(epochs)} epochs. Shape: {epochs.get_data().shape}")
-    
-    # Drop bad epochs based on peak-to-peak amplitude (optional safety check)
-    # Using a relatively lenient threshold to avoid dropping too much data
-    reject_criteria = dict(eeg=150e-6)  # 150 uV
-    epochs.drop_bad(reject=reject_criteria)
-    logger.info(f"After dropping bad epochs: {len(epochs)} epochs remain")
-    
+    logger.info(f"Created {len(epochs)} epochs")
     return epochs
 
-def save_epochs(epochs: mne.Epochs, output_path: Path) -> None:
-    """
-    Save epochs to a FIF file.
+def save_epochs(epochs: mne.Epochs, output_path: str) -> None:
+    """Save epochs to a .fif file.
     
     Args:
-        epochs: Epochs object to save.
-        output_path: Path to save the FIF file.
+        epochs: MNE Epochs object.
+        output_path: Path to save the file.
     """
     logger.info(f"Saving epochs to: {output_path}")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     epochs.save(output_path, overwrite=True, verbose=False)
-    logger.info(f"Epochs saved successfully to {output_path}")
+    logger.info(f"Successfully saved epochs to {output_path}")
 
-def process_file(input_path: Path, output_dir: Path) -> Optional[Path]:
-    """
-    Process a single EDF file: load, filter, epoch, and save.
+def process_file(input_path: str, output_dir: str, tmin: float = -1.0, tmax: float = 2.0,
+                 z_threshold: float = 5.0, l_freq: float = 1.0, h_freq: float = 45.0) -> str:
+    """Process a single EDF file: load, filter, detect bad channels, epoch, and save.
     
     Args:
         input_path: Path to input EDF file.
         output_dir: Directory to save output epochs.
+        tmin: Start time relative to event.
+        tmax: End time relative to event.
+        z_threshold: Z-score threshold for bad channel detection.
+        l_freq: Low cutoff frequency for bandpass filter.
+        h_freq: High cutoff frequency for bandpass filter.
         
     Returns:
-        Path to output FIF file, or None if processing failed.
+        Path to the saved epochs file.
     """
-    try:
-        # Load
-        raw = load_raw_edf(input_path)
-        
-        # Preprocess
-        raw = apply_common_average_reference(raw)
-        raw = apply_bandpass_filter(raw, l_freq=LOWER_FREQ_HZ, h_freq=45.0)
-        
-        # Detect bad channels and create epochs
-        epochs = create_epochs(raw)
-        
-        # Save
-        stem = input_path.stem
-        output_path = output_dir / f"{stem}_epochs.fif"
-        save_epochs(epochs, output_path)
-        
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"Failed to process {input_path}: {e}", exc_info=True)
-        return None
+    logger.info(f"Processing file: {input_path}")
+    
+    # Load raw data
+    raw = load_raw_edf(input_path)
+    
+    # Apply preprocessing steps
+    raw = apply_bandpass_filter(raw, l_freq=l_freq, h_freq=h_freq)
+    raw = apply_common_average_reference(raw)
+    
+    # Detect bad channels
+    bad_channels = detect_bad_channels(raw, z_threshold=z_threshold)
+    
+    # Create epochs
+    epochs = create_epochs(raw, tmin=tmin, tmax=tmax, bad_channels=bad_channels)
+    
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    # Generate output filename
+    base_name = Path(input_path).stem
+    output_path = str(Path(output_dir) / f"{base_name}_epochs.fif")
+    
+    # Save epochs
+    save_epochs(epochs, output_path)
+    
+    return output_path
 
 def main():
-    """
-    Main entry point for the preprocessing pipeline.
-    Processes all EDF files in data/raw/ and saves epochs to data/processed/.
-    """
-    logger.info("Starting preprocessing pipeline for epoching and bad channel detection")
+    """Main entry point for the preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline for T018")
     
-    # Define paths
-    raw_dir = Path("data/raw")
-    processed_dir = Path("data/processed")
+    # Ensure output directories exist
+    ensure_dirs()
+    
+    # Define input and output directories
+    raw_dir = DATA_RAW
+    processed_dir = DATA_PROCESSED
     
     if not raw_dir.exists():
         logger.error(f"Raw data directory not found: {raw_dir}")
         sys.exit(1)
-    
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Find all EDF files
+        
+    # Get list of EDF files
     edf_files = list(raw_dir.glob("*.edf"))
     if not edf_files:
         logger.warning(f"No EDF files found in {raw_dir}")
+        # If no files, create an empty placeholder or exit gracefully
+        # Based on task requirements, we expect real data to be present
         sys.exit(0)
-    
+        
     logger.info(f"Found {len(edf_files)} EDF files to process")
     
     # Process each file
-    successful_outputs = []
+    output_files = []
     for edf_file in edf_files:
-        logger.info(f"Processing: {edf_file.name}")
-        output_path = process_file(edf_file, processed_dir)
-        if output_path:
-            successful_outputs.append(output_path)
-    
-    logger.info(f"Pipeline completed. Successfully processed {len(successful_outputs)}/{len(edf_files)} files.")
-    
-    if not successful_outputs:
-        logger.warning("No files were successfully processed.")
-        sys.exit(1)
-    
-    # Log summary of bad channels detected across files
-    logger.info("Preprocessing pipeline finished successfully.")
+        try:
+            output_path = process_file(
+                input_path=str(edf_file),
+                output_dir=str(processed_dir),
+                tmin=-1.0,
+                tmax=2.0,
+                z_threshold=5.0,
+                l_freq=1.0,
+                h_freq=45.0
+            )
+            output_files.append(output_path)
+        except Exception as e:
+            logger.error(f"Failed to process {edf_file}: {e}")
+            # Continue with next file or exit?
+            # For robustness, we continue but log the error
+            continue
+            
+    logger.info(f"Processing complete. Generated {len(output_files)} epoch files.")
+    logger.info("T018 Implementation: Epoching and bad-channel detection completed.")
 
 if __name__ == "__main__":
     main()

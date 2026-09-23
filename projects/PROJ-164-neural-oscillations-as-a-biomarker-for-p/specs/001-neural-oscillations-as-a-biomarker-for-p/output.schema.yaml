@@ -1,43 +1,219 @@
+# Output Schema Definitions for Neural Oscillations tDCS Biomarker Project
+# Defines the structure of artifacts produced by the analysis pipeline.
+# Strictly matches plan.md output artifacts.
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Artifacts Schema"
-description: "Schema for model outputs and metrics"
+title: "Neural Oscillations tDCS Output Schema"
+description: "Schema for feature_matrix and model_metrics output artifacts"
+
+definitions:
+  feature_matrix:
+    type: object
+    description: "Final feature matrix with spectral power and connectivity metrics"
+    required:
+      - subject_id
+      - condition
+      - spectral_features
+      - connectivity_features
+      - target_variable
+    properties:
+      subject_id:
+        type: string
+        description: "Unique identifier for the subject"
+      condition:
+        type: string
+        description: "Experimental condition (e.g., 'anodal', 'cathodal', 'sham')"
+      spectral_features:
+        type: object
+        description: "Spectral power values for each frequency band"
+        required:
+          - delta
+          - theta
+          - alpha
+          - beta
+          - gamma
+        properties:
+          delta:
+            type: number
+            description: "Average power in delta band (1-4 Hz)"
+          theta:
+            type: number
+            description: "Average power in theta band (4-8 Hz)"
+          alpha:
+            type: number
+            description: "Average power in alpha band (8-13 Hz)"
+          beta:
+            type: number
+            description: "Average power in beta band (13-30 Hz)"
+          gamma:
+            type: number
+            description: "Average power in gamma band (30-45 Hz)"
+      connectivity_features:
+        type: object
+        description: "Connectivity metrics for ROI pairs"
+        required:
+          - plv_c3_c4
+          - plv_c3_cz
+          - plv_c4_cz
+          - wpli_c3_c4
+          - wpli_c3_cz
+          - wpli_c4_cz
+        properties:
+          plv_c3_c4:
+            type: number
+            description: "Phase Locking Value between C3 and C4"
+          plv_c3_cz:
+            type: number
+            description: "Phase Locking Value between C3 and Cz"
+          plv_c4_cz:
+            type: number
+            description: "Phase Locking Value between C4 and Cz"
+          wpli_c3_c4:
+            type: number
+            description: "Weighted Phase Lag Index between C3 and C4"
+          wpli_c3_cz:
+            type: number
+            description: "Weighted Phase Lag Index between C3 and Cz"
+          wpli_c4_cz:
+            type: number
+            description: "Weighted Phase Lag Index between C4 and Cz"
+      target_variable:
+        type: number
+        description: "tDCS response score (continuous outcome)"
+
+  model_metrics:
+    type: object
+    description: "Model performance metrics and parameters"
+    required:
+      - model_type
+      - r_squared
+      - cross_validation_results
+      - coefficients
+      - p_values
+      - fdr_corrected_p_values
+    properties:
+      model_type:
+        type: string
+        description: "Type of model used (e.g., 'Ridge', 'Rank-Ridge')"
+      r_squared:
+        type: number
+        description: "Coefficient of determination (R²) on test data"
+      cross_validation_results:
+        type: object
+        description: "Nested cross-validation results"
+        required:
+          - outer_cv_r2
+          - inner_cv_alpha
+        properties:
+          outer_cv_r2:
+            type: array
+            description: "R² values from outer loop 5-fold CV"
+            items:
+              type: number
+          inner_cv_alpha:
+            type: number
+            description: "Best alpha parameter selected in inner loop"
+      coefficients:
+        type: object
+        description: "Model coefficients for each feature"
+        properties:
+          delta:
+            type: number
+          theta:
+            type: number
+          alpha:
+            type: number
+          beta:
+            type: number
+          gamma:
+            type: number
+          plv_c3_c4:
+            type: number
+          plv_c3_cz:
+            type: number
+          plv_c4_cz:
+            type: number
+          wpli_c3_c4:
+            type: number
+          wpli_c3_cz:
+            type: number
+          wpli_c4_cz:
+            type: number
+      p_values:
+        type: object
+        description: "Raw p-values for each feature coefficient"
+        properties:
+          delta:
+            type: number
+          theta:
+            type: number
+          alpha:
+            type: number
+          beta:
+            type: number
+          gamma:
+            type: number
+          plv_c3_c4:
+            type: number
+          plv_c3_cz:
+            type: number
+          plv_c4_cz:
+            type: number
+          wpli_c3_c4:
+            type: number
+          wpli_c3_cz:
+            type: number
+          wpli_c4_cz:
+            type: number
+      fdr_corrected_p_values:
+        type: object
+        description: "Benjamini-Hochberg FDR corrected p-values"
+        properties:
+          delta:
+            type: number
+          theta:
+            type: number
+          alpha:
+            type: number
+          beta:
+            type: number
+          gamma:
+            type: number
+          plv_c3_c4:
+            type: number
+          plv_c3_cz:
+            type: number
+          plv_c4_cz:
+            type: number
+          wpli_c3_c4:
+            type: number
+          wpli_c3_cz:
+            type: number
+          wpli_c4_cz:
+            type: number
+
+# Root schema for the output artifact
 type: object
 required:
   - feature_matrix
   - model_metrics
 properties:
   feature_matrix:
-    type: object
-    description: "Matrix of extracted features"
-    properties:
-      shape:
-        type: array
-        items:
-          type: integer
-      columns:
-        type: array
-        items:
-          type: string
-      data:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
+    $ref: "#/definitions/feature_matrix"
   model_metrics:
+    $ref: "#/definitions/model_metrics"
+  metadata:
     type: object
-    description: "Model performance metrics"
+    description: "Metadata about the analysis run"
     properties:
-      r2:
-        type: number
-      mse:
-        type: number
-      coefficients:
-        type: array
-        items:
-          type: number
-      p_values:
-        type: array
-        items:
-          type: number
-additionalProperties: false
+      timestamp:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      data_source:
+        type: string
+        description: "Source dataset identifier"
+      mode_flag:
+        type: string
+        description: "Pipeline execution mode (Primary, Data Insufficient, Underpowered)"

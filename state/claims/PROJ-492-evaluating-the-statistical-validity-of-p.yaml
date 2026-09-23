@@ -142015,24 +142015,6 @@
   status: not_enough_info
   updated_at: '2026-07-13T05:18:05Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 2
-  canonical: synthetic validation precision 90% recall 80%
-  claim_id: c_bcfbc785
-  context: "Independent Test: Run the pipeline on the synthetic validation dataset\
-    \ and verify The synthetic validation dataset precision is \u2265 90% and recall\
-    \ is \u2265 80%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
-    \ \u2265 80%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T05:54:04Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: synthetic dataset generator creates files with at least 10000 records
   claim_id: c_7296d2e0
@@ -146895,23 +146877,6 @@
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: real world validation precision 85% recall 75%
-  claim_id: c_43aa91a0
-  context: "Independent Test: Extracted real-world validation precision \u2265 85%\
-    \ and recall \u2265 75%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Extracted real-world validation precision \u2265 85% and recall \u2265\
-    \ 75%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T14:06:23Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: real world validation precision 85% recall 75%
   claim_id: c_15ad16ce
   context: "T071 Real-world validation precision \u2265 85\u202F% and recall \u2265\
     \ 75\u202F%. (run T070) (depends on T069c) [DEPENDS ON: T069c]."
@@ -147487,21 +147452,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T15:22:21Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 6
-  canonical: citation 2506.09162 referenced
-  claim_id: c_639a3ecc
-  context: T100 The citation '2506.09162' is referenced in the document.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The citation '2506.09162' is referenced in the document.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T15:23:06Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: subgroup analysis Fisher exact test groups 10 summaries
@@ -148427,3 +148377,315 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T18:52:00Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 0
+  canonical: wikidata q19873191 referenced
+  claim_id: c_a38bf6c2
+  context: T003 (https://www.wikidata.org/wiki/Q19873191) (Alias of PT003).
+  evidence:
+    entailment_evidence: Citation Q19873191 is referenced
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Citation_Q19873191_is_referenced
+  kind: entity_fact
+  raw_text: The citation 'Q19873191' is referenced in the document.
+  resolved_value: citation Q19873191 is referenced
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T21:24:51Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 3
+  canonical: synthetic validation precision 90% recall 80%
+  claim_id: c_bcfbc785
+  context: "Independent Test: Run the pipeline on the synthetic validation dataset\
+    \ and verify The synthetic validation dataset precision is \u2265 90% and recall\
+    \ is \u2265 80%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
+    \ \u2265 80%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:26:45Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: synthetic dataset contains 10000 records
+  claim_id: c_8aa70243
+  context: "Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
+    030) \u2013 (binary AND continuous outcomes) and (constraint\u2011preservation\u2011\
+    2958f04c) (files are created and contain \u2265 10 000 records.)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The files are created and contain \u2265 10 000 records."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:27:05Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: audited corpus meets arxiv 2510.17487
+  claim_id: c_bd9ab59d
+  context: "Implement power\u2011analysis utility in src/audit/power_analysis.py (FR\u2011\
+    025) that computes the minimum N given baseline, detectable effect, \u03B1 and\
+    \ power, writes result to output/power_analysis.json, and asserts audited corpus\
+    \ meets {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audited corpus meets 2510.17487.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:27:39Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: monte carlo validation runs 1010000 replicates
+  claim_id: c_fefa4822
+  context: "Implement Monte\u2011Carlo validation module (FR\u2011026) in src/audit/monte_carlo_validation.py\
+    \ that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's,\
+    \ binomial) and checks the absolute difference \u2264 0.005."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The module runs 10 10000 replicates for each statistical test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:28:37Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: binomial test CI width 0.10
+  claim_id: c_1a2ce273
+  context: "Unit test for The binomial test and CI width requires width \u2264 0.10.\
+    \ (1807.00365, https://arxiv.org/abs/1807.00365) (1807.00365, https://arxiv.org/abs/1807.00365)\
+    \ (tests/unit/test_prevalence.py)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The binomial test and CI width requires width \u2264 0.10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:28:57Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: domain bias subsampling max 30%
+  claim_id: c_964f9933
+  context: "Domain Bias Subsampling \u2013 create a balanced subsample of the corpus\
+    \ so that No single domain should exceed 30% of the corpus before bias adjustment.\
+    \ (FR\u2011027)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No single domain should exceed 30% of the corpus before bias adjustment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:29:17Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: quickstart 30 urls 30 minutes
+  claim_id: c_a705329c
+  context: "T049 covers execution on 30 URLs within 30 minutes. (FR\u2011028) and\
+    \ include novice\u2011user verification step with written confirmation log."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Quickstart execution covers execution on 30 URLs within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:30:01Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: publication year extracted for subgroup analysis
+  claim_id: c_e0d973f0
+  context: Verify that the publication year is extracted for each summary during extraction
+    (T020c) and present in the input to subgroup_analysis.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Publication_year_extracted_for_subgroup_analysis
+  kind: entity_fact
+  raw_text: The publication year is extracted for each summary during extraction and
+    present in the input to subgroup_analysis.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:30:59Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 7
+  canonical: citation 2506.09162 referenced
+  claim_id: c_639a3ecc
+  context: T100 The citation '2506.09162' is referenced in the document.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation '2506.09162' is referenced in the document.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:31:32Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: citation 1103.0114 referenced
+  claim_id: c_23764b4f
+  context: "Unit tests for subgroup analysis covering {{claim:c_64533b36}} (1103.0114,\
+    \ https://arxiv.org/abs/1103.0114) and verifying correct Fisher p\u2011values\
+    \ with Bonferroni correction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation '1103.0114' is referenced in the document.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:31:52Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: citation 1905.08726 referenced
+  claim_id: c_13a47a8d
+  context: "Create analysis notebook notebooks/statistical_consistency_verification.ipynb\
+    \ that documents any p\u2011value discrepancies >0.05 (1905.08726, https://arxiv.org/abs/1905.08726)\
+    \ with justification per Constitution Principle VI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation '1905.08726' is referenced in the document.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:32:12Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: wikidata q85207149 referenced
+  claim_id: c_1fb0854f
+  context: "T072 (run tests/integration/test_extractor_accuracy.py) (depends on T020,\
+    \ T069c) (addresses ordering\u2011fef4baa0). {{claim:c_d0345efb}} (Wikidata Q85207149,\
+    \ https://www.wikidata.org/wiki/Q85207149)"
+  evidence:
+    entailment_evidence: Wikidata q85207149 referenced
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_q85207149_referenced
+  kind: entity_fact
+  raw_text: The citation 'Q85207149' is referenced in the document.
+  resolved_value: wikidata q85207149 referenced
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T21:32:34Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: real world validation precision 85% recall 75%
+  claim_id: c_43aa91a0
+  context: "Independent Test: Extracted real-world validation precision \u2265 85%\
+    \ and recall \u2265 75%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extracted real-world validation precision \u2265 85% and recall \u2265\
+    \ 75%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:33:01Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis variation less than 0.02
+  claim_id: c_b9150c49
+  context: T078 The sensitivity analysis variation must be less than 0.02 across the
+    baseline range. (run src/audit/prevalence.py and inspect results) (depends on
+    T042).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_variation_less_than_0.02
+  kind: magnitude
+  raw_text: The sensitivity analysis variation must be less than 0.02 across the baseline
+    range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:34:11Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: ci pipeline exit status 0 manifest 99%
+  claim_id: c_bcfaa5c2
+  context: "Verify SC\u2011014: The CI pipeline must exit with status 0 and produce\
+    \ manifest.json in 99% of runs. (run CI locally and check)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI pipeline must exit with status 0 and produce manifest.json in 99%
+    of runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:34:50Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: parsing error rate 5%
+  claim_id: c_5098a7e1
+  context: "Verify SC\u2011005: Parsings-error rate must be 5% or less. (run src/audit/validator.py\
+    \ and check log summary) (depends on T020)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parsings-error rate must be 5% or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:35:09Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: subgroup analysis fisher test 10 summaries
+  claim_id: c_17ff2d4d
+  context: "Verify SC\u2011032: Subgroup analysis produces Fisher's exact test results\
+    \ for groups with >= 10 summaries (run src/audit/subgroup_analysis.py and check\
+    \ JSON)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
+    >= 10 summaries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T21:36:05Z'

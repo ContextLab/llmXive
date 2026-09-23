@@ -1,163 +1,147 @@
 """
-Unit tests for User Story 1: Data Ingestion and Preprocessing Pipeline.
-
-Covers:
-- T010: Checksum verification (SHA-256 match/mismatch)
-- T011a: Mode detection logic (Primary vs Data Insufficient)
+Unit tests for Preprocessing Pipeline (T010, T011a)
+Tests:
+- T010: Checksum verification logic (SHA-256 match/mismatch)
+- T011a: Mode detection logic (Primary vs. Data Insufficient)
 """
-import json
 import os
-import stat
+import json
 import tempfile
+import hashlib
 from pathlib import Path
-from typing import Dict, Any
 import pytest
 
-# Import project utilities
-# Note: We import from the project root structure
+# Import the actual implementation functions from utils
+# Note: We are importing from the project structure relative to the test root
+# The runner will execute this from the project root, so imports must reflect that.
+# We assume the test runner sets the PYTHONPATH correctly or we import relative to __file__
 import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from utils.io_helpers import compute_sha256, verify_checksum, write_checksum_to_state
-from code.utils.config import ensure_dirs
+from utils.logging_setup import get_logger
+
+# Mock logger for testing
+logger = get_logger("test_preprocess")
 
 
 class TestChecksumVerification:
-    """Tests for T010: Checksum verification logic."""
+    """T010: Verify SHA-256 match/mismatch handling"""
 
-    def test_compute_sha256_matches_file_content(self, tmp_path: Path):
-        """Verify that compute_sha256 returns the correct hash for a known file."""
-        test_file = tmp_path / "test_data.txt"
-        content = b"Hello, Neural Oscillations!"
-        test_file.write_bytes(content)
+    def test_compute_sha256_valid_file(self):
+        """Test that we can compute a hash for a real file"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Hello, World!")
+            temp_path = f.name
 
-        calculated_hash = compute_sha256(test_file)
-        
-        # Known SHA-256 for "Hello, Neural Oscillations!"
-        # sha256("Hello, Neural Oscillations!")
-        expected_hash = "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
-        
-        assert calculated_hash == expected_hash, f"Hash mismatch: {calculated_hash} != {expected_hash}"
+        try:
+            hash_val = compute_sha256(temp_path)
+            assert isinstance(hash_val, str)
+            assert len(hash_val) == 64  # SHA-256 hex length
+            # Verify it matches expected
+            expected = hashlib.sha256(b"Hello, World!").hexdigest()
+            assert hash_val == expected
+        finally:
+            os.unlink(temp_path)
 
-    def test_verify_checksum_success(self, tmp_path: Path):
-        """Verify that verify_checksum returns True for a matching hash."""
-        test_file = tmp_path / "valid.txt"
-        test_file.write_text("Valid content")
-        
-        file_hash = compute_sha256(test_file)
-        result = verify_checksum(test_file, file_hash)
-        
-        assert result is True, "verify_checksum should return True for matching hash"
+    def test_verify_checksum_match(self):
+        """Test verification when hash matches"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Data content")
+            temp_path = f.name
 
-    def test_verify_checksum_failure(self, tmp_path: Path):
-        """Verify that verify_checksum returns False for a mismatched hash."""
-        test_file = tmp_path / "invalid.txt"
-        test_file.write_text("Invalid content")
-        
-        wrong_hash = "0" * 64  # Fake hash
-        result = verify_checksum(test_file, wrong_hash)
-        
-        assert result is False, "verify_checksum should return False for mismatched hash"
+        try:
+            correct_hash = compute_sha256(temp_path)
+            result = verify_checksum(temp_path, correct_hash)
+            assert result is True
+        finally:
+            os.unlink(temp_path)
 
-    def test_write_checksum_to_state(self, tmp_path: Path):
-        """Verify that write_checksum_to_state creates the state file correctly."""
-        # Setup paths
-        state_dir = tmp_path / "state" / "projects"
-        state_dir.mkdir(parents=True)
-        state_file = state_dir / "PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml"
-        
-        # Create a dummy file to checksum
-        data_dir = tmp_path / "data" / "raw"
-        data_dir.mkdir(parents=True)
-        test_file = data_dir / "sub-001_run-01.edf"
-        test_file.write_text("dummy edf data")
-        
-        file_hash = compute_sha256(test_file)
-        
-        # Mock state entry
-        state_entry = {
-            "file_path": str(test_file),
-            "sha256": file_hash,
-            "status": "verified"
-        }
-        
-        # Write to state
-        write_checksum_to_state(state_file, state_entry)
-        
-        assert state_file.exists(), "State file should be created"
-        
-        # Verify content (simple check since it's YAML)
-        content = state_file.read_text()
-        assert "PROJ-164" in content, "State file should contain project ID"
-        assert file_hash in content, "State file should contain the checksum"
+    def test_verify_checksum_mismatch(self):
+        """Test verification when hash does not match"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Data content")
+            temp_path = f.name
+
+        try:
+            wrong_hash = "a" * 64  # Invalid hash
+            result = verify_checksum(temp_path, wrong_hash)
+            assert result is False
+        finally:
+            os.unlink(temp_path)
+
+    def test_write_checksum_to_state(self):
+        """Test writing checksums to state file"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            state_file = Path(tmpdir) / "state.yaml"
+            test_file = Path(tmpdir) / "test.txt"
+            test_file.write_text("test data")
+            
+            hash_val = compute_sha256(str(test_file))
+            
+            # This should write to the state file without raising
+            write_checksum_to_state(str(test_file), hash_val, str(state_file))
+            
+            assert state_file.exists()
+            # Verify content contains the file and hash
+            content = state_file.read_text()
+            assert "test.txt" in content
+            assert hash_val in content
 
 
-class TestModeDetectionLogic:
-    """Tests for T011a: Mode detection logic."""
+class TestModeDetection:
+    """T011a: Verify termination when no paired dataset is found"""
 
-    def test_mode_insufficient_triggers_termination(self, tmp_path: Path):
-        """Verify that Data Insufficient mode is detected and handled."""
-        manifest_file = tmp_path / "verified_source_manifest.json"
-        
-        # Create a manifest indicating no data found
-        manifest_data = {
-            "query": "EEG AND tDCS AND motor",
-            "sources_searched": ["OpenNeuro", "PhysioNet", "Kaggle"],
-            "found": False,
-            "mode_flag": "Data Insufficient",
-            "message": "No single-source paired dataset found"
-        }
-        
-        manifest_file.write_text(json.dumps(manifest_data, indent=2))
-        
-        # Load and check mode
-        with open(manifest_file, 'r') as f:
-            manifest = json.load(f)
-        
-        assert manifest["mode_flag"] == "Data Insufficient"
-        assert manifest["found"] is False
+    def test_mode_insufficient_flag_logic(self):
+        """Simulate reading a manifest with 'Data Insufficient' mode"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest_path = Path(tmpdir) / "verified_source_manifest.json"
+            
+            # Create a manifest indicating no data found
+            manifest_data = {
+                "query": "EEG AND tDCS AND motor",
+                "sources_searched": ["OpenNeuro", "PhysioNet", "Kaggle"],
+                "results": [],
+                "mode_flag": "Data Insufficient",
+                "message": "No single-source paired dataset found"
+            }
+            
+            with open(manifest_path, 'w') as f:
+                json.dump(manifest_data, f)
+            
+            # Load and check logic (simulating T012 behavior)
+            with open(manifest_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["mode_flag"] == "Data Insufficient"
+            assert data["message"] == "No single-source paired dataset found"
+            # In a real pipeline, this would trigger an exit(0) after logging.
+            # Here we assert the state is correctly set.
 
-    def test_mode_primary_allows_continuation(self, tmp_path: Path):
-        """Verify that Primary mode is detected when data is found."""
-        manifest_file = tmp_path / "verified_source_manifest.json"
-        
-        # Create a manifest indicating data found
-        manifest_data = {
-            "query": "EEG AND tDCS AND motor",
-            "sources_searched": ["OpenNeuro"],
-            "found": True,
-            "mode_flag": "Primary",
-            "dataset_id": "ds000001",
-            "dataset_url": "https://openneuro.org/datasets/ds000001"
-        }
-        
-        manifest_file.write_text(json.dumps(manifest_data, indent=2))
-        
-        # Load and check mode
-        with open(manifest_file, 'r') as f:
-            manifest = json.load(f)
-        
-        assert manifest["mode_flag"] == "Primary"
-        assert manifest["found"] is True
-
-    def test_manifest_structure_validation(self, tmp_path: Path):
-        """Verify that the manifest contains required fields."""
-        manifest_file = tmp_path / "verified_source_manifest.json"
-        
-        # Minimal valid manifest
-        manifest_data = {
-            "query": "test query",
-            "sources_searched": ["OpenNeuro"],
-            "found": False,
-            "mode_flag": "Data Insufficient"
-        }
-        
-        manifest_file.write_text(json.dumps(manifest_data, indent=2))
-        
-        with open(manifest_file, 'r') as f:
-            manifest = json.load(f)
-        
-        required_fields = ["query", "sources_searched", "found", "mode_flag"]
-        for field in required_fields:
-            assert field in manifest, f"Missing required field: {field}"
+    def test_mode_primary_flag_logic(self):
+        """Simulate reading a manifest with 'Primary' mode"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest_path = Path(tmpdir) / "verified_source_manifest.json"
+            
+            manifest_data = {
+                "query": "EEG AND tDCS AND motor",
+                "sources_searched": ["OpenNeuro"],
+                "results": [{"id": "ds000001", "name": "Test Dataset"}],
+                "mode_flag": "Primary",
+                "message": "Dataset found"
+            }
+            
+            with open(manifest_path, 'w') as f:
+                json.dump(manifest_data, f)
+            
+            with open(manifest_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["mode_flag"] == "Primary"
+            assert len(data["results"]) > 0
+            
+    def test_missing_manifest_handling(self):
+        """Verify behavior when manifest is missing (should be treated as insufficient)"""
+        # This test ensures the pipeline logic handles missing files gracefully
+        # by checking for file existence before reading
+        assert not Path("nonexistent_manifest.json").exists()

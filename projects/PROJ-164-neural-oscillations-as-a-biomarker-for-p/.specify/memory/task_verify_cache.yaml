@@ -1,18 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided to confirm that the requested
-    folders (`code/`, `code/utils/`, `tests/`, `data/raw`, `data/processed`, `data/synthetic`,
-    `models/`, `docs/`, `docs/contracts/`, `state/projects/`) actually exist. The
-    implementer only claimed to have run the `mkdir` command without supplying any
-    artifact or verification output.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a terminal log, script, or repository commit) was provided\
-    \ to demonstrate that `chmod 555 data/raw` was actually run and that the directory\
-    \ now has read\u2011execute\u2011only permissions. Without such evidence the claim\
-    \ cannot be verified."
 T005:
   c: false
   h: 39978c88df8ef9f74c36adcdbe76a00ba0f25f69e45ab9fba5ccb856d7e9f582
@@ -20,25 +5,6 @@ T005:
     \ is incomplete and does not actually write to the required `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`\
     \ (which is also missing). Additionally, no artifact\u2011hashing helper is present.\
     \ These missing pieces prevent the task from being fully satisfied."
-T006:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/contracts/dataset.schema.yaml` is missing entirely,
-    so no schema definition exists to verify the required fields or removal of extraneous
-    ones. The task therefore is not satisfied.
-T007:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `specs/contracts/output.schema.yaml` does not exist (the only\
-    \ mentioned schema file is missing), so no schema definitions for `feature_matrix`\
-    \ and `model_metrics` are provided. The task\u2019s output artifact is absent."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logging configuration, code, or `logs/pipeline.log` file was provided; the\
-    \ claim lacks any artifact demonstrating that stdout capture, warning/mode\u2011\
-    switch logging, resource\u2011usage logging, or log\u2011rotation have been implemented.\
-    \ The required logging infrastructure is therefore missing."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -68,6 +34,13 @@ T015:
     \ flag, and no script or output showing that the EEG and tDCS subject overlap\
     \ was verified (or mismatched). The required artifact is missing, so the task\
     \ is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No integration test code, test configuration, or execution logs were provided;
+    the claim lacks any artifact (e.g., a pytest file, CI script, or test output)
+    demonstrating that modeling is skipped when the mode flag is **Data Insufficient**.
+    The required test artifact is missing.
 T023:
   c: false
   h: 3337bd7eb9b542b1d596b9b66013b32d7f214b6443bf6f354f3895f647a3c4c5
@@ -77,6 +50,39 @@ T023:
     \ Moreover, the required output CSV file is absent from the project directory.\
     \ The task\u2019s core deliverable \u2013 a generated spectral power CSV \u2013\
     \ is therefore missing."
+T025:
+  c: false
+  h: 6855aae0e6dc19f50665bffb3caf55388ab414a85f62128bcc349cfb5c2dedf9
+  r: "The required output file `data/processed/feature_matrix.csv` does not exist,\
+    \ and the provided `code/02_feature_extraction.py` is truncated (ends mid\u2011\
+    function), indicating the feature\u2011matrix assembly is not fully implemented.\
+    \ The task\u2019s deliverable is therefore missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, notebooks, or output files implementing nested cross\u2011\
+    validation for Ridge/Rank\u2011Ridge regression (or the required data\u2011ingestion/preprocessing\
+    \ pipeline) were provided. The claim lacks any tangible artifact to verify that\
+    \ the nested CV logic, model fitting, and mode handling were actually implemented.\
+    \ The next implementer must supply the concrete implementation (e.g., a Python\
+    \ module or notebook) and any generated artifacts (e.g., `verified_source_manifest.json`,\
+    \ model evaluation results) to satisfy the task."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log file, or manifest (e.g., `verified_source_manifest.json`) was supplied\
+    \ to demonstrate that a mode flag is read, that non\u2011Primary mode triggers\
+    \ the \u201CModeling Skipped: Data Insufficient\u201D log, and that the behavior\
+    \ matches the specification. The required artifact is missing, so the task is\
+    \ not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, output file, log, or results showing that a Shapiro\u2011\
+    Wilk test was performed, that a non\u2011normal outcome triggered a switch, or\
+    \ that a Rank\u2011Ridge regression model was actually fitted and logged. These\
+    \ required artifacts are missing."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
