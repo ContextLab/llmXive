@@ -1,13 +1,12 @@
 status: none
-intent: OpenML time perception sequential stimulus duration estimate dataset python
-  package dataset
+intent: OpenML HuggingFace time perception sequential stimulus dataset with duration
+  estimates python package dataset
 required_fields:
 - duration_estimate
 - stimulus_timing
 - condition_label
 - participant_id
-- raw_stimulus_sequence
 - surprisal_metric
-cache_key: 1dfc73c8e58923d51ffa7444e528977a996b2b006f45ce05fb82cc238c8aade5
-searched_at: '2026-09-07T08:38:52.442750+00:00'
+cache_key: 536a81b5145fe90663b6b1e183e094e37c46799c86db1af74cad49b06057dd5a
+searched_at: '2026-09-23T03:55:54.320492+00:00'
 retry_count: 1

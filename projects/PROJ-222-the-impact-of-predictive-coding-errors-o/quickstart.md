@@ -1,75 +1,78 @@
-# Quickstart Guide
+# Quickstart Guide: The Impact of Predictive Coding Errors on Subjective Time Perception
 
-This guide explains how to run the full analysis pipeline for the project "The Impact of Predictive Coding Errors on Subjective Time Perception".
+This guide outlines the steps to run the full analysis pipeline from data acquisition to visualization.
 
 ## Prerequisites
 
-- Python 3.11+
-- Virtual environment (recommended)
+- Python 3.9+
+- Virtual environment set up (see `code/requirements.txt`)
+- Valid dataset IDs in `data/README.md` (see T050 for manual injection if blocked)
 
-## Setup
+## Installation
 
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
+```bash
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
-## Running the Pipeline
+# Install dependencies
+pip install -r code/requirements.txt
+```
 
-The pipeline consists of the following steps:
+## Pipeline Execution
 
-1. **Download and validate datasets**:
+Run the full pipeline in sequence:
+
+1. **Data Acquisition & Validation** (T012a-d, T043)
  ```bash
  python code/download.py
+ python code/filter_datasets.py
+ python code/update_readme.py
+ python code/validate_manual_update.py
  ```
- This script downloads datasets from OpenML/HuggingFace, verifies checksums, and filters for required columns.
 
-2. **Preprocess data and compute Markov surprisal**:
+2. **Preprocessing** (T015, T016a-c, T041a-d)
  ```bash
  python code/preprocess.py
+ python code/save_markov_artifacts.py
  ```
- This script loads the downloaded datasets, filters for sequential stimuli, computes Markov surprisal, and saves the results.
 
-3. **Generate standardized output (T017)**:
- ```bash
- python code/generate_standardized_output.py
- ```
- This script creates the final `data/processed/standardized.csv` file with checksums.
-
-4. **Run statistical analysis**:
+3. **Analysis** (T021a-d, T023a-c, T024-25, T026-28)
  ```bash
  python code/analysis.py
  ```
- This script fits linear mixed-effects models, calculates effect sizes, and performs sensitivity analysis.
 
-5. **Generate visualizations**:
+4. **Verification** (T017, T017b)
+ ```bash
+ python code/verify_standardized.py
+ python code/run_t017b.py
+ ```
+
+5. **Visualization** (T030-32)
  ```bash
  python code/visualize.py
  ```
- This script generates forest plots and residual diagnostic plots.
 
-## Output Files
+## Expected Outputs
 
-- `data/processed/standardized.csv`: The final standardized dataset.
-- `analysis/results.json`: The results of the statistical analysis.
-- `figures/`: Directory containing generated plots.
+- `data/processed/standardized.csv`: Standardized trial-level data
+- `data/processed/markov_state.json`: Markov transition matrix
+- `analysis/results.json`: Statistical analysis results
+- `analysis/verification_log.json`: Verification logs for T017/T017b
+- `figures/forest_plot.png`: Forest plot of effects
+- `figures/residuals_*.png`: Residual diagnostic plots
 
 ## Troubleshooting
 
-- If you encounter a `pyarrow` error, ensure you have the correct version of `pyarrow` installed (see `code/requirements.txt`).
-- If you encounter a `No datasets were successfully processed` error, check the `data/processed/exclusion_log.json` file for details.
+- **Blocked Status**: If `data/blocked_status.json` exists, manually add a verified dataset to `data/README.md` (T050) then run `python code/validate_manual_update.py`.
+- **Missing Data**: Ensure `data/README.md` contains valid dataset IDs before running `download.py`.
+- **Import Errors**: Verify virtual environment is active and all dependencies are installed.
 
 ## Reproducibility
 
-To ensure reproducibility, set the random seed in `code/config.py` before running the pipeline.
-
-```python
-from config import set_seed
-set_seed(42)
-```
+To reproduce the analysis in a fresh environment:
+1. Clone the repository
+2. Follow the Installation steps
+3. Ensure `data/README.md` contains valid dataset IDs
+4. Run the Pipeline Execution steps in order
+5. Verify outputs match expected files listed above

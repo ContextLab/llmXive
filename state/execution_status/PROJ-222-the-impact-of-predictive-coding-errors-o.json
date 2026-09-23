@@ -1,21 +1,24 @@
 {
   "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
   "ok": false,
-  "reason": "3 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/exclusion_log.json; data/processed/markov_state.json; data/processed/standardized.csv",
+  "reason": "2 command(s) failed: python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 2 declared deliverable(s) absent: data/processed/markov_state.json; data/processed/standardized.csv",
   "artifacts": [
+    "data/processed/checksums.json",
+    "data/processed/exclusion_log.json",
+    "data/raw/openml_42279.csv",
+    "data/raw/openml_42280.csv",
     "figures/forest_plot_surprisal.png",
     "figures/residual_diagnostics.png"
   ],
   "failures": [
-    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 283, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 275, in main\n    success = run_download_pipeline()\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 178, in run_download_pipeline\n    dat",
-    "python code/preprocess.py -> rc=1\n    ERROR:__main__:Preprocessing pipeline failed: unsupported operand type(s) for /: 'str' and 'str'",
-    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 365, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 352, in main\n    input_path = str(get_processed_dir() / \"standardized.csv\")\n                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for /: 'str' and 'str'"
+    "python code/preprocess.py -> rc=1\n    asets: OpenML dataset not found: data/raw/# HuggingFace datasets.csv\nINFO:__main__:Processing dataset: # Add verified datasets here as they are discovered\nERROR:__main__:Failed to load OpenML dataset # Add verified datasets here as they are discovered: OpenML dataset not found: data/raw/# Add verified datasets here as they are discovered.csv\nERROR:__main__:Failed to process dataset # Add verified datasets here as they are discovered: OpenML dataset not found: data/raw/# Add verified datasets here as they are discovered.csv\nINFO:__main__:Processing dataset:",
+    "python code/analysis.py -> rc=1\n    2026-09-23 03:54:24,736 - INFO - Starting analysis pipeline...\n2026-09-23 03:54:24,736 - ERROR - Data loading failed: Standardized data not found at data/processed/standardized.csv. Run preprocessing first.\n2026-09-23 03:54:24,736 - INFO - Analysis pipeline completed successfully.\n2026-09-23 03:54:24,736 - INFO - Analysis completed successfully\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 316, in <module>\n    main()\n  File \"/home/runner/work/llm"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-07T08:37:59Z"
+  "updated_at": "2026-09-23T03:54:29Z"
 }

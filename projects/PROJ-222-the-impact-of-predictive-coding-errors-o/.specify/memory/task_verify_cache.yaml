@@ -14,6 +14,12 @@ T012c:
     text rather than a populated status table. The implementation does not demonstrate
     that it actually writes the updated markdown to the README. Both the input data
     and the resulting updated README are absent.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'The claim provides no evidence that a `markov_state.json` file exists, that
+    it contains `"order": 1`, nor that a confirmation entry was added to `analysis/verification_log.json`.
+    These required artifacts are missing, so the task is not satisfied.'
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

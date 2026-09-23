@@ -17,11 +17,13 @@
 
 **Goal**: Attempt to download and validate datasets from the documented list. If no valid dataset is found after filtering, log the exclusion and halt. Do NOT block on an empty pre‑approved list; instead, execute the download/filter flow.
 
-- [X] T012a [P] [US1] **Read Dataset IDs**. Implement `code/read_ids.py` to read dataset IDs from `data/dataset_ids.txt`. **Logic**: 1. Read IDs from `data/dataset_ids.txt` (populated by T004a). 2. Parse the list. 3. Output a Python list for downstream tasks. (FR‑001, Constitution III)
+- [X] T004a [P] **Initialize Dataset IDs**. Create `data/README.md` with a 'Verified datasets' YAML block containing the list of verified OpenML/HF dataset identifiers. **Format**: YAML list of objects: `- id: <ID>, source: <OpenML|HF>, url: <URL>`. (FR‑001, Constitution III)
+
+- [X] T012a [P] [US1] **Read Dataset IDs**. Implement `code/read_ids.py` to read dataset IDs from `data/README.md`. **Logic**: 1. Parse the 'Verified datasets' YAML block in `data/README.md` (keys: `id`, `source`, `url`). 2. Output a Python list of dictionaries for downstream tasks. (FR‑001, Constitution III)
 
 - [X] T012b [US1] **Data Download & Checksum Verification**. Implement `code/download.py` to:
  1. Fetch each dataset using IDs from T012a via OpenML/HuggingFace.
- 2. Compute SHA‑256 checksums; verify against source‑provided checksums (if any). On mismatch, **FAIL**.
+ 2. Compute SHA‑256 checksums; verify against source‑provided checksums (retrieved from dataset metadata API) and store in `data/raw/checksums.json`. On mismatch, **FAIL**.
  3. **FAIL LOUDLY**: If a fetch fails (network error, missing ID, invalid schema), raise `DataFetchError` and halt execution immediately. Do NOT fall back to synthetic data.
  4. Write raw files to `data/raw/` with accompanying `checksums.json`.
  5. **Verification**: Ensure `DataFetchError` is raised on missing ID or network failure. (FR‑001, Constitution III)
@@ -34,10 +36,10 @@
 
 - [X] T012d [US1] **Blocker Logic & README Update**. Implement `code/update_readme.py` to:
  1. Read `data/processed/exclusion_log.json`.
- 2. If **0 valid datasets** remain, write a **critical blocker** entry to `data/README.md`, create `data/blocked_status.json`, and **HALT** further execution.
+ 2. If **0 valid datasets** remain, write a **critical blocker** entry to `data/README.md`, create `data/blocked_status.json` with schema `{timestamp, reason, exit_code: 1}`, and **HALT** further execution.
  3. If valid datasets exist, update `data/README.md` with dataset statuses and reasons. (FR‑002, SC‑001)
 
-- [X] T004b [P] **Validate non‑empty dataset IDs**. Implement `code/validate_ids.py` to ensure `data/dataset_ids.txt` contains at least one ID. If empty, write a critical blocker to `data/README.md` and `data/blocked_status.json`. (Gate 0 reinforcement)
+- [X] T004b [P] **Validate non‑empty dataset IDs**. Implement `code/validate_ids.py` to ensure `data/README.md` contains at least one valid dataset entry in the 'Verified datasets' block. If empty, write a critical blocker to `data/README.md` and `data/blocked_status.json`. (Gate 0 reinforcement)
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -48,18 +50,22 @@
 - [X] T002c [P] Setup virtualenv and install dependencies from `code/requirements.txt`.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Setup `data/README.md` schema for dataset metadata and exclusion logs (fields: dataset_id, status, reason, checksum)
-- [X] T004a [P] **Initialize Dataset IDs**. Create `data/dataset_ids.txt` containing the list of verified OpenML/HF dataset identifiers (to be filled manually). (FR‑001, Constitution III)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes streaming logic for large datasets.
 
 - [X] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (duration_estimate, stimulus_sequence, participant_id, sequence_length, stimulus_modality)
 - [X] T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure
 - [X] T007 [P] Setup environment configuration management for random seeds in `code/config.py`
 - [X] T008 [P] Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within GB RAM limits. Uses `pandas.read_csv()` with `chunksize` and `pd.concat()` for aggregation. (FR‑009, Assumption 9)
 - [X] T028b [P] Define convergence threshold, bootstrap configuration, and Laplace smoothing α (`config.LAPLACE_ALPHA = 1.0`) in `code/config.py`. Set `BOOTSTRAP_N_JOBS=2` (hard cap). (FR‑009, Assumption 10)
-- [ ] T041 [US1] **Streaming Implementation for Large Datasets**. Refactor `code/preprocess.py` to use `datasets.load_dataset(..., streaming=True)` for HuggingFace sources and chunked iteration for OpenML sources. Ensure the Markov transition matrix is built via online aggregation without loading the full dataset into RAM. **Output**: Write incremental counts to `data/processed/markov_counts.json` and the final aggregated matrix to `data/processed/markov_state.json`. (Rule: "Large real datasets: STREAM the real data")
+
+### Streaming & Markov Implementation (Atomic Sub-tasks for T041)
+- [X] T041a [P] **Streaming Loader Refactor**. Implement streaming logic in `code/preprocess.py` using `datasets.load_dataset(..., streaming=True)` for HF and chunked iteration for OpenML. **Constraint**: Must enforce `config.MAX_TRIALS = 5000` hard cap during iteration by selecting the **first 5000 trials** via `itertools.islice` to guarantee SC-004 compliance. (FR‑003, Assumption 1, SC‑004)
+- [X] T041b [P] **Online Aggregation Logic**. Implement online aggregation in `code/preprocess.py` to build the first-order Markov transition matrix incrementally without loading full dataset into RAM. (FR‑003, Assumption 1)
+- [X] T041c [P] **Write Incremental Counts**. Implement logic to write `data/processed/markov_counts.json` during streaming aggregation. (FR‑003)
+- [ ] T041d [P] **Write Final Markov State**. Implement logic to finalize and write `data/processed/markov_state.json` containing `transition_matrix`, `alphabet`, `order=1`. **Output**: This file is the artifact validated by T017b. (FR‑003, SC‑001)
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
@@ -73,14 +79,14 @@
 ### Implementation for User Story 1
 
 - [X] T015 [US1] **Chunked Loading & Runtime Capping**. Implement `code/preprocess.py` to:
- 1. Load raw data via `utils.load_chunked()` or T041's streaming utility.
- 2. Estimate runtime; if >6 h, stream and cap at `config.MAX_TRIALS = 5000`.
+ 1. Load raw data via `utils.load_chunked()` or T041a's streaming utility.
+ 2. **Unconditionally** cap processing at `config.MAX_TRIALS = 5000` (via T041a logic) to ensure SC-004 compliance.
  3. Log any truncation. (FR‑003, Assumption 1, SC‑004)
 
 - [X] T016a [US1] **Build Transition Matrix**. In `code/preprocess.py`:
- 1. Perform streaming aggregation (using T041's utility) to build a first‑order transition count matrix.
+ 1. Use the online aggregation logic from T041b to build the first-order transition count matrix in memory.
  2. Apply Laplace smoothing using `config.LAPLACE_ALPHA`.
- 3. Write `data/processed/markov_state.json` containing `transition_matrix`, `alphabet`, `order=1`. (FR‑003, Assumption 1)
+ 3. **Do NOT write to disk here**; T041d handles the final write. (FR‑003, Assumption 1)
 
 - [X] T016b [US1] **Compute Surprisal**. In `code/preprocess.py`:
  1. Compute surprisal (‑log₂ probability) for each trial using the matrix from T016a.
@@ -91,13 +97,14 @@
  2. **Verification**: Assert that `sequence_length` and `stimulus_modality` are present. (FR‑003, SC‑001)
 
 - [X] T017 [US1] **Standardized CSV Verification**. Implement `code/verify_standardized.py` to assert that `standardized.csv`:
- 1. Contains all required columns (including `sequence_length`, `stimulus_modality`).
+ 1. Contains ALL columns defined in `contracts/dataset.schema.yaml`: `duration_estimate`, `stimulus_sequence`, `participant_id`, `surprisal`, `sequence_length`, `stimulus_modality`.
  2. Has ≥100 valid rows.
- 3. Logs success/failure to `analysis/verification_log.json`. (SC‑001)
+ 3. **Note**: This task ensures the artifact is valid for the full duration of Phase 3 and before Phase 4 begins.
+ 4. Logs success/failure to `analysis/verification_log.json`. (SC‑001)
 
-- [ ] T017b [US1] **Markov State Validation**. Verify `markov_state.json` exists, `order == 1`, and write a confirmation entry to `analysis/verification_log.json`. (Constitution VI, SC‑001)
+- [ ] T017b [US1] **Markov State Validation**. Verify `markov_state.json` (produced by T041d) exists, `order == 1`, and write a confirmation entry to `analysis/verification_log.json`. (Constitution VI, SC‑001)
 
-- [X] T042 [US1] **Sample Size Declaration**. Add logic to `code/preprocess.py` to explicitly log the sampling strategy (e.g., "Streaming full dataset" or "Random sample of N=5000") to `data/README.md` (section: "Sampling Strategy") and `analysis/verification_log.json` under key `sampling_strategy`. (Rule: "State the exact streaming/sampling rule")
+- [X] T042 [US1] **Sample Size Declaration**. Add logic to `code/preprocess.py` to explicitly log the sampling strategy (e.g., "Streaming full dataset" or "First N=5000 trials") to `data/README.md` (section: "Sampling Strategy") and `analysis/verification_log.json` under key `sampling_strategy`. (Rule: "State the exact streaming/sampling rule")
 
 ## Phase 4: User Story 2 - Statistical Analysis and Hypothesis Testing (Priority: P2)
 
@@ -110,50 +117,58 @@
 
 ### Implementation for User Story 2
 
-- [X] T043 [US2] **Covariate Verification**. Implement `code/check_covariates.py` to:
+- [X] T043 [US2] **Covariate Verification (Authoritative Check)**. Implement `code/check_covariates.py` to:
  1. Verify that `sequence_length` and `stimulus_modality` columns exist in `data/processed/standardized.csv`.
- 2. If missing, log a warning and set flag `covariates_missing=true`.
- 3. Document the reduction in `analysis/results.json` under key `model_type` (value: `reduced` if missing). (FR‑004, Edge Cases)
+ 2. If missing, log a warning, set flag `covariates_missing=true`, and **HALT** further analysis (T021a).
+ 3. Write `covariates_missing` status to `analysis/results.json`.
+ 4. **Dependency**: This is the authoritative check for covariates; T021a relies on this output. (FR‑004, Edge Cases)
 
-- [X] T026 [US2] **Normality Check & Wilcoxon Supplementary Test**. Implement in `code/analysis.py`:
- 1. Perform Shapiro‑Wilk on `duration_estimate`; store `normality_pval` in `analysis/results.json`.
- 2. If `normality_pval < 0.05`, run a Wilcoxon signed‑rank test on the same predictor, store `wilcoxon_pval` and set `supplementary_test = true`.
- 3. **Dependency**: Must run before T021 to inform fallback logic. (Edge Cases, FR‑004)
+- [X] T026 [US2] **LMM Residual Diagnostics**. Implement in `code/analysis.py`:
+ 1. Fit a preliminary LMM (without surprisal) to check assumptions.
+ 2. Perform Shapiro‑Wilk on **residuals** (not outcome) and check homoscedasticity.
+ 3. Store `residual_normality_pval` and `homoscedasticity_status` in `analysis/results.json`.
+ 4. **Dependency**: Must run before T021a to inform model validity. (Edge Cases, FR‑004)
 
 - [X] T021a [US2] **Fit LMM**. Implement `code/analysis.py` to:
  1. Load `data/processed/standardized.csv`.
- 2. Check `normality_pval` from T026 and `covariates_missing` from T043.
- 3. Fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)` if covariates present and normality holds.
- 4. If covariates missing or normality fails, refit with simplified model `Duration ~ Surprisal + (1 | Participant_ID)`.
+ 2. **Check `covariates_missing` from T043**: If true, **HALT** execution and report error in `analysis/results.json`. Do NOT refit a simplified model.
+ 3. **Check `residual_normality_pval` from T026**: If non-normal, log warning but proceed (LMM robustness).
+ 4. Fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)`.
  5. Write intermediate results (`coef`, `pval`, `convergence_status`) to `analysis/results.json`. (FR‑004, SC‑002)
 
 - [X] T021b [US2] **Handle Convergence Failure**. (Sub-task of T021a logic) If full model fails to converge, refit with random-intercept-only model. Log simplification in `analysis/results.json`. (SC‑002)
 
 - [X] T021c [US2] **Write Results**. (Sub-task of T021a logic) Ensure all results are written to `analysis/results.json`. (SC‑002)
 
-- [X] T021a [US2] **Model Convergence Reporting**. After T021, compute the proportion of datasets where the full model converged without fallback and write `analysis/convergence_report.json`. (SC‑002)
+- [X] T021d [US2] **Model Convergence Reporting**. After T021a, compute the proportion of datasets where the full model converged without fallback and write `analysis/convergence_report.json`. (SC‑002)
 
-- [X] T023a [US2] **Test Count & Correction Decision**. In `code/analysis.py`:
+- [ ] T023a [US2] **Test Count & Correction Decision**. In `code/analysis.py`:
  1. Count the number of hypothesis tests performed.
  2. Set flag `needs_correction` = (test_count > 1).
  3. Write `needs_correction` to `analysis/results.json`. (FR‑005, SC‑003)
 
-- [X] T023b [US2] **Multiple‑Comparison Correction**. In `code/analysis.py`:
+- [ ] T023b [US2] **Multiple‑Comparison Correction**. In `code/analysis.py`:
  1. **Conditionally** apply Benjamini-Hochberg correction ONLY if `needs_correction` is true (from T023a).
  2. If `needs_correction` is false, skip correction and log `correction_applied=false`.
  3. Write `adjusted_pvalues` and `correction_applied` to `analysis/results.json`. (FR‑005, SC‑003)
 
-- [X] T023b [US2] **FWER Verification**. Verify that after correction (if applied) the family‑wise error rate ≤ 0.05; write `fwer_control_status` (boolean) to `analysis/results.json`. (SC‑003)
+- [X] T023c [US2] **FWER Verification**. Verify that after correction (if applied) the family‑wise error rate ≤ 0.05; write `fwer_control_status` (boolean) to `analysis/results.json`. (SC‑003)
 
 - [X] T024 [US2] **Effect Size with Confidence Intervals**. Compute Cohen’s d and its 95 % CI using `pingouin.compute_effsize`; store under `effect_sizes` with keys `d` and `ci` in `analysis/results.json`. (FR‑006)
 
 - [X] T025 [US2] **Minimum Detectable Effect (MDE) & Limitation Reporting**. Using `pingouin.power_ttest` (or appropriate LMM power function), calculate MDE for power = `config.POWER_TARGET` given observed variance and sample size. Write `mde` and a boolean `mde_limitation` (true if observed effect < MDE) to `analysis/results.json`. (FR‑007, SC‑005)
 
+- [X] T025d [US2] **MDE Limitation Reporting**. If `mde_limitation` is true (from T025), explicitly write a human-readable `limitation_statement` to `analysis/results.json` explaining that the observed effect is smaller than the MDE and the result is underpowered. (FR‑007, SC‑005)
+
 - [X] T025b [US2] **MDE Reporting for All Datasets**. Ensure the MDE calculation (T025) runs for every dataset analyzed, regardless of outcome, and logs to `analysis/mde_report.json`. (SC‑005)
 
-- [X] T025c [US2] **Cutoff Sensitivity Sweep**. Scan the pipeline for any binary cutoffs introduced; if found, perform a sensitivity sweep over a range of low thresholds and log results under `analysis/cutoff_sensitivity.json`. (Assumption 7, FR‑005)
+- [ ] T025c [US2] **Cutoff Sensitivity Analysis (Conditional)**. Implement `code/analysis.py` to:
+ 1. Check if the researcher introduced any *new* binary cutoffs (e.g., high vs. low surprisal) in the pipeline by scanning `data/processed/standardized.csv` for columns that are binary (0/1) and not present in the original schema.
+ 2. **If no new binary columns are found**, this task is a no-op; log `cutoff_sensitivity_skipped=true`.
+ 3. **If cutoffs exist**, perform a sensitivity sweep and log results.
+ 4. Write `cutoff_sensitivity_status` to `analysis/results.json`. (Assumption 7)
 
-- [X] T026a [US2] **Primary Result Presence Verification**. Verify that `analysis/results.json` always contains keys `coef_surprisal` and `pval_surprisal` from the LMM (or simplified model). Log any deviation to `analysis/verification_log.json`. (Constraint Preservation)
+- [X] T027 [US2] **Primary Result Presence Verification**. Verify that `analysis/results.json` always contains keys `coef_surprisal` and `pval_surprisal` from the LMM (or simplified model). Log any deviation to `analysis/verification_log.json`. (Constraint Preservation)
 
 - [X] T028 [US2] **Bootstrap Resampling**. Using `joblib.Parallel(n_jobs=2)` (fallback to a single core if only one core is available), perform bootstrap resampling to obtain robust CIs for fixed effects; append results to `analysis/results.json` and log runtime to `analysis/runtime.log`. (FR‑009)
 
@@ -193,13 +208,28 @@
 
 - [X] T034g [US3] **6‑Hour Constraint Reporting**. Consolidate runtime metrics from T034a, T034b, T034e into `analysis/constraint_report.json` indicating compliance or violation. (SC‑004, SC‑006)
 
-- [X] T033d [US3] **Dockerfile Optimization**. Update `Dockerfile` (T033a) to ensure the environment is CPU-optimized (no CUDA libraries installed) and that the entrypoint enforces the 6-hour timeout via `ENTRYPOINT ["timeout", "21600", "python", "code/run_pipeline.py"]`. (SC‑004, SC‑006)
+- [X] T033d [US3] **Dockerfile Optimization**. Update `Dockerfile` (T033a) to ensure the environment is CPU-optimized (no CUDA libraries installed) and that the entrypoint enforces a configurable timeout via `ENTRYPOINT ["timeout", "a_sufficient_duration", "python", "code/run_pipeline.py"]`. (SC‑004, SC‑006)
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase 6: Data Gap Resolution (Manual Intervention) (Priority: P0 - Post-Blocker)
 
-- [X] T035 [P] Documentation updates in `docs/` and `data/README.md`
-- [X] T036 [P] Code cleanup and refactoring in `code/`
-- [X] T037 [P] Run `quickstart.md` validation to ensure reproducibility (SC‑006)
+**Goal**: Address the critical data gap identified in Plan.md. If Phase 0 halts due to no valid datasets, this phase provides the mechanism for **manual** intervention to add a verified source.
+
+- [X] T050 [P] [US1] **Manual Dataset Injection Protocol (Instruction)**. **Human Action**: The researcher MUST manually edit `data/README.md` to add a new dataset entry to the 'Verified datasets' YAML block.
+ 1. **Action**: Open `data/README.md`.
+ 2. **Format**: Add `- id: <NEW_ID>, source: <OpenML|HF>, url: <URL>` to the YAML list.
+ 3. **Constraint**: Do NOT use any script to inject data. The system must not automate this step. (Rule: "Manual intervention required", FR-001)
+
+- [X] T051 [US1] **Validate Manual Update**. Implement `code/validate_manual_update.py` to:
+ 1. Check if `data/blocked_status.json` exists.
+ 2. If it exists, re-parse `data/README.md` (T012a logic) to verify the new dataset entry is present and valid.
+ 3. If valid, remove `data/blocked_status.json` and log "Blocker cleared by manual update".
+ 4. If invalid, raise `ValueError` and log the rejection reason.
+ 5. **Constraint**: This script ONLY validates; it does NOT inject data. (Rule: "If a verified real data source is injected, USE it", FR-001)
+
+- [X] T052 [US1] **Re-run Trigger**. Implement `scripts/trigger_recheck.py` to:
+ 1. Check if `data/blocked_status.json` exists.
+ 2. If it exists and T051 has cleared it (or if `data/dataset_ids.txt` has been manually updated), automatically re-run `code/download.py` (T012b) and subsequent pipeline steps.
+ 3. If not modified, exit with code 0 and log "No changes detected, manual intervention required." (Gate 0 logic)
 
 ## Dependencies & Execution Order
 
@@ -209,7 +239,7 @@
 - **Setup (Phase 1)** can run in parallel with Phase 0.
 - **Foundational (Phase 2)** depends on successful completion of Phase 0.
 - **User Stories** (Phases 3‑5) depend on Phase 2.
-- **Polish (Phase N)** depends on all user‑story phases.
+- **Polish (Phase N)** depends on all user‑story phases.
 
 ### Parallel Opportunities
 
