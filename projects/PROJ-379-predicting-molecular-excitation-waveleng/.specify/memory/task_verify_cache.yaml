@@ -1,18 +1,32 @@
+T010:
+  c: false
+  h: 61e880c5be7569f52390a5501f0154420d5b3d6142e299f41e4cfde25feedf76
+  r: "The required output file `data/processed/split_indices.json` is missing, and\
+    \ the provided `code/split.py` is incomplete (truncated) and does not contain\
+    \ logic to write split indices to that JSON file. Consequently the task\u2019\
+    s core deliverable is not satisfied."
 T015b:
   c: false
-  h: 91d79f95033a2cf98eb958de48756c5edb44397dc90091aa54cf6ec45832c344
-  r: The provided `code/timing_logger.py` is truncated (the `main` function is unfinished
-    and the file would not run), and the required output file `data/processed/timing.json`
-    does not exist. Both the functional implementation and the generated timing artifact
-    are missing.
+  h: 92f673d95c1802e3e6abeee2b1983dd28068bcae740feb303298c616194c7ca7
+  r: "The provided `pipeline_wrapper.py` is truncated, contains undefined variables\
+    \ (e.g., `TOTAL_BUDGET`), never writes `data/processed/timing.json`, and does\
+    \ not clearly output the required keys or handle the total\u2011budget RuntimeError\
+    \ as specified. Moreover, the `timing.json` file is missing from the repository.\
+    \ The task therefore remains unfinished."
 T018:
   c: false
-  h: 86f614c446f4dbf84579cf02a3f18d3cb41334148b3ead6d8a956e356fc685a1
-  r: "The `data/processed/power_analysis.json` file does not exist, and the shown\
-    \ portion of `code/evaluate.py` contains no implementation that checks the test\u2011\
-    set size (n\u202F\u2265\u202F50), computes a power\u2011analysis status, or writes\
-    \ those results to the JSON file. The required power\u2011analysis logic and output\
-    \ artifact are missing."
+  h: 9fa6996a39bd3add5c85db8829284a6807f49133011c39410f31910499477dc9
+  r: "The provided `code/power_analysis.py` is incomplete (truncated, lacks logic\
+    \ to compute the required sample size `n`, and does not write `power_analysis.json`).\
+    \ Moreover, the required input file `data/processed/split_indices.json` and the\
+    \ expected output file `data/processed/power_analysis.json` are absent. The task\u2019\
+    s specifications are therefore not met."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or configuration file was provided that reads `power_analysis.json`,
+    checks the sample size `n`, sets `low_power_flag=True` when `n < 50`, and logs
+    a warning. The required artifact implementing this enforcement is missing.
 T022:
   c: false
   h: ba6daf0bf9afd833e0adb6b3e2d7ffcef07f10952eb25cc6be62a9976a53f3af
@@ -20,6 +34,21 @@ T022:
     so no integration test for the sensitivity sweep and collinearity flags is present.
     The task cannot be considered completed until this test file is added with appropriate
     test implementations.
+T023a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim only states that the task was moved to Phase\u202F4; no code, data\
+    \ files, scripts, model artifacts, or documentation required by the user stories\
+    \ (e.g., ingestion pipeline, processed CSV, training script, model.pt, evaluation\
+    \ results) are present. Consequently, there is no concrete evidence that the required\
+    \ deliverables exist or meet the specification."
+T023a#1:
+  c: false
+  h: e6fce4012376ecad1c529e876a953225d1825c8f2dcddb0e2115f00845bbaaf5
+  r: "The provided `code/collinearity_check.py` is truncated (e.g., `identify_flagged_bits`\
+    \ ends with a typo and no return logic) and does not contain code that writes\
+    \ `data/processed/collinearity_flags.json`. The required JSON output file is missing,\
+    \ so the task\u2019s output artifact is not produced."
 T024:
   c: false
   h: f9c774306350ed333d63c4bfa258106a6fedf238e8263243a9d40c32a699bbdc

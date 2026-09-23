@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "data/processed/cleaned.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/predictions.csv",
+    "required": []
+  }
+]

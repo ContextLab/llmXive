@@ -31,6 +31,7 @@ def test_cleaned_csv_columns_and_types():
     assert list(df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(df.columns)}"
     
     # Check types
+    # Pandas reads strings as 'object' usually, or 'string' in newer versions
     assert df['smi'].dtype == 'object' or df['smi'].dtype.name == 'string', "smi column must be string"
     assert df['lambda_max'].dtype in ['float64', 'float32', 'int64'], "lambda_max must be numeric (float)"
     assert df['scaffold_id'].dtype == 'object' or df['scaffold_id'].dtype.name == 'string', "scaffold_id must be string"

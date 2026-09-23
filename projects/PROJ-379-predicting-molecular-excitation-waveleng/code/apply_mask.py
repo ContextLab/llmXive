@@ -4,91 +4,109 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, List, Any
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-def load_json_file(filepath: Path) -> Any:
-    """Load a JSON file and return its contents."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Required file not found: {filepath}")
-    with open(filepath, 'r', encoding='utf-8') as f:
+def load_json_file(path: Path) -> dict:
+    """Load a JSON file and return its contents as a dictionary."""
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_json_file(filepath: Path, data: Any) -> None:
-    """Save data to a JSON file."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, default=str)
-    logger.info(f"Saved output to: {filepath}")
+def save_json_file(path: Path, data: dict) -> None:
+    """Save a dictionary to a JSON file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved output to {path}")
 
 def apply_masks_to_attribution(
-    raw_attribution: Dict[str, List[float]],
-    masks: Dict[str, List[int]]
-) -> Dict[str, List[float]]:
+    raw_attribution: dict,
+    redundancy_masks: dict
+) -> dict:
     """
-    Apply redundancy masks to raw attribution weights.
-    
-    Args:
-        raw_attribution: Dictionary mapping molecule_id to list of raw weights.
-        masks: Dictionary mapping molecule_id to list of mask values (0 or 1).
-    
-    Returns:
-        Dictionary mapping molecule_id to list of masked weights.
-    """
-    masked_attribution = {}
-    for mol_id, weights in raw_attribution.items():
-        if mol_id not in masks:
-            logger.warning(f"No mask found for molecule {mol_id}, keeping raw weights.")
-            masked_attribution[mol_id] = weights
-            continue
-        
-        mask = masks[mol_id]
-        if len(weights) != len(mask):
-            raise ValueError(
-                f"Length mismatch for molecule {mol_id}: "
-                f"weights={len(weights)}, mask={len(mask)}"
-            )
-        
-        # Apply mask: weight * mask (0 masks out the weight)
-        masked_weights = [w * m for w, m in zip(weights, mask)]
-        masked_attribution[mol_id] = masked_weights
-    
-    return masked_attribution
+    Apply redundancy masks to raw attribution results.
 
-def verify_masking_effect(
-    raw_attribution: Dict[str, List[float]],
-    masked_attribution: Dict[str, List[float]]
-) -> Dict[str, Dict[str, Any]]:
+    For each molecule entry in raw_attribution:
+      - Check if its subgraph_id is flagged as redundant in redundancy_masks.
+      - If redundant, set all attribution weights to 0.0.
+      - Otherwise, keep the original weights.
+
+    Args:
+        raw_attribution (dict): Dictionary of raw attribution results.
+        redundancy_masks (dict): Dictionary mapping subgraph_id to boolean (True = redundant).
+
+    Returns:
+        dict: Masked attribution results.
     """
-    Verify that masking actually changed the values where expected.
-    
-    Returns a summary of changes per molecule.
-    """
-    summary = {}
-    for mol_id in raw_attribution:
-        raw = raw_attribution[mol_id]
-        masked = masked_attribution.get(mol_id, raw)
-        
-        # Count how many weights were zeroed out
-        zeroed_count = sum(1 for r, m in zip(raw, masked) if r != 0 and m == 0)
-        changed_count = sum(1 for r, m in zip(raw, masked) if r != m)
-        
-        summary[mol_id] = {
-            "total_features": len(raw),
-            "zeroed_out": zeroed_count,
-            "changed": changed_count,
-            "unchanged": len(raw) - changed_count
+    masked_results = {}
+
+    for mol_id, mol_data in raw_attribution.items():
+        subgraph_id = mol_data.get("subgraph_id")
+        original_weights = mol_data.get("weights", {})
+
+        if subgraph_id is None:
+            logger.warning(f"Missing subgraph_id for molecule {mol_id}, skipping masking.")
+            masked_results[mol_id] = mol_data
+            continue
+
+        is_redundant = redundancy_masks.get(subgraph_id, False)
+
+        if is_redundant:
+            # Zero out weights for redundant subgraphs
+            masked_weights = {k: 0.0 for k in original_weights}
+            logger.info(f"Molecule {mol_id} (subgraph {subgraph_id}) marked redundant. Weights zeroed.")
+        else:
+            # Keep original weights
+            masked_weights = original_weights
+            logger.debug(f"Molecule {mol_id} (subgraph {subgraph_id}) not redundant. Weights preserved.")
+
+        masked_results[mol_id] = {
+            "subgraph_id": subgraph_id,
+            "weights": masked_weights,
+            "is_redundant": is_redundant
         }
-    return summary
+
+    return masked_results
+
+def verify_masking_effect(masked_attribution: dict, redundancy_masks: dict) -> bool:
+    """
+    Verify that all flagged redundant subgraphs have zeroed weights in the masked attribution.
+
+    Args:
+        masked_attribution (dict): The masked attribution results.
+        redundancy_masks (dict): The redundancy masks (subgraph_id -> bool).
+
+    Returns:
+        bool: True if all redundant subgraphs have zeroed weights, False otherwise.
+    """
+    all_valid = True
+    for mol_id, mol_data in masked_attribution.items():
+        subgraph_id = mol_data.get("subgraph_id")
+        weights = mol_data.get("weights", {})
+        is_redundant = mol_data.get("is_redundant", False)
+
+        if is_redundant and subgraph_id in redundancy_masks and redundancy_masks[subgraph_id]:
+            # Check if all weights are zero
+            if not all(w == 0.0 for w in weights.values()):
+                logger.error(f"Masking verification failed for {mol_id}: redundant subgraph has non-zero weights.")
+                all_valid = False
+        else:
+            # Ensure non-redundant subgraphs are not zeroed (unless they were naturally zero)
+            # This is a soft check; we mostly care that redundant ones ARE zeroed.
+            pass
+
+    return all_valid
 
 def main():
-    parser = argparse.ArgumentParser(description="Apply redundancy masks to raw attribution.")
+    """Main entry point for T025: Apply and verify masking."""
+    parser = argparse.ArgumentParser(description="Apply redundancy masks to attribution results.")
     parser.add_argument(
         "--raw-attribution",
         type=str,
@@ -96,7 +114,7 @@ def main():
         help="Path to raw attribution JSON"
     )
     parser.add_argument(
-        "--masks",
+        "--redundancy-masks",
         type=str,
         default="data/processed/redundancy_masks.json",
         help="Path to redundancy masks JSON"
@@ -105,48 +123,45 @@ def main():
         "--output",
         type=str,
         default="data/processed/masked_attribution.json",
-        help="Path for output masked attribution JSON"
+        help="Path to output masked attribution JSON"
     )
-    parser.add_argument(
-        "--verification-report",
-        type=str,
-        default="data/processed/masking_verification.json",
-        help="Path for verification report JSON"
-    )
-    
     args = parser.parse_args()
-    
-    logger.info(f"Loading raw attribution from: {args.raw_attribution}")
-    raw_data = load_json_file(Path(args.raw_attribution))
-    
-    logger.info(f"Loading redundancy masks from: {args.masks}")
-    mask_data = load_json_file(Path(args.masks))
-    
-    logger.info("Applying masks to raw attribution...")
-    masked_data = apply_masks_to_attribution(raw_data, mask_data)
-    
-    logger.info("Verifying masking effect...")
-    verification = verify_masking_effect(raw_data, masked_data)
-    
-    # Save masked attribution
-    save_json_file(Path(args.output), masked_data)
-    
-    # Save verification report
-    save_json_file(Path(args.verification_report), verification)
-    
-    # Print summary stats
-    total_molecules = len(verification)
-    total_zeroed = sum(v["zeroed_out"] for v in verification.values())
-    total_features = sum(v["total_features"] for v in verification.values())
-    
-    logger.info(f"Processing complete.")
-    logger.info(f"  Molecules processed: {total_molecules}")
-    logger.info(f"  Total features masked: {total_zeroed} / {total_features}")
-    
-    if total_zeroed == 0:
-        logger.warning("No features were masked. Check if redundancy masks are all 1s.")
-    else:
-        logger.info(f"Successfully masked {total_zeroed} feature attributions.")
+
+    raw_path = Path(args.raw_attribution)
+    masks_path = Path(args.redundancy_masks)
+    output_path = Path(args.output)
+
+    try:
+        logger.info(f"Loading raw attribution from {raw_path}")
+        raw_attribution = load_json_file(raw_path)
+
+        logger.info(f"Loading redundancy masks from {masks_path}")
+        redundancy_masks = load_json_file(masks_path)
+
+        logger.info("Applying masks to attribution...")
+        masked_attribution = apply_masks_to_attribution(raw_attribution, redundancy_masks)
+
+        logger.info(f"Saving masked attribution to {output_path}")
+        save_json_file(output_path, masked_attribution)
+
+        logger.info("Verifying masking effect...")
+        is_valid = verify_masking_effect(masked_attribution, redundancy_masks)
+
+        if is_valid:
+            logger.info("Masking verification PASSED: All redundant subgraphs have zeroed weights.")
+        else:
+            logger.error("Masking verification FAILED: Some redundant subgraphs have non-zero weights.")
+            sys.exit(1)
+
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON format in input file: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during masking: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

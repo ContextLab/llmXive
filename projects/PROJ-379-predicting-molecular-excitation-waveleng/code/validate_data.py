@@ -1,204 +1,139 @@
 """
-Data Validity Gate for Molecular Excitation Wavelengths.
+T009: Data Validity Gate Implementation
 
-This module checks for the presence of the 'lambda_max_exp' column in the
-processed dataset. If only computed values exist (no experimental data),
-it explicitly logs the limitation and reframes SC-001 to "prediction of
-computed values" without silently reducing validity.
-
-Usage:
-    python code/validate_data.py
+Logic:
+1. Read data/processed/cleaned.csv (produced by T008).
+2. Check if 'lambda_max' values are purely computed (no experimental source flag) 
+   OR if the dataset is entirely synthetic/fake (which should have been prevented by T008).
+3. If ONLY computed values exist (and no experimental ground truth is available):
+   - Reframe SC-001: Update state YAML to set sc001_status = "computed_ground_truth".
+   - Log the reframing message.
+   - Exit with code 0 (do not halt the pipeline).
+4. If experimental data exists, proceed normally (SC-001 remains active).
+5. If the dataset is empty or invalid, raise an error.
 """
-
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import pandas as pd
+import yaml
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/processed/validate_data.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-from utils import get_logger, setup_logging
+PROJECT_ROOT = Path(__file__).parent.parent
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-379-predicting-molecular-excitation-waveleng.yaml"
+CLEANED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned.csv"
+LOG_MESSAGE = "SC-001 reframed: Experimental noise floor assumption invalid. Success criteria now based on computed ground truth."
 
-# Configuration
-# T008 outputs to data/processed/cleaned.csv
-INPUT_FILE = project_root / "data" / "processed" / "cleaned.csv"
-OUTPUT_FILE = project_root / "data" / "processed" / "validation_report.json"
-LOG_FILE = project_root / "data" / "logs" / "validate_data.log"
+def load_state_file(path: Path) -> Dict[str, Any]:
+    """Load the project state YAML file."""
+    if not path.exists():
+        logger.warning(f"State file not found at {path}. Creating new structure.")
+        return {"artifact_hashes": {}, "updated_at": None, "sc001_status": "pending"}
+    
+    try:
+        with open(path, 'r') as f:
+            return yaml.safe_load(f) or {"artifact_hashes": {}, "updated_at": None, "sc001_status": "pending"}
+    except Exception as e:
+        logger.error(f"Failed to load state file: {e}")
+        return {"artifact_hashes": {}, "updated_at": None, "sc001_status": "pending"}
 
-# Ensure log directory exists
-LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+def save_state_file(path: Path, data: Dict[str, Any]) -> None:
+    """Save the project state YAML file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False)
+    logger.info(f"State file updated at {path}")
 
-def validate_data(input_path: Path) -> Dict[str, Any]:
+def validate_data() -> bool:
     """
-    Validate the input dataset for experimental lambda_max values.
-
-    Args:
-        input_path: Path to the input CSV file.
-
-    Returns:
-        Dictionary containing validation results and status.
+    Main validation logic for T009.
+    Returns True if validation passes (or is reframed), False otherwise.
     """
-    logger = get_logger("validate_data")
-    logger.info(f"Starting validation for {input_path}")
-
-    if not input_path.exists():
-        error_msg = f"Input file not found: {input_path}"
-        logger.error(error_msg)
-        return {
-            "status": "FAIL",
-            "error": error_msg,
-            "has_experimental_data": False,
-            "missing_columns": ["lambda_max_exp"],
-            "sc001_validity": "FAIL",
-            "sc001_reframed": False,
-            "limitation_log": "Input file missing."
-        }
+    logger.info("Starting T009: Data Validity Gate")
+    
+    if not CLEANED_DATA_PATH.exists():
+        logger.error(f"Cleaned data file not found at {CLEANED_DATA_PATH}. "
+                     "Please ensure T008 (ingest.py) has run successfully.")
+        return False
 
     try:
-        # Load data with chunking for memory efficiency if needed
-        # Using chunksize=100000 to handle large files within 7GB RAM
-        chunks = []
-        for chunk in pd.read_csv(input_path, chunksize=100000):
-            chunks.append(chunk)
-
-        df = pd.concat(chunks, ignore_index=True)
-        logger.info(f"Loaded {len(df)} rows")
-
+        df = pd.read_csv(CLEANED_DATA_PATH)
     except Exception as e:
-        error_msg = f"Failed to load CSV: {str(e)}"
-        logger.error(error_msg)
-        return {
-            "status": "FAIL",
-            "error": error_msg,
-            "has_experimental_data": False,
-            "missing_columns": ["lambda_max_exp"],
-            "sc001_validity": "FAIL",
-            "sc001_reframed": False,
-            "limitation_log": error_msg
-        }
+        logger.error(f"Failed to read cleaned data: {e}")
+        return False
 
-    # Check for required column
-    required_column = "lambda_max_exp"
-    has_column = required_column in df.columns
+    if df.empty:
+        logger.error("Cleaned data is empty. Cannot proceed with validation.")
+        return False
 
-    missing_cols = []
-    if not has_column:
-        missing_cols.append(required_column)
-        logger.warning(f"Missing required column: {required_column}")
-        # If the column is missing entirely, we cannot validate experimental data.
-        # We must fail loud as per constraints, but also log the specific limitation.
-        limitation_msg = (
-            f"Column '{required_column}' is missing from dataset. "
-            "Cannot validate experimental data. SC-001 validity fails."
-        )
-        logger.error(limitation_msg)
-        return {
-            "status": "FAIL",
-            "has_experimental_data": False,
-            "missing_columns": missing_cols,
-            "sc001_validity": "FAIL",
-            "sc001_reframed": False,
-            "limitation_log": limitation_msg,
-            "total_rows": len(df),
-            "input_file": str(input_path)
-        }
+    # Check for 'lambda_max' column
+    if 'lambda_max' not in df.columns:
+        logger.error("Missing 'lambda_max' column in cleaned data.")
+        return False
 
-    # Check for any lambda_max columns (to detect computed-only datasets)
-    lambda_cols = [col for col in df.columns if "lambda_max" in col.lower()]
-    logger.info(f"Found lambda_max related columns: {lambda_cols}")
-
-    # Determine if we have experimental data
-    # We check if the column has non-null values.
-    # If the column exists but is all NaN, it implies computed-only or missing data.
-    non_null_count = df[required_column].notna().sum()
-    has_experimental = non_null_count > 0
-
-    if has_experimental:
-        logger.info(f"Found {non_null_count} experimental values in {required_column}")
-        sc001_status = "PASS"
-        overall_status = "PASS"
-        sc001_reframed = False
-        limitation_log = "Experimental data present."
+    # Check for source indicators (e.g., 'source_type', 'is_computed', etc.)
+    # If the dataset lacks experimental source flags, we assume it's computed-only
+    # based on the task description: "If only computed lambda_max values exist (no experimental)"
+    source_cols = [col for col in df.columns if 'source' in col.lower() or 'experimental' in col.lower()]
+    
+    is_computed_only = False
+    
+    if not source_cols:
+        # No source columns found -> assume computed-only (or synthetic, but T008 should prevent synthetic)
+        logger.warning("No source type columns found in dataset. Assuming computed-only ground truth.")
+        is_computed_only = True
     else:
-        # The column exists but contains no non-null values.
-        # This indicates a computed-only dataset or a data ingestion failure.
-        # Per task T009: "If only computed values exist, reframe SC-001... and log the limitation explicitly"
-        logger.warning(f"Column {required_column} exists but contains no non-null values (Computed-only dataset detected).")
+        # Check if all entries are marked as computed
+        for col in source_cols:
+            if df[col].dtype == 'object':
+                unique_vals = df[col].unique()
+                if all(v in ['computed', 'calculated', 'theoretical'] for v in unique_vals if pd.notna(v)):
+                    is_computed_only = True
+                    logger.info(f"All values in '{col}' indicate computed ground truth.")
+                    break
+            elif df[col].dtype == 'bool':
+                if df[col].all(): # Assuming True means computed
+                    is_computed_only = True
+                    logger.info(f"All values in '{col}' indicate computed ground truth.")
+                    break
+
+    if is_computed_only:
+        logger.warning(LOG_MESSAGE)
         
-        sc001_status = "FAIL" # Fails the strict experimental gate
-        overall_status = "FAIL"
-        sc001_reframed = True
-        limitation_log = (
-            "Dataset contains only computed values for 'lambda_max_exp' (no experimental data found). "
-            "SC-001 validity gate FAILS for experimental prediction. "
-            "SC-001 is effectively reframed to 'prediction of computed values' for this run. "
-            "Limitation logged explicitly as per T009 requirements."
-        )
-        logger.warning(limitation_log)
-
-    # Calculate basic statistics if data exists
-    stats = {}
-    if has_column:
-        stats = {
-            "count": int(non_null_count),
-            "mean": float(df[required_column].mean()) if non_null_count > 0 else None,
-            "std": float(df[required_column].std()) if non_null_count > 0 else None,
-            "min": float(df[required_column].min()) if non_null_count > 0 else None,
-            "max": float(df[required_column].max()) if non_null_count > 0 else None
-        }
-
-    return {
-        "status": overall_status,
-        "has_experimental_data": has_experimental,
-        "missing_columns": missing_cols,
-        "sc001_validity": sc001_status,
-        "sc001_reframed": sc001_reframed,
-        "limitation_log": limitation_log,
-        "column_stats": stats,
-        "total_rows": len(df),
-        "input_file": str(input_path),
-        "validation_columns_checked": lambda_cols
-    }
+        # Update state file
+        state = load_state_file(STATE_FILE)
+        state['sc001_status'] = "computed_ground_truth"
+        state['updated_at'] = pd.Timestamp.now().isoformat()
+        save_state_file(STATE_FILE, state)
+        
+        logger.info("State updated: sc001_status set to 'computed_ground_truth'")
+        return True
+    else:
+        logger.info("Experimental ground truth detected. SC-001 remains active.")
+        return True
 
 def main():
-    """Main entry point for the validation script."""
-    setup_logging(LOG_FILE)
-    logger = get_logger("validate_data")
-
-    logger.info("=" * 60)
-    logger.info("Starting Data Validity Gate (T009)")
-    logger.info("=" * 60)
-
-    # Run validation
-    result = validate_data(INPUT_FILE)
-
-    # Ensure output directory exists
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write results to JSON
-    with open(OUTPUT_FILE, 'w') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Validation report written to: {OUTPUT_FILE}")
-    logger.info(f"Status: {result['status']}")
-    logger.info(f"SC-001 Validity: {result['sc001_validity']}")
-    if result.get('sc001_reframed'):
-        logger.warning(f"SC-001 Reframed: {result['limitation_log']}")
-
-    # Exit with error code if validation failed
-    # This enforces the "fail loud" policy if experimental data is missing
-    if result['status'] == 'FAIL':
-        logger.error("Validation failed. Exiting with error code 1.")
-        sys.exit(1)
-    else:
-        logger.info("Validation completed successfully.")
+    """Entry point for the script."""
+    success = validate_data()
+    if success:
+        logger.info("T009 validation passed.")
         sys.exit(0)
+    else:
+        logger.error("T009 validation failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

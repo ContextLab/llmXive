@@ -1,0 +1,25 @@
+{
+  "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/evaluate.py: self-declared fabricated metric \u2014 \u201c\u2026graph prep,         # we will simulate the metric computation structure to ensu\u2026\u201d; 10 command(s) failed: python code/ingest.py (rc=1); python code/split.py (rc=1); python code/merge_split.py (rc=1); 12 declared deliverable(s) absent: data/processed/cleaned.csv; data/processed/collinearity_flags.json; data/processed/masked_attribution.json",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/ingest.py\", line 18, in <module>\n    from models import Molecule\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/models.py\", line 2, in <module>\n    from pydantic import BaseModel, Field, field_validator\nModuleNotFoundError: No module named 'pydantic'",
+    "python code/split.py -> rc=1\n    2026-09-23 11:09:31,393 - __main__ - INFO - Starting split pipeline...\n2026-09-23 11:09:31,393 - __main__ - ERROR - Split pipeline failed: Input file not found: data/processed/cleaned.csv",
+    "python code/merge_split.py -> rc=1\n    2026-09-23 11:09:31,703 - __main__ - INFO - Starting merge split pipeline...\n2026-09-23 11:09:31,703 - __main__ - ERROR - Merge split pipeline failed: Cleaned data not found: data/processed/cleaned.csv",
+    "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/train.py\", line 24, in <module>\n    import torch\nModuleNotFoundError: No module named 'torch'",
+    "python code/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/evaluate.py\", line 15, in <module>\n    import torch\nModuleNotFoundError: No module named 'torch'",
+    "python code/collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/collinearity_check.py\", line 12, in <module>\n    from models import Molecule\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/models.py\", line 2, in <module>\n    from pydantic import BaseModel, Field, field_validator\nModuleNotFoundError: No module named 'pydantic'",
+    "python code/explain.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/explain.py\", line 8, in <module>\n    import torch\nModuleNotFoundError: No module named 'torch'",
+    "python code/sensitivity.py -> rc=1\n    2026-09-23 11:09:32,634 - sensitivity - ERROR - Predictions file not found at data/processed/predictions.csv. Please run code/evaluate.py first to generate predictions.",
+    "python code/analyze_results.py -> rc=1\n    2026-09-23 11:09:32,689 - __main__ - INFO - Starting T027: Aggregating results...\n2026-09-23 11:09:32,689 - __main__ - ERROR - Required artifact missing: /home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/data/processed/metrics.json\n2026-09-23 11:09:32,689 - __main__ - ERROR - Missing required input file: Required artifact missing: /home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/data/processed/metrics.json",
+    "python code/run_quickstart_validation.py -> rc=1\n    O - Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng\n2026-09-23 11:09:32,714 - INFO - Environment: CPU-only (CUDA_VISIBLE_DEVICES=)\n2026-09-23 11:09:32,714 - INFO - --- Running Data Ingestion ---\n2026-09-23 11:09:32,863 - ERROR - Data Ingestion failed: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/.venv/bin/python', '/home/runner/work/llmXive/llmXive/projects/PROJ-379-predicting-molecular-excitation-waveleng/code/ingest.py"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-23T11:09:34Z"
+}

@@ -1,343 +1,297 @@
+"""
+Molecular Graph Neural Network (MPNN) and Baseline Models.
+
+This module implements:
+1. MPNN: A Message Passing Neural Network with 2 layers, mean aggregation,
+   designed to have <1M parameters.
+2. RidgeBaseline: A baseline model using ECFP fingerprints + Ridge Regression.
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 from torch_geometric.data import Data
-from typing import Optional, List, Tuple
-import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
-import logging
+import numpy as np
+from typing import Tuple, List, Optional
+import os
+import sys
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Ensure device is CPU-only as per constraints
+DEVICE = torch.device('cpu')
 
-class MPNN(MessagePassing):
+class MPNNLayer(MessagePassing):
     """
-    Message Passing Neural Network (MPNN) for molecular property prediction.
-    Designed to be lightweight (<1M parameters) and suitable for CPU execution.
+    A single Message Passing layer with mean aggregation.
+    """
+    def __init__(self, in_channels: int, out_channels: int):
+        super(MPNNLayer, self).__init__(aggr='mean')
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
+        # Message MLP
+        self.message_mlp = nn.Sequential(
+            nn.Linear(in_channels * 2, out_channels),
+            nn.ReLU(),
+            nn.Linear(out_channels, out_channels)
+        )
+
+        # Update MLP
+        self.update_mlp = nn.Sequential(
+            nn.Linear(in_channels + out_channels, out_channels),
+            nn.ReLU(),
+            nn.Linear(out_channels, out_channels)
+        )
+
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+        # x: [N, in_channels]
+        # edge_index: [2, E]
+        # Propagate messages
+        out = self.propagate(edge_index, x=x)
+        
+        # Update node features
+        # Concat original x with aggregated messages
+        out = torch.cat([x, out], dim=1)
+        out = self.update_mlp(out)
+        return out
+
+    def message(self, x_i: torch.Tensor, x_j: torch.Tensor) -> torch.Tensor:
+        # x_i: target, x_j: source
+        msg_input = torch.cat([x_i, x_j], dim=1)
+        return self.message_mlp(msg_input)
+
+class MPNN(nn.Module):
+    """
+    Message Passing Neural Network for molecular property prediction.
     
     Architecture:
-    - 3 Message Passing Layers
-    - Readout: Global Mean Pooling
-    - Output: Single scalar (lambda_max)
-    """
+    - 2 Message Passing Layers
+    - Mean aggregation
+    - Global mean pooling
+    - 2-layer MLP head
     
-    def __init__(self, node_dim: int = 64, hidden_dim: int = 64, num_layers: int = 3):
-        """
-        Initialize the MPNN model.
+    Target: <1M parameters.
+    """
+    def __init__(self, in_features: int = 2048, hidden_dim: int = 128, 
+                 num_layers: int = 2, out_features: int = 1):
+        super(MPNN, self).__init__()
         
-        Args:
-            node_dim: Input feature dimension (size of ECFP or atom features)
-            hidden_dim: Hidden dimension for message passing
-            num_layers: Number of message passing layers (default 3)
-        """
-        super(MPNN, self).__init__(aggr='add')  # Use 'add' aggregation
-        self.num_layers = num_layers
+        self.embedding = nn.Linear(in_features, hidden_dim)
         
-        # Input projection
-        self.lin_in = nn.Linear(node_dim, hidden_dim)
-        
-        # Message Passing Layers
-        self.message_layers = nn.ModuleList()
-        self.update_layers = nn.ModuleList()
-        
+        # 2 MPNN layers
+        self.mpnn_layers = nn.ModuleList()
         for _ in range(num_layers):
-            # Message function: W * h_i + W * h_j (simplified)
-            self.message_layers.append(nn.Linear(hidden_dim * 2, hidden_dim))
-            # Update function: GRU-like update
-            self.update_layers.append(nn.GRUCell(hidden_dim, hidden_dim))
+            self.mpnn_layers.append(MPNNLayer(hidden_dim, hidden_dim))
         
-        # Readout layers
-        self.lin_out_1 = nn.Linear(hidden_dim, hidden_dim)
-        self.lin_out_2 = nn.Linear(hidden_dim, 1)
+        # Global pooling (mean)
+        # Then MLP head
+        self.head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, out_features)
+        )
         
         self._init_weights()
-        
-        # Log parameter count
-        total_params = sum(p.numel() for p in self.parameters())
-        logger.info(f"MPNN initialized with {total_params:,} parameters")
-        
-        if total_params >= 1_000_000:
-            logger.warning(f"Parameter count {total_params} exceeds 1M limit!")
-        else:
-            logger.info(f"Parameter count {total_params} is within 1M limit.")
+        self._count_params()
 
     def _init_weights(self):
-        """Initialize weights with Xavier initialization."""
-        for module in [self.lin_in, self.lin_out_1, self.lin_out_2]:
-            nn.init.xavier_uniform_(module.weight)
-            if module.bias is not None:
-                nn.init.zeros_(module.bias)
-        
-        for layer in self.message_layers:
-            nn.init.xavier_uniform_(layer.weight)
-            if layer.bias is not None:
-                nn.init.zeros_(layer.bias)
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    def _count_params(self):
+        total_params = sum(p.numel() for p in self.parameters())
+        trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        # Log to ensure <1M constraint
+        print(f"Model Parameters: Total={total_params:,}, Trainable={trainable_params:,}")
+        if trainable_params >= 1_000_000:
+            print(f"WARNING: Model has {trainable_params} params, exceeds 1M limit.")
+        else:
+            print(f"OK: Model has {trainable_params} params (<1M).")
 
     def forward(self, x: torch.Tensor, edge_index: torch.Tensor, 
                 batch: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Forward pass through the MPNN.
-        
         Args:
-            x: Node features [num_nodes, node_dim]
-            edge_index: Edge indices [2, num_edges]
-            batch: Batch vector for pooling [num_nodes]
-        
+            x: Node features [N, in_features]
+            edge_index: [2, E]
+            batch: Batch vector [N] (optional, for multiple graphs)
         Returns:
-            Predictions [num_graphs]
+            predictions: [num_graphs]
         """
-        # Project input features
-        h = self.lin_in(x)
+        # Embedding
+        x = self.embedding(x)
+        x = F.relu(x)
         
         # Message Passing
-        for i in range(self.num_layers):
-            # Create messages
-            m = self.propagate(edge_index, x=h)
-            # Update hidden states
-            h = self.update_layers[i](m, h)
-            h = F.relu(h)
+        for layer in self.mpnn_layers:
+            x = layer(x, edge_index)
+            x = F.relu(x)
         
-        # Readout: Global Mean Pooling
+        # Global Pooling
         if batch is None:
-            # Single graph
-            h_graph = h.mean(dim=0, keepdim=True)
+            # Single graph case
+            graph_repr = x.mean(dim=0, keepdim=True)
         else:
-            # Multiple graphs
-            h_graph = self.pool(h, batch)
+            # Multiple graphs case
+            from torch_geometric.nn import global_mean_pool
+            graph_repr = global_mean_pool(x, batch)
         
-        # Output layers
-        out = F.relu(self.lin_out_1(h_graph))
-        out = self.lin_out_2(out)
-        
-        return out.squeeze(-1)
-
-    def message(self, x_j: torch.Tensor, x_i: torch.Tensor) -> torch.Tensor:
-        """
-        Compute messages for edge (i, j).
-        
-        Args:
-            x_j: Source node features
-            x_i: Target node features
-        
-        Returns:
-            Messages [num_edges, hidden_dim]
-        """
-        # Concatenate source and target features
-        edge_features = torch.cat([x_i, x_j], dim=1)
-        return self.message_layers[self._current_layer_idx](edge_features)
-    
-    def propagate(self, edge_index: torch.Tensor, size=None, **kwargs):
-        """
-        Custom propagate to track layer index for message layers.
-        """
-        # We need to manually handle the layer index since we're using ModuleList
-        # This is a simplified version that assumes sequential calls
-        pass  # The actual logic is handled in the forward loop
-
-    def pool(self, x: torch.Tensor, batch: torch.Tensor) -> torch.Tensor:
-        """
-        Global mean pooling.
-        
-        Args:
-            x: Node features [num_nodes, hidden_dim]
-            batch: Batch indices [num_nodes]
-        
-        Returns:
-            Graph features [num_graphs, hidden_dim]
-        """
-        return scatter_mean(x, batch, dim=0)
-
-
-def scatter_mean(src: torch.Tensor, index: torch.Tensor, dim: int = 0) -> torch.Tensor:
-    """
-    Compute mean of src elements grouped by index.
-    Implementation to avoid importing extra libraries if torch_geometric.scatter is not available.
-    """
-    num_out = index.max().item() + 1
-    out = torch.zeros(num_out, src.shape[1], device=src.device, dtype=src.dtype)
-    count = torch.zeros(num_out, device=src.device, dtype=torch.long)
-    
-    out.index_add_(dim, index, src)
-    count.scatter_add_(0, index, torch.ones_like(src[:, 0], dtype=torch.long))
-    
-    # Avoid division by zero
-    count = count.unsqueeze(1).expand_as(out)
-    count[count == 0] = 1
-    
-    return out / count
-
+        # Head
+        out = self.head(graph_repr)
+        return out
 
 class RidgeBaseline(nn.Module):
     """
-    Ridge Regression baseline using ECFP fingerprints.
-    This is a simple linear model for comparison with the GNN.
+    Baseline model: ECFP fingerprints + Ridge Regression (via MLP with L2 penalty).
+    Implemented as a simple Linear layer with L2 regularization in the loss.
     """
-    
-    def __init__(self, input_dim: int = 2048, alpha: float = 1.0):
-        """
-        Initialize the Ridge baseline.
-        
-        Args:
-            input_dim: Dimension of ECFP fingerprints (default 2048)
-            alpha: Ridge regularization strength
-        """
+    def __init__(self, input_dim: int = 2048, hidden_dim: int = 128):
         super(RidgeBaseline, self).__init__()
-        self.input_dim = input_dim
-        self.alpha = alpha
-        
-        # Linear layer for ridge regression
-        self.linear = nn.Linear(input_dim, 1)
-        
-        self._init_weights()
-        
-        total_params = sum(p.numel() for p in self.parameters())
-        logger.info(f"RidgeBaseline initialized with {total_params:,} parameters")
-
-    def _init_weights(self):
-        """Initialize weights."""
-        nn.init.xavier_uniform_(self.linear.weight)
-        if self.linear.bias is not None:
-            nn.init.zeros_(self.linear.bias)
+        self.fc = nn.Linear(input_dim, 1)
+        self.alpha = 1.0  # Ridge penalty coefficient
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass.
-        
-        Args:
-            x: ECFP fingerprints [batch_size, input_dim]
-        
-        Returns:
-            Predictions [batch_size]
-        """
-        return self.linear(x).squeeze(-1)
+        return self.fc(x)
 
+    def compute_loss(self, preds: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        mse = F.mse_loss(preds, targets)
+        l2_reg = torch.tensor(0., requires_grad=True, device=preds.device)
+        for param in self.fc.parameters():
+            l2_reg += torch.norm(param) ** 2
+        return mse + self.alpha * l2_reg
 
-def create_molecule_graph(smiles: str) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def create_molecule_graph(smiles: str) -> Optional[Data]:
     """
     Convert a SMILES string to a PyTorch Geometric Data object.
     
-    Args:
-        smiles: SMILES string of the molecule
-        
-    Returns:
-        Tuple of (node_features, edge_index, batch)
+    Features: ECFP6 fingerprints (2048 bits) used as node features.
+    For simplicity in this baseline, we treat the molecule as a single node
+    with the full fingerprint, or we can map atoms to bits.
+    
+    To strictly follow GNN, we map atoms to features.
+    Strategy:
+    1. Parse SMILES with RDKit.
+    2. For each atom, generate a local fingerprint (radius 1).
+    3. Edge features: bond type.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError(f"Invalid SMILES: {smiles}")
+        return None
     
-    # Generate node features (simplified: use atom type embedding)
-    # In a real scenario, we might use more sophisticated features
+    # Ensure Hs are added for feature completeness
+    mol = Chem.AddHs(mol)
+    
+    num_atoms = mol.GetNumAtoms()
+    if num_atoms == 0:
+        return None
+        
+    # Node features: ECFP-like local environment (simplified to atom type + degree)
+    # We will use a fixed-size vector representing atom properties
+    # For this implementation, we use a simple one-hot of atom type + degree
+    # To match the MPNN input dim of 2048, we can pad or use a learned embedding.
+    # However, the MPNN expects in_features=2048.
+    # Let's generate a 2048-bit Morgan fingerprint for the WHOLE molecule
+    # and split it? No, that's not local.
+    
+    # Alternative: Use a pre-computed global fingerprint as a single node graph
+    # or use a small feature set and embed it to 2048.
+    # Given the constraint of <1M params and simplicity, let's use the 
+    # global fingerprint as a single-node graph for the baseline,
+    # but for the GNN, we need atom-level.
+    
+    # Let's use a simple atom feature vector: [atomic_num, degree, formal_charge, is_aromatic]
+    # Then embed to hidden_dim. But MPNN is defined with fixed in_features=2048.
+    # We will map atom features to 2048 via an embedding layer inside MPNN?
+    # No, MPNN constructor takes in_features.
+    
+    # Let's assume the input to the model is already processed.
+    # Here we construct the graph structure.
+    # We will use a dummy feature of size 2048 for now, filled with atom properties.
+    
+    # Better approach for GNN:
+    # 1. Atom features: One-hot of element (100 dims) + properties.
+    # 2. Embed these to 2048? Or just use 2048 as the hidden size and input is small.
+    # The MPNN class above expects in_features=2048.
+    # Let's generate a 2048-bit Morgan fingerprint for the molecule.
+    # And treat the molecule as a single node? That's not a GNN.
+    # Let's treat each atom as a node, and use a 2048-bit fingerprint 
+    # computed for the atom's environment (radius 2).
+    
     atom_features = []
     for atom in mol.GetAtoms():
-        # Simple one-hot encoding of atomic number (limited set)
-        feat = np.zeros(100)  # Support up to atomic number 100
-        feat[atom.GetAtomicNum()] = 1.0
-        atom_features.append(feat)
+        # Generate local fingerprint for this atom
+        fp = AllChem.GetMorganFingerprintAsBitVect(atom, 2, nBits=2048)
+        arr = np.zeros(2048, dtype=np.float32)
+        for idx in fp.GetOnBits():
+            arr[idx] = 1.0
+        atom_features.append(arr)
     
-    node_features = torch.tensor(np.array(atom_features), dtype=torch.float)
+    x = torch.tensor(np.array(atom_features), dtype=torch.float)
     
-    # Generate edge index
-    edge_indices = []
+    # Edges
+    row, col = [], []
     for bond in mol.GetBonds():
         i = bond.GetBeginAtomIdx()
         j = bond.GetEndAtomIdx()
-        edge_indices.append([i, j])
-        edge_indices.append([j, i])  # Undirected graph
+        row.append(i)
+        col.append(j)
+        row.append(j)
+        col.append(i)
     
-    if not edge_indices:
-        # Handle isolated atoms
-        edge_indices = [[0, 0]]
+    if len(row) == 0:
+        # Single atom molecule
+        edge_index = torch.tensor([[0], [0]], dtype=torch.long)
+    else:
+        edge_index = torch.tensor([row, col], dtype=torch.long)
     
-    edge_index = torch.tensor(np.array(edge_indices).T, dtype=torch.long)
+    # Add self loops if needed (handled in MPNNLayer if we want, but good to have)
+    edge_index, _ = add_self_loops(edge_index, num_nodes=num_atoms)
     
-    # Add self-loops
-    edge_index, _ = add_self_loops(edge_index, num_nodes=node_features.size(0))
-    
-    # Batch vector (single molecule)
-    batch = torch.zeros(node_features.size(0), dtype=torch.long)
-    
-    return node_features, edge_index, batch
-
+    return Data(x=x, edge_index=edge_index)
 
 def smiles_to_ecfp(smiles: str, radius: int = 2, n_bits: int = 2048) -> np.ndarray:
     """
     Generate ECFP fingerprint for a SMILES string.
-    
-    Args:
-        smiles: SMILES string
-        radius: ECFP radius
-        n_bits: Number of bits in fingerprint
-        
-    Returns:
-        ECFP fingerprint as numpy array
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError(f"Invalid SMILES: {smiles}")
-    
+        return np.zeros(n_bits, dtype=np.float32)
     fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-    arr = np.zeros((n_bits,), dtype=np.float32)
-    AllChem.DataStructs.ConvertToNumpyArray(fp, arr)
-    
+    arr = np.zeros(n_bits, dtype=np.float32)
+    for idx in fp.GetOnBits():
+        arr[idx] = 1.0
     return arr
 
+def build_gnn_model(hidden_dim: int = 128) -> MPNN:
+    """
+    Factory function to build the MPNN model.
+    """
+    return MPNN(in_features=2048, hidden_dim=hidden_dim, num_layers=2)
 
-def build_gnn_model(node_dim: int = 100, hidden_dim: int = 64, num_layers: int = 3) -> MPNN:
+def build_baseline_model(input_dim: int = 2048) -> RidgeBaseline:
     """
-    Build and return an MPNN model.
-    
-    Args:
-        node_dim: Input node feature dimension
-        hidden_dim: Hidden dimension
-        num_layers: Number of message passing layers
-        
-    Returns:
-        Initialized MPNN model
+    Factory function to build the RidgeBaseline model.
     """
-    return MPNN(node_dim=node_dim, hidden_dim=hidden_dim, num_layers=num_layers)
+    return RidgeBaseline(input_dim=input_dim)
 
-
-def build_baseline_model(input_dim: int = 2048, alpha: float = 1.0) -> RidgeBaseline:
+def prepare_gnn_data(df: 'pd.DataFrame') -> Tuple[List[Data], List[float]]:
     """
-    Build and return a Ridge Regression baseline model.
-    
-    Args:
-        input_dim: Input feature dimension (ECFP size)
-        alpha: Ridge regularization parameter
-        
-    Returns:
-        Initialized RidgeBaseline model
+    Prepare a list of PyTorch Geometric Data objects and targets from a dataframe.
     """
-    return RidgeBaseline(input_dim=input_dim, alpha=alpha)
-
-
-def prepare_gnn_data(smiles_list: List[str]) -> Tuple[List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
-    """
-    Prepare graph data for a list of SMILES strings.
-    
-    Args:
-        smiles_list: List of SMILES strings
-        
-    Returns:
-        Tuple of (node_features_list, edge_index_list, batch_list)
-    """
-    node_features_list = []
-    edge_index_list = []
-    batch_list = []
-    
-    for smiles in smiles_list:
-        try:
-            nf, ei, b = create_molecule_graph(smiles)
-            node_features_list.append(nf)
-            edge_index_list.append(ei)
-            batch_list.append(b)
-        except ValueError as e:
-            logger.warning(f"Skipping invalid molecule: {smiles} - {e}")
-            continue
-    
-    return node_features_list, edge_index_list, batch_list
+    import pandas as pd
+    graphs = []
+    targets = []
+    for _, row in df.iterrows():
+        smiles = row['smi']
+        lam_max = row['lambda_max']
+        graph = create_molecule_graph(smiles)
+        if graph is not None:
+            graphs.append(graph)
+            targets.append(lam_max)
+    return graphs, targets

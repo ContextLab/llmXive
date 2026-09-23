@@ -1003,3 +1003,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T08:38:51Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Sampling enforced for datasets exceeding 6,979,172,352 bytes using islice
+    with seed 42
+  claim_id: c_1021c492
+  context: 'Size Check: Stream the header to count rows. If total rows > 6,979,172,352
+    bytes (6.5GB equivalent memory), enforce deterministic sampling using itertools.islice
+    (fixed seed 42) to fit in RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total rows > 6,979,172,352 bytes (6.5GB equivalent memory), enforce
+    deterministic sampling using itertools.islice (fixed seed 42) to fit in RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:19:55Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Total pipeline compute budget is 6 hours with specific phase allocations
+  claim_id: c_2f388033
+  context: "Budget Allocation: Enforce total \u2264 6 hours. Allocate 1.5h for Ingest,\
+    \ 4.0h for Training (hard cap), 0.5h for Eval/Attribution."
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline enforces a total compute budget of 6 hours, with 1.5h allocated
+    for Ingest, 4.0h for Training, and 0.5h for Eval/Attribution.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T11:19:55Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNN model has 2 layers and fewer than 1 million parameters
+  claim_id: c_2baf574d
+  context: Define MPNN GNN (2 layers, hidden units, mean aggregation, <1M params).
+  evidence:
+    candidates:
+    - - Create account Log in GNN model has
+      - 2.0
+    - - GNN model has 2 layers and fewer than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/GNN_model_has_2_layers_and_fewer_than_1_million_parameters
+  kind: magnitude
+  raw_text: The GNN model is defined with 2 layers, mean aggregation, and fewer than
+    1 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T11:20:21Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Data split ratio is 80/10/10
+  claim_id: c_e6d3ce3b
+  context: 'Ratio Enforcement: test_size = floor(0.1 * N), val_size = floor(0.1 *
+    N), train_size = N - test_size - val_size (explicitly 80/10/10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data split ratio is explicitly enforced as 80% training, 10% validation,
+    and 10% test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:20:21Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test performed if test set size is 50 or more
+  claim_id: c_4402ffa1
+  context: 'Logic: If n >= 50, perform Wilcoxon signed-rank test. If n < 50, calculate
+    effect size (Cohen''s d) as descriptive data only.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_performed_if_test_set_size_is_50_or_more
+  kind: magnitude
+  raw_text: Statistical significance testing (Wilcoxon signed-rank) is performed only
+    if the test set size is at least 50 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:20:48Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged if Pearson r is 0.9 or greater
+  claim_id: c_80a145e8
+  context: Calculate Pearson r for ECFP bits. Flag if r >= 0.9.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_flagged_if_Pearson_r_is_0.9_or_greater
+  kind: magnitude
+  raw_text: Collinearity is flagged if the Pearson correlation coefficient r is greater
+    than or equal to 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:21:25Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep range is 15 to 55 nm in steps of 5
+  claim_id: c_9952107e
+  context: Sweep MAE thresholds from 15 nm to 55 nm in steps of 5 nm (range(15, 56,
+    5)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps MAE thresholds from 15 nm to 55 nm in steps
+    of 5 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:21:47Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha 0.05 and power 0.8
+  claim_id: c_c39973f6
+  context: Calculate required sample size (alpha=0.05, power=0.8, effect_size=0.5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha of 0.05 and a power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:22:14Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Baseline Ridge Regression alpha is 1.0
+  claim_id: c_d6171cbe
+  context: Define ECFP+Ridge Regression baseline (alpha=1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline Ridge Regression model uses an alpha value of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T11:23:02Z'

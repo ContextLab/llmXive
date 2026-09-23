@@ -1,14 +1,18 @@
 """
-Training module for the molecular excitation wavelength prediction model.
+Train.py - Main training loop for the Molecular Excitation Wavelength prediction model.
 
-This module implements the training loop for the MPNN GNN and baseline models.
-It handles data loading, model training with early stopping, and artifact generation.
-
-Key features:
+This script implements the training pipeline for the GNN model, including:
+- Data loading and preprocessing
+- Model training with fixed seeds
 - CPU-only execution
-- Fixed random seed (42) for reproducibility
-- Early stopping with patience=5 based on validation loss
-- Generates model.pt and seeds.json artifacts
+- Time budget enforcement (4-hour cap)
+- Model versioning via artifact hashing
+
+Dependencies:
+- torch
+- rdkit
+- pandas
+- pydantic
 """
 
 import os
@@ -17,396 +21,316 @@ import json
 import logging
 import random
 import time
+import hashlib
+import yaml
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 
-import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
-# Import from local modules
-from utils import setup_logging, get_logger, get_device
-from model import MPNN, RidgeBaseline, prepare_gnn_data, smiles_to_ecfp
-from split import scaffold_split
+# Project imports
+from model import MPNN, build_gnn_model, prepare_gnn_data
+from utils import get_device, parse_smiles, setup_logging, get_logger
+
+# Configuration
+PROJECT_ROOT = Path(__file__).parent.parent
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-379-predicting-molecular-excitation-waveleng.yaml"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+
+# Time budget (seconds)
+TRAINING_TIME_LIMIT = 4 * 60 * 60  # 4 hours
 
 # Setup logging
-logger = setup_logging()
+setup_logging()
+logger = get_logger(__name__)
 
-# Constants
-DEFAULT_SEED = 42
-DEFAULT_EPOCHS = 100
-DEFAULT_BATCH_SIZE = 32
-DEFAULT_LEARNING_RATE = 0.001
-DEFAULT_PATIENCE = 5
-EARLY_STOP_THRESHOLD = 1e-4
-
-
-class MolecularDataset(Dataset):
-    """PyTorch Dataset for molecular graphs."""
-    
-    def __init__(self, data: pd.DataFrame, device: str = 'cpu'):
-        """
-        Initialize the dataset.
-        
-        Args:
-            data: DataFrame with columns [smi, lambda_max, scaffold_id, split]
-            device: Device to store tensors on
-        """
-        self.data = data
-        self.device = device
-        self.graphs = []
-        self.targets = []
-        
-        logger.info(f"Converting {len(data)} molecules to graphs...")
-        for idx, row in data.iterrows():
-            try:
-                mol_graph, features = prepare_gnn_data(row['smi'])
-                if mol_graph is not None:
-                    self.graphs.append({
-                        'x': mol_graph.x,
-                        'edge_index': mol_graph.edge_index,
-                        'edge_attr': mol_graph.edge_attr if hasattr(mol_graph, 'edge_attr') else None
-                    })
-                    self.targets.append(row['lambda_max'])
-                else:
-                    logger.warning(f"Failed to convert SMILES at index {idx}: {row['smi']}")
-            except Exception as e:
-                logger.error(f"Error processing molecule {idx}: {e}")
-        
-        logger.info(f"Successfully converted {len(self.graphs)} molecules to graphs")
-        
-    def __len__(self):
-        return len(self.graphs)
-    
-    def __getitem__(self, idx):
-        graph = self.graphs[idx]
-        target = self.targets[idx]
-        
-        # Move to device
-        x = graph['x'].to(self.device)
-        edge_index = graph['edge_index'].to(self.device)
-        edge_attr = graph['edge_attr'].to(self.device) if graph['edge_attr'] is not None else None
-        
-        return {
-            'x': x,
-            'edge_index': edge_index,
-            'edge_attr': edge_attr,
-            'y': torch.tensor(target, dtype=torch.float32).to(self.device)
-        }
-
-def set_seed(seed: int = DEFAULT_SEED):
+def set_seed(seed: int = 42) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
     if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
-    
-    # Log seed for reproducibility
-    logger.info(f"Random seed set to: {seed}")
-    return seed
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
-def load_data_splits(data_path: str = "data/processed/train_val_test.csv") -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Load and split the processed data.
-    
-    Args:
-        data_path: Path to the processed CSV file
-        
-    Returns:
-        Tuple of (train_df, val_df, test_df)
-    """
-    df = pd.read_csv(data_path)
-    
-    train_df = df[df['split'] == 'train']
-    val_df = df[df['split'] == 'val']
-    test_df = df[df['split'] == 'test']
-    
-    logger.info(f"Loaded data splits: train={len(train_df)}, val={len(val_df)}, test={len(test_df)}")
-    
-    return train_df, val_df, test_df
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def preprocess_df(df: pd.DataFrame, device: str = 'cpu') -> MolecularDataset:
-    """
-    Convert DataFrame to PyTorch Dataset.
+def update_state_file(model_path: Path, model_hash: str) -> None:
+    """Update the project state file with model artifact hash."""
+    state_data = {
+        "artifact_hashes": {},
+        "updated_at": datetime.utcnow().isoformat()
+    }
     
-    Args:
-        df: DataFrame with molecular data
-        device: Device to store tensors on
-        
-    Returns:
-        MolecularDataset instance
-    """
-    return MolecularDataset(df, device)
+    # Load existing state if it exists
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE, 'r') as f:
+                existing_state = yaml.safe_load(f) or {}
+                state_data["artifact_hashes"] = existing_state.get("artifact_hashes", {})
+        except Exception as e:
+            logger.warning(f"Could not load existing state file: {e}")
+    
+    # Update with new model hash
+    state_data["artifact_hashes"]["model.pt"] = model_hash
+    state_data["artifact_hashes"]["model.pt.path"] = str(model_path)
+    
+    # Ensure state directory exists
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write updated state
+    with open(STATE_FILE, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False)
+    
+    logger.info(f"Updated state file with model hash: {model_hash}")
 
-def train_epoch(model: nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, criterion: nn.Module, device: str):
-    """
-    Train for one epoch.
+def load_data_splits() -> Dict[str, pd.DataFrame]:
+    """Load train, validation, and test splits from CSV."""
+    splits = {}
+    split_files = {
+        "train": "train_val_test.csv",
+        "val": "train_val_test.csv",
+        "test": "train_val_test.csv"
+    }
     
-    Args:
-        model: Model to train
-        dataloader: Training data loader
-        optimizer: Optimizer
-        criterion: Loss function
-        device: Device to use
+    for split_name, filename in split_files.items():
+        file_path = PROCESSED_DIR / filename
+        if not file_path.exists():
+            raise FileNotFoundError(f"Split file not found: {file_path}")
         
-    Returns:
-        Average loss for the epoch
-    """
+        df = pd.read_csv(file_path)
+        if split_name == "train":
+            splits[split_name] = df[df['split'] == 'train']
+        elif split_name == "val":
+            splits[split_name] = df[df['split'] == 'val']
+        elif split_name == "test":
+            splits[split_name] = df[df['split'] == 'test']
+        
+        logger.info(f"Loaded {split_name} split: {len(splits[split_name])} samples")
+    
+    return splits
+
+def preprocess_df(df: pd.DataFrame) -> Dict[str, Any]:
+    """Preprocess dataframe for GNN training."""
+    data_list = []
+    
+    for idx, row in df.iterrows():
+        smiles = row['smi']
+        lambda_max = row['lambda_max']
+        
+        mol = parse_smiles(smiles)
+        if mol is None:
+            logger.warning(f"Invalid SMILES at index {idx}: {smiles}")
+            continue
+        
+        # Generate ECFP fingerprint
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+        fp_array = list(fp)
+        
+        data_list.append({
+            "smiles": smiles,
+            "lambda_max": lambda_max,
+            "fp": fp_array,
+            "mol": mol
+        })
+    
+    logger.info(f"Preprocessed {len(data_list)} molecules")
+    return data_list
+
+class MolecularDataset(Dataset):
+    """PyTorch Dataset for molecular data."""
+    
+    def __init__(self, data_list: list):
+        self.data_list = data_list
+    
+    def __len__(self):
+        return len(self.data_list)
+    
+    def __getitem__(self, idx):
+        item = self.data_list[idx]
+        fp_tensor = torch.tensor(item['fp'], dtype=torch.float32)
+        label = torch.tensor(item['lambda_max'], dtype=torch.float32)
+        return fp_tensor, label
+
+def collate_fn(batch):
+    """Collate function for DataLoader."""
+    fps, labels = zip(*batch)
+    return torch.stack(fps), torch.stack(labels)
+
+def train_epoch(model: nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, device: torch.device) -> float:
+    """Train model for one epoch."""
     model.train()
     total_loss = 0.0
-    num_batches = 0
+    criterion = nn.MSELoss()
     
-    for batch in dataloader:
+    for fps, labels in dataloader:
+        fps = fps.to(device)
+        labels = labels.to(device)
+        
         optimizer.zero_grad()
-        
-        # Extract batch data
-        x = batch['x']
-        edge_index = batch['edge_index']
-        edge_attr = batch['edge_attr']
-        y = batch['y']
-        
-        # Forward pass
-        if edge_attr is not None:
-            output = model(x, edge_index, edge_attr)
-        else:
-            output = model(x, edge_index)
-        
-        # Calculate loss
-        loss = criterion(output.squeeze(), y)
-        
-        # Backward pass
+        outputs = model(fps)
+        loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
         
         total_loss += loss.item()
-        num_batches += 1
     
-    return total_loss / num_batches
+    return total_loss / len(dataloader)
 
-def validate_epoch(model: nn.Module, dataloader: DataLoader, criterion: nn.Module, device: str) -> float:
-    """
-    Validate for one epoch.
-    
-    Args:
-        model: Model to validate
-        dataloader: Validation data loader
-        criterion: Loss function
-        device: Device to use
-        
-    Returns:
-        Average validation loss
-    """
+def validate_epoch(model: nn.Module, dataloader: DataLoader, device: torch.device) -> float:
+    """Validate model on one epoch."""
     model.eval()
     total_loss = 0.0
-    num_batches = 0
+    criterion = nn.MSELoss()
     
     with torch.no_grad():
-        for batch in dataloader:
-            x = batch['x']
-            edge_index = batch['edge_index']
-            edge_attr = batch['edge_attr']
-            y = batch['y']
+        for fps, labels in dataloader:
+            fps = fps.to(device)
+            labels = labels.to(device)
             
-            if edge_attr is not None:
-                output = model(x, edge_index, edge_attr)
-            else:
-                output = model(x, edge_index)
-            
-            loss = criterion(output.squeeze(), y)
+            outputs = model(fps)
+            loss = criterion(outputs, labels)
             total_loss += loss.item()
-            num_batches += 1
     
-    return total_loss / num_batches
+    return total_loss / len(dataloader)
 
-def train_model(
-    train_df: pd.DataFrame,
-    val_df: pd.DataFrame,
-    epochs: int = DEFAULT_EPOCHS,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    learning_rate: float = DEFAULT_LEARNING_RATE,
-    patience: int = DEFAULT_PATIENCE,
-    device: str = 'cpu',
-    seed: int = DEFAULT_SEED
-) -> Tuple[nn.Module, Dict[str, Any]]:
-    """
-    Train the model with early stopping.
+def train_model(model: nn.Module, train_data: list, val_data: list, epochs: int = 100, device: torch.device = None) -> nn.Module:
+    """Train the model with early stopping and validation."""
+    if device is None:
+        device = get_device()
     
-    Args:
-        train_df: Training data
-        val_df: Validation data
-        epochs: Maximum number of epochs
-        batch_size: Batch size for training
-        learning_rate: Learning rate
-        patience: Patience for early stopping
-        device: Device to use
-        seed: Random seed
-        
-    Returns:
-        Tuple of (trained_model, training_history)
-    """
-    set_seed(seed)
+    train_dataset = MolecularDataset(train_data)
+    val_dataset = MolecularDataset(val_data)
     
-    # Prepare datasets
-    train_dataset = preprocess_df(train_df, device)
-    val_dataset = preprocess_df(val_df, device)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn)
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10)
     
-    # Initialize model
-    model = MPNN().to(device)
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    
-    # Early stopping variables
     best_val_loss = float('inf')
     patience_counter = 0
-    best_model_state = None
+    max_patience = 20
     
-    history = {
-        'train_loss': [],
-        'val_loss': [],
-        'best_val_loss': best_val_loss,
-        'early_stop_epoch': None
-    }
-    
-    logger.info(f"Starting training for {epochs} epochs...")
-    logger.info(f"Device: {device}, Batch size: {batch_size}, Learning rate: {learning_rate}")
-    
+    logger.info(f"Starting training on {device} for {epochs} epochs")
     start_time = time.time()
     
     for epoch in range(epochs):
-        # Train
-        train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
-        val_loss = validate_epoch(model, val_loader, criterion, device)
+        train_loss = train_epoch(model, train_loader, optimizer, device)
+        val_loss = validate_epoch(model, val_loader, device)
         
-        history['train_loss'].append(train_loss)
-        history['val_loss'].append(val_loss)
+        scheduler.step(val_loss)
         
         logger.info(f"Epoch {epoch+1}/{epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
         
-        # Early stopping check
-        if val_loss < best_val_loss - EARLY_STOP_THRESHOLD:
+        # Early stopping
+        if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
+            # Save best model state
             best_model_state = model.state_dict().copy()
-            logger.info(f"  -> New best model saved (Val Loss: {best_val_loss:.4f})")
         else:
             patience_counter += 1
-            logger.info(f"  -> Patience: {patience_counter}/{patience}")
+            if patience_counter >= max_patience:
+                logger.info(f"Early stopping at epoch {epoch+1}")
+                break
         
-        if patience_counter >= patience:
-            logger.info(f"Early stopping triggered at epoch {epoch+1}")
-            history['early_stop_epoch'] = epoch + 1
-            break
+        # Check time budget
+        elapsed = time.time() - start_time
+        if elapsed > TRAINING_TIME_LIMIT:
+            raise RuntimeError(f"Training exceeded {TRAINING_TIME_LIMIT}s limit per FR-003.")
     
-    training_time = time.time() - start_time
-    logger.info(f"Training completed in {training_time:.2f} seconds")
-    
-    # Load best model
-    if best_model_state is not None:
-        model.load_state_dict(best_model_state)
-    
-    history['training_time'] = training_time
-    history['final_train_loss'] = history['train_loss'][-1] if history['train_loss'] else None
-    history['final_val_loss'] = history['val_loss'][-1] if history['val_loss'] else None
-    
-    return model, history
+    # Restore best model state
+    model.load_state_dict(best_model_state)
+    logger.info(f"Training completed in {time.time() - start_time:.2f}s")
+    return model
 
-def save_seeds(seeds: Dict[str, int], output_path: str = "data/processed/seeds.json"):
-    """
-    Save random seeds to a JSON file for reproducibility.
-    
-    Args:
-        seeds: Dictionary of seed values
-        output_path: Path to save the seeds file
-    """
+def save_seeds(seed: int, output_path: Path) -> None:
+    """Save random seeds to file for reproducibility."""
     with open(output_path, 'w') as f:
-        json.dump(seeds, f, indent=2)
-    logger.info(f"Seeds saved to {output_path}")
+        json.dump({"seed": seed, "timestamp": datetime.utcnow().isoformat()}, f)
+    logger.info(f"Saved seeds to {output_path}")
 
 def main():
-    """Main training entry point."""
-    import argparse
-    
+    """Main training function."""
     parser = argparse.ArgumentParser(description="Train molecular excitation wavelength model")
-    parser.add_argument('--epochs', type=int, default=DEFAULT_EPOCHS, help='Number of epochs')
-    parser.add_argument('--batch_size', type=int, default=DEFAULT_BATCH_SIZE, help='Batch size')
-    parser.add_argument('--learning_rate', type=float, default=DEFAULT_LEARNING_RATE, help='Learning rate')
-    parser.add_argument('--patience', type=int, default=DEFAULT_PATIENCE, help='Early stopping patience')
-    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Random seed')
-    parser.add_argument('--device', type=str, default='cpu', help='Device to use (cpu only)')
-    parser.add_argument('--data_path', type=str, default='data/processed/train_val_test.csv', help='Path to processed data')
-    parser.add_argument('--output_dir', type=str, default='data/processed', help='Output directory for artifacts')
-    
+    parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="model.pt", help="Output model path")
     args = parser.parse_args()
-    
-    # Setup logging
-    log_dir = Path(args.output_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_file = log_dir / 'training.log'
-    setup_logging(log_file=log_file)
-    
-    logger.info("=" * 60)
-    logger.info("Starting Training Pipeline")
-    logger.info("=" * 60)
-    logger.info(f"Arguments: epochs={args.epochs}, batch_size={args.batch_size}, lr={args.learning_rate}")
-    logger.info(f"Seed: {args.seed}, Device: {args.device}")
     
     # Set seed
     set_seed(args.seed)
     
     # Load data
+    logger.info("Loading data splits...")
     try:
-        train_df, val_df, test_df = load_data_splits(args.data_path)
+        splits = load_data_splits()
     except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
+        logger.error(f"Failed to load data: {e}")
         sys.exit(1)
     
+    train_data = preprocess_df(splits['train'])
+    val_data = preprocess_df(splits['val'])
+    
+    if not train_data or not val_data:
+        logger.error("No valid data found for training/validation")
+        sys.exit(1)
+    
+    # Build model
+    logger.info("Building GNN model...")
+    model = build_gnn_model(input_dim=2048, hidden_dim=128, output_dim=1)
+    device = get_device()
+    model = model.to(device)
+    
+    logger.info(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
+    
     # Train model
-    model, history = train_model(
-        train_df=train_df,
-        val_df=val_df,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-        learning_rate=args.learning_rate,
-        patience=args.patience,
-        device=args.device,
-        seed=args.seed
-    )
+    logger.info("Starting training...")
+    try:
+        trained_model = train_model(
+            model, 
+            train_data, 
+            val_data, 
+            epochs=args.epochs, 
+            device=device
+        )
+    except RuntimeError as e:
+        logger.error(f"Training failed: {e}")
+        sys.exit(1)
     
     # Save model
-    model_path = Path(args.output_dir) / 'model.pt'
+    output_path = PROCESSED_DIR / args.output
     torch.save({
-        'model_state_dict': model.state_dict(),
-        'history': history,
-        'seed': args.seed
-    }, model_path)
-    logger.info(f"Model saved to {model_path}")
+        "model_state_dict": trained_model.state_dict(),
+        "seed": args.seed,
+        "timestamp": datetime.utcnow().isoformat()
+    }, output_path)
+    
+    logger.info(f"Model saved to {output_path}")
+    
+    # Versioning: Compute hash and update state
+    model_hash = compute_file_hash(output_path)
+    update_state_file(output_path, model_hash)
     
     # Save seeds
-    seeds = {
-        'random': args.seed,
-        'numpy': args.seed,
-        'torch': args.seed
-    }
-    save_seeds(seeds)
+    save_seeds(args.seed, PROCESSED_DIR / "training_seeds.json")
     
-    # Save training history
-    history_path = Path(args.output_dir) / 'training_history.json'
-    with open(history_path, 'w') as f:
-        json.dump(history, f, indent=2)
-    logger.info(f"Training history saved to {history_path}")
-    
-    logger.info("=" * 60)
-    logger.info("Training Pipeline Completed Successfully")
-    logger.info("=" * 60)
-    
-    return model, history
+    logger.info("Training pipeline completed successfully")
 
 if __name__ == "__main__":
     main()

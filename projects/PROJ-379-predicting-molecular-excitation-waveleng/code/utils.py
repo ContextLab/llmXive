@@ -9,6 +9,16 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 import numpy as np
 
+# Logging Event Schema Definition
+# The following constants define the standardized log message prefixes
+# used across the pipeline to ensure consistent parsing and analysis.
+LOG_EVENT_DUPLICATE_RESOLVED = "duplicate_resolved"
+LOG_EVENT_INVALID_SMILES_EXCLUDED = "invalid_smiles_excluded"
+LOG_EVENT_LAMBDA_MAX_MISSING_EXCLUDED = "lambda_max_missing_excluded"
+LOG_EVENT_SPLIT_COMPLETE = "split_complete"
+LOG_EVENT_SCAFFOLD_LEAKAGE_DETECTED = "scaffold_leakage_detected"
+LOG_EVENT_SAMPLE_SIZE_LOGGED = "sample_size_logged"
+
 # Configure logging
 def setup_logging(level=logging.INFO):
     """
@@ -19,7 +29,7 @@ def setup_logging(level=logging.INFO):
     """
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout)
         ]
@@ -31,7 +41,7 @@ def get_logger(name: str) -> logging.Logger:
     
     Args:
         name: Logger name.
-        
+            
     Returns:
         Logger instance.
     """
@@ -52,7 +62,7 @@ def parse_smiles(smiles: str) -> Optional[Chem.Mol]:
     
     Args:
         smiles: SMILES string.
-        
+            
     Returns:
         RDKit Mol object or None if invalid.
     """
@@ -70,7 +80,7 @@ def validate_molecule(smiles: str) -> bool:
     
     Args:
         smiles: SMILES string.
-        
+            
     Returns:
         True if valid, False otherwise.
     """
@@ -85,7 +95,7 @@ def smiles_to_ecfp(smiles: str, radius: int = 2, nBits: int = 2048) -> np.ndarra
         smiles: SMILES string.
         radius: Radius of the fingerprint.
         nBits: Number of bits.
-        
+            
     Returns:
         Numpy array of fingerprint bits.
     """
