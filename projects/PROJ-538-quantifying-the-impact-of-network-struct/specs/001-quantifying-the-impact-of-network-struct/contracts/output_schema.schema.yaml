@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult Schema"
+description: "Schema for statistical correlation results."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis."
+  metric_name:
+    type: "string"
+    description: "Name of the topological metric."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value."
+  significant:
+    type: "boolean"
+    description: "Whether the result is significant after correction."
+  effect_size:
+    type: "number"
+    description: "Minimum detectable effect size (power analysis)."
+required:
+  - analysis_id
+  - metric_name
+  - correlation_coefficient
+  - p_value_raw
+  - p_value_corrected
+  - significant
+  - effect_size
+additionalProperties: false

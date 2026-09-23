@@ -1,16 +1,17 @@
 status: none
-intent: OpenKIM Materials Cloud Cu Ni Au Ag molecular dynamics snapshots dataset python
-  package dataset
+intent: download Cu-Ni Au-Ag molecular dynamics snapshots OpenKIM Materials Cloud
+  dataset python package dataset
 required_fields:
-- atom_index
+- atomic_index
 - species
-- x_coordinate
-- y_coordinate
-- z_coordinate
-- snapshot_id
+- x
+- y
+- z
+- simulation_id
+- alloy_composition
 - temperature
 - thermal_conductivity
-- cell_vectors
-cache_key: 0b98b0d39274b8f73c095cefd576fdd2430ad12dff22caf075a6bd65deb9111d
-searched_at: '2026-08-14T18:28:09.505352+00:00'
+- snapshot_time
+cache_key: 21d85456c954642df821b5656d7875de0375ac3cb7fc49cc657f94a63097e762
+searched_at: '2026-09-23T21:26:52.303776+00:00'
 retry_count: 1

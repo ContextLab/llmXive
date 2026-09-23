@@ -3,80 +3,64 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` (or `conda`)
-- Access to the verified dataset URL (if available) or `ase` for synthetic generation
+- `pip` or `conda`
+- `git`
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-538-quantifying-the-impact-of-network-struct
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-538-quantifying-the-impact-of-network-struct
+   ```
 
-2.  **Create and activate a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Data Setup
-
-**IMPORTANT**: The pipeline requires a dataset with atomic coordinates and thermal conductivity.
-No verified real-world dataset exists for this specific query. The pipeline will default to **Synthetic Validation Mode**.
-
-1.  **Run the pipeline**:
-    ```bash
-    python code/main.py
-    ```
-    - If real data is found (unlikely), it will attempt to use it.
-    - If real data is missing, it will automatically generate a set of synthetic snapshots using Lennard-Jones potentials and proceed with methodological validation.
-
-2.  **Verify Data**:
-    Run `python code/ingest.py --check`.
-    - If coordinates are missing in real data, you will see: `Error: Missing required columns [x, y, z, species]. Data availability failure. Switching to Synthetic Mode.`
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-1.  **Execute the full analysis**:
-    ```bash
-    python code/main.py
-    ```
-    This will:
-    - Audit data sources.
-    - Generate synthetic data if real data is missing.
-    - Construct graphs.
-    - Extract metrics.
-    - Run correlations.
-    - Perform sensitivity analysis.
-    - Generate plots in `data/processed/`.
-
-2.  **View Results**:
-    - Check `data/processed/correlation_results.csv` for statistical tables.
-    - Check `data/processed/sensitivity_report.csv` for threshold stability.
-    - Check `data/processed/figures/` for scatter plots and heatmaps.
-    - Check `data/audit_log.json` for the mode selection (Real vs. Synthetic).
-
-## Troubleshooting
-
-- **Error: "DataAvailabilityError"**: The verified dataset does not contain atomic coordinates. The pipeline switches to Synthetic Mode.
-- **Error: "PercolationThreshold undefined"**: The graph is too sparse or disconnected. This is expected for some samples; the metric will be recorded as `NaN`.
-- **Error: "Bonferroni Correction failed"**: Ensure `scipy` is installed.
-
-## Verification
-
-To verify the pipeline on a synthetic graph (bypassing data ingestion):
+### 1. Generate Synthetic Data (Default Mode)
+Since no real data is available, run the synthetic generator:
 ```bash
-python tests/unit/test_metrics.py --synthetic
+python code/main.py --mode synthetic --n-snapshots 50 --seed 42
 ```
-This tests the metric extraction logic against a known Erdős-Rényi graph.
+This creates `data/raw/synthetic_snapshots.parquet` and `data/audit/audit_log.json`.
 
-## Important Note on Results
+### 2. Build Graphs & Extract Metrics
+```bash
+python code/main.py --step build_graphs --step extract_metrics
+```
+Outputs: `data/processed/graphs.parquet`, `data/processed/metrics.parquet`.
 
-- **Real Data Mode**: If no real data is found, results are **N/A**.
-- **Synthetic Mode**: Results validate the *methodology* (graph construction, correlation analysis) but do not claim to represent real-world Cu-Ni/Au-Ag physics.
+### 3. Perform Statistical Analysis
+```bash
+python code/main.py --step analyze_correlations
+```
+Outputs: `data/processed/correlations.json`, `data/processed/power_analysis.json`.
+
+### 4. Generate Visualizations
+```bash
+python code/main.py --step generate_plots
+```
+Outputs: `data/processed/scatter_plots.png`, `data/processed/correlation_heatmap.png`.
+
+## Running Tests
+
+```bash
+pytest tests/ -v --cov=code --cov-report=html
+```
+
+## Verifying Results
+
+1. Check `data/audit/audit_log.json` for data integrity.
+2. Verify `data/processed/correlations.json` for Bonferroni-corrected p-values.
+3. Inspect `data/processed/correlation_heatmap.png` (should be 300 DPI).
+4. Confirm `state/` file is updated with new artifact hashes.

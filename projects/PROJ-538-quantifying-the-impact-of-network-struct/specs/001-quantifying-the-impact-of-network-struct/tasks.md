@@ -39,21 +39,34 @@
  ============================================================================
 -->
 
-## Phase 0: Data Audit & Mode Selection (NEW - Required First Step)
+## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Verify data availability and set execution mode (Real vs Synthetic) before any ingestion.
+**Purpose**: Project initialization and basic structure. **Note**: Phase 0 (Data Audit) depends on these tasks completing first.
 
-- [X] T000 [P] Implement `DataAudit` class in `code/ingest.py`: Query OpenKim API (` Name or service not known)"))] with `q=elements:Cu,Ni`) and Materials Cloud API (` Name or service not known)"))] with `q=elements:Au,Ag`) for Cu-Ni and Au-Ag snapshots. **Verification**: Generate `data/audit_log.json` with fields `query_status`, `found_count`, `metadata_completeness`. Verify specific query parameters `elements=Cu,Ni` and `elements=Au,Ag` are used and recorded. If no data found, log `DataAvailabilityError` and proceed to Synthetic Mode.
+- [X] T001.1 Create directory structure: `mkdir -p projects/PROJ-538-quantifying-the-impact-of-network-struct/{code,data/raw,data/processed,contracts,tests/unit,tests/contract}`. **Execute from repo root**. **[Depends: None]**
+- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `networkx`, `scikit-learn`, `matplotlib`, `seaborn`, `pydantic`, `ase`, `phonopy`, `statsmodels`, `pymatgen`, `requests` in `requirements.txt`. **[Depends: T001.1]**
+- [X] T003.1 Initialize Ruff config: `ruff init` and configure `ruff.toml` with `target-version = "py311"`. **[Depends: T001.1]**
+- [X] T004.1 Create data directories: `mkdir -p data/raw data/processed contracts`. **[Depends: T001.1]**
+- [X] T005 [P] Configure data configuration management in `code/config.py` (paths, mode selection flags) - writes only to code/config.py. **[Depends: T001.1]**
+- [X] T006 [P] Setup error handling infrastructure for `DataAvailabilityError` and `VoronoiFailure` in `code/utils.py` - writes only to code/utils.py; define behavior: halt with specific error code on Voronoi failure. **[Depends: T001.1]**
+- [X] T007 Create base Pydantic models for `AtomicSnapshot`, `DefectGraph`, `CorrelationResult`, `SensitivityResult`, and `PowerAnalysisResult` in `code/models.py`. **[Depends: T001.1]**
+- [X] T008 [P] Setup logging infrastructure in `code/logging.py` and `code/utils.py`: Initialize `logging` module to write to `data/audit_log.json` and console. **[Depends: T001.1]**
+- [X] T009 [P] Setup pytest framework with `pytest-cov` in `tests/`. **[Depends: T001.1]**
+- [X] T009.1 [P] Generate `contracts/atomic_snapshot.schema.yaml`, `contracts/defect_graph.schema.yaml`, `contracts/correlation_result.schema.yaml`, `contracts/sensitivity_result.schema.yaml`, and `contracts/power_analysis.schema.yaml` based on `code/models.py` (T007). **Verification**: Verify all YAML files exist and contain valid JSON Schema definitions. **[Depends: T007]**
+- [X] T009.2 [P] Create `scripts/generate_schemas.py` that reads `code/models.py` and writes JSON Schema to `contracts/*.yaml`, then run it to validate existence of all files in `contracts/`. **Verification**: Verify `contracts/` contains all required schema files. If missing, raise error. **[Depends: T009.1]**
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Pre-Flight Data Audit (Required First Step - Runs AFTER Phase 1)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Verify data availability and set execution mode (Real vs Synthetic) before any ingestion. **Note**: This phase requires Phase 1 infrastructure (directories, logging) to be initialized first. **Execution Order**: Run T000 only after T001.1 and T008 are complete.
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-538-quantifying-the-impact-of-network-struct/`)
-- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `networkx`, `scikit-learn`, `matplotlib`, `seaborn`, `pydantic`, `ase`, `phonopy`, `statsmodels`, `pymatgen` in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T000 [US1] Implement `DataAudit` class in `code/ingest.py`: **Check for local file `data/raw/real_snapshots.parquet` ONLY**. **Logic**: 
+  1. If file exists AND contains ≥ 20 valid snapshots with `thermal_conductivity` metadata: Set mode to **Real**.
+  2. If file missing OR count < 20 OR metadata incomplete: Log `DataAvailabilityError` to `data/audit_log.json` and set mode to **Synthetic**.
+  **Constraint**: Do NOT query OpenKim/Materials Cloud APIs (Plan override: No verified source exists). This task must NOT attempt external fetches. **[Depends: T001.1, T008]**
 
 ---
 
@@ -63,16 +76,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup `data/` directory structure: `raw/`, `processed/`, `contracts/`
-- [X] T005 [P] Configure data configuration management in `code/config.py` (paths, mode selection flags) - writes only to code/config.py
-- [X] T006 [P] Setup error handling infrastructure for `DataAvailabilityError` and `VoronoiFailure` in `code/utils.py` - writes only to code/utils.py; define behavior: halt with specific error code on Voronoi failure
-- [X] T007 Create base Pydantic models for `AtomicSnapshot`, `DefectGraph`, `CorrelationResult`, `SensitivityResult`, and `PowerAnalysisResult` in `code/models.py`
-- [X] T008 [P] Implement logging infrastructure to `data/audit_log.json` and console. **Verification**: Verify `data/audit_log.json` is created with valid JSON structure and initial entry for T000 execution. **[Depends: T007]**
-- [ ] T009 [P] Setup pytest framework with `pytest-cov` in `tests/`
-- [ ] T009.1 [P] Generate `contracts/atomic_snapshot.schema.yaml`, `contracts/defect_graph.schema.yaml`, `contracts/correlation_result.schema.yaml`, `contracts/sensitivity_result.schema.yaml`, and `contracts/power_analysis.schema.yaml` based on `code/models.py` (T007). **Verification**: Verify all YAML files exist and contain valid JSON Schema definitions. **[Depends: T007]**
-- [ ] T009.2 [P] (Consolidated) Ensure all schema contracts are generated in Phase 2. **Verification**: Verify `contracts/` contains all required schema files. **[Depends: T009.1]**
+- [X] T010 [P] [US1] Define Voronoi neighbor interface stub in `code/interfaces.py` (Explicit stub definition for T011 and T013)
+- [X] T011 [US1] Stub test for Voronoi-based nearest-neighbor detection in `tests/unit/test_voronoi_neighbors.py` (Note: Depends on T010 interface stub definition)
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundational tasks complete. Proceed to User Story 1.
 
 ---
 
@@ -82,20 +89,20 @@
 
 **Independent Test**: Run ingestion on a known small subset; verify NetworkX graph has correct node count and edges exist ONLY between mismatched species pairs.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Implementation for User Story 1
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Define Voronoi neighbor interface stub in `code/interfaces.py` (Explicit stub definition for T011 and T013)
-- [X] T011 [US1] Stub test for Voronoi-based nearest-neighbor detection in `tests/unit/test_voronoi_neighbors.py` (Note: Depends on T010 interface stub definition)
-- [X] T012 [US1] Implement `DataAudit` class structure in `code/ingest.py` to query OpenKim/Materials Cloud APIs for Cu-Ni and Au-Ag snapshots. **Verification**: Verify JSON schema compliance of `data/audit_log.json` and ensure it records API query status (success/empty/fail). **[Depends: T007]** <!-- FAILED: unspecified -->
-- [ ] T012.1 [US1] (Depends: T012) Sub-task: Implement variable completeness calculation and `data/completeness_report.json` generation in `code/ingest.py`. **MUST wait for T012 calculation results** and **MUST raise `DataAvailabilityError` with specific message "Completeness < 90%: <details>" if completeness < 90%**, allowing the orchestrator to catch this and switch to Synthetic Mode (Enforces SC-003). **[Depends: T012, T007, T005]**
-- [ ] T013 [US1] Implement `RealDataLoader` in `code/ingest.py`: Parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`, and **raise `DataAvailabilityError` with specific message "Missing thermal conductivity" if missing** (Constitution Principle III). **Output**: `AtomicSnapshot` objects in `data/processed/raw_snapshots.parquet`. **[Depends: T012.1]**
-- [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate **N=50** statistically independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds (0-49) and NVT thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV, sigma=2.89 A). **[Depends: T007]**
-- [X] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology
-- [X] T016 [US1] Implement `DefectGraphBuilder` in `code/ingest.py`: Use `pymatgen` or `ase` neighbors with periodic box data to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Must handle Periodic Boundary Conditions explicitly using `pymatgen.analysis.sites.VoronoiNN(pbc=True)` or `ase.neighborlist.neighbor_list` with periodic box. Draw edges ONLY between mismatched species. **[Depends: T014, T013]**
-- [X] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints, log specific file errors for corrupted data, and **handle edge cases (N=1, missing metadata, undefined metrics) by logging to `data/audit_log.json` with error codes and exiting gracefully**. **[Depends: T016]**
-- [ ] T017.1 [US1] Validate all constructed graphs against `contracts/defect_graph.schema.yaml`. **[Depends: T017, T004]**
+- [X] T012 [US1] **REMOVED** (Consolidated into T000).
+- [X] T013 [US1] **Conditional Stub for Real Data**. Implement `RealDataLoader` in `code/ingest.py`: 
+  1. **Check**: If `data/raw/real_snapshots.parquet` exists and is valid (per T000 audit), parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`.
+  2. **Failure Path**: If file missing or invalid (but T000 expected Real Mode due to config), raise `DataAvailabilityError` immediately with **code E_DATA_MISSING** and message "Real data file missing or incomplete; switching to Synthetic". **Verify that Orchestrator (T045) catches this specific error code and switches to Synthetic Mode (T014)**. This intentional error triggers the Orchestrator to switch to Synthetic Mode (T014).
+  3. **Success Path**: If file exists and valid, return parsed data.
+  **Note**: This task is a stub for future Real Mode support. In current "Synthetic Validation Mode", T000 will likely trigger Synthetic, making T013 raise an error (as designed) to confirm the fallback path. **[Depends: T000 - Conditional]**
+- [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate **N=50** statistically independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds (-49) and NVT thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV, sigma=2.89 A). **CRITICAL**: **Embed a known ground truth correlation (r=0.6) between defect density and thermal conductivity** as defined in Plan.md "Validation Strategy". **Verification**: Verify that running the generator with seed=42 produces a dataset where the correlation between defect density and thermal conductivity is recoverable within ±0.05 of 0.6. **[Depends: T000 - Conditional]**
+- [X] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology. **Per Plan.md "Synthetic Override", derive conductivity from Callaway model (defect density) to avoid tautology, NOT from graph metrics.** **Validation Context**: This step is critical for the "Synthetic Validation Mode" to ensure the recovered correlation matches the known ground truth (r=0.6) defined in the Plan. **[Depends: T014]**
+- [X] T016a [US1] **Conditional**: Implement `DefectGraphBuilder` for Real Data in `code/ingest.py`: Use `pymatgen` or `ase` neighbors with periodic box data to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Must handle Periodic Boundary Conditions explicitly using `pymatgen.analysis.sites.VoronoiNN(pbc=True)` or `ase.neighborlist.neighbor_list` with periodic box. Draw edges ONLY between mismatched species. **Execute ONLY if T000 detected Real Mode AND T013 succeeded**. **[Depends: T013, Mode=Real]**
+- [X] T016b [US1] **Conditional**: Implement `DefectGraphBuilder` for Synthetic Data in `code/ingest.py`: Use `pymatgen` or `ase` neighbors with periodic box data to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Must handle Periodic Boundary Conditions explicitly using `pymatgen.analysis.sites.VoronoiNN(pbc=True)` or `ase.neighborlist.neighbor_list` with periodic box. Draw edges ONLY between mismatched species. **Execute ONLY if T000 detected Synthetic Mode**. **[Depends: T014, Mode=Synthetic]**
+- [X] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints, log specific file errors for corrupted data, and **handle edge cases (N=1, missing metadata, undefined metrics) by logging to `data/audit_log.json` with error codes and exiting gracefully**. **[Depends: T016a OR T016b]**
+- [X] T017.1 [US1] Validate all constructed graphs against `contracts/defect_graph.schema.yaml`. **[Depends: T017, T009.1]**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Real or Synthetic mode)
 
@@ -137,12 +144,12 @@
 
 - [X] T027 [P] [US3] Implement `CorrelationAnalyzer` class in `code/stats.py`
 - [X] T028 [US3] Implement Pearson and Spearman correlation analysis in `code/stats.py` (FR-004)
-- [X] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006). **Verification**: Append warning to `data/processed/stats_report.json` if uncorrected p < 0.05 but corrected p > 0.05. **[Depends: T028]**
+- [X] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006). **Mandate**: **Calculate Bonferroni-corrected p-values** for all tests. **Artifact**: **Update `CorrelationResult` schema** to include `corrected_p_value` and **write the corrected values to `data/processed/correlation_results.json`**. **Verification**: Append warning to `data/processed/stats_report.json` if uncorrected p < 0.05 but corrected p > 0.05. **[Depends: T028]**
 - [X] T030 [US3] Implement Post-hoc Power Analysis and generate `data/processed/power_analysis_report.json` in `code/stats.py`: Report minimum detectable effect size using `statsmodels.stats.power.FTestPower` for correlation tests; flag if N < 20 (FR-007). **Verification**: Verify `data/processed/power_analysis_report.json` exists, contains `minimum_detectable_effect_size` and `power` fields, and is written to disk. **[Depends: T029]**
-- [X] T031 [US3] Implement Sensitivity Analysis and generate `data/processed/sensitivity_report.csv` in `code/stats.py`: Sweep significance thresholds (representative values such as standard and relaxed levels), **verify and report rank-order stability** of correlation coefficients, calculate magnitude difference, and ensure no change > 0.1 (Enforces SC-004). **Output**: `data/processed/sensitivity_report.csv` with columns `threshold`, `correlation_coefficient`, `p_value`, `rank_stability_flag`. **Verification**: Verify `data/processed/sensitivity_report.csv` exists and contains `rank_stability_flag` column with correct values. **[Depends: T030]**
-- [X] T032 [US3] Implement `VisualizationEngine` in `code/viz.py`
+- [X] T031 [US3] Implement Sensitivity Analysis and generate `data/processed/sensitivity_report.csv` in `code/stats.py`: Sweep significance thresholds **{0.01, 0.05, 0.10}**, **calculate magnitude difference** for each threshold sweep, **enforce the 0.1 constraint** (SC-004), and **flag the result as 'PASS' or 'FAIL'** in the CSV. **Output**: `data/processed/sensitivity_report.csv` with columns `threshold`, `correlation_coefficient`, `p_value`, `magnitude_difference`, `rank_stability_flag`, `consistency_flag`. **Verification**: Verify `data/processed/sensitivity_report.csv` exists and contains `consistency_flag` column with correct PASS/FAIL values based on the 0.1 threshold. **[Depends: T030]**
+- [X] T032 [P] [US3] Implement `VisualizationEngine` in `code/viz.py`
 - [X] T033 [US3] Generate scatter plots with regression lines in `code/viz.py` (300 DPI) (FR-005)
-- [ ] T034 [US3] Generate correlation heatmaps in `code/viz.py` (300 DPI) (FR-005). **Verification**: Verify `data/processed/correlation_heatmap.png` exists, is 300 DPI, and contains a grid with labels. **[Depends: T032]**
+- [X] T034 [US3] Generate correlation heatmaps in `code/viz.py` (300 DPI) (FR-005). **Logic**: If Real Data exists, generate heatmap. If Synthetic Mode is active, generate heatmap with title "Methodological Validation: Synthetic Data". **Verification**: Verify `data/processed/correlation_heatmap.png` exists, is 300 DPI, and contains a grid with labels. **[Depends: T032, T029]**
 - [X] T035 [US3] Add unit test in `tests/unit/test_edge_cases.py` that asserts graceful exit for N=1, missing metadata, and NaN metrics (Replaces vague T035.4). **[Depends: T017]**
 
 **Checkpoint**: All user stories should now be independently functional
@@ -153,12 +160,40 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T039 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T040 [P] Code cleanup and refactoring in `code/`
-- [ ] T041 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T042 [P] Run `quickstart.md` validation and ensure all scripts execute without error
-- [ ] T043 [P] Generate final `data/processed/results_summary.json` with all metrics and correlation tables. **[Depends: T031, T030, T033]**
-- [ ] T044 [P] Verify `contracts/` schemas match generated data structures. **[Depends: T043, T009.1]**
+- [X] T039 [P] Documentation updates in `README.md` and `docs/`
+- [X] T040 [P] Code cleanup and refactoring in `code/`
+- [X] T041 [P] Additional unit tests for edge cases in `tests/unit/`
+- [X] T042 [P] Run `quickstart.md` validation and ensure all scripts execute without error
+- [X] T043 [P] Generate final `data/processed/results_summary.json` with all metrics and correlation tables. **[Depends: T031, T030, T033, T034]**
+- [X] T044 [P] Verify `contracts/` schemas match generated data structures. **[Depends: T043, T009.1]**
+
+---
+
+## Phase 7: Execution & Reporting (NEW - Required for Final Output)
+
+**Purpose**: Execute the full pipeline, aggregate results, and generate the final research report.
+
+- [X] T045 [P] Implement `PipelineOrchestrator` in `code/main.py`: **Execute Logic**:
+  1. Run T000 (DataAudit).
+  2. **IF** T000 triggers Synthetic Mode (file missing or count < 20): **SKIP T013**. Execute T014 (Synthetic Data) -> T016b (Synthetic Graph) -> T024 -> T028 -> T031 -> T033/T034.
+  3. **ELSE IF** T000 finds valid Real Data: Execute T013 (Real Data). **IF T013 raises `DataAvailabilityError` (e.g., file corrupt)**: Catch error, fallback to T014 (Synthetic). **IF T013 succeeds**: Execute T016a (Real Graph) -> T024 -> T028 -> T031 -> T033/T034.
+  4. **Note**: T016a and T016b are mutually exclusive. Only one path is taken based on T000/T013 result.
+  **[Depends: T013, T014, T016a, T016b, T020, T027, T028, T032]**
+- [X] T046 [P] Create `run_pipeline.sh` script to execute the full pipeline with `python code/main.py --mode auto`. **[Depends: T045]**
+- [X] T047 [P] Implement `ReportGenerator` in `code/reports.py`: Aggregate `data/processed/*.json` and `data/processed/*.png` into a single `data/processed/final_report.md`. **[Depends: T043, T031]**
+- [X] T048 [P] Verify final report contains: Ground truth correlation (Synthetic Mode) or Data Source URL (Real Mode), Recovered Correlation, Power Analysis Result, Sensitivity Stability Flag, and Visualizations. **[Depends: T047]**
+
+---
+
+## Phase 8: Revision & Robustness (NEW - Addressing Review Concerns)
+
+**Purpose**: Address specific reviewer concerns regarding data integrity, edge case handling, and validation rigor.
+
+- [ ] T049 [US1] **Data Integrity Check**: Implement a strict checksum validation in `code/ingest.py` for the synthetic data generator output. **Verify that running T014 with seed=42 produces a file with hash X (pre-calculated)**. **If hash != X, raise `DataIntegrityError`**. **[Depends: T014]**
+- [ ] T050 [US2] **Metric Stability Test**: Add a unit test in `tests/unit/test_metric_stability.py` that verifies the `MetricCalculator` (T020) produces identical results for the same graph input across multiple runs, ensuring no floating-point non-determinism affects the correlation analysis. **[Depends: T020]**
+- [ ] T051 [US3] **Correlation Robustness Check**: Enhance `code/stats.py` to perform a bootstrap resampling (1000 iterations) of the correlation coefficient for the primary metric. If the 95% confidence interval includes zero despite the p-value < 0.05, flag this as "Unstable" in `data/processed/sensitivity_report.csv`. **[Depends: T028]**
+- [ ] T052 [US1] **Graph Topology Sanity Check**: Implement a pre-analysis check in `code/ingest.py` to ensure the generated defect graphs are not fully disconnected or fully connected (which would trivialize the analysis). If > 90% of graphs are disconnected, log a `TopologyAnomaly` warning and halt, requiring a review of the synthetic generator parameters. **[Depends: T016b]**
+- [ ] T053 [US3] **Visual Verification Task**: Add a manual review step in `code/reports.py` to generate a "sanity check" PDF containing the first 5 scatter plots and their corresponding raw data points. This ensures the visualization engine (T032) is not plotting NaNs or empty arrays. **[Depends: T033]**
 
 ---
 
@@ -167,11 +202,14 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
+- **Pre-Flight (Phase 0)**: Depends on Phase 1 (T001.1, T008) for infrastructure - **Must run after Phase 1 completes**
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Execution (Phase 7)**: Depends on all implementation phases being complete
+- **Revision (Phase 8)**: Depends on Phase 7 execution to identify specific anomalies; can run in parallel with Phase 7 implementation if concerns are known a priori.
 
 ### User Story Dependencies
 
@@ -195,18 +233,15 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 8 tasks can be implemented in parallel with Phase 7 execution tasks.
 
 ---
 
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Define Voronoi neighbor interface stub in code/interfaces.py" (T010)
-Task: "Stub test for Voronoi-based nearest-neighbor detection in tests/unit/test_voronoi_neighbors.py" (T011, depends on T010)
-
 # Launch all models for User Story 1 together:
-Task: "Implement DataAudit class structure in code/ingest.py" (T012)
+Task: "Define Voronoi neighbor interface stub in code/interfaces.py" (T010)
 Task: "Implement SyntheticDataGenerator in code/synthetic.py" (T014)
 ```
 
@@ -217,10 +252,11 @@ Task: "Implement SyntheticDataGenerator in code/synthetic.py" (T014)
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Ingestion + Graph Construction)
-4. **STOP and VALIDATE**: Test US1 independently (verify edges are mismatched species only)
-5. Deploy/demo if ready
+2. Complete Phase 0: Pre-Flight Data Audit (T000)
+3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+4. Complete Phase 3: User Story 1 (Data Ingestion + Graph Construction)
+5. **STOP and VALIDATE**: Test US1 independently (verify edges are mismatched species only)
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
@@ -251,10 +287,15 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Data Rule**: If real data fetch fails, the system MUST raise `DataAvailabilityError`. The `main.py` orchestrator must catch this and switch to Synthetic Mode.
+- **Critical Data Rule**: If T000 (DataAudit) triggers Synthetic Mode, T013 (RealDataLoader) is SKIPPED. T014 (SyntheticDataGenerator) is executed instead. If T000 expects Real but T013 fails, fallback to T014.
 - **Synthetic Integrity**: Synthetic thermal conductivity must be derived from the Callaway model (phonon scattering), NOT from the graph metrics, to prevent tautological correlation.
 - **Voronoi Handling**: Must use PBC-aware Voronoi (via `pymatgen` or `ase` with periodic box) for nearest neighbors. Fallback to distance-cutoff only if PBC data is missing, with a warning.
-- **Statistical Rigor**: Use `statsmodels.stats.power.FTestPower` for power analysis and explicitly check magnitude differences and rank order for sensitivity analysis.
+- **Statistical Rigor**: Use `statsmodels.stats.power.FTestPower` for power analysis and explicitly check magnitude differences and rank order for sensitivity analysis. **Sweep values: {0.01, 0.05, 0.10}**.
 - **Edge Cases**: N=1, missing metadata, and undefined metrics are handled within T017, T023, and T035, not as separate top-level tasks.
 - **Schema Generation**: All schema contracts (correlation, sensitivity, power analysis) are generated in Phase 2 (T009.1) to avoid premature dependencies.
 - **Dependency Fix**: T012.1 (Completeness Check) now depends on T012 and T007, but NOT T008 (Logging), ensuring SC-003 enforcement is not blocked by logging setup.
+- **Dual-Mode Logic**: T013 and T014 are mutually exclusive branches. T016a and T016b depend on the result of whichever branch is active.
+- **Execution Order**: Ensure T045 (Orchestrator) is implemented last in the code phase, but T045 is the final task in the task list to ensure all components are ready.
+- **Phase 0 Dependency**: T000 depends on T001.1 and T008. Phase 0 is a "Pre-Flight" step that runs after Setup but before User Stories.
+- **Plan Override**: T000 does NOT query external APIs. It relies solely on local file existence check as per Plan.md "Spec Assumption Override".
+- **Revision Integrity**: Phase 8 tasks (T049-T053) are mandatory to address reviewer concerns regarding data integrity, metric stability, and statistical robustness. They must be completed before the final `human_input_needed` transition.
