@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GridCellObservation Schema"
+description: "Schema for the aggregated spatiotemporal grid data used in the migration prediction model."
+type: "object"
+required:
+  - "grid_cell_id"
+  - "latitude"
+  - "longitude"
+  - "year"
+  - "week"
+  - "observation_count"
+  - "first_arrival_week"
+  - "mean_temp_lag1"
+  - "mean_ndvi_lag1"
+properties:
+  grid_cell_id:
+    type: "string"
+    description: "Unique identifier for the grid cell and time period."
+  latitude:
+    type: "number"
+    description: "Latitude of the grid center."
+  longitude:
+    type: "number"
+    description: "Longitude of the grid center."
+  year:
+    type: "integer"
+    minimum: 2015
+    maximum: 2023
+    description: "Year of observation."
+  week:
+    type: "integer"
+    minimum: 1
+    maximum: 52
+    description: "Week of the year."
+  observation_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of checklists for the species in this cell/week."
+  cumulative_count:
+    type: "integer"
+    minimum: 0
+    description: "Cumulative observation count for the season."
+  first_arrival_week:
+    type: ["integer", "null"]
+    description: "Week where cumulative count reached the threshold (3, 5, or 10). Null if not reached."
+  mean_temp_lag1:
+    type: ["number", "null"]
+    description: "Mean temperature 1 week prior."
+  mean_temp_lag2:
+    type: ["number", "null"]
+    description: "Mean temperature 2 weeks prior."
+  mean_temp_lag3:
+    type: ["number", "null"]
+    description: "Mean temperature 3 weeks prior."
+  mean_temp_lag4:
+    type: ["number", "null"]
+    description: "Mean temperature 4 weeks prior."
+  mean_ndvi_lag1:
+    type: ["number", "null"]
+    description: "Mean NDVI 1 week prior."
+  mean_ndvi_lag2:
+    type: ["number", "null"]
+    description: "Mean NDVI 2 weeks prior."
+  mean_ndvi_lag3:
+    type: ["number", "null"]
+    description: "Mean NDVI 3 weeks prior."
+  mean_ndvi_lag4:
+    type: ["number", "null"]
+    description: "Mean NDVI 4 weeks prior."
+  data_quality_flag:
+    type: "string"
+    enum: ["valid", "missing_env", "low_count"]
+    description: "Quality flag for the observation."

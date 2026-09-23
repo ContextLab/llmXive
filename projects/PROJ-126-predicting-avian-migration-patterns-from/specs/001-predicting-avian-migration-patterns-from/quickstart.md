@@ -2,88 +2,80 @@
 
 ## Prerequisites
 
-*   **Python**: 3.11+
-*   **System**: Linux (or WSL2 on Windows).
-*   **Memory**: 7 GB RAM minimum (for streaming processing).
-*   **Disk**: 14 GB free space.
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended for CI compatibility).
+- **Memory**: Minimum 8 GB RAM recommended (A fixed upper bound is imposed on CI resources.; local dev should have headroom).
+- **Disk**: 20 GB free space for raw and processed data.
 
 ## Installation
 
-1.  **Clone the Repository** (assuming the project is in the standard location):
-    ```bash
-    cd projects/PROJ-126-predicting-avian-migration-patterns-from
-    ```
-
-2.  **Create a Virtual Environment**:
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
-3.  **Install Dependencies**:
+3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Dependencies include: `pandas`, `xgboost`, `scikit-learn`, `scipy`, `shap`, `huggingface_hub`, `numpy`.*
-
-## Data Setup
-
-The pipeline is designed to download data automatically from the verified Hugging Face sources.
-
-1.  **Run the Data Download Script**:
-    ```bash
-    python code/main.py --stage download
-    ```
-    *This will fetch the EBD and MODIS datasets to `data/raw/` and compute checksums.*
-
-2.  **Verify Data Integrity**:
-    Ensure the checksums match the expected values recorded in `state/...yaml`.
+    *Note: `requirements.txt` pins versions for reproducibility (Constitution Principle I).*
 
 ## Running the Pipeline
 
-Execute the full pipeline (Download → Process → Train → Evaluate → Visualize):
+The pipeline is executed via a single shell script that orchestrates data loading, preprocessing, training, and evaluation.
 
 ```bash
-python code/main.py --stage full
+chmod +x run_pipeline.sh
+./run_pipeline.sh
 ```
 
-### Staged Execution
-
-If you wish to run specific stages:
-
-*   **Preprocessing only**:
-    ```bash
-    python code/main.py --stage preprocess
-    ```
-    *Outputs: `data/processed/grid_observations.csv`*
-
-*   **Model Training only**:
-    ```bash
-    python code/main.py --stage train
-    ```
-    *Requires processed data. Outputs: `data/outputs/model.pkl`, `data/outputs/metrics.json`*
-
-*   **Visualization only**:
-    ```bash
-    python code/main.py --stage viz
-    ```
-    *Outputs: `data/outputs/maps/`*
+### What the script does:
+1.  **Downloads Data**: Fetches EBD and MODIS data from the verified HuggingFace URLs (streaming enabled for EBD).
+2.  **Preprocessing**:
+    - Filters eBird for complete checklists.
+    - Aggregates to regular grid cells.
+    - Calculates "first arrival" for thresholds 3, 5, and 10.
+    - Joins with lagged MODIS data.
+    - Applies VIF filtering to remove collinear features.
+3.  **Modeling**:
+    - Trains XGBoost models (Temp-only, NDVI-only, Combined).
+    - Performs temporal split (Train: 2015-2020, Val: 2021, Test: subsequent period).
+    - Computes SHAP values and Permutation Importance.
+    - Runs Diebold-Mariano test on temporal aggregates.
+4.  **Stability & Performance**:
+    - Analyzes stability across thresholds {3, 5, 10} and flags if variation > 7 days.
+    - Measures runtime and RAM usage, writing logs to `data/outputs/feasibility.log`.
+5.  **Output Generation**:
+    - Saves metrics to `data/outputs/metrics.json`.
+    - Saves feature importance to `data/outputs/feature_importance.csv`.
+    - Generates regional maps and stability reports in `data/outputs/`.
 
 ## Expected Outputs
 
-After a successful run, check the `data/outputs/` directory:
+After successful completion, the following files will be generated:
 
-*   `metrics.json`: Contains RMSE, Pearson correlation, and bootstrap p-values.
-*   `feature_importance.json`: SHAP summary data.
-*   `arrival_maps.png`: **Regional-scale map** of predicted arrival dates (Lake Powell region).
-*   `sensitivity_analysis.csv`: Comparison of arrival dates across thresholds {3, 5, 10}.
+- `data/processed/grid_cell_data.parquet`: The unified spatiotemporal dataset.
+- `data/processed/first_arrival_sweep.csv`: Arrival dates for thresholds 3, 5, 10.
+- `data/outputs/metrics.json`: RMSE, Pearson R, and DM p-values.
+- `data/outputs/stability_report.json`: Variation in arrival dates across thresholds.
+- `data/outputs/feasibility.log`: Runtime and RAM usage logs.
+- `data/outputs/shap_summary.png`: SHAP summary plot.
+- `data/outputs/permutation_importance.csv`: Robust feature rankings.
+- `data/outputs/regional_maps.png`: Visualizations of predicted arrival dates.
 
 ## Troubleshooting
 
-*   **MemoryError**: The pipeline uses streaming. If you encounter OOM, reduce the `grid_resolution` in `code/config.py` or ensure no other heavy processes are running.
-*   **Data Download Failed**: Verify your internet connection. The EBD/MODIS sources are large; ensure the `huggingface_hub` library is up to date.
-*   **Collinearity Warnings**: If SHAP values are unstable, check the `code/preprocessing.py` for the lag window configuration.
+- **OOM (Out of Memory)**: If the process crashes with `MemoryError`, ensure you are using the streaming version of the EBD loader (default). Reduce `max_depth` in `config.py` if training fails.
+- **Data Missing**: If `first_arrival_sweep.csv` is empty, check if the verified MODIS dataset covers the geographic region of the eBird data. (Note: The verified MODIS dataset is a "Lake Powell toy dataset"; if the eBird data is outside this region, the join will fail for most cells. The pipeline will log this and proceed with available data).
+- **Network Error**: Ensure the GitHub Actions runner (or local machine) has internet access to fetch from HuggingFace.
+- **Validation Error**: If the pipeline fails at the start, check if the verified EBD subset contains *Setophaga ruticilla* and the years 2015-2023.
 
-## Reproducibility
+## Verification
 
-To ensure reproducibility, the random seed is pinned to `42` in `code/config.py`. Re-running the pipeline with the same data will produce identical results.
+To verify the pipeline ran correctly:
+1.  Check `data/outputs/metrics.json` for non-null `rmse` and `dm_p_value`.
+2.  Ensure `data/processed/first_arrival_sweep.csv` contains rows for all three thresholds (3, 5, 10).
+3.  Confirm `data/outputs/stability_report.json` exists and contains a `variation_days` field.
+4.  Check `data/outputs/feasibility.log` to confirm runtime ≤ 6 hours and RAM ≤ 7 GB.
+5.  Confirm `data/outputs/permutation_importance.csv` lists both `temperature` and `ndvi` features.

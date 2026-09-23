@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: Model Performance Metrics Schema
+description: "Schema for the output metrics including RMSE, correlation, and Diebold-Mariano test results."
+required:
+  - model_type
+  - threshold
+  - rmse
+  - pearson_r
+  - dm_p_value
+  - comparison_baseline
+properties:
+  model_type:
+    type: string
+    enum:
+      - "temperature_only"
+      - "ndvi_only"
+      - "combined"
+      - "naive_baseline"
+    description: "The type of model being evaluated."
+  threshold:
+    type: integer
+    enum: [3, 5, 10]
+    description: "The first-arrival threshold used for this metric set."
+  rmse:
+    type: number
+    minimum: 0
+    description: "Root Mean Squared Error on the test set."
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient between predicted and actual."
+  dm_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "p-value from the Diebold-Mariano test comparing to the naive baseline (on temporal aggregates)."
+  comparison_baseline:
+    type: string
+    description: "The baseline model used for comparison (e.g., 'naive_mean')."
+  is_significant:
+    type: boolean
+    description: "True if dm_p_value < 0.05."
+  feature_importance_ranking:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance_score:
+          type: number
+        rank:
+          type: integer
+    description: "Ranking of features by permutation importance."
+additionalProperties: false

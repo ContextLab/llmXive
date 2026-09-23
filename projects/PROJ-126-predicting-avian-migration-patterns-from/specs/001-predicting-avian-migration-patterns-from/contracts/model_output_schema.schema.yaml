@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceMetric Schema"
+description: "Schema for model evaluation metrics and results."
+type: "object"
+required:
+  - "model_type"
+  - "split_type"
+  - "rmse"
+  - "pearson_corr"
+properties:
+  model_type:
+    type: "string"
+    enum: ["xgboost_temp", "xgboost_ndvi", "xgboost_combined"]
+    description: "Type of model trained."
+  split_type:
+    type: "string"
+    enum: ["train", "validation", "test"]
+    description: "Data split used for evaluation."
+  rmse:
+    type: "number"
+    minimum: 0
+    description: "Root Mean Squared Error."
+  pearson_corr:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "Pearson correlation coefficient."
+  threshold_used:
+    type: "integer"
+    enum: [3, 5, 10]
+    description: "Threshold used for first arrival calculation."
+  p_value:
+    type: ["number", "null"]
+    description: "P-value from LMM comparison (if applicable)."
+  lmm_significant:
+    type: ["boolean", "null"]
+    description: "True if p-value < 0.05."

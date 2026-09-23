@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: GridCellObservation Schema
+description: "Schema for the processed spatiotemporal grid data used in migration modeling."
+required:
+  - grid_cell_id
+  - year
+  - week_number
+  - total_obs_count
+  - cumulative_count
+  - first_arrival_week
+  - data_quality_flag
+properties:
+  grid_cell_id:
+    type: string
+    description: "Unique identifier for the 0.5° grid cell (e.g., '45.5_-120.5')."
+  year:
+    type: integer
+    minimum: 2015
+    maximum: 2023
+  week_number:
+    type: integer
+    minimum: 1
+    maximum: 52
+  total_obs_count:
+    type: integer
+    minimum: 0
+    description: "Total number of Redstart observations in this cell/week."
+  cumulative_count:
+    type: integer
+    minimum: 0
+    description: "Running total of observations for the year in this cell."
+  first_arrival_week:
+    type:
+      - integer
+      - "null"
+    description: "Week number where cumulative count reaches threshold. Null if not reached."
+  lst_lag_1:
+    type:
+      - number
+      - "null"
+    description: "Mean Land Surface Temperature 1 week prior."
+  lst_lag_2:
+    type:
+      - number
+      - "null"
+    description: "Mean Land Surface Temperature 2 weeks prior."
+  lst_lag_3:
+    type:
+      - number
+      - "null"
+    description: "Mean Land Surface Temperature 3 weeks prior."
+  lst_lag_4:
+    type:
+      - number
+      - "null"
+    description: "Mean Land Surface Temperature 4 weeks prior."
+  ndvi_lag_1:
+    type:
+      - number
+      - "null"
+    description: "Mean NDVI 1 week prior."
+  ndvi_lag_2:
+    type:
+      - number
+      - "null"
+    description: "Mean NDVI 2 weeks prior."
+  ndvi_lag_3:
+    type:
+      - number
+      - "null"
+    description: "Mean NDVI 3 weeks prior."
+  ndvi_lag_4:
+    type:
+      - number
+      - "null"
+    description: "Mean NDVI 4 weeks prior."
+  data_quality_flag:
+    type: string
+    enum:
+      - "valid"
+      - "missing_env"
+      - "insufficient_data"
+    description: "Flag indicating data quality status."
+  threshold_used:
+    type: integer
+    enum: [3, 5, 10]
+    description: "The cumulative count threshold used for this record."
+additionalProperties: false

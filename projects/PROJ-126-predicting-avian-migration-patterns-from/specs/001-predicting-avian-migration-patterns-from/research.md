@@ -1,69 +1,100 @@
 # Research: Predicting Avian Migration Patterns from Publicly Available eBird Data
 
-## Problem Statement & Hypothesis
+## 1. Problem Definition & Scientific Context
 
-**Problem**: Predicting the onset of avian migration (first arrival) is critical for ecological monitoring. While traditional methods rely on sparse manual observations, large-scale citizen science data (eBird) and remote sensing (MODIS) offer high-resolution spatiotemporal coverage. However, integrating these heterogeneous data sources while managing observer bias and environmental collinearity remains a challenge.
+The project aims to predict the "first arrival" date of *Setophaga ruticilla* (American Redstart) within the **Lake Powell region** (North America) using environmental covariates. The core hypothesis is that spring migration timing is **associatively correlated** with phenological cues, specifically Land Surface Temperature (LST) and vegetation greenness (NDVI), lagged by 1-4 weeks.
 
-**Hypothesis**: A Gradient Boosting Regressor utilizing lagged Land Surface Temperature (LST) and Normalized Difference Vegetation Index (NDVI) can accurately predict the "first arrival" date of *Setophaga ruticilla* (American Robin) within the verified Lake Powell region. The model will demonstrate that temperature is the primary driver of migration onset, with NDVI acting as a secondary modulator, and that these relationships hold robustly across different definitions of "arrival" (sensitivity analysis).
+**Key Challenge**: The data is observational, sparse, and noisy. eBird data is biased by observer effort (citizen science), and MODIS data suffers from cloud cover gaps. The "first arrival" metric is an operational definition (e.g., 5th observation) that must be robust to these biases.
 
-**Scope Limitation**: This study is explicitly limited to the **verified Lake Powell region** due to the constraints of the available open data. The model is not claimed to generalize to the entire North American continent. This limitation is acknowledged in all outputs and interpretations.
+**Scope Constraint**: The verified MODIS dataset is limited to the Lake Powell region. Therefore, the study scope is explicitly reduced to this region. Claims of "continental" migration patterns are not supported by the verified data and are excluded from this study.
 
-## Dataset Strategy
+**Critical Data Constraint**: The project relies on a verified EBD subset from HuggingFace. If this subset lacks *Setophaga ruticilla* or the 2015-2023 temporal range, the pipeline will **fail explicitly** (fail-fast) rather than proceeding with incomplete data. No alternative verified source for the full EBD is available in the prompt's verified block; the study is contingent on the subset's adequacy.
 
-This project relies on two primary data sources. Per the "Verified datasets" constraint, we utilize the provided Hugging Face links which serve as verified proxies for the full EBD and MODIS datasets.
+## 2. Dataset Strategy
 
-| Dataset | Description | Source URL | Usage Strategy |
+The plan relies exclusively on the verified datasets provided in the prompt.
+
+| Dataset | Purpose | Verified URL(s) | Access Method |
 |:--- |:--- |:--- |:--- |
-| **eBird Basic Dataset (EBD)** | Raw checklists containing species presence, observer effort, and location. | ` (Primary) <br> ` (Fallback) | **Streaming**: We will load the EBD data in chunks or via streaming to fit within 7GB RAM. We filter for *Setophaga ruticilla* (Taxon Code: AMRO) and apply "complete checklist" filters (duration ≥ 1 min, observers ≥ 1, distance ≤ 10 km). Data is filtered to the Lake Powell region coordinates. |
-| **MODIS Environmental Data** | Land Surface Temperature (MOD11A2) and NDVI (MOD13Q1) derived metrics. | ` (Primary) <br> ` (Fallback) | **Mapping**: We will map the MODIS data to the 0.5° grid cells defined by the EBD aggregation. The dataset is explicitly treated as the ground truth for the Lake Powell region only. No attempt is made to extrapolate to other regions. |
+| **EBD (eBird Basic Dataset)** | Raw checklist records (species, date, location, effort). | ` (and verified Parquet alternatives) | `datasets.load_dataset` (HuggingFace Hub) with streaming. **Validation**: Checks for *Setophaga ruticilla* and years 2015-2023. If missing, aborts. |
+| **MODIS (LST & NDVI)** | Environmental predictors (Temperature, Greenness). | ` | `datasets.load_dataset` (HuggingFace Hub) or direct CSV fetch. |
 
-**Critical Data Scope Note**: The verified MODIS datasets provided are labeled as "toy datasets" or "lake-powell" specific. The full continental MODIS dataset is not directly available via a single verified URL in the provided block.
-* **Strategy**: We will proceed by constructing the *full pipeline* using the verified Lake Powell data to demonstrate the methodology (FR-001 to FR-007) within the valid spatial extent.
-* **Feasibility**: The plan acknowledges that a full continental analysis (recent years) cannot be executed on the free tier with the *full* MODIS raster files without a larger dataset source. The implementation will be designed to be scalable: if a larger verified source becomes available, the streaming code will support it. For now, the "Lake Powell" dataset serves as the ground truth for *methodological validation*.
-* **Mitigation**: The plan explicitly scopes the "regional-scale maps" (FR-007) to the *spatial extent of the verified data*. The primary success metric (SC-004) is the *completion of the pipeline* within 6 hours, and the *validity of the method* within the verified region, not the generation of a full-continent map.
+**Dataset Fit & Limitations**:
+- **EBD**: The verified source provides a subset of EBD data. The plan includes a **Data Validation** step to verify that the specific species *Setophaga ruticilla* and the years 2015-2023 are present. **If the verified subset lacks these, the pipeline fails with a clear error message** (e.g., "CRITICAL: Verified EBD subset lacks target species or required years. Aborting.") rather than proceeding with incomplete data. **No alternative verified source is identified**; the study is contingent on the subset's adequacy.
+- **MODIS**: The verified source is a "Lake Powell toy dataset." This is a **critical constraint** for the study scope.
+ - **Resolution**: The plan explicitly reduces the study scope to the Lake Powell region. The analysis is designed to model migration patterns **only** within the geographic extent of the verified MODIS dataset. No attempt is made to claim continental coverage. This ensures construct validity: the measurements (Lake Powell LST/NDVI) match the construct (migration drivers in Lake Powell).
+ - **Geographic Alignment**: The validation target (arrival dates) and predictors (LST/NDVI) share the exact same geographic domain (Lake Powell) to prevent hallucination.
 
-## Methodological Approach
+**Data Availability & Feasibility**:
+- Both datasets are hosted on HuggingFace, allowing programmatic access via `datasets` library.
+- **Streaming**: To respect the 7 GB RAM limit, the EBD data will be processed in chunks (streaming). The MODIS data, if small (toy dataset), can be loaded in memory; if larger, streaming will be used.
+- **Missing Data**: Cloud cover in MODIS and observer absence in eBird will be handled via:
+ - eBird: Exclusion of grid cells with < 10 total annual observations (FR-003).
+ - MODIS: Temporal interpolation or nearest-neighbor fill for single-week gaps; exclusion if gaps exceed a consecutive-week threshold.
 
-### 1. Data Ingestion & Preprocessing (US-1)
-* **Filtering**: Apply strict "complete checklist" filters to EBD data.
-* **Grid Aggregation**: Bin observations into 0.5° grid cells within the Lake Powell region.
-* **Observer Bias Control**: Model the probability of observation as a function of weather (temperature, precipitation proxies) using a logistic regression. The "first arrival" date is derived from a **bias-corrected** cumulative count or the analysis explicitly includes 'observer effort' (duration, distance) as a covariate.
-* **Target Derivation**: For each grid cell/year, calculate the cumulative count of *Setophaga ruticilla* observations. The "First Arrival" date is defined as the week where the cumulative count reaches a predetermined threshold.
- * *Construct Validity Justification*: The threshold of 5 is chosen based on standard phenology literature (e.g., Parmesan & Yohe) for low-density species in grid cells, balancing the bias of early false positives with the variance of late detection.
- * *Sensitivity*: Repeat for thresholds {, 5, 10}.
- * *Exclusion*: Grid cells with total annual counts < 10 are excluded to avoid false positives.
-* **Feature Engineering**: Extract lagged environmental variables (Mean Temp, Mean NDVI) for 1, 2, 3, and 4 weeks prior to the observation week.
+## 3. Methodology & Statistical Rigor
 
-### 2. Model Training (US-2)
-* **Algorithm**: XGBoost Regressor (`xgboost.XGBRegressor`).
-* **Configuration**: `tree_method='hist'` for CPU efficiency.
-* **Split Strategy**:
- * **Train**: Lake Powell Region, Years 2015-2020.
- * **Validate**: Lake Powell Region, Year 2021.
- * **Test**: Lake Powell Region, Year 2022.
- * *Note*: The split is purely temporal to satisfy Principle VII and avoid invalid spatial generalization on a localized dataset.
-* **Objective**: Predict "First Arrival" week (integer).
-* **Hyperparameter Tuning**: Grid search on `max_depth`, `learning_rate`, `n_estimators` using the validation set.
+### 3.1 Data Processing Pipeline
+1. **Filtering**: Retain only "complete checklists" (duration ≥ 1 min, observers ≥ 1, distance ≤ 10 km).
+2. **Aggregation**: Bin observations into 0.5° grid cells and weekly intervals.
+3. **Target Derivation**: Calculate "first arrival" as the week where cumulative count reaches threshold $T \in \{3, 5, 10\}$.
+ - *Sensitivity Analysis*: Run the pipeline for all $T$ values to assess robustness (FR-003).
+ - *Effort Correction Note*: The "first arrival" metric is sensitive to observer density. While the plan filters for complete checklists, it acknowledges that high-effort areas may show earlier arrival. Rarefaction is noted as a potential limitation/optional step if data density permits.
+4. **Feature Engineering**: Create lagged features for LST and NDVI (lags 1, 2, 3, 4 weeks).
+5. **Multicollinearity Mitigation**: Compute Variance Inflation Factor (VIF) for all predictors. Drop features with VIF > 5 before model training to ensure stable coefficients and avoid SHAP value splitting artifacts.
 
-### 3. Interpretability & Statistical Validation (US-3)
-* **SHAP Analysis**: Compute SHAP values to determine global feature importance and local interactions. This addresses the collinearity between temperature and NDVI.
-* **Permutation Importance on RMSE**: Run permutation tests on the **model performance metric** (RMSE) to test the statistical significance of the difference between drivers (e.g., is the drop in RMSE when permuting Temp significantly larger than when permuting NDVI?).
-* **Bootstrap Resampling for Model Comparison**: Use `scipy` to perform a sufficient number of bootstrap iterations on the test set to compare the performance (RMSE, correlation) of temperature-only, NDVI-only, and combined predictor models. This replaces the circular LMM approach.
-* **Sensitivity Analysis**: Compare the "First Arrival" dates derived from thresholds {3, 5, 10}. If the primary drivers (Temp vs. NDVI) shift significantly, the result is flagged as sensitive.
-* **Observer Effort Check**: Correlate the derived arrival dates with average observer effort (duration, distance) to ensure the target is not an artifact of effort bias.
+### 3.2 Modeling Strategy
+- **Algorithm**: XGBoost Regressor (Gradient Boosting).
+- **Split Strategy**: Strict temporal split.
+ - Train: Early 2010s–2020.
+ - Validation:.
+ - Test: recent years.
+- **Why Temporal?**: Prevents look-ahead bias; mimics real-world prediction of future migration.
+- **Evaluation Metric**: RMSE and Pearson Correlation calculated on **temporal residuals** (deviation from the long-term mean for that location) rather than absolute dates. This ensures the model predicts year-over-year shifts rather than just spatial latitude effects.
+- **Collinearity Handling**:
+ - Temperature and NDVI are often correlated.
+ - **Action**: VIF filtering removes redundant features. **Permutation Importance** (shuffling features to measure drop in performance) and **SHAP values** (Shapley Additive exPlanations) are used to determine true feature contribution.
+ - **Constraint**: If predictors are definitionally related (e.g., NDVI is derived from same spectral bands), independent effects cannot be claimed. Results will be framed as "associational contributions."
 
-## Statistical Rigor & Limitations
+### 3.3 Statistical Validation
+- **Metric**: Root Mean Squared Error (RMSE) and Pearson Correlation (SC-001).
+- **Model Comparison**: **Diebold-Mariano (DM) Test** to compare the predictive accuracy of:
+ 1. Temperature-only model.
+ 2. NDVI-only model.
+ 3. Combined model.
+- **Unit of Analysis**: The DM test is applied to the **time-series of aggregated errors** (mean error per week across the region), not spatially independent cells. This satisfies the independence assumption of the DM test and provides sufficient degrees of freedom.
+- **Significance**: $p < 0.05$ (SC-002).
+- **Power Limitation**: If the sample size (grid cells × weeks) is small due to data filtering or the "toy" nature of the verified MODIS dataset, the plan will explicitly state the power limitation and interpret p-values with caution.
 
-* **Multiple Comparisons**: When comparing multiple predictor sets (Temp, NDVI, Combined), we will apply a Bonferroni correction to the p-values from the bootstrap resampling to control the family-wise error rate.
-* **Sample Size/Power**: Power is limited by the size of the verified "Lake Powell" dataset. We will report the effective sample size (number of grid-cell-year observations) and explicitly acknowledge that the study may be underpowered to detect small effect sizes. P-values should be interpreted with caution.
-* **Causal Inference**: The study is observational. We will explicitly state that the model identifies *associations* between environmental variables and migration timing, not causal mechanisms. No randomization exists.
-* **Collinearity**: Temperature and NDVI are often correlated. We will not interpret raw coefficients as independent effects. Instead, we rely on SHAP interaction values and permutation tests on RMSE to disentangle their contributions.
-* **Dataset Fit**: The verified MODIS dataset is a "Lake Powell" sample. The model is trained on this sample. The study validates the *methodology* within this region. The *quantitative predictions* for the full continent are **not** claimed. This is a known limitation of the available open data.
-* **Observer Bias**: The model includes observer effort as a covariate and uses bias-corrected arrival dates to mitigate the confounding effect of weather on observation probability.
+### 3.4 Compute Feasibility (CPU-First)
+- **Environment**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
+- **Strategy**:
+ - Use `xgboost` with `tree_method='hist'` for CPU efficiency.
+ - Limit tree depth (`max_depth`) to 4-6 to prevent overfitting and speed up training.
+ - Use `streaming=True` for HuggingFace datasets to avoid loading full EBD into RAM.
+ - **GPU Escape Hatch**: If the dataset size or model complexity exceeds CPU limits (unlikely for this scope), the plan acknowledges the "GPU escape hatch" (Kaggle auto-offload) but notes that XGBoost is generally CPU-tractable for this scale. No GPU is *planned* unless the CPU run fails.
 
-## Decision Rationale: CPU vs. GPU
+## 4. Decision Rationale
 
-* **Choice**: **CPU-First**.
-* **Rationale**: The XGBoost algorithm is highly optimized for CPU execution. With `tree_method='hist'`, it can handle the expected dataset size (even if scaled up) within the RAM and core constraints of the GitHub Actions runner.
-* **GPU Necessity**: No. The problem does not require deep learning (transformers/CNNs) or massive matrix operations that necessitate CUDA. A GPU escape hatch is not needed for this specific methodology.
-* **Feasibility**: The entire pipeline (streaming, aggregation, training, SHAP, Bootstrap) is designed to be memory-efficient and will run comfortably within the 6-hour limit on the free tier.
+| Decision | Rationale |
+|:--- |:--- |
+| **Streaming EBD** | EBD is massive; loading into RAM > 7 GB is impossible. Streaming is the only feasible path. |
+| **Temporal Split** | Random splits leak future phenology; temporal split is required for valid predictive modeling (Constitution Principle VII). |
+| **Permutation Importance + VIF** | XGBoost `feature_importance` is biased towards correlated features. VIF removes redundancy; Permutation is robust to collinearity (FR-005). |
+| **Diebold-Mariano Test (Temporal Aggregates)** | Standard t-tests assume independent errors; DM test accounts for time-series autocorrelation. Applied to aggregated errors to avoid spatial autocorrelation violations. |
+| **Sensitivity Sweep (3, 5, 10)** | The "first arrival" definition is arbitrary. Sweeping thresholds ensures results are not artifacts of a single choice (FR-003). |
+| **Regional Scope (Lake Powell)** | Verified MODIS data is limited to Lake Powell. Continental claims would be hallucinations. Scope is reduced to ensure data validity. |
+| **Fail-Fast Validation** | Verified EBD subset may lack target species/years. Proceeding would produce invalid results. The pipeline must abort if the subset is insufficient. No alternative verified source exists. |
+
+## 5. Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Verified MODIS dataset is too small (Lake Powell only)** | Cannot model continental migration. | **Mitigation**: Reframe study to "Regional Analysis of Lake Powell". Explicitly state geographic limitation in all outputs. |
+| **Missing eBird data in remote areas** | Sparse grid cells, unreliable arrival dates. | **Mitigation**: Exclude cells with < 10 annual observations (FR-003). |
+| **Cloud cover in MODIS** | Gaps in LST/NDVI time series. | **Mitigation**: Temporal interpolation; exclude weeks with > 50% cloud cover. |
+| **Compute Time > 6 hours** | CI job fails. | **Mitigation**: Use smaller grid resolution (if needed), limit `n_estimators`, and stream data. Phase 4 verifies this. |
+| **Observer Effort Bias** | High-effort areas show earlier arrival. | **Mitigation**: Filter for complete checklists; acknowledge limitation; optional rarefaction step. |
+| **Collinearity (Temp vs NDVI)** | Unstable coefficients. | **Mitigation**: VIF filtering before training; Permutation Importance for ranking. |
+| **DM Test Assumption Violation** | Spatial autocorrelation invalidates p-values. | **Mitigation**: DM test performed on time-series of aggregated errors, not spatial cells. |
+| **Verified EBD Subset Insufficient** | Pipeline fails to find target species/years. | **Mitigation**: **Fail-fast validation** in Phase 0. If the subset lacks *Setophaga ruticilla* or 2015-2023, the pipeline aborts with a clear error. No alternative verified source exists; the study is contingent on the subset's adequacy. |

@@ -29,19 +29,19 @@ The system must train a Gradient Boosting Regressor (XGBoost) to predict the der
 
 **Why this priority**: This implements the core scientific hypothesis testing mechanism. It moves from data preparation to generating the actual predictive model and the interpretability metrics (SHAP) required to answer the research question.
 
-**Independent Test**: The model can be trained on the training split (Eastern US, 2015–2020), validated on the validation split (Eastern US, 2021), and tested on the held-out test split (Western US, 2022). The output must include a ranked list of feature importances and SHAP summary plots.
+**Independent Test**: The model can be trained on the training split (2015–2020), validated on the validation split (2021), and tested on the held-out test split (2022). The output must include a ranked list of feature importances, SHAP summary plots, and a Diebold-Mariano test result comparing the model to a naive baseline (predicting the mean training-set arrival date). The model must achieve a statistically significant lower RMSE (p < 0.05) than the naive baseline.
 
 **Acceptance Scenarios**:
 
-1. **Given** the prepared dataset with lagged environmental variables, **When** the XGBoost model is trained with a spatial split (train: Eastern US, test: Western US), **Then** the model achieves a lower RMSE than a naive baseline model predicting the mean arrival date on the test set.
-2. **Given** a trained model, **When** SHAP values are computed, **Then** the output clearly distinguishes the contribution of temperature versus NDVI at different stages of the migration window.
+1. **Given** the prepared dataset with lagged environmental variables, **When** the XGBoost model is trained with a temporal split (train: 2015–2020, validate: 2021, test: 2022), **Then** the model achieves a statistically significant lower RMSE (p < 0.05 via Diebold-Mariano test) than a naive baseline model predicting the mean arrival date of the training set on the test set.
+2. **Given** a trained model, **When** SHAP values are computed, **Then** the output clearly distinguishes the contribution of temperature versus NDVI at different stages of the migration window, defined as a mean absolute SHAP value difference of at least 10% between the two features.
 3. **Given** the model, **When** a permutation importance test is run, **Then** the feature rankings remain consistent, indicating that the importance is not an artifact of collinearity.
 
 ---
 
 ### User Story 3 - Statistical Validation and Sensitivity Analysis of Thresholds (Priority: P3)
 
-The system must perform statistical testing (Linear Mixed-Effects Model) to compare model performance across different predictor sets and conduct a sensitivity analysis on the "first arrival" definition threshold to ensure robustness.
+The system must perform statistical testing (Diebold-Mariano test) to compare model performance across different predictor sets and conduct a sensitivity analysis on the "first arrival" definition threshold to ensure robustness.
 
 **Why this priority**: This step validates the scientific rigor of the findings. It ensures that the observed associations are statistically significant and that the results are not overly sensitive to arbitrary choices in data processing (e.g., the 5th observation threshold).
 
@@ -49,9 +49,9 @@ The system must perform statistical testing (Linear Mixed-Effects Model) to comp
 
 **Acceptance Scenarios**:
 
-1. **Given** performance metrics for temperature-only, NDVI-only, and combined models, **When** a Linear Mixed-Effects Model (LMM) with Grid Cell as random effect is executed, **Then** the output reports p-values indicating whether the combined model significantly outperforms the single-predictor models.
+1. **Given** performance metrics for temperature-only, NDVI-only, and combined models, **When** a Diebold-Mariano test is executed on the prediction errors, **Then** the output reports p-values indicating whether the combined model significantly outperforms the single-predictor models (p < 0.05).
 2. **Given** the baseline 5th observation threshold, **When** the threshold is swept over {3, 5, 10} observations, **Then** the system reports the variation in the resulting first-arrival dates and confirms that the primary environmental drivers (temperature/NDVI) remain consistent.
-3. **Given** the sensitivity analysis results, **When** the variation exceeds a defined tolerance, **Then** the system flags the finding as sensitive to the threshold choice, prompting a review of the community-standard justification.
+3. **Given** the sensitivity analysis results, **When** the variation in the median first-arrival date exceeds 7 days across the thresholds, **Then** the system flags the finding as sensitive to the threshold choice, prompting a review of the community-standard justification.
 
 ---
 
@@ -68,11 +68,11 @@ The system must perform statistical testing (Linear Mixed-Effects Model) to comp
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse the eBird Basic Dataset (EBD) for the focal species (*Setophaga ruticilla*) from 2015–2023, filtering for complete checklists only (checklist duration ≥ 1 minute, observers ≥ 1, distance ≤ 10 km). (See US-1)
-- **FR-002**: System MUST retrieve and resample MODIS Land Surface Temperature and NDVI data to match the 0.5° grid resolution and weekly temporal frequency of the eBird data. (See US-1)
-- **FR-003**: System MUST calculate a "first arrival" date for each grid cell by identifying the week where the cumulative observation count reaches the 5th observation, using a sensitivity sweep over {3, 5, 10} observations. Grid cells with total annual counts < 10 observations MUST be excluded from this analysis. (See US-3)
-- **FR-004**: System MUST train a Gradient Boosting Regressor (XGBoost) using a spatial split (train: Eastern US mids, validate: Eastern US 2021, test: Western US 2022) to predict first arrival dates from lagged environmental variables (1–4 weeks prior). (See US-2)
+- **FR-002**: System MUST retrieve and resample MODIS Land Surface Temperature and NDVI data to match the coarse grid resolution and weekly temporal frequency of the eBird data. (See US-1)
+- **FR-003**: System MUST exclude grid cells with total annual counts < 10 observations BEFORE calculating the "first arrival" date. For remaining cells, the system MUST calculate the "first arrival" date by identifying the week where the cumulative observation count reaches the 5th observation, using a sensitivity sweep over {3, 5, 10} observations. (See US-3)
+- **FR-004**: System MUST train a Gradient Boosting Regressor (XGBoost) using a temporal split (train: 2015–2020, validate: 2021, test: subsequent period) to predict first arrival dates from lagged environmental variables (1–4 weeks prior). (See US-2)
 - **FR-005**: System MUST compute SHAP values and permutation importance to quantify the relative contribution of temperature versus NDVI, ensuring results are not artifacts of collinearity. (See US-2)
-- **FR-006**: System MUST perform a Linear Mixed-Effects Model (LMM) with Grid Cell as a random effect to statistically compare the performance (RMSE, correlation) of temperature-only, NDVI-only, and combined predictor models. (See US-3)
+- **FR-006**: System MUST perform a Diebold-Mariano test on prediction errors to statistically compare the performance (RMSE, correlation) of temperature-only, NDVI-only, and combined predictor models. (See US-3)
 - **FR-007**: System MUST generate continental-scale maps visualizing predicted arrival dates and the spatial gradient of the strongest environmental predictor. (See US-2)
 
 ### Key Entities
@@ -89,10 +89,10 @@ The system must perform statistical testing (Linear Mixed-Effects Model) to comp
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The RMSE and Pearson correlation of the first-arrival prediction model are measured against the held-out test set (Western US 2022 data) to validate predictive accuracy. (See US-2)
-- **SC-002**: The statistical significance of the combined model's improvement over single-predictor models is measured against the p-value threshold (α = 0.05) from the Linear Mixed-Effects Model. (See US-3)
+- **SC-001**: The RMSE and Pearson correlation of the first-arrival prediction model are measured against the held-out test set (2022 data) to validate predictive accuracy, with all metrics derived from real data processing and not simulated. (See US-2)
+- **SC-002**: The statistical significance of the combined model's improvement over single-predictor models is measured against the p-value threshold (α = 0.05) from the Diebold-Mariano test. (See US-3)
 - **SC-003**: The stability of the primary environmental driver (temperature vs. NDVI) is measured against the variation observed when the first-arrival threshold is swept over {3, 5, 10} observations. (See US-3)
-- **SC-004**: The computational feasibility is measured against the constraint of completing the full pipeline (data ingestion, training, testing, visualization) within 6 hours on a CPU-only GitHub Actions runner with ≤7 GB RAM. (See US-1, US-2)
+- **SC-004**: The computational feasibility is measured against the constraint of completing the full pipeline (data ingestion, training, testing, visualization) within 6 hours on a CPU-only GitHub Actions runner with ≤7 GB RAM. Verification procedure: Run `time ./run_pipeline.sh` and check `free -m` logs to confirm peak RSS ≤ 7 GB and elapsed time ≤ 6 hours. (See US-1, US-2)
 - **SC-005**: The robustness of feature importance rankings is measured against the permutation importance test to ensure no single feature dominates due to collinearity. (See US-2)
 
 ## Assumptions
@@ -102,4 +102,5 @@ The system must perform statistical testing (Linear Mixed-Effects Model) to comp
 - The "first arrival" metric defined by the 5th observation threshold is a valid proxy for biological migration onset, consistent with community standards in phenology studies, provided total annual counts are sufficient (≥ 10).
 - The Gradient Boosting Regressor (XGBoost) can be trained and evaluated on the sampled dataset within the 6-hour compute limit and 7 GB RAM constraint of the GitHub Actions free tier without requiring GPU acceleration.
 - The relationship between temperature/NDVI and migration timing is primarily associational (observational study), and the model will not claim causal inference without randomization or specific identification strategies.
-- The sample size of available checklists provides sufficient statistical power for the LMM and SHAP analysis; if power is low, this will be explicitly acknowledged as a limitation rather than a failure.
+- The sample size of available checklists provides sufficient statistical power for the Diebold-Mariano test and SHAP analysis; if power is low, this will be explicitly acknowledged as a limitation rather than a failure.
+- The temporal split (2015–2020 train, 2021 validate, 2022 test) is required to avoid circularity and ensure the model predicts future phenology, not just spatial patterns.
