@@ -1,16 +1,14 @@
 status: none
-intent: HuggingFace model hub Llama Mistral BLOOM weights, Common Crawl subsets, WALS
-  typology python package dataset
+intent: Hugging Face model hub Llama-3 Mistral BLOOM unembedding matrix download WALS
+  typological features Common Crawl language subsets python package dataset
 required_fields:
 - model_name
+- model_language
 - unembedding_matrix
 - vocab_size
-- embedding_dim
-- language_code
-- token
-- frequency
-- typology_feature
-- feature_value
-cache_key: dc68e7b9214bb05599f507dfccdbeb3fbd39226538587236364ad87722667520
-searched_at: '2026-09-23T13:13:22.172480+00:00'
+- embedding_dimension
+- source_repository
+- wals_feature_set
+cache_key: 00453c97be9e08bbce4bacf7af788d66cee6baea11db7859827ef0b01b898074
+searched_at: '2026-09-23T20:12:56.375703+00:00'
 retry_count: 1
