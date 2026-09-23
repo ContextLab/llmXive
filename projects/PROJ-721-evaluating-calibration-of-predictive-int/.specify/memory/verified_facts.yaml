@@ -1,12 +1,5 @@
-'|dataset evaluation m4 used':
-  quote: The M4 extended and replicated the results of the previous three competitions,
-    using an extended and diverse set of time series to identify the most accurate
-    forecasting method(s) for different types of predictions. It aimed to get answers
-    on how to improve forecasting accuracy and identify the most appropriate methods
-    for each case. To get precise and compelling answers, the M4 Competition utilized
-    100,000 real-life series, and incorporates all major forecasting methods, including
-    those based on Artificial Intelligence (Machine Learning, ML), as well as traditional
-    statistical ones.
-  source_id: Makridakis Competitions
-  url: https://en.wikipedia.org/wiki/Makridakis_Competitions
-  value: 100,000
+'|bootstrap resample test use':
+  quote: 5000 0.08 676.92 0.09 0.94 0.00 0.91 0.89 0.00 0.85
+  source_id: '2303.14088'
+  url: https://arxiv.org/abs/2303.14088
+  value: 5,000

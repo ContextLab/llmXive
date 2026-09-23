@@ -3750,3 +3750,683 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T19:47:56Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 0
+  canonical: Evaluation uses M4 dataset
+  claim_id: c_ec02826e
+  context: 'Fetch M4 dataset: Download M4-Dataset.zip and manifest.json from the official
+    GitHub repository...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The M4 extended and replicated the results of the previous three competitions,
+        using an extended and diverse set of time series to identify the most accurate
+        forecasting method(s) for different types of predictions. It aimed to get
+        answers on how to improve forecasting accuracy and identify the most appropriate
+        methods for each case. To get precise and compelling answers, the M4 Competition
+        utilized 100,000 real-life series, and incorporates all major forecasting
+        methods, including those based on Artificial Intelligence (Machine Learning,
+        ML), as well as traditional statistical ones.
+      source_id: Makridakis Competitions
+      url: https://en.wikipedia.org/wiki/Makridakis_Competitions
+      value: 100,000
+    filled: true
+  kind: entity_fact
+  raw_text: The M4 dataset is used for evaluation.
+  resolved_value: 100,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T23:28:02Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: 1000 series processed within 6 hours CPU time
+  claim_id: c_78ee211a
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for up to 1,000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to process up to 1,000 series within 6h CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:28:29Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: KL divergence between sample and full distribution less than 0.1
+  claim_id: c_f4ea67ed
+  context: It must select a subset of series such that the KL divergence between the
+    sample distribution Q and the full distribution P is < 0.1, while maximizing the
+    sample size up to 1,000 series.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KL_divergence_between_sample_and_full_distribution_less_than
+  kind: magnitude
+  raw_text: The KL divergence between the sample distribution Q and the full distribution
+    P must be less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:31:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Sample size maximized to 1000 series
+  claim_id: c_bc489f15
+  context: It must select a subset of series such that the KL divergence between the
+    sample distribution Q and the full distribution P is < 0.1, while maximizing the
+    sample size up to 1,000 series.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample selection maximizes the sample size up to 1,000 series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:32:18Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Series with length less than or equal to 50 filtered out
+  claim_id: c_1e4d4944
+  context: 'Constraint: Must filter out series with length <= 50 before selection.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Series_with_length_less_than_or_equal_to_50_filtered_out
+  kind: magnitude
+  raw_text: Series with length less than or equal to 50 are filtered out before selection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:33:30Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Bootstrap test uses 10000 resamples
+  claim_id: c_f421967e
+  context: 'Verification: Assert results/bootstrap_pvalues.json exists, contains valid
+    p-values, resamples == 10000, and includes a provenance field linking to the specific
+    model/dataset version.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 5000 0.08 676.92 0.09 0.94 0.00 0.91 0.89 0.00 0.85
+      source_id: '2303.14088'
+      url: https://arxiv.org/abs/2303.14088
+      value: 5,000
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap test uses 10,000 resamples.
+  resolved_value: 5,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T23:34:43Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Runtime limit 21600 seconds
+  claim_id: c_2d684fad
+  context: 'Verification: Assert state/runtime.log exists, contains a numeric value,
+    AND that numeric value is <= 21600.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_limit_21600_seconds
+  kind: magnitude
+  raw_text: The runtime check asserts the execution time is less than or equal to
+    21,600 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:35:57Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds 0.01 0.02 0.05 0.10
+  claim_id: c_af094419
+  context: 'Sensitivity analysis loop: Sweep the absolute deviation between empirical
+    and nominal coverage across the values defined in config.yaml (sensitivity_thresholds:
+    [0.01, 0.02, 0.05, 0.10]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis thresholds are 0.01, 0.02, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:36:38Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Nominal coverage levels 0.80 and 0.95
+  claim_id: c_7a058fa4
+  context: Invoke models defined in T005a-d to generate prediction intervals for horizons
+    h=1 to 12 at nominal levels defined in config.yaml (0.80, 0.95).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal coverage levels used are 0.80 and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:37:44Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Recalibration triggered if max deviation exceeds 0.02
+  claim_id: c_e834e571
+  context: 'If max_deviation > 0.02, status is ''non-compliant''; otherwise ''compliant''.
+    Note: Recalibration is triggered ONLY if status is ''non-compliant'' per Constitution
+    Principle VII.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recalibration is triggered only if the maximum absolute deviation exceeds
+    0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:38:31Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Pass if absolute deviation less than or equal to 0.02
+  claim_id: c_7023d838
+  context: 'and pass_fail (boolean: True if |deviation| <= 0.02, False otherwise).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pass_if_absolute_deviation_less_than_or_equal_to_0.02
+  kind: magnitude
+  raw_text: The pass/fail status in the final results is True if the absolute deviation
+    is less than or equal to 0.02.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:40:35Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ARIMA default order 1,1,1
+  claim_id: c_3e82052d
+  context: Implement code/models/arima_model.py using statsmodels.tsa.arima.model.ARIMA.
+    Use order=(1,1,1) as default.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ARIMA model uses order=(1,1,1) as the default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:41:41Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Trend strength variance ratio greater than 0.5
+  claim_id: c_906e12a8
+  context: Implement code/stratify.py for STL decomposition (training split ONLY)
+    and trend strength derivation (variance ratio > 0.5).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_strength_variance_ratio_greater_than_0.5
+  kind: magnitude
+  raw_text: The trend strength derivation considers a variance ratio greater than
+    0.5 as high trend strength.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:43:20Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg method used for FDR correction
+  claim_id: c_1e0aa945
+  context: Apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh' on the raw p-values from T017b.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The Benjamini\u2013Hochberg Procedure Can Fail to Control"
+      source_id: '2607.12208'
+      url: https://arxiv.org/abs/2607.12208
+      value: "Benjamini\u2013Hochberg"
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg method is used for FDR correction.
+  resolved_value: "Benjamini\u2013Hochberg"
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T23:43:55Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 0
+  canonical: Bootstrap test resamples 10000
+  claim_id: c_4aa8fbf1
+  context: Assert results/bootstrap_pvalues.json exists, contains valid p-values,
+    resamples == 10000.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 5000 0.08 676.92 0.09 0.94 0.00 0.91 0.89 0.00 0.85
+      source_id: '2303.14088'
+      url: https://arxiv.org/abs/2303.14088
+      value: 5,000
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap test uses 10,000 resamples.
+  resolved_value: 5,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T23:45:02Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Project uses M4 dataset
+  claim_id: c_95fbfb8c
+  context: 'Fetch M4 dataset: Download M4-Dataset.zip and manifest.json from the official
+    GitHub repository to data/raw/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_M4_dataset
+  kind: entity_fact
+  raw_text: The project uses the M4 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:45:30Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Sample size selection up to 1000 series
+  claim_id: c_2e661017
+  context: Select a subset of series such that the KL divergence between the sample
+    distribution Q and the full distribution P is < 0.1, while maximizing the sample
+    size up to 1,000 series.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling method selects up to 1,000 series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:45:55Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: KL divergence threshold less than 0.1
+  claim_id: c_24a02889
+  context: It must select a subset of series such that the KL divergence between the
+    sample distribution Q and the full distribution P is < 0.1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KL_divergence_threshold_less_than_0.1
+  kind: magnitude
+  raw_text: The KL divergence threshold for the sample distribution is less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:46:45Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Filter series with length <= 50
+  claim_id: c_2a5dc5c6
+  context: Must filter out series with length <= 50 before selection.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_series_with_length_%3C=_50
+  kind: magnitude
+  raw_text: Series with length less than or equal to 50 are filtered out before selection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:46:46Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 21600 seconds
+  claim_id: c_878b8dda
+  context: Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow logs
+    for the 1000-series subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime must be under 6 hours (21,600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:47:07Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Nominal coverage levels 0.80 and 0.95
+  claim_id: c_5e937a92
+  context: 'nominal_levels (list: [0.80, 0.95])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal coverage levels used are 0.80 and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:47:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds 0.01 0.02 0.05 0.10
+  claim_id: c_b2422cbb
+  context: 'sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity thresholds used are 0.01, 0.02, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:47:29Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Default ARIMA order (1,1,1)
+  claim_id: c_f861ede1
+  context: Use order=(1,1,1) as default.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default ARIMA model order is (1,1,1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:48:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 2
+  canonical: Prophet changepoint prior scale 0.05
+  claim_id: c_e5c019df
+  context: Use seasonality_mode='multiplicative', changepoint_prior_scale=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Prophet model uses changepoint_prior_scale=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:48:09Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Trend strength variance ratio > 0.5
+  claim_id: c_def440ee
+  context: trend strength derivation (variance ratio > 0.5).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_strength_variance_ratio_%3E_0.5
+  kind: magnitude
+  raw_text: The trend strength derivation uses a variance ratio threshold greater
+    than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:49:01Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Compliance threshold deviation 0.02
+  claim_id: c_7c409b8f
+  context: Check if the initial calibration assessment exceeds the threshold value
+    0.02.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compliance threshold for deviation is 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:49:41Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Interval score formula width plus penalty
+  claim_id: c_6608b449
+  context: Calculate Interval Score = Width + (2/alpha) * (Lower - y) if y < Lower,
+    or (y - Upper) if y > Upper, else 0.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interval_score_formula_width_plus_penalty
+  kind: entity_fact
+  raw_text: The interval score formula includes a width component and a penalty component
+    based on alpha.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:50:10Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 0
+  canonical: bootstrap test resamples 10000
+  claim_id: c_45aedef1
+  context: 'Verification: Assert results/bootstrap_pvalues.json exists, contains valid
+    p-values, resamples == 10000'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 5000 0.08 676.92 0.09 0.94 0.00 0.91 0.89 0.00 0.85
+      source_id: '2303.14088'
+      url: https://arxiv.org/abs/2303.14088
+      value: 5,000
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap test uses 10,000 resamples.
+  resolved_value: 5,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T23:51:27Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours for 1000 series
+  claim_id: c_441c1fe6
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for up to 1,000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process up to 1,000 series within 6 hours CPU time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:52:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: KL divergence sample distribution threshold 0.1
+  claim_id: c_407db315
+  context: It must select a subset of series such that the KL divergence between the
+    sample distribution Q and the full distribution P is < 0.1, while maximizing the
+    sample size up to 1,000 series.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KL_divergence_sample_distribution_threshold_0.1
+  kind: magnitude
+  raw_text: The KL divergence between the sample distribution and the full distribution
+    must be less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:52:10Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: maximum sample size 1000 series
+  claim_id: c_494a30d6
+  context: It must select a subset of series such that the KL divergence between the
+    sample distribution Q and the full distribution P is < 0.1, while maximizing the
+    sample size up to 1,000 series.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the evaluation must be maximized up to 1,000 series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:52:30Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: filter series length less than or equal to 50
+  claim_id: c_bfa5f98e
+  context: 'Constraint: Must filter out series with length <= 50 before selection.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_series_length_less_than_or_equal_to_50
+  kind: magnitude
+  raw_text: Series with a length less than or equal to 50 must be filtered out before
+    selection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:53:10Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: nominal coverage levels 0.80 and 0.95
+  claim_id: c_2b939bba
+  context: 'nominal_levels (list: [0.80, 0.95] - Resolved implementation of [deferred]
+    spec placeholders)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal coverage levels used for evaluation are 0.80 and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:54:06Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sensitivity thresholds 0.01 0.02 0.05 0.10
+  claim_id: c_c555cd30
+  context: 'sensitivity_thresholds (list of floats: [0.01, 0.02, 0.05, 0.10])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity thresholds for deviation analysis are 0.01, 0.02, 0.05,
+    and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:54:31Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: compliance deviation threshold 0.02
+  claim_id: c_65a3ee51
+  context: 'threshold (float: 0.02)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The deviation threshold for compliance status is 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:54:48Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ARIMA default order 1 1 1
+  claim_id: c_1320db26
+  context: Use order=(1,1,1) as default.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default ARIMA model order is (1,1,1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:54:49Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: maximum series selected 1000
+  claim_id: c_c62cd350
+  context: select the top N series, where N = min(a predefined threshold, available_count)...
+    Final data/processed/sample_indices.csv (overwritten) containing up to 1,000 series.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of series to select is 1,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:55:09Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: minimum series selected 100
+  claim_id: c_597a668a
+  context: 'Verification: Run unit test with a mock distribution to confirm KL < 0.1
+    and sample count >= 100 (or max available).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of series to select is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T23:55:28Z'
