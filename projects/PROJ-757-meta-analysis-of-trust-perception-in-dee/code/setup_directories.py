@@ -1,34 +1,43 @@
+"""
+Project directory setup utility for the Meta-Analysis of Trust Perception in Deepfake Facial Stimuli.
+
+This module ensures the existence of all required data and results directories
+as defined in the project structure plan.
+"""
 import os
 from pathlib import Path
 
-def setup_directories() -> None:
+
+def setup_directories():
     """
-    Creates the necessary directories for the project.
+    Create the required directory structure for the project.
+    
+    Creates the following directories relative to the project root:
+    - data/search_results/
+    - data/screening/
+    - data/harmonized/
+    - results/
+    
+    Returns:
+        Path: The project root path.
     """
-    base_dir = Path(".")
-    code_dir = base_dir / "code"
-    data_dir = base_dir / "data"
-    results_dir = base_dir / "results"
-    tests_dir = base_dir / "tests"
+    project_root = Path(__file__).resolve().parent.parent
+    
+    required_dirs = [
+        "data/search_results",
+        "data/screening",
+        "data/harmonized",
+        "results"
+    ]
+    
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Ensured directory exists: {full_path}")
+    
+    return project_root
 
-    code_dir.mkdir(parents=True, exist_ok=True)
-    data_dir.mkdir(parents=True, exist_ok=True)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    tests_dir.mkdir(parents=True, exist_ok=True)
-
-    search_results_dir = data_dir / "search_results"
-    screening_dir = data_dir / "screening"
-    harmonized_dir = data_dir / "harmonized"
-
-    search_results_dir.mkdir(parents=True, exist_ok=True)
-    screening_dir.mkdir(parents=True, exist_ok=True)
-    harmonized_dir.mkdir(parents=True, exist_ok=True)
-
-    unit_tests_dir = tests_dir / "unit"
-    integration_tests_dir = tests_dir / "integration"
-
-    unit_tests_dir.mkdir(parents=True, exist_ok=True)
-    integration_tests_dir.mkdir(parents=True, exist_ok=True)
 
 if __name__ == "__main__":
-    setup_directories()
+    root = setup_directories()
+    print(f"Project structure initialized at: {root}")

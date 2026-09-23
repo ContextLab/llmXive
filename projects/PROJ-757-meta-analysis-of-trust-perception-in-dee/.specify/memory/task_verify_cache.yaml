@@ -5,6 +5,27 @@ T001:
     \ of the required directories (`code/`, `data/`, `results/`, `tests/`) was provided,\
     \ nor any file listings showing that the project structure from `plan.md` exists.\
     \ The core artifact\u2014the project folder hierarchy\u2014is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `renv.lock` file (or any R environment initialization script) is present\
+    \ in the provided evidence, so the requirement to set up an R\u202F4.3+ environment\
+    \ with `metafor` and `esc` packages has not been demonstrated. The implementer\
+    \ must supply the actual `renv.lock` (or equivalent) showing those packages locked."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g., `pytest.ini`, `pyproject.toml` with pytest\
+    \ settings) or the required `tests/unit/` and `tests/integration/` directories\
+    \ were presented. The implementer\u2019s claim lacks any tangible artifacts to\
+    \ verify that pytest is configured and the test folders exist."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the four required directories (`data/search_results/`, `data/screening/`,
+    `data/harmonized/`, `results/`) being present on disk is provided; the implementer
+    only restated the task without showing any created folder structure. The missing
+    artifacts must be created for the task to be considered complete.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,3 +38,27 @@ T009:
   r: "No synthetic data generator file or code was found under `tests/unit/`, and\
     \ there is no evidence of any test data or functions that produce effect\u2011\
     size verification data. The required artifact is missing, so the task is not satisfied."
+T015:
+  c: false
+  h: 85a717ea7006b0d348764f09361bb3030fcbe1a23cb4f565849261bb151d324f
+  r: "The `code/01_search_and_screen.py` script is present but contains placeholder\
+    \ logic for evaluating studies and does not include a complete dual\u2011reviewer\
+    \ simulation (e.g., no code that generates two independent reviewer decisions,\
+    \ compares them, computes Cohen\u2019s Kappa, or writes adjudication requests).\
+    \ Moreover, the required `data/screening/inclusion_criteria.yaml` file is missing,\
+    \ so the script cannot actually apply the inclusion criteria. Both essential artifacts\
+    \ are absent or incomplete."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No search or screening scripts, CSV export, or inter\u2011rater reliability\
+    \ calculations are present; the implementer merely marked the task as deferred\
+    \ and provided no code, data, or documentation that fulfills the mandatory user\
+    \ stories. The required artifacts are missing."
+T022:
+  c: false
+  h: d89ad01b0a92ba09ab4480bcf53c49a328f5b121fb910a343a880d6e69ddb709
+  r: The `code/02_effect_size_calc.py` script is present, but the required input file
+    `data/screening/screening_log.csv` does not exist, so the parsing functionality
+    cannot be demonstrated or verified. The missing CSV must be added (or generated)
+    for the implementation to be considered complete.

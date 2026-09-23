@@ -93,8 +93,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Implement `code/data/downloader.py`: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive (FITS) with retry logic
-- [ ] T025 [US1] Implement checksum verification in `code/data/downloader.py`: Verify file integrity against ESA records, raise error on mismatch
+- [X] T024 [US1] Implement `code/data/downloader.py`: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive [UNRESOLVED-CLAIM: c_b871a0e1 — status=not_enough_info] (FITS) with retry logic
+- [X] T025 [US1] Implement checksum verification in `code/data/downloader.py`: Verify file integrity against ESA records, raise error on mismatch
 - [ ] T026 [US1] Implement `code/data/processor.py`: Load raw maps, apply confidence masks, and deconvolve beam/pixel window functions
 - [ ] T027 [US1] Implement validation in `code/data/processor.py`: Check for NaNs and correct Nside=2048 resolution in output
 - [ ] T028 [US1] Implement error handling in `code/data/downloader.py`: Raise `ERROR_DATA_UNAVAILABLE` on persistent failure
@@ -121,7 +121,7 @@
 
 - [ ] T034 [P] [US2] Implement `code/analysis/power_spectra.py`: Compute TT, EE, TE spectra for ℓ < 200 using `healpy.anafast`
 - [ ] T035 [US2] Implement `code/analysis/anisotropy.py`: Calculate dipole modulation amplitude and phase (Hanson & Lewis estimator)
-- [ ] T036 [US2] Implement `code/analysis/anisotropy.py`: Calculate BipoSH coefficients for L=2 (Quadrupole) and L=3 (Octupole) modes
+- [ ] T036 [US2] Implement `code/analysis/anisotropy.py`: Calculate BipoSH coefficients for L=2 (Quadrupole) and L=3 (Octupole) modes [UNRESOLVED-CLAIM: c_1f5c3c82 — status=not_enough_info]
 - [ ] T037 [US2] Implement `code/analysis/minkowski.py`: Calculate Minkowski functionals (V, V1, V2) to flag non-Gaussian artifacts
 - [ ] T038 [US2] Implement logic in `code/analysis/minkowski.py`: If Minkowski flag is set, **log the flag and save diagnostic trace for review** (do NOT halt or downgrade) (Edge Case handling)
 - [ ] T039 [US2] Integrate diagnostic analysis in `code/main.py` (simulation generation is handled in Phase 2)
@@ -147,7 +147,7 @@
 
 - [ ] T045 [US3] Implement `code/analysis/inference.py`: Construct likelihood function comparing observed vs. simulated BipoSH coefficients
 - [ ] T046 [US3] Implement `code/analysis/inference.py`: Run MCMC sampling (100 walkers, 2000 burn-in, **8000 samples total**) using `emcee` to derive posterior for \(k_{(V)00}^{(5)}\)
-- [ ] T047 [US3] Implement convergence monitoring in `code/analysis/inference.py`: Check ESS; if < 200, issue warning and save trace plot
+- [ ] T047 [US3] Implement convergence monitoring in `code/analysis/inference.py`: Check ESS; if < 200, issue warning and save trace plot [UNRESOLVED-CLAIM: c_1d83d0ad — status=not_enough_info]
 - [ ] T048 [US3] Implement `code/analysis/inference.py`: Apply Benjamini-Hochberg FDR correction to p-values from BipoSH modes (L=2,3)
 - [ ] T049 [US3] Implement result classification logic: "consistent with isotropy" vs "anomalous" based on corrected p-value < 0.05
 - [ ] T050 [US3] Implement output generation in `code/analysis/inference.py`: Save posterior distributions, likelihood-ratio statistics, and SME constraints to `data/results/`

@@ -2696,3 +2696,323 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T17:37:05Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: MiniGrid dataset provides start/goal states while environment generates
+    path
+  claim_id: c_16d77c0d
+  context: 'Note: The dataset provides start/goal states; the environment generates
+    the path. **Depends on**: None.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MiniGrid_dataset_provides_start/goal_states_while_environmen
+  kind: entity_fact
+  raw_text: The dataset provides start/goal states; the environment generates the
+    path.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:37:42Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Ground truth path generation script accepts seed and map_id arguments
+  claim_id: c_67663b38
+  context: '**Input Parameters**: The script must accept `seed` and `map_id` as command-line
+    arguments. **Note**: The dataset provides start/goal states; the environment generates
+    the path.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_path_generation_script_accepts_seed_and_map_id
+  kind: entity_fact
+  raw_text: The script must accept seed and map_id as command-line arguments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:40:17Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy calculation returns finite value for near-zero inputs
+  claim_id: c_e8d51738
+  context: '**Semantic Test**: The function MUST correctly handle near-zero probability
+    inputs by returning a finite value without crashing. **Deliverable**: Create `src/utils/entropy_calc.py`
+    with function `calculate_entropy(probs)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entropy_calculation_returns_finite_value_for_near-zero_input
+  kind: entity_fact
+  raw_text: The function MUST correctly handle near-zero probability inputs by returning
+    a finite value without crashing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:42:32Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy calculation returns finite float for zero probability inputs
+  claim_id: c_d3d14ccb
+  context: '**Expected Output**: The function must return a finite float value (e.g.,
+    0.0 for the 1.0 case, and a finite value for the 0.0 case due to clamping). **Deliverable**:
+    `tests/unit/test_entropy_calc.py` with the specific test case.'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The function must return a finite float value (e.g., 0.0 for the 1.0 case,
+    and a finite value for the 0.0 case due to clamping).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T03:42:32Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Batch size halved on MemoryError during dataset loading
+  claim_id: c_11a8f78e
+  context: '**Input**: HuggingFace dataset iterator. **Fallback**: If MemoryError,
+    halve batch size. **Minimal Threshold**: Raise RuntimeError if batch size drops
+    below **10 examples**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_size_halved_on_MemoryError_during_dataset_loading
+  kind: entity_fact
+  raw_text: If MemoryError, halve batch size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:42:42Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if dataset batch size drops below 10
+  claim_id: c_416b0875
+  context: '**Fallback**: If MemoryError, halve batch size. **Minimal Threshold**:
+    Raise RuntimeError if batch size drops below **10 examples**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise RuntimeError if batch size drops below 10 examples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:42:48Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if token batch size drops below 8
+  claim_id: c_38850e94
+  context: '**Fallback**: If MemoryError, halve batch size. **Minimal Threshold**:
+    Raise RuntimeError if batch size drops below **8 tokens**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise RuntimeError if batch size drops below 8 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:42:53Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: GSM8K validity determined by exact match with solution string
+  claim_id: c_4d7afa7a
+  context: '**Specifics**: For GSM8K, validity is determined by exact match with the
+    dataset solution string. For MiniGrid, validity is determined by exact match with
+    *any of the known valid ground-truth paths* (fetched dynamically via the script
+    from T001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_validity_determined_by_exact_match_with_solution_strin
+  kind: entity_fact
+  raw_text: Validity is determined by exact match with the dataset solution string
+    for GSM8K.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:43:02Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: MiniGrid validity determined by match with any known valid path
+  claim_id: c_28bb9353
+  context: For GSM8K, validity is determined by exact match with the dataset solution
+    string. For MiniGrid, validity is determined by exact match with *any of the known
+    valid ground-truth paths* (fetched dynamically via the script from T001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MiniGrid_validity_determined_by_match_with_any_known_valid_p
+  kind: entity_fact
+  raw_text: Validity for MiniGrid is determined by exact match with any of the known
+    valid ground-truth paths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:43:18Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Log rotation configured with 10MB max bytes and 5 backups
+  claim_id: c_1658b789
+  context: '**Rotation**: Use `RotatingFileHandler` with `maxBytes=10MB` and `backupCount=5`
+    and path `logs/generation.log`. **Error handling**: raise RuntimeError if log
+    file is locked.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log rotation uses maxBytes=10MB and backupCount=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:43:23Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy extraction handles sequences up to 512 tokens in 50-token chunks
+  claim_id: c_f1de795f
+  context: '**CRITICAL**: This task MUST handle **full sequences up to 512 tokens**
+    in length, processing them in 50-token chunks **incrementally** (not loading full
+    context). **Deliverable**: `src/generation/generation.py` with `process_batch`
+    function...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST handle full sequences up to 512 tokens in length, processing
+    them in 50-token chunks incrementally.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:43:31Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy extraction processes sequences in 50-token chunks
+  claim_id: c_7ebe15f4
+  context: '**CRITICAL**: This task MUST handle **full sequences up to 512 tokens**
+    in length, processing them in 50-token chunks **incrementally** (not loading full
+    context).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST process sequences in 50-token chunks incrementally.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:53:33Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Memory usage verified under 6.5GB for 512 token sequences in 50 token
+    batches
+  claim_id: c_c7d37079
+  context: Profile `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py`
+    using `cProfile` and verify RAM usage stays < 6.5GB for sequences up to **512
+    tokens** processed in batches of 50 tokens.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Profile verification requires RAM usage to stay < 6.5GB for sequences
+    up to 512 tokens processed in batches of 50 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:53:34Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Default alpha for multiple-comparison correction is 0.05
+  claim_id: c_0d146cc1
+  context: '**Requirement**: The task MUST **fail loudly (raise RuntimeError)** if
+    the input data is empty, contains only one class, or if the correction logic fails.
+    **Requirement**: Default `alpha` value for correction is **0.05**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default alpha value for correction is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:56:50Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep range is optimal plus or minus 0.1 with 0.01 step
+  claim_id: c_f7501ff3
+  context: '**Requirement**: Sweep range `[optimal - 0.1, optimal + 0.1]` with step
+    size `0.01`, and **explicitly link the sweep results to the corrected p-values**
+    to determine the optimal threshold under the corrected significance level (SC-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sweep range is [optimal - 0.1, optimal + 0.1] with step size 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:57:17Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Dataset split into short (<=100) and long (>100) token subsets
+  claim_id: c_8a0082e7
+  context: Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/decay_analysis.py`
+    to split the dataset into "short" (sequence length **<= 100** tokens) and "long"
+    (sequence length **> 100** tokens) subsets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is split into 'short' (sequence length <= 100 tokens) and
+    'long' (sequence length > 100 tokens) subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:57:55Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Real sample fallback triggered if RAM usage exceeds 7GB
+  claim_id: c_19518a5a
+  context: '**Requirement**: If the full dataset cannot be processed within the compute
+    budget (trigger: RAM usage > 7GB, detected via `psutil.virtual_memory().percent
+    > 90`), the task MUST implement a well-defined **real sample** (e.g., `itertools.islice`
+    the first N rows with `seed=42`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_sample_fallback_triggered_if_RAM_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: The task MUST implement a well-defined real sample if RAM usage exceeds
+    7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T03:58:42Z'

@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`) [UNRESOLVED-CLAIM: c_5bf40573 — status=not_enough_info]
-- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages [UNRESOLVED-CLAIM: c_c9c5b04a — status=not_enough_info] <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`)
+- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T004 [P] Configure `pytest` and create `tests/unit/` and `tests/integration/` directories
 
 ---
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 1:
  **Task ID**: T013
  ^
@@ -90,7 +90,7 @@ expected alphabetic or numeric character, but found '*'
  ^) -->
 - [ ] T014 [US1] Implement export of raw results to `data/search_results/raw_studies.csv` with fields: title, year, source, abstract, DOI
 - [ ] T015 [US1] Implement dual-reviewer simulation logic in `code/01_search_and_screen.py` applying `data/screening/inclusion_criteria.yaml`
-- [ ] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 [UNRESOLVED-CLAIM: c_4b513f7e — status=not_enough_info] (HALT) to wait for human input.
+- [ ] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 (HALT) to wait for human input.
 - [ ] T016.5 [US1] **Adjudication Workflow**: Implement logic to detect the `adjudication_request.csv` flag. If present, the system must pause and wait for a human operator to manually edit `screening_log.csv` (resolving disputes) and clear the flag. Upon detection of resolved flags, re-run the screening logic (T015) and proceed to T018.
 - [ ] T018 [US1] **Deferred**: Removed. PRISMA generation moved to Phase N (T042) to ensure it uses final harmonized data.
 
@@ -106,9 +106,9 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for Cohen's d calculation from means/SDs in `tests/unit/test_effect_size.py`
-- [ ] T020 [P] [US2] Unit test for log-odds conversion from odds ratio and CI in `tests/unit/test_effect_size.py`
-- [ ] T021 [P] [US2] Unit test for SD reconstruction logic (exact t/p vs rounded p) and imputation logic in `tests/unit/test_effect_size.py`
+- [X] T019 [P] [US2] Unit test for Cohen's d calculation from means/SDs in `tests/unit/test_effect_size.py`
+- [X] T020 [P] [US2] Unit test for log-odds conversion from odds ratio and CI in `tests/unit/test_effect_size.py`
+- [X] T021 [P] [US2] Unit test for SD reconstruction logic (exact t/p vs rounded p) and imputation logic in `tests/unit/test_effect_size.py`
 
 ### Implementation for User Story 2
 

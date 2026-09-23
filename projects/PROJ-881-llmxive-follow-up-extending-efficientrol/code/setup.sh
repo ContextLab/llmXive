@@ -1,17 +1,13 @@
 #!/bin/bash
-# Setup script for llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
-# Project: PROJ-881-llmxive-follow-up-extending-efficientrol
-#
-# This script creates the complete directory structure required for the project.
-# Run from the project root directory.
+set -e
 
-set -e  # Exit immediately if a command exits with a non-zero status
-
+# Define project root relative to script location or current directory
+# Assuming this script is run from repository root
 PROJECT_ROOT="projects/PROJ-881-llmxive-follow-up-extending-efficientrol"
 
-echo "Creating directory structure for $PROJECT_ROOT..."
+echo "Creating project directory structure for $PROJECT_ROOT..."
 
-# Create root project directories
+# Create main directories
 mkdir -p "$PROJECT_ROOT/code"
 mkdir -p "$PROJECT_ROOT/tests"
 mkdir -p "$PROJECT_ROOT/data"
@@ -20,23 +16,23 @@ mkdir -p "$PROJECT_ROOT/scripts"
 mkdir -p "$PROJECT_ROOT/results"
 mkdir -p "$PROJECT_ROOT/specs/001-entropy-validity-prediction/contracts"
 
-# Create subdirectories under code/
+# Create subdirectories under code
 mkdir -p "$PROJECT_ROOT/code/src"
 mkdir -p "$PROJECT_ROOT/code/data/raw"
 mkdir -p "$PROJECT_ROOT/code/data/processed"
 mkdir -p "$PROJECT_ROOT/code/artifacts"
 mkdir -p "$PROJECT_ROOT/code/state"
-
-# Create additional standard subdirectories
-mkdir -p "$PROJECT_ROOT/code/src/utils"
-mkdir -p "$PROJECT_ROOT/code/src/data"
-mkdir -p "$PROJECT_ROOT/code/src/generation"
-mkdir -p "$PROJECT_ROOT/code/src/analysis"
-mkdir -p "$PROJECT_ROOT/code/tests/unit"
-mkdir -p "$PROJECT_ROOT/code/tests/integration"
-mkdir -p "$PROJECT_ROOT/code/tests/contract"
 mkdir -p "$PROJECT_ROOT/code/logs"
+mkdir -p "$PROJECT_ROOT/code/contracts"
+
+# Create subdirectories under tests
+mkdir -p "$PROJECT_ROOT/tests/unit"
+mkdir -p "$PROJECT_ROOT/tests/integration"
+mkdir -p "$PROJECT_ROOT/tests/contract"
+
+# Create subdirectories under specs
+mkdir -p "$PROJECT_ROOT/specs/001-entropy-validity-prediction"
 
 echo "Directory structure created successfully."
-echo "All paths:"
+echo "Listing structure:"
 find "$PROJECT_ROOT" -type d | sort
