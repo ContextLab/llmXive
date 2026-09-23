@@ -1,3 +1,30 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the implementer opened `specs/001-ecotourism-regeneration/spec.md`,\
+    \ confirmed that SC\u2011001 contains the phrase \u201Cup to 30 valid sites\u201D\
+    , or that they wrote an error to `state/spec_validation.log` and halted if it\
+    \ differed. The required artifacts (verification result and log entry) are missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the file `specs/001-ecotourism-regeneration/spec.md`\
+    \ was inspected, that the FR\u2011002 note was confirmed present, or that an error\
+    \ was logged to `state/spec_validation.log` if it was missing. The required verification\
+    \ artifact is absent."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`data/raw/landsat`, `data/processed`,
+    `data/ecotourism`) or accompanying `.gitkeep` placeholder files is provided; without
+    these artifacts the claim cannot be verified. The implementer must add the specified
+    folders and place a `.gitkeep` file in each to satisfy the task.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CHIRPS precipitation or MODIS temperature datasets, download scripts, or logs
+    are present; the implementer provided only a textual description of the task without
+    any actual data files or code to fetch them. The required artifacts are missing.
 T011:
   c: false
   h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e

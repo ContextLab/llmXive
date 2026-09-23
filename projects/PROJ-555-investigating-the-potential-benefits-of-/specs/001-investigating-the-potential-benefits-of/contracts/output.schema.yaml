@@ -1,226 +1,64 @@
-title: Output Schemas for Ecotourism Regeneration Analysis
-description: >
-  Defines the validation schemas for the final analysis report and
-  sensitivity analysis artifacts as required by FR-006 and FR-004/SC-004.
+# Pydantic-compatible schema definitions for project outputs
+# Matches Plan.md contracts section and FR-004/FR-006 requirements
 
-# FinalReport: The primary output of the statistical inference pipeline.
-# Contains the regression results, sensitivity analysis summary, and data quality flags.
-FinalReport:
-  type: object
-  required:
-    - report_metadata
-    - regression_coefficients
-    - sensitivity_analysis
-    - data_quality_flags
-  properties:
-    report_metadata:
-      type: object
-      description: Metadata about the report generation.
-      required:
-        - generated_at
-        - model_version
-        - data_source_version
-      properties:
-        generated_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of report generation.
-        model_version:
-          type: string
-          description: Version string of the modeling pipeline used.
-        data_source_version:
-          type: string
-          description: Identifier for the specific dataset version used.
-    
-    regression_coefficients:
-      type: object
-      description: >
-        Results from the Linear Mixed-Effects Model (LMM).
-        Maps variable names to their coefficient details.
-      additionalProperties:
-        type: object
-        required:
-          - estimate
-          - std_error
-          - confidence_interval
-          - p_value
-          - significance_flag
-        properties:
-          estimate:
-            type: number
-            format: float
-            description: The estimated coefficient value.
-          std_error:
-            type: number
-            format: float
-            description: Standard error of the estimate.
-          confidence_interval:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower_bound, upper_bound] of the 95% CI.
-          p_value:
-            type: number
-            format: float
-            description: Raw p-value from the model.
-          significance_flag:
-            type: string
-            enum: ["ns", "*", "**", "***"]
-            description: Significance stars based on Bonferroni/Holm corrected p-value.
-
-    sensitivity_analysis:
-      type: array
-      description: >
-        Summary of sensitivity analysis results across different thresholds
-        and proxy variables.
-      items:
-        type: object
-        required:
-          - threshold
-          - proxy_variable
-          - effect_size
-          - p_value
-          - significance_flag
-        properties:
-          threshold:
-            type: number
-            format: float
-            description: The specific threshold value tested (e.g., revenue cutoff).
-          proxy_variable:
-            type: string
-            description: The variable used as proxy (e.g., 'revenue_usd', 'visitor_count').
-          effect_size:
-            type: number
-            format: float
-            description: The magnitude of the effect observed at this configuration.
-          p_value:
-            type: number
-            format: float
-            description: P-value for the effect at this configuration.
-          significance_flag:
-            type: string
-            enum: ["ns", "*", "**", "***"]
-            description: Significance flag after correction.
-
-    data_quality_flags:
-      type: object
-      description: >
-        Flags indicating the quality and completeness of the data used.
-        Used for pass/fail validation of the report.
-      required:
-        - ndvi_coverage_flag
-        - climate_data_flag
-        - revenue_data_flag
-        - model_convergence_flag
-      properties:
-        ndvi_coverage_flag:
-          type: boolean
-          description: True if NDVI coverage meets minimum threshold (>90% valid points).
-        climate_data_flag:
-          type: boolean
-          description: True if climate covariates are available for all sites.
-        revenue_data_flag:
-          type: boolean
-          description: True if revenue/visitor data is present for all sites.
-        model_convergence_flag:
-          type: boolean
-          description: True if the LMM converged for >90% of bootstrap samples.
-
-# SensitivityArtifact: The raw data output of the sensitivity sweep.
-# Used for detailed inspection and plotting of the sensitivity analysis.
-SensitivityArtifact:
-  type: object
-  required:
-    - sweep_parameters
-    - raw_results
-  properties:
-    sweep_parameters:
-      type: object
-      description: Configuration of the sensitivity sweep.
-      required:
-        - threshold_range
-        - proxy_variables
-        - model_type
-      properties:
-        threshold_range:
+pydantic_models:
+  FinalReport:
+    description: >
+      Per FR-006: Final regression and sensitivity report structure.
+      Contains regression coefficients, sensitivity analysis results, and data quality flags.
+    fields:
+      regression_coefficients:
+        type: dict
+        description: Dictionary mapping variable names to coefficient values and stats.
+        example: {"ecotourism_effect": 0.45, "precipitation": 0.12}
+      sensitivity_analysis:
+        type: list
+        description: List of sensitivity analysis results across thresholds and proxies.
+        items:
           type: object
-          required:
-            - start
-            - end
-            - step
-          properties:
-            start:
-              type: number
-              format: float
-            end:
-              type: number
-              format: float
-            step:
-              type: number
-              format: float
-        proxy_variables:
-          type: array
-          items:
-            type: string
-          description: List of proxy variable names tested (e.g., ['revenue_usd', 'visitor_count']).
-        model_type:
+          fields:
+            threshold:
+              type: float
+              description: The threshold value used for this sensitivity sweep.
+            proxy_variable:
+              type: str
+              description: The proxy variable used (e.g., 'revenue_usd', 'visitor_count').
+            effect_size:
+              type: float
+              description: The calculated effect size for this configuration.
+            p_value:
+              type: float
+              description: Raw p-value from the statistical test.
+            corrected_p_value:
+              type: float
+              description: P-value after Bonferroni/Holm correction.
+      data_quality_flags:
+        type: list
+        description: List of strings indicating data quality issues or flags.
+        items:
           type: string
-          description: Type of model used for the sweep (e.g., 'lmm').
-    
-    raw_results:
-      type: array
-      description: List of results for every configuration tested in the sweep.
-      items:
-        type: object
-        required:
-          - run_id
-          - threshold
-          - proxy_variable
-          - model_fit
-          - coefficient_summary
-          - convergence_status
-        properties:
-          run_id:
-            type: string
-            description: Unique identifier for this sweep run.
-          threshold:
-            type: number
-            format: float
-            description: Threshold value applied.
-          proxy_variable:
-            type: string
-            description: Proxy variable used.
-          model_fit:
-            type: object
-            required:
-              - r_squared
-              - log_likelihood
-            properties:
-              r_squared:
-                type: number
-                format: float
-              log_likelihood:
-                type: number
-                format: float
-          coefficient_summary:
-            type: object
-            description: Summary of coefficients for the main predictor.
-            required:
-              - estimate
-              - std_error
-              - p_value
-            properties:
-              estimate:
-                type: number
-                format: float
-              std_error:
-                type: number
-                format: float
-              p_value:
-                type: number
-                format: float
-          convergence_status:
-            type: boolean
-            description: Whether the model optimization converged.
+        example: ["missing_climate_data_site_42", "low_r_squared_recovery"]
+
+  SensitivityArtifact:
+    description: >
+      Per FR-004: Raw sensitivity sweep data artifact.
+      Contains detailed metrics for every point in the sensitivity analysis.
+    fields:
+      threshold:
+        type: float
+        description: The threshold value applied.
+      proxy_variable:
+        type: str
+        description: The proxy variable used (e.g., 'revenue_usd', 'visitor_count').
+      model_params:
+        type: dict
+        description: Dictionary of model parameters for this specific run.
+        example: {"random_effect_variance": 0.05, "residual_variance": 0.12}
+      metrics:
+        type: dict
+        description: Dictionary of performance metrics (R2, AIC, BIC, etc.).
+        example: {"r_squared": 0.85, "aic": 120.5, "convergence": true}
+
+# Note: This file serves as the schema definition.
+# Actual Pydantic models are generated dynamically by code/utils/schema_loader.py
+# using these specifications.

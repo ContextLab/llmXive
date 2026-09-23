@@ -90,5 +90,5 @@ data/
 | :--- | :--- | :--- |
 | **Hierarchical Non-Linear Model (HNLMM)** | Required by FR-002 to accurately capture the "S-curve" of forest recovery while borrowing strength across sites to stabilize estimates for N=30. | Independent non-linear fits for each site are statistically unstable for small N and prone to non-convergence. |
 | **Linear Mixed-Effects Model** | Required by FR-003 to account for the paired design (random effect 'pair') and control for site-level heterogeneity. | Standard OLS regression would violate independence assumptions due to the paired site structure and spatial autocorrelation. |
-| **Chunked Streaming** | Required by FR-001 to stay under a moderate RAM footprint when processing years of Landsat imagery for 30 sites. | Loading all raw imagery into memory simultaneously would exceed the 7GB limit and crash the runner. |
+| **Chunked Streaming** | Required by FR-001 to stay under a moderate RAM footprint when processing years of Landsat imagery for multiple sites. | Loading all raw imagery into memory simultaneously would exceed the 7GB limit and crash the runner. |
 | **Temporal Validation** | Required to avoid collider bias if ecotourism designation occurred after deforestation. | Ignoring temporal ordering risks spurious correlations if sites were selected based on prior recovery. |

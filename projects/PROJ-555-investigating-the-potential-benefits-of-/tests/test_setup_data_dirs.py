@@ -1,72 +1,63 @@
 """
-Tests for the data directory setup script (T008).
-
-Verifies that the required directories and .gitkeep files are created correctly.
+Tests for T008: Data directory structure creation.
 """
 import os
-import pytest
+import tempfile
 from pathlib import Path
-import shutil
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Import the function to test
-from setup_data_dirs import DATA_DIRS, create_gitkeep, main
+# We will test the logic by mocking Path operations to avoid side effects on the actual file system
+# or by running in a temporary directory if we want to test actual file creation.
+# Given the constraints, let's test the logic of create_gitkeep and main with mocks.
 
-@pytest.fixture
-def temp_data_root(tmp_path):
-    """
-    Create a temporary directory to act as the project root for testing.
-    """
-    # We need to simulate the project structure. 
-    # We'll change the current working directory to tmp_path for the duration of the test.
-    # However, the script uses relative paths. So we'll run the logic manually here.
-    return tmp_path
+from code.setup_data_dirs import create_gitkeep, main
+from code.logging_config import setup_logging
 
-def test_create_gitkeep_creates_file(temp_data_root):
-    """Test that create_gitkeep creates a .gitkeep file with content."""
-    test_dir = temp_data_root / "test_dir"
-    test_dir.mkdir()
-    
-    create_gitkeep(test_dir)
-    
-    gitkeep_path = test_dir / ".gitkeep"
-    assert gitkeep_path.exists(), ".gitkeep file was not created"
-    assert gitkeep_path.is_file(), ".gitkeep is not a file"
-    
-    with open(gitkeep_path, 'r') as f:
-        content = f.read()
-    assert "# This file ensures the directory is tracked by git." in content
 
-def test_main_creates_directories_and_gitkeep(tmp_path):
-    """
-    Test that main() creates the required directories and .gitkeep files.
-    We patch the paths to use tmp_path as the root.
-    """
-    original_cwd = os.getcwd()
-    try:
-        # Change to the temp directory to simulate the project root
-        os.chdir(tmp_path)
-        
-        # Run the main logic manually to avoid side effects on the real file system
-        # We replicate the logic from main() here but using tmp_path
-        data_root = tmp_path / "data"
-        data_root.mkdir(exist_ok=True)
-        
-        for dir_str in DATA_DIRS:
-            dir_path = data_root / dir_str
-            dir_path.mkdir(parents=True, exist_ok=True)
-            create_gitkeep(dir_path)
-        
-        # Verify directories exist
-        for dir_str in DATA_DIRS:
-            dir_path = data_root / dir_str
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} is not a directory"
-        
-        # Verify .gitkeep files exist
-        for dir_str in DATA_DIRS:
-            dir_path = data_root / dir_str
-            gitkeep_path = dir_path / ".gitkeep"
-            assert gitkeep_path.exists(), f".gitkeep file missing in {dir_path}"
-            assert gitkeep_path.is_file(), f".gitkeep in {dir_path} is not a file"
-    finally:
-        os.chdir(original_cwd)
+def test_create_gitkeep_creates_file(tmp_path):
+    """Test that create_gitkeep creates a .gitkeep file if it doesn't exist."""
+    target_dir = tmp_path / "test_dir"
+    target_dir.mkdir()
+    gitkeep_path = target_dir / ".gitkeep"
+
+    assert not gitkeep_path.exists()
+    create_gitkeep(target_dir)
+    assert gitkeep_path.exists()
+    assert gitkeep_path.is_file()
+
+
+def test_create_gitkeep_does_not_overwrite(tmp_path):
+    """Test that create_gitkeep does not overwrite an existing .gitkeep file."""
+    target_dir = tmp_path / "test_dir"
+    target_dir.mkdir()
+    gitkeep_path = target_dir / ".gitkeep"
+    gitkeep_path.write_text("existing content")
+
+    create_gitkeep(target_dir)
+    assert gitkeep_path.read_text() == "existing content"
+
+
+def test_main_creates_directories_and_gitkeeps(tmp_path, caplog):
+    """Test that main creates the required directories and .gitkeep files."""
+    # Mock Path.cwd to return our temp directory
+    with patch('code.setup_data_dirs.Path.cwd', return_value=tmp_path):
+        with patch('code.setup_data_dirs.ensure_directories'):
+            with caplog.at_level("INFO"):
+                main()
+
+    # Check that directories were created
+    expected_dirs = [
+        tmp_path / "data" / "raw" / "landsat",
+        tmp_path / "data" / "processed",
+        tmp_path / "data" / "ecotourism",
+    ]
+
+    for dir_path in expected_dirs:
+        assert dir_path.exists()
+        assert dir_path.is_dir()
+        assert (dir_path / ".gitkeep").exists()
+
+    # Check for log messages
+    assert "Starting T008" in caplog.text
+    assert "completed successfully" in caplog.text
