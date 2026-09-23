@@ -4,36 +4,69 @@ from pathlib import Path
 
 def verify_t001a():
     """
-    Verification script for T001a.
-    Runs checks equivalent to:
-    test -d src/data
-    test -d src/analysis
-    test -d src/viz
-    test -d src/utils
+    Verify that all required directories for T001 exist.
+    Returns True if all pass, False otherwise.
     """
-    root = Path(".")
     required_dirs = [
+        "src",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "output/results",
+        "output/figures",
+        "logs",
         "src/data",
         "src/analysis",
         "src/viz",
-        "src/utils"
+        "src/utils",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract"
     ]
-
+    
     all_passed = True
-    for rel_path in required_dirs:
-        full_path = root / rel_path
-        if not full_path.is_dir():
-            print(f"FAIL: Directory {full_path} does not exist.")
-            all_passed = False
+    
+    print("Verifying directory structure for T001...")
+    
+    for dir_path in required_dirs:
+        path = Path(dir_path)
+        if path.is_dir():
+            print(f"  [PASS] {dir_path} exists.")
         else:
-            print(f"PASS: Directory {full_path} exists.")
-
+            print(f"  [FAIL] {dir_path} does NOT exist.")
+            all_passed = False
+    
+    # Verify .gitkeep files in specific locations
+    gitkeep_checks = [
+        "src/data/.gitkeep",
+        "src/analysis/.gitkeep",
+        "src/viz/.gitkeep",
+        "src/utils/.gitkeep",
+        "tests/.gitkeep",
+        "tests/unit/.gitkeep",
+        "tests/integration/.gitkeep",
+        "tests/contract/.gitkeep",
+        "data/raw/.gitkeep",
+        "data/processed/.gitkeep",
+        "output/results/.gitkeep",
+        "output/figures/.gitkeep"
+    ]
+    
+    for file_path in gitkeep_checks:
+        path = Path(file_path)
+        if path.is_file():
+            print(f"  [PASS] {file_path} exists.")
+        else:
+            print(f"  [FAIL] {file_path} does NOT exist.")
+            all_passed = False
+    
     if all_passed:
-        print("T001a Verification: SUCCESS")
-        sys.exit(0)
+        print("\nVerification PASSED: All required directories and files exist.")
     else:
-        print("T001a Verification: FAILED")
-        sys.exit(1)
+        print("\nVerification FAILED: Some directories or files are missing.")
+        
+    return all_passed
 
 if __name__ == "__main__":
-    verify_t001a()
+    success = verify_t001a()
+    sys.exit(0 if success else 1)

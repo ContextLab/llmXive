@@ -86,7 +86,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-06T03:19:01.161597Z'
-- artifact_hash: 8b76ce2b4869050c9ff4180aed075e53b5e4f5138047c9ea02a0f329b9accbe8
+- artifact_hash: ed8be378020232fd93cd76d0bf4364cb31b44bdee4439ee2dcd1ab441bcd7c1a
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -96,4 +96,4 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-09-21T08:12:25.457406Z'
+  verified_at: '2026-09-23T10:53:11.360298Z'

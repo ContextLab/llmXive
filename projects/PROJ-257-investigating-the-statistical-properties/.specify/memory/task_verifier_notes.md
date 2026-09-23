@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the required `src/` directory hierarchy (src/data, src/analysis, src/viz, src/utils) is provided; the implementer did not supply any file‑system listing or screenshots confirming those directories exist. The task remains unfinished until those directories are created and can be verified with the specified `test -d` commands.
-- **T001b** — No evidence of the required `.gitkeep` files in the four `src/*` directories is provided, nor any `stat` output confirming their existence. The implementer must add the `.gitkeep` files and supply verification (e.g., `stat src/data/.gitkeep` etc.).
-- **T001c** — No evidence of a `tests/` directory, its `unit`, `integration`, and `contract` subfolders, or the required `tests/.gitkeep` file is provided. The implementer must add the directory structure and the placeholder file so that `ls tests/` returns the three subdirectories and `test -f tests/.gitkeep` succeeds.
-- **T001d** — No evidence was provided showing that the directories `tests/unit/`, `tests/integration/`, and `tests/contract/` exist, nor that a `.gitkeep` file was placed in each. The implementer must supply a directory listing or the actual `.gitkeep` files to confirm the task is completed.
+- **T001** — No directory listings, shell commands, or file‑system snapshots were provided to demonstrate that the required folders (`src/`, `tests/`, `data/raw/`, etc.) actually exist. Without concrete evidence the claim cannot be verified.
+- **T004** — No evidence was provided showing that a virtual environment exists with `ruff` and `black` in `.venv/bin/`, nor any command output confirming that `ruff check .` and `black --check .` run with exit code 0 (or expected linting errors). The required artifacts to verify the linting/formatting configuration are missing.
+- **T006** — declared artifact(s) missing/empty/invalid: src/utils/logger.py
+- **T047** — declared artifact(s) missing/empty/invalid: github/workflows/ci.yml, cat.github/workflows/ci.yml

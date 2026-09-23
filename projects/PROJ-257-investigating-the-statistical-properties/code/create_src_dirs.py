@@ -2,31 +2,26 @@ import os
 from pathlib import Path
 
 def create_directories():
-    """
-    Create the src/ directory structure at the repository root:
-    src/data, src/analysis, src/viz, src/utils
-    """
-    root = Path(".")
+    """Create the source code directories."""
     src_dirs = [
-        root / "src" / "data",
-        root / "src" / "analysis",
-        root / "src" / "viz",
-        root / "src" / "utils",
+        "src/data",
+        "src/analysis",
+        "src/viz",
+        "src/utils"
     ]
-
-    for directory in src_dirs:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-
-    # Verify creation
-    assert (root / "src").exists(), "src/ root directory missing"
-    assert (root / "src" / "data").exists(), "src/data missing"
-    assert (root / "src" / "analysis").exists(), "src/analysis missing"
-    assert (root / "src" / "viz").exists(), "src/viz missing"
-    assert (root / "src" / "utils").exists(), "src/utils missing"
+    
+    for dir_path in src_dirs:
+        full_path = Path(dir_path)
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create .gitkeep to ensure directories are tracked by git
+        gitkeep_path = full_path / ".gitkeep"
+        gitkeep_path.touch(exist_ok=True)
+        
+    print(f"Created {len(src_dirs)} source directories with .gitkeep files.")
 
 def main():
     create_directories()
+    print("Source directory initialization complete.")
 
 if __name__ == "__main__":
     main()

@@ -3,52 +3,24 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the src/ directory and its required subdirectories:
-    data/, analysis/, viz/, utils/.
-    Creates .gitkeep files to ensure git tracks these directories.
+    Orchestrate the creation of the entire project directory structure.
+    This function calls the specific creation functions for data, src, and test directories.
     """
-    base_dir = Path("src")
-    subdirs = ["data", "analysis", "viz", "utils"]
-
-    # Create the main src directory
-    base_dir.mkdir(parents=True, exist_ok=True)
-    (base_dir / ".gitkeep").touch()
-
-    # Create subdirectories and their .gitkeep files
-    for subdir_name in subdirs:
-        subdir_path = base_dir / subdir_name
-        subdir_path.mkdir(parents=True, exist_ok=True)
-        (subdir_path / ".gitkeep").touch()
+    from create_data_dirs import create_directories as create_data
+    from create_src_dirs import create_directories as create_src
+    from create_test_dirs import create_directories as create_tests
     
-    return base_dir
+    # Execute creation in logical order
+    print("Initializing project directory structure...")
+    
+    create_data()
+    create_src()
+    create_tests()
+    
+    print("All project directories initialized successfully.")
 
 def main():
-    """
-    Entry point for directory creation.
-    """
-    print("Creating src/ directory structure...")
-    base_dir = create_directories()
-    
-    # Verification
-    subdirs = ["data", "analysis", "viz", "utils"]
-    missing = []
-    for subdir in subdirs:
-        if not (base_dir / subdir).exists():
-            missing.append(subdir)
-    
-    if missing:
-        print(f"ERROR: Missing directories: {missing}")
-        return 1
-    
-    if not (base_dir / ".gitkeep").exists():
-        print("ERROR: Missing src/.gitkeep")
-        return 1
-
-    print(f"Successfully created directories under {base_dir}:")
-    for subdir in subdirs:
-        print(f"  - {base_dir / subdir}/")
-    print(f"  - {base_dir}/.gitkeep")
-    return 0
+    create_directories()
 
 if __name__ == "__main__":
-    exit(main())
+    main()
