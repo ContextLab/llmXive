@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No directory listings or screenshots were provided showing the required folders (`data/raw`, `data/distorted`, `data/outputs`, `data/metadata`, `output/control`). Without concrete evidence that these paths exist (and are non\u2011empty), the task requirement is not satisfied.",
+      "first_seen": "2026-09-23T22:50:24.135622+00:00",
+      "last_seen": "2026-09-23T22:50:24.135622+00:00"
+    }
+  ],
+  "updated_at": "2026-09-23T22:50:24.135622+00:00"
+}

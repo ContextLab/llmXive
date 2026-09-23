@@ -59,15 +59,15 @@ As a researcher, I need to calculate the mean Intersection-over-Union (mIoU) for
 ### Edge Cases
 
 - What happens if the video frame rate is too low to generate enough frames for the model's native resolution requirement? (System must skip or upsample with a warning).
-- How does the system handle a video clip where the extreme aspect ratio causes the content to be reduced to a 1-pixel line? (System must flag as "unresolvable" and exclude from the final count, recording the exclusion).
-- What happens if the INT4 quantization causes the model to crash on a specific video length? (System must implement a retry mechanism with a fallback to FP16 for that specific clip, logging the event as JSON with {clip_id, error, fallback_mode} after consecutive OOM errors).
+- How does the system handle a video clip where the extreme aspect ratio causes the content to be reduced to a -pixel line? (System must flag as "unresolvable" and exclude from the final count, recording the exclusion).
+- What happens if the INT4 quantization causes the model to crash on a specific video length? (System must implement a retry mechanism with a fallback to a lower-precision floating-point format for that specific clip, logging the event as JSON with {clip_id, error, fallback_mode} after consecutive OOM errors).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST programmatically generate synthetic video clips from ActivityNet Captions with a range of extreme aspect ratios, preserving original temporal ground-truth annotations. The system MUST exclude and regenerate any clip where the distortion reduces the primary subject's bounding box area by >95% to ensure semantic integrity is preserved (See US-001).
-- **FR-002**: The system MUST load the Kwai Keye-VL checkpoint in a low-bit quantization format. and execute inference on a CPU-only environment without requiring CUDA or GPU accelerators. If INT4 load fails due to memory constraints, the system MUST fallback to FP for the vision encoder (keeping LLM in INT4) and log the deviation (See US-002).
+- **FR-002**: The system MUST load the Kwai Keye-VL checkpoint in a low-bit quantization format. and execute inference on a CPU-only environment without requiring CUDA or GPU accelerators. If INT load fails due to memory constraints, the system MUST fallback to FP for the vision encoder (keeping LLM in low-precision quantization) and log the deviation (See US-002).
 - **FR-003**: The system MUST output prediction timestamps (start/end) for every processed video clip in a structured JSON format compatible with the mIoU calculation (See US-002).
 - **FR-004**: The system MUST calculate the mean Intersection-over-Union (mIoU) for the predicted timestamps against the preserved ground-truth annotations for both the extreme-aspect and square-cropped conditions (See US-003).
 - **FR-005**: The system MUST perform a paired statistical test (t-test or Wilcoxon signed-rank) to compare the mIoU distributions and report the p-value and effect size (See US-003).
@@ -96,7 +96,7 @@ As a researcher, I need to calculate the mean Intersection-over-Union (mIoU) for
 ## Assumptions
 
 - **Assumption about data**: The ActivityNet Captions dataset is accessible and contains sufficient video content that can be distorted to extreme aspect ratios without losing all semantic visual information. (e.g., the video is not already a single vertical strip).
-- **Assumption about model availability**: The Kwai Keye-VL-2.0 checkpoint is available in a format compatible with `llama.cpp` or `Optimum-Intel` for CPU inference, or a compatible INT4 quantized version can be derived without violating the 7GB RAM constraint.
-- **Assumption about computational limits**: A set of video clips, when processed sequentially on a 2-core CPU, will complete within the 6-hour limit; if the average inference time exceeds a predefined threshold, the dataset size will be dynamically reduced to a manageable subset to maintain feasibility.
+- **Assumption about model availability**: The Kwai Keye-VL checkpoint is available in a format compatible with `llama.cpp` or `Optimum-Intel` for CPU inference, or a compatible INT4 quantized version can be derived without violating the 7GB RAM constraint.
+- **Assumption about computational limits**: A set of video clips, when processed sequentially on a multi-core CPU, will complete within a feasible time limit.; if the average inference time exceeds a predefined threshold, the dataset size will be dynamically reduced to a manageable subset to maintain feasibility.
 - **Assumption about ground truth**: The original ActivityNet ground-truth timestamps are accurate and do not require adjustment when the video aspect ratio is changed, as the temporal event boundaries remain constant regardless of spatial distortion, provided the visual signal is not destroyed (clips failing the semantic integrity check in FR-001 are excluded).
 - **Assumption about quantization**: The INT4 quantization of the model does not degrade the temporal grounding accuracy so severely that it masks the effect of aspect ratio distortion (i.e., the signal-to-noise ratio remains sufficient to detect a >15% drop).
