@@ -1,285 +1,239 @@
+"""
+Task T021: Calculate statistical power and Minimum Detectable Effect Size (MDES).
+
+This module computes statistical power and MDES for the observed effects
+in the nostalgia vs control group comparison, and appends these values
+to the statistical report.
+
+Dependencies: T020 (effect sizes), T018 (Welch's t-test)
+"""
+
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 
-# Import from local project modules
-from config import get_config, ensure_dirs
-from utils import setup_logging, log_info, log_warning, get_timestamp
+# Import from sibling modules as per API surface
+from config import get_config, get_env_float
+from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
+from statsmodels.stats.power import tt_ind_solve_power
+from statsmodels.stats.effect_size import CoeffCohensD
 
-# Import analysis functions
-from analysis import welch_t_test, calculate_cohen_d
+# Configure logging
+logger = setup_logging("T021_power_analysis")
 
-def load_cleaned_dataset() -> Optional[pd.DataFrame]:
+def load_cleaned_dataset() -> pd.DataFrame:
     """Load the cleaned dataset from data/processed/cleaned_dataset.csv."""
     config = get_config()
-    path = Path(config['paths']['data_processed']) / 'cleaned_dataset.csv'
+    cleaned_path = config['paths']['cleaned_dataset']
     
-    if not path.exists():
-        log_warning(f"Cleaned dataset not found at {path}. Skipping power analysis.")
-        return None
+    if not os.path.exists(cleaned_path):
+        raise FileNotFoundError(f"Cleaned dataset not found at {cleaned_path}. "
+                              "Ensure T014a has completed successfully.")
     
-    try:
-        df = pd.read_csv(path)
-        log_info(f"Loaded cleaned dataset with {len(df)} records from {path}")
-        return df
-    except Exception as e:
-        log_warning(f"Failed to load cleaned dataset: {e}")
-        return None
+    df = pd.read_csv(cleaned_path)
+    logger.info(f"Loaded cleaned dataset with {len(df)} records from {cleaned_path}")
+    return df
 
 def load_statistical_report() -> Dict[str, Any]:
-    """Load existing statistical report from data/results/statistical_report.json."""
+    """Load the statistical report from data/results/statistical_report.json."""
     config = get_config()
-    path = Path(config['paths']['data_results']) / 'statistical_report.json'
+    report_path = config['paths']['results_dir'] / 'statistical_report.json'
     
-    if path.exists():
-        try:
-            with open(path, 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            log_warning(f"Failed to load existing statistical report: {e}")
-            return {}
-    return {}
+    if not os.path.exists(report_path):
+        raise FileNotFoundError(f"Statistical report not found at {report_path}. "
+                              "Ensure T020 has completed successfully.")
+    
+    with open(report_path, 'r') as f:
+        report = json.load(f)
+    
+    logger.info(f"Loaded statistical report from {report_path}")
+    return report
 
 def save_statistical_report(report: Dict[str, Any]) -> None:
-    """Save statistical report to data/results/statistical_report.json."""
+    """Save the updated statistical report to data/results/statistical_report.json."""
     config = get_config()
-    ensure_dirs()
-    path = Path(config['paths']['data_results']) / 'statistical_report.json'
+    report_path = config['paths']['results_dir'] / 'statistical_report.json'
     
-    with open(path, 'w') as f:
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
-    log_info(f"Saved updated statistical report to {path}")
+    
+    logger.info(f"Saved updated statistical report to {report_path}")
 
 def calculate_power_and_mdes(
+    group1_n: int,
+    group2_n: int,
     effect_size: float,
-    n1: int,
-    n2: int,
-    alpha: float = 0.05,
-    alternative: str = 'two-sided'
-) -> Tuple[float, float]:
+    alpha: float = 0.05
+) -> Dict[str, float]:
     """
     Calculate statistical power and Minimum Detectable Effect Size (MDES).
     
-    Args:
-        effect_size: Cohen's d (standardized effect size)
-        n1: Sample size of group 1
-        n2: Sample size of group 2
-        alpha: Significance level (default 0.05)
-        alternative: Type of test ('two-sided', 'greater', 'less')
+    Parameters:
+    -----------
+    group1_n : int
+        Sample size of the first group (nostalgia)
+    group2_n : int
+        Sample size of the second group (control)
+    effect_size : float
+        Observed Cohen's d effect size
+    alpha : float
+        Significance level (default 0.05)
     
     Returns:
-        Tuple of (power, mdes)
+    --------
+    Dict with 'statistical_power' and 'minimum_detectable_effect_size'
     """
-    if n1 <= 0 or n2 <= 0:
-        log_warning("Invalid sample sizes for power calculation")
-        return 0.0, float('inf')
+    # Calculate statistical power for the observed effect
+    # Using tt_ind_solve_power with effect_size, nobs1, ratio, alpha
+    n_obs1 = group1_n
+    n_obs2 = group2_n
+    ratio = n_obs2 / n_obs1 if n_obs2 > 0 else 1.0
     
-    # Pooled sample size for power calculation
-    n = (2 * n1 * n2) / (n1 + n2)
-    
-    # Calculate power using scipy's non-centrality parameter approach
-    # For Welch's t-test, we approximate using the pooled variance assumption
-    # This is a standard approximation for power analysis in independent samples
-    
-    from scipy import stats
-    
-    # Non-centrality parameter
-    ncp = effect_size * np.sqrt(n / 2)
-    
-    # Critical t-value for two-sided test
-    df = n1 + n2 - 2  # Approximate degrees of freedom
-    if alternative == 'two-sided':
-        t_crit = stats.t.ppf(1 - alpha / 2, df)
-    elif alternative == 'greater':
-        t_crit = stats.t.ppf(1 - alpha, df)
-    else:  # 'less'
-        t_crit = stats.t.ppf(alpha, df)
-    
-    # Power calculation
-    if alternative == 'two-sided':
-        power = (1 - stats.t.cdf(t_crit, df, ncp) + 
-                stats.t.cdf(-t_crit, df, ncp))
-    elif alternative == 'greater':
-        power = 1 - stats.t.cdf(t_crit, df, ncp)
-    else:  # 'less'
-        power = stats.t.cdf(t_crit, df, ncp)
-    
-    # Clamp power to [0, 1]
-    power = max(0.0, min(1.0, power))
-    
-    # Calculate MDES (Minimum Detectable Effect Size)
-    # MDES is the effect size that would give us 80% power
-    target_power = 0.80
-    if alternative == 'two-sided':
-        t_crit_80 = stats.t.ppf(1 - alpha / 2, df)
-        # Solve for effect_size where power = 0.80
-        # Using iterative approach for accuracy
-        mdes = _find_mdes(target_power, n, alpha, df, alternative)
-    else:
-        mdes = _find_mdes(target_power, n, alpha, df, alternative)
-    
-    return power, mdes
-
-def _find_mdes(
-    target_power: float,
-    n: float,
-    alpha: float,
-    df: int,
-    alternative: str
-) -> float:
-    """
-    Find the Minimum Detectable Effect Size using binary search.
-    
-    Args:
-        target_power: Target power level (typically 0.80)
-        n: Effective sample size
-        alpha: Significance level
-        df: Degrees of freedom
-        alternative: Type of test
-    
-    Returns:
-        MDES value
-    """
-    from scipy import stats
-    
-    low, high = 0.0, 3.0  # Reasonable range for Cohen's d
-    
-    # Binary search for MDES
-    for _ in range(50):  # Sufficient iterations for convergence
-        mid = (low + high) / 2
-        ncp = mid * np.sqrt(n / 2)
-        
-        if alternative == 'two-sided':
-            t_crit = stats.t.ppf(1 - alpha / 2, df)
-            power = (1 - stats.t.cdf(t_crit, df, ncp) + 
-                    stats.t.cdf(-t_crit, df, ncp))
-        elif alternative == 'greater':
-            t_crit = stats.t.ppf(1 - alpha, df)
-            power = 1 - stats.t.cdf(t_crit, df, ncp)
-        else:
-            t_crit = stats.t.ppf(alpha, df)
-            power = stats.t.cdf(t_crit, df, ncp)
-        
-        if power < target_power:
-            low = mid
-        else:
-            high = mid
-        
-        if abs(high - low) < 1e-6:
-            break
-    
-    return (low + high) / 2
-
-def run_power_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run power analysis for both cognitive metrics.
-    
-    Args:
-        df: Cleaned dataset with columns 'stimulus_type', 
-            'perseverative_errors', 'categories_completed'
-    
-    Returns:
-        Dictionary with power analysis results
-    """
-    results = {
-        'timestamp': get_timestamp(),
-        'analyses': {}
-    }
-    
-    metrics = ['perseverative_errors', 'categories_completed']
-    
-    for metric in metrics:
-        if metric not in df.columns:
-            log_warning(f"Metric {metric} not found in dataset, skipping")
-            continue
-        
-        # Group data
-        nostalgia_group = df[df['stimulus_type'] == 'nostalgia'][metric].dropna()
-        control_group = df[df['stimulus_type'] == 'control'][metric].dropna()
-        
-        n1 = len(nostalgia_group)
-        n2 = len(control_group)
-        
-        if n1 < 2 or n2 < 2:
-            log_warning(f"Insufficient sample size for {metric}: nostalgia={n1}, control={n2}")
-            results['analyses'][metric] = {
-                'status': 'insufficient_sample_size',
-                'nostalgia_n': n1,
-                'control_n': n2
-            }
-            continue
-        
-        # Calculate effect size (Cohen's d)
-        mean1 = nostalgia_group.mean()
-        mean2 = control_group.mean()
-        std1 = nostalgia_group.std()
-        std2 = control_group.std()
-        
-        # Pooled standard deviation
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        
-        if pooled_std == 0:
-            log_warning(f"Zero pooled standard deviation for {metric}, skipping power analysis")
-            results['analyses'][metric] = {
-                'status': 'zero_variance',
-                'nostalgia_n': n1,
-                'control_n': n2
-            }
-            continue
-        
-        effect_size = abs(mean1 - mean2) / pooled_std
-        
-        # Calculate power and MDES
-        power, mdes = calculate_power_and_mdes(
-            effect_size=effect_size,
-            n1=n1,
-            n2=n2,
-            alpha=0.05,
+    try:
+        # Solve for power given effect_size, sample sizes, and alpha
+        power = tt_ind_solve_power(
+            effect_size=abs(effect_size),
+            nobs1=n_obs1,
+            ratio=ratio,
+            alpha=alpha,
             alternative='two-sided'
         )
-        
-        results['analyses'][metric] = {
-            'status': 'success',
-            'nostalgia_n': int(n1),
-            'control_n': int(n2),
-            'effect_size_cohen_d': float(effect_size),
-            'statistical_power': float(power),
-            'minimum_detectable_effect_size': float(mdes),
-            'alpha': 0.05,
-            'target_power': 0.80
-        }
-        
-        log_info(f"Power analysis for {metric}: power={power:.4f}, MDES={mdes:.4f}")
+    except Exception as e:
+        log_warning(f"Power calculation failed for effect size {effect_size}: {e}")
+        power = 0.0
     
-    return results
+    # Calculate Minimum Detectable Effect Size (MDES)
+    # Solve for effect_size given power=0.8 (standard), sample sizes, and alpha
+    target_power = 0.8
+    try:
+        mdes = tt_ind_solve_power(
+            effect_size=None,
+            nobs1=n_obs1,
+            ratio=ratio,
+            alpha=alpha,
+            power=target_power,
+            alternative='two-sided'
+        )
+    except Exception as e:
+        log_warning(f"MDES calculation failed: {e}")
+        mdes = 0.0
+    
+    return {
+        'statistical_power': float(power),
+        'minimum_detectable_effect_size': float(mdes),
+        'alpha': alpha,
+        'sample_size_nostalgia': group1_n,
+        'sample_size_control': group2_n
+    }
+
+def run_power_analysis(
+    report: Dict[str, Any],
+    df: pd.DataFrame
+) -> Dict[str, Any]:
+    """
+    Run power analysis for all comparisons in the report and update with power/MDES.
+    
+    Parameters:
+    -----------
+    report : Dict
+        Statistical report containing comparison results
+    df : pd.DataFrame
+        Cleaned dataset for reference (not directly used in calculation, 
+        but available for future extensions)
+    
+    Returns:
+    --------
+    Updated report with power analysis results appended
+    """
+    alpha = get_env_float('ALPHA_LEVEL', 0.05)
+    logger.info(f"Running power analysis with alpha={alpha}")
+    
+    comparisons = report.get('comparisons', [])
+    updated_comparisons = []
+    power_values = []
+    mdes_values = []
+    significant_count_alpha05 = 0
+    significant_count_alpha01 = 0
+    
+    for comp in comparisons:
+        metric = comp.get('metric', 'unknown')
+        group_nostalgia = comp.get('group_nostalgia', {})
+        group_control = comp.get('group_control', {})
+        effect_size_data = comp.get('effect_size', {})
+        
+        n_nostalgia = group_nostalgia.get('n', 0)
+        n_control = group_control.get('n', 0)
+        cohen_d = effect_size_data.get('cohen_d', 0.0)
+        p_value_corrected = comp.get('p_value_corrected', 1.0)
+        
+        # Calculate power and MDES
+        power_result = calculate_power_and_mdes(
+            group1_n=n_nostalgia,
+            group2_n=n_control,
+            effect_size=cohen_d,
+            alpha=alpha
+        )
+        
+        # Update comparison with power analysis results
+        comp['power_analysis'] = power_result
+        updated_comparisons.append(comp)
+        
+        # Collect metrics for summary
+        power_values.append(power_result['statistical_power'])
+        mdes_values.append(power_result['minimum_detectable_effect_size'])
+        
+        # Count significant results
+        if p_value_corrected < 0.05:
+            significant_count_alpha05 += 1
+        if p_value_corrected < 0.01:
+            significant_count_alpha01 += 1
+        
+        log_info(f"Power analysis for {metric}: power={power_result['statistical_power']:.3f}, "
+                f"MDES={power_result['minimum_detectable_effect_size']:.3f}")
+    
+    # Update summary section
+    report['comparisons'] = updated_comparisons
+    report['summary'] = {
+        'total_comparisons': len(comparisons),
+        'significant_at_alpha_05': significant_count_alpha05,
+        'significant_at_alpha_01': significant_count_alpha01,
+        'average_power': float(np.mean(power_values)) if power_values else 0.0,
+        'average_mdes': float(np.mean(mdes_values)) if mdes_values else 0.0
+    }
+    
+    logger.info(f"Power analysis complete: avg_power={report['summary']['average_power']:.3f}, "
+               f"avg_mdes={report['summary']['average_mdes']:.3f}")
+    
+    return report
 
 def main():
-    """Main entry point for T021: Power and MDES analysis."""
-    log_info("Starting T021: Statistical Power and MDES Analysis")
+    """Main entry point for T021 power analysis."""
+    logger.info(f"Starting T021 power analysis at {get_timestamp()}")
     
-    # Load cleaned dataset
-    df = load_cleaned_dataset()
-    if df is None:
-        log_warning("No cleaned dataset found. Cannot proceed with power analysis.")
-        return
-    
-    # Load existing statistical report
-    report = load_statistical_report()
-    
-    # Run power analysis
-    power_results = run_power_analysis(df)
-    
-    # Append to report
-    report['power_analysis'] = power_results
-    
-    # Save updated report
-    save_statistical_report(report)
-    
-    log_info("T021 completed successfully")
+    try:
+        # Load required data
+        df = load_cleaned_dataset()
+        report = load_statistical_report()
+        
+        # Run power analysis
+        updated_report = run_power_analysis(report, df)
+        
+        # Save updated report
+        save_statistical_report(updated_report)
+        
+        logger.info(f"T021 power analysis completed successfully at {get_timestamp()}")
+        return 0
+        
+    except FileNotFoundError as e:
+        log_error(f"Required file not found: {e}")
+        return 1
+    except Exception as e:
+        log_error(f"Power analysis failed: {e}")
+        raise
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

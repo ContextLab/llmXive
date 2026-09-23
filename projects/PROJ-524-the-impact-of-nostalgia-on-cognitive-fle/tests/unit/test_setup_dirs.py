@@ -1,72 +1,81 @@
+"""
+Unit tests for the directory creation logic (Task T001).
+Verifies that the setup_dirs module creates the required directories.
+"""
 import os
 import tempfile
-import pytest
+import shutil
 from pathlib import Path
-import sys
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add project root to path if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+# Import the function to test
 from code.setup_dirs import create_required_directories
 from code.config import get_config
 
-def test_create_required_directories_creates_all():
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as the project root."""
+    tmp_dir = tempfile.mkdtemp()
+    yield tmp_dir
+    shutil.rmtree(tmp_dir)
+
+def test_create_required_directories(temp_project_root):
     """Test that all required directories are created."""
-    # Use a temporary directory as root for testing
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        # Mock config to use temp dir
-        import code.config
-        original_get_config = code.config.get_config
-        
-        def mock_get_config():
-            return {'root_dir': tmp_dir}
-        
-        code.config.get_config = mock_get_config
+    # Mock the config to use our temp directory
+    mock_config = {
+        'project_root': temp_project_root
+    }
+    
+    with patch('code.setup_dirs.get_config', return_value=mock_config):
+        created_dirs = create_required_directories()
+    
+    # Verify the correct number of directories were created
+    expected_dirs = [
+        'data/raw', 'data/processed', 'data/results', 'data/stimuli',
+        'contracts', 'code', 'tests', 'paper'
+    ]
+    
+    assert len(created_dirs) == len(expected_dirs)
+    
+    # Verify each expected directory exists
+    for expected_dir in expected_dirs:
+        full_path = Path(temp_project_root) / expected_dir
+        assert full_path.exists(), f"Directory {full_path} was not created"
+        assert full_path.is_dir(), f"{full_path} is not a directory"
 
-        try:
-            count = create_required_directories()
-            
-            # Verify all directories exist
-            required_dirs = [
-                'data/raw',
-                'data/processed',
-                'data/results',
-                'data/stimuli',
-                'contracts',
-                'code',
-                'tests',
-                'paper'
-            ]
-            
-            for dir_name in required_dirs:
-                dir_path = Path(tmp_dir) / dir_name
-                assert dir_path.exists(), f"Directory {dir_path} should exist"
-                assert dir_path.is_dir(), f"{dir_path} should be a directory"
-            
-            assert count == len(required_dirs), f"Expected {len(required_dirs)} directories created, got {count}"
-        finally:
-            # Restore original function
-            code.config.get_config = original_get_config
+def test_create_required_directories_idempotent(temp_project_root):
+    """Test that running the function twice does not cause errors."""
+    mock_config = {
+        'project_root': temp_project_root
+    }
+    
+    with patch('code.setup_dirs.get_config', return_value=mock_config):
+        # Run twice
+        create_required_directories()
+        create_required_directories()
+    
+    # Verify directories still exist
+    expected_dirs = [
+        'data/raw', 'data/processed', 'data/results', 'data/stimuli',
+        'contracts', 'code', 'tests', 'paper'
+    ]
+    
+    for expected_dir in expected_dirs:
+        full_path = Path(temp_project_root) / expected_dir
+        assert full_path.exists()
 
-def test_create_required_directories_handles_existing():
-    """Test that existing directories are handled gracefully."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        # Create one directory beforehand
-        pre_existing = Path(tmp_dir) / 'data' / 'raw'
-        pre_existing.mkdir(parents=True, exist_ok=True)
-        
-        import code.config
-        original_get_config = code.config.get_config
-        
-        def mock_get_config():
-            return {'root_dir': tmp_dir}
-        
-        code.config.get_config = mock_get_config
-
-        try:
-            count = create_required_directories()
-            # Should still report all directories as 'created/verified'
-            # (the function counts existing ones too)
-            assert count > 0
-        finally:
-            code.config.get_config = original_get_config
+def test_create_nested_directories(temp_project_root):
+    """Test that nested directories (e.g., data/raw) are created correctly."""
+    mock_config = {
+        'project_root': temp_project_root
+    }
+    
+    with patch('code.setup_dirs.get_config', return_value=mock_config):
+        create_required_directories()
+    
+    # Verify nested structure
+    assert (Path(temp_project_root) / 'data' / 'raw').exists()
+    assert (Path(temp_project_root) / 'data' / 'processed').exists()
+    assert (Path(temp_project_root) / 'data' / 'results').exists()
+    assert (Path(temp_project_root) / 'data' / 'stimuli').exists()

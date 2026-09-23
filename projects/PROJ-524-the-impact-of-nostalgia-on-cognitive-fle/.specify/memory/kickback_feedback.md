@@ -4,11 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listings or file system evidence were provided showing that the required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`, `contracts/`, `code/`, `tests/`, `paper/`) actually exist; the claim alone is insufficient. The implementer must supply proof (e.g., a directory tree snapshot) that these directories have been created and are non‑empty.
-- `T020b` (rejected 1x): No evidence of a file at `specs/001-nostalgia-cognitive-flexibility/data-model.md` is provided, nor any excerpt showing the required documentation of entities, relationships, and the optional `MMSE` field. The implementer must create and supply this markdown file with the specified content.
-- `T020a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T020c` (rejected 1x): No `specs/001-nostalgia-cognitive-flexibility/quickstart.md` file was presented, nor any excerpt of its contents showing installation steps, dependency installation, and a “Hello World” ingestion example. Without the required markdown artifact, the task is not satisfied.
-- `T012d` (rejected 1x): The required file `data/processed/cleaned_score_filtered.csv` is missing, so the presence and non‑null status of the `MMSE` column cannot be verified. Consequently the generated `mmse_flag.json` (which unconditionally reports `true`) is not based on any actual check, and no error log (`ERR_MMSE_MISSING`) is provided. The implementer must supply the CSV file and generate the flag (and optional error log) based on a real column inspection.
+- `T007` (rejected 1x): No `contracts/` directory or any files within it were provided as evidence, and there is no indication that such a structure was created. The required artifact is missing, so the task is not satisfied.
+- `T012e` (rejected 1x): The required output files `data/processed/cleaned_dataset.csv` and `data/processed/cleaned_dataset_no_mmse.csv` are missing, and `exclusion_counts.json` does not record any MMSE‑based exclusions even though the source CSV contains participants with MMSE < 24. The task’s filtering and file‑generation steps have not been performed.
+- `T012c` (rejected 1x): The required `data/processed/exclusion_log.json` file is absent, so the exclusion log was never generated. Consequently the task’s core output is missing.
+- `T014a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/cleaned_dataset.csv
+- `T019` (rejected 1x): No code, script, or documentation implementing a Bonferroni correction for the two metrics (`perseverative_errors` and `categories_completed`) was provided; the evidence consists only of the task description without any tangible artifact. The required implementation artifact is missing.
+- `T020` (rejected 1x): No artifact (e.g., script output, report, table, or figure) showing calculated Cohen's d values with their 95 % confidence intervals for the primary comparisons is present. The implementer provided no code, results, or documentation that demonstrates the required effect‑size calculations, so the task is not satisfied.
+- `T023` (rejected 1x): No code, script, or documentation was provided that adds error handling for zero variance or insufficient sample size, and there is no artifact path or file to inspect. Consequently, the required implementation is missing.
 
 ## Required change
 

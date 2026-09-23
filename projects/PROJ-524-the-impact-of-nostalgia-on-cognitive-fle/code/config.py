@@ -1,93 +1,112 @@
+"""
+Configuration management module.
+Handles environment variables, paths, and project settings.
+"""
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-_config: Optional[Dict[str, Any]] = None
+logger = logging.getLogger(__name__)
 
 def get_config() -> Dict[str, Any]:
     """
-    Returns the project configuration.
-    Defaults to root_dir='.' if not explicitly set.
+    Load configuration from environment variables and defaults.
+    Returns a dictionary of configuration values.
     """
-    global _config
-    if _config is None:
-        _config = {
-            'root_dir': os.environ.get('PROJECT_ROOT', '.'),
-            'log_level': os.environ.get('LOG_LEVEL', 'INFO'),
-            'mmse_threshold': int(os.environ.get('MMSE_THRESHOLD', 24))
-        }
-    return _config
+    # Default project root is the current working directory
+    project_root = os.getenv('PROJECT_ROOT', '.')
+    
+    config = {
+        'project_root': str(Path(project_root).resolve()),
+        'data_dir': os.getenv('DATA_DIR', 'data'),
+        'code_dir': os.getenv('CODE_DIR', 'code'),
+        'tests_dir': os.getenv('TESTS_DIR', 'tests'),
+        'contracts_dir': os.getenv('CONTRACTS_DIR', 'contracts'),
+        'paper_dir': os.getenv('PAPER_DIR', 'paper'),
+        'log_level': os.getenv('LOG_LEVEL', 'INFO'),
+    }
+    
+    return config
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load configuration from a JSON/YAML file if provided.
-    Falls back to defaults if file not found.
+    Load configuration from a file (e.g., config.yaml) if provided.
+    Falls back to environment variables and defaults.
     """
-    global _config
-    if _config is None:
-        _config = {
-            'root_dir': '.',
-            'log_level': 'INFO',
-            'mmse_threshold': 24
-        }
+    config = get_config()
     
-    if config_path:
-        path = Path(config_path)
-        if path.exists():
-            # Simple JSON loader for now
-            import json
-            with open(path, 'r') as f:
-                file_config = json.load(f)
-                _config.update(file_config)
-    return _config
+    if config_path and os.path.exists(config_path):
+        try:
+            import yaml
+            with open(config_path, 'r') as f:
+                file_config = yaml.safe_load(f)
+                if file_config:
+                    config.update(file_config)
+            logger.info(f"Loaded configuration from {config_path}")
+        except Exception as e:
+            logger.warning(f"Failed to load config from {config_path}: {e}")
+    
+    return config
 
 def get_config_value(key: str, default: Any = None) -> Any:
-    """Get a specific config value."""
-    return get_config().get(key, default)
+    """Get a specific configuration value."""
+    config = get_config()
+    return config.get(key, default)
 
-def get_env_str(key: str, default: str = '') -> str:
-    """Get environment variable as string."""
-    return os.environ.get(key, default)
+def get_env_str(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get an environment variable as a string."""
+    return os.getenv(key, default)
 
-def get_env_int(key: str, default: int = 0) -> int:
-    """Get environment variable as integer."""
+def get_env_int(key: str, default: Optional[int] = None) -> Optional[int]:
+    """Get an environment variable as an integer."""
+    value = os.getenv(key)
+    if value is None:
+        return default
     try:
-        return int(os.environ.get(key, default))
+        return int(value)
     except ValueError:
+        logger.warning(f"Invalid integer for env var {key}: {value}")
         return default
 
-def get_env_float(key: str, default: float = 0.0) -> float:
-    """Get environment variable as float."""
+def get_env_float(key: str, default: Optional[float] = None) -> Optional[float]:
+    """Get an environment variable as a float."""
+    value = os.getenv(key)
+    if value is None:
+        return default
     try:
-        return float(os.environ.get(key, default))
+        return float(value)
     except ValueError:
+        logger.warning(f"Invalid float for env var {key}: {value}")
         return default
 
 def get_env_bool(key: str, default: bool = False) -> bool:
-    """Get environment variable as boolean."""
-    val = os.environ.get(key, str(default)).lower()
-    return val in ('true', '1', 'yes', 'on')
+    """Get an environment variable as a boolean."""
+    value = os.getenv(key, '').lower()
+    if value in ('true', '1', 'yes', 'on'):
+        return True
+    elif value in ('false', '0', 'no', 'off'):
+        return False
+    return default
 
 def get_mmse_threshold() -> int:
-    """Get the MMSE threshold from config."""
-    return get_config_value('mmse_threshold', 24)
+    """Get the MMSE threshold from environment or default to 24."""
+    return get_env_int('MMSE_THRESHOLD', 24)
 
-def ensure_dirs():
+def ensure_dirs(*dirs: str) -> bool:
     """
-    Ensure that all required directories exist.
-    This is a helper to be called before file operations.
+    Ensure that the given directories exist.
+    Creates them if they don't.
     """
     config = get_config()
-    root = Path(config.get('root_dir', '.'))
+    project_root = Path(config['project_root'])
     
-    dirs = [
-        'data/raw', 'data/processed', 'data/results', 'data/stimuli',
-        'contracts', 'code', 'tests', 'paper'
-    ]
-    
-    for d in dirs:
-        path = root / d
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
+    for dir_path in dirs:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Ensured directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            return False
     return True

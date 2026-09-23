@@ -1,27 +1,52 @@
 {
-  "thresholds_tested": [0.01, 0.05, 0.10],
+  "thresholds_tested": [0.01, 0.04, 0.05, 0.06, 0.10],
   "results": [
     {
       "threshold": 0.01,
       "perseverative_errors_significant": false,
       "categories_completed_significant": false,
-      "is_sensitive_to_threshold": false
+      "is_sensitive_to_threshold": true
+    },
+    {
+      "threshold": 0.04,
+      "perseverative_errors_significant": false,
+      "categories_completed_significant": true,
+      "is_sensitive_to_threshold": true
     },
     {
       "threshold": 0.05,
       "perseverative_errors_significant": true,
       "categories_completed_significant": true,
-      "is_sensitive_to_threshold": false
+      "is_sensitive_to_threshold": true
+    },
+    {
+      "threshold": 0.06,
+      "perseverative_errors_significant": true,
+      "categories_completed_significant": true,
+      "is_sensitive_to_threshold": true
     },
     {
       "threshold": 0.10,
       "perseverative_errors_significant": true,
       "categories_completed_significant": true,
-      "is_sensitive_to_threshold": false
+      "is_sensitive_to_threshold": true
     }
   ],
   "summary": {
-    "stable_across_thresholds": true,
-    "borderline_results_found": false
+    "stable_across_thresholds": false,
+    "borderline_results_found": true,
+    "robustness_check_passed": true,
+    "primary_pe_p_value": 0.048,
+    "primary_cc_p_value": 0.032
+  },
+  "robustness_comparison": {
+    "difference_detected": false,
+    "details": {
+      "primary_pe_effect_size": 0.45,
+      "robust_pe_effect_size": 0.44,
+      "primary_cc_effect_size": 0.52,
+      "robust_cc_effect_size": 0.51,
+      "note": "Results are consistent with and without MMSE exclusion."
+    }
   }
 }

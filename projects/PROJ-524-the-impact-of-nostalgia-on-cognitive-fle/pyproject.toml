@@ -1,60 +1,55 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nostalgia-cognitive-flexibility"
 version = "0.1.0"
-description = "Investigating the impact of nostalgia on cognitive flexibility in aging adults"
-requires-python = ">=3.8"
+description = "Analysis of the impact of nostalgia on cognitive flexibility in aging adults"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "openml>=0.14.0",
+    "datasets>=2.14.0",
+    "requests>=2.31.0",
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "toml>=0.10.0"
+]
 
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
+lint.select = ["E", "F"]
 line-length = 88
-target-version = "py38"
-select = ["E", "F"]
-ignore = []
+target-version = "py39"
 exclude = [
-  ".eggs",
-  ".git",
-  ".mypy_cache",
-  ".ruff_cache",
-  ".venv",
-  "build",
-  "dist",
-  "__pycache__"
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist"
 ]
-per-file-ignores = {}
-fixable = ["ALL"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.isort]
-known-first-party = []
-known-third-party = []
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"

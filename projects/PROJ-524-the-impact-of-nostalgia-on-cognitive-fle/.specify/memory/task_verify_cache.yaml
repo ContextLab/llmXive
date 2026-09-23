@@ -1,9 +1,10 @@
-T007:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/` directory or any files within it were provided as evidence, and
-    there is no indication that such a structure was created. The required artifact
-    is missing, so the task is not satisfied.
+  r: No directory listings or other evidence were provided showing that the eight
+    required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`,
+    `contracts/`, `code/`, `tests/`, `paper/`) actually exist; without such artifacts
+    the claim cannot be verified.
 T010a:
   c: false
   h: 0baccae73f95007f78df01b62f299ae1a1e969c8124e6ad40aae2af016ef78af
@@ -13,32 +14,20 @@ T010a:
     so the fallback generation step is not demonstrably performed as specified.
 T012a:
   c: false
-  h: a7bad7aadd0736282079cb56d4b0e9124ac163d500c02a62c3b915ae1ef9f711
-  r: "The required output files `data/processed/cleaned_age_filtered.csv` and `data/processed/exclusion_counts.json`\
-    \ are not present on disk, so the age\u2011filtering step and the exclusion count\
-    \ logging have not been produced. The task therefore remains unfinished."
-T012c:
+  h: b9f108a50d25b4a1bdec99595d6cb9fe1147c8f02ec9671202ce1ebdc9809c04
+  r: "The required input file `data/raw/raw_dataset.csv` does not exist, and the filtered\
+    \ output `data/processed/cleaned_age_filtered.csv` is also missing, so the age\u2011\
+    filtering step could not have been performed. The provided `exclusion_counts.json`\
+    \ is present but cannot be verified as genuine without the actual processing.\
+    \ The task therefore is not satisfied."
+T012b:
   c: false
-  h: 20dc596b408a698d5fa2d6462b636594c1d4506562b06b5ef2451cf7fbfca205
-  r: "The required `data/processed/exclusion_counts.json` file is missing, so the\
-    \ log cannot be generated from the specified source. Moreover, `exclusion_log.json`\
-    \ lacks the required `SIMULATION_FALLBACK` key (and includes an unexpected `ERR_MISSING_STIMULUS`\
-    \ key). The task\u2019s output does not meet the specification."
-T012e:
-  c: false
-  h: 6284f4742592a2f8c926046912e8359681e68bbf9f91566fd85bbd89589eb863
-  r: The `code/ingestion.py` does not contain any logic that reads `mmse_flag.json`,
-    filters rows with `MMSE < 24`, writes a filtered `cleaned_dataset_intermediate.csv`,
-    or creates `exclusion_counts.json` with the key `ERR_MMSE_IMPAIRED`. Moreover,
-    the required output files `data/processed/exclusion_counts.json` and `data/processed/cleaned_score_filtered.csv`
-    are missing. The implementation therefore does not meet the task requirements.
-T014a:
-  c: false
-  h: 52be74cb997973196e47762dce346b4f3a964e684992c21fa1fc84e5ee609df5
-  r: The required output file `data/processed/cleaned_dataset.csv` does not exist
-    on disk. Consequently the task of generating the cleaned dataset with the specified
-    columns has not been fulfilled. The intermediate file is present, but no cleaned
-    CSV was created.
+  h: 38064dbbe080dc02a68a6982032e4ed9bae75aeb9931ddacac812dd5ad578ae8
+  r: The required input file `data/processed/cleaned_age_filtered.csv` does not exist,
+    and consequently the filtered output `data/processed/cleaned_score_filtered.csv`
+    is also missing. While an `exclusion_counts.json` is present, the core filtering
+    step could not be performed without the source data. The task is therefore not
+    completed.
 T014b:
   c: false
   h: 7c9b3e70db77951e20702e58c9ca933c41716bfdbab6f4796e642a4eab22cf29
@@ -52,27 +41,13 @@ T015:
     \ validation cannot be performed, and there is no evidence of the required error\
     \ logging or conditional skip behavior. Without the metadata file (or logs showing\
     \ the appropriate error handling), the task\u2019s requirements are not met."
-T019:
+T020c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation implementing a Bonferroni correction for the
-    two metrics (`perseverative_errors` and `categories_completed`) was provided;
-    the evidence consists only of the task description without any tangible artifact.
-    The required implementation artifact is missing.
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script output, report, table, or figure) showing calculated\
-    \ Cohen's d values with their 95\u202F% confidence intervals for the primary comparisons\
-    \ is present. The implementer provided no code, results, or documentation that\
-    \ demonstrates the required effect\u2011size calculations, so the task is not\
-    \ satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation was provided that adds error handling for zero
-    variance or insufficient sample size, and there is no artifact path or file to
-    inspect. Consequently, the required implementation is missing.
+  r: "No `specs/001-nostalgia-cognitive-flexibility/quickstart.md` file or its contents\
+    \ were presented; thus the required installation guide and example are missing.\
+    \ The implementer must add the markdown file with the specified instructions and\
+    \ a runnable \u201CHello World\u201D ingestion example."
 T025:
   c: false
   h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd
@@ -80,3 +55,23 @@ T025:
     in the repository, so the integration test for the sensitivity analysis pipeline
     is missing. The task cannot be considered completed until this file is added with
     appropriate test code.
+T027a:
+  c: false
+  h: 2b1aaf3fc055082a74b71b26910482807f350d97182305b1ef120fa218701cba
+  r: "The required output file `data/processed/cleaned_dataset_no_mmse.csv` is missing,\
+    \ so the task of writing the pre\u2011MMSE\u2011exclusion dataset was not completed.\
+    \ The raw dataset file does exist, but without the expected processed CSV the\
+    \ requirement is unmet."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No sensitivity summary or stability metrics artifact (e.g., an updated final
+    report, `sensitivity_report.json`, or similar) is present; the claim lacks any
+    concrete file or content demonstrating the required update. The task therefore
+    remains unfinished.
+T031a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content was provided; without the file showing installation instructions,
+    dependencies, and usage examples, we cannot confirm the task was fulfilled. The
+    required artifact is missing.

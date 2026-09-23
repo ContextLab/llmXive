@@ -1,210 +1,188 @@
 """
-T041: Strengthen Robustness in Sensitivity Analysis
+T041: Strengthen Robustness - Explicitly log borderline range and set sensitivity flag.
 
-This script updates the sensitivity analysis to explicitly log the "borderline" range
-(0.04-0.06) and outputs a binary flag `is_sensitive_to_threshold` in the
-sensitivity_report.json as required by FR-005.
-
-It reads the existing sensitivity report, re-evaluates the borderline logic,
-calculates the stability metric, and rewrites the report with the enhanced flags.
+This task ensures the sensitivity analysis explicitly logs the "borderline" range (0.04-0.06)
+and outputs the binary flag `is_sensitive_to_threshold` in `data/results/sensitivity_report.json`
+as required by FR-005.
 """
 import os
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List
-
-# Import utilities from the project's established API surface
-from utils import setup_logging, log_info, log_warning, log_error
-from config import get_config, ensure_dirs
+from typing import Dict, Any, List, Optional
 
 # Configure logging
-logger = setup_logging("T041", level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Constants for borderline detection
+# Constants for borderline range
 BORDERLINE_LOW = 0.04
 BORDERLINE_HIGH = 0.06
-SENSITIVITY_THRESHOLD = 0.05
 
-def load_sensitivity_report(report_path: Path) -> Dict[str, Any]:
-    """Load the existing sensitivity report."""
-    if not report_path.exists():
+def load_sensitivity_report(report_path: str) -> Dict[str, Any]:
+    """Load the sensitivity report from the specified path."""
+    path = Path(report_path)
+    if not path.exists():
         raise FileNotFoundError(f"Sensitivity report not found at {report_path}")
     
-    with open(report_path, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
-def is_borderline(p_value: float) -> bool:
+def is_borderline(p_value: float, tolerance: float = 1e-9) -> bool:
     """
-    Check if a p-value falls within the borderline range (0.04 - 0.06).
+    Check if a p-value falls within the borderline range [0.04, 0.06].
+    
+    Args:
+        p_value: The p-value to check.
+        tolerance: Floating point comparison tolerance.
+    
+    Returns:
+        True if the p-value is in the range [0.04, 0.06], False otherwise.
     """
-    return BORDERLINE_LOW <= p_value <= BORDERLINE_HIGH
+    return BORDERLINE_LOW - tolerance <= p_value <= BORDERLINE_HIGH + tolerance
 
 def calculate_stability_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Calculate stability metrics based on sensitivity results.
-    Returns a dict with 'stable_across_thresholds' and 'borderline_results_found'.
+    Calculate stability metrics based on sensitivity sweep results.
+    
+    Args:
+        results: List of sensitivity sweep results containing thresholds and significance flags.
+    
+    Returns:
+        Dictionary with stability metrics.
     """
-    borderline_found = False
-    significance_pattern = []
+    if not results:
+        return {"stable_across_thresholds": False, "num_thresholds": 0}
 
-    for res in results:
-        # Check if any metric in this row is borderline
-        # Note: The input results structure usually contains boolean 'significant' flags.
-        # To detect borderline, we ideally need the raw p-values. 
-        # However, per T029 logic, we assume the 'is_borderline' flag logic 
-        # was applied or we infer sensitivity from the flip of significance.
-        
-        # We will infer borderline from the context of T029 if we had raw p-values.
-        # Since we are updating the report structure, we will assume the logic
-        # in T029 populated a 'is_borderline' field or we check the flip.
-        
-        # For this specific task T041, we are ensuring the REPORT reflects the logic.
-        # If the previous run didn't have raw p-values, we rely on the 'is_sensitive_to_threshold'
-        # logic which detects if significance flips near 0.05.
-        
-        # Let's assume the 'results' list from T028/T029 might have a 'p_value' field 
-        # if T029 was fully implemented, or we infer from the 'significant' flip.
-        
-        # Robust approach: Check if significance status flips between 0.04 and 0.06 if available,
-        # or simply flag if the current threshold is 0.05 and the result is borderline.
-        
-        if res.get('is_borderline', False):
-            borderline_found = True
-        
-        # Track significance to detect flips if we had granular thresholds
-        # For now, we rely on the explicit borderline flag if T029 added it,
-        # or we calculate it if we had access to the raw p-values.
-        
-    # Determine stability: If results change significantly around 0.05, it's unstable.
-    # A simple heuristic: if borderline_found is True, it implies potential instability.
-    # However, 'stable' usually means the conclusion (significant vs not) doesn't change
-    # across the tested thresholds.
-    
-    # Let's refine: If we have a result at 0.05 that is borderline, it is technically unstable.
-    # If we have results at 0.01, 0.05, 0.10 and the 0.05 result flips the conclusion, it's unstable.
-    
-    # Since we are updating the report, we will set 'stable_across_thresholds' to False
-    # if 'borderline_results_found' is True, as borderline implies sensitivity.
-    
+    # Check if significance status is consistent across thresholds
+    pe_significance = [r.get("perseverative_errors_significant", False) for r in results]
+    cc_significance = [r.get("categories_completed_significant", False) for r in results]
+
+    pe_stable = len(set(pe_significance)) == 1
+    cc_stable = len(set(cc_significance)) == 1
+    overall_stable = pe_stable and cc_stable
+
+    # Count borderline results
+    borderline_count = sum(1 for r in results if r.get("is_sensitive_to_threshold", False))
+
     return {
-        "stable_across_thresholds": not borderline_found,
-        "borderline_results_found": borderline_found
+        "stable_across_thresholds": overall_stable,
+        "pe_stable": pe_stable,
+        "cc_stable": cc_stable,
+        "num_thresholds": len(results),
+        "borderline_count": borderline_count
     }
 
 def update_sensitivity_flags(report: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Update the sensitivity report to explicitly handle borderline ranges
-    and set the is_sensitive_to_threshold flag.
+    Update the sensitivity report to explicitly log borderline range and set flags.
+    
+    This function ensures:
+    1. The borderline range [0.04, 0.06] is explicitly documented.
+    2. The `is_sensitive_to_threshold` flag is set for each result based on p-values.
+    3. Stability metrics are calculated and included in the summary.
+    
+    Args:
+        report: The sensitivity report dictionary to update.
+    
+    Returns:
+        The updated sensitivity report.
     """
-    results = report.get("results", [])
-    thresholds = report.get("thresholds_tested", [])
+    logger.info("Updating sensitivity flags and logging borderline range...")
     
-    updated_results = []
-    borderline_found = False
-
-    # Sort results by threshold to analyze trends
-    sorted_results = sorted(results, key=lambda x: x["threshold"])
-
-    for i, res in enumerate(sorted_results):
-        threshold = res["threshold"]
-        
-        # Determine if this specific result is borderline
-        # We check if the threshold is near 0.05 and the significance status is ambiguous
-        # or if we have a raw p-value (if T029 provided it).
-        # Since T029 output is a boolean 'significant', we infer borderline if:
-        # 1. The threshold is 0.05 (or very close)
-        # 2. The significance status is True but the p-value (if available) is > 0.04
-        #    OR if the status flips around this threshold.
-        
-        # To be robust without raw p-values, we flag 'is_sensitive_to_threshold'
-        # if the significance status changes between the previous and next threshold
-        # AND the current threshold is near 0.05.
-        
-        is_current_borderline = False
-        is_sensitive = False
-
-        # Check for borderline range explicitly
-        if BORDERLINE_LOW <= threshold <= BORDERLINE_HIGH:
-            is_current_borderline = True
-            borderline_found = True
-
-        # Check for sensitivity: does significance flip around this threshold?
-        if i > 0 and i < len(sorted_results) - 1:
-            prev_sig = sorted_results[i-1].get("perseverative_errors_significant", False)
-            curr_sig = res.get("perseverative_errors_significant", False)
-            next_sig = sorted_results[i+1].get("perseverative_errors_significant", False)
-            
-            # If significance flips from False to True or True to False around 0.05
-            if (not prev_sig and curr_sig and next_sig) or (prev_sig and curr_sig and not next_sig):
-                is_sensitive = True
-            # Also check categories_completed
-            prev_cat = sorted_results[i-1].get("categories_completed_significant", False)
-            curr_cat = res.get("categories_completed_significant", False)
-            next_cat = sorted_results[i+1].get("categories_completed_completed_significant", False) # Typo in key? Assuming consistent
-            
-            if (not prev_cat and curr_cat and next_cat) or (prev_cat and curr_cat and not next_cat):
-                is_sensitive = True
-
-        # If it's borderline, it is inherently sensitive to the threshold choice
-        if is_current_borderline:
-            is_sensitive = True
-
-        # Update the result dict
-        updated_res = res.copy()
-        updated_res["is_sensitive_to_threshold"] = is_sensitive
-        updated_res["is_borderline"] = is_current_borderline
-        updated_results.append(updated_res)
-
-    # Update summary
-    stability = calculate_stability_metrics(updated_results)
-    
-    report["results"] = updated_results
-    report["summary"]["stable_across_thresholds"] = stability["stable_across_thresholds"]
-    report["summary"]["borderline_results_found"] = stability["borderline_results_found"]
-    
-    # Add explicit borderline range definition to the report for clarity
+    # Explicitly log the borderline range in the report metadata
     report["borderline_range"] = {
         "low": BORDERLINE_LOW,
-        "high": BORDERLINE_HIGH
+        "high": BORDERLINE_HIGH,
+        "description": "P-values in this range are considered 'borderline' and sensitive to threshold choice."
     }
 
+    # Update each result with the is_sensitive_to_threshold flag
+    updated_results = []
+    for result in report.get("results", []):
+        threshold = result.get("threshold")
+        
+        # Get p-values from the summary if available
+        summary = report.get("summary", {})
+        pe_p = summary.get("primary_pe_p_value")
+        cc_p = summary.get("primary_cc_p_value")
+        
+        # Determine sensitivity based on whether the threshold is in the borderline range
+        # or if the p-value falls in the borderline range
+        is_sensitive = False
+        if threshold is not None:
+            # If the threshold itself is in the borderline range, flag it
+            if is_borderline(threshold):
+                is_sensitive = True
+                logger.info(f"Threshold {threshold} is in borderline range [{BORDERLINE_LOW}, {BORDERLINE_HIGH}]")
+        
+        # Also check if p-values are borderline
+        if pe_p is not None and is_borderline(pe_p):
+            is_sensitive = True
+            logger.info(f"Perseverative errors p-value {pe_p} is borderline")
+        if cc_p is not None and is_borderline(cc_p):
+            is_sensitive = True
+            logger.info(f"Categories completed p-value {cc_p} is borderline")
+        
+        result["is_sensitive_to_threshold"] = is_sensitive
+        updated_results.append(result)
+    
+    report["results"] = updated_results
+
+    # Calculate and update stability metrics
+    stability_metrics = calculate_stability_metrics(updated_results)
+    report["summary"]["stable_across_thresholds"] = stability_metrics["stable_across_thresholds"]
+    report["summary"]["borderline_results_found"] = stability_metrics["borderline_count"] > 0
+    report["stability_metrics"] = stability_metrics
+
+    logger.info(f"Stability metrics calculated: {stability_metrics}")
+    logger.info("Sensitivity flags updated successfully.")
+    
     return report
 
-def save_sensitivity_report(report: Dict[str, Any], output_path: Path):
-    """Save the updated report to disk."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+def save_sensitivity_report(report: Dict[str, Any], output_path: str) -> None:
+    """Save the updated sensitivity report to the specified path."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
         json.dump(report, f, indent=2)
-    log_info(f"Sensitivity report updated and saved to {output_path}")
+    
+    logger.info(f"Sensitivity report saved to {output_path}")
 
-def main():
+def main() -> int:
     """Main entry point for T041."""
-    config = get_config()
-    results_dir = Path(config.get("paths.results", "data/results"))
-    report_path = results_dir / "sensitivity_report.json"
-
-    log_info("Starting T041: Strengthen Robustness in Sensitivity Analysis")
-
+    logger.info("Starting T041: Strengthen Robustness")
+    
+    # Paths
+    input_path = "data/results/sensitivity_report.json"
+    output_path = "data/results/sensitivity_report.json"
+    
     try:
-        # Load existing report (generated by T028/T029)
-        report = load_sensitivity_report(report_path)
-        log_info(f"Loaded sensitivity report from {report_path}")
-
-        # Update flags and stability metrics
+        # Load the existing sensitivity report
+        report = load_sensitivity_report(input_path)
+        logger.info(f"Loaded sensitivity report from {input_path}")
+        
+        # Update the report with explicit borderline logging and flags
         updated_report = update_sensitivity_flags(report)
-
-        # Save the enhanced report
-        save_sensitivity_report(updated_report, report_path)
-
-        log_info("T041 completed successfully. Sensitivity report updated with borderline flags.")
+        
+        # Save the updated report
+        save_sensitivity_report(updated_report, output_path)
+        
+        logger.info("T041 completed successfully")
         return 0
-
+        
     except FileNotFoundError as e:
-        log_error(f"Required file not found: {e}")
+        logger.error(f"Input file not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
         return 1
     except Exception as e:
-        log_error(f"Error during T041 execution: {e}")
+        logger.error(f"Unexpected error during T041 execution: {e}")
         return 1
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 """
-T012a: Age Exclusion Filter
-Filters data/raw/raw_dataset.csv for age >= 65.
+Task T012a: Age Exclusion
+Filters the raw dataset for participants aged 65 and older.
 Writes filtered data to data/processed/cleaned_age_filtered.csv.
-Writes exclusion count to data/processed/exclusion_counts.json.
+Updates data/processed/exclusion_counts.json with ERR_MISSING_AGE_FIELD count.
 """
 import os
 import json
@@ -10,92 +10,107 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_raw_dataset():
-    """Load the raw dataset from data/raw/raw_dataset.csv."""
-    raw_path = Path("data/raw/raw_dataset.csv")
-    if not raw_path.exists():
-        raise FileNotFoundError(f"ERR_RAW_DATA_MISSING: {raw_path} does not exist.")
-    
-    logger.info(f"Loading raw dataset from {raw_path}")
-    df = pd.read_csv(raw_path)
-    return df
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "raw_dataset.csv"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_CSV_PATH = PROCESSED_DIR / "cleaned_age_filtered.csv"
+EXCLUSION_COUNTS_PATH = PROCESSED_DIR / "exclusion_counts.json"
 
-def filter_by_age(df, min_age=65):
-    """Filter dataframe to include only records where age >= min_age."""
+MIN_AGE = 65
+
+def load_raw_dataset(path: Path) -> pd.DataFrame:
+    """Loads the raw dataset from CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Raw dataset not found at {path}. "
+                                "Ensure T010b (Ingestion) has been executed successfully.")
+    try:
+        df = pd.read_csv(path)
+        logger.info(f"Loaded raw dataset with {len(df)} records from {path}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load raw dataset: {e}")
+        raise
+
+def filter_by_age(df: pd.DataFrame, min_age: int = MIN_AGE) -> pd.DataFrame:
+    """Filters dataframe for age >= min_age."""
     if 'age' not in df.columns:
-        raise ValueError("ERR_MISSING_AGE_FIELD: 'age' column not found in dataset.")
+        raise KeyError("Column 'age' not found in dataset. Cannot perform age filtering.")
     
-    total_count = len(df)
-    valid_mask = df['age'] >= min_age
-    filtered_df = df[valid_mask].reset_index(drop=True)
-    excluded_count = total_count - len(filtered_df)
+    # Count records before filtering
+    total_records = len(df)
     
-    logger.info(f"Total records: {total_count}")
-    logger.info(f"Records with age >= {min_age}: {len(filtered_df)}")
-    logger.info(f"Excluded records (age < {min_age}): {excluded_count}")
+    # Filter
+    filtered_df = df[df['age'] >= min_age].copy()
+    
+    # Calculate exclusions
+    excluded_count = total_records - len(filtered_df)
+    
+    logger.info(f"Age filtering: {excluded_count} records excluded (age < {min_age}). "
+                f"Remaining: {len(filtered_df)} records.")
     
     return filtered_df, excluded_count
 
-def save_filtered_dataset(df, output_path):
-    """Save the filtered dataframe to CSV."""
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered dataset to {output_path}")
+def save_filtered_dataset(df: pd.DataFrame, path: Path):
+    """Saves the filtered dataframe to CSV."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Saved filtered dataset to {path}")
 
-def save_exclusion_count(exclusion_key, count, output_path):
-    """Update exclusion_counts.json with the new count."""
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+def save_exclusion_count(count: int, path: Path):
+    """Updates the exclusion_counts.json file with ERR_MISSING_AGE_FIELD."""
+    counts = {}
+    if path.exists():
+        try:
+            with open(path, 'r') as f:
+                counts = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning(f"Existing exclusion_counts.json is invalid JSON. Overwriting.")
+            counts = {}
     
-    exclusion_counts = {}
-    if output_path.exists():
-        with open(output_path, 'r') as f:
-            exclusion_counts = json.load(f)
+    counts['ERR_MISSING_AGE_FIELD'] = count
     
-    exclusion_counts[exclusion_key] = count
+    with open(path, 'w') as f:
+        json.dump(counts, f, indent=2)
     
-    with open(output_path, 'w') as f:
-        json.dump(exclusion_counts, f, indent=2)
-    
-    logger.info(f"Updated exclusion count for {exclusion_key}: {count}")
+    logger.info(f"Updated exclusion counts in {path}: ERR_MISSING_AGE_FIELD = {count}")
 
 def main():
     """Main execution function for T012a."""
-    logger.info("Starting T012a: Age Exclusion")
-    
     try:
-        # 1. Load raw dataset
-        df_raw = load_raw_dataset()
+        # 1. Load Raw Data
+        logger.info("Starting T012a: Age Exclusion")
+        df = load_raw_dataset(RAW_DATA_PATH)
         
-        # 2. Filter by age
-        df_filtered, excluded_count = filter_by_age(df_raw, min_age=65)
+        # 2. Filter by Age
+        filtered_df, excluded_count = filter_by_age(df, MIN_AGE)
         
-        # 3. Save filtered dataset
-        output_csv_path = "data/processed/cleaned_age_filtered.csv"
-        save_filtered_dataset(df_filtered, output_csv_path)
+        if filtered_df.empty:
+            logger.warning("No records passed the age filter (>= 65). Output will be empty.")
         
-        # 4. Update exclusion counts
-        exclusion_counts_path = "data/processed/exclusion_counts.json"
-        save_exclusion_count("ERR_MISSING_AGE_FIELD", excluded_count, exclusion_counts_path)
+        # 3. Save Filtered Data
+        save_filtered_dataset(filtered_df, OUTPUT_CSV_PATH)
+        
+        # 4. Update Exclusion Counts
+        save_exclusion_count(excluded_count, EXCLUSION_COUNTS_PATH)
         
         logger.info("T012a completed successfully.")
         
     except FileNotFoundError as e:
-        logger.critical(str(e))
+        logger.critical(f"Data file missing: {e}")
         raise
-    except ValueError as e:
-        logger.critical(str(e))
+    except KeyError as e:
+        logger.critical(f"Schema error: {e}")
         raise
     except Exception as e:
-        logger.critical(f"Unexpected error during T012a: {e}")
+        logger.critical(f"Unexpected error during T012a execution: {e}")
         raise
 
 if __name__ == "__main__":
