@@ -1,1 +1,3 @@
-# This directory stores project state files (e.g., checksums, run history).
+# Placeholder for state directory
+# This directory will contain:
+# - projects/ : Project-specific state files with artifact hashes

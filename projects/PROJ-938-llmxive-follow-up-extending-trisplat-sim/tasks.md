@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` in `projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/`
+- [X] T001 Create project structure per `plan.md` in `projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/`
 - [X] T002 Initialize Python 3.11 project with `code/requirements.txt` including `torch`, `numpy`, `scipy`, `trimesh`, `pygltflib`, `datasets`, `scikit-learn`, `tqdm`, `pandas`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
 
@@ -72,7 +72,7 @@
 
 ## Phase 3: User Story 1 - CPU-Feasible Geometry-Only Reconstruction (Priority: P1) 🎯 MVP
 
-**Goal**: Run 3D scene reconstruction on a standard 2-core CPU using only explicit geometric constraints, producing a valid mesh within 30 minutes.
+**Goal**: Run 3D scene reconstruction on a standard 2-core CPU using only explicit geometric constraints, producing a valid mesh within 30 minutes. [UNRESOLVED-CLAIM: c_c21951c9 — status=not_enough_info]
 
 **Independent Test**: Execute pipeline on a single RealEstate10K scene (320x240) on CPU-only runner; verify valid `.obj`/`.ply` output within 30 mins.
 
@@ -167,9 +167,9 @@
 
 ### Implementation for Data Integrity
 
-- [X] T047 [US1] **Explicit Dataset Sampling Rule**: In `code/experiments/run_batch.py`, explicitly define the RealEstate10K validation split ID ('validation') and implement a deterministic sampling strategy using `itertools.islice` to select the *first* N=20 (or N=50) scenes from the streamed dataset using seed 42. Document the exact seed and slice logic in the code comments to satisfy the "Real data + real results" rule. **Note**: [P] tag removed due to file conflict risk with T024.
-- [X] T048 [US1] **Stream Verification**: In `code/data/loader.py`, add a pre-flight check that attempts to stream a small sample of frames from the dataset to verify connectivity and schema validity before starting the main batch. If this fails, raise a loud error (no fallback) to satisfy Constitution Principle III. **Note**: [P] tag removed due to file conflict risk with T005.
-- [X] T049 [US1] **Real Data Source Lock-in**: Ensure `code/data/loader.py` contains NO `try/except` blocks that fallback to `generate_synthetic_*()` or `mock_*()` functions. If `datasets.load_dataset` fails, the script MUST crash immediately with a clear error message pointing to the real source URL. **Note**: [P] tag removed due to file conflict risk with T005.
+- [ ] T047 [US1] **Explicit Dataset Sampling Rule**: In `code/experiments/run_batch.py`, explicitly define the RealEstate10K validation split ID ('validation') and implement a deterministic sampling strategy using `itertools.islice` to select the *first* N=20 (or N=50) scenes from the streamed dataset using seed 42. Document the exact seed and slice logic in the code comments to satisfy the "Real data + real results" rule. **Note**: [P] tag removed due to file conflict risk with T024.
+- [ ] T048 [US1] **Stream Verification**: In `code/data/loader.py`, add a pre-flight check that attempts to stream a small sample of frames from the dataset to verify connectivity and schema validity before starting the main batch. If this fails, raise a loud error (no fallback) to satisfy Constitution Principle III. **Note**: [P] tag removed due to file conflict risk with T005.
+- [ ] T049 [US1] **Real Data Source Lock-in**: Ensure `code/data/loader.py` contains NO `try/except` blocks that fallback to `generate_synthetic_*()` or `mock_*()` functions. If `datasets.load_dataset` fails, the script MUST crash immediately with a clear error message pointing to the real source URL. **Note**: [P] tag removed due to file conflict risk with T005.
 - [ ] T050 [US1] **Artifact Hashing Logic**: In `code/cli.py --update-state`, implement the logic to recursively hash all files in `data/processed/` (including the `threshold_result.json` and `benchmark_tradeoff.csv`) and write the resulting map to `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` to ensure the "Single Source of Truth" is updated. **Note**: Must filter files by size < 100MB using `os.path.getsize` BEFORE hashing to avoid long runtimes on large mesh files. [P] tag removed due to file conflict risk with T034.
 
 ---
@@ -285,3 +285,169 @@ With multiple developers:
 - **Critical**: Ensure T016 and T043 log the specific `view_count` on failure.
 - **Critical**: Ensure T031 does not skip the baseline on CPU failure.
 - **Critical**: Ensure T044 is executed before T034.
+
+# next task line
+
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
+
+# completed task ids
+['T001', 'T002', 'T004', 'T023', 'T005', 'T006', 'T007', 'T008', 'T009', 'T010', 'T011', 'T011a', 'T015', 'T016', 'T017', 'T018', 'T019b', 'T020', 'T040', 'T043', 'T012', 'T013', 'T014', 'T024', 'T025', 'T026', 'T027', 'T028', 'T041', 'T021', 'T022', 'T030', 'T031b', 'T031', 'T032', 'T033', 'T039', 'T028', 'T029', 'T042', 'T035', 'T044', 'T034', 'T036', 'T037', 'T046']
+
+# wall_clock_budget_seconds
+300
+
+# Existing project API surface (READ THIS — every name you import or call MUST come from this list, not invented)
+
+### code/cli.py
+import as: `from cli import compute_sha256, update_state_file, run_pipeline, main`
+public names: compute_sha256, update_state_file, run_pipeline, main
+imports:
+ import argparse
+ import json
+ import os
+ import sys
+ import hashlib
+ from pathlib import Path
+
+### code/data/loader.py
+import as: `from data.loader import compute_sha256, save_checksums, load_real_estate_10k_streaming, get_scene_batch, compute_sha256_file`
+public names: compute_sha256, save_checksums, load_real_estate_10k_streaming, get_scene_batch, compute_sha256_file
+imports:
+ import logging
+ import hashlib
+ import json
+ import os
+ from typing import Iterator, Dict, Any, Optional, Tuple
+ from pathlib import Path
+
+### code/data/metrics.py
+import as: `from data.metrics import calculate_chamfer_distance, calculate_psnr, calculate_metrics_batch`
+public names: calculate_chamfer_distance, calculate_psnr, calculate_metrics_batch
+imports:
+ import numpy as np
+ import torch
+ from scipy.spatial import cKDTree
+ from typing import Tuple, Union, Optional, List
+ import logging
+
+### code/experiments/generate_benchmark_csv.py
+import as: `from experiments.generate_benchmark_csv import load_batch_results, aggregate_results, write_csv, main`
+public names: load_batch_results, aggregate_results, write_csv, main
+imports:
+ import json
+ import csv
+ import logging
+ import os
+ from pathlib import Path
+ from typing import List, Dict, Any
+
+### code/experiments/generate_final_report.py
+import as: `from experiments.generate_final_report import load_batch_results, aggregate_threshold_data, generate_final_batch_report, main`
+public names: load_batch_results, aggregate_threshold_data, generate_final_batch_report, main
+imports:
+ import json
+ import logging
+ import os
+ from pathlib import Path
+ from typing import Dict, Any, List
+ from utils.stats import identify_sparsity_threshold, save_threshold_results, aggregate_benchmark_results
+
+### code/experiments/generate_tradeoff_plot.py
+import as: `from experiments.generate_tradeoff_plot import load_benchmark_data, plot_tradeoff, main`
+public names: load_benchmark_data, plot_tradeoff, main
+imports:
+ import os
+ import csv
+ import logging
+ import matplotlib
+ import matplotlib.pyplot as plt
+ from pathlib import Path
+
+### code/experiments/run_batch.py
+import as: `from experiments.run_batch import setup_logging, TimeoutError, TimeoutHandler, SceneResult, run_baseline_trisplat_cpu, run_single_scene, generate_summary_report, run_batch_orchestration`
+public names: setup_logging, TimeoutError, TimeoutHandler, SceneResult, run_baseline_trisplat_cpu, run_single_scene, generate_summary_report, run_batch_orchestration, main
+imports:
+ import argparse
+ import json
+ import logging
+ import os
+ import signal
+ import sys
+
+### code/models/geometry_only.py
+import as: `from models.geometry_only import DifferentiableRaySurfaceLayer, GeometryOnlyModel, create_geometry_only_model, run_geometry_optimization, generate_placeholder_mesh_from_failure, run_geometry_optimization_with_fallback`
+public names: DifferentiableRaySurfaceLayer, GeometryOnlyModel, create_geometry_only_model, run_geometry_optimization, generate_placeholder_mesh_from_failure, run_geometry_optimization_with_fallback
+imports:
+ import torch
+ import torch.nn as nn
+ import torch.nn.functional as F
+ import numpy as np
+ from typing import Optional, Tuple, Dict, Any, List
+ from pathlib import Path
+
+### code/models/trisplat_base.py
+import as: `from models.trisplat_base import TriSplatBackbone, load_trisplat_base, is_cpu_compatible`
+public names: TriSplatBackbone, load_trisplat_base, is_cpu_compatible
+imports:
+ import torch
+ import torch.nn as nn
+ from typing import Optional, Dict, Any, Tuple
+ from pathlib import Path
+ import logging
+
+### code/utils/mesh_utils.py
+import as: `from utils.mesh_utils import generate_mesh_from_points, validate_manifold, cleanup_mesh, export_mesh, create_placeholder_mesh`
+public names: generate_mesh_from_points, validate_manifold, cleanup_mesh, export_mesh, create_placeholder_mesh
+imports:
+ import numpy as np
+ import trimesh
+ from typing import Optional, Tuple, List
+ from pathlib import Path
+
+### code/utils/stats.py
+import as: `from utils.stats import check_normality, paired_comparison, identify_sparsity_threshold, save_threshold_results, run_statistical_analysis_batch, calculate_comparative_metrics, aggregate_benchmark_results`
+public names: check_normality, paired_comparison, identify_sparsity_threshold, save_threshold_results, run_statistical_analysis_batch, calculate_comparative_metrics, aggregate_benchmark_results
+imports:
+ import numpy as np
+ from scipy import stats
+ from typing import List, Tuple, Dict, Any, Optional
+ import json
+ from pathlib import Path
+ import logging
+
+### code/utils/validate_contracts.py
+import as: `from utils.validate_contracts import load_yaml_schema, load_json_output, validate_against_schema, find_json_outputs, find_schemas, validate_all_contracts, main`
+public names: load_yaml_schema, load_json_output, validate_against_schema, find_json_outputs, find_schemas, validate_all_contracts, main
+imports:
+ import json
+ import yaml
+ import logging
+ import sys
+ from pathlib import Path
+ from typing import Dict, Any, List, Tuple
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No project files or directory tree were presented for `projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/`; without any visible `plan.md` copy, source code, README, or folder hierarchy, we cannot confirm that the required structure was created. The implementer must supply the actual filesystem contents showing the project layout.
+- **T003** — The implementer supplied only a high‑level feature specification and no actual files or configuration changes in the `code/` directory. There are no `pyproject.toml`, `.ruff.toml`, `black.toml`, or any other linting/formatting setup files present, nor any evidence that ruff or black were installed or integrated into the project. The required linting/formatting configuration is missing.
+- **T014** — The required artifact `tests/integration/test_memory_limits.py` does not exist in the repository, so there is no test verifying that peak RAM stays below 6 GB. The task’s core deliverable is missing.
+- **T041** — The `stats.py` file defines `TOLERANCE_THRESHOLD` but the `identify_sparsity_threshold` function is truncated and does not show the required calculation or JSON writing logic. Moreover, the expected output file `data/processed/threshold_result.json` is missing. The task’s core requirement—computing the relative error increase and persisting the result—is not fulfilled.
+- **T027** — No JSON report or any file containing the integrated statistical results is provided; the evidence lacks the required final batch report artifact, so the task’s deliverable cannot be confirmed as completed.
+- **T033** — declared artifact(s) missing/empty/invalid: data/processed/benchmark_tradeoff.csv
+- **T039** — declared artifact(s) missing/empty/invalid: data/processed/benchmark_tradeoff_plot.png
+- **T044** — The loader defines `save_checksums` but never calls it, and the required `data/processed/checksums_temp.json` file is absent. Moreover, `cli.py --update-state` recomputes checksums from files in `data/processed` instead of reading the temporary JSON, so the intended data flow is not realized. The task’s requirement is therefore not satisfied.
+- **T034** — The `code/cli.py` contains an `update_state_file` function that would write the required YAML, but the repository lacks the `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` file, and the provided snippet does not show argument parsing that actually invokes `--update-state`. Without the state file present (or evidence that running the command creates it), the task’s requirement is not satisfied.
+- **T036** — No `README.md` or `quickstart.md` files were presented in `specs/001-llmxive-trisplat-ext/`; the implementer provided no content to verify that the required documentation exists or meets the specification.
+- **T037** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T038** — No artifacts (e.g., CI logs, batch output files, JSON/CSV results, or visualizations) were provided to demonstrate that a full batch of 20 or 50 scenes was actually run on a simulated GitHub Actions free‑tier environment. Consequently the requirement cannot be verified.
+
+
+# Real data only — NEVER fabricate results
+
+This code must run on REAL data and produce REAL measured results. NEVER generate synthetic/fake INPUT data, hard-code fake 'sample' rows, ship a placeholder dataset, or compute a result from random/simulated values standing in for a real measurement — the execution gate's fabrication guard will reject the run and the project cannot advance. When a task needs external data, load it from the REAL source named in the spec/plan (or data the project already downloaded under `data/`). If no real source is reachable, do NOT fake it — implement the loader against the real source and let it fail loudly (a clear error the fix loop can act on).
+
+# Task
+
+Return the YAML implementation report. If your script imports from sibling modules, the imported names MUST match the API surface above. If a name does not exist there, either add it to the appropriate file in this task's `artifacts` list or use a different name that does.

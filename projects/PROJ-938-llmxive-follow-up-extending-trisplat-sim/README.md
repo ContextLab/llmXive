@@ -1,54 +1,31 @@
-# PROJ-938: Extending TriSplat for CPU-only Edge Robotics
+# llmXive Follow-up: Extending TriSplat for CPU-only Edge Robotics
 
-This project implements a CPU-feasible extension of the TriSplat architecture for 3D scene reconstruction on edge devices.
+**Project ID**: PROJ-938-llmxive-follow-up-extending-trisplat-sim
+**Status**: Active
 
-## Quick Start
+## Overview
+This project implements a CPU-feasible geometry-only 3D reconstruction pipeline
+extending the TriSplat architecture. It targets edge robotics scenarios where
+GPU resources are unavailable, focusing on explicit geometric constraints to
+achieve valid mesh reconstruction within strict time and memory budgets.
 
-```bash
-# Install dependencies
-pip install -r code/requirements.txt
+## Features
+- CPU-only inference (2-core affinity)
+- Geometry-only differentiable ray-surface intersection
+- Dynamic view count support (2-5 views)
+- RealEstate10K streaming dataset integration
+- Automated batch orchestration with timeout handling
+- Statistical analysis for sparsity threshold identification
 
-# Run a single scene reconstruction
-python code/cli.py --views 2 --timeout 1800 --seed 42
+## Structure
+- `code/` - Python implementation
+- `data/` - Dataset and processed artifacts
+- `tests/` - Unit and integration tests
+- `specs/` - Design documents and specifications
+- `state/` - Project state and artifact hashes
 
-# Run a batch experiment
-python code/experiments/run_batch.py --scenes 20 --timeout 21600
-```
-
-## Project Structure
-
-```
-projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/
-├── code/
-│ ├── cli.py # Entry point
-│ ├── data/
-│ │ ├── loader.py # RealEstate10K streaming loader
-│ │ └── metrics.py # Chamfer Distance & PSNR
-│ ├── models/
-│ │ ├── trisplat_base.py # Frozen TriSplat backbone
-│ │ └── geometry_only.py # Differentiable geometry layer
-│ ├── experiments/
-│ │ ├── run_batch.py # Batch orchestration
-│ │ ├── generate_benchmark_csv.py
-│ │ └── generate_tradeoff_plot.py
-│ └── utils/
-│ ├── mesh_utils.py # Mesh generation & validation
-│ └── stats.py # Statistical analysis
-├── data/
-│ └── processed/ # Output artifacts
-├── tests/
-│ ├── unit/
-│ └── integration/
-└── specs/
- └── 001-llmxive-trisplat-ext/
-```
-
-## Key Features
-- **CPU-Only Execution**: Optimized for 2-core edge devices
-- **Geometry-Only Layer**: Replaces learned refinement with explicit constraints
-- **Adaptive View Count**: Supports 2-5 input views
-- **Statistical Thresholding**: Identifies sparsity limits
-- **Benchmarking**: Latency vs. Fidelity trade-off analysis
+## Quickstart
+See `specs/001-llmxive-trisplat-ext/quickstart.md` for detailed setup and execution instructions.
 
 ## License
-MIT License
+Research use only.

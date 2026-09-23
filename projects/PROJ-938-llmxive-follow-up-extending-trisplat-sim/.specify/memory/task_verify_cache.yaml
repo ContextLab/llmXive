@@ -1,3 +1,10 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `pyproject.toml`
+    with Black settings, or corresponding CI scripts) were provided, nor any evidence
+    that ruff and black have been set up in the `code/` directory. The required artifacts
+    are missing.
 T014:
   c: false
   h: 93c4c7510eac542b32753a069c55f19974ec1007c43d15b65d64fccb4ceb1f7d
@@ -24,13 +31,6 @@ T036:
   r: No `README.md` or `quickstart.md` files were presented in `specs/001-llmxive-trisplat-ext/`;
     the implementer provided no content to verify that the required documentation
     exists or meets the specification.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., CI logs, batch output files, JSON/CSV results, or visualizations)\
-    \ were provided to demonstrate that a full batch of 20 or 50 scenes was actually\
-    \ run on a simulated GitHub Actions free\u2011tier environment. Consequently the\
-    \ requirement cannot be verified."
 T041:
   c: false
   h: d95ae3a05dcfca5e6e333b1c310fc399d6c7dd48225183a8fae459237586abb5
@@ -46,3 +46,12 @@ T044:
     \ file is absent. Moreover, `cli.py --update-state` recomputes checksums from\
     \ files in `data/processed` instead of reading the temporary JSON, so the intended\
     \ data flow is not realized. The task\u2019s requirement is therefore not satisfied."
+T050:
+  c: false
+  h: a54f028c28b5b7c0f7c5b26f746f94fbb1cd14f5b4b2d3c4cb0f5846075632e3
+  r: "The repository contains an `update_state_file` helper that hashes files and\
+    \ writes a YAML, but the CLI does not invoke it for a `--update-state` command,\
+    \ it does not recursively walk `data/processed/`, and the expected state file\
+    \ `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` is absent.\
+    \ The task\u2019s core artifact (the updated state YAML) is missing, so the requirement\
+    \ is not met."

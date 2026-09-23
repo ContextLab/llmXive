@@ -1,3 +1,1 @@
-"""
-Test suite for llmXive TriSplat Extension.
-"""
+# Tests module

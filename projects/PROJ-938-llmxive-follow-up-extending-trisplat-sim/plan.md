@@ -1,39 +1,37 @@
-# Project Plan: llmXive Follow-up - Extending TriSplat for CPU-only Edge Robotics
+# Project Plan: Extending TriSplat for CPU-only Edge Robotics
 
-## Overview
-This project extends the TriSplat architecture to run on CPU-only edge devices by replacing learned refinement heads with a differentiable geometry-only layer. The goal is to achieve feasible 3D scene reconstruction on standard 2-core CPUs within 30 minutes per scene.
-
-## Objectives
-1. Implement a CPU-feasible geometry-only reconstruction pipeline (US1)
-2. Identify the minimum view count (sparsity threshold) for valid reconstruction (US2)
-3. Benchmark latency and fidelity against the baseline TriSplat (US3)
+## Objective
+Extend the TriSplat 3D reconstruction framework to operate on CPU-only edge devices
+by replacing learned refinement heads with explicit geometric constraints.
 
 ## Scope
-- **In Scope**: CPU-only execution, geometry-only layer, batch orchestration, statistical analysis, benchmark reporting
-- **Out of Scope**: GPU acceleration, real-time video streaming, mobile deployment
+- Replace GPU-dependent components with CPU-compatible alternatives
+- Implement differentiable ray-surface intersection using local geometry
+- Optimize for 2-core CPU execution with <6GB RAM usage
+- Identify minimum view count for valid reconstruction
 
-## Technical Stack
-- Python 3.11
-- PyTorch (CPU mode)
-- NumPy, SciPy, Scikit-learn
+## Constraints
+- Must run on standard 2-core CPU (edge robotics hardware)
+- Maximum 30 minutes per scene reconstruction
+- Maximum 6 hours for full batch (N=20-50 scenes)
+- Must handle monocular input gracefully (skip with warning)
+- No synthetic data; must use RealEstate10K streaming
+
+## Success Criteria
+1. Valid mesh output (.obj/.ply) from CPU-only pipeline
+2. Identification of sparsity threshold (min views for convergence)
+3. Quantitative comparison with baseline TriSplat (latency vs. fidelity)
+4. Reproducible results with deterministic sampling
+
+## Milestones
+1. **Setup**: Project structure and dependencies (Phase 1)
+2. **Foundation**: Core utilities, data loaders, and metrics (Phase 2)
+3. **US1**: CPU-feasible geometry-only reconstruction (Phase 3)
+4. **US2**: Sparsity threshold identification (Phase 4)
+5. **US3**: Benchmarking and trade-off analysis (Phase 5)
+6. **Polish**: N=50 stretch goal and reproducibility hardening (Phase 6-7)
+
+## Dependencies
+- TriSplat base model weights (frozen)
 - RealEstate10K dataset (streaming)
-- Trimesh for mesh generation
-
-## Deliverables
-1. `code/models/geometry_only.py`: Differentiable ray-surface intersection layer
-2. `code/experiments/run_batch.py`: Batch orchestration engine
-3. `data/processed/`: Benchmark results, threshold analysis, trade-off plots
-4. `specs/001-llmxive-trisplat-ext/`: Documentation and contracts
-
-## Timeline
-- Phase 1: Setup (Week 1)
-- Phase 2: Foundational (Week 1-2)
-- Phase 3: US1 Implementation (Week 2-3)
-- Phase 4: US2 Implementation (Week 3-4)
-- Phase 5: US3 Implementation (Week 4-5)
-- Phase 6: Stretch Goal & Polish (Week 5-6)
-
-## Risk Mitigation
-- **CPU Performance**: Use streaming dataset loading and aggressive downscaling (320x240)
-- **Convergence**: Implement hard iteration limits and fallback placeholder meshes
-- **Data Integrity**: Verify checksums for all downloaded dataset shards
+- Python 3.11+, PyTorch (CPU), NumPy, SciPy, Trimesh

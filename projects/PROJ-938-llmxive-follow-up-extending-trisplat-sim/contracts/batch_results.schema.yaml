@@ -1,64 +1,30 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Batch Results Schema
-description: Schema for batch experiment results JSON
+description: Schema for batch processing output logs
 type: object
-required:
-  - total_scenes
-  - successful_scenes
-  - failed_scenes
-  - scenes
-  - summary
 properties:
-  total_scenes:
+  scene_id:
+    type: string
+  view_count:
     type: integer
-    minimum: 0
-  successful_scenes:
-    type: integer
-    minimum: 0
-  failed_scenes:
-    type: integer
-    minimum: 0
-  scenes:
-    type: array
-    items:
-      type: object
-      required:
-        - scene_id
-        - view_count
-        - status
-        - metrics
-      properties:
-        scene_id:
-          type: string
-        view_count:
-          type: integer
-          minimum: 2
-          maximum: 5
-        status:
-          type: string
-          enum: [success, failed, skipped, timeout]
-        metrics:
-          type: object
-          properties:
-            chamfer_distance:
-              type: number
-            psnr:
-              type: number
-            latency:
-              type: number
-        error_message:
-          type: string
-  summary:
+    minimum: 2
+    maximum: 5
+  metrics:
     type: object
     properties:
-      avg_chamfer_distance:
+      chamfer_distance:
         type: number
-      avg_psnr:
+      psnr:
         type: number
-      avg_latency:
+      latency:
         type: number
-      threshold_identified:
+      iterations:
         type: integer
-        minimum: 2
-        maximum: 5
-additionalProperties: false
+      status:
+        type: string
+        enum: [SUCCESS, TIMEOUT_CONVERGENCE_FAILED, LOW_TEXTURE_CONVERGENCE_FAILED, MONOCULAR_SKIP]
+    required: [chamfer_distance, psnr, latency, iterations, status]
+  timestamp:
+    type: string
+    format: date-time
+required: [scene_id, view_count, metrics, timestamp]

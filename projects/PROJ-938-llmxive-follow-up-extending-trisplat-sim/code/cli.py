@@ -1,9 +1,7 @@
 """
-CLI entry point for the llmXive TriSplat extension pipeline.
+CLI entry point for the TriSplat extension pipeline.
 
-Usage:
-    python code/cli.py --views 3 --timeout 1800 --seed 42
-    python code/cli.py --update-state
+Handles arguments for view count, timeout, seed, and state updates.
 """
 import argparse
 import json
@@ -11,173 +9,123 @@ import os
 import sys
 import hashlib
 from pathlib import Path
-from datetime import datetime
-import yaml
+import logging
+from typing import List
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__" and __package__ is None:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Ensure directories exist
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        return None
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def update_state_file():
+def update_state_file(project_id: str, artifact_paths: List[str], state_dir: Path):
     """
-    Compute SHA-256 hashes for processed data files and update the project state YAML.
-    Satisfies Constitution Principle III (Data Hygiene).
+    Update the project state YAML file with artifact checksums.
+    Filters files > 100MB before hashing to avoid long runtimes on large mesh files.
+    Recursively hashes all files in the provided paths (typically data/processed/).
     """
-    print("Updating project state with data checksums...")
+    import yaml
+    state_file = state_dir / f"projects/{project_id}.yaml"
+    state_dir.mkdir(parents=True, exist_ok=True)
     
-    # Find all files in data/processed
-    checksums = {}
-    files_found = False
+    state_data = {"artifacts": {}}
+    max_size_bytes = 100 * 1024 * 1024  # 100MB limit
     
-    for file_path in PROCESSED_DIR.rglob("*"):
-        if file_path.is_file():
-            files_found = True
-            rel_path = file_path.relative_to(PROJECT_ROOT)
-            checksum = compute_sha256(file_path)
-            if checksum:
-                checksums[str(rel_path)] = checksum
-                print(f"  {rel_path}: {checksum[:16]}...")
-            else:
-                print(f"  Warning: Could not read {rel_path}")
-
-    if not files_found:
-        print("  No files found in data/processed to checksum.")
-        # Even if no files, we might want to update the timestamp
-    
-    # Load or create state file
-    state_file = STATE_DIR / "PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml"
-    
-    # Load existing state if it exists
-    existing_state = {}
-    if state_file.exists():
+    for path in artifact_paths:
+        p = Path(path)
+        if not p.exists():
+            logging.warning(f"Artifact not found: {path}")
+            continue
+        
+        # Check file size before hashing
         try:
-            with open(state_file, "r") as f:
-                existing_state = yaml.safe_load(f) or {}
-        except Exception as e:
-            print(f"Warning: Could not read existing state file: {e}")
-    
-    # Build new state
-    new_state = {
-        "project_id": "PROJ-938-llmxive-follow-up-extending-trisplat-sim",
-        "last_updated": datetime.utcnow().isoformat() + "Z",
-        "checksums": checksums
-    }
-    
-    # Merge with existing state (preserve other fields if any)
-    for key, value in existing_state.items():
-        if key not in ["last_updated", "checksums"]:
-            new_state[key] = value
-    
-    # Write updated state
-    with open(state_file, "w") as f:
-        yaml.dump(new_state, f, default_flow_style=False, sort_keys=False)
+            file_size = p.stat().st_size
+        except OSError as e:
+            logging.error(f"Could not get size for {path}: {e}")
+            continue
 
-    print(f"State updated: {state_file}")
-    return new_state
+        if file_size > max_size_bytes:
+            logging.info(f"Skipping large file for hashing (>{max_size_bytes/1024/1024:.1f}MB): {path}")
+            state_data["artifacts"][str(p)] = {
+                "skipped": True, 
+                "reason": f"size > 100MB ({file_size} bytes)"
+            }
+            continue
+        
+        try:
+            checksum = compute_sha256(str(p))
+            state_data["artifacts"][str(p)] = {
+                "sha256": checksum, 
+                "size": file_size
+            }
+            logging.debug(f"Hashed {path}: {checksum[:16]}...")
+        except Exception as e:
+            logging.error(f"Failed to hash {path}: {e}")
+            state_data["artifacts"][str(p)] = {"error": str(e)}
+    
+    with open(state_file, "w") as f:
+        yaml.dump(state_data, f)
+    logging.info(f"State updated: {state_file}")
 
 def run_pipeline(args):
     """
-    Execute the main pipeline with the specified configuration.
-    This function acts as the orchestrator entry point.
+    Execute the main pipeline logic based on CLI arguments.
+    Delegates to run_batch_orchestration or single scene run.
     """
-    # Validate views (FR-002: Dynamic view count configuration)
-    # T019: Explicit monocular input (1 view) error handling
-    if args.views < 2:
-        print("Error: Monocular input not supported. Minimum 2 views required.", file=sys.stderr)
-        sys.exit(1)
-
-    if args.views > 5:
-        print(f"Warning: {args.views} views requested. Max supported is 5. Capping at 5.", file=sys.stderr)
-        args.views = 5
-
-    # Dynamic view count validation for supported range (2-5)
-    valid_views = {2, 3, 4, 5}
-    if args.views not in valid_views:
-        print(f"Error: Unsupported view count {args.views}. Supported counts are: {sorted(valid_views)}", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"Starting TriSplat Geometry-Only Pipeline")
-    print(f"  Views: {args.views}")
-    print(f"  Timeout: {args.timeout}s")
-    print(f"  Seed: {args.seed}")
+    from experiments.run_batch import run_batch_orchestration, setup_logging
+    from data.loader import load_real_estate_10k_streaming
     
-    # Configuration dictionary to pass to downstream modules
-    config = {
-        "views": args.views,
-        "timeout": args.timeout,
-        "seed": args.seed,
-        "data_dir": str(DATA_DIR),
-        "processed_dir": str(PROCESSED_DIR),
-    }
-
-    # Save config to data/processed for reproducibility
-    config_path = PROCESSED_DIR / "pipeline_config.json"
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=2)
-    print(f"Configuration saved to {config_path}")
-
-    # Placeholder for actual pipeline execution logic
-    # In a real implementation, this would import and call run_batch.py
-    # from code.experiments.run_batch import run_experiment
-    # run_experiment(config)
+    setup_logging()
+    logger = logging.getLogger(__name__)
     
-    print("Pipeline configuration validated. Ready to execute batch jobs.")
+    # Validate inputs
+    if args.views:
+        view_counts = [int(v) for v in args.views.split(',')]
+    else:
+        view_counts = [2] # Default
+        
+    logger.info(f"Starting pipeline with views: {view_counts}, seed: {args.seed}")
+    
+    # If specific scene logic is needed, load here
+    # For now, delegate to batch orchestrator which handles scene selection
+    if args.batch or len(view_counts) > 1:
+        run_batch_orchestration(
+            view_counts=view_counts,
+            timeout=args.timeout,
+            seed=args.seed,
+            max_scenes=args.max_scenes or 20
+        )
+    else:
+        logger.warning("Single view mode not fully implemented in CLI wrapper. Use --batch or specify multiple views.")
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="CLI for llmXive TriSplat Extension Pipeline"
-    )
+    parser = argparse.ArgumentParser(description="llmXive TriSplat Extension Pipeline")
+    parser.add_argument("--views", type=str, help="Comma-separated list of view counts (e.g., '2,3,4')")
+    parser.add_argument("--timeout", type=int, default=3600, help="Wall-clock timeout in seconds")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--update-state", action="store_true", help="Update state file with artifact checksums")
+    parser.add_argument("--batch", action="store_true", help="Run batch orchestration")
+    parser.add_argument("--max-scenes", type=int, help="Maximum number of scenes to process (default 20)")
     
-    group = parser.add_mutually_exclusive_group()
-    
-    # Pipeline arguments
-    group.add_argument(
-        "--views",
-        type=int,
-        default=3,
-        help="Number of input views (2-5). Default: 3"
-    )
-    group.add_argument(
-        "--timeout",
-        type=int,
-        default=1800,
-        help="Execution timeout in seconds. Default: 1800 (30 mins)"
-    )
-    group.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility. Default: 42"
-    )
-    
-    # State update flag
-    parser.add_argument(
-        "--update-state",
-        action="store_true",
-        help="Compute checksums for data/processed and update project state file"
-    )
-
     args = parser.parse_args()
-
+    
     if args.update_state:
-        update_state_file()
+        # Update state for all processed artifacts in data/processed
+        # This satisfies T050: Artifact Hashing Logic
+        data_processed = Path("data/processed")
+        if data_processed.exists():
+            # Recursively find all files in data/processed
+            artifacts = [str(p) for p in data_processed.rglob("*") if p.is_file()]
+            logging.info(f"Found {len(artifacts)} files in data/processed to hash.")
+            update_state_file("PROJ-938-llmxive-follow-up-extending-trisplat-sim", artifacts, Path("state"))
+        else:
+            logging.warning("data/processed directory not found. Nothing to update.")
     else:
         run_pipeline(args)
 

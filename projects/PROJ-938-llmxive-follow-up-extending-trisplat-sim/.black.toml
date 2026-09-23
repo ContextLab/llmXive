@@ -1,0 +1,3 @@
+# Standalone black config if pyproject.toml is not picked up
+line-length = 88
+target-version = ["py311"]

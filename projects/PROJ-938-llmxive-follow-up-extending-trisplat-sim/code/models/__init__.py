@@ -1,3 +1,1 @@
-"""
-Model definitions for reconstruction and geometry layers.
-"""
+# Models module

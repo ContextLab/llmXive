@@ -1,3 +1,1 @@
-"""
-Experiment orchestration and batch processing.
-"""
+# Experiments module

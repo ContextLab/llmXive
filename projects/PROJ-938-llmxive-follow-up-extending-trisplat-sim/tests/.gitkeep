@@ -1,0 +1,4 @@
+# Placeholder for tests directory
+# This directory will contain:
+# - unit/ : Unit tests for individual components
+# - integration/ : Integration tests for pipeline workflows

@@ -1,0 +1,442 @@
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 3D scene reconstruction on 2-core CPU within 30 minutes producing valid
+    mesh
+  claim_id: c_c21951c9
+  context: 'Phase 3: User Story 1 - CPU-Feasible Geometry-Only Reconstruction (Priority:
+    P1) Goal: Run 3D scene reconstruction on a standard 2-core CPU using only explicit
+    geometric constraints, producing a valid mesh within 30 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 3D scene reconstruction on a standard 2-core CPU using only explicit
+    geometric constraints, producing a valid mesh within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:32:49Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Memory usage test verifying less than 6 GB peak RAM
+  claim_id: c_8b1a8a38
+  context: T014 [P] [US1] Memory usage test verifying < 6 GB peak RAM in tests/integration/test_memory_limits.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_test_verifying_less_than_6_GB_peak_RAM
+  kind: magnitude
+  raw_text: Verify memory usage test verifying < 6 GB peak RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:33:17Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Configurable batch timeout mechanism triggers graceful exit on predefined
+    duration
+  claim_id: c_b8bb47a6
+  context: 'T011a [P] Implement a configurable batch timeout mechanism in code/experiments/run_batch.py:
+    Add a wrapper using signal.alarm (or time.time() loop) that triggers a graceful
+    exit and logs ''BATCH_TIMEOUT_EXCEEDED'' if the process runs longer than a predefined
+    duration., satisfying FR-006.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configurable_batch_timeout_mechanism_triggers_graceful_exit
+  kind: entity_fact
+  raw_text: Implement a configurable batch timeout mechanism that triggers a graceful
+    exit if the process runs longer than a predefined duration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:33:46Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Generate placeholder mesh and log TIMEOUT_CONVERGENCE_FAILED if 100-iteration
+    limit hit
+  claim_id: c_e05b1731
+  context: 'T043 [US1] Implement general non-convergence handling in code/models/geometry_only.py:
+    if the 100-iteration limit (T016) is hit for ANY reason (not just low-texture),
+    generate a placeholder mesh and log an error flag ''TIMEOUT_CONVERGENCE_FAILED''
+    to satisfy FR-007 (Edge Case).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a placeholder mesh and log an error flag 'TIMEOUT_CONVERGENCE_FAILED'
+    if the 100-iteration limit is hit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:34:13Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: If input views less than 2 log WARNING Monocular input detected Skipping
+    scene and continue
+  claim_id: c_164b304a
+  context: 'T019b [US1] Handle monocular input gracefully: In code/cli.py and run_batch.py,
+    if input views < 2, log a WARNING ''Monocular input detected. Skipping scene.''
+    and continue to the next scene (do NOT exit with code 1). (FR-002, US1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_input_views_less_than_2_log_WARNING_Monocular_input_detec
+  kind: magnitude
+  raw_text: If input views < 2, log a WARNING 'Monocular input detected. Skipping
+    scene.' and continue to the next scene.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:35:28Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Enforce limited CPU affinity for baseline and geometry-only module
+  claim_id: c_70376839
+  context: 'T031 [US3] Implement baseline TriSplat execution logic in code/experiments/run_batch.py:
+    Explicitly enforce limited CPU affinity (e.g., os.sched_setaffinity selecting
+    a restricted set of cores) for both the baseline and the geometry-only module
+    (T015/T018) to strictly match SC-001 requirements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_limited_CPU_affinity_for_baseline_and_geometry-only
+  kind: entity_fact
+  raw_text: Explicitly enforce limited CPU affinity (e.g., os.sched_setaffinity selecting
+    a restricted set of cores) for both the baseline and the geometry-only module.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:36:19Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: If 20 scenes complete within 70% of time budget expand to 50 random scenes
+  claim_id: c_9ed509c9
+  context: 'T042 [P] Implement N=50 stretch goal logic in code/experiments/run_batch.py:
+    If N=20 scenes complete within 70% of the time budget, dynamically expand the
+    scene list to 50 random scenes and continue processing (Plan: Stretch Goal).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N=20 scenes complete within 70% of the time budget, dynamically expand
+    the scene list to 50 random scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:36:47Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Enforce 6-hour wall-clock limit
+  claim_id: c_1c3e3886
+  context: 'T042 [P] Implement N=50 stretch goal logic in code/experiments/run_batch.py:
+    ... Must implement timeout using signal.alarm or threading.Timer to enforce the
+    6-hour wall-clock limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce the 6-hour wall-clock limit using signal.alarm or threading.Timer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:37:16Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Filter files by size less than 100MB before hashing
+  claim_id: c_94deed83
+  context: 'T050 [US1] Artifact Hashing Logic: ... Must filter files by size < 100MB
+    using os.path.getsize BEFORE hashing to avoid long runtimes on large mesh files.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_files_by_size_less_than_100MB_before_hashing
+  kind: magnitude
+  raw_text: Filter files by size < 100MB using os.path.getsize BEFORE hashing to avoid
+    long runtimes on large mesh files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:37:42Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Select first 20 or 50 scenes from streamed dataset using seed 42
+  claim_id: c_88ed4ebe
+  context: 'T047 [US1] Explicit Dataset Sampling Rule: ... implement a deterministic
+    sampling strategy using itertools.islice to select the first N=20 (or N=50) scenes
+    from the streamed dataset using seed 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the first N=20 (or N=50) scenes from the streamed dataset using
+    seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:38:52Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Calculate relative error increase as error_N minus error_baseline divided
+    by error_baseline
+  claim_id: c_e61d0f3c
+  context: 'T041 [US2] Implement threshold identification logic in code/utils/stats.py:
+    ... Calculate relative error increase as (error_N - error_baseline) / error_baseline
+    where error_N is Chamfer Distance at view count N.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_relative_error_increase_as_error_N_minus_error_bas
+  kind: entity_fact
+  raw_text: Calculate relative error increase as (error_N - error_baseline) / error_baseline
+    where error_N is Chamfer Distance at view count N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:39:29Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Generate benchmark report CSV with columns view_count latency chamfer_distance
+    psnr baseline_latency
+  claim_id: c_e8510bd0
+  context: 'T033 [US3] Generate benchmark report CSV at data/processed/benchmark_tradeoff.csv
+    with columns: view_count,latency,chamfer_distance,psnr,baseline_latency (US-3
+    Acceptance 1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_benchmark_report_CSV_with_columns_view_count_latenc
+  kind: entity_fact
+  raw_text: 'Generate benchmark report CSV at data/processed/benchmark_tradeoff.csv
+    with columns: view_count,latency,chamfer_distance,psnr,baseline_latency.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:40:07Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 3D scene reconstruction on 2-core CPU
+  claim_id: c_d0d6c315
+  context: 'Phase 3: User Story 1 - CPU-Feasible Geometry-Only Reconstruction (Priority:
+    P1) Goal: Run 3D scene reconstruction on a standard 2-core CPU...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets running 3D scene reconstruction on a standard 2-core
+    CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:47:12Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: valid mesh produced within 30 minutes
+  claim_id: c_9223d525
+  context: 'Goal: Run 3D scene reconstruction on a standard 2-core CPU using only
+    explicit geometric constraints, producing a valid mesh within 30 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must produce a valid mesh within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:47:42Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: support for 2 3 4 and 5 view configurations
+  claim_id: c_700804c8
+  context: T023 ... to support 2, 3, 4, 5 views as a prerequisite for batch orchestration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system supports 2, 3, 4, and 5 view configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:48:06Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: batch orchestrator N=20 scene limit
+  claim_id: c_9078c277
+  context: T011 ... Setup code/experiments/run_batch.py orchestrator skeleton with
+    N=20 scene limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch orchestrator has a default scene limit of N=20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:48:35Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 100 iteration limit for convergence
+  claim_id: c_34b97983
+  context: T043 ... if the 100-iteration limit (T016) is hit for ANY reason...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system has a hard iteration limit of 100 for convergence detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:49:06Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: expand to 50 scenes if 20 complete within 70% time budget
+  claim_id: c_bd9d4a27
+  context: T042 ... If N=20 scenes complete within 70% of the time budget, dynamically
+    expand the scene list to 50 random scenes...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stretch goal expands the scene list to N=50 if 20 scenes complete
+    within 70% of the time budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:50:02Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 6-hour wall-clock time limit
+  claim_id: c_b1de7dc7
+  context: T042 ... enforce the 6-hour wall-clock limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces a 6-hour wall-clock time limit for the batch process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:50:33Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 15% default tolerance threshold
+  claim_id: c_068fe3f2
+  context: 'Critical: T041 enforces the 15% tolerance constant (now CLI configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default tolerance threshold for sparsity identification is 15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:50:33Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: RealEstate10K validation split
+  claim_id: c_f80d1ed9
+  context: T047 ... explicitly define the RealEstate10K validation split ID ('validation')...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RealEstate10K_validation_split
+  kind: entity_fact
+  raw_text: The dataset used is RealEstate10K with the validation split.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:50:57Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: deterministic sampling seed 42
+  claim_id: c_808dfbdd
+  context: T047 ... using seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The deterministic sampling strategy uses seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:51:35Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: filter files smaller than 100MB for hashing
+  claim_id: c_ad55156b
+  context: T050 ... Must filter files by size < 100MB using os.path.getsize BEFORE
+    hashing...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_files_smaller_than_100MB_for_hashing
+  kind: entity_fact
+  raw_text: The system filters files smaller than 100MB for artifact hashing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:51:58Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: CPU affinity cores 0 and 1
+  claim_id: c_d427d186
+  context: T031b ... selecting a small subset of available cores, e.g., 0 and 1) for
+    the geometry-only module...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline comparison enforces a limited multi-core CPU affinity selecting
+    cores 0 and 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:52:27Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_17663f53
+  context: T002 Initialize Python 3.11 project...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T16:52:56Z'
