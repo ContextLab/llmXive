@@ -5,10 +5,35 @@ T016:
     \ statements were added to the Oracle generation and validation steps. The required\
     \ artifact\u2014a modified codebase (or diff) with concrete logging implementation\u2014\
     is missing, so the task is not satisfied."
-T024:
+T026:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or report was provided that implements the logic to flag \u201C\
-    Extraction Uncertainty\u201D nor adds an `excluded_metrics` field with counts\
-    \ for `extraction_uncertainty` and `cold_start`. The evidence consists only of\
-    \ the task description and spec excerpt, which does not satisfy the required deliverable."
+  h: a61f43fa3ae9b5e56ef9908d5ca588a5d33dee74743813a60ee6f7e0dc3f4a88
+  r: "The required output file `data/processed/cot_quality_metrics.json` does not\
+    \ exist, and the provided `code/analysis/metrics.py` lacks a complete implementation\
+    \ (e.g., no function that computes the precision and writes the JSON result).\
+    \ Consequently the task\u2019s core requirement\u2014to calculate and store the\
+    \ Pattern Reproduction Precision metric\u2014is not satisfied."
+T027:
+  c: false
+  h: 685842248605c0573113087d21ee78958cc64edba1de2d1f10687d2af240c9ba
+  r: "The provided `code/rules/metrics.py` is incomplete (the `calculate_precision`\
+    \ function is truncated and does not contain a full implementation or any code\
+    \ that writes `data/processed/rule_precision.json`). Moreover, the required output\
+    \ file `data/processed/rule_precision.json` is missing from the repository. The\
+    \ task\u2019s core requirement\u2014to compute and persist the precision metric\u2014\
+    is therefore not satisfied."
+T031:
+  c: false
+  h: d7746255b78ebbae2dff67b4dce53ed8ba6dcba9ad82cc0cfa17f7405221f5ff
+  r: "The required output file `data/processed/divergence_report.json` does not exist,\
+    \ and the provided `code/analysis/diverge.py` is incomplete (truncated) and cannot\
+    \ be verified to produce the specified report. The task\u2019s core artifact is\
+    \ missing."
+T031a:
+  c: false
+  h: 552a0ade51f07ed39cf1e334ac3cac3e54af00303fe37b3f396a47fe229208dc
+  r: "The required `data/processed/exclusion_audit.json` file does not exist, and\
+    \ the provided `tests/integration/test_stats_significance.py` is truncated and\
+    \ contains no visible assertions that check `excluded_metrics` are omitted from\
+    \ p\u2011value or correlation calculations. Both the audit artifact and the verification\
+    \ logic are missing."

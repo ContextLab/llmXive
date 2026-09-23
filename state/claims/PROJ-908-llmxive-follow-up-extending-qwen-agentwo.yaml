@@ -556,3 +556,426 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T06:37:24Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Generate 500 synthetic control traces with pre-determined logical patterns
+  claim_id: c_6800d87e
+  context: 'Generate synthetic control traces for validation: Create data/raw/synthetic_control_traces.json
+    containing N=500 traces with pre-determined logical patterns (as per US-02 Independent
+    Test).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:29:58Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Run permutation test with 1000 iterations to calculate p-values for divergence
+    differences
+  claim_id: c_50f1af74
+  context: 'Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes (FR-005/SC-003), accounting for Markovian dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_permutation_test(trajectories, interaction_classes, N=1000)
+    to calculate p-values for divergence differences between classes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:30:26Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_03a579ee
+  context: "Independent Test: Run parser on a known subset; Verify generated oracle\
+    \ matches original environment simulator trajectories for N=1,000 random inputs\
+    \ (seed=42) with \u226599.9% accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:31:40Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction runtime less than 6 hours on CPU
+  claim_id: c_5e5f1044
+  context: 'Performance optimization for ILP induction on CPU (ensure <6h runtime):
+    Refactor `code/rules/extractor.py` to use optimized algorithms to ensure runtime
+    < 6h on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ILP_induction_runtime_less_than_6_hours_on_CPU
+  kind: magnitude
+  raw_text: refactor `code/rules/extractor.py` to use optimized algorithms to ensure
+    runtime < 6h on CPU
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:32:06Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations
+  claim_id: c_76defa05
+  context: 'Perform Bootstrapped Permutation Test: Implement `run_permutation_test(trajectories,
+    interaction_classes, N=1000)` to calculate p-values for divergence differences
+    between classes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:33:23Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Adherence boundary threshold 95%
+  claim_id: c_c4fd5c9a
+  context: "Implement logic in `code/analysis/stats.py` to identify the specific step\
+    \ count or state complexity boundary where measured adherence drops below the\
+    \ \u226595% threshold"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "identify the specific step count or state complexity boundary where measured\
+    \ adherence drops below the \u226595% threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:33:23Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Divergence report contains p-values boundaries correlation and excluded
+    metrics
+  claim_id: c_018f26ed
+  context: "Finalize `divergence_report.json` with p-values (\u03B1 \u2264 0.05),\
+    \ boundary conditions (from T032), and correlation metrics (from T034): Merge\
+    \ `divergence_report.json` with `correlation_result.json` and `boundary_conditions`,\
+    \ ensuring final file contains fields: `p_values`, `boundaries`, `correlation`,\
+    \ `excluded_metrics`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Divergence_report_contains_p-values_boundaries_correlation_a
+  kind: entity_fact
+  raw_text: 'final file contains fields: `p_values`, `boundaries`, `correlation`,
+    `excluded_metrics`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:34:27Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_18e95888
+  context: 'Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_permutation_test(trajectories, interaction_classes, N=1000)
+    to calculate p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:36:04Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Synthetic control traces contain 500 traces
+  claim_id: c_0816d245
+  context: 'Generate synthetic control traces for validation: Create `data/raw/synthetic_control_traces.json`
+    containing N=500 traces with pre-determined logical patterns (as per US-02 Independent
+    Test).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `data/raw/synthetic_control_traces.json` containing N=500 traces
+    with pre-determined logical patterns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:36:31Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_7939a0a7
+  context: 'Perform Bootstrapped Permutation Test: Implement `run_permutation_test(trajectories,
+    interaction_classes, N=1000)` to calculate p-values for divergence differences
+    between classes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:36:32Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction runtime is less than 6 hours on CPU
+  claim_id: c_2e8c4d95
+  context: 'Performance optimization for ILP induction on CPU (ensure <6h runtime):
+    Refactor `code/rules/extractor.py` to use optimized algorithms to ensure runtime
+    < 6h on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ILP_induction_runtime_is_less_than_6_hours_on_CPU
+  kind: magnitude
+  raw_text: Refactor `code/rules/extractor.py` to use optimized algorithms to ensure
+    runtime < 6h on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:36:34Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Adherence drops below 95% threshold
+  claim_id: c_5d56fa27
+  context: "Implement logic in `code/analysis/stats.py` to identify the specific step\
+    \ count or state complexity boundary where measured adherence drops below the\
+    \ **\u226595%** threshold"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "identify the specific step count or state complexity boundary where measured\
+    \ adherence drops below the \u226595% threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:36:34Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Generate 500 synthetic control traces with pre-determined patterns
+  claim_id: c_8303b96b
+  context: 'Generate synthetic control traces for validation: Create data/raw/synthetic_control_traces.json
+    containing N=500 traces with pre-determined logical patterns (as per US-02 Independent
+    Test).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:37:20Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 4
+  canonical: Error classification matches human annotation with Cohen's Kappa of 0.8
+  claim_id: c_9b4ed642
+  context: "Independent Test: Run on small manually verified dataset; Confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:37:20Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: ILP induction runtime is under 6 hours on CPU
+  claim_id: c_f8fa53de
+  context: 'Performance optimization for ILP induction on CPU (ensure <6h runtime):
+    Refactor code/rules/extractor.py to use optimized algorithms to ensure runtime
+    < 6h on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/rules/extractor.py to use optimized algorithms to ensure
+    runtime < 6h on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:37:20Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 4
+  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_859ae0c9
+  context: "Independent Test: Verify generated oracle matches original environment\
+    \ simulator trajectories for N=1,000 random inputs (seed=42) with \u226599.9%\
+    \ accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:39:22Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Synthetic control traces dataset contains 500 traces
+  claim_id: c_9b1bf873
+  context: 'Generate synthetic control traces for validation: Create data/raw/synthetic_control_traces.json
+    containing N=500 traces with pre-determined logical patterns (as per US-02 Independent
+    Test).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:39:22Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 6
+  canonical: Extracted rules reproduce patterns with 95% precision
+  claim_id: c_0d9d948c
+  context: "Independent Test: Feed synthetic traces with known patterns; Verify extracted\
+    \ rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:39:23Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Error classification matches human annotation with Cohen's Kappa 0.8
+  claim_id: c_2e905686
+  context: "Independent Test: Run on small manually verified dataset; Confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:39:23Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Adherence drops below 95% threshold at specific boundary
+  claim_id: c_e66b7a3b
+  context: "Implement logic in code/analysis/stats.py to identify the specific step\
+    \ count or state complexity boundary where measured adherence drops below the\
+    \ \u226595% threshold (per FR-006/SC-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify the specific step count or state complexity boundary where measured\
+    \ adherence drops below the \u226595% threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:39:23Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations
+  claim_id: c_d3bfa1a9
+  context: 'Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes (FR-005/SC-003), accounting for Markovian dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_permutation_test(trajectories, interaction_classes, N=1000)
+    to calculate p-values for divergence differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:40:15Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Divergence report p-values threshold is 0.05
+  claim_id: c_f2077b71
+  context: "Finalize divergence_report.json with p-values (\u03B1 \u2264 0.05), boundary\
+    \ conditions (from T032), and correlation metrics (from T034)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure final file contains fields: p_values, boundaries, correlation,\
+    \ excluded_metrics with p-values (\u03B1 \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:40:15Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction runtime is less than 6 hours on CPU
+  claim_id: c_24a66252
+  context: 'Performance optimization for ILP induction on CPU (ensure <6h runtime):
+    Refactor code/rules/extractor.py to use optimized algorithms to ensure runtime
+    < 6h on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ILP_induction_runtime_is_less_than_6_hours_on_CPU
+  kind: magnitude
+  raw_text: Refactor code/rules/extractor.py to use optimized algorithms to ensure
+    runtime < 6h on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T20:40:20Z'
