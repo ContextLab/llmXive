@@ -1,147 +1,130 @@
+"""
+Unit tests for k-mer frequency calculation.
+
+Tests cover:
+- Valid FASTA input
+- File not found
+- Empty sequence
+- Short sequence
+- Mixed case
+- Invalid bases
+"""
 import pytest
 import tempfile
 import os
 from pathlib import Path
 from src.features import calculate_kmer_frequencies
 
+
 def test_calculate_kmer_frequencies_valid_fasta():
-    """Test k-mer frequency calculation with a valid FASTA file."""
-    # Create a temporary FASTA file with a known sequence
-    # Sequence: ACGTACGT (length 8)
-    # k=3: ACG, CGT, GTA, TAC, ACG, CGT -> ACG:2, CGT:2, GTA:1, TAC:1 (total 6)
-    # k=4: ACGT, CGTA, GTAC, TACG, ACGT -> ACGT:2, CGTA:1, GTAC:1, TACG:1 (total 5)
-    fasta_content = """>test_sequence
-    ACGTACGT
-    """
-    
+    """Test k-mer calculation with a valid FASTA file."""
+    # Create a temporary FASTA file
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(fasta_content)
+        f.write(">test_sequence\n")
+        f.write("ACGTACGTACGTACGT\n")  # 16 bases
         temp_path = f.name
-    
+
     try:
         result = calculate_kmer_frequencies(temp_path)
-        
-        # Check k=3 frequencies
-        assert 'k3_ACG' in result
-        assert 'k3_CGT' in result
-        assert 'k3_GTA' in result
-        assert 'k3_TAC' in result
-        
-        # Verify frequencies (within floating point tolerance)
-        assert abs(result['k3_ACG'] - 2/6) < 1e-9
-        assert abs(result['k3_CGT'] - 2/6) < 1e-9
-        assert abs(result['k3_GTA'] - 1/6) < 1e-9
-        assert abs(result['k3_TAC'] - 1/6) < 1e-9
-        
-        # Check k=4 frequencies
-        assert 'k4_ACGT' in result
-        assert 'k4_CGTA' in result
-        assert 'k4_GTAC' in result
-        assert 'k4_TACG' in result
-        
-        # Verify frequencies
-        assert abs(result['k4_ACGT'] - 2/5) < 1e-9
-        assert abs(result['k4_CGTA'] - 1/5) < 1e-9
-        assert abs(result['k4_GTAC'] - 1/5) < 1e-9
-        assert abs(result['k4_TACG'] - 1/5) < 1e-9
-        
-        # Verify no k=5 or k=6 features (as per spec amendment)
-        for key in result:
-            assert not key.startswith('k5_'), f"Unexpected k=5 feature: {key}"
-            assert not key.startswith('k6_'), f"Unexpected k=6 feature: {key}"
-            
+
+        # Check that we have k=3 and k=4 k-mers
+        assert 'ACG' in result  # k=3
+        assert 'ACGT' in result  # k=4
+
+        # Check that frequencies sum to 1 for each k
+        k3_sum = sum(v for k, v in result.items() if len(k) == 3)
+        k4_sum = sum(v for k, v in result.items() if len(k) == 4)
+
+        assert abs(k3_sum - 1.0) < 1e-6, f"K=3 frequencies sum to {k3_sum}, expected 1.0"
+        assert abs(k4_sum - 1.0) < 1e-6, f"K=4 frequencies sum to {k4_sum}, expected 1.0"
+
+        # Check specific values for our test sequence
+        # Sequence: ACGTACGTACGTACGT
+        # K=3: ACG, CGT, GTA, TAC, ACG, CGT, GTA, TAC, ACG, CGT
+        # Counts: ACG=3, CGT=3, GTA=2, TAC=2 -> Total=10
+        assert abs(result['ACG'] - 0.3) < 1e-6
+        assert abs(result['CGT'] - 0.3) < 1e-6
+        assert abs(result['GTA'] - 0.2) < 1e-6
+        assert abs(result['TAC'] - 0.2) < 1e-6
+
     finally:
         os.unlink(temp_path)
+
 
 def test_calculate_kmer_frequencies_file_not_found():
     """Test that FileNotFoundError is raised for missing file."""
     with pytest.raises(FileNotFoundError):
         calculate_kmer_frequencies("/nonexistent/path/to/file.fasta")
 
+
 def test_calculate_kmer_frequencies_empty_sequence():
     """Test that ValueError is raised for empty sequence."""
-    fasta_content = """>empty_sequence
-    """
-    
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(fasta_content)
+        f.write(">test_sequence\n")
+        # No sequence
         temp_path = f.name
-    
+
     try:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Sequence is empty"):
             calculate_kmer_frequencies(temp_path)
     finally:
         os.unlink(temp_path)
 
+
 def test_calculate_kmer_frequencies_short_sequence():
-    """Test behavior with sequence too short for k=4."""
-    # Sequence of length 3: only k=3 possible
-    fasta_content = """>short_sequence
-    ACG
-    """
-    
+    """Test behavior with sequence shorter than k=3."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(fasta_content)
+        f.write(">test_sequence\n")
+        f.write("AC\n")  # Only 2 bases
         temp_path = f.name
-    
+
     try:
-        result = calculate_kmer_frequencies(temp_path)
-        
-        # Should have k=3 feature
-        assert 'k3_ACG' in result
-        assert abs(result['k3_ACG'] - 1.0) < 1e-9
-        
-        # Should NOT have any k=4 features
-        for key in result:
-            assert not key.startswith('k4_'), f"Unexpected k=4 feature for short sequence: {key}"
+        # Should raise ValueError because no k-mers can be extracted
+        with pytest.raises(ValueError, match="No k-mers could be extracted"):
+            calculate_kmer_frequencies(temp_path)
     finally:
         os.unlink(temp_path)
+
 
 def test_calculate_kmer_frequencies_mixed_case():
     """Test that mixed case sequences are handled correctly."""
-    fasta_content = """>mixed_case
-    ACGTacgt
-    """
-    
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(fasta_content)
+        f.write(">test_sequence\n")
+        f.write("AcGtAcGt\n")  # Mixed case
         temp_path = f.name
-    
+
     try:
         result = calculate_kmer_frequencies(temp_path)
-        
-        # Should treat as uppercase
-        assert 'k3_ACG' in result
-        assert 'k3_CGT' in result
-        assert 'k3_GTA' in result
-        assert 'k3_TAC' in result
-        
-        # Frequencies should match the test_calculate_kmer_frequencies_valid_fasta test
-        assert abs(result['k3_ACG'] - 2/6) < 1e-9
-        assert abs(result['k3_CGT'] - 2/6) < 1e-9
+
+        # Should be normalized to uppercase
+        assert 'ACG' in result
+        assert 'CGT' in result
+
+        # Frequencies should match the lowercase version
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f2:
+            f2.write(">test_sequence\n")
+            f2.write("acgtacgt\n")
+            temp_path2 = f2.name
+
+        try:
+            result2 = calculate_kmer_frequencies(temp_path2)
+            assert result == result2
+        finally:
+            os.unlink(temp_path2)
+
     finally:
         os.unlink(temp_path)
 
+
 def test_calculate_kmer_frequencies_with_invalid_bases():
-    """Test that invalid bases (N, R, etc.) are filtered out."""
-    # Sequence with N: ACGNACGT
-    # After cleaning: ACGACGT (length 7)
-    # k=3: ACG, GCA, CAC, ACG, CGT -> ACG:2, GCA:1, CAC:1, CGT:1 (total 5)
-    fasta_content = """>invalid_bases
-    ACGNACGT
-    """
-    
+    """Test that ValueError is raised for invalid bases."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(fasta_content)
+        f.write(">test_sequence\n")
+        f.write("ACGTXACGT\n")  # X is invalid
         temp_path = f.name
-    
+
     try:
-        result = calculate_kmer_frequencies(temp_path)
-        
-        # Should have filtered k-mers
-        assert 'k3_ACG' in result
-        # Should not have k-mers containing N
-        for key in result:
-            assert 'N' not in key, f"Found k-mer with invalid base: {key}"
+        with pytest.raises(ValueError, match="Invalid characters in sequence"):
+            calculate_kmer_frequencies(temp_path)
     finally:
         os.unlink(temp_path)

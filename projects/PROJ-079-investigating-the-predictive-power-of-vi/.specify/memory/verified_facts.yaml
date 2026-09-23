@@ -1,0 +1,22 @@
+'|4a probe radius':
+  quote: "The Shrake\u2013Rupley algorithm is a numerical method that draws a mesh\
+    \ of points equidistant from each atom of the molecule and uses the number of\
+    \ these points that are solvent accessible to determine the surface area. The\
+    \ points are drawn at a water molecule's estimated radius beyond the van der Waals\
+    \ radius, which is effectively similar to 'rolling a ball' along the surface.\
+    \ All points are checked against the surface of neighboring atoms to determine\
+    \ whether they are buried or accessible. The number of points accessible is multiplied\
+    \ by the portion of surface area each point represents to calculate the ASA. The\
+    \ choice of the 'probe radius' does have an effect on the observed surface area,\
+    \ as using a smaller probe radius detects more surface details and therefore reports\
+    \ a larger surface. A typical value is 1.4\xC5, which approximates the radius\
+    \ of a water molecule. Another factor that affects the results is the definition\
+    \ of the VDW radii of the atoms in the molecule under study. For example, the\
+    \ molecule may often lack hydrogen atoms, which are implicit in the structure.\
+    \ The hydrogen atoms may be implicitly included in the atomic radii of the 'heavy'\
+    \ atoms, with a measure called the 'group radii'. In addition, the number of points\
+    \ created on the van der Waals surface of each atom determines another aspect\
+    \ of discretization, where more points provide an increased level of detail."
+  source_id: Accessible surface area
+  url: https://en.wikipedia.org/wiki/Accessible_surface_area
+  value: "1.4\xC5"

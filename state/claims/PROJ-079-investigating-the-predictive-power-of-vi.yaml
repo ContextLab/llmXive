@@ -303,3 +303,392 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-19T10:38:57Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: specific software packages and versions
+  claim_id: c_2115de2f
+  context: Generate `requirements.txt` with pinned versions of `biopython`, `pandas`,
+    `scikit-learn`, `rpy2`, `statsmodels`, `seaborn`, `matplotlib`, `requests`, `numpy`,
+    `scipy`, `pyyaml`, `tqdm`, `pybedtools`, `python-dotenv`, `pydantic`, `pytest`,
+    `black`, `flake8`, `hdi` (for Debiased Lasso), `prody` (for SASA/H-bond calculations).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specific_software_packages_and_versions
+  kind: entity_fact
+  raw_text: pinned versions of `biopython`, `pandas`, `scikit-learn`, `rpy2`, `statsmodels`,
+    `seaborn`, `matplotlib`, `requests`, `numpy`, `scipy`, `pyyaml`, `tqdm`, `pybedtools`,
+    `python-dotenv`, `pydantic`, `pytest`, `black`, `flake8`, `hdi` (for Debiased
+    Lasso), `prody` (for SASA/H-bond calculations).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:33:04Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: maximum runtime in hours
+  claim_id: c_4fbbbcb8
+  context: 'Create `src/config.py` defining: `DATA_RAW_PATH=''data/raw''`, `DATA_PROCESSED_PATH=''data/processed''`,
+    `ARTIFACTS_PATH=''data/artifacts''`, `SEED=42`, `MAX_RUNTIME_HOURS=4`, `NCBI_BASE_URL=''''`,
+    `GEO_BASE_URL=''https://www.ncbi.nlm.gov/geo/download''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_RUNTIME_HOURS=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:33:24Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Ensembl Compara version
+  claim_id: c_7442d155
+  context: 'Implement `src/preprocess.py` function `map_isg_genes(species: str, gene_list:
+    list) -> list` that uses Ensembl Compara v109 API to map human ISG set to orthologs
+    for non-human species.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensembl_Compara_version
+  kind: entity_fact
+  raw_text: Ensembl Compara v109 API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:33:46Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Fallback to sequence proxies when 3D structures are unavailable
+  claim_id: c_e4bbfb66
+  context: 'In response to review concerns regarding molecular shape and electrostatics,
+    and authorized by FR-018, the system MUST implement a Quantitative Structural
+    Proxy including: (1) Change in Solvent-Accessible Surface Area (SASA) for mutated
+    residues calculated via `prody` (probe radius 1.4A) on predicted or available
+    3D structures; (2) Hydrogen-bonding potential scores (donor/acceptor counts);
+    (3) Electrostatic potential maps derived from residue charge distributions; (4)
+    Steric hindrance estimates based on side-chain volume. All metrics must be computed
+    to within 0.5 angstrom precision where applicable. If 3D structures are unavailable,
+    the system MUST default to sequence-based proxies (AAC, Hydrophobicity) and log
+    the limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_sequence_proxies_when_3D_structures_are_unavaila
+  kind: entity_fact
+  raw_text: If 3D structures are unavailable, the system MUST default to sequence-based
+    proxies (AAC, Hydrophobicity) and log the limitation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:34:19Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: SASA calculation probe radius
+  claim_id: c_232413b7
+  context: 'In response to review concerns regarding molecular shape and electrostatics,
+    and authorized by FR-018, the system MUST implement a Quantitative Structural
+    Proxy including: (1) Change in Solvent-Accessible Surface Area (SASA) for mutated
+    residues calculated via `prody` (probe radius 1.4A) on predicted or available
+    3D structures; (2) Hydrogen-bonding potential scores (donor/acceptor counts);
+    (3) Electrostatic potential maps derived from residue charge distributions; (4)
+    Steric hindrance estimates based on side-chain volume. All metrics must be computed
+    to within 0.5 angstrom precision where applicable.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The Shrake\u2013Rupley algorithm is a numerical method that draws a\
+        \ mesh of points equidistant from each atom of the molecule and uses the number\
+        \ of these points that are solvent accessible to determine the surface area.\
+        \ The points are drawn at a water molecule's estimated radius beyond the van\
+        \ der Waals radius, which is effectively similar to 'rolling a ball' along\
+        \ the surface. All points are checked against the surface of neighboring atoms\
+        \ to determine whether they are buried or accessible. The number of points\
+        \ accessible is multiplied by the portion of surface area each point represents\
+        \ to calculate the ASA. The choice of the 'probe radius' does have an effect\
+        \ on the observed surface area, as using a smaller probe radius detects more\
+        \ surface details and therefore reports a larger surface. A typical value\
+        \ is 1.4\xC5, which approximates the radius of a water molecule. Another factor\
+        \ that affects the results is the definition of the VDW radii of the atoms\
+        \ in the molecule under study. For example, the molecule may often lack hydrogen\
+        \ atoms, which are implicit in the structure. The hydrogen atoms may be implicitly\
+        \ included in the atomic radii of the 'heavy' atoms, with a measure called\
+        \ the 'group radii'. In addition, the number of points created on the van\
+        \ der Waals surface of each atom determines another aspect of discretization,\
+        \ where more points provide an increased level of detail."
+      source_id: Accessible surface area
+      url: https://en.wikipedia.org/wiki/Accessible_surface_area
+      value: "1.4\xC5"
+    filled: true
+  kind: numeric
+  raw_text: probe radius 1.4A
+  resolved_value: "1.4\xC5"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T07:34:28Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Precision of structural metric calculations
+  claim_id: c_d9a33cb1
+  context: 'In response to review concerns regarding molecular shape and electrostatics,
+    and authorized by FR-018, the system MUST implement a Quantitative Structural
+    Proxy including: (1) Change in Solvent-Accessible Surface Area (SASA) for mutated
+    residues calculated via `prody` (probe radius 1.4A) on predicted or available
+    3D structures; (2) Hydrogen-bonding potential scores (donor/acceptor counts);
+    (3) Electrostatic potential maps derived from residue charge distributions; (4)
+    Steric hindrance estimates based on side-chain volume. All metrics must be computed
+    to within 0.5 angstrom precision where applicable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All metrics must be computed to within 0.5 angstrom precision where applicable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:35:08Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer size restriction
+  claim_id: c_671aeef3
+  context: FR-003 requirement for k=3,4,5,6 is overridden by FR-018 and Plan constraints.
+    The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure CPU tractability
+    and Debiased Lasso validity in the HDLSS regime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: k=3 and k=4 ONLY
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:35:44Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Minimum sample size after filtering
+  claim_id: c_7f9450a3
+  context: 'Implement `src/preprocess.py` function `filter_samples(merged_df: pd.DataFrame)
+    -> pd.DataFrame` that removes rows with missing strain links and ensures >=30
+    samples remain. Abort if <30 per FR-013.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '>=30 samples remain'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:36:25Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Number of permutations in permutation test
+  claim_id: c_545555bc
+  context: 'Implement `src/model.py` function `run_full_permutation_test(model: Model,
+    X_test: DataFrame, y_test: Series, n_shuffles: int=1000) -> float`. Mandatory:
+    Execute exactly 1,000 permutations as per Spec FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:37:11Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer extraction restricted to k=3 and k=4
+  claim_id: c_1353da99
+  context: FR-003 requirement for k=3,4,5,6 is overridden by FR-018 and Plan constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure
+    CPU tractability and Debiased Lasso validity in the HDLSS regime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:47:32Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: structural metrics computed to 0.5 angstrom precision
+  claim_id: c_1a7465b8
+  context: In response to review concerns regarding molecular shape and electrostatics,
+    and authorized by FR-018, the system MUST implement a Quantitative Structural
+    Proxy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All metrics must be computed to within 0.5 angstrom precision where applicable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:47:32Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if >10% of samples lack valid strain link
+  claim_id: c_d4dd3dff
+  context: 'CRITICAL VALIDATION: Before generating the manifest, check the GEO metadata.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ABORT with fatal error if >10% of initial candidate samples lack a valid
+    virus_strain_accession link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:47:32Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if >10% ortholog mapping fails for non-human/mouse samples
+  claim_id: c_4a3e12a4
+  context: Calculate missing_count / total_initial_samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ABORT with fatal error if ortholog mapping fails for >10% of non-human/mouse
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:47:33Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if sample count < 30
+  claim_id: c_ccbb1c90
+  context: Implement src/preprocess.py function filter_samples that removes rows with
+    missing strain links and ensures >=30 samples remain.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if <30 samples remain after filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:47:33Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: SASA calculation accuracy within 0.1 angstrom squared tolerance
+  claim_id: c_eecc99c7
+  context: Unit test verifying that the SASA calculation matches known geometric standards
+    for a test peptide (e.g., Glycine-Alanine repeat).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the SASA calculation matches known geometric standards for\
+    \ a test peptide within 0.1 angstrom\xB2 tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:48:09Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: test strains count must be >= 5
+  claim_id: c_f2a448ee
+  context: Shuffles unique strain IDs using SEED=42, assigns a subset to test, rest
+    to train.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert len(test_strains_actual) >= 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:48:30Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: cap permutation shuffles at 3.5 hours runtime limit
+  claim_id: c_9e7c8c0c
+  context: This ensures the test runs as many permutations as possible within the
+    limit, capping at 1000, rather than aborting.
+  evidence:
+    asserted: '3.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If estimated_total_time > 3.5 hours, set n_shuffles to min(1000, floor(3.5
+    hours / pilot_duration)).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T07:48:30Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: top 5 features defined as influential
+  claim_id: c_5dc3cb8f
+  context: Generate partial dependence plots for top-ranked features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define influential features as top 5 ranked by absolute coefficient magnitude.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:49:26Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: line coverage > 80 percent for src modules
+  claim_id: c_9f943283
+  context: Run pytest --cov on src/ and tests/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify coverage report exists and indicates >80% line coverage for src/
+    modules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:49:26Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: total runtime < 4 hours on 2-core runner
+  claim_id: c_cbee2deb
+  context: Profile src/main.py. Optimize loops and I/O.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total runtime < 4 hours on the 2-core GitHub Actions runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T07:49:26Z'

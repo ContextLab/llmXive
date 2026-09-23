@@ -103,6 +103,6 @@ A researcher wants to understand which viral features drive the predictions and 
 - The pipeline assumes complete genomes exist in NCBI Virus for all targeted viruses.  
 - The pipeline requires explicit, machine-readable metadata linking samples to virus strains.  
 - The predefined ISG gene set is validated for the host species.  
-- Researchers have access to a Linux‑based compute node with at least 8 CPU cores, 32 GB RAM, and internet connectivity for data download.  
+- Researchers have access to a Linux‑based compute node with at least CPU cores, 32 GB RAM, and internet connectivity for data download.  
 - All third‑party tools (Biopython, scikit-learn, ESM-1b, edgeR) are available in the provided conda environment with pinned versions.  
 - No additional experimental validation (e.g., wet‑lab assays) is required for this computational study; conclusions are limited to associational inference.
