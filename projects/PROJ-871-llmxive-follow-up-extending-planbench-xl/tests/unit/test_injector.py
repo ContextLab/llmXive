@@ -3,8 +3,9 @@ import os
 import tempfile
 from pathlib import Path
 import pytest
+import random
 
-# Add parent to path for imports if running standalone, though usually handled by test runner
+# Add parent to path for imports if running standalone
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -107,11 +108,6 @@ def test_inject_failures_adds_flag(sample_success_data):
     
     for record in result:
         assert "injected_error" in record, "injected_error flag must be present."
-        # At least some should be True given ratio=1.0 and multiple success tasks
-        if record["ground_truth"] == "success" or record["ground_truth"] is True:
-            # We can't guarantee 100% injection if the random sample logic is weird,
-            # but with ratio=1.0 and 4 success tasks, we expect at least 1.
-            pass 
     
     # Check that at least one was injected (since we have multiple success tasks)
     injected_count = sum(1 for r in result if r.get("injected_error", False))

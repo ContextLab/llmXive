@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/695cd12d178e60042960dd55/24b498fbbe038bde36fd39635fa1667af856c93567f5246eda742d47dd13b720?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783934066&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk1Y2QxMmQxNzhlNjAwNDI5NjBkZDU1LzI0YjQ5OGZiYmUwMzhiZGUzNmZkMzk2MzVmYTE2NjdhZjg1NmM5MzU2N2Y1MjQ2ZWRhNzQyZDQ3ZGQxM2I3MjBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkzNDA2Nn19fV19&Signature=MEUCIFaeASPeqb7W5J1cQ7-IvD-7RF-p93zxUqhDKM5QQRYpAiEAuLNf5mMCqUQAP3gRwlQlPqxsSV53lpVacWgnLDas7m8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-13T08:14:23.230122Z'
+- artifact_hash: ea7df183b2a5ac03b46a94c634c4c05ddaf4f139b1d1eee436d30e32bb3e2489
+  artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Rhythm 0 - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Rhythm_0
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Rhythm_0
+  verified_at: '2026-09-23T12:48:35.574684Z'

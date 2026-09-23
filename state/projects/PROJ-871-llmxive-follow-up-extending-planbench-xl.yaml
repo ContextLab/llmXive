@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T13:37:44.752337Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-871-llmxive-follow-up-extending-planbench-xl
-last_run_id: 16c89f76-9e24-42e4-a860-d34273a59a4d
+last_run_id: 87e258cc-b9de-4934-bd83-1e6c4c1caf7b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl
 title: 'llmXive follow-up: extending "PlanBench-XL: Evaluating Long-Horizon Planning
   of LLM Tool-Use Agents "'
-updated_at: '2026-09-19T18:39:04.620557Z'
+updated_at: '2026-09-23T12:41:34.279438Z'

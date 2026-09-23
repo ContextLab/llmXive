@@ -17,7 +17,7 @@ This project implements a comparative study to evaluate whether augmenting LLM t
 **Project Type**: Research/Computational Experiment
 **Performance Goals**: Total runtime ≤ 6 hours; Memory footprint ≤ 7 GB RAM.
 **Constraints**: No GPU/CUDA; No large-LLM fine-tuning; Deterministic signature indexing; Statistical rigor (p < 0.05, z-test only).
-**Scale/Scope**: Synthetically modified subset of PlanBench-XL (up to 327 tasks); 2 agents; 1 statistical report.
+**Scale/Scope**: Synthetically modified subset of PlanBench-XL (up to 327 tasks); 2 agents; statistical report.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

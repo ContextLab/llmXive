@@ -1,4 +1,6 @@
 import os
+import random
+import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -7,6 +9,7 @@ from typing import Dict, Any, Optional
 # In the deployed structure: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/
 # This script runs from code/, so we look for the project root.
 _PROJECT_ROOT = None
+_CONFIG_CACHE: Dict[str, Any] = {}
 
 def get_project_root() -> Path:
     global _PROJECT_ROOT
@@ -53,17 +56,57 @@ def get_hyperparameter(key: str, default: Any = None) -> Any:
     Retrieve a hyperparameter from the configuration.
     In a real system, this might read from a config.yaml or env vars.
     For now, it returns defaults or environment variables.
+    Supports deterministic seeding via environment variables or defaults.
     """
-    env_val = os.getenv(f"LLMXIVE_{key.upper()}")
+    env_key = f"LLMXIVE_{key.upper()}"
+    env_val = os.getenv(env_key)
     if env_val is not None:
+        # Attempt to cast to appropriate type if possible
+        if key in ("max_tokens", "seed"):
+            try:
+                return int(env_val)
+            except ValueError:
+                pass
+        elif key in ("temperature", "probability"):
+            try:
+                return float(env_val)
+            except ValueError:
+                pass
         return env_val
+
     defaults = {
         "max_tokens": 512,
         "temperature": 0.7,
         "model": "llama-3-8b-quantized",
         "seed": 42,
+        "cpu_only": True,
+        "batch_size": 1,
+        "max_retries": 3,
+        "retry_delay_base": 1.0,
     }
     return defaults.get(key, default)
+
+def set_deterministic_seed(seed: Optional[int] = None) -> None:
+    """
+    Initialize all random number generators with a deterministic seed.
+    If seed is None, retrieves it from config (env or default).
+    This ensures reproducibility across runs.
+    """
+    if seed is None:
+        seed = get_hyperparameter("seed")
+    
+    # Set seed for Python's random module
+    random.seed(seed)
+    
+    # Set seed for NumPy
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
+
+    # Store in cache for potential retrieval by other modules
+    _CONFIG_CACHE["current_seed"] = seed
 
 def ensure_dirs_exist() -> None:
     """

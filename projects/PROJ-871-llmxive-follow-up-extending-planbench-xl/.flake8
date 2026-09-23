@@ -1,6 +1,13 @@
 [flake8]
-max-line-length = 88
-extend-ignore = E203, E266, W503
-exclude = .git,__pycache__,venv,build,dist,.eggs
+max-line-length = 120
+extend-ignore = E203, W503
+exclude = .git,__pycache__,venv,data,.eggs,*.egg-info
 per-file-ignores =
-    __init__.py:F401
+    # Allow imports in __init__.py
+    */__init__.py:F401
+    # Allow unused imports in test files (pytest fixtures)
+    tests/*:F401
+inline-quotes = double
+multiline-quotes = double
+docstring-quotes = double
+max-complexity = 15

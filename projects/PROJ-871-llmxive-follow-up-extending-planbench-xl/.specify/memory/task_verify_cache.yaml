@@ -1,3 +1,80 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
+    directory or its `code/`, `data/`, `tests/` subfolders (and their subfolders from
+    `plan.md`) was provided. The implementer did not supply any filesystem artifact
+    confirming the project structure was created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No .gitignore file content or confirmation of its existence at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
+    is provided; thus the required artifact is missing.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No virtual environment directory or any files were presented at the specified\
+    \ path, so the required artifact does not exist. The task\u2019s core requirement\u2014\
+    creating a Python venv in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`\u2014\
+    is unmet."
+T002b:
+  c: false
+  h: 94937f1337c374e700449f4e3b14426d5bf5980447d23eb4dd10fce11ebca3b1
+  r: The required `requirements.txt` file at the specified path is missing, so no
+    dependencies could be installed into the virtual environment. Without this artifact
+    the task cannot be considered fulfilled.
+T002c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., screenshots, command output, or logs) showing that a virtual
+    environment was activated and that `python --version` and `pip list` were run
+    and verified is provided. The required artifact is missing, so the task is not
+    satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ config, pre\u2011commit hooks) are present in the indicated project directory,\
+    \ and no evidence of them being set up is provided. The task requires actual configuration\
+    \ of flake8 and black, which is missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results`\
+    \ directories or a `.gitignore` file was presented. The implementer\u2019s claim\
+    \ lacks the actual artifacts, so the task is not satisfied."
+T009a:
+  c: false
+  h: 867e001611a9cd9324cd7fb1cd0813602aaed29e37e854977cc57c00851ef608
+  r: "The repository contains `code/dataset/injector.py`, but the file is truncated\
+    \ and does not show the full implementation (e.g., writing the injected records\
+    \ to `data/derived/implicit_failure_subset.jsonl`). Moreover, the required output\
+    \ file `data/derived/implicit_failure_subset.jsonl` is absent. The task\u2019\
+    s core deliverable \u2013 a saved JSONL subset with injected error flags \u2013\
+    \ is therefore missing."
+T009b:
+  c: false
+  h: 38cd4f2e95f072e617826eee2b556e07355fe2d54f3b258002dc9acb3b2e6c11
+  r: "The provided `code/dataset/indexer.py` is truncated and never writes a `failure_signatures.json`\
+    \ file, nor does it enforce the required `\"recovery_strategy\": \"replan\"` schema.\
+    \ Moreover, the required input file `data/derived/implicit_failure_subset.jsonl`\
+    \ and the output file `data/derived/failure_signatures.json` are absent. Consequently\
+    \ the implementation does not fulfill the task\u2019s specifications."
+T011:
+  c: false
+  h: 4342c86912f585d0263daeac2dc8c8ba6ac6f5a1f1565aa6fbe72985e520d792
+  r: "The integration test file exists but does not load or reference the required\
+    \ `data/derived/implicit_failure_subset.jsonl`; instead it uses an in\u2011test\
+    \ fabricated dataset. Moreover, the specified JSONL file is missing from the repository.\
+    \ The constraint to use that data source is therefore unmet."
+T014:
+  c: true
+  h: d1b199ebfef919b2f86a6490b9e4bbddb133cee52f8ad9be9547d4625e5f7df6
+  r: "The repository contains `tests/unit/test_isolation.py` with a `test_no_signature_access`\
+    \ that statically scans `baseline.py` for any reference to `data/derived/failure_signatures.json`\
+    \ (or related patterns) and fails if found, fulfilling the isolation validation\
+    \ requirement. The test file is non\u2011empty and correctly located for the project\u2019\
+    s test suite."
 T018:
   c: false
   h: 1d0d3134a7641c9dc115ca61a95ef7467b86b0e36660e6ae66b6c0c9424b3dcd
@@ -29,13 +106,6 @@ T025:
     \ bug) and the required output file `data/results/final_report.json` does not\
     \ exist. The task\u2019s required artifact is missing and the implementation is\
     \ not functional."
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The required file `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/run_experiment.py`
-    is not present (or is empty) in the repository, so no orchestrating code for loading
-    data, indexing signatures, running baseline and augmented agents, performing analysis,
-    or generating a report exists. The task therefore remains unfinished.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

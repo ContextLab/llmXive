@@ -1,26 +1,29 @@
-.PHONY: lint format check install-dev test
-
-install-dev:
-    pip install -e ".[dev]"
-    # If using the explicit requirements from T001b:
-    # pip install -r requirements.txt
-    # pip install flake8 black isort pre-commit pytest
+.PHONY: lint format test clean
 
 lint:
-    flake8 code/ tests/
-    isort --check-only code/ tests/
+	flake8 code/ tests/
+	isort --check-only code/ tests/
 
 format:
-    black code/ tests/
-    isort code/ tests/
-
-check: lint
+	black code/ tests/
+	isort code/ tests/
 
 test:
-    pytest tests/ -v
+	pytest tests/ -v
 
-pre-commit-install:
-    pre-commit install
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyo" -delete
+	find . -type f -name "*.pyd" -delete
+	find . -type f -name ".coverage" -delete
+	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 
-pre-commit-run:
-    pre-commit run --all-files
+install-dev:
+	pip install -e ".[dev]"
+	pre-commit install
+
+update-hooks:
+	pre-commit autoupdate
+	pre-commit install
