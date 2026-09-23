@@ -1,386 +1,377 @@
+"""
+Mixed-Effects Model Analysis with Residual Normality Checks and Transformations.
+
+This script runs a linear mixed effects model with random intercepts, age/education
+as covariates, and checks the residuals for normality. If the residuals are not
+normally distributed, it attempts log or square-root transformations and re-runs
+the model.
+
+Output: data/processed/mixed_effects_results.json
+"""
 import os
 import sys
 import json
 import argparse
 import warnings
+import logging
 from pathlib import Path
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
 from statsmodels.formula.api import mixedlm
-from statsmodels.stats.diagnostic import lilliefors
 from scipy import stats
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 def get_project_root():
-    """Return the project root directory."""
+    """Get the project root directory."""
     return Path(__file__).resolve().parent.parent.parent
 
 def load_wide_data_for_mixed(input_path):
     """
-    Load wide-format data for mixed-effects modeling.
+    Load wide-format data for mixed effects analysis.
     
     Args:
-        input_path: Path to the cleaned wide-format CSV.
+        input_path: Path to the wide-format CSV file.
         
     Returns:
-        DataFrame with participant-level data in wide format.
+        pd.DataFrame: Wide-format dataframe.
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
     df = pd.read_csv(input_path)
+    logger.info(f"Loaded data with {len(df)} participants from {input_path}")
     
-    # Verify required columns exist
-    required_cols = ['participant_id', 'credibility_professional', 'credibility_minimalist', 
-                    'credibility_low_quality', 'credibility_neutral', 
-                    'education', 'age']
+    # Ensure numeric columns are numeric
+    numeric_cols = ['credibility_professional', 'age', 'education']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-        
     return df
 
-def run_mixed_effects_model(df, dependent_var='credibility_professional', 
-                           random_effect='participant_id', 
-                           fixed_effects=['condition', 'age', 'education'],
-                           max_retries=5):
+def run_mixed_effects_model(df, formula, dependent_var, random_var='participant_id'):
     """
-    Run a linear mixed effects model with convergence checking and retry logic.
+    Run a linear mixed effects model.
     
     Args:
         df: DataFrame with the data.
+        formula: Model formula string.
         dependent_var: Name of the dependent variable column.
-        random_effect: Name of the random effect grouping variable.
-        fixed_effects: List of fixed effect variable names.
-        max_retries: Maximum number of optimization attempts.
+        random_var: Name of the random effect grouping variable.
         
     Returns:
-        Dictionary with model results, convergence status, and retry history.
+        dict: Model results including coefficients, p-values, and convergence status.
     """
-    # Prepare data
-    # For mixed effects, we need long format
-    # First, create a long-format dataframe
-    conditions = ['professional', 'minimalist', 'low_quality', 'neutral']
-    condition_cols = {
-        'professional': 'credibility_professional',
-        'minimalist': 'credibility_minimalist', 
-        'low_quality': 'credibility_low_quality',
-        'neutral': 'credibility_neutral'
-    }
-    
-    long_df = df.melt(
-        id_vars=['participant_id', 'age', 'education'],
-        value_vars=list(condition_cols.values()),
-        var_name='original_col',
-        value_name='rating'
-    )
-    
-    # Map original column names to condition names
-    reverse_map = {v: k for k, v in condition_cols.items()}
-    long_df['condition'] = long_df['original_col'].map(reverse_map)
-    
-    # Drop rows with missing ratings
-    long_df = long_df.dropna(subset=['rating'])
-    
-    if len(long_df) == 0:
+    if df[dependent_var].isna().all():
+        logger.warning(f"All values for {dependent_var} are NaN. Skipping model.")
         return {
-            'status': 'ERROR',
-            'message': 'No valid data after melting',
-            'converged': False,
-            'retry_history': []
+            "status": "skipped",
+            "reason": "All NaN values",
+            "dependent_var": dependent_var
         }
     
-    # Build formula
-    fixed_formula = f"{dependent_var} ~ condition + age + education"
-    if dependent_var == 'rating':
-        fixed_formula = "rating ~ condition + age + education"
+    # Drop rows with NaN in dependent variable or formula columns
+    model_df = df.dropna(subset=[dependent_var] + [col.strip().split(' ')[0] for col in formula.split('+') if col.strip()])
     
-    results_history = []
-    final_result = None
-    converged = False
+    if len(model_df) < 10:
+        logger.warning(f"Not enough data points ({len(model_df)}) for mixed effects model.")
+        return {
+            "status": "skipped",
+            "reason": f"Insufficient data points ({len(model_df)})",
+            "dependent_var": dependent_var
+        }
     
-    # Define optimization strategies to try
-    optimizers = [
-        {'method': 'bfgs', 'options': {'maxiter': 1000}},
-        {'method': 'newton', 'options': {'maxiter': 1000}},
-        {'method': 'lbfgs', 'options': {'maxiter': 1000}},
-        {'method': 'cg', 'options': {'maxiter': 1000}},
-        {'method': 'ncg', 'options': {'maxiter': 1000}}
-    ]
-    
-    # Simplified random effects structures to try if full model fails
-    random_structures = [
-        '1 | participant_id',  # Random intercept only
-        '0 + condition | participant_id'  # Random slope only
-    ]
-    
-    retry_log = []
-    
-    for attempt_idx, opt in enumerate(optimizers):
-        if attempt_idx >= max_retries:
-            break
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            model = mixedlm(f"{dependent_var} ~ {formula}", model_df, groups=model_df[random_var])
+            result = model.fit()
             
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                
-                # Try with random intercept
-                model = mixedlm(
-                    "rating ~ condition + age + education",
-                    long_df,
-                    groups=long_df["participant_id"],
-                    re_formula="1"
-                )
-                
-                result = model.fit(method=opt['method'], **opt['options'])
-                
-                # Check convergence
-                if result.converged:
-                    converged = True
-                    final_result = result
-                    retry_log.append({
-                        'attempt': attempt_idx + 1,
-                        'optimizer': opt['method'],
-                        'random_structure': 'intercept',
-                        'converged': True,
-                        'message': 'Converged successfully'
-                    })
-                    break
-                else:
-                    retry_log.append({
-                        'attempt': attempt_idx + 1,
-                        'optimizer': opt['method'],
-                        'random_structure': 'intercept',
-                        'converged': False,
-                        'message': 'Did not converge'
-                    })
-                    
-        except Exception as e:
-            retry_log.append({
-                'attempt': attempt_idx + 1,
-                'optimizer': opt['method'],
-                'random_structure': 'intercept',
-                'converged': False,
-                'message': f'Exception: {str(e)}'
-            })
-            continue
-    
-    # If still not converged, try simplified random structures
-    if not converged:
-        for structure_idx, re_formula in enumerate(random_structures[1:], start=len(optimizers)):
-            attempt_idx = structure_idx
-            if attempt_idx >= max_retries:
-                break
-                
+        # Check convergence
+        converged = result.converged
+        if not converged:
+            logger.warning(f"Model did not converge for {dependent_var}. Retrying with different optimizer...")
             try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    
-                    model = mixedlm(
-                        "rating ~ condition + age + education",
-                        long_df,
-                        groups=long_df["participant_id"],
-                        re_formula="1"
-                    )
-                    
-                    result = model.fit(method='bfgs', maxiter=1000)
-                    
-                    if result.converged:
-                        converged = True
-                        final_result = result
-                        retry_log.append({
-                            'attempt': attempt_idx + 1,
-                            'optimizer': 'bfgs',
-                            'random_structure': 'simplified',
-                            'converged': True,
-                            'message': 'Converged with simplified structure'
-                        })
-                        break
-                    else:
-                        retry_log.append({
-                            'attempt': attempt_idx + 1,
-                            'optimizer': 'bfgs',
-                            'random_structure': 'simplified',
-                            'converged': False,
-                            'message': 'Did not converge with simplified structure'
-                        })
+                result = model.fit(method='bfgs')
+                converged = result.converged
+                if not converged:
+                    result = model.fit(method='newton')
+                    converged = result.converged
             except Exception as e:
-                retry_log.append({
-                    'attempt': attempt_idx + 1,
-                    'optimizer': 'bfgs',
-                    'random_structure': 'simplified',
-                    'converged': False,
-                    'message': f'Exception: {str(e)}'
-                })
-    
-    # Extract results
-    if final_result is not None:
-        # Get coefficients
-        params = final_result.params.to_dict()
-        cov = final_result.cov_params()
+                logger.warning(f"Retrying with different optimizers failed: {e}")
         
-        # Get fixed effects
-        fixed_effects_results = {}
-        for var in ['condition[T.minimalist]', 'condition[T.low_quality]', 
-                   'condition[T.neutral]', 'age', 'education']:
-            if var in params:
-                fixed_effects_results[var] = {
-                    'coef': params[var],
-                    'std_err': cov.loc[var, var] if var in cov.index else None,
-                    't_value': final_result.tvalues[var] if var in final_result.tvalues.index else None,
-                    'p_value': final_result.pvalues[var] if var in final_result.pvalues.index else None
-                }
-        
-        # Get random effects variance
-        random_var = final_result.random_effects
-        
-        return {
-            'status': 'SUCCESS' if converged else 'UNCONVERGED',
-            'converged': converged,
-            'retry_history': retry_log,
-            'fixed_effects': fixed_effects_results,
-            'random_effects_variance': {k: float(v) if not isinstance(v, (int, float)) else v 
-                                       for k, v in final_result.cov_re.to_dict().items()} if hasattr(final_result, 'cov_re') else None,
-            'log_likelihood': float(final_result.llf),
-            'aic': float(final_result.aic),
-            'bic': float(final_result.bic),
-            'n_obs': int(len(long_df)),
-            'n_groups': int(len(long_df['participant_id'].unique()))
+        # Extract results
+        results_dict = {
+            "status": "converged" if converged else "unconverged",
+            "dependent_var": dependent_var,
+            "formula": f"{dependent_var} ~ {formula}",
+            "random_var": random_var,
+            "n_observations": len(model_df),
+            "coefficients": {},
+            "p_values": {},
+            "convergence_status": "converged" if converged else "failed"
         }
-    else:
+        
+        for param_name, param_value in result.params.items():
+            # Skip the intercept for p-value extraction if it's the group variance
+            if param_name != 'group':
+                results_dict["coefficients"][param_name] = float(param_value)
+                # Get p-value if available
+                try:
+                    p_val = result.pvalues[param_name]
+                    results_dict["p_values"][param_name] = float(p_val)
+                except KeyError:
+                    results_dict["p_values"][param_name] = None
+        
+        # Add AIC/BIC if available
+        try:
+            results_dict["AIC"] = float(result.aic)
+            results_dict["BIC"] = float(result.bic)
+        except:
+            pass
+        
+        return results_dict
+        
+    except Exception as e:
+        logger.error(f"Error running mixed effects model for {dependent_var}: {e}")
         return {
-            'status': 'UNCONVERGED',
-            'converged': False,
-            'retry_history': retry_log,
-            'message': 'Model failed to converge after all retry attempts',
-            'fixed_effects': {},
-            'random_effects_variance': None,
-            'log_likelihood': None,
-            'aic': None,
-            'bic': None,
-            'n_obs': int(len(long_df)),
-            'n_groups': int(len(long_df['participant_id'].unique())) if len(long_df) > 0 else 0
+            "status": "error",
+            "reason": str(e),
+            "dependent_var": dependent_var
         }
 
-def check_residual_normality(model_result, long_df):
+def check_residual_normality(model_result, df, formula, dependent_var, random_var='participant_id'):
     """
     Check residuals for normality using Shapiro-Wilk test.
     
     Args:
-        model_result: Fitted mixed effects model result.
-        long_df: Long format dataframe used for modeling.
+        model_result: The fitted model result.
+        df: DataFrame with the data.
+        formula: Model formula string.
+        dependent_var: Name of the dependent variable.
+        random_var: Name of the random effect grouping variable.
         
     Returns:
-        Dictionary with normality test results.
+        tuple: (shapiro_statistic, shapiro_pvalue, is_normal)
     """
     try:
         # Get residuals
+        # Note: We need to calculate residuals manually if not directly available
+        model_df = df.dropna(subset=[dependent_var] + [col.strip().split(' ')[0] for col in formula.split('+') if col.strip()])
+        
+        # Predict values
+        X = sm.model._formula_interpret_formula(f"{dependent_var} ~ {formula}", model_df)
+        beta = model_result.params
+        
+        # Calculate residuals
+        # This is a simplified approach; in practice, statsmodels provides residuals
         residuals = model_result.resid
         
         # Shapiro-Wilk test
         stat, p_value = stats.shapiro(residuals)
+        is_normal = p_value >= 0.05
         
-        return {
-            'test': 'Shapiro-Wilk',
-            'statistic': float(stat),
-            'p_value': float(p_value),
-            'is_normal': p_value > 0.05,
-            'n_residuals': len(residuals)
-        }
+        logger.info(f"Shapiro-Wilk test for {dependent_var}: W={stat:.4f}, p={p_value:.4f}, Normal={is_normal}")
+        
+        return stat, p_value, is_normal
+        
     except Exception as e:
-        return {
-            'test': 'Shapiro-Wilk',
-            'error': str(e),
-            'is_normal': None
-        }
+        logger.warning(f"Could not compute residuals for normality test: {e}")
+        return None, None, None
 
 def transform_variable(df, column, method='log'):
     """
-    Apply transformation to a variable.
+    Transform a variable using log or square-root transformation.
     
     Args:
         df: DataFrame.
         column: Column name to transform.
-        method: Transformation method ('log', 'sqrt', 'boxcox').
+        method: 'log' or 'sqrt'.
         
     Returns:
-        Transformed DataFrame.
+        pd.Series: Transformed series.
     """
-    df_transformed = df.copy()
-    
     if method == 'log':
         # Add small constant to avoid log(0)
-        df_transformed[column] = np.log1p(df_transformed[column])
+        transformed = np.log1p(df[column])
     elif method == 'sqrt':
-        df_transformed[column] = np.sqrt(df_transformed[column])
-    elif method == 'boxcox':
-        # Box-Cox requires positive values
-        min_val = df_transformed[column].min()
-        if min_val <= 0:
-            df_transformed[column] = df_transformed[column] - min_val + 1
-        df_transformed[column], _ = stats.boxcox(df_transformed[column])
+        transformed = np.sqrt(df[column])
+    else:
+        raise ValueError(f"Unknown transformation method: {method}")
     
-    return df_transformed
+    return transformed
 
 def main():
-    """Main entry point for mixed effects analysis."""
-    parser = argparse.ArgumentParser(description='Run mixed effects model with convergence checking')
-    parser.add_argument('--input', type=str, required=True, 
-                      help='Path to input wide-format CSV')
-    parser.add_argument('--output', type=str, required=True,
-                      help='Path to output JSON results file')
-    parser.add_argument('--dep-var', type=str, default='rating',
-                      help='Dependent variable name (default: rating)')
-    
+    parser = argparse.ArgumentParser(description="Run mixed effects model with residual checks")
+    parser.add_argument("--input", type=str, required=True, help="Path to wide-format input CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON file")
+    parser.add_argument("--formula", type=str, default="condition + age + education", help="Model formula (excluding dependent variable)")
+    parser.add_argument("--random", type=str, default="participant_id", help="Random effect grouping variable")
     args = parser.parse_args()
-    
+
     project_root = get_project_root()
+    input_path = Path(args.input)
     
-    # Ensure output directory exists
+    if not input_path.is_absolute():
+        input_path = project_root / args.input
+    
     output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Loading data from {args.input}...")
+    if not output_path.is_absolute():
+        output_path = project_root / args.output
+
+    logger.info(f"Loading data from {input_path}...")
     try:
-        df = load_wide_data_for_mixed(args.input)
+        df = load_wide_data_for_mixed(str(input_path))
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
+        logger.error(str(e))
         sys.exit(1)
+
+    # Define dependent variables to analyze
+    dependent_vars = ['credibility_professional', 'credibility', 'professionalism']
     
-    print(f"Running mixed effects model with convergence checking...")
-    
-    # Run model with convergence retry logic
-    results = run_mixed_effects_model(
-        df,
-        dependent_var=args.dep_var,
-        max_retries=5
-    )
-    
-    # Check residual normality if model converged
-    if results['converged'] and results['status'] == 'SUCCESS':
-        # Re-run model to get result object for residual check
-        # (We need the actual fitted model, not just the summary)
-        # For now, we'll note that normality check would be performed
-        results['residual_normality_check'] = {
-            'note': 'Residual normality check requires re-fitting model for residual extraction',
-            'performed': False
+    results = {
+        "analysis_timestamp": datetime.now().isoformat(),
+        "input_file": str(input_path),
+        "formula": args.formula,
+        "random_effect": args.random,
+        "models": {}
+    }
+
+    for dep_var in dependent_vars:
+        if dep_var not in df.columns:
+            logger.info(f"Skipping {dep_var}: not found in data")
+            continue
+        
+        logger.info(f"Analyzing {dep_var}...")
+        
+        # Run initial model
+        model_result = run_mixed_effects_model(df, args.formula, dep_var, args.random)
+        
+        if model_result["status"] in ["skipped", "error"]:
+            results["models"][dep_var] = model_result
+            continue
+        
+        # Check residual normality
+        shapiro_stat, shapiro_p, is_normal = check_residual_normality(
+            model_result, df, args.formula, dep_var, args.random
+        )
+        
+        model_results = {
+            "original_model": model_result,
+            "normality_check": {
+                "shapiro_statistic": shapiro_stat,
+                "shapiro_p_value": shapiro_p,
+                "is_normal": is_normal,
+                "threshold": 0.05
+            },
+            "transformed_model": None
         }
-    else:
-        results['residual_normality_check'] = {
-            'note': 'Skipped due to non-convergence',
-            'performed': False
-        }
-    
-    # Save results
+        
+        # If not normal, try transformations
+        if shapiro_p is not None and shapiro_p < 0.05:
+            logger.warning(f"Residuals for {dep_var} are not normally distributed (p={shapiro_p:.4f}). Attempting transformations...")
+            
+            # Try log transformation
+            log_transformed = transform_variable(df, dep_var, 'log')
+            df[f"{dep_var}_log"] = log_transformed
+            
+            log_result = run_mixed_effects_model(df, args.formula, f"{dep_var}_log", args.random)
+            
+            # Check normality of transformed residuals
+            if log_result["status"] == "converged":
+                _, log_shapiro_p, log_is_normal = check_residual_normality(
+                    log_result, df, args.formula, f"{dep_var}_log", args.random
+                )
+                
+                log_results = {
+                    "transformation": "log",
+                    "model": log_result,
+                    "normality_check": {
+                        "shapiro_p_value": log_shapiro_p,
+                        "is_normal": log_is_normal
+                    }
+                }
+                
+                # Try sqrt transformation if log didn't help
+                if not log_is_normal:
+                    sqrt_transformed = transform_variable(df, dep_var, 'sqrt')
+                    df[f"{dep_var}_sqrt"] = sqrt_transformed
+                    
+                    sqrt_result = run_mixed_effects_model(df, args.formula, f"{dep_var}_sqrt", args.random)
+                    
+                    if sqrt_result["status"] == "converged":
+                        _, sqrt_shapiro_p, sqrt_is_normal = check_residual_normality(
+                            sqrt_result, df, args.formula, f"{dep_var}_sqrt", args.random
+                        )
+                        
+                        sqrt_results = {
+                            "transformation": "sqrt",
+                            "model": sqrt_result,
+                            "normality_check": {
+                                "shapiro_p_value": sqrt_shapiro_p,
+                                "is_normal": sqrt_is_normal
+                            }
+                        }
+                        
+                        # Choose the best transformation
+                        if sqrt_is_normal and (log_shapiro_p is None or not log_is_normal):
+                            model_results["transformed_model"] = sqrt_results
+                            logger.info(f"Using sqrt transformation for {dep_var}: p={sqrt_shapiro_p:.4f}")
+                        elif log_is_normal:
+                            model_results["transformed_model"] = log_results
+                            logger.info(f"Using log transformation for {dep_var}: p={log_shapiro_p:.4f}")
+                        else:
+                            model_results["transformed_model"] = {
+                                "transformation": "log",
+                                "model": log_result,
+                                "normality_check": {
+                                    "shapiro_p_value": log_shapiro_p,
+                                    "is_normal": log_is_normal
+                                }
+                            }
+                            logger.warning(f"Neither transformation achieved normality for {dep_var}. Using log.")
+                    else:
+                        model_results["transformed_model"] = log_results
+                        logger.warning(f"Sqrt transformation failed for {dep_var}. Using log.")
+                else:
+                    model_results["transformed_model"] = log_results
+                    logger.info(f"Log transformation achieved normality for {dep_var}: p={log_shapiro_p:.4f}")
+            
+            else:
+                model_results["transformed_model"] = {
+                    "transformation": "log",
+                    "model": log_result,
+                    "normality_check": {
+                        "shapiro_p_value": None,
+                        "is_normal": False,
+                        "reason": "Model did not converge"
+                    }
+                }
+                logger.warning(f"Log transformation model did not converge for {dep_var}.")
+        
+        results["models"][dep_var] = model_results
+        
+        # Clean up transformed columns
+        for col in [f"{dep_var}_log", f"{dep_var}_sqrt"]:
+            if col in df.columns:
+                del df[col]
+
+    # Write results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(results, f, indent=2)
     
-    print(f"Results saved to {args.output}")
-    print(f"Convergence status: {results['status']}")
-    
-    if not results['converged']:
-        print("WARNING: Model did not converge. Check retry_history for details.")
-        print("Retrying with different optimizers or simplified structures may be needed.")
+    logger.info(f"Results written to {output_path}")
+    print(f"Analysis complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()
