@@ -1,119 +1,133 @@
 """
-Smoke test script to verify the full pipeline on exactly 3 datasets:
-one from each size bin (<1k, 1k-10k, >10k).
+Smoke Test Script for PROJ-264
+Executes the full pipeline on exactly 3 datasets (one from each size bin)
+and verifies that all expected output artifacts are generated.
 """
 import logging
 import os
 import sys
 import json
+import time
 from pathlib import Path
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.utils import set_seed, setup_logging
 from code.data_loader import load_datasets
 from code.preprocessor import preprocess_data
-from code.evalutor import run_repeated_stratified_cv
+from code.evaluator import run_repeated_stratified_cv
 from code.analyser import run_full_analysis
 from code.report_generator import run_full_report_aggregation
 from code.results_writer import write_final_report
-from code.config import RESULTS_DIR, RAW_EVALUATIONS_FILE, STABILITY_METRICS_FILE, CORRELATION_RESULTS_FILE, PERMUTATION_RESULTS_FILE, FINAL_REPORT_FILE
 
-# Ensure results directory exists
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+# Constants
+SMOKE_DATASET_IDS = [
+    59,    # < 1k (Iris subset or similar small dataset)
+    14,    # 1k-10k (Heart-statlog)
+    1461   # > 10k (Credit-a)
+]
+# Note: IDs selected based on T050a spec: iris (59), heart-statlog (14), credit-a (1461)
+# If specific IDs change based on availability, update here.
 
-# Hardcoded dataset IDs based on typical OpenML binary classification datasets
-# These are chosen to satisfy the size constraints:
-# <1k: 2 (e.g., "breast-cancer" or similar small dataset)
-# 1k-10k: 11 (e.g., "ionosphere" or similar medium dataset)
-# >10k: 20 (e.g., "adult" or similar large dataset)
-# Note: In a real scenario, these would be dynamically selected based on T005's spectrum_report.json
-# For this smoke test, we use fixed IDs that are known to be binary classification and fit the size bins.
-# Adjust these IDs if the specific datasets are not available or do not match the size criteria.
-SMOKE_DATASET_IDS = [2, 11, 20]  # Replace with actual IDs from spectrum_report.json if available
+# Ensure paths exist
+RESULTS_DIR = Path("results")
+RESULTS_DIR.mkdir(exist_ok=True)
 
 def select_smoke_datasets():
-    """Select exactly 3 datasets: one from each size bin."""
-    # In a real implementation, this would read from data/spectrum_report.json
-    # and select based on the bins. For this smoke test, we use hardcoded IDs.
+    """Returns the hardcoded list of 3 dataset IDs."""
     return SMOKE_DATASET_IDS
 
 def verify_outputs():
-    """Verify that all required output files exist and contain valid data."""
+    """
+    Verifies that all required output files exist and contain data.
+    Returns True if all checks pass, False otherwise.
+    """
     required_files = [
-        RAW_EVALUATIONS_FILE,
-        STABILITY_METRICS_FILE,
-        CORRELATION_RESULTS_FILE,
-        PERMUTATION_RESULTS_FILE,
-        FINAL_REPORT_FILE
+        "results/raw_evaluations.csv",
+        "results/stability_metrics.csv",
+        "results/correlation_results.csv",
+        "results/permutation_results.csv",
+        "results/final_report.md"
     ]
     
+    all_valid = True
     for file_path in required_files:
-        full_path = RESULTS_DIR / file_path
-        if not full_path.exists():
-            logging.error(f"Required output file missing: {full_path}")
-            return False
+        path = Path(file_path)
+        if not path.exists():
+            logging.error(f"Missing required output file: {file_path}")
+            all_valid = False
+            continue
         
         # Check file size > 0
-        if full_path.stat().st_size == 0:
-            logging.error(f"Output file is empty: {full_path}")
-            return False
+        if path.stat().st_size == 0:
+            logging.error(f"Output file is empty: {file_path}")
+            all_valid = False
+            continue
         
-        logging.info(f"Verified: {full_path}")
+        logging.info(f"Verified: {file_path} (size: {path.stat().st_size} bytes)")
     
-    return True
+    return all_valid
 
 def main():
-    """Execute the smoke test pipeline."""
+    """Orchestrates the smoke test execution."""
     setup_logging(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    logger.info("=" * 60)
+    logger.info("Starting Smoke Test Execution (T050b)")
+    logger.info("=" * 60)
+    
+    # 1. Setup
     set_seed(42)
-    
-    logging.info("Starting smoke test pipeline...")
-    
-    # Step 1: Load datasets
-    logging.info("Loading smoke test datasets...")
     dataset_ids = select_smoke_datasets()
-    datasets = load_datasets(dataset_ids)
+    logger.info(f"Selected datasets for smoke test: {dataset_ids}")
     
-    if len(datasets) != 3:
-        logging.error(f"Expected 3 datasets, got {len(datasets)}")
+    # 2. Load Data
+    logger.info("Loading datasets...")
+    try:
+        datasets = load_datasets(dataset_ids)
+        if not datasets:
+            logger.error("No datasets loaded. Exiting.")
+            return 1
+        logger.info(f"Successfully loaded {len(datasets)} datasets.")
+    except Exception as e:
+        logger.error(f"Failed to load datasets: {e}")
         return 1
     
-    logging.info(f"Loaded {len(datasets)} datasets for smoke test.")
+    # 3. Run Evaluation
+    logger.info("Starting repeated stratified CV evaluation...")
+    start_time = time.time()
     
-    # Step 2: Run evaluation on each dataset
-    all_results = []
-    for ds in datasets:
-        ds_id = ds['dataset_id']
-        logging.info(f"Processing dataset {ds_id}...")
+    try:
+        # Run evaluation for all loaded datasets
+        # Note: run_repeated_stratified_cv is expected to return raw evaluations dataframe
+        raw_evals = run_repeated_stratified_cv(datasets)
         
-        # Preprocess
-        X, y, feature_names = preprocess_data(ds['X'], ds['y'])
+        elapsed = time.time() - start_time
+        logger.info(f"Evaluation completed in {elapsed:.2f} seconds.")
+        logger.info(f"Generated {len(raw_evals)} raw evaluation records.")
         
-        # Evaluate
-        results = run_repeated_stratified_cv(X, y, ds_id)
-        all_results.extend(results)
+        # 4. Run Analysis
+        logger.info("Running analysis (aggregation, correlation, permutation)...")
+        analysis_results = run_full_analysis(raw_evals)
+        
+        # 5. Generate Report
+        logger.info("Generating final report...")
+        report_data = run_full_report_aggregation(analysis_results)
+        write_final_report(report_data)
+        
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
+        return 1
     
-    # Write raw evaluations
-    from code.results_writer import write_raw_evaluations
-    write_raw_evaluations(all_results)
-    
-    # Step 3: Run analysis
-    logging.info("Running analysis...")
-    run_full_analysis()
-    
-    # Step 4: Generate report
-    logging.info("Generating final report...")
-    run_full_report_aggregation()
-    write_final_report()
-    
-    # Step 5: Verify outputs
+    # 6. Verify Outputs
+    logger.info("Verifying output artifacts...")
     if verify_outputs():
-        logging.info("Smoke test PASSED: All outputs verified.")
+        logger.info("Smoke Test PASSED: All outputs generated and valid.")
         return 0
     else:
-        logging.error("Smoke test FAILED: Output verification failed.")
+        logger.error("Smoke Test FAILED: Missing or invalid outputs.")
         return 1
 
 if __name__ == "__main__":

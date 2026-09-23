@@ -1,4 +1,5 @@
 import logging
+import tracemalloc
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import numpy as np
@@ -21,6 +22,23 @@ MODELS = {
     "LinearSVM": SVC(kernel="linear", random_state=42),
 }
 
+def _profile_memory(func):
+    """
+    Decorator to profile peak memory usage of a function using tracemalloc.
+    Logs the peak memory in MB to the logger.
+    """
+    def wrapper(*args, **kwargs):
+        tracemalloc.start()
+        try:
+            result = func(*args, **kwargs)
+            current, peak = tracemalloc.get_traced_memory()
+            logger.info(f"Peak memory usage in {func.__name__}: {peak / 1024 / 1024:.2f} MB")
+            return result
+        finally:
+            tracemalloc.stop()
+    return wrapper
+
+@_profile_memory
 def evaluate_model_on_splits(
     X: np.ndarray,
     y: np.ndarray,
@@ -86,6 +104,7 @@ def evaluate_model_on_splits(
         "f1_score": f1,
     }
 
+@_profile_memory
 def run_repeated_stratified_cv(
     X: np.ndarray,
     y: np.ndarray,
@@ -143,6 +162,7 @@ def run_repeated_stratified_cv(
     logger.info(f"Completed CV for dataset {dataset_id}. Generated {len(results)} records.")
     return results
 
+@_profile_memory
 def run_repeated_stratified_cv_corrected(
     X: np.ndarray,
     y: np.ndarray,

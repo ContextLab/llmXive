@@ -1841,3 +1841,322 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-19T01:31:15Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: 15 binary classification dataset IDs fixed in research.md
+  claim_id: c_ef162f77
+  context: MUST load a FIXED, pre-verified list of 15 binary classification dataset
+    IDs from research.md (Constitution Principle I).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project loads a FIXED, pre-verified list of 15 binary classification
+    dataset IDs from research.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:46:36Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: scikit-learn version requirement 1.3.0
+  claim_id: c_8f5d05f6
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    scikit-learn>=1.3.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scikit-learn version 1.3.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:46:54Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: pandas version requirement 2.0.0
+  claim_id: c_3ae485dd
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    pandas>=2.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:47:17Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: numpy version requirement 1.24.0
+  claim_id: c_a07a945d
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    numpy>=1.24.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.24.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:47:43Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: scipy version requirement 1.11.0
+  claim_id: c_a1c87c33
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    scipy>=1.11.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scipy version 1.11.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:48:01Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: openml version requirement 0.13.0
+  claim_id: c_b86ea641
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    openml>=0.13.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires openml version 0.13.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:48:17Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requests version requirement 2.31.0
+  claim_id: c_91f49f96
+  context: 'Initialize Python project with requirements.txt containing pinned versions:
+    requests>=2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires requests version 2.31.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:48:37Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Random Forest n_estimators 100
+  claim_id: c_9803e2d2
+  context: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
+    and Linear SVM
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models are configured with 100 estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:49:06Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Dataset sample size filter threshold 100
+  claim_id: c_db4b9655
+  context: filters out any datasets with n_samples < 100 (logging warnings), and produces
+    a final data/filtered_dataset_ids.json
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_filter_threshold_100
+  kind: magnitude
+  raw_text: Datasets with fewer than 100 samples are filtered out before evaluation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:50:02Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Cross-validation parameters 10 folds 10 repeats for N>=200
+  claim_id: c_f45ff9b0
+  context: 'If n_samples >= 200: use RepeatedStratifiedKFold(n_splits=10, n_repeats=10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Datasets with 200 or more samples use 10-fold repeated cross-validation
+    with 10 repeats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:50:41Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Smoke test dataset ID 14
+  claim_id: c_52567799
+  context: Use OpenML ID (iris), ID 14 (heart-statlog), and ID 1461 (credit-a) as
+    the specific fixtures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The smoke test script uses OpenML ID 14 (heart-statlog).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:50:58Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Smoke test dataset ID 1461
+  claim_id: c_0474ded1
+  context: Use OpenML ID (iris), ID 14 (heart-statlog), and ID 1461 (credit-a) as
+    the specific fixtures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The smoke test script uses OpenML ID 1461 (credit-a).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:50:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Raw evaluations row count formula 3 models 100 repeats
+  claim_id: c_e42caadd
+  context: Verify row count in results/raw_evaluations.csv matches num_selected_datasets
+    * 3 models * 100 repeats.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The smoke test validates a row count formula of num_selected_datasets
+    * 3 models * 100 repeats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:51:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime target 6 hours
+  claim_id: c_1a7ea966
+  context: 'Goal: Complete the full 15-dataset evaluation within the 6-hour timeout.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline aims to complete the full 15-dataset evaluation within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:51:36Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Network retry backoff delays 1s 2s 4s
+  claim_id: c_be33d196
+  context: retry up to 3 times with delays of 1s, 2s, 4s.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Network_retry_backoff_delays_1s_2s_4s
+  kind: entity_fact
+  raw_text: Network failure retry logic uses exponential backoff delays of 1s, 2s,
+    and 4s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:52:02Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Memory safety threshold 1GB
+  claim_id: c_6f3e93a7
+  context: If available memory < 1GB, log a warning and skip the dataset to prevent
+    OOM crashes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_safety_threshold_1GB
+  kind: magnitude
+  raw_text: The memory safety guardrail skips datasets if available memory is less
+    than 1GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:52:17Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Peak memory usage target 6GB
+  claim_id: c_226e5fe0
+  context: 'Goal: Confirm peak memory usage remains < 6GB with a safety margin for
+    the 7GB limit.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_target_6GB
+  kind: entity_fact
+  raw_text: The memory profiling goal is to keep peak RSS usage under 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:52:41Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni applied to two statistical families
+  claim_id: c_e9ba5d9f
+  context: Apply Holm-Bonferroni correction separately to Family 1 (Correlation) and
+    Family 2 (Permutation)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_applied_to_two_statistical_families
+  kind: entity_fact
+  raw_text: 'Holm-Bonferroni correction is applied to two distinct statistical families:
+    correlation and permutation.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:53:22Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Log variance calculation log(std^2)
+  claim_id: c_769fcde1
+  context: Implement aggregation logic in code/analyser.py to compute log_variance_accuracy
+    (log(std^2))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log-variance metric is calculated as the log of the squared standard
+    deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T00:53:22Z'

@@ -15,7 +15,7 @@ This feature implements a computational pipeline to assess the stability of thre
 **Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline)  
 **Target Platform**: GitHub Actions `ubuntu-latest` runner (CPU-only, 2 cores, ~7GB RAM)  
 **Project Type**: Data Science Pipeline / CLI  
-**Performance Goals**: Complete full pipeline (15 datasets × 3 models × 100 runs) within 6 hours. (Cites **SC-004**, **FR-006**)  
+**Performance Goals**: Complete full pipeline (datasets × 3 models × 100 runs) within 6 hours. (Cites **SC-004**, **FR-006**)  
 **Constraints**: No GPU usage; datasets must be streamed or sampled if >7GB RAM; no data leakage during preprocessing.  
 **Scale/Scope**: A set of binary classification datasets (OpenML source), 3 models, [deferred] total evaluation runs.
 
