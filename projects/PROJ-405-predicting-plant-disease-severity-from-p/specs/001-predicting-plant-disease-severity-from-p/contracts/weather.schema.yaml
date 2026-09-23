@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Weather Context Schema"
+description: "Schema for the intermediate weather context data derived from Open-Meteo or NOAA."
+type: "object"
+properties:
+  weather_id:
+    type: "string"
+    description: "Unique identifier for the weather record."
+  image_id:
+    type: "string"
+    description: "Foreign key linking to the image record."
+  location_lat:
+    type: "number"
+    description: "Latitude used for the query."
+  location_lon:
+    type: "number"
+    description: "Longitude used for the query."
+  query_date:
+    type: "string"
+    format: "date"
+    description: "The date of the image capture (end of the 7-day window)."
+  window_start:
+    type: "string"
+    format: "date"
+    description: "Start date of the 7-day window."
+  window_end:
+    type: "string"
+    format: "date"
+    description: "End date of the 7-day window."
+  mean_temp_7d:
+    type: "number"
+    description: "Mean temperature (°C) over the window."
+  mean_humidity_7d:
+    type: "number"
+    description: "Mean relative humidity (%) over the window."
+  total_precip_7d:
+    type: "number"
+    description: "Total precipitation (mm) over the window."
+  temp_std_7d:
+    type: "number"
+    description: "Standard deviation of temperature over the window."
+  humidity_std_7d:
+    type: "number"
+    description: "Standard deviation of humidity over the window."
+  data_source:
+    type: "string"
+    enum:
+      - "open-meteo"
+      - "noaa-ghcn"
+    description: "Source of the weather data."
+required:
+  - weather_id
+  - image_id
+  - location_lat
+  - location_lon
+  - mean_temp_7d
+  - mean_humidity_7d
+  - total_precip_7d
+  - data_source
+additionalProperties: false

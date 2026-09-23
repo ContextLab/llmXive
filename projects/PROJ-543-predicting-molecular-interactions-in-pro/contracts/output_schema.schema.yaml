@@ -1,61 +1,49 @@
-%YAML 1.1
+%YAML 1.2
 ---
 $schema: http://json-schema.org/draft-07/schema#
 title: Motif Extraction Output Schema
-description: |
-  Schema for validating outputs from User Story 3 (Motif Extraction).
-  Validates cluster statistics, significance testing, and pharmacophore alignment results.
-type: object
-required:
-  - cluster_id
-  - p_value
-  - is_significant
-  - pharmacophore_match
-  - rmsd
-
-properties:
-  cluster_id:
-    type: integer
-    description: Unique identifier for the clustered motif.
-    minimum: 0
-    
-  p_value:
-    type: number
-    format: float
-    description: Statistical p-value from the significance test (e.g., t-test or permutation).
-    minimum: 0.0
-    maximum: 1.0
-    
-  is_significant:
-    type: boolean
-    description: Whether the motif passes the significance threshold (typically p < 0.05 after FDR correction).
-    
-  pharmacophore_match:
-    type: string
-    description: |
-      Identifier or name of the matching known pharmacophore from the reference set.
-      If no match is found, this field should be an empty string "" or "none".
-      Example: "ATP_binding_pocket_helix" or "kinase hinge binder".
-    pattern: ^[a-zA-Z0-9_\- ]*$
-    
-  rmsd:
-    type: number
-    format: float
-    description: Root Mean Square Deviation (Å) between the extracted motif and the reference pharmacophore.
-    minimum: 0.0
-    maximum: 10.0
-    
-  # Optional metadata for extended analysis (not strictly required by T005 but useful for downstream)
-  atom_count:
-    type: integer
-    description: Number of atoms in the motif cluster.
-    minimum: 1
-    
-  confidence_score:
-    type: number
-    format: float
-    description: Confidence score of the attribution/clustering (0.0 to 1.0).
-    minimum: 0.0
-    maximum: 1.0
-
-additionalProperties: false
+description: >
+  Schema for validating the output of User Story 3 (Motif Extraction).
+  Defines the structure for clustered high-importance substructures,
+  their statistical significance, and pharmacophore matching results.
+type: array
+items:
+  type: object
+  required:
+    - cluster_id
+    - p_value
+    - is_significant
+    - pharmacophore_match
+    - rmsd
+  properties:
+    cluster_id:
+      type: integer
+      description: Unique identifier for the motif cluster.
+      minimum: 0
+    p_value:
+      type: number
+      description: >
+        Statistical p-value derived from the validation process 
+        (e.g., permutation test or t-test with FDR correction).
+      minimum: 0.0
+      maximum: 1.0
+    is_significant:
+      type: boolean
+      description: >
+        Flag indicating if the motif is statistically significant 
+        based on the p-value threshold (alpha=0.05).
+    pharmacophore_match:
+      type: string
+      description: >
+        ID or name of the matched pharmacophore from the reference set.
+        If no match is found, this field should be a specific null indicator 
+        (e.g., "null" or an empty string, depending on downstream parsing), 
+        but the schema expects a string type.
+        Per T039, matches are determined via Kabsch algorithm (RMSD < 1.5 Å).
+    rmsd:
+      type: number
+      description: >
+        Root Mean Square Deviation in Ångströms between the extracted motif 
+        and the matched pharmacophore reference.
+      minimum: 0.0
+  additionalProperties: false

@@ -1829,3 +1829,336 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T18:26:50Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Formula for branching density calculation
+  claim_id: c_19894498
+  context: 'Algorithm description in T013: Extract RSA traits using OpenCV/scikit-image
+    on CPU. Algorithm: skeletonize (8-connectivity) for depth/branching; find_contours
+    for surface area. Branching density = (branch_points - endpoints) / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Formula_for_branching_density_calculation
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:43:39Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halt condition for sample size N < 55
+  claim_id: c_109e3f19
+  context: 'Task T008: Implement code/power_analysis.py. Logic: Fetch species list
+    from NPPN/MGB3 and TRY. If overlap N < 55, HALT with critical error ''Insufficient
+    species for power analysis (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:43:39Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Data merge halt condition for sample size N < 55
+  claim_id: c_ef3486e9
+  context: 'Task T021: Implement code/merge_data.py. Logic: Handle missing species
+    via listwise deletion. Constraint: If sample size < 55, HALT with critical error
+    ''Insufficient species after merge (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:43:39Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression hyperparameters n_estimators=100 and max_depth=None
+  claim_id: c_df9d0c63
+  context: "Task T023c: Implement code/models.py function fit_random_forest(). Specs:\
+    \ R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent phylogenetic\
+    \ leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100 and max_depth=None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:44:06Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Classification hyperparameter n_estimators=100
+  claim_id: c_9a75aee3
+  context: 'Task T027b: If has_proxy is True, train Random Forest Classification model.
+    Specs: F1-score metric, 5-fold GroupKFold (groups=species_name), n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Classification uses n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:44:28Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers suppression of independent effect claims
+  claim_id: c_8c8c4c1a
+  context: 'Task T022: Implement code/models.py function perform_pca() to transform
+    RSA traits for collinearity handling (VIF > 5 check included). Task T026c: Implement
+    logic to explicitly suppress any claims of independent effects for predictors
+    with VIF > 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires VIF > 5 to trigger suppression of independent effect
+    claims for correlated variables.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:44:28Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime requirement of 6 hours on 2 CPU/7GB RAM
+  claim_id: c_8b8b3ce5
+  context: 'Task T034: Profile and optimize image loading to use generators; ensure
+    memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must run within 6 hours on 2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:44:51Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Memory usage limit of 7GB RAM
+  claim_id: c_59fea672
+  context: 'Task T034: Profile and optimize image loading to use generators; ensure
+    memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_of_7GB_RAM
+  kind: magnitude
+  raw_text: Memory usage must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:45:22Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 5-fold GroupKFold cross-validation with groups=species_name
+  claim_id: c_5279a81d
+  context: 'Tasks T023a and T023c: Implement model fitting functions with 5-fold GroupKFold
+    (groups=species_name) to prevent phylogenetic leakage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses 5-fold GroupKFold cross-validation with groups=species_name.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:45:59Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pandas dependency version >= 2.0.0
+  claim_id: c_5760114f
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (pandas>=2.0.0...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency pandas must be version 2.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:46:19Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: numpy dependency version >= 1.24.0
+  claim_id: c_238f0978
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., numpy>=1.24.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency numpy must be version 1.24.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:46:38Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: scikit-learn dependency version >= 1.3.0
+  claim_id: c_2a313060
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., scikit-learn>=1.3.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency scikit-learn must be version 1.3.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:46:57Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: scipy dependency version >= 1.11.0
+  claim_id: c_67ef60dd
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., scipy>=1.11.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency scipy must be version 1.11.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:47:30Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: statsmodels dependency version >= 0.14.0
+  claim_id: c_61bc026f
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., statsmodels>=0.14.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency statsmodels must be version 0.14.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:47:59Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless dependency version >= 4.8.0
+  claim_id: c_cd6daa60
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., opencv-python-headless>=4.8.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency opencv-python-headless must be version 4.8.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:48:26Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: scikit-image dependency version >= 0.21.0
+  claim_id: c_e61f737e
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., scikit-image>=0.21.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency scikit-image must be version 0.21.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:48:41Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: requests dependency version >= 2.31.0
+  claim_id: c_914591c6
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., requests>=2.31.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency requests must be version 2.31.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:03Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: huggingface_hub dependency version >= 0.16.0
+  claim_id: c_81286e96
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., huggingface_hub>=0.16.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency huggingface_hub must be version 0.16.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:20Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pytest dependency version >= 7.0.0
+  claim_id: c_78621903
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., pytest>=7.0.0, ...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency pytest must be version 7.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:36Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: networkx dependency version >= 3.0
+  claim_id: c_caa63d4c
+  context: 'Task T002: Initialize Python 3.11 project with dependencies in requirements.txt
+    (..., networkx>=3.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency networkx must be version 3.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:50:07Z'

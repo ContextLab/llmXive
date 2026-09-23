@@ -1,13 +1,13 @@
+"""
+Dependency installation script for PROJ-543.
+Reads requirements.txt and installs packages into the active virtual environment.
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
 def main():
-    """
-    Install project dependencies from requirements.txt into the current virtual environment.
-    This script is designed to be run after the virtual environment is activated.
-    """
     project_root = Path(__file__).resolve().parent.parent
     requirements_path = project_root / "code" / "requirements.txt"
 
@@ -18,7 +18,7 @@ def main():
     print(f"Installing dependencies from {requirements_path}...")
     
     try:
-        # Install pip first to ensure it's up to date
+        # Ensure pip is up to date
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
         
         # Install requirements
@@ -26,13 +26,24 @@ def main():
             sys.executable, "-m", "pip", "install", "-r", str(requirements_path)
         ])
         
-        print("Dependencies installed successfully.")
+        print("All dependencies installed successfully.")
+        
+        # Verify key packages
+        import torch
+        import rdkit
+        import datasets
+        import sklearn
+        import pandas
+        import yaml
+        from Bio import Align
+        
+        print("Verification successful: All core packages are importable.")
         
     except subprocess.CalledProcessError as e:
-        print(f"Error installing dependencies: {e}")
+        print(f"Installation failed with error code: {e.returncode}")
         sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error during installation: {e}")
+    except ImportError as e:
+        print(f"Verification failed: Could not import a required package: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

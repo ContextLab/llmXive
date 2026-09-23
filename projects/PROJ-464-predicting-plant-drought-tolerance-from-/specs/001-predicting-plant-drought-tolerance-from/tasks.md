@@ -44,7 +44,7 @@
 - [X] T005 [P] Setup logging infrastructure in `code/__init__.py`.
 - [X] T006 [P] Create base data models/entities in `code/models.py` referencing `data-model.md` schema: `RootImage` {id: str, path: str, species: str}, `RSAMetrics` {depth: float, branching_density: float, surface_area: float}, `PhysioTrait` {species: str, conductance: float, photosynthesis: float, survival_rate: float?}. Include validation rules.
 - [ ] T007 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).
-- [ ] T008 [P] Implement `code/power_analysis.py`: Calculate required sample size (N) using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}. **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT** with critical error "Insufficient species for power analysis (N < 55)". **Deliverable**: `state/power_analysis_report.yaml`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T008 [P] Implement `code/power_analysis.py`: Calculate required sample size (N) using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}. **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT** with critical error "Insufficient species for power analysis (N < 55)". **Deliverable**: `state/power_analysis_report.yaml`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,7 +59,7 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/download_images.py`: Fetch root images from `nppn/root-phenotyping` (HuggingFace ID: `nppn/root-phenotyping`) via `huggingface_hub`. **Logic**: Attempt download. If download fails (exception `RepositoryNotFoundError` or `LocalEntryNotFoundError` or empty directory), **HALT** with critical error "No real NPPN root images found. Pipeline cannot proceed." Do NOT fallback to other datasets. Ensure CPU-optimized, no GPU. Output: `data/raw/nppn_images/`.
-- [X] T013 [US1] Implement `code/preprocess_images.py`: Extract RSA traits using OpenCV/scikit-image on CPU. **Algorithm**: `skeletonize` (8-connectivity) for depth/branching; `find_contours` for surface area. Branching density = (branch_points - endpoints) / total_length. [UNRESOLVED-CLAIM: c_6e5200ae — status=not_enough_info] **Includes**: Error logging for corrupted images (skipping them gracefully) and validation logic to ensure no null values and positive numerical values for all traits in output.
+- [X] T013 [US1] Implement `code/preprocess_images.py`: Extract RSA traits using OpenCV/scikit-image on CPU. **Algorithm**: `skeletonize` (8-connectivity) for depth/branching; `find_contours` for surface area. Branching density = (branch_points - endpoints) / total_length. **Includes**: Error logging for corrupted images (skipping them gracefully) and validation logic to ensure no null values and positive numerical values for all traits in output.
 - [ ] T015 [US1] [D:T013] Generate `data/derived/rsametrics.csv` with columns: species_id, depth, branching_density, surface_area. **Includes**: Validation to ensure no null values and positive numerical values for all traits (logic merged into T013).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -87,7 +87,7 @@
 - [X] T021 [US2] [D:T015, D:T020] Implement `code/merge_data.py` to merge `rsametrics.csv` with physiological data. **Logic**: Handle missing species via listwise deletion. **Constraint**: If sample size < 55, **HALT** with critical error "Insufficient species after merge (N < 55)". Do NOT implement mean imputation for species count. **Note**: This deviates from Spec Assumptions (which allow mean imputation) per the Plan's decision to enforce stricter data hygiene; this deviation is intentional.
 - [X] T022 [US2] Implement `code/analysis.py` function `perform_pca()` to transform RSA traits for collinearity handling (VIF > 5 check included).
 - [X] T023a [US2] [D:T022] Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()` to predict stomatal conductance/photosynthesis. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, alpha search [a range of values].
-- [X] T023c [US2] [D:T022] Implement `code/models.py` function `fit_random_forest()` to predict stomatal conductance/photosynthesis using Random Forest Regression. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf. [UNRESOLVED-CLAIM: c_9b11c34d — status=not_enough_info]
+- [X] T023c [US2] [D:T022] Implement `code/models.py` function `fit_random_forest()` to predict stomatal conductance/photosynthesis using Random Forest Regression. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf.
 - [ ] T024a [US2] [D:T022] Implement `code/fetch_phylogeny.py`: Fetch phylogenetic tree from Open Tree of Life API. **Logic**: If fetch fails, **HALT immediately** with critical error "Phylogenetic tree fetch failed. PVR fallback is impossible without a tree. FR-010 violation." **Output**: `data/derived/phylogenetic_tree.newick`. **Note**: No 'equivalent' fallback is implemented per the Plan's decision to strictly enforce the tree requirement.
 - [ ] T024b [US2] [D:T024a] Implement `code/models.py` function `fit_pgl()` to perform Phylogenetic Generalized Least Squares (PGLS). **Logic**: Use `statsmodels` to fit model: `conductance ~ depth + surface_area + (phylogenetic_structure)`. Input: `data/derived/phylogenetic_tree.newick`.
 - [X] T025 [US2] Implement multiple-comparison correction (Bonferroni/FDR) in `code/analysis.py` for hypothesis testing.
@@ -116,7 +116,7 @@
 
 - [ ] T027b [US3] [D:T015, D:T022, D:T027] Implement `code/models.py` function `fit_rf_classification()` to predict the binary drought tolerance class (high/low). **Logic**:
  1. Check `state/proxy_detection.yaml` for `has_proxy` flag (from T027).
- 2. **If `has_proxy` is True**: Binarize the *proxy* variable using median split. Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold GroupKFold (groups=species_name) **, n_estimators=100. [UNRESOLVED-CLAIM: c_026341e7 — status=not_enough_info] Output: `data/derived/classification_model.pkl`.
+ 2. **If `has_proxy` is True**: Binarize the *proxy* variable using median split. Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold GroupKFold (groups=species_name) **, n_estimators=100. Output: `data/derived/classification_model.pkl`.
  3. **If `has_proxy` is False**: **SKIP** model training entirely. Do NOT binarize primary physiological metrics. This avoids circular classification. **Deliverable**: Flag `classification_skipped=True` in `state/proxy_detection.yaml` and generate `data/derived/classification_status.md` stating "Classification skipped: No independent tolerance proxy found. Sensitivity analysis will report N/A."
 - [ ] T028 [US3] [D:T023a, D:T023c, D:T027, D:T027b] Implement `code/analysis.py` function `run_sensitivity_analysis()`. **Logic**:
  1. **If `has_proxy` is True**: {{claim:c_2ad237e4}} Calculate and report variation in accuracy, precision, recall, F1, **False Positive Rate, and False Negative Rate**.
@@ -137,7 +137,7 @@
 
 - [ ] T032 [P] Documentation updates in `README.md` and `docs/`.
 - [ ] T033 Code cleanup and refactoring.
-- [ ] T034 [P] [D:T012,T013] Profile and optimize image loading to use generators; ensure memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. [UNRESOLVED-CLAIM: c_ea9bb27d — status=not_enough_info] **Logic**: Measure total pipeline runtime and log against 6h limit. **Deliverable**: Generate `docs/memory_profile.md` with peak usage <7GB and `state/runtime_profile.yaml` with total runtime. **Input Load**: Run on a representative set of images for profiling.
+- [ ] T034 [P] [D:T012,T013] Profile and optimize image loading to use generators; ensure memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. **Logic**: Measure total pipeline runtime and log against 6h limit. **Deliverable**: Generate `docs/memory_profile.md` with peak usage <7GB and `state/runtime_profile.yaml` with total runtime. **Input Load**: Run on a representative set of images for profiling.
 - [ ] T035 [P] Additional unit tests for data hygiene and checksums in `tests/unit/`.
 - [ ] T036 Run `quickstart.md` validation.
 

@@ -1,9 +1,3 @@
-"""
-Linting and formatting configuration setup for the project.
-
-This script configures flake8 and black for the project by creating
-the necessary configuration files and installing the tools.
-"""
 import subprocess
 import sys
 import os
@@ -11,46 +5,63 @@ from pathlib import Path
 
 def main():
     """
-    Set up linting (flake8) and formatting (black) tools.
+    Configure linting (flake8) and formatting (black) tools for the project.
     
-    This function:
-    1. Installs flake8 and black if not already installed
-    2. Creates a .flake8 configuration file at the project root
-    3. Creates a pyproject.toml with Black configuration if it doesn't exist
-    4. Creates a setup.cfg with additional linting rules if needed
+    This script installs flake8 and black into the active virtual environment
+    and creates a configuration file for flake8 to enforce project standards.
     """
-    project_root = Path(__file__).parent.parent
-    print(f"Setting up linting and formatting tools in {project_root}")
+    project_root = Path(__file__).resolve().parent.parent
+    code_dir = project_root / "code"
+    
+    # Ensure we are running in the correct context
+    if not code_dir.exists():
+        print(f"Error: Code directory not found at {code_dir}")
+        sys.exit(1)
+
+    print("Installing linting and formatting tools...")
     
     # Install flake8 and black
-    print("Installing flake8 and black...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "flake8", "black"])
-        print("Successfully installed flake8 and black")
+        print("Successfully installed flake8 and black.")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to install flake8 or black: {e}")
+        print(f"Failed to install dependencies: {e}")
         sys.exit(1)
+
+    # Create .flake8 configuration file in the project root
+    flake8_config_path = project_root / ".flake8"
     
-    # Create .flake8 configuration file
-    flake8_config = project_root / ".flake8"
-    if not flake8_config.exists():
-        print(f"Creating {flake8_config}")
-        flake8_config.write_text("""[flake8]
-max-line-length = 120
-extend-ignore = E203, E266, W503
-exclude = .git,__pycache__,build,dist,.venv,venv
+    config_content = """[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    build,
+    dist,
+    *.egg-info
 per-file-ignores =
+    # Allow unused imports in __init__.py for exports
     */__init__.py:F401
-max-complexity = 10
-""")
-    else:
-        print(f"{flake8_config} already exists, skipping")
+    # Allow unused arguments in tests
+    tests/*:F841
+"""
     
-    # Create or update pyproject.toml with Black configuration
-    pyproject_file = project_root / "pyproject.toml"
-    black_config_section = """
-[tool.black]
-line-length = 120
+    try:
+        with open(flake8_config_path, "w") as f:
+            f.write(config_content)
+        print(f"Created .flake8 configuration at {flake8_config_path}")
+    except IOError as e:
+        print(f"Failed to create .flake8 configuration: {e}")
+        sys.exit(1)
+
+    # Create pyproject.toml for Black configuration if it doesn't exist
+    pyproject_path = project_root / "pyproject.toml"
+    
+    black_config = """[tool.black]
+line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
@@ -58,55 +69,39 @@ exclude = '''
     \.git
   | \.venv
   | venv
+  | __pycache__
   | build
   | dist
+  | \.egg-info
 )/
 '''
 """
-    
-    if pyproject_file.exists():
-        content = pyproject_file.read_text()
-        if "[tool.black]" not in content:
-            print(f"Adding Black configuration to {pyproject_file}")
-            pyproject_file.write_text(content.rstrip() + black_config_section)
+
+    try:
+        if not pyproject_path.exists():
+            with open(pyproject_path, "w") as f:
+                f.write(black_config)
+            print(f"Created pyproject.toml with Black configuration at {pyproject_path}")
         else:
-            print(f"Black configuration already exists in {pyproject_file}")
-    else:
-        print(f"Creating {pyproject_file} with Black configuration")
-        pyproject_file.write_text(f'"""\nProject configuration for PROJ-543\n"""\n{black_config_section}')
-    
-    # Create setup.cfg with additional linting rules if it doesn't exist
-    setup_cfg = project_root / "setup.cfg"
-    if not setup_cfg.exists():
-        print(f"Creating {setup_cfg}")
-        setup_cfg.write_text("""[metadata]
-name = proj-543
-version = 0.1.0
+            # Check if [tool.black] section already exists
+            with open(pyproject_path, "r") as f:
+                content = f.read()
+            if "[tool.black]" not in content:
+                with open(pyproject_path, "a") as f:
+                    f.write("\n" + black_config)
+                print(f"Appended Black configuration to existing pyproject.toml")
+            else:
+                print("Black configuration already exists in pyproject.toml")
+    except IOError as e:
+        print(f"Failed to configure Black: {e}")
+        sys.exit(1)
 
-[options]
-packages = find:
-python_requires = >=3.11
-
-[flake8]
-max-line-length = 120
-extend-ignore = E203, E266, W503
-exclude = .git,__pycache__,build,dist,.venv,venv
-per-file-ignores =
-    */__init__.py:F401
-max-complexity = 10
-
-[isort]
-profile = black
-line_length = 120
-""")
-    else:
-        print(f"{setup_cfg} already exists, skipping")
-    
-    print("Linting and formatting configuration complete!")
-    print("\nYou can now run:")
-    print("  flake8 code/ tests/")
-    print("  black code/ tests/")
-    print("  black --check code/ tests/  # Check without modifying files")
+    print("Linting and formatting tools configured successfully.")
+    print("\nTo run linting:")
+    print(f"  cd {code_dir} && flake8 .")
+    print("\nTo run formatting:")
+    print(f"  cd {code_dir} && black .")
+    print(f"  cd {code_dir} && black --check .")
 
 if __name__ == "__main__":
     main()

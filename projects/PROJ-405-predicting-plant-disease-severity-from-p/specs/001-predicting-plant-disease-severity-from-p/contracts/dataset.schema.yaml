@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Analysis Dataset Schema"
+description: "Schema for the unified dataset combining visual features and weather context."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image record."
+  file_path:
+    type: "string"
+    description: "Relative path to the source image file."
+  disease_label:
+    type: "string"
+    description: "Class label from the PlantVillage dataset."
+  lesion_area_ratio:
+    type: "number"
+    description: "Ratio of lesion area to total leaf area (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  necrosis_color_index:
+    type: "number"
+    description: "Calculated color index for necrosis."
+  texture_entropy:
+    type: "number"
+    description: "Texture entropy derived from the lesion region."
+  location_lat:
+    type: "number"
+    description: "Latitude of the image capture location."
+    minimum: -90.0
+    maximum: 90.0
+  location_lon:
+    type: "number"
+    description: "Longitude of the image capture location."
+    minimum: -180.0
+    maximum: 180.0
+  capture_date:
+    type: "string"
+    format: "date"
+    description: "Date of image capture (YYYY-MM-DD)."
+  mean_temp_7d:
+    type: "number"
+    description: "Mean temperature (°C) over the 7 days preceding capture."
+  mean_humidity_7d:
+    type: "number"
+    description: "Mean relative humidity (%) over the 7 days preceding capture."
+  total_precip_7d:
+    type: "number"
+    description: "Total precipitation (mm) over the 7 days preceding capture."
+  visual_severity:
+    type: "number"
+    description: "The target variable for the baseline model (e.g., lesion_area_ratio)."
+  baseline_pred:
+    type: "number"
+    description: "Prediction from the baseline image-only Random Forest model."
+  residual:
+    type: "number"
+    description: "The difference between visual_severity and baseline_pred."
+required:
+  - image_id
+  - disease_label
+  - lesion_area_ratio
+  - capture_date
+  - visual_severity
+  - residual
+additionalProperties: false

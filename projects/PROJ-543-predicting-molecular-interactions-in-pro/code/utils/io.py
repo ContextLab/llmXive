@@ -3,177 +3,202 @@ import sys
 import time
 import logging
 import traceback
+import resource
 from contextlib import contextmanager
-from typing import Optional, Callable, Any, Generator
+from typing import Optional, Callable, Any
+from pathlib import Path
+from dataclasses import dataclass, field
+import json
 
-try:
-    import resource
-    import psutil
-    HAS_RESOURCE = True
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_RESOURCE = False
-    HAS_PSUTIL = False
+# Project root relative to this file (utils/io.py is in code/utils/)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# SC-005: Maximum allowed memory footprint in GB
+# Configuration constants
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FILE = "pipeline.log"
 MEMORY_LIMIT_GB = 7.0
 MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
+TIMEOUT_SECONDS = 3.5 * 3600  # 3.5 hours for T013 streaming
 
-logger = logging.getLogger(__name__)
+@dataclass
+class MemoryStats:
+    """Container for memory statistics."""
+    current_mb: float
+    peak_mb: float
+    limit_mb: float
+    timestamp: float
 
-def setup_logging(name: str = "project", log_level: int = logging.INFO) -> logging.Logger:
+    def to_dict(self) -> dict:
+        return {
+            "current_mb": self.current_mb,
+            "peak_mb": self.peak_mb,
+            "limit_mb": self.limit_mb,
+            "timestamp": self.timestamp
+        }
+
+class MemoryTracker:
     """
-    Configures a standard logger for the project.
+    Tracks memory usage over time and logs it.
+    Implements SC-005: Fail loudly if memory exceeds 7GB.
     """
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    
-    root_logger = logging.getLogger(name)
-    root_logger.setLevel(log_level)
-    root_logger.addHandler(handler)
-    
+    def __init__(self, limit_mb: float = MEMORY_LIMIT_MB, logger: Optional[logging.Logger] = None):
+        self.limit_mb = limit_mb
+        self.logger = logger or get_logger("memory_tracker")
+        self.start_time = time.time()
+        self.samples: list[MemoryStats] = []
+        self._peak_mb = 0.0
+
+    def get_current_mb(self) -> float:
+        """Get current RSS memory usage in MB."""
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_maxrss / 1024.0  # Convert KB to MB (Linux/macOS)
+
+    def sample(self) -> MemoryStats:
+        """Record a memory sample and check limits."""
+        current = self.get_current_mb()
+        if current > self._peak_mb:
+            self._peak_mb = current
+
+        stats = MemoryStats(
+            current_mb=current,
+            peak_mb=self._peak_mb,
+            limit_mb=self.limit_mb,
+            timestamp=time.time()
+        )
+        self.samples.append(stats)
+
+        if current > self.limit_mb:
+            self.logger.error(
+                f"MEMORY LIMIT EXCEEDED: Current {current:.2f} MB > Limit {self.limit_mb:.2f} MB. "
+                f"Peak was {self._peak_mb:.2f} MB. Aborting pipeline."
+            )
+            raise MemoryError(f"Memory limit exceeded: {current:.2f} MB > {self.limit_mb:.2f} MB")
+
+        self.logger.debug(f"Memory sample: {current:.2f} MB (Peak: {self._peak_mb:.2f} MB)")
+        return stats
+
+    def report(self) -> dict:
+        """Generate a summary report of memory usage."""
+        if not self.samples:
+            self.sample()
+        return {
+            "duration_seconds": time.time() - self.start_time,
+            "peak_mb": self._peak_mb,
+            "limit_mb": self.limit_mb,
+            "samples_count": len(self.samples),
+            "final_sample": self.samples[-1].to_dict() if self.samples else None
+        }
+
+def setup_logging(
+    log_file: Optional[str] = None,
+    level: int = DEFAULT_LOG_LEVEL,
+    project_root: Optional[Path] = None
+) -> logging.Logger:
+    """
+    Configure the root logger for the project.
+    Creates a log file in the project root's data/results directory if not specified.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
+    # Remove existing handlers to avoid duplicates
+    if root_logger.handlers:
+        root_logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_format)
+    root_logger.addHandler(console_handler)
+
+    # File handler
+    log_path = Path(log_file) if log_file else (project_root or _PROJECT_ROOT) / "data" / "results" / DEFAULT_LOG_FILE
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    file_handler = logging.FileHandler(log_path, mode='a')
+    file_handler.setLevel(level)
+    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
+    file_handler.setFormatter(file_format)
+    root_logger.addHandler(file_handler)
+
     return root_logger
 
-def get_memory_usage_mb() -> float:
-    """
-    Returns the current memory usage of the process in Megabytes.
-    Uses psutil if available, otherwise falls back to resource (Unix only).
-    Raises RuntimeError if neither method is available.
-    """
-    if HAS_PSUTIL:
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 * 1024)
-    
-    if HAS_RESOURCE:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in kilobytes on Linux/macOS
-        return usage.ru_maxrss / 1024.0
-    
-    raise RuntimeError(
-        "Memory monitoring requires 'psutil' or 'resource' (Unix). "
-        "Install psutil: pip install psutil"
-    )
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance with the given name."""
+    return logging.getLogger(name)
 
-def check_memory_limit(current_mb: Optional[float] = None) -> bool:
+def get_memory_usage_mb() -> float:
+    """Return current memory usage in MB."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    return usage.ru_maxrss / 1024.0
+
+def check_memory_limit(limit_mb: float = MEMORY_LIMIT_MB) -> bool:
     """
-    Checks if the current memory usage is within the SC-005 limit (7 GB).
-    If current_mb is not provided, it measures the current usage.
-    Returns True if within limits, False otherwise.
-    Logs a warning if the limit is exceeded.
+    Check if current memory usage is within limits.
+    Returns True if OK, raises MemoryError if exceeded.
     """
-    if current_mb is None:
-        current_mb = get_memory_usage_mb()
-    
-    if current_mb > MEMORY_LIMIT_MB:
-        logger.warning(
-            f"Memory limit exceeded! Current: {current_mb:.2f} MB, "
-            f"Limit: {MEMORY_LIMIT_MB:.2f} MB ({MEMORY_LIMIT_GB} GB). "
-            f"Compliance with SC-005 violated."
-        )
-        return False
-    
-    logger.debug(f"Memory usage within limit: {current_mb:.2f} MB / {MEMORY_LIMIT_MB:.2f} MB")
+    current = get_memory_usage_mb()
+    if current > limit_mb:
+        raise MemoryError(f"Memory limit {limit_mb} MB exceeded. Current: {current:.2f} MB")
     return True
 
 @contextmanager
-def timed_block(block_name: str = "Block") -> Generator[None, None, None]:
+def timed_block(block_name: str, logger: Optional[logging.Logger] = None):
     """
-    Context manager to log the execution time of a code block.
+    Context manager to time a block of code.
+    Logs start, end, and duration.
     """
-    start_time = time.time()
+    log = logger or get_logger("timer")
+    start = time.time()
+    log.info(f"Starting: {block_name}")
     try:
         yield
     finally:
-        end_time = time.time()
-        duration = end_time - start_time
-        logger.info(f"Time elapsed for '{block_name}': {duration:.4f} seconds")
+        duration = time.time() - start
+        log.info(f"Completed: {block_name} in {duration:.2f} seconds")
 
 def timed_function(func: Callable) -> Callable:
-    """
-    Decorator to log the execution time of a function.
-    """
-    def wrapper(*args, **kwargs) -> Any:
-        start_time = time.time()
+    """Decorator to time a function execution."""
+    def wrapper(*args, **kwargs):
+        log = get_logger("timer")
+        start = time.time()
+        log.info(f"Starting function: {func.__name__}")
         try:
             result = func(*args, **kwargs)
             return result
         finally:
-            end_time = time.time()
-            duration = end_time - start_time
-            logger.info(f"Time elapsed for '{func.__name__}': {duration:.4f} seconds")
+            duration = time.time() - start
+            log.info(f"Finished function: {func.__name__} in {duration:.2f} seconds")
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__
     return wrapper
 
-def log_exception(exc_type: type, exc_val: Exception, exc_tb: Any) -> None:
+def log_exception(exc: Exception, context: str = "An error occurred") -> None:
     """
-    Logs a full traceback of an exception.
+    Log an exception with full traceback.
+    Used for fail-loudly behavior.
     """
-    logger.error("An exception occurred:")
-    logger.error("".join(traceback.format_exception(exc_type, exc_val, exc_tb)))
+    log = get_logger("exception_handler")
+    log.error(f"{context}: {exc}")
+    log.error("Traceback:")
+    for line in traceback.format_tb(exc.__traceback__):
+        log.error(line.strip())
+    log.error(f"Exception Type: {type(exc).__name__}")
+    log.error(f"Exception Message: {str(exc)}")
 
-class MemoryTracker:
+def save_timing_report(report_data: dict, output_path: Optional[str] = None) -> Path:
     """
-    Tracks memory usage over a specific scope or operation.
-    Logs the start, end, and delta of memory usage.
-    Ensures compliance with SC-005 (7 GB limit) by checking limits at start and end.
+    Save timing and memory report to a JSON file.
+    Default path: data/results/timing_report.json
     """
-    def __init__(self, operation_name: str = "Operation"):
-        self.operation_name = operation_name
-        self.start_mb: float = 0.0
-        self.end_mb: float = 0.0
-        self.delta_mb: float = 0.0
-        self._measured_start: bool = False
-        self._measured_end: bool = False
-
-    def start(self) -> None:
-        """
-        Records the starting memory usage.
-        """
-        try:
-            self.start_mb = get_memory_usage_mb()
-            self._measured_start = True
-            logger.info(f"[MemoryTracker] {self.operation_name} started. "
-                        f"Initial memory: {self.start_mb:.2f} MB")
-            
-            if not check_memory_limit(self.start_mb):
-                logger.error(f"[MemoryTracker] {self.operation_name} started above memory limit. "
-                             f"Aborting to prevent system instability.")
-                raise MemoryError(f"Memory limit exceeded at start of {self.operation_name}")
-        except RuntimeError as e:
-            logger.warning(f"[MemoryTracker] Could not measure initial memory: {e}")
-
-    def stop(self) -> None:
-        """
-        Records the ending memory usage, calculates delta, and logs the result.
-        """
-        try:
-            if not self._measured_start:
-                logger.warning(f"[MemoryTracker] start() was not called for {self.operation_name}. "
-                               f"Measuring end memory only.")
-            
-            self.end_mb = get_memory_usage_mb()
-            self._measured_end = True
-            
-            if self._measured_start:
-                self.delta_mb = self.end_mb - self.start_mb
-            
-            logger.info(f"[MemoryTracker] {self.operation_name} finished. "
-                        f"Final memory: {self.end_mb:.2f} MB, "
-                        f"Delta: {self.delta_mb:.2f} MB")
-            
-            if not check_memory_limit(self.end_mb):
-                logger.error(f"[MemoryTracker] {self.operation_name} finished above memory limit. "
-                             f"SC-005 compliance check FAILED.")
-        except RuntimeError as e:
-            logger.warning(f"[MemoryTracker] Could not measure final memory: {e}")
-
-    def __enter__(self) -> "MemoryTracker":
-        self.start()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.stop()
-        if exc_type is not None:
-            log_exception(exc_type, exc_val, exc_tb)
+    if output_path is None:
+        output_path = _PROJECT_ROOT / "data" / "results" / "timing_report.json"
+    
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    
+    return path

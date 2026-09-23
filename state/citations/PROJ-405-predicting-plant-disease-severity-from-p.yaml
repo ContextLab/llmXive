@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 0e24172cb5c41ee8b012fd990b890acc467fce4dcfaa2d689799069335799975
+  artifact_path: projects/PROJ-405-predicting-plant-disease-severity-from-p/specs/001-predicting-plant-disease-severity-from-p/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/plantvillage/plantvillage`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/plantvillage/plantvillage
+  verified_at: '2026-09-23T09:41:01.078753Z'
+- artifact_hash: e71d944dd991ff0208f015630c7940ee64ca22d41b5ca11b6515152fad941ad1
+  artifact_path: projects/PROJ-405-predicting-plant-disease-severity-from-p/specs/001-predicting-plant-disease-severity-from-p/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/PlantVillage/PlantVillage/resolve/main/PlantVillage.zip`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/PlantVillage/PlantVillage/resolve/main/PlantVillage.zip
+  verified_at: '2026-09-23T09:41:15.155309Z'

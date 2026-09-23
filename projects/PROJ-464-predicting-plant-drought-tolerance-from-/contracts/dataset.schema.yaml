@@ -1,85 +1,171 @@
-# Dataset Validation Schema for NPPN Root Phenotyping and TRY Physiological Traits
-# This schema defines the expected structure and constraints for input datasets
-# used in the plant drought tolerance prediction pipeline.
+%YAML 1.2
+---
+# Dataset Validation Schema for llmXive Project PROJ-464
+# Defines the structure and constraints for input datasets used in the pipeline.
+# Used by code/validate_schemas.py to enforce data hygiene.
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Plant Drought Tolerance Dataset Schema
-description: Schema for validating raw and derived datasets before analysis
-
-definitions:
-  rsa_metrics:
+schemas:
+  nppn_root_images:
+    description: Raw image metadata from NPPN download (T012)
     type: object
+    required:
+      - image_id
+      - file_path
+      - species
+      - download_timestamp
     properties:
-      species_id:
+      image_id:
         type: string
-        description: Unique identifier for the plant species
         pattern: "^[a-zA-Z0-9_-]+$"
-      depth:
-        type: number
-        minimum: 0
-        description: Maximum root depth in cm
-      branching_density:
-        type: number
-        minimum: 0
-        description: Branch points per unit length
-      surface_area:
-        type: number
-        minimum: 0
-        description: Total root surface area in cm²
+      file_path:
+        type: string
+        pattern: "^data/raw/nppn_images/.*"
+      species:
+        type: string
+        minLength: 2
+      download_timestamp:
+        type: string
+        format: date-time
+
+  rsa_metrics:
+    description: Root System Architecture metrics derived from images (T015)
+    type: object
     required:
       - species_id
       - depth
       - branching_density
       - surface_area
-    additionalProperties: false
-
-  physiological_traits:
-    type: object
+      - image_id
     properties:
       species_id:
         type: string
-        description: Unique identifier for the plant species
-        pattern: "^[a-zA-Z0-9_-]+$"
+        minLength: 2
+      image_id:
+        type: string
+      depth:
+        type: number
+        minimum: 0
+        exclusiveMinimum: false
+        description: "Root system depth in pixels or mm"
+      branching_density:
+        type: number
+        minimum: 0
+        exclusiveMinimum: false
+        description: "Branch points per unit length"
+      surface_area:
+        type: number
+        minimum: 0
+        exclusiveMinimum: false
+        description: "Total root surface area"
+      validation_status:
+        type: string
+        enum: ["valid", "flagged"]
+        default: "valid"
+    additionalProperties: false
+
+  physiological_traits:
+    description: Physiological trait data from TRY database (T020)
+    type: object
+    required:
+      - species
+      - stomatal_conductance
+      - photosynthesis_rate
+    properties:
+      species:
+        type: string
+        minLength: 2
       stomatal_conductance:
         type: number
         minimum: 0
-        description: Stomatal conductance in mol/m²/s
-      photosynthesis:
+        description: "mmol m-2 s-1"
+      photosynthesis_rate:
         type: number
         minimum: 0
-        description: Photosynthetic rate in μmol/m²/s
-      survival_rate:
+        description: "μmol m-2 s-1"
+      drought_tolerance_proxy:
         type: number
         minimum: 0
         maximum: 1
-        description: Survival rate under drought (optional)
-    required:
-      - species_id
-      - stomatal_conductance
-      - photosynthesis
+        description: "Optional survival rate or proxy (0-1)"
+      source:
+        type: string
+        enum: ["TRY", "NPPN", "Manual"]
     additionalProperties: false
 
-type: object
-properties:
-  rsa_metrics_file:
-    $ref: "#/definitions/rsa_metrics"
-  physiological_traits_file:
-    $ref: "#/definitions/physiological_traits"
-required:
-  - rsa_metrics_file
-  - physiological_traits_file
-additionalProperties: false
+  merged_dataset:
+    description: Combined RSA and physiological data (T021)
+    type: object
+    required:
+      - species_id
+      - depth
+      - branching_density
+      - surface_area
+      - stomatal_conductance
+      - photosynthesis_rate
+    properties:
+      species_id:
+        type: string
+      depth:
+        type: number
+        minimum: 0
+      branching_density:
+        type: number
+        minimum: 0
+      surface_area:
+        type: number
+        minimum: 0
+      stomatal_conductance:
+        type: number
+        minimum: 0
+      photosynthesis_rate:
+        type: number
+        minimum: 0
+      drought_tolerance_proxy:
+        type: number
+        minimum: 0
+        maximum: 1
+      sample_size_check:
+        type: integer
+        minimum: 55
+        description: "Must be >= 55 per power analysis constraint"
+    additionalProperties: false
+
+  phylogenetic_tree:
+    description: Phylogenetic tree data (T024a)
+    type: object
+    required:
+      - tree_path
+      - species_count
+      - fetch_status
+    properties:
+      tree_path:
+        type: string
+        pattern: "^data/derived/.*\\.newick$"
+      species_count:
+        type: integer
+        minimum: 1
+      fetch_status:
+        type: string
+        enum: ["success", "failed"]
+      error_message:
+        type: string
+        nullable: true
 
 validation_rules:
   - name: no_null_values
-    description: All numeric fields must be non-null and non-NaN
-    implementation: pandas.notna()
-  - name: positive_values
-    description: All numeric traits must be strictly positive
-    implementation: value > 0
-  - name: species_overlap
-    description: Species IDs must exist in both datasets
-    implementation: set intersection check
-  - name: sample_size
-    description: Merged dataset must have N >= 55 species
-    implementation: len(merged_df) >= 55
+    description: "Ensure no null values in numeric columns"
+    apply_to: ["rsa_metrics", "physiological_traits", "merged_dataset"]
+    columns: ["depth", "branching_density", "surface_area", "stomatal_conductance", "photosynthesis_rate"]
+    rule: "column must not be null"
+
+  - name: positive_numerics
+    description: "Ensure numeric traits are strictly positive"
+    apply_to: ["rsa_metrics", "physiological_traits", "merged_dataset"]
+    columns: ["depth", "branching_density", "surface_area", "stomatal_conductance", "photosynthesis_rate"]
+    rule: "value > 0"
+
+  - name: sample_size_constraint
+    description: "Enforce minimum sample size for statistical validity"
+    apply_to: ["merged_dataset"]
+    rule: "row_count >= 55"
+    error_message: "Insufficient species after merge (N < 55). HALT required."

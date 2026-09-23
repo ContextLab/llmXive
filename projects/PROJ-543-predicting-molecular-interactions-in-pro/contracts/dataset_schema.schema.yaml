@@ -1,122 +1,115 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Molecular Interaction Dataset Schema
+title: PDBbind Molecular Graph Dataset Schema
 description: >
-  Schema for validating US-1 (Data Ingestion) outputs.
-  Enforces strict 3D coordinate presence, resolution thresholds,
-  and hydration state tracking as per project requirements.
+  Schema for validating molecular graph data derived from PDBbind v2020 refined set.
+  Enforces US-1 (Data Ingestion) requirements including hydration states, 3D coordinates,
+  and atomic properties.
 type: object
 required:
-  - metadata
+  - complex_id
+  - resolution
   - atoms
-  - interactions
+  - water_flag
+  - coordinates_3d
 properties:
-  metadata:
-    type: object
-    description: Global complex metadata
-    required:
-      - pdb_id
-      - resolution
-      - water_flag
-      - source
-    properties:
-      pdb_id:
-        type: string
-        description: PDB identifier
-      resolution:
-        type: number
-        minimum: 0
-        exclusiveMinimum: false
-        description: Crystallographic resolution in Angstroms.
-          Must be > 0. High-resolution filter (<= 2.5 Å) applied upstream.
-      water_flag:
-        type: boolean
-        description: >
-          True if water-mediated interactions were detected (oxygen distance < 3.5 Å).
-          If True, the complex may be excluded or flagged for water-aware analysis.
-      source:
-        type: string
-        description: Data source (e.g., 'PDBbind_v2020_refined')
-      ligand_smiles:
-        type: string
-        nullable: true
-        description: SMILES string of the ligand if available
-      protein_chain:
-        type: string
-        nullable: true
-        description: Protein chain ID
+  complex_id:
+    type: string
+    description: Unique identifier for the protein-ligand complex (e.g., '1abc').
+  
+  resolution:
+    type: number
+    description: Resolution of the crystal structure in Angstroms.
+    exclusiveMinimum: 0
+    maximum: 2.5
+    description_note: >
+      Per T020 and Spec Edge Cases, complexes with resolution > 2.5 Å must be excluded.
+      This schema enforces the upper bound for valid data ingestion.
+
+  water_flag:
+    type: boolean
+    description: >
+      Indicates if water-mediated interactions were detected in the complex.
+      Set to True if any oxygen atom is within 3.5 Å of a ligand atom (T015).
+  
+  coordinates_3d:
+    type: array
+    description: Global 3D coordinates of the complex centroid or reference frame.
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description_note: >
+      Represents the [x, y, z] position in the global frame. 
+      Individual atom coordinates are stored within the 'atoms' array.
+
   atoms:
     type: array
-    description: List of atom nodes in the graph
+    description: List of atomic nodes in the molecular graph.
     items:
       type: object
       required:
         - atom_type
-        - coordinates_3d
         - charge
         - hydrophobicity
+        - coordinates
       properties:
         atom_type:
           type: string
           description: >
-            Atomic element or RDKit atom type (e.g., 'C', 'N', 'O', 'S', 'Cl').
-            Must be a valid chemical symbol or defined type.
-        coordinates_3d:
+            Element symbol or specific atom type (e.g., 'C', 'N', 'O', 'S', 'P', 'Cl').
+            Must be consistent with standard chemical element symbols.
+        
+        charge:
+          type: number
+          description: Formal charge or partial charge of the atom (float).
+        
+        hydrophobicity:
+          type: number
+          description: >
+            Hydrophobicity score (e.g., Kyte-Doolittle scale or similar).
+            Used for feature engineering in GNNs.
+        
+        coordinates:
           type: array
-          description: 3D Cartesian coordinates (x, y, z) in Angstroms.
+          description: 3D coordinates [x, y, z] for this specific atom.
           items:
             type: number
           minItems: 3
           maxItems: 3
-        charge:
-          type: number
-          description: Partial charge or formal charge.
-        hydrophobicity:
-          type: number
-          description: Hydrophobicity score (e.g., from atomic contributions).
-        residue_name:
-          type: string
-          nullable: true
-          description: Residue name (e.g., 'ALA', 'LIG')
-        residue_number:
-          type: integer
-          nullable: true
-          description: Residue sequence number
-        is_ligand:
-          type: boolean
-          description: True if the atom belongs to the ligand, False for protein.
-  interactions:
+          description_note: >
+            Explicit 3D coordinates are required to satisfy FR-001 (explicitly encode steric constraints).
+            These are used to calculate Euclidean distances for edge construction.
+
+  edges:
     type: array
-    description: List of edges (interactions) in the graph
+    description: List of edges representing interactions (covalent and non-covalent).
     items:
       type: object
       required:
-        - source_atom_idx
-        - target_atom_idx
-        - interaction_type
+        - source
+        - target
         - distance
+        - interaction_type
       properties:
-        source_atom_idx:
+        source:
           type: integer
           description: Index of the source atom in the 'atoms' array.
-        target_atom_idx:
+        target:
           type: integer
           description: Index of the target atom in the 'atoms' array.
+        distance:
+          type: number
+          description: >
+            Euclidean distance between source and target atoms in Angstroms.
+            Explicitly stored to satisfy FR-001.
         interaction_type:
           type: string
           enum:
             - covalent
             - hydrogen_bond
             - hydrophobic
-            - pi_stacking
-            - salt_bridge
             - water_mediated
             - van_der_waals
-          description: Type of molecular interaction.
-        distance:
-          type: number
-          minimum: 0
-          description: Distance between atoms in Angstroms.
-        is_water_mediated:
-          type: boolean
-          description: True if this interaction is water-mediated.
+          description: Type of interaction represented by the edge.
+
 additionalProperties: false

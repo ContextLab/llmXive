@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Results Schema"
+description: "Schema for the final results JSON artifact containing model metrics and test statistics."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique identifier for this run."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run completion."
+  dataset_stats:
+    type: "object"
+    properties:
+      total_images:
+        type: "integer"
+        description: "Total number of images processed."
+      valid_records:
+        type: "integer"
+        description: "Number of records with complete weather and image data."
+      excluded_missing_loc:
+        type: "integer"
+        description: "Number of records excluded due to missing location metadata."
+  baseline_model:
+    type: "object"
+    description: "Metrics for the image-only baseline Random Forest."
+    properties:
+      model_type:
+        type: "string"
+        const: "RandomForestRegressor"
+      r2_score:
+        type: "number"
+        description: "R-squared score on the test set."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error on the test set."
+      feature_importance:
+        type: "object"
+        description: "Map of feature names to importance scores."
+  augmented_model:
+    type: "object"
+    description: "Metrics for the weather-augmented Random Forest predicting residuals."
+    properties:
+      model_type:
+        type: "string"
+        const: "RandomForestRegressor"
+      r2_score:
+        type: "number"
+        description: "R-squared score on the test set for residual prediction."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error on the test set for residual prediction."
+      feature_importance:
+        type: "object"
+        description: "Map of feature names (weather + interactions) to importance scores."
+  hypothesis_test:
+    type: "object"
+    description: "Results of the feature permutation test."
+    properties:
+      method:
+        type: "string"
+        const: "Feature Permutation Test"
+      iterations:
+        type: "integer"
+        description: "Number of permutations performed (e.g., 1000)."
+      p_value:
+        type: "number"
+        description: "P-value indicating significance of weather contribution."
+      null_distribution_mean:
+        type: "number"
+        description: "Mean R2 of the null model (R2 of models trained on shuffled weather features)."
+      observed_r2_diff:
+        type: "number"
+        description: "Observed difference in R2 (Augmented - Mean Null R2)."
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the threshold sensitivity sweep."
+    properties:
+      baseline_threshold:
+        type: "number"
+        description: "The baseline classification threshold (e.g., 90th percentile)."
+      deviations_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of absolute deviations tested (e.g., [0.01, 0.05, 0.1])."
+      f1_scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "F1 scores for each deviation."
+      fpr_scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "False Positive Rates for each deviation."
+required:
+  - experiment_id
+  - timestamp
+  - dataset_stats
+  - baseline_model
+  - augmented_model
+  - hypothesis_test
+  - sensitivity_analysis
+additionalProperties: false

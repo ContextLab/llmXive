@@ -1,6 +1,19 @@
-'|alpha benjamini correction fdr hochberg':
-  quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
-    \ \u03C00 = 0.2"
-  source_id: '1906.01701'
-  url: https://arxiv.org/abs/1906.01701
+'|alpha correction fdr level significance statistical use validation':
+  quote: 'In statistics, testing multiple hypotheses simultaneously using methods
+    appropriate for testing single hypotheses tends to yield many false positives:
+    the so-called multiple comparisons problem. For example, assume that one were
+    to test 1,000 null hypotheses, all of which are true, and (as is conventional
+    in single hypothesis testing) to reject null hypotheses with a significance level
+    of 0.05; due to random chance, one would expect 5% of the results to appear significant
+    (P < 0.05), yielding 50 false positives (rejections of the null hypothesis). Since
+    the 1950s, statisticians had been developing methods for multiple comparisons
+    that reduced the number of false positives, such as controlling the family-wise
+    error rate (FWER) using the Bonferroni correction, but these methods also increased
+    the number of false negatives (i.e. reduced the statistical power). In 1995, Yoav
+    Benjamini and Yosef Hochberg proposed controlling the false discovery rate (FDR)
+    as a more statistically powerful alternative to controlling the FWER in multiple
+    hypothesis testing. The pFDR and the q-value were introduced by John D. Storey
+    in 2002.'
+  source_id: Q-value (statistics)
+  url: https://en.wikipedia.org/wiki/Q-value_(statistics)
   value: '0.05'

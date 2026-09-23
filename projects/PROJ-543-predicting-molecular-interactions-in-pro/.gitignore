@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -23,39 +19,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.venv/
 
 # IDE
 .idea/
@@ -64,44 +34,32 @@ venv.bak/
 *.swo
 *~
 
-# Jupyter Notebook
+# Data Artifacts (Raw, Processed, Results)
+data/raw/*.pdb
+data/raw/*.gz
+data/raw/*.tar
+data/processed/*.pt
+data/processed/*.json
+data/processed/*.csv
+data/results/*.json
+data/results/*.png
+data/results/*.csv
+data/reference/*.json
+data/reference/*.pdb
+
+# Logs and Config
+logs/
+*.log
+.env
+.env.local
+
+# Jupyter
 .ipynb_checkpoints
 
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Data artifacts (Raw and Processed)
-data/raw/
-data/processed/
-data/results/
-data/reference/
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/results/.gitkeep
-!data/reference/.gitkeep
-
-# Model artifacts
-*.pt
-*.pth
-*.onnx
-data/processed/model_*.pt
-
-# Logs
-*.log
-logs/
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-tmp/
-temp/
+# Git
+.git/
+.gitignore

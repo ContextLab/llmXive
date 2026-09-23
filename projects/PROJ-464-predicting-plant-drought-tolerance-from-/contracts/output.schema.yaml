@@ -1,84 +1,147 @@
-# Output Schema for Model Results and Analysis Reports
-# This schema defines the expected structure for all generated outputs
-# to ensure consistency across the pipeline.
+%YAML 1.2
+---
+# Output Validation Schema for llmXive Project PROJ-464
+# Defines the structure and constraints for generated artifacts and reports.
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Plant Drought Tolerance Output Schema
-description: Schema for validating model results and analysis outputs
-
-definitions:
-  model_results:
+schemas:
+  power_analysis_report:
+    description: Power analysis results (T008)
     type: object
+    required:
+      - nppn_species_count
+      - try_species_count
+      - overlap_count
+      - required_sample_size
+      - status
+      - timestamp
+    properties:
+      nppn_species_count:
+        type: integer
+        minimum: 0
+      try_species_count:
+        type: integer
+        minimum: 0
+      overlap_count:
+        type: integer
+        minimum: 0
+      required_sample_size:
+        type: integer
+        minimum: 55
+      status:
+        type: string
+        enum: ["PASS", "FAIL"]
+      message:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+
+  model_results:
+    description: Model fitting results (T026)
+    type: object
+    required:
+      - model_type
+      - metric_name
+      - metric_value
+      - coefficients
+      - p_values
+      - r_squared
+      - fold
     properties:
       model_type:
         type: string
-        enum:
-          - OLS
-          - Ridge
-          - Lasso
-          - RandomForest
-          - PGLS
-      predictor:
+        enum: ["OLS", "Ridge", "Lasso", "RandomForest", "PGLS"]
+      metric_name:
         type: string
-        description: Name of the predictor variable
-      coefficient:
+      metric_value:
         type: number
-        description: Estimated coefficient value
-      std_error:
-        type: number
-        description: Standard error of the coefficient
-      p_value:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: P-value for the coefficient
-      adjusted_p_value:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Bonferroni or FDR adjusted p-value
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
       r_squared:
         type: number
         minimum: 0
         maximum: 1
-        description: Model R² value
-    required:
-      - model_type
-      - predictor
-      - coefficient
-      - p_value
-      - r_squared
-    additionalProperties: false
-
-  vif_compliance:
-    type: object
-    properties:
-      predictor:
-        type: string
-        description: Name of the predictor variable
-      vif_score:
-        type: number
+      fold:
+        type: integer
         minimum: 1
-        description: Variance Inflation Factor score
-      is_collinear:
-        type: boolean
-        description: True if VIF > 5
+        maximum: 5
+      adjusted_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+
+  vif_compliance_check:
+    description: VIF compliance and claim suppression record (T026b)
+    type: object
+    required:
+      - vif_values
+      - max_vif
+      - suppression_applied
+      - suppressed_variables
+      - timestamp
+    properties:
+      vif_values:
+        type: object
+        additionalProperties:
+          type: number
+      max_vif:
+        type: number
       suppression_applied:
         type: boolean
-        description: True if independent effect claims were suppressed
+      suppressed_variables:
+        type: array
+        items:
+          type: string
+      timestamp:
+        type: string
+        format: date-time
+      compliance_status:
+        type: string
+        enum: ["COMPLIANT", "NON_COMPLIANT_SUPPRESSED", "NON_COMPLIANT_UNSAFE"]
+
+  proxy_detection:
+    description: Tolerance proxy detection status (T027)
+    type: object
     required:
-      - predictor
-      - vif_score
-      - is_collinear
-      - suppression_applied
-    additionalProperties: false
+      - has_proxy
+      - proxy_variable
+      - timestamp
+    properties:
+      has_proxy:
+        type: boolean
+      proxy_variable:
+        type: string
+        nullable: true
+      timestamp:
+        type: string
+        format: date-time
+      classification_status:
+        type: string
+        enum: ["SKIPPED", "EXECUTED"]
+        description: "SKIPPED if no proxy, EXECUTED if proxy found"
 
   sensitivity_results:
+    description: Sensitivity analysis results (T028)
     type: object
+    required:
+      - threshold
+      - accuracy
+      - precision
+      - recall
+      - f1_score
+      - false_positive_rate
+      - false_negative_rate
     properties:
       threshold:
         type: number
-        description: Classification threshold value
+        minimum: 0
+        maximum: 1
       accuracy:
         type: number
         minimum: 0
@@ -103,57 +166,19 @@ definitions:
         type: number
         minimum: 0
         maximum: 1
-    required:
-      - threshold
-      - accuracy
-      - precision
-      - recall
-      - f1_score
-      - false_positive_rate
-      - false_negative_rate
-    additionalProperties: false
-
-type: object
-properties:
-  model_results_file:
-    type: array
-    items:
-      $ref: "#/definitions/model_results"
-  vif_compliance_file:
-    type: array
-    items:
-      $ref: "#/definitions/vif_compliance"
-  sensitivity_results_file:
-    type: array
-    items:
-      $ref: "#/definitions/sensitivity_results"
-  proxy_detection_file:
-    type: object
-    properties:
-      has_proxy:
-        type: boolean
-      proxy_variable:
-        type: string
-    required:
-      - has_proxy
-    additionalProperties: false
-required:
-  - model_results_file
-  - vif_compliance_file
-  - sensitivity_results_file
-  - proxy_detection_file
-additionalProperties: false
 
 validation_rules:
-  - name: coefficient_significance
-    description: Coefficients with p-value < 0.05 are considered significant
-    implementation: p_value < 0.05
-  - name: vif_threshold
-    description: VIF > 5 indicates problematic multicollinearity
-    implementation: vif_score > 5
-  - name: model_performance
-    description: R² should be between 0 and 1
-    implementation: 0 <= r_squared <= 1
-  - name: sensitivity_coverage
-    description: Sensitivity analysis should cover full threshold range
-    implementation: thresholds span 0.0 to 1.0
+  - name: model_results_integrity
+    description: "Ensure model results have valid R2 and p-values"
+    apply_to: ["model_results"]
+    rule: "r_squared in [0,1] AND p_values >= 0"
+
+  - name: vif_suppression_logic
+    description: "Verify suppression logic matches VIF thresholds"
+    apply_to: ["vif_compliance_check"]
+    rule: "IF max_vif > 5 THEN suppression_applied == true AND len(suppressed_variables) > 0"
+
+  - name: sensitivity_range
+    description: "Ensure sensitivity sweep covers full threshold range"
+    apply_to: ["sensitivity_results"]
+    rule: "thresholds must cover [0.1, 0.9] range or justification provided"

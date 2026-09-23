@@ -8,10 +8,11 @@ T008:
     \ is absent. Both the implementation and the deliverable report are missing."
 T024a:
   c: false
-  h: 6355649be472f4b78c16de9f6d6576990313e54d15d6b3b33e09baac4840e95a
+  h: 5d76bb00d7095079b6c217c4c91113b0d41581aae1f817e1bcec0b8f6e7f6a2e
   r: "The required output file `data/derived/phylogenetic_tree.newick` does not exist,\
-    \ so the script\u2019s primary deliverable is missing. Consequently the task\u2019\
-    s requirement is not satisfied."
+    \ so the task\u2019s primary deliverable is missing. The provided script is present,\
+    \ but without the generated Newick file the implementation does not satisfy the\
+    \ specification."
 T024b:
   c: false
   h: 7782fc663534eaa2a4b6779be05c616f0db1828af6d9965afc3f7345bf51f8cc

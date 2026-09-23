@@ -1,0 +1,18 @@
+status: none
+intent: PlantVillage image dataset NOAA Integrated Surface Database weather python
+  package dataset
+required_fields:
+- image_id
+- plant_species
+- capture_date
+- latitude
+- longitude
+- lesion_area_ratio
+- necrosis_color_index
+- texture_entropy
+- mean_temperature_7d
+- mean_humidity_7d
+- total_precipitation_7d
+cache_key: 1340e515e51d76f90ec979bcafb5896c349a827196a0e1252136c74db36cc628
+searched_at: '2026-09-23T09:25:47.932803+00:00'
+retry_count: 1
