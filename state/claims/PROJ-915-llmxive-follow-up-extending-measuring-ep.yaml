@@ -1508,3 +1508,433 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T15:43:41Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 0
+  canonical: Pipeline aborts if Cohen's kappa is below 0.7
+  claim_id: c_26a4f785
+  context: Task T026 description regarding the Real Human Outcome Validation Gate
+    constraint.
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline MUST abort with ValidationGateFailedError if Cohen's kappa
+    is less than 0.7.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:06:03Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional and only included if explicitly requested
+  claim_id: c_33b9f6c6
+  context: 'Section: Tests. Describes the nature of test tasks in the document.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_and_only_included_if_explicitly_requ
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:07:18Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Tasks are grouped by user story for independent implementation
+  claim_id: c_bb581ad2
+  context: 'Section: Organization. Explains the grouping strategy for tasks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_are_grouped_by_user_story_for_independent_implementati
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:07:54Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if PubMed retrieval success rate is below 95%
+  claim_id: c_77d0dcdb
+  context: Task T020 description regarding dynamic medical fact retrieval constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_PubMed_retrieval_success_rate_is_below_95
+  kind: magnitude
+  raw_text: The pipeline will abort if total successful retrievals are less than 95%
+    of the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:08:21Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Warning generated if baseline adherence rate is below 5% or above 95%
+  claim_id: c_073a31d7
+  context: Task T046 description regarding selection bias reporting.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Warning_generated_if_baseline_adherence_rate_is_below_5%25_or
+  kind: magnitude
+  raw_text: If the baseline adherence rate is less than 5% or greater than 95%, a
+    warning is automatically generated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T13:09:04Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: IPW applied as sensitivity check if baseline adherence rate is below
+    5% or above 95%
+  claim_id: c_14a32dd1
+  context: Task T046 description regarding selection bias reporting.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/IPW_applied_as_sensitivity_check_if_baseline_adherence_rate
+  kind: magnitude
+  raw_text: If the baseline adherence rate is less than 5% or greater than 95%, IPW
+    is applied as a sensitivity check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:09:27Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline fails loudly on MedMisBench download failure without synthetic
+    fallback
+  claim_id: c_222a29e0
+  context: Task T013 description regarding data ingestion constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_loudly_on_MedMisBench_download_failure_withou
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if the MedMisBench download fails, with
+    no synthetic fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:10:27Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if fewer than 50 rows remain after human pilot data cleaning
+  claim_id: c_d6c04cf2
+  context: Task T017b description regarding pilot data cleaning constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_fewer_than_50_rows_remain_after_human_pilo
+  kind: magnitude
+  raw_text: The pipeline must fail if fewer than 50 rows remain after cleaning the
+    human pilot data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:11:16Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if PubMed retrieval success rate is below 95%
+  claim_id: c_6d1cdb66
+  context: Task T020 description regarding fact retrieval constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_PubMed_retrieval_success_rate_is_below_95%25
+  kind: magnitude
+  raw_text: The pipeline must fail if the number of successful PubMed retrievals is
+    less than 95% of the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:11:48Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Warning logged if correlation coefficient is 0.6 or lower
+  claim_id: c_9f07b832
+  context: Task T017d description regarding the Feature Validation Gate.
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If the correlation coefficient is less than or equal to 0.6, a WARNING
+    is logged and the pipeline proceeds.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:11:48Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if verified flag is false during baseline comparison
+  claim_id: c_a895d8c9
+  context: Task T045 description regarding baseline comparison constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_verified_flag_is_false_during_baseline_co
+  kind: entity_fact
+  raw_text: The pipeline must abort if the verified flag is false during baseline
+    comparison.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:12:17Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: MedMisBench filtered for Authority-framed and Exception-poisoning labels
+  claim_id: c_93519eac
+  context: 'Phase 3: User Story 1 - Data Ingestion and Linguistic Feature Extraction.
+    Task T013 implements ingestion and filtering.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MedMisBench_filtered_for_Authority-framed_and_Exception-pois
+  kind: entity_fact
+  raw_text: Download MedMisBench via datasets.load_dataset(..., streaming=True), filter
+    for 'Authority-framed' and 'Exception-poisoning' labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:14:03Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate 50 human ratings with numpy random seed 42
+  claim_id: c_acc5e215
+  context: 'Phase 3.5: Human Validation Pilot. Task T017a generates deterministic
+    synthetic pilot data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a reproducible dataset of n=50 human ratings using numpy.random.seed(42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:15:06Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate 50 mock adherence labels with numpy random seed 42
+  claim_id: c_d0b1a2c4
+  context: 'Phase 3.5: Human Validation Pilot. Task T027a generates deterministic
+    mock outcome labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a reproducible dataset of n=50 mock adherence labels using numpy.random.seed(42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:15:23Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Query Entrez PubMed using correct_answer keywords
+  claim_id: c_8084bed0
+  context: 'Phase 4: User Story 2. Task T020 implements dynamic medical fact retrieval.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Query_Entrez_PubMed_using_correct_answer_keywords
+  kind: entity_fact
+  raw_text: Query Entrez PubMed using keywords from correct_answer for each prompt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:15:48Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if PubMed retrieval success rate is below 95 percent
+  claim_id: c_873bc6e6
+  context: 'Phase 4: User Story 2. Task T020 includes a final check for data retrieval
+    success rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_PubMed_retrieval_success_rate_is_below_95
+  kind: magnitude
+  raw_text: Abort if total successful PubMed retrievals are less than 95% of the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:16:12Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Adherent label assigned if false similarity greater than correct similarity
+    and false similarity at least 0.6
+  claim_id: c_a1e1ffa0
+  context: 'Phase 4: User Story 2. Task T023 defines labeling logic based on semantic
+    similarity.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adherent_label_assigned_if_false_similarity_greater_than_cor
+  kind: magnitude
+  raw_text: Label responses as Adherent (1) if sim_false > sim_correct and sim_false
+    >= 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:17:04Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Resilient-Correct label assigned if correct similarity at least 0.6
+  claim_id: c_b48f3efe
+  context: 'Phase 4: User Story 2. Task T023 defines labeling logic based on semantic
+    similarity.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resilient-Correct_label_assigned_if_correct_similarity_at_le
+  kind: magnitude
+  raw_text: Label responses as Resilient-Correct (0) if sim_correct >= 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:17:33Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if Cohen kappa is below 0.7
+  claim_id: c_df929147
+  context: 'Phase 4: User Story 2. Task T026 implements the Real Human Outcome Validation
+    Gate.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Abort the pipeline if Cohen's kappa comparing automated labels to human
+    pilot labels is less than 0.7.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T13:17:34Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction to p-values from Model A and Model B
+  claim_id: c_ff633faa
+  context: 'Phase 5: User Story 3. Task T032a implements correction for multiple comparisons.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm-Bonferroni_correction_to_p-values_from_Model_A_an
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to all p-values from Model A and B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:19:42Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Sweep probability thresholds for high authority density risk
+  claim_id: c_02aa65a7
+  context: 'Phase 5: User Story 3. Task T033a implements threshold sweep for sensitivity
+    analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_probability_thresholds_for_high_authority_density_risk
+  kind: entity_fact
+  raw_text: Sweep probability thresholds across standard significance levels for high
+    authority density risk.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:20:08Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 2
+  canonical: Generate selection bias warning if baseline adherence rate below 5 percent
+    or above 95 percent
+  claim_id: c_93a0b8a5
+  context: 'Phase 5: User Story 3. Task T046 implements selection bias reporting.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_selection_bias_warning_if_baseline_adherence_rate_b
+  kind: magnitude
+  raw_text: Generate a warning if the baseline adherence rate is less than 5% or greater
+    than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:21:21Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Threshold sweep uses significance levels 0.01, 0.05, and 0.10
+  claim_id: c_53ad6f69
+  context: Notes section. Mentions specific thresholds used in Task T033.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold sweep uses standard significance levels {0.01, 0.05, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T13:21:45Z'

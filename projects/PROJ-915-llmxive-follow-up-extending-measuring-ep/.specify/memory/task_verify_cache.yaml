@@ -26,29 +26,6 @@ T008:
     \ (e.g., retry logic for dataset download or timeout handling for inference) were\
     \ provided. Without any artifact to inspect, we cannot confirm that the required\
     \ setup was implemented."
-T013:
-  c: false
-  h: 637c61ee8805aa3ce4b75aa42eac7a17e295e40d5c20d6e14ded88da0ea9e0c3
-  r: "The required output file `data/raw/medmis_subset.csv` does not exist, and `state/artifact_hashes.yaml`\
-    \ contains only a placeholder string instead of the actual SHA\u2011256 checksum.\
-    \ Without these artifacts the ingestion task is not genuinely fulfilled."
-T015:
-  c: false
-  h: dc1cff3a31d371dd63cf80897ef9c6abd59c279d6248233299156da19a4b69ea
-  r: "The provided `code/features.py` is truncated and does not contain logic to flag\
-    \ undefined imperative ratios, add an `is_ratio_undefined` column, or write the\
-    \ processed data to `data/processed/features.csv`. Moreover, the required output\
-    \ file `data/processed/features.csv` is absent. The task\u2019s core requirement\
-    \ is therefore unmet."
-T017a:
-  c: false
-  h: c2e5a3831b69912941a9468dd599384a4d845d544c62b255b873c4bfd7358996
-  r: "The repository lacks the required input `data/raw/medmis_subset.csv` and the\
-    \ expected output `data/raw/human_pilot_cached.csv`. Moreover, `code/annotation.py`\
-    \ is truncated and does not show a complete implementation of the deterministic\
-    \ pilot generation logic. The implementer must provide the missing CSV, finish\
-    \ the script to generate the 50\u2011row dataset with the specified columns, and\
-    \ ensure the file is created when absent."
 T017b:
   c: false
   h: cb76370acc2af84b4ea84e8bcadad416a2cacad8b47cc21ae45011b99323312d

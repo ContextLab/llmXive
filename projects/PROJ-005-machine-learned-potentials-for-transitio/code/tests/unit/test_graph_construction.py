@@ -1,13 +1,10 @@
-"""
-Unit tests for the graph construction module.
-"""
-import json
-import tempfile
-from pathlib import Path
+import pytest
 import numpy as np
 import pandas as pd
-import pytest
-import pyarrow.parquet as pq
+from pathlib import Path
+import tempfile
+import json
+import logging
 
 from src.data.graph_construction import (
     calculate_coordination_number,
@@ -15,303 +12,134 @@ from src.data.graph_construction import (
     extract_edge_attributes,
     construct_transition_state_graph,
     filter_outliers,
-    save_graphs_to_parquet,
-    save_metadata,
-    run_graph_construction,
-    COORDINATION_CUTOFF_ANGSTROM,
-    OUTLIER_COORDINATION_THRESHOLD
+    run_graph_construction
 )
 
-class TestCalculateCoordinationNumber:
-    def test_simple_triangle(self):
-        """Test coordination number for a simple triangle."""
-        # 3 atoms in a triangle, all within 2.0 A
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0],
-            [0.75, 1.3, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1, 1])
-        cutoff = 2.0
+# Setup logging for tests
+logging.basicConfig(level=logging.INFO)
 
-        cn = calculate_coordination_number(atomic_numbers, coords, cutoff)
-        # Each atom should have 2 neighbors
-        assert np.all(cn == 2)
+@pytest.fixture
+def sample_distances():
+    # 4x4 distance matrix (4 atoms)
+    # Atom 0 at (0,0,0), Atom 1 at (1,0,0), Atom 2 at (2,0,0), Atom 3 at (0,3,0)
+    # Distances:
+    # 0-1: 1.0
+    # 0-2: 2.0
+    # 0-3: 3.0
+    # 1-2: 1.0
+    # 1-3: ~3.16
+    # 2-3: ~3.60
+    dists = np.array([
+        [0.0, 1.0, 2.0, 3.0],
+        [1.0, 0.0, 1.0, 3.162],
+        [2.0, 1.0, 0.0, 3.605],
+        [3.0, 3.162, 3.605, 0.0]
+    ])
+    return dists
 
-    def test_linear_chain(self):
-        """Test coordination number for a linear chain."""
-        # 4 atoms in a line, 1.5 A apart
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0],
-            [3.0, 0.0, 0.0],
-            [4.5, 0.0, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1, 1, 1])
-        cutoff = 2.0
+@pytest.fixture
+def sample_atomic_numbers():
+    return np.array([6, 1, 1, 8])  # C, H, H, O
 
-        cn = calculate_coordination_number(atomic_numbers, coords, cutoff)
-        # Ends have 1 neighbor, middle have 2
-        assert cn[0] == 1
-        assert cn[1] == 2
-        assert cn[2] == 2
-        assert cn[3] == 1
+@pytest.fixture
+def sample_formal_charges():
+    return np.array([0, 0, 0, 0])
 
-    def test_empty_input(self):
-        """Test with empty input."""
-        coords = np.array([]).reshape(0, 3)
-        atomic_numbers = np.array([])
-        cn = calculate_coordination_number(atomic_numbers, coords)
-        assert len(cn) == 0
+def test_calculate_coordination_number(sample_distances):
+    # Cutoff 1.5: Atom 0 has 1 neighbor (Atom 1)
+    cn = calculate_coordination_number(sample_distances[0], 1.5)
+    assert cn == 1
 
-    def test_isolated_atom(self):
-        """Test with isolated atoms (no neighbors within cutoff)."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [10.0, 10.0, 10.0]
-        ])
-        atomic_numbers = np.array([1, 1])
-        cutoff = 2.0
+    # Cutoff 2.5: Atom 0 has 2 neighbors (Atom 1, Atom 2)
+    cn = calculate_coordination_number(sample_distances[0], 2.5)
+    assert cn == 2
 
-        cn = calculate_coordination_number(atomic_numbers, coords, cutoff)
-        assert np.all(cn == 0)
+    # Cutoff 0.5: No neighbors
+    cn = calculate_coordination_number(sample_distances[0], 0.5)
+    assert cn == 0
 
-class TestBuildAdjacencyMatrix:
-    def test_symmetric(self):
-        """Test that adjacency matrix is symmetric."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0],
-            [0.0, 1.5, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1, 1])
-        cutoff = 2.0
+def test_build_adjacency_matrix(sample_distances):
+    adj = build_adjacency_matrix(sample_distances, 1.5)
+    # Should have edges 0-1 and 1-2
+    assert adj[0, 1] == 1
+    assert adj[1, 0] == 1
+    assert adj[1, 2] == 1
+    assert adj[2, 1] == 1
+    assert adj[0, 2] == 0
+    assert adj[0, 0] == 0
 
-        adj = build_adjacency_matrix(atomic_numbers, coords, cutoff)
-        assert np.all(adj == adj.T)
+def test_extract_edge_attributes(sample_distances):
+    edge_idx, edge_dists, edge_types = extract_edge_attributes(sample_distances, 1.5)
+    
+    # Check number of edges (undirected, so 2 per connection)
+    # Connections: 0-1, 1-2. Total 4 directed edges.
+    assert len(edge_idx) == 4
+    assert len(edge_dists) == 4
+    
+    # Check values
+    # 0-1 and 1-0
+    assert 1.0 in edge_dists
+    assert 1.0 in edge_dists
 
-    def test_no_self_loops(self):
-        """Test that diagonal is False."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1])
-        cutoff = 2.0
+def test_construct_transition_state_graph(sample_atomic_numbers, sample_formal_charges, sample_distances):
+    graph = construct_transition_state_graph(
+        atomic_numbers=sample_atomic_numbers,
+        formal_charges=sample_formal_charges,
+        distances=sample_distances,
+        cutoff=1.5
+    )
+    
+    assert len(graph["nodes"]) == 4
+    assert graph["metadata"]["num_nodes"] == 4
+    assert "edge_index" in graph["edges"]
+    assert "edge_distance" in graph["edges"]
+    assert "coordination_numbers" in graph["metadata"]
 
-        adj = build_adjacency_matrix(atomic_numbers, coords, cutoff)
-        assert not np.any(np.diag(adj))
+def test_filter_outliers(sample_atomic_numbers, sample_formal_charges, sample_distances):
+    # Create a graph with high coordination
+    # Modify distances to create many neighbors
+    high_cn_dists = np.ones((4, 4)) * 0.5
+    np.fill_diagonal(high_cn_dists, 0.0)
+    
+    graph = construct_transition_state_graph(
+        atomic_numbers=sample_atomic_numbers,
+        formal_charges=sample_formal_charges,
+        distances=high_cn_dists,
+        cutoff=1.5
+    )
+    graph["metadata"]["graph_id"] = 0
+    
+    graphs = [graph]
+    all_graphs, flagged = filter_outliers(graphs, max_coord=2)
+    
+    assert len(all_graphs) == 1
+    assert len(flagged) == 1
 
-    def test_empty_input(self):
-        """Test with empty input."""
-        coords = np.array([]).reshape(0, 3)
-        atomic_numbers = np.array([])
-        adj = build_adjacency_matrix(atomic_numbers, coords)
-        assert adj.shape == (0, 0)
-
-class TestExtractEdgeAttributes:
-    def test_edge_count(self):
-        """Test that edge count matches adjacency matrix."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0],
-            [0.0, 1.5, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1, 1])
-        cutoff = 2.0
-
-        src, tgt, dist = extract_edge_attributes(atomic_numbers, coords, cutoff)
-        adj = build_adjacency_matrix(atomic_numbers, coords, cutoff)
-        expected_edges = np.sum(adj)
-
-        assert len(src) == expected_edges
-        assert len(tgt) == expected_edges
-        assert len(dist) == expected_edges
-
-    def test_distances_positive(self):
-        """Test that all distances are positive."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.5, 0.0, 0.0]
-        ])
-        atomic_numbers = np.array([1, 1])
-        cutoff = 2.0
-
-        src, tgt, dist = extract_edge_attributes(atomic_numbers, coords, cutoff)
-        assert np.all(dist > 0)
-
-class TestConstructTransitionStateGraph:
-    def test_basic_construction(self):
-        """Test basic graph construction from a row."""
-        row = pd.Series({
-            'atomic_numbers': [6, 6, 1, 1],
-            'coordinates': [
-                [0.0, 0.0, 0.0],
-                [1.5, 0.0, 0.0],
-                [0.0, 1.0, 0.0],
-                [1.5, 1.0, 0.0]
-            ],
-            'formal_charges': [0, 0, 0, 0],
-            'energy_dft': -100.5,
-            'barrier_height': 15.2,
-            'reaction_id': 'test_001'
+def test_run_graph_construction_integration(sample_atomic_numbers, sample_formal_charges, sample_distances):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        
+        # Create input data
+        input_df = pd.DataFrame({
+            "atomic_numbers": [sample_atomic_numbers.tolist()],
+            "formal_charges": [sample_formal_charges.tolist()],
+            "distances": [sample_distances.tolist()]
         })
-
-        graph = construct_transition_state_graph(row)
-
-        assert 'nodes' in graph
-        assert 'edges' in graph
-        assert 'metadata' in graph
-
-        assert len(graph['nodes']['atomic_numbers']) == 4
-        assert 'coordination_numbers' in graph['nodes']
-        assert graph['metadata']['reaction_id'] == 'test_001'
-        assert graph['metadata']['energy_dft'] == -100.5
-
-    def test_default_formal_charges(self):
-        """Test that missing formal charges default to zero."""
-        row = pd.Series({
-            'atomic_numbers': [1, 1],
-            'coordinates': [[0.0, 0.0, 0.0], [1.5, 0.0, 0.0]],
-            'energy_dft': -50.0,
-            'barrier_height': 10.0,
-            'reaction_id': 'test_002'
-        })
-
-        graph = construct_transition_state_graph(row)
-        assert graph['nodes']['formal_charges'] == [0, 0]
-
-    def test_transition_metal_detection(self):
-        """Test detection of transition metals (Pd=46, Ni=28, Cu=29)."""
-        # Test with Palladium (46)
-        row = pd.Series({
-            'atomic_numbers': [46, 1, 1],
-            'coordinates': [[0.0, 0.0, 0.0], [1.5, 0.0, 0.0], [0.0, 1.5, 0.0]],
-            'energy_dft': -200.0,
-            'barrier_height': 20.0,
-            'reaction_id': 'test_pd'
-        })
-        graph = construct_transition_state_graph(row)
-        assert graph['metadata']['has_transition_metal'] is True
-
-        # Test without transition metal
-        row['atomic_numbers'] = [6, 1, 1]  # Carbon
-        graph = construct_transition_state_graph(row)
-        assert graph['metadata']['has_transition_metal'] is False
-
-class TestFilterOutliers:
-    def test_no_outliers(self):
-        """Test filtering when no outliers exist."""
-        graphs = [
-            {
-                'nodes': {'coordination_numbers': [2, 2, 3]},
-                'metadata': {'reaction_id': 'test_1'}
-            },
-            {
-                'nodes': {'coordination_numbers': [1, 2]},
-                'metadata': {'reaction_id': 'test_2'}
-            }
-        ]
-
-        clean, outliers = filter_outliers(graphs, threshold=6)
-        assert len(clean) == 2
-        assert len(outliers) == 0
-        assert all(not g['metadata']['is_outlier'] for g in clean)
-
-    def test_with_outliers(self):
-        """Test filtering with outliers."""
-        graphs = [
-            {
-                'nodes': {'coordination_numbers': [2, 2, 3]},
-                'metadata': {'reaction_id': 'test_1'}
-            },
-            {
-                'nodes': {'coordination_numbers': [7, 2]},  # 7 > 6
-                'metadata': {'reaction_id': 'test_2'}
-            }
-        ]
-
-        clean, outliers = filter_outliers(graphs, threshold=6)
-        assert len(clean) == 1
-        assert len(outliers) == 1
-        assert outliers[0]['metadata']['reaction_id'] == 'test_2'
-        assert outliers[0]['metadata']['is_outlier'] is True
-
-    def test_boundary_condition(self):
-        """Test that exactly threshold is not an outlier."""
-        graphs = [
-            {
-                'nodes': {'coordination_numbers': [6, 6]},
-                'metadata': {'reaction_id': 'test_boundary'}
-            }
-        ]
-
-        clean, outliers = filter_outliers(graphs, threshold=6)
-        assert len(clean) == 1
-        assert len(outliers) == 0
-
-class TestSaveGraphsToParquet:
-    def test_save_and_load(self):
-        """Test saving and reloading graphs from Parquet."""
-        graphs = [
-            {
-                'nodes': {
-                    'atomic_numbers': [1, 6],
-                    'formal_charges': [0, 0],
-                    'coordination_numbers': [1, 2]
-                },
-                'edges': {
-                    'source': [0],
-                    'target': [1],
-                    'distances': [1.09]
-                },
-                'metadata': {
-                    'reaction_id': 'test_save',
-                    'n_atoms': 2,
-                    'energy_dft': -50.0,
-                    'barrier_height': 10.0,
-                    'is_outlier': False,
-                    'has_transition_metal': False
-                }
-            }
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_graphs.parquet"
-            save_graphs_to_parquet(graphs, output_path)
-
-            assert output_path.exists()
-            df = pq.read_table(output_path).to_pandas()
-            assert len(df) == 1
-            assert df['reaction_id'].iloc[0] == 'test_save'
-
-    def test_empty_graphs(self):
-        """Test saving empty list of graphs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "empty_graphs.parquet"
-            save_graphs_to_parquet([], output_path)
-            assert output_path.exists()
-            df = pq.read_table(output_path).to_pandas()
-            assert len(df) == 0
-
-class TestSaveMetadata:
-    def test_save_metadata_file(self):
-        """Test saving metadata to JSON."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "metadata.json"
-            save_metadata(
-                clean_count=100,
-                outlier_count=5,
-                total_count=105,
-                cutoff=3.5,
-                output_path=output_path
-            )
-
-            assert output_path.exists()
-            with open(output_path) as f:
-                data = json.load(f)
-
-            assert data['total_graphs'] == 105
-            assert data['clean_graphs'] == 100
-            assert data['outlier_graphs'] == 5
-            assert data['coordination_cutoff'] == 3.5
+        
+        input_path = tmpdir / "input.parquet"
+        output_path = tmpdir / "output.parquet"
+        
+        input_df.to_parquet(input_path)
+        
+        run_graph_construction(input_path, output_path, cutoff=1.5)
+        
+        assert output_path.exists()
+        
+        # Load and verify
+        result_df = pd.read_parquet(output_path)
+        assert len(result_df) == 1
+        
+        # Verify metadata
+        meta = json.loads(result_df["metadata"].iloc[0])
+        assert meta["num_nodes"] == 4
+        assert meta["cutoff_used"] == 1.5

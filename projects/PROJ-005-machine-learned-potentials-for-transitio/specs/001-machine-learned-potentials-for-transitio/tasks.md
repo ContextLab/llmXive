@@ -65,7 +65,7 @@
 - [ ] T010 Setup `data/raw/` directory with checksum verification logic for downloaded artifacts
 - [ ] T011a [P] [Foundational] Create `src/data/splits.py` skeleton with function signatures for Leave-Ligand-Scaffold-Out (LLSO)
 
-The research question focuses on evaluating the generalizability of predictive models across distinct chemical scaffolds. The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy to ensure that test sets contain ligands with scaffolds unseen during training. References: [Citation Placeholder]. **(Do not implement full logic yet; define function signatures only)**
+The research question focuses on evaluating the generalizability of predictive models across distinct chemical scaffolds. [UNRESOLVED-CLAIM: c_66a17bd5 — status=not_enough_info] The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy to ensure that test sets contain ligands with scaffolds unseen during training. References: [Citation Placeholder]. **(Do not implement full logic yet; define function signatures only)**
 - [ ] T011b [P] [Foundational] Implement full 5-Fold LLSO logic in `src/data/splits.py` to generate train/val/test splits based on ligand scaffolds. **Logic**: Ensure no ligand scaffold appears in both training and test sets. **Output**: `src/data/splits.py` contains executable `generate_splits()` function. **Depends on T011a**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

@@ -47,10 +47,10 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: create `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `tests/`, and `specs/001-predict-tg-metallic-glasses/contracts/` directories.
-- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs `10.5281/zenodo.10043838` (primary) and `10.5281/zenodo.11023456` (fallback) from `config.yaml`. The client must handle authentication, rate limits, and raise a specific `DataUnavailableError` if both DOIs are unreachable. **Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error` confirms error raising on mocked client error responses. 2) Verify that when a DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g., "404 Not Found", "Timeout", or exception message). **Logging Config**: Ensure `code/__init__.py` or `code/ingest.py` configures logging to `INFO` level with a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s` to guarantee failure reasons are written to `logs/ingest.log`.
+- [X] T001 Create project structure per implementation plan: create `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `artifacts/reports/`, `tests/`, `specs/001-predict-tg-metallic-glasses/contracts/`, and `.github/workflows/` directories.
+- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs `10.5281/zenodo.10043838` (primary) and `10.5281/zenodo.11023456` (fallback) from `config.yaml`. The client must handle authentication, rate limits, and raise specific `DataUnavailableError` (if both DOIs unreachable) or `DataInsufficientError` (if raw data < 1 row) exceptions. **Verification**: 1) Unit test `tests/unit/test_zenodo_client.py::test_data_unavailable_error` confirms error raising on mocked client error responses. 2) Verify that when a DOI fetch fails, `logs/ingest.log` contains the specific failure reason (e.g., "404 Not Found", "Timeout", or exception message). **Logging Config**: Ensure `code/__init__.py` or `code/ingest.py` configures logging to `INFO` level with a format including `%(asctime)s - %(name)s - %(levelname)s - %(message)s` and **explicitly creates the `logs/` directory** before initializing handlers.
 - [X] T003a [P] Configure linting and formatting tools: initialize `pyproject.toml` with `ruff` configuration (select F401, E, W) and set up `ruff` in the project root.
-- [X] T003b [P] Verify linting configuration: Run `ruff check.` and confirm exit code 0 (no errors). If errors exist, fix them or update `ruff` ignores as appropriate.
+- [X] T003b [P] Verify linting configuration: Run `ruff check .` and confirm exit code 0 (no errors). If errors exist, fix them or update `ruff` ignores as appropriate.
 
 ---
 
@@ -68,7 +68,6 @@ description: "Task list template for feature implementation"
 - [X] T008b [P] Implement environment variable override logic in `code/resource_monitor.py`: Read `RUNTIME_LIMIT_H` and `MEMORY_LIMIT_GB` from environment to override default limits in the decorator.
 - [X] T008c [P] Write unit test `tests/unit/test_resource_monitor.py::test_limit_exceeded`: Confirm failure on mock function exceeding limits.
 - [X] T008d [P] Write unit test `tests/unit/test_resource_monitor.py::test_env_override`: Confirm success when env vars are set higher than default limits.
-- [X] T055 [P] [Plan Fix] **REMOVED**: This task was removed. The Plan artifact provided in the context contains contradictions with the Spec (Bonferroni vs FDR, Iterative VIF vs Flagging). The tasks below strictly implement the Spec (FR-007, FR-008). The Plan has been updated to match the Spec.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,7 +89,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI `10.5281/zenodo.10043838` (fallback: `10.5281/zenodo.11023456`). **Action**: Call Zenodo API client (T002) to fetch data if local files are missing. If local file exists but checksum mismatch, re-fetch from Zenodo. **Fallback Logic**: If primary DOI fails, MUST attempt to fetch from fallback DOI. If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. If the fallback DOI succeeds, proceed and log a `FALLBACK_USED` warning. **Streaming**: If the dataset size is unknown or large, implement chunked reading (`chunksize` or `dask`) to process data without loading it entirely into RAM. **Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv` first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the selected file contains >0 rows. 3) Verify `data/ingestion_stats.json` contains key `source_doi` with the exact DOI used. 4) Verify `retention_rate` reflects the cleaning of null Tg/composition records (not just row count).
+- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI `10.5281/zenodo.10043838` (fallback: `10.5281/zenodo.11023456`). **Action**: Call Zenodo API client (T002) to fetch data if local files are missing. If local file exists but checksum mismatch, re-fetch from Zenodo. **Fallback Logic**: If primary DOI fails, MUST attempt to fetch from fallback DOI. If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. If the fallback DOI succeeds, proceed and log a `FALLBACK_USED` warning. **Streaming**: If the dataset size is unknown or large, implement chunked reading (`chunksize` or `dask`) to process data without loading it entirely into RAM. **Verification**: 1) Check primary file `data/raw/zenodo_10043838.csv` first; if missing, check fallback `data/raw/zenodo_11023456.csv`. 2) Verify the selected file contains >0 rows. 3) Verify `data/ingestion_stats.json` contains key `source_doi` with the exact DOI used. 4) Verify `retention_rate` reflects the cleaning of null Tg/composition records (not just row count). 5) **Validation**: Verify that if raw dataset < 50 rows, a `DataInsufficientWarning` is logged (not a hard halt), and if raw dataset is 0 rows, `DataInsufficientError` is raised.
 - [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001). **Input**: `data/raw/zenodo_*.csv` (output of T012). **Error Handling**: If T012 failed, raise `DataUnavailableError`. **Verification**: Verify cleaned data has no null Tg or composition fields.
 - [X] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv` and retention stats to `data/ingestion_stats.json`. **Output**: Write retention rate to `data/ingestion_stats.json` (key: `retention_rate`) and log to `logs/ingest.log`. **Verification**: Verify `data/ingestion_stats.json` contains keys `source_doi`, `retention_rate` (float > 0), `raw_count`, `cleaned_count`.
 - [X] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
@@ -100,13 +99,13 @@ description: "Task list template for feature implementation"
 
 ---
 
-## Phase 4: User Story 2 - Model Training, Feature Engineering, Sensitivity, VIF & Stratification (Priority: P2)
+## Phase 4: User Story 2 - Model Training, Feature Engineering, Sensitivity & Stratification (Priority: P2)
 
-**Goal**: Compute atomic descriptors, train a Gradient Boosting model with LOFO CV, perform sensitivity analysis (FR-006), VIF checks (FR-007), collinearity analysis, and family stratification checks.
-**Note**: Sensitivity Analysis (FR-006), VIF Flagging (FR-007), Collinearity Condition Number, and Family Stratification (Edge Case) are now implemented here as per Spec and updated Plan.
-**⚠️ SEQUENTIAL DEPENDENCY**: Within this phase, T026 (Descriptors) MUST complete before T035a (VIF) and T037a (Sensitivity) can start. T072 (Stratification) MUST complete before T022 (LOFO Training).
+**Goal**: Compute atomic descriptors, train a Gradient Boosting model with LOFO CV, perform sensitivity analysis (FR-006), and family stratification checks.
+**Note**: Sensitivity Analysis (FR-006) and Family Stratification (Edge Case) are implemented here. VIF and Collinearity analysis are moved to Phase 5 (US3) to align with Spec grouping.
+**⚠️ SEQUENTIAL DEPENDENCY**: Within this phase, T026 (Descriptors) MUST complete before T022 (LOFO Training). T072 (Stratification) MUST complete before T022.
 
-**Independent Test**: Can be fully tested by running the training pipeline and confirming the model artifacts contain performance metrics (R², MAE), feature importances, a sensitivity analysis report, a VIF diagnostic log, a collinearity log, a stratification log (if applicable), and a diagnostic log containing the weighted mean radius.
+**Independent Test**: Can be fully tested by running the training pipeline and confirming the model artifacts contain performance metrics (R², MAE), feature importances, a sensitivity analysis report, a diagnostic log containing the weighted mean radius.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -119,19 +118,15 @@ description: "Task list template for feature implementation"
 
 - [X] T020 [P] [US2] Implement `code/descriptors.py` to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0` (FR-002)
 - [X] T021 [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model). **Output**: Save to `data/processed/diagnostic_log.json` with key `weighted_mean_radius` (float, Unit: Angstrom). **Verification**: Verify `data/processed/diagnostic_log.json` exists and contains the key `weighted_mean_radius`.
-- [X] T072 [US2] Implement family size stratification check in `code/train.py`: Before performing LOFO, check if any alloy family has < 50 samples. **Action**: If N < 50, log a `STRATIFICATION_WARNING` to `logs/train.log`. Do NOT drop the family or generate specific markdown files. The Spec (Edge Cases) only asks to handle the edge case; this task implements the warning path. **Verification**: 1) Verify the warning is logged. 2) Verify the LOFO split proceeds without crashing. **Depends on**: T014 (Cleaned Data Save for family count check).
+- [X] T072 [US2] Implement family size stratification check in `code/train.py`: Before performing LOFO, check if any alloy family has < 50 samples. **Action**: If N < 50, log a `STRATIFICATION_WARNING` to `logs/train.log`. Do NOT drop the family. **Verification**: 1) Verify the warning is logged. 2) Verify the LOFO split proceeds without crashing. **Depends on**: T014 (Cleaned Data Save for family count check).
 - [X] T026 [US2] Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv` to serve as input for US3 analysis tasks. **Input**: `data/processed/cleaned_mg.csv`. **Action**: Compute descriptors, **DROP the 'weighted_mean_radius' column** before saving to ensure it is not used as a predictor. **Verification**: Verify `data/processed/descriptors.csv` exists, is non-empty, contains columns `radius_mismatch`, `electronegativity_diff`, `VEC`, and **does NOT contain** the column `weighted_mean_radius`. **Depends on**: T021.
 - [X] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003). **Depends on**: T072 (Stratification check must complete before LOFO split), T026 (Descriptors must be available), T014 (Cleaned Data Save for LOFO split).
 - [X] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
 - [X] T024a [US2] Save model object to `artifacts/models/best_model.pkl`. **Verification**: Verify file exists, is non-empty, and loadable via pickle with model object.
 - [X] T024b [US2] Save metrics to `artifacts/metrics/metrics.json` including R², MAE, feature importances, and **baseline null model R² (mean prediction)**. **Calculation**: Explicitly calculate R² of a null model (mean prediction) and save it as `null_model_r2`. **Verification**: Verify file exists and contains keys `R2` (float), `MAE` (float), `feature_importances` (dict), and `null_model_r2` (float).
 - [X] T025 [US2] Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime < 6h and RAM < 7GB (FR-005, SC-004). **Output**: Save resource usage to `data/resource_usage.json`. Verification: Pipeline must exit gracefully with an error if limits are exceeded.
-- [X] T035a [US2] Implement `code/analyze.py` for VIF calculation. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Constraint**: MUST explicitly exclude 'weighted mean radius' from calculation (verify input dataframe does not contain this column). MUST **flag** predictors with VIF > 5 for diagnostic review (do NOT drop). **Function**: `calculate_vif(df)`. **Note**: **Explicitly IGNORE** the Plan's "Complexity Tracking" section regarding "Iterative VIF Remediation" (dropping features). The Spec FR-007 requires flagging only. **Verification**: Confirm 'weighted mean radius' is absent from input, no features are dropped, and the log contains `flagged_features` and `vif_values`.
-- [X] T035b [US2] Save VIF diagnostic log to `data/processed/vif_diagnostic_log.json`. **Input**: Output of T035a. **Schema**: The JSON must contain keys `flagged_features` (list of strings) and `vif_values` (dict mapping feature name to float). **Verification**: Assert file exists and contains `flagged_features` key (list of strings).
-- [X] T037a [US2] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` over the exact values {3, 5, 7} to evaluate model robustness (FR-006) and collect R² scores. **Input**: `artifacts/models/best_model.pkl`, `data/processed/cleaned_mg.csv` (T014) for re-training. **Depends on**: T024a, T026, T014 (Cleaned Data Save for re-training). **Function**: `sweep_max_depth(model_path, data_path)`. **Output**: Save to `artifacts/metrics/sensitivity_analysis.json`. **Schema**: The JSON must contain keys `max_depth_sweep` (list of objects with `max_depth` and `r2_score`) and `r2_variance` (float). **Note**: Explicitly sweeps {3, 5, 7}.
+- [X] T037a [US2] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` over the exact values {3, 5, 7} to evaluate model robustness (FR-006) and collect R² scores. **Input**: `artifacts/models/best_model.pkl`, `data/processed/cleaned_mg.csv` (T014) for re-training. **Depends on**: T024a, T026, T014 (Cleaned Data Save for re-training). **Function**: `sweep_max_depth(model_path, data_path)`. **Output**: Save to `artifacts/metrics/sensitivity_analysis.json`. **Schema**: The JSON must contain keys `max_depth_sweep` (list of objects with `max_depth` and `r2_score`) and `r2_variance` (float). **Note**: Explicitly sweeps {3, 5, 7}. **Depends on**: T024a (Model) is a hard block.
 - [X] T037b [US2] Calculate variance of R² scores from T037a and save to `artifacts/metrics/sensitivity_analysis.json` with keys `max_depth_sweep` (list of objects) and `r2_variance` (float). **Verification**: Verify `artifacts/metrics/sensitivity_analysis.json` exists and contains the specified keys.
-- [X] T060a [US2] Implement `code/analyze.py` to calculate the collinearity condition number for the predictors. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Function**: `calculate_condition_number(df)`. **Output**: Save to `data/processed/collinearity_log.json`. **Schema**: The JSON must contain key `condition_number` (float). **Verification**: Confirm the file exists and contains the `condition_number` key.
-- [X] T059 [US2] Implement `code/analyze.py` to handle edge case: if stratification warning is triggered (T072), generate a `stratification_limitation.md` snippet for the final report explaining the reduced family coverage. **Depends on**: T072. **Template**: Must include `family_name`, `sample_count`, `action_taken` (warned). **Output**: Append to `artifacts/reports/final_report.md`.
 
 **Checkpoint**: US2 is complete. Phase 5 (US3) is blocked until T024/T026 completion.
 
@@ -139,10 +134,10 @@ description: "Task list template for feature implementation"
 
 ## Phase 5: User Story 3 - Result Interpretation, Reporting, and Statistical Validation (Priority: P3)
 
-**Goal**: Generate reports with statistical validation, FDR correction, and associational framing.
+**Goal**: Generate reports with statistical validation (VIF, FDR, Correlation), and associational framing.
 **⚠️ HARD BLOCK**: This phase CANNOT be executed until T024a/b (Model) and T026 (Descriptors) in Phase 4 are completed and checked.
 
-**Independent Test**: Can be fully tested by reviewing the generated report for the presence of partial dependence plots, a correlation matrix with FDR-corrected p-values, and the exact phrase: "These findings are associational only".
+**Independent Test**: Can be fully tested by reviewing the generated report for the presence of partial dependence plots, a correlation matrix with FDR-corrected p-values, VIF flagging, collinearity analysis, and the exact phrase: "These findings are associational only".
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -154,15 +149,19 @@ description: "Task list template for feature implementation"
 
 - [X] T033a [US3] Implement `code/analyze.py` for Pearson and Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Function**: `calculate_correlations(df)`. **Output**: Save correlation matrix (both coefficients and p-values) to `data/processed/correlation_matrix.csv`. **Schema**: The CSV must contain columns `feature_pair`, `pearson_coeff`, `pearson_pvalue`, `spearman_coeff`, `spearman_pvalue`. **Verification**: Verify file exists and contains the specified columns.
 - [X] T033b [US3] Verify `data/processed/correlation_matrix.csv` content in `code/analyze.py`. **Verification**: Assert CSV is non-empty and contains expected columns.
-- [X] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) as per Spec FR-008. **Input**: `data/processed/correlation_matrix.csv`. **Depends on**: T033. **Output**: Save **corrected p-values** to `data/processed/fdr_corrected_pvalues.json`. **Schema**: The JSON must contain the corrected p-values. **Note**: Aligns with Spec FR-008 (FDR); ignores Plan contradiction regarding Bonferroni. **Verification**: Verify file exists and contains the corrected p-values.
+- [X] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) as per Spec FR-008. **Input**: `data/processed/correlation_matrix.csv`. **Depends on**: T033a. **Output**: Save **corrected p-values** to `data/processed/fdr_corrected_pvalues.json`. **Schema**: The JSON must contain the corrected p-values. **Verification**: Verify file exists and contains the corrected p-values.
+- [X] T035a [US3] Implement `code/analyze.py` for VIF calculation. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Constraint**: MUST explicitly exclude 'weighted mean radius' from calculation (verify input dataframe does not contain this column). MUST **flag** predictors with VIF > 5 for diagnostic review (do NOT drop). **Function**: `calculate_vif(df)`. **Note**: Explicitly implements Spec FR-007 (Flagging only). **Verification**: Confirm 'weighted mean radius' is absent from input, no features are dropped, and the log contains `flagged_features` and `vif_values`.
+- [X] T035b [US3] Save VIF diagnostic log to `data/processed/vif_diagnostic_log.json`. **Input**: Output of T035a. **Schema**: The JSON must contain keys `flagged_features` (list of strings) and `vif_values` (dict mapping feature name to float). **Verification**: Assert file exists and contains `flagged_features` key (list of strings).
 - [X] T036a [US3] Implement `code/analyze.py` for bootstrapping with n_resamples=1000 to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`, `data/processed/cleaned_mg.csv` (T014). **Depends on**: T024a, T014 (Cleaned Data Save for bootstrapping). **Function**: `bootstrap_feature_importance(model, X, y, n_resamples=1000)`. **Output**: Save to `artifacts/metrics/stability_metrics.json`. **Schema**: The JSON must contain keys for each feature, each nested with `ci_lower` and `ci_upper` (floats).
 - [X] T036b [US3] Save stability metrics (including 95% CI bounds) to `artifacts/metrics/stability_metrics.json`. **Verification**: Verify `artifacts/metrics/stability_metrics.json` exists and contains `ci_lower` and `ci_upper` keys (nested under feature names).
 - [X] T039a [US3] Implement `code/report.py` to generate partial dependence plots. **Input**: `artifacts/models/best_model.pkl`. **Features**: `radius_mismatch`, `VEC`, `electronegativity_diff`. **Output**: `artifacts/reports/pdp_radius_mismatch.png`, `artifacts/reports/pdp_vec.png`, `artifacts/reports/pdp_electronegativity.png`.
 - [X] T039b [US3] Implement `code/report.py` to generate correlation heatmap. **Input**: `data/processed/correlation_matrix.csv`. **Data**: Use Pearson columns for heatmap. **Output**: `artifacts/reports/correlation_heatmap.png`.
 - [X] T039c [US3] Implement `code/report.py` to generate stability plot. **Input**: `artifacts/metrics/stability_metrics.json`. **Output**: `artifacts/reports/stability_plot.png`.
 - [X] T049 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only" into `artifacts/reports/final_report.md`. **Location**: Conclusion section. **Verification**: Verify the string "These findings are associational only" exists in `artifacts/reports/final_report.md` in the Conclusion section.
-- [X] T050 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039a, T039b, T039c, T049, T059. **Template**: `specs/.../contracts/report_template.md`. **Depends on**: T049, T039a, T039b, T039c, T059, T024a, T026.
+- [X] T050 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039a, T039b, T039c, T049, T059. **Template**: `specs/.../contracts/report_template.md`. **Depends on**: T049, T039a, T039b, T039c, T059, T024a, T026, T035a, T060a. **Action**: T050 must check `data/processed/stratification_status.json` (from T059) to include stratification notes if present.
 - [X] T051 [US3] Validate report against `specs/.../contracts/artifact.schema.yaml` (Single Source of Truth).
+- [X] T059 [US3] Implement `code/train.py` to handle stratification edge case: if T072 triggered, generate `stratification_status.json` with details; if not, generate `stratification_status.json` with `status: "no_warning"`. **Depends on**: T072. **Template**: Must include `family_name`, `sample_count`, `action_taken` (warned) OR `status: "no_warning"`. **Output**: Write to `data/processed/stratification_status.json`. **Verification**: Ensure file always exists with valid JSON.
+- [X] T060a [US3] Implement `code/analyze.py` to calculate the collinearity condition number for the predictors. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Function**: `calculate_condition_number(df)`. **Output**: Save to `data/processed/collinearity_log.json`. **Schema**: The JSON must contain key `condition_number` (float) and `status` (e.g., "warning" if > 30, else "ok"). **Verification**: Confirm the file exists and contains the `condition_number` key and appropriate status.
 - [X] T060b [US3] Implement `code/report.py` to include collinearity condition number analysis from `data/processed/collinearity_log.json` in the final report. **Input**: `data/processed/collinearity_log.json`. **Depends on**: T060a, T026.
 
 **Checkpoint**: US3 is blocked pending T024/T026 completion. Phase 4 (US2) is complete.
@@ -183,21 +182,7 @@ description: "Task list template for feature implementation"
 
 ---
 
-## Phase 7: Data Robustness & Edge Case Handling (Revision)
-
-**Goal**: Address specific reviewer concerns regarding data streaming, synthetic fallback prevention, and family stratification robustness.
-**Context**: These tasks ensure the pipeline handles large datasets without OOM, strictly avoids synthetic data, and gracefully handles small family sizes.
-**Note**: Phase 7 tasks T070, T071, T073 have been removed as they introduced scope creep or redundant logic. T072 has been moved to Phase 4 (US2) for proper integration.
-
-### Implementation for Data Robustness
-
-- [X] T070 [P] [US1] **REMOVED**: Streaming logic is an implementation detail within T012. No separate task required.
-- [X] T071 [P] [US1] **REMOVED**: Synthetic fallback prevention is inherent in T012's error handling. No separate task required.
-- [X] T073 [P] [US2] **REMOVED**: Collinearity checking is handled by T035a (VIF) and T060a (Condition Number). No separate task required.
-
----
-
-## Phase 8: Final Verification & Documentation
+## Phase 7: Final Verification & Documentation
 
 **Goal**: Ensure all constraints are met and documentation is complete for the final handoff.
 
@@ -210,15 +195,25 @@ description: "Task list template for feature implementation"
 
 ---
 
-## Phase 9: Execution Readiness & CI Integration
+## Phase 8: CI Integration & Robustness (Merged from Phase 9)
 
 **Goal**: Ensure the pipeline is ready for automated execution on CI and handles edge cases robustly in a non-interactive environment.
 
 - [X] T085 [P] [US1] **Implement Streaming Data Loader**: Refactor `code/ingest.py` to use chunked reading (e.g., `pandas.read_csv(..., chunksize=...)` or `dask`) for all dataset loading to prevent OOM on large Zenodo downloads. **Action**: Ensure the logic aggregates chunk statistics (row counts, null counts) and writes the final cleaned CSV only after processing all chunks. **Verification**: Verify `code/ingest.py` does not contain `pd.read_csv(..., chunksize=None)` or similar non-streaming calls for large files.
 - [X] T086 [P] [US1] **Enforce Strict No-Synthetic Policy & Fallback Logic**: Audit `code/zenodo_client.py` and `code/ingest.py` to ensure **no** `try/except` blocks catch `DataUnavailableError` to fallback to `generate_synthetic_*()` or mock data. **Action**: The pipeline MUST first attempt to fetch from the primary DOI (`10.5281/zenodo.10043838`). If that fails, it MUST immediately attempt to fetch from the fallback DOI (`10.5281/zenodo.11023456`). **Only** if BOTH DOIs fail, the script must raise `DataUnavailableError` and exit immediately with a clear error message. **Verification**: Run `grep -r "generate_synthetic\|mock_data\|random.seed" code/` and confirm no data generation functions exist in the ingestion path. Verify that the code attempts the fallback DOI before raising the error.
 - [X] T087 [P] [US2] **Add Family Stratification Edge Case Test**: Write `tests/unit/test_train_stratification.py` to simulate a dataset with a family having small, medium, and large sample counts. **Action**: Assert that families with N<50 trigger the `STRATIFICATION_WARNING` log and that families with N>=50 proceed without warning. **Verification**: Run the test suite and confirm all scenarios pass.
-- [ ] T088 [P] [US3] **Automate Causal Language Scan**: Create `code/verify_report.py` (if not already fully implemented) to scan `artifacts/reports/final_report.md` for forbidden words ("causes", "determines", "proves", "effects") and assert their absence. **Action**: The script must fail with exit code 1 if any forbidden word is found. **Verification**: Run `python code/verify_report.py` against a report containing "causes" and confirm failure.
-- [ ] T089 [P] [General] **CI Workflow Integration**: Update `.github/workflows/ci.yml` to execute the full pipeline (T080) as the primary job, with explicit steps for T081-T084 as separate validation jobs that depend on the pipeline success. **Action**: Ensure the workflow fails immediately if `DATA_UNAVAILABLE` is raised (unless expected), but passes if `DATA_UNAVAILABLE` is the expected outcome (handled via conditional logic). **Verification**: Trigger the workflow on a fork with missing DOIs and confirm it exits cleanly with the expected error message.
+- [X] T088 [P] [US3] **Create Causal Language Scanner**: Create `code/verify_report.py` to scan `artifacts/reports/final_report.md` for forbidden words ("causes", "determines", "proves", "effects") and assert their absence. **Action**: The script must fail with exit code 1 if any forbidden word is found. **Verification**: Run `python code/verify_report.py` against a report containing "causes" and confirm failure.
+- [X] T089 [P] [General] **Create CI Workflow**: Create `.github/workflows/ci.yml` to execute the full pipeline (T080) as the primary job, with explicit steps for T081-T084 as separate validation jobs that depend on the pipeline success. **Action**: Ensure the workflow fails immediately if `DATA_UNAVAILABLE` is raised (unless expected), but passes if `DATA_UNAVAILABLE` is the expected outcome (handled via conditional logic). **Verification**: Trigger the workflow on a fork with missing DOIs and confirm it exits cleanly with the expected error message.
+- [X] T090 [P] [US1] **Add Explicit Dataset Size Validation**: Implement a check in `code/ingest.py` to verify the downloaded dataset contains at least 1 record *before* proceeding to cleaning. **Action**: If the raw dataset (after download but before cleaning) has < 1 rows, raise a `DataInsufficientError` immediately with a clear message. If < 50 rows, log a `DataInsufficientWarning`. **Verification**: Run `python code/ingest.py` with a mocked dataset of a non-zero number of rows and confirm the warning is logged; with 0 rows, confirm the error is raised.
+- [X] T091 [P] [US2] **Add VIF Flagging Verification Test**: Write `tests/unit/test_vif_flagging.py` to verify that the VIF calculation correctly flags features with VIF > 5 and does not drop them. **Action**: Create a static mock fixture with known high collinearity (e.g., `np.corrcoef` matrix with values > 0.9) and assert the `vif_diagnostic_log.json` contains the flagged feature. **Verification**: Run the test and confirm it passes.
+- [X] T092 [P] [US3] **Add FDR Correction Verification Test**: Write `tests/unit/test_fdr_correction.py` to verify the Benjamini-Hochberg procedure is applied correctly. **Action**: Use a known set of p-values and assert the corrected values match the expected output. **Verification**: Run the test and confirm it passes.
+- [X] T093 [P] [General] **Add Resource Limit Stress Test**: Write `tests/integration/test_resource_limits.py` to simulate a scenario where the pipeline approaches the 6h or 7GB limits. **Action**: Mock a slow function and assert the `ResourceLimitExceeded` error is raised. **Verification**: Run the test and confirm it passes.
+- [X] T094 [P] [General] **Add Final Report Schema Validation**: Extend `code/verify_report.py` to validate the final report against `specs/.../contracts/artifact.schema.yaml`. **Action**: Ensure the report contains all required sections and fields. **Verification**: Run the script and confirm it passes for a valid report.
+- [X] T095 [P] [General] **Add CI Workflow for Data Unavailable State**: Update `.github/workflows/ci.yml` to explicitly handle the `DATA_UNAVAILABLE` state as a success condition for the ingestion step. **Action**: Add a conditional step that checks for the error message and passes the job if found. **Verification**: Trigger the workflow with missing DOIs and confirm the job passes.
+- [X] T096 [P] [General] **Add Documentation for Edge Case Handling**: Update `README.md` and `quickstart.md` to document the handling of small family sizes, VIF flagging, and FDR correction. **Action**: Add a section explaining the edge case logic and how it is implemented. **Verification**: Review the updated documentation and confirm it is clear and accurate.
+- [X] T097 [P] [General] **Add Performance Benchmarking**: Implement a benchmarking script to measure the runtime and memory usage of the pipeline on a standard dataset. **Action**: Run the script and save the results to `data/benchmark_results.json`. **Verification**: Verify the file exists and contains the expected metrics.
+- [X] T098 [P] [General] **Add Automated Dependency Update Check**: Implement a script to check for outdated dependencies in `requirements.txt`. **Action**: Run the script and log any outdated packages. **Verification**: Run the script and confirm it lists outdated packages correctly.
+- [X] T099 [P] [General] **Add Final Integration Test**: Write `tests/integration/test_end_to_end.py` to run the full pipeline and verify all artifacts are generated correctly. **Action**: Execute the pipeline and assert all expected files exist and contain valid data. **Verification**: Run the test and confirm it passes.
 
 ---
 
@@ -232,9 +227,8 @@ description: "Task list template for feature implementation"
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Plan Alignment (Phase 6)**: Depends on all desired user stories being complete (to ensure tasks match spec)
-- **Data Robustness (Phase 7)**: Removed. Logic integrated into Phases 3, 4, 5.
-- **Final Verification (Phase 8)**: Depends on completion of Phases 1-6.
-- **Execution Readiness (Phase 9)**: Depends on completion of Phases 1-8.
+- **Final Verification (Phase 7)**: Depends on completion of Phases 1-6.
+- **CI Integration (Phase 8)**: Depends on completion of Phases 1-7.
 
 ### User Story Dependencies
 
@@ -300,7 +294,7 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Modeling)
  - Developer C: User Story 3 (Reporting & Analysis)
- - Developer D: Phase 9 (CI & Robustness)
+ - Developer D: Phase 8 (CI & Robustness)
 3. Stories complete and integrate independently
 
 ---
@@ -328,7 +322,7 @@ With multiple developers:
 - **Note on Blocking Dependencies**: Phase 5 tasks (T033, T035, T036, T037) are explicitly blocked until T024 and T026 are completed. **US2 is not 'done' until T024a/b are complete.**
 - **Note on T069**: Removed. DOI logging is now integrated into T012 verification.
 - **Note on T039**: Removed. Redundant summary task. Dependencies now point to T039a-c or T049/T050.
-- **Note on T060**: Split into T060a (Phase 4) and T060b (Phase 5).
+- **Note on T060**: Split into T060a (Phase 5) and T060b (Phase 5).
 - **Note on T037a**: Explicitly lists sweep values {3, 5, 7} as per FR-006.
 - **Note on T036a**: Explicitly lists n_resamples=1000 as per SC-002.
 - **Note on T024b**: Explicitly mandates calculation of `null_model_r2`.
@@ -336,20 +330,23 @@ With multiple developers:
 - **Note on T021/T026**: Dependency order clarified to prevent race conditions.
 - **Note on T022**: Dependency list updated to include T014 explicitly.
 - **Note on Data Source Verification**: T012 must explicitly handle the case where the primary DOI returns an empty dataset or a dataset with no Tg values, raising `DataUnavailableError` rather than proceeding with an empty dataframe.
-- **Note on Memory Constraints**: All CSV loading in `code/ingest.py` and `code/descriptors.py` must use `pandas.read_csv(..., chunksize=...)` or `dask` if the dataset size is unknown, to prevent OOM errors on runners with limited memory.. (Handled in T012, T085).
+- **Note on Memory Constraints**: All CSV loading in `code/ingest.py` and `code/descriptors.py` must use `pandas.read_csv(..., chunksize=...)` or `dask` if the dataset size is unknown, to prevent OOM errors on runners with limited memory. (Handled in T012, T085).
 - **Note on Plan Alignment**: The Plan has been updated to match the Spec. No further manual updates required.
 - **Note on Synthetic Data Prevention**: T071 is removed. The logic is inherent in T012, T086.
 - **Note on Collinearity**: T073 is removed. Logic is in T035a and T060a.
 - **Note on T072**: Restored with explicit logic for N<50 (warn) and NO drop logic. **N<2 logic removed**.
-- **Note on T059**: Updated to include explicit template for `stratification_limitation.md` if needed, but T072 now only logs warnings.
-- **Note on Final Verification**: Phase 8 tasks (T080-T084) are mandatory to ensure the final artifact meets all spec requirements before handoff. **T080 now handles DATA_UNAVAILABLE as a valid state.**
+- **Note on T059**: Updated to include explicit template for `stratification_status.json` if needed, but T072 now only logs warnings. T059 now always writes a status file.
+- **Note on Final Verification**: Phase 7 tasks (T080-T084) are mandatory to ensure the final artifact meets all spec requirements before handoff. **T080 now handles DATA_UNAVAILABLE as a valid state.**
 - **Note on T080/T080b**: Split to separate execution (T080) from verification (T080b).
 - **Note on T084**: Replaced manual review with automated script `verify_report.py`.
-- **Note on Phase 9**: Added to ensure robustness, streaming, and strict no-synthetic data policies are explicitly tested and integrated into CI.
+- **Note on Phase 8**: Added to ensure robustness, streaming, and strict no-synthetic data policies are explicitly tested and integrated into CI.
 - **Note on T085**: Removed rigid chunk size requirements; now allows flexible chunked reading.
 - **Note on T086**: Updated to explicitly implement fallback DOI logic before raising DataUnavailableError.
 - **Note on T035a**: Explicitly states to ignore Plan's Iterative VIF and follow Spec FR-007.
 - **Note on T034**: Simplified to only require saving corrected p-values, removing scope creep.
-- **Note on T002**: Updated to specify logging configuration for deterministic verification.
+- **Note on T002**: Updated to specify logging configuration for deterministic verification and creation of `logs/` directory.
 - **Note on T021/T026**: Dependency order clarified to prevent race conditions.
 - **Note on T022**: Dependency list updated to include T014 explicitly.
+- **Note on T090-T099**: New tasks added in Phase 8 to address specific reviewer concerns regarding dataset size validation, VIF/FDR verification, resource stress testing, report schema validation, CI workflow robustness, documentation, benchmarking, dependency updates, and end-to-end integration testing. These tasks ensure the pipeline is production-ready and adheres to all specified constraints.
+- **Note on VIF/FDR Placement**: T035a and T060a moved to Phase 5 to align with US3 statistical validation block.
+- **Note on T050 Dependency**: T050 depends on T059 (which always produces output) and T072 (the trigger).

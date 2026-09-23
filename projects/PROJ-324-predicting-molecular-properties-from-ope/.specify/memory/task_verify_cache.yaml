@@ -1,12 +1,11 @@
 T008:
   c: false
-  h: 1324532c6b3330cfb02deb645cebff388806a0909424a165b8cf66609ee89ba2
-  r: "The repository contains a partially\u2011implemented `code/data/download.py`,\
-    \ but it never writes the required `data/raw/pubchem_raw.csv` (the file is missing)\
-    \ and the script does not produce a CSV with the specified columns (`smiles`,\
-    \ `property_name`, `value`, `source_type`). Moreover, placeholder functions for\
-    \ ChEMBL/MoleculeNet remain unimplemented, so the task\u2019s core requirement\
-    \ of fetching real PubChem data and saving it in the correct format is not satisfied."
+  h: 28c913dbffca80a5ac2f41a31880f1596ae38585a02bf50c628082fd7f146d22
+  r: "The required output file `data/raw/pubchem_raw.csv` does not exist, and the\
+    \ provided `download.py` is truncated and shows no logic that writes a CSV with\
+    \ the specified columns (`smiles`, `property_name`, `value`, `source_type`). Consequently\
+    \ the task\u2019s core requirement\u2014fetching real PubChem data and saving\
+    \ it in the prescribed format\u2014is not fulfilled."
 T009:
   c: false
   h: eea8f740c0f4c9a614aaec466be00d952051ad60f5357d3b563232efff77b786
@@ -27,34 +26,35 @@ T014:
     \ for all test molecules and output the predictions CSV\u2014has not been fulfilled."
 T015:
   c: false
-  h: 83e0739eb1f1b2512b26e15fb2c0d078e2da9a932b3dda1f97dc64d39670ba0c
-  r: The repository lacks a `calculate_baseline_metrics` function in `code/analysis/stats.py`,
-    and the required output file `data/derived/baseline_residuals.png` is missing.
-    Consequently, the baseline MAE/RMSE calculation and residual plot generation have
-    not been implemented.
-T020:
-  c: false
-  h: 1a5fbb68a8848bd9f63297f53f20727049f4e3d993b51cae6020fa997eb07814
-  r: The repository contains `code/models/random_forest.py`, but the shown excerpt
-    is truncated and does not demonstrate a complete `train_rf` implementation with
-    nested CV, hyperparameter grid, seed handling, or final model saving. Moreover,
-    the required artifact `data/derived/final_model.pkl` is absent. Both the functional
-    output and the expected model file are missing, so the task is not satisfied.
+  h: 93900f99594ad002b52bbf7aa84230f1caec863533bd9959575f0d095e581e5c
+  r: "The required residual plot file `data/derived/baseline_residuals.png` is absent,\
+    \ and the provided excerpt of `code/analysis/stats.py` does not show an implementation\
+    \ of `calculate_baseline_metrics` (the file is truncated before that function).\
+    \ Without the function and the plot, the task\u2019s deliverables are not satisfied."
 T022:
   c: false
-  h: e70fe170efa2a6aa1874dc8b26ee8bc7202f6b644381e392c7f78d93622c210e
-  r: The repository lacks a `generate_model_comparison_plot` implementation in `code/analysis/stats.py`
-    (the file is truncated and does not define that function), and the expected output
-    image `data/derived/model_comparison.png` is not present. Both the required code
-    artifact and the generated plot are missing.
-T031:
+  h: f1c27b1239e60d7a10ec3e9c20865971c3a03e8676458a8db9b79da7aa46f498
+  r: "The repository lacks the required `data/derived/model_comparison.png` file,\
+    \ and `code/analysis/stats.py` does not contain a `generate_model_comparison_plot`\
+    \ function (the listed public names include `generate_comparison_plots` but not\
+    \ the exact required function). Consequently the task\u2019s core output is missing."
+T029:
   c: false
-  h: 807e11ebc31faf01aeca2e879d60f96805d2dd705dea976657d672e1a71e1ac5
-  r: The repository lacks the required `data/raw/dataset_metadata.json` file, and
-    the shown portion of `code/data/download.py` does not contain any logic for documenting
-    experimental source, measurement conditions, source confidence, or performing
-    the runtime schema check and status field insertion described in the task. The
-    essential output artifact and corresponding code enhancements are missing.
+  h: 6e7168df31ae4bf053dd495ca6a46d9474111a714abfdffc4a3381d6518e7eb7
+  r: The repository lacks the required `data/derived/deviation_contexts.csv` file,
+    and the provided `explainability.py` does not contain a completed implementation
+    of `map_bits_to_substructures` (the function is absent or incomplete in the shown
+    code). Consequently, the task of mapping SHAP bits to substructures and producing
+    the specified CSV output is not satisfied.
+T033:
+  c: false
+  h: a4875656256a836dc3a9659288da9b1062953e8eafa5edd96d12c8ea7a62e8ba
+  r: "The repository contains a partially implemented `explainability.py` that deals\
+    \ with model loading and SHAP interactions, but it does not include any logic\
+    \ to compute `NumRotatableBonds`, apply the \u201C>\u202F10\u201D heuristic, or\
+    \ write `data/derived/conformational_limitations.csv`. Moreover, the required\
+    \ CSV file is absent from the `data/derived` directory. The task\u2019s core functionality\
+    \ and output artifact are missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

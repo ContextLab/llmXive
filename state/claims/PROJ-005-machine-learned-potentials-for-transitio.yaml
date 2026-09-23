@@ -432,3 +432,218 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T07:52:08Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* calculation on Methane takes 0.45 seconds on Intel Xeon
+    E5-2690 v4
+  claim_id: c_25964e02
+  context: Task T037a requires creating a baseline DFT time file with a verified literature
+    reference time for a single-point B3LYP/6-31G* calculation on Methane (CH4).
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:39:51Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: DFT benchmark time 0.45s for B3LYP/6-31G* on Methane on Intel Xeon E5-2690
+    v4
+  claim_id: c_87d6a516
+  context: T037a requires creating a baseline DFT time file with a verified literature
+    reference time for a single-point B3LYP/6-31G* calculation on Methane.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:40:45Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* methane calculation time 0.45 seconds on Intel Xeon E5-2690
+    v4
+  claim_id: c_5c83e156
+  context: 'Task T037a requires creating a static file with a pre-verified benchmark
+    value: { ''reference_time_seconds'': 0.45, ''hardware'': ''Intel Xeon E5-2690
+    v4 @ 2.60GHz'', ''source'': ''DOI:10.1063/1.464388 (Curtiss et al., JCP 1996)''
+    }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark value for a single-point B3LYP/6-31G* calculation on Methane
+    (CH4) is 0.45 seconds on Intel Xeon E5-2690 v4 @ 2.60GHz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:41:48Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* single-point calculation on Methane takes 0.45 seconds on
+    Intel Xeon E5-2690 v4
+  claim_id: c_9daf9e30
+  context: Task T037a requires creating a baseline DFT time file with a verified literature
+    reference time for a single-point B3LYP/6-31G* calculation on Methane.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:42:30Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* methane calculation time 0.45 seconds
+  claim_id: c_d48f0584
+  context: 'Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4). Action: Write
+    a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A verified literature reference time for a single-point B3LYP/6-31G* calculation
+    on Methane (CH4) is 0.45 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:44:59Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Benchmark time for single-point B3LYP/6-31G* calculation on Methane is
+    0.45 seconds on Intel Xeon E5-2690 v4
+  claim_id: c_0172398d
+  context: Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4). Do NOT perform
+    a live search or calculation. This value is the reproducible baseline for SC-004.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:46:26Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Citation for Methane B3LYP/6-31G* benchmark is Curtiss et al., JCP 1996
+  claim_id: c_aec5dcc8
+  context: 'Write a static file with the pre-verified benchmark value with source:
+    DOI:10.1063/1.464388 (Curtiss et al., JCP 1996).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Curtiss et al., JCP 1996
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:46:41Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Research question evaluates generalizability across distinct chemical
+    scaffolds
+  claim_id: c_66a17bd5
+  context: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy
+    to ensure that test sets contain ligands with scaffolds unseen during training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_evaluates_generalizability_across_distinct
+  kind: entity_fact
+  raw_text: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:16Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Method employs Leave-Ligand-Scaffold-Out cross-validation strategy
+  claim_id: c_a9f48435
+  context: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_employs_Leave-Ligand-Scaffold-Out_cross-validation_st
+  kind: entity_fact
+  raw_text: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:50:01Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Baseline speed analysis is single-point B3LYP/6-31G* calculation on Methane
+  claim_id: c_19eb7a52
+  context: Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_speed_analysis_is_single-point_B3LYP/6-31G*_calcula
+  kind: entity_fact
+  raw_text: The baseline for speed analysis is a single-point B3LYP/6-31G* calculation
+    on Methane (CH4).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:50:32Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Verified reference time for B3LYP/6-31G* on Methane is 0.45 seconds
+  claim_id: c_e42d9430
+  context: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verified literature reference time for a single-point B3LYP/6-31G*
+    calculation on Methane is 0.45 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:50:32Z'

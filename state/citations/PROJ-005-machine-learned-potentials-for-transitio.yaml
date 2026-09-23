@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-06T08:14:00.010729Z'
-- artifact_hash: 08f60f87216f9ba044dc5b85828c9c9d57ba9960b55c09eef864cf9c4f549371
+- artifact_hash: 73341bcc0c32eaf3eac9a8f0ca3ddf45f2e3832f58d925cd0d6e4e94afb4fb65
   artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: 10.1063/1.464388
   verification_status: pending
   verified_against_url: https://doi.org/10.1063/1.464388
-  verified_at: '2026-09-09T07:52:01.482018Z'
+  verified_at: '2026-09-23T12:50:32.942284Z'

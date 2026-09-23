@@ -1,245 +1,186 @@
 """
-Module: src.data.splits
-Purpose: Implement Leave-Ligand-Scaffold-Out (LLSO) cross-validation splitting logic.
+src/data/splits.py
 
-This module provides function signatures and basic structure for generating
-train/val/test splits where the test set contains ligand scaffolds that are
-completely unseen during training.
-
-Note: As per T011a, this file contains the skeleton with function signatures.
-The full implementation logic is deferred to T011b.
+Implements Leave-Ligand-Scaffold-Out (LLSO) cross-validation logic.
+Generates 5-Fold train/val/test splits ensuring no ligand scaffold appears
+in both training and test sets.
 """
-
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional, Set
-
 import numpy as np
 import pandas as pd
 
 from src.utils.logging import get_logger
 
-# Initialize logger
 logger = get_logger(__name__)
 
 
-def get_project_root() -> Path:
+def load_graphs_for_splitting(graphs_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Retrieve the project root directory.
-    
-    Returns:
-        Path: The root directory of the project.
+    Loads the processed graphs dataframe required for splitting.
+    Expects a parquet file containing graph data with 'ligand_scaffold' and 'graph_id' columns.
     """
-    # Assuming standard project structure: code/src/data/splits.py
-    # Root is 4 levels up: code -> src -> data -> splits.py
-    return Path(__file__).resolve().parent.parent.parent.parent
-
-
-def load_graphs_for_splitting(graph_file_path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Load the processed graph data required for splitting.
-    
-    Args:
-        graph_file_path (Optional[str]): Path to the parquet file containing graphs.
-            If None, uses the default path from project structure.
-            
-    Returns:
-        pd.DataFrame: DataFrame containing graph metadata including ligand scaffold info.
-        
-    Raises:
-        FileNotFoundError: If the graph file does not exist.
-        ValueError: If the required columns for splitting are missing.
-    """
-    if graph_file_path is None:
+    if graphs_path is None:
         # Default path based on project structure
-        graph_file_path = str(get_project_root() / "data" / "processed" / "graphs.parquet")
-        
-    if not Path(graph_file_path).exists():
-        raise FileNotFoundError(f"Graph file not found: {graph_file_path}")
-        
-    logger.info(f"Loading graphs from {graph_file_path}")
-    df = pd.read_parquet(graph_file_path)
-    
-    # Validate required columns for LLSO
-    required_cols = ["ligand_scaffold", "energy_dft", "barrier_height"]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns for splitting: {missing_cols}")
-        
-    logger.info(f"Loaded {len(df)} graphs for splitting")
+        project_root = Path(__file__).resolve().parents[3]
+        graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+
+    if not graphs_path.exists():
+        raise FileNotFoundError(f"Graphs file not found at {graphs_path}. "
+                                "Run graph_construction.py (T016b) first.")
+
+    logger.info(f"Loading graphs from {graphs_path}")
+    df = pd.read_parquet(graphs_path)
+
+    required_cols = {'ligand_scaffold', 'graph_id', 'energy_dft'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Missing required columns for splitting: {missing}")
+
+    logger.info(f"Loaded {len(df)} graphs. Unique scaffolds: {df['ligand_scaffold'].nunique()}")
     return df
 
 
-def compute_scaffold_clusters(df: pd.DataFrame) -> Dict[str, List[int]]:
+def compute_scaffold_clusters(df: pd.DataFrame) -> Dict[str, List[str]]:
     """
-    Compute clusters of indices based on ligand scaffolds.
-    
-    This function groups graph indices by their ligand scaffold identifier.
-    In a full implementation, this would involve more complex scaffold
-    extraction or hashing logic.
-    
-    Args:
-        df (pd.DataFrame): DataFrame containing graph data with 'ligand_scaffold' column.
-        
-    Returns:
-        Dict[str, List[int]]: Mapping of scaffold_id to list of graph indices.
+    Groups graph IDs by their ligand scaffold.
+    Returns a dictionary mapping scaffold_name -> list of graph_ids.
     """
-    if "ligand_scaffold" not in df.columns:
-        raise ValueError("DataFrame must contain 'ligand_scaffold' column")
-        
-    scaffold_clusters = {}
-    
-    # Group by scaffold and collect indices
-    for scaffold_id, group in df.groupby("ligand_scaffold"):
-        scaffold_clusters[str(scaffold_id)] = group.index.tolist()
-        
-    logger.info(f"Computed {len(scaffold_clusters)} unique scaffold clusters")
-    return scaffold_clusters
+    scaffold_groups = df.groupby('ligand_scaffold')['graph_id'].apply(list).to_dict()
+    logger.info(f"Identified {len(scaffold_groups)} unique ligand scaffolds.")
+    return scaffold_groups
 
 
 def generate_llso_splits(
-    df: pd.DataFrame,
+    scaffold_clusters: Dict[str, List[str]],
     n_folds: int = 5,
     seed: int = 42
-) -> Dict[str, Dict[str, List[int]]]:
+) -> List[Dict[str, List[str]]]:
     """
-    Generate Leave-Ligand-Scaffold-Out (LLSO) cross-validation splits.
-    
-    This function partitions the data such that no ligand scaffold appears
-    in both the training and test sets for any given fold.
-    
-    Args:
-        df (pd.DataFrame): DataFrame containing graph data.
-        n_folds (int): Number of folds for cross-validation.
-        seed (int): Random seed for reproducibility.
-        
+    Generates n_folds splits using Leave-Ligand-Scaffold-Out logic.
+    Ensures that for any given fold, the test set's scaffolds are disjoint
+    from the training set's scaffolds.
+
     Returns:
-        Dict[str, Dict[str, List[int]]]: A dictionary where keys are fold indices
-            and values are dictionaries with 'train', 'val', and 'test' keys
-            mapping to lists of indices.
-            
-    Note:
-        This is a skeleton implementation. T011b will implement the full
-        stratified splitting logic ensuring scaffold separation.
+        List of dicts, each containing 'train', 'val', 'test' lists of graph_ids.
     """
-    if n_folds < 2:
-        raise ValueError("n_folds must be at least 2")
-        
-    logger.info(f"Generating {n_folds}-fold LLSO splits with seed {seed}")
-    
-    # Placeholder logic: In T011b, this will be replaced with actual
-    # scaffold-aware splitting logic
     np.random.seed(seed)
-    indices = df.index.tolist()
-    np.random.shuffle(indices)
-    
-    # For now, just return a dummy structure to satisfy signature requirements
-    # Actual implementation ensures scaffold separation
-    splits = {}
-    
-    # Calculate split sizes
-    fold_size = len(indices) // n_folds
-    
+    unique_scaffolds = list(scaffold_clusters.keys())
+    np.random.shuffle(unique_scaffolds)
+
+    # Distribute scaffolds into n_folds buckets
+    # If fewer scaffolds than folds, we adjust logic to ensure we don't crash,
+    # but standard LLSO assumes enough diversity.
+    n_scaffolds = len(unique_scaffolds)
+    if n_scaffolds < n_folds:
+        logger.warning(f"Number of scaffolds ({n_scaffolds}) is less than folds ({n_folds}). "
+                       "Adjusting fold distribution.")
+        # In this edge case, we might have to duplicate or just use available
+        # For robustness, we'll cycle or pad if strictly necessary, but let's
+        # assume typical case where n_scaffolds >= n_folds.
+        # If strictly less, we can't do strict LLSO with n_folds.
+        # We will proceed by assigning each scaffold to a fold 0..n-1 cyclically.
+        fold_assignments = {s: i % n_folds for i, s in enumerate(unique_scaffolds)}
+    else:
+        fold_assignments = {s: i % n_folds for i, s in enumerate(unique_scaffolds)}
+
+    splits = []
+
     for i in range(n_folds):
-        start_idx = i * fold_size
-        end_idx = start_idx + fold_size if i < n_folds - 1 else len(indices)
-        
-        test_indices = indices[start_idx:end_idx]
-        remaining_indices = indices[:start_idx] + indices[end_idx:]
-        
-        # Simple split of remaining for train/val (not scaffold-aware yet)
-        val_size = len(remaining_indices) // 5
-        val_indices = remaining_indices[:val_size]
-        train_indices = remaining_indices[val_size:]
-        
-        splits[str(i)] = {
-            "train": train_indices,
-            "val": val_indices,
-            "test": test_indices
-        }
-        
-    logger.info(f"Generated {n_folds} splits")
+        test_scaffolds = [s for s, f in fold_assignments.items() if f == i]
+        # Val set: usually a portion of the remaining, or a separate fold.
+        # Standard 5-fold CV: Fold i is Test, Fold (i+1)%5 is Val, Rest is Train.
+        # Or simply: Test = Fold i, Train+Val = Rest. Then split Rest.
+        # Let's do: Test = Fold i, Val = Fold (i+1)%n_folds, Train = Rest.
+        # This ensures strict separation.
+
+        val_fold_idx = (i + 1) % n_folds
+        val_scaffolds = [s for s, f in fold_assignments.items() if f == val_fold_idx]
+        train_scaffolds = [s for s, f in fold_assignments.items() if f not in (i, val_fold_idx)]
+
+        # Map back to graph IDs
+        test_ids = []
+        for s in test_scaffolds:
+            test_ids.extend(scaffold_clusters[s])
+
+        val_ids = []
+        for s in val_scaffolds:
+            val_ids.extend(scaffold_clusters[s])
+
+        train_ids = []
+        for s in train_scaffolds:
+            train_ids.extend(scaffold_clusters[s])
+
+        splits.append({
+            "fold": i,
+            "train": train_ids,
+            "val": val_ids,
+            "test": test_ids
+        })
+
+        logger.info(f"Fold {i}: Train={len(train_ids)}, Val={len(val_ids)}, Test={len(test_ids)}")
+
     return splits
 
 
-def save_splits_to_json(splits: Dict[str, Dict[str, List[int]]], output_path: Optional[str] = None) -> None:
+def save_splits_to_json(
+    splits: List[Dict[str, List[str]]],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Save the generated splits to a JSON file.
-    
-    Args:
-        splits (Dict[str, Dict[str, List[int]]]): The split data structure.
-        output_path (Optional[str]): Path to save the JSON file.
-            If None, uses default path in data/processed/.
+    Saves the generated splits to a JSON file.
     """
     if output_path is None:
-        output_path = str(get_project_root() / "data" / "processed" / "splits.json")
-        
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Saving splits to {output_path}")
-    with open(output_path, "w") as f:
+        project_root = Path(__file__).resolve().parents[3]
+        output_path = project_root / "data" / "processed" / "splits.json"
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w') as f:
         json.dump(splits, f, indent=2)
-        
-    logger.info("Splits saved successfully")
+
+    logger.info(f"Splits saved to {output_path}")
+    return output_path
 
 
 def run_split_generation(
-    graph_file_path: Optional[str] = None,
+    graphs_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
     n_folds: int = 5,
-    seed: int = 42,
-    output_path: Optional[str] = None
-) -> str:
+    seed: int = 42
+) -> List[Dict[str, List[str]]]:
     """
-    Main entry point for generating and saving LLSO splits.
-    
-    Args:
-        graph_file_path (Optional[str]): Path to input graph data.
-        n_folds (int): Number of folds.
-        seed (int): Random seed.
-        output_path (Optional[str]): Path to save splits.
-        
-    Returns:
-        str: Path to the saved splits file.
+    Main entry point to generate and save LLSO splits.
     """
-    logger.info("Starting LLSO split generation")
-    
-    # Load data
-    df = load_graphs_for_splitting(graph_file_path)
-    
-    # Compute scaffolds (for logging/validation, not strictly needed for skeleton)
-    _ = compute_scaffold_clusters(df)
-    
-    # Generate splits
-    splits = generate_llso_splits(df, n_folds=n_folds, seed=seed)
-    
-    # Save splits
+    logger.info("Starting LLSO split generation...")
+    df = load_graphs_for_splitting(graphs_path)
+    clusters = compute_scaffold_clusters(df)
+    splits = generate_llso_splits(clusters, n_folds=n_folds, seed=seed)
     save_splits_to_json(splits, output_path)
-    
-    logger.info("LLSO split generation completed")
-    return output_path or str(get_project_root() / "data" / "processed" / "splits.json")
+    return splits
 
 
 def main():
     """
-    Command-line entry point for generating splits.
+    CLI entry point for generating splits.
     """
     import argparse
-    
     parser = argparse.ArgumentParser(description="Generate LLSO splits")
-    parser.add_argument("--input", type=str, default=None, help="Path to graphs.parquet")
+    parser.add_argument("--graphs", type=str, default=None, help="Path to graphs.parquet")
+    parser.add_argument("--output", type=str, default=None, help="Path to output splits.json")
     parser.add_argument("--folds", type=int, default=5, help="Number of folds")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--output", type=str, default=None, help="Output path for splits.json")
-    
     args = parser.parse_args()
-    
+
     run_split_generation(
-        graph_file_path=args.input,
+        graphs_path=Path(args.graphs) if args.graphs else None,
+        output_path=Path(args.output) if args.output else None,
         n_folds=args.folds,
-        seed=args.seed,
-        output_path=args.output
+        seed=args.seed
     )
+
 
 if __name__ == "__main__":
     main()
