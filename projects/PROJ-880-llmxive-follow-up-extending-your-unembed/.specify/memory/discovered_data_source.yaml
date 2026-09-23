@@ -1,14 +1,16 @@
 status: none
-intent: download Llama-3 Mistral BLOOM model weights and WALS typology data python
-  package dataset
+intent: download WALS typology dataset and Common Crawl language subset python package
+  dataset
 required_fields:
-- model_name
-- unembedding_matrix
-- vocab_size
-- embedding_dim
-- language_id
-- typological_feature
+- language_iso_code
+- feature_name
 - feature_value
-cache_key: f96f86b232125812943c0007e2b79d4dea27382f3195b3d561784ccaf52c1969
-searched_at: '2026-09-23T05:14:07.500529+00:00'
+- feature_source
+- language_code
+- url
+- html_content
+- extracted_text
+- crawl_timestamp
+cache_key: ab754846292bc1b3d0098c393217b611a4c41d3d7ee595b46a2f4ffb65748c2f
+searched_at: '2026-09-23T07:15:34.845022+00:00'
 retry_count: 1
