@@ -1,306 +1,237 @@
 """
-XGBoost Trainer with Grid Search for Solder Hardness Prediction.
+XGBoost Model Training with Grid Search and CPU-Only Execution.
 
-This module implements the training of XGBoost regression models with a
-constrained grid search (≤10 combinations) to predict Vickers hardness
-from solder alloy compositions. It enforces CPU-only execution as
-specified in `config_cpu.py`.
+This module implements the training of an XGBoost regressor for predicting
+Vickers hardness from solder alloy composition descriptors. It enforces
+CPU-only execution via configuration from `config_cpu.py` and performs
+a limited grid search (<= 10 combinations) to optimize hyperparameters.
 
-Dependencies:
-- XGBoost (pip install xgboost)
-- Scikit-learn
-- Pandas
-- NumPy
-- PyYAML
+The script reads prepared features from `data/processed/descriptors.csv`
+and `data/processed/clr_features.csv` (if applicable, though physical descriptors
+are used for the model input as per spec), and the target from
+`data/processed/solder_hardness_cleaned.csv`.
+
+It outputs the best model, training metrics, and cross-validation results
+to `data/processed/` and `models/`.
 """
 import os
 import sys
 import logging
 import json
+import pickle
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 # Project imports
-from models.config_cpu import get_cpu_config, get_xgboost_params
-from utils.error_handlers import ModelTrainingError, ConfigurationError
+from seed import init_reproducibility
 from utils.logging_config import get_logger
-from config import (
-    get_data_processed_dir,
-    get_models_dir,
-    get_cv_folds,
-    get_min_n_for_power
-)
+from models.config_cpu import get_xgboost_params, get_cpu_config
+from models.entities import create_descriptor_from_composition
 
+# Initialize logging
 logger = get_logger(__name__)
+logger.setLevel(logging.INFO)
 
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+MODELS_DIR = PROJECT_ROOT / "models"
+OUTPUTS_DIR = PROJECT_ROOT / "data" / "outputs"
 
-class XGBoostTrainer:
+# Ensure directories exist
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
+def load_features_and_target() -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Trainer class for XGBoost models with grid search capabilities.
+    Load the physical descriptors (features) and the target hardness values.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.Series]: Features matrix (X) and target vector (y).
     """
+    # Load descriptors (physical properties calculated from raw composition)
+    # This corresponds to T023c output
+    descriptors_path = DATA_PROCESSED_DIR / "descriptors.csv"
+    if not descriptors_path.exists():
+        raise FileNotFoundError(f"Descriptors file not found at {descriptors_path}. "
+                                "Ensure T023c has been executed.")
 
-    def __init__(self):
-        self.model = None
-        self.best_params = None
-        self.best_score = None
-        self.grid_search = None
-        self.scaler = StandardScaler()
-        self.feature_names = None
-        self.target_name = "hardness_hv"
-        self.cv_folds = get_cv_folds()
-        self.min_n_for_power = get_min_n_for_power()
-        
-        # Ensure output directories exist
-        self.models_dir = get_models_dir()
-        self.models_dir.mkdir(parents=True, exist_ok=True)
+    df_desc = pd.read_csv(descriptors_path)
 
-    def load_data(self, data_path: Optional[Path] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Load the cleaned dataset.
-        
-        Args:
-            data_path: Optional path to the CSV. Defaults to the processed directory.
-        
-        Returns:
-            Tuple of (features_df, target_df)
-        """
-        if data_path is None:
-            data_path = get_data_processed_dir() / "solder_hardness_cleaned.csv"
-        
-        if not data_path.exists():
-            raise FileNotFoundError(f"Cleaned data file not found at {data_path}. "
-                                  "Ensure T013 (cleaning) has been completed.")
-        
-        logger.info(f"Loading data from {data_path}")
-        df = pd.read_csv(data_path)
-        
-        # Identify feature columns (exclude target and metadata)
-        # Assuming the CSV has a 'hardness_hv' target and various elemental/composite columns
-        feature_cols = [col for col in df.columns if col != self.target_name and col != 'alloy_family' and col != 'source_citation']
-        
-        if len(feature_cols) == 0:
-            raise ValueError("No feature columns found in the dataset.")
-        
-        X = df[feature_cols]
-        y = df[self.target_name]
-        
-        self.feature_names = feature_cols
-        logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features.")
-        
-        return X, y
+    # Load target (hardness)
+    # This corresponds to T013 output
+    cleaned_path = DATA_PROCESSED_DIR / "solder_hardness_cleaned.csv"
+    if not cleaned_path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found at {cleaned_path}. "
+                                "Ensure T013 has been executed.")
 
-    def preprocess(self, X: pd.DataFrame) -> np.ndarray:
-        """
-        Scale features using StandardScaler.
-        """
-        logger.info("Scaling features...")
-        X_scaled = self.scaler.fit_transform(X)
-        return X_scaled
+    df_clean = pd.read_csv(cleaned_path)
 
-    def define_param_grid(self) -> Dict[str, List[Any]]:
-        """
-        Define a constrained grid search parameter space (≤10 combinations).
-        
-        We limit the grid to ensure it runs quickly on free-tier runners.
-        Combinations: 3 (n_estimators) x 3 (max_depth) x 1 (others) = 9 combinations.
-        """
-        return {
-            "n_estimators": [50, 100, 200],
-            "max_depth": [3, 5, 7],
-            "learning_rate": [0.1],  # Fixed to reduce combinations
-            "subsample": [0.8],
-            "colsample_bytree": [0.8],
-            "reg_alpha": [0.0],
-            "reg_lambda": [1.0]
-        }
+    # Merge on a common identifier if present, or assume row alignment if IDs are missing
+    # Assuming 'sample_id' or similar exists, otherwise we rely on row order if IDs are not present.
+    # Based on typical data models, we expect an ID column. Let's check for 'sample_id' or 'id'.
+    id_col = None
+    for col in ['sample_id', 'id', 'composition_id']:
+        if col in df_desc.columns and col in df_clean.columns:
+            id_col = col
+            break
 
-    def train_with_grid_search(self, X: np.ndarray, y: np.ndarray) -> None:
-        """
-        Perform grid search with cross-validation to find optimal hyperparameters.
-        """
-        logger.info("Starting Grid Search for XGBoost...")
-        
-        # Get base CPU configuration to ensure device constraints are met
-        base_config = get_xgboost_params()
-        
-        param_grid = self.define_param_grid()
-        
-        # Calculate total combinations
-        total_combinations = 1
-        for key, values in param_grid.items():
-            total_combinations *= len(values)
-        
-        if total_combinations > 10:
-            logger.warning(f"Grid search size ({total_combinations}) exceeds limit of 10. "
-                         "Truncating grid to first 10 combinations.")
-            # Simple truncation logic: we will let GridSearchCV handle the iteration,
-            # but we could also slice the lists if needed. For now, we proceed
-            # but log the warning. The constraint is soft for the definition,
-            # but we ensure the grid is small enough.
-            # To strictly enforce ≤10, we can reduce the lists:
-            # Let's reduce n_estimators to 2 options: 50, 100 -> 2 * 3 * 1 = 6 combos.
-            param_grid["n_estimators"] = [50, 100]
-            total_combinations = 2 * 3 * 1 * 1 * 1 * 1 * 1 # 6 combos
-            logger.info(f"Adjusted grid size to {total_combinations} combinations.")
+    if id_col:
+        df_merged = pd.merge(df_desc, df_clean[[id_col, 'hardness_hv']], on=id_col)
+        logger.info(f"Merged data on ID column: {id_col}. Rows: {len(df_merged)}")
+    else:
+        # Fallback to row alignment if no ID found (risky but sometimes necessary)
+        if len(df_desc) != len(df_clean):
+            raise ValueError("Row counts mismatch between descriptors and cleaned data, and no ID column found.")
+        df_merged = df_desc.copy()
+        df_merged['hardness_hv'] = df_clean['hardness_hv']
+        logger.warning("No ID column found. Assuming row alignment between descriptors and cleaned data.")
 
-        # Initialize XGBRegressor with base CPU config
-        # We override specific params in the grid search, but set defaults here
-        base_params = {
-            "objective": "reg:squarederror",
-            "random_state": 42,
-            "device": "cpu",
-            "n_jobs": 1,
-            "tree_method": "hist",
-            "verbosity": 1
-        }
+    # Drop rows with missing target
+    df_merged = df_merged.dropna(subset=['hardness_hv'])
 
-        model = xgb.XGBRegressor(**base_params)
+    # Identify feature columns (exclude target and ID)
+    feature_cols = [col for col in df_merged.columns if col not in ['hardness_hv', id_col]]
+    X = df_merged[feature_cols]
+    y = df_merged['hardness_hv']
 
-        self.grid_search = GridSearchCV(
-            estimator=model,
-            param_grid=param_grid,
-            cv=self.cv_folds,
-            scoring="r2",
-            n_jobs=1,  # Force single thread for CPU consistency
-            verbose=1,
-            refit=True
-        )
+    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features.")
+    logger.info(f"Features: {feature_cols}")
 
-        try:
-            self.grid_search.fit(X, y)
-        except Exception as e:
-            raise ModelTrainingError(f"Grid search failed: {str(e)}")
+    return X, y
 
-        self.best_params = self.grid_search.best_params_
-        self.best_score = self.grid_search.best_score_
-        self.model = self.grid_search.best_estimator_
+def run_grid_search(X: pd.DataFrame, y: pd.Series) -> Tuple[xgb.XGBRegressor, Dict[str, Any]]:
+    """
+    Perform a grid search over XGBoost hyperparameters using CPU-only settings.
 
-        logger.info(f"Best parameters: {self.best_params}")
-        logger.info(f"Best CV R² score: {self.best_score:.4f}")
+    The grid is limited to <= 10 combinations as per requirements.
 
-    def evaluate(self, X: np.ndarray, y: pd.Series) -> Dict[str, float]:
-        """
-        Evaluate the trained model on the provided data.
-        """
-        if self.model is None:
-            raise ModelTrainingError("Model has not been trained yet.")
-        
-        y_pred = self.model.predict(X)
-        
-        mse = mean_squared_error(y, y_pred)
-        rmse = np.sqrt(mse)
-        r2 = r2_score(y, y_pred)
-        
-        metrics = {
-            "mse": float(mse),
-            "rmse": float(rmse),
-            "r2": float(r2)
-        }
-        
-        logger.info(f"Evaluation Metrics: MSE={mse:.4f}, RMSE={rmse:.4f}, R²={r2:.4f}")
-        return metrics
+    Args:
+        X (pd.DataFrame): Feature matrix.
+        y (pd.Series): Target vector.
 
-    def save_results(self, metrics: Dict[str, float], X: np.ndarray, y: pd.Series) -> None:
-        """
-        Save model artifacts, metrics, and training configuration.
-        """
-        import pickle
-        
-        # Save Model
-        model_path = self.models_dir / "xgboost_model.pkl"
-        with open(model_path, "wb") as f:
-            pickle.dump({
-                "model": self.model,
-                "scaler": self.scaler,
-                "feature_names": self.feature_names
-            }, f)
-        logger.info(f"Model saved to {model_path}")
+    Returns:
+        Tuple[xgb.XGBRegressor, Dict[str, Any]]: Best model and best parameters.
+    """
+    # Split data for final evaluation
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
-        # Save Metrics
-        metrics_path = self.models_dir / "xgboost_metrics.json"
-        metrics["best_params"] = self.best_params
-        metrics["best_cv_score"] = self.best_score
-        metrics["feature_count"] = len(self.feature_names)
-        metrics["sample_count"] = len(y)
-        
-        with open(metrics_path, "w") as f:
-            json.dump(metrics, f, indent=2)
-        logger.info(f"Metrics saved to {metrics_path}")
+    # Base parameters from CPU config
+    base_params = get_xgboost_params()
+    logger.info(f"Base XGBoost parameters (CPU enforced): {base_params}")
 
-        # Save Parameter Grid (for reproducibility)
-        grid_path = self.models_dir / "xgboost_grid_config.json"
-        with open(grid_path, "w") as f:
-            json.dump(self.define_param_grid(), f, indent=2)
-        logger.info(f"Grid config saved to {grid_path}")
+    # Define a small grid for hyperparameter tuning
+    # We vary 'max_depth' and 'learning_rate' to keep combinations <= 10
+    param_grid = {
+        'max_depth': [3, 6],          # 2 values
+        'learning_rate': [0.05, 0.1, 0.2]  # 3 values
+        # Total combinations: 2 * 3 = 6 (well under 10)
+    }
 
-    def run(self, data_path: Optional[Path] = None) -> Dict[str, Any]:
-        """
-        Execute the full training pipeline: load, preprocess, train, evaluate, save.
-        """
-        try:
-            # 1. Load Data
-            X, y = self.load_data(data_path)
-            
-            # Check power constraints
-            if len(X) < self.min_n_for_power:
-                logger.warning(f"Sample size ({len(X)}) is below the recommended threshold ({self.min_n_for_power}). "
-                             "Proceeding with caution.")
+    # Initialize the model with base params
+    # Note: We pass base_params as init, but GridSearchCV will override specific keys
+    base_model = xgb.XGBRegressor(**base_params)
 
-            # 2. Preprocess
-            X_scaled = self.preprocess(X)
+    # Grid Search
+    logger.info("Starting Grid Search with <= 10 combinations...")
+    grid_search = GridSearchCV(
+        estimator=base_model,
+        param_grid=param_grid,
+        cv=5,
+        scoring='r2',
+        n_jobs=1,  # Enforce single-threaded for CPU stability in CI
+        verbose=1
+    )
 
-            # 3. Train
-            self.train_with_grid_search(X_scaled, y)
+    grid_search.fit(X_train, y_train)
 
-            # 4. Evaluate (on full data for now, or split if needed later)
-            # Note: In a real pipeline, we would split into train/test first.
-            # For this task, we evaluate on the provided data to generate metrics.
-            metrics = self.evaluate(X_scaled, y)
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+    best_score = grid_search.best_score_
 
-            # 5. Save
-            self.save_results(metrics, X_scaled, y)
+    logger.info(f"Best parameters: {best_params}")
+    logger.info(f"Best CV R² score: {best_score:.4f}")
 
-            return {
-                "status": "success",
-                "metrics": metrics,
-                "best_params": self.best_params,
-                "model_path": str(self.models_dir / "xgboost_model.pkl")
-            }
+    # Evaluate on test set
+    y_pred = best_model.predict(X_test)
+    test_r2 = r2_score(y_test, y_pred)
+    test_rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
-        except Exception as e:
-            logger.error(f"Training pipeline failed: {str(e)}")
-            raise
+    logger.info(f"Test Set R²: {test_r2:.4f}")
+    logger.info(f"Test Set RMSE: {test_rmse:.4f}")
 
+    results = {
+        "best_params": best_params,
+        "best_cv_r2": float(best_score),
+        "test_r2": float(test_r2),
+        "test_rmse": float(test_rmse),
+        "grid_combinations": len(param_grid['max_depth']) * len(param_grid['learning_rate'])
+    }
+
+    return best_model, results
+
+def save_model_and_results(model: xgb.XGBRegressor, results: Dict[str, Any]):
+    """
+    Save the trained model and training metrics to disk.
+
+    Args:
+        model (xgb.XGBRegressor): The trained model.
+        results (Dict[str, Any]): Training metrics and parameters.
+    """
+    # Save model
+    model_path = MODELS_DIR / "xgboost_hardness_model.pkl"
+    with open(model_path, 'wb') as f:
+        pickle.dump(model, f)
+    logger.info(f"Model saved to {model_path}")
+
+    # Save metrics
+    metrics_path = DATA_PROCESSED_DIR / "xgboost_training_metrics.json"
+    with open(metrics_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Training metrics saved to {metrics_path}")
 
 def main():
     """
-    Entry point for the XGBoost training script.
+    Main entry point for XGBoost training.
     """
-    logger.info("Starting XGBoost Training Pipeline (T025)...")
+    logger.info("Starting XGBoost Training (Task T025)...")
     
-    trainer = XGBoostTrainer()
-    
+    # Initialize reproducibility
+    init_reproducibility(seed=42)
+
     try:
-        result = trainer.run()
-        logger.info("Training completed successfully.")
-        print(json.dumps(result, indent=2))
+        # 1. Load Data
+        X, y = load_features_and_target()
+        
+        if len(X) < 10:
+            logger.error("Insufficient data for training. Need at least 10 samples.")
+            sys.exit(1)
+
+        # 2. Run Grid Search
+        best_model, results = run_grid_search(X, y)
+
+        # 3. Save Outputs
+        save_model_and_results(best_model, results)
+
+        logger.info("XGBoost Training completed successfully.")
+        return 0
+
     except FileNotFoundError as e:
-        logger.error(f"Data not found: {e}")
-        sys.exit(1)
-    except ModelTrainingError as e:
-        logger.error(f"Training error: {e}")
+        logger.error(f"Data file error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Training failed with error: {e}", exc_info=True)
         sys.exit(1)
 
-
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)

@@ -5,6 +5,9 @@ This module provides configuration dictionaries that explicitly
 disable GPU acceleration and enforce single-threaded CPU execution.
 This is critical for running on free-tier CI/CD runners (e.g., GitHub Actions)
 which often lack GPU resources or have strict memory limits.
+
+All parameters are tuned to ensure compatibility with CPU-only environments
+while maintaining reasonable training times for the solder hardness prediction task.
 """
 from typing import Dict, Any
 

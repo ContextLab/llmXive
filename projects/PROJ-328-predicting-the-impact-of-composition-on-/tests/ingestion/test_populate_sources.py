@@ -3,102 +3,131 @@ Tests for T009c: populate_sources.py
 """
 import os
 import sys
+import json
 import yaml
 import tempfile
+import shutil
 from pathlib import Path
 import pytest
 
 # Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.ingestion.populate_sources import parse_verified_sources, save_sources_yaml
-
+from ingestion.populate_sources import parse_verified_sources, save_sources_yaml
 
 class TestPopulateSources:
-    """Test suite for source population logic."""
+    """Test suite for populate_sources module."""
 
-    def test_parse_verified_md(self, tmp_path):
-        """Test parsing of research_verified.md format."""
-        # Create a mock verified file
-        mock_content = """
-        ## Verified Sources
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_data_dir = Path(self.temp_dir) / "data" / "config"
+        self.test_data_dir.mkdir(parents=True, exist_ok=True)
+        self.test_specs_dir = Path(self.temp_dir) / "specs" / "001-predict-solder-hardness"
+        self.test_specs_dir.mkdir(parents=True, exist_ok=True)
 
-        ### API Sources
-        - [https://api.materialsproject.org] Materials Project API
-        - [https://archive.ics.uci.edu] NIST/UCI Repository
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        shutil.rmtree(self.temp_dir)
 
-        ### Literature
-        - [https://doi.org/10.1016/j.jallcom.2023.123456] Solder Hardness Review 2023
-        """
-        mock_file = tmp_path / "research_verified.md"
-        mock_file.write_text(mock_content)
-
-        # Parse sources
-        sources = parse_verified_sources(mock_file)
-
-        # Verify structure
-        assert "_verification_status" in sources
-        assert sources["_verification_status"] == "verified"
-        assert sources["_verified_count"] >= 1
-        assert "materials_project" in sources
-        assert "literature_pdfs" in sources
-
-    def test_parse_candidate_json(self, tmp_path):
-        """Test parsing of candidate_sources.txt JSON format."""
-        import json
-        mock_content = json.dumps([
+    def test_parse_json_candidate_sources(self):
+        """Test parsing candidate_sources.txt in JSON format."""
+        candidate_file = Path(self.temp_dir) / "candidate_sources.txt"
+        test_data = [
             {
                 "url": "https://api.materialsproject.org",
                 "source_type": "api",
-                "citation": "Materials Project"
+                "citation": "Materials Project API"
+            },
+            {
+                "url": "https://archive.ics.uci.edu/ml/datasets.php",
+                "source_type": "api",
+                "citation": "NIST/UCI Repository"
+            },
+            {
+                "url": "https://openalloy.org/api/v1",
+                "source_type": "api",
+                "citation": "OpenAlloy API"
             },
             {
                 "url": "https://doi.org/10.1016/j.jallcom.2023.123456",
                 "source_type": "pdf",
-                "citation": "Solder Hardness Review"
+                "citation": "Solder Hardness Review 2023"
             }
-        ])
-        mock_file = tmp_path / "candidate_sources.txt"
-        mock_file.write_text(mock_content)
+        ]
+        candidate_file.write_text(json.dumps(test_data), encoding='utf-8')
 
-        # Parse sources
-        sources = parse_verified_sources(mock_file)
+        sources = parse_verified_sources(candidate_file)
 
-        # Verify structure
-        assert "_verification_status" in sources
-        assert "materials_project" in sources
-        assert "literature_pdfs" in sources
+        assert sources['_verification_status'] == 'verified'
+        assert sources['_verified_count'] == 4
+        assert 'materials_project' in sources
+        assert sources['materials_project']['verified'] is True
+        assert 'nist_uci' in sources
+        assert 'openalloy' in sources
+        assert len(sources['literature_pdfs']) == 1
+        assert sources['literature_pdfs'][0]['verified'] is True
 
-    def test_save_sources_yaml(self, tmp_path):
-        """Test saving sources to YAML."""
+    def test_parse_markdown_verified_sources(self):
+        """Test parsing research_verified.md in Markdown format."""
+        md_file = self.test_specs_dir / "research_verified.md"
+        md_content = """
+        # Verified Research Sources
+
+        ## API Sources
+        - Materials Project: https://api.materialsproject.org
+        - NIST/UCI: https://archive.ics.uci.edu/ml/datasets.php
+        - OpenAlloy: https://openalloy.org/api/v1
+
+        ## PDF Sources
+        - Solder Hardness Review 2023: https://doi.org/10.1016/j.jallcom.2023.123456
+        """
+        md_file.write_text(md_content, encoding='utf-8')
+
+        sources = parse_verified_sources(md_file)
+
+        assert sources['_verification_status'] == 'verified'
+        assert sources['_verified_count'] >= 3
+        assert 'materials_project' in sources
+        assert 'nist_uci' in sources
+        assert 'openalloy' in sources
+
+    def test_save_sources_yaml(self):
+        """Test saving sources to YAML file."""
         sources = {
-            "_verification_status": "verified",
-            "_verified_count": 1,
-            "test_source": {
-                "name": "Test",
-                "url": "https://example.com",
-                "verified": True
-            }
+            'materials_project': {'name': 'Materials Project', 'verified': True},
+            'nist_uci': {'name': 'NIST/UCI', 'verified': True},
+            'literature_pdfs': [],
+            '_verification_status': 'verified',
+            '_verified_count': 2
         }
-        output_file = tmp_path / "sources.yaml"
+        output_file = Path(self.temp_dir) / "sources.yaml"
 
-        # Save sources
         save_sources_yaml(sources, output_file)
 
-        # Verify file exists and is valid YAML
         assert output_file.exists()
-        with open(output_file, 'r') as f:
-            loaded = yaml.safe_load(f)
-        
-        assert loaded["_verification_status"] == "verified"
-        assert loaded["test_source"]["url"] == "https://example.com"
+        with open(output_file, 'r', encoding='utf-8') as f:
+            loaded_sources = yaml.safe_load(f)
 
-    def test_missing_input_file(self, tmp_path):
-        """Test error handling for missing input file."""
-        from utils.error_handlers import ConfigurationError
-        
-        non_existent = tmp_path / "does_not_exist.md"
-        
-        with pytest.raises(ConfigurationError):
-            parse_verified_sources(non_existent)
+        assert loaded_sources['materials_project']['name'] == 'Materials Project'
+        assert loaded_sources['_verification_status'] == 'verified'
+
+    def test_missing_source_file(self):
+        """Test handling of missing source file."""
+        missing_file = Path(self.temp_dir) / "nonexistent.txt"
+        sources = parse_verified_sources(missing_file)
+
+        assert sources['_verification_status'] == 'provisional'
+        assert sources['_verified_count'] == 0
+
+    def test_empty_json_list(self):
+        """Test parsing empty JSON list."""
+        candidate_file = Path(self.temp_dir) / "empty_candidates.txt"
+        candidate_file.write_text("[]", encoding='utf-8')
+
+        sources = parse_verified_sources(candidate_file)
+
+        assert sources['_verification_status'] == 'provisional'
+        assert sources['_verified_count'] == 0
+        assert len(sources['literature_pdfs']) == 0

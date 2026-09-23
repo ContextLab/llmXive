@@ -25,9 +25,21 @@ class Config:
     COMPOSITION_SUM_THRESHOLD: float = 95.0
     MIN_N_FOR_POWER: int = 50
     TARGET_N: int = 100
+    
+    # Fixed sensitivity thresholds: [low, medium, high]
+    # Explicitly defined as a fixed list, not dynamically generated
+    SENSITIVITY_THRESHOLDS: List[float] = [0.3, 0.6, 0.8]
+    
+    # Deprecated step (kept for API compatibility if referenced elsewhere)
+    SENSITIVITY_EXTEND_STEP: float = 0.0
+    
+    # Rounding step for sensitivity analysis
+    SENSITIVITY_ROUND_STEP: float = 0.05
 
     # Additional existing constants
     VIF_THRESHOLD: float = 5.0
+    # Note: R2_SENSITIVITY_THRESHOLDS is kept for backward compatibility if used by other scripts,
+    # but SENSITIVITY_THRESHOLDS is the canonical list per T006 spec.
     R2_SENSITIVITY_THRESHOLDS: List[float] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     MIN_SAMPLES_WARNING: int = 50
     MIN_SAMPLES_TARGET: int = 100
@@ -85,8 +97,16 @@ def get_vif_threshold() -> float:
     return Config.VIF_THRESHOLD
 
 def get_r2_sensitivity_thresholds() -> List[float]:
-    """Get the R2 sensitivity thresholds."""
+    """Get the R2 sensitivity thresholds (deprecated: use get_sensitivity_thresholds)."""
     return Config.R2_SENSITIVITY_THRESHOLDS
+
+def get_sensitivity_thresholds() -> List[float]:
+    """Get the fixed sensitivity thresholds [0.3, 0.6, 0.8]."""
+    return Config.SENSITIVITY_THRESHOLDS
+
+def get_sensitivity_round_step() -> float:
+    """Get the rounding step for sensitivity analysis."""
+    return Config.SENSITIVITY_ROUND_STEP
 
 def get_min_samples_warning() -> int:
     """Get the minimum samples for warning."""

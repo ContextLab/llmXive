@@ -1,3 +1,14 @@
+"""
+Descriptor Engine for Solder Hardness Prediction.
+
+Computes physical descriptors from raw elemental composition percentages
+using Mendeleev elemental properties.
+
+CRITICAL: This module calculates physical descriptors (weighted mean atomic mass,
+electronegativity variance, etc.) using RAW percentages. It does NOT use CLR
+transformed data for these calculations. CLR is applied separately for model input.
+"""
+
 import numpy as np
 import pandas as pd
 import logging
@@ -5,331 +16,381 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import json
 
-from mendeleev import element
-from compositional import clr
+try:
+    from mendeleev import element
+except ImportError:
+    raise ImportError("mendeleev package is required. Install with: pip install mendeleev")
+
 from utils.logging_config import get_logger
-from config import get_data_processed_dir, get_composition_sum_threshold
-from utils.error_handlers import DataValidationError
+from seed import set_seed
+from config import get_config, get_data_processed_dir
 
 logger = get_logger(__name__)
 
+# Define the physical descriptors to compute
+DESCRIPTORS = [
+    'weighted_mean_atomic_mass',
+    'electronegativity_variance',
+    'atomic_radius_variance',
+    'weighted_avg_melting_point',
+    'valence_electron_concentration'
+]
+
 class DescriptorEngine:
     """
-    Computes physical descriptors from solder alloy compositions.
-
-    Methodology:
-    1. Load raw elemental composition percentages (which sum to 1.0).
-    2. Apply CLR transform to raw percentages for model input features (to handle closure).
-    3. Compute physical descriptors using RAW elemental percentages as weights.
-       Formula: Descriptor = sum(raw_percent_i * property_i)
-       CLR values are NOT used as weights for physical descriptors.
+    Engine to compute physical descriptors from elemental compositions.
+    
+    Uses Mendeleev database for elemental properties.
+    Computes descriptors from RAW elemental percentages (not CLR transformed).
     """
-
+    
     def __init__(self):
         self.logger = get_logger(__name__)
-        self.property_cache: Dict[str, Dict[str, float]] = {}
-        self._load_elemental_properties()
-
-    def _load_elemental_properties(self) -> None:
-        """
-        Pre-load elemental properties from mendeleev to avoid repeated DB calls.
-        Properties: atomic_mass, electronegativity, atomic_radius, melting_point, valence_electrons
-        """
-        properties_to_fetch = [
-            'atomic_mass', 
-            'electronegativity', 
-            'atomic_radius', 
-            'melting_point', 
-            'valence_electrons'
-        ]
+        self.element_cache: Dict[str, Any] = {}
         
-        # Mendeleev element symbols we might encounter
-        # We'll fetch on demand to keep cache small initially, 
-        # but pre-populate common solder elements
-        common_elements = ['Sn', 'Pb', 'Ag', 'Cu', 'Bi', 'In', 'Sb', 'Zn', 'Al', 'Ni']
-        
-        for symbol in common_elements:
+    def _get_element(self, symbol: str):
+        """Get element from Mendeleev with caching."""
+        symbol = symbol.strip().upper()
+        if symbol not in self.element_cache:
             try:
-                el = element(symbol)
-                self.property_cache[symbol] = {
-                    'atomic_mass': float(el.atomic_mass) if el.atomic_mass is not None else 0.0,
-                    'electronegativity': float(el.electronegativity) if el.electronegativity is not None else 0.0,
-                    'atomic_radius': float(el.atomic_radius) if el.atomic_radius is not None else 0.0,
-                    'melting_point': float(el.melting_point) if el.melting_point is not None else 0.0,
-                    'valence_electrons': float(el.valence_electrons) if el.valence_electrons is not None else 0.0
-                }
+                self.element_cache[symbol] = element(symbol)
             except Exception as e:
-                self.logger.warning(f"Could not fetch properties for element {symbol}: {e}")
-                self.property_cache[symbol] = {
-                    'atomic_mass': 0.0,
-                    'electronegativity': 0.0,
-                    'atomic_radius': 0.0,
-                    'melting_point': 0.0,
-                    'valence_electrons': 0.0
-                }
-
-    def _get_element_property(self, symbol: str, property_name: str) -> float:
-        """
-        Get a specific property for an element, fetching from mendeleev if not cached.
-        """
-        symbol = symbol.upper()
-        
-        if symbol not in self.property_cache:
-            try:
-                el = element(symbol)
-                self.property_cache[symbol] = {
-                    'atomic_mass': float(el.atomic_mass) if el.atomic_mass is not None else 0.0,
-                    'electronegativity': float(el.electronegativity) if el.electronegativity is not None else 0.0,
-                    'atomic_radius': float(el.atomic_radius) if el.atomic_radius is not None else 0.0,
-                    'melting_point': float(el.melting_point) if el.melting_point is not None else 0.0,
-                    'valence_electrons': float(el.valence_electrons) if el.valence_electrons is not None else 0.0
-                }
-            except Exception as e:
-                self.logger.warning(f"Could not fetch properties for element {symbol}: {e}")
-                self.property_cache[symbol] = {
-                    'atomic_mass': 0.0,
-                    'electronegativity': 0.0,
-                    'atomic_radius': 0.0,
-                    'melting_point': 0.0,
-                    'valence_electrons': 0.0
-                }
-        
-        return self.property_cache[symbol].get(property_name, 0.0)
-
-    def _apply_clr_transform(self, composition: Dict[str, float]) -> Dict[str, float]:
-        """
-        Apply CLR (Centered Log-Ratio) transform to raw composition.
-        
-        Args:
-            composition: Dict of element -> percentage (should sum to ~1.0 or 100)
-        
-        Returns:
-            Dict of element -> CLR transformed value
-        """
-        # Ensure we have a vector of values
-        elements = list(composition.keys())
-        values = np.array([composition[e] for e in elements], dtype=float)
-        
-        # Handle zero values by replacing with small epsilon (standard CLR practice)
-        epsilon = 1e-10
-        values = np.where(values == 0, epsilon, values)
-        
-        # Apply CLR transform
+                self.logger.warning(f"Could not find element {symbol}: {e}")
+                return None
+        return self.element_cache[symbol]
+    
+    def _safe_get_property(self, elem, prop_name: str, default: float = 0.0) -> float:
+        """Safely get a property from an element, returning default if missing."""
+        if elem is None:
+            return default
         try:
-            clr_values = clr(values)
-            return dict(zip(elements, clr_values))
+            val = getattr(elem, prop_name, None)
+            if val is None:
+                return default
+            return float(val)
         except Exception as e:
-            self.logger.error(f"CLR transform failed: {e}")
-            raise
-
-    def _compute_weighted_mean(self, composition: Dict[str, float], property_name: str) -> float:
+            self.logger.warning(f"Could not get {prop_name} for {elem.symbol}: {e}")
+            return default
+    
+    def compute_weighted_mean_atomic_mass(self, composition: Dict[str, float]) -> float:
         """
-        Compute weighted mean of a property using RAW percentages as weights.
-        
-        Formula: sum(raw_percent_i * property_i)
+        Compute weighted mean atomic mass.
         
         Args:
-            composition: Dict of element -> percentage (RAW, not CLR)
-            property_name: Name of property to compute weighted mean for
+            composition: Dict mapping element symbol to percentage (0-100)
         
         Returns:
-            Weighted mean value
+            Weighted mean atomic mass
         """
-        total = 0.0
-        sum_weights = 0.0
+        total_mass = 0.0
+        total_weight = 0.0
         
-        for symbol, weight in composition.items():
-            prop_value = self._get_element_property(symbol, property_name)
-            total += weight * prop_value
-            sum_weights += weight
+        for symbol, pct in composition.items():
+            if pct <= 0:
+                continue
+            elem = self._get_element(symbol)
+            atomic_mass = self._safe_get_property(elem, 'atomic_mass', 0.0)
+            total_mass += atomic_mass * pct
+            total_weight += pct
         
-        if sum_weights == 0:
+        if total_weight == 0:
             return 0.0
         
-        return total / sum_weights
-
-    def _compute_weighted_variance(self, composition: Dict[str, float], property_name: str) -> float:
+        return total_mass / total_weight
+    
+    def compute_electronegativity_variance(self, composition: Dict[str, float]) -> float:
         """
-        Compute weighted variance of a property using RAW percentages as weights.
-        
-        Formula: sum(w_i * (x_i - mean)^2) / sum(w_i)
+        Compute variance of electronegativity weighted by composition.
         
         Args:
-            composition: Dict of element -> percentage (RAW, not CLR)
-            property_name: Name of property to compute weighted variance for
+            composition: Dict mapping element symbol to percentage (0-100)
         
         Returns:
-            Weighted variance value
+            Electronegativity variance
         """
-        # First compute weighted mean
-        mean = self._compute_weighted_mean(composition, property_name)
+        en_values = []
+        weights = []
         
-        total_variance = 0.0
-        sum_weights = 0.0
+        for symbol, pct in composition.items():
+            if pct <= 0:
+                continue
+            elem = self._get_element(symbol)
+            en = self._safe_get_property(elem, 'electronegativity', None)
+            if en is not None:
+                en_values.append(en)
+                weights.append(pct)
         
-        for symbol, weight in composition.items():
-            prop_value = self._get_element_property(symbol, property_name)
-            diff = prop_value - mean
-            total_variance += weight * (diff ** 2)
-            sum_weights += weight
-        
-        if sum_weights == 0:
+        if len(en_values) == 0:
             return 0.0
         
-        return total_variance / sum_weights
-
-    def compute_descriptors(self, composition: Dict[str, float]) -> Dict[str, float]:
+        weights = np.array(weights)
+        en_values = np.array(en_values)
+        
+        # Normalize weights to sum to 1
+        weights = weights / weights.sum()
+        
+        # Compute weighted mean
+        mean_en = np.sum(weights * en_values)
+        
+        # Compute weighted variance
+        variance = np.sum(weights * (en_values - mean_en) ** 2)
+        
+        return float(variance)
+    
+    def compute_atomic_radius_variance(self, composition: Dict[str, float]) -> float:
         """
-        Compute all physical descriptors for a given composition.
+        Compute variance of atomic radius weighted by composition.
         
         Args:
-            composition: Dict of element -> percentage (RAW values, should sum to ~1.0 or 100)
+            composition: Dict mapping element symbol to percentage (0-100)
         
         Returns:
-            Dict of descriptor name -> computed value
+            Atomic radius variance
         """
-        # Validate composition sum
-        comp_sum = sum(composition.values())
-        threshold = get_composition_sum_threshold()
+        radius_values = []
+        weights = []
         
-        if comp_sum < threshold:
-            raise DataValidationError(
-                f"Composition sum {comp_sum} is below threshold {threshold}. "
-                "Cannot compute descriptors for invalid composition."
-            )
+        for symbol, pct in composition.items():
+            if pct <= 0:
+                continue
+            elem = self._get_element(symbol)
+            # Try different radius properties
+            radius = self._safe_get_property(elem, 'atomic_radius', None)
+            if radius is None:
+                radius = self._safe_get_property(elem, 'covalent_radius', None)
+            if radius is None:
+                radius = self._safe_get_property(elem, 'vdw_radius', None)
+            
+            if radius is not None:
+                radius_values.append(radius)
+                weights.append(pct)
         
-        # Normalize to 1.0 if sum is close to 100 (percentage format)
-        if comp_sum > 1.1:
-            composition = {k: v / comp_sum for k, v in composition.items()}
+        if len(radius_values) == 0:
+            return 0.0
         
+        weights = np.array(weights)
+        radius_values = np.array(radius_values)
+        
+        # Normalize weights
+        weights = weights / weights.sum()
+        
+        # Compute weighted mean
+        mean_radius = np.sum(weights * radius_values)
+        
+        # Compute weighted variance
+        variance = np.sum(weights * (radius_values - mean_radius) ** 2)
+        
+        return float(variance)
+    
+    def compute_weighted_avg_melting_point(self, composition: Dict[str, float]) -> float:
+        """
+        Compute weighted average melting point.
+        
+        Args:
+            composition: Dict mapping element symbol to percentage (0-100)
+        
+        Returns:
+            Weighted average melting point in Kelvin
+        """
+        total_mp = 0.0
+        total_weight = 0.0
+        
+        for symbol, pct in composition.items():
+            if pct <= 0:
+                continue
+            elem = self._get_element(symbol)
+            melting_point = self._safe_get_property(elem, 'melting_point', 0.0)
+            total_mp += melting_point * pct
+            total_weight += pct
+        
+        if total_weight == 0:
+            return 0.0
+        
+        return float(total_mp / total_weight)
+    
+    def compute_valence_electron_concentration(self, composition: Dict[str, float]) -> float:
+        """
+        Compute valence electron concentration.
+        
+        Args:
+            composition: Dict mapping element symbol to percentage (0-100)
+        
+        Returns:
+            Valence electron concentration (average valence electrons per atom)
+        """
+        total_valence = 0.0
+        total_weight = 0.0
+        
+        for symbol, pct in composition.items():
+            if pct <= 0:
+                continue
+            elem = self._get_element(symbol)
+            # Get group number as a proxy for valence electrons
+            valence = self._safe_get_property(elem, 'group', 0)
+            # For transition metals, group number - 10 might be more accurate for d-electrons
+            # But for simplicity, we use group number or estimate from electron configuration
+            if valence == 0 and elem is not None:
+                # Fallback: estimate from electron configuration
+                try:
+                    # Get the number of electrons in the outermost shell
+                    ec = elem.electron_configuration
+                    if ec:
+                        # Simple heuristic: last group in config
+                        parts = ec.split()
+                        if parts:
+                            last_part = parts[-1]
+                            # Extract the coefficient (e.g., "4s2" -> 2)
+                            import re
+                            match = re.search(r'(\d+)$', last_part)
+                            if match:
+                                valence = int(match.group(1))
+                except:
+                    pass
+            
+            total_valence += valence * pct
+            total_weight += pct
+        
+        if total_weight == 0:
+            return 0.0
+        
+        return float(total_valence / total_weight)
+    
+    def compute_all_descriptors(self, composition: Dict[str, float]) -> Dict[str, float]:
+        """
+        Compute all physical descriptors for a single composition.
+        
+        Args:
+            composition: Dict mapping element symbol to percentage (0-100)
+        
+        Returns:
+            Dict mapping descriptor name to value
+        """
         descriptors = {}
         
-        # 1. Weighted Mean Atomic Mass (using RAW percentages)
-        descriptors['weighted_mean_atomic_mass'] = self._compute_weighted_mean(
-            composition, 'atomic_mass'
-        )
-        
-        # 2. Electronegativity Variance (using RAW percentages)
-        descriptors['electronegativity_variance'] = self._compute_weighted_variance(
-            composition, 'electronegativity'
-        )
-        
-        # 3. Atomic Radius Variance (using RAW percentages)
-        descriptors['atomic_radius_variance'] = self._compute_weighted_variance(
-            composition, 'atomic_radius'
-        )
-        
-        # 4. Weighted Average Melting Point (using RAW percentages)
-        descriptors['weighted_avg_melting_point'] = self._compute_weighted_mean(
-            composition, 'melting_point'
-        )
-        
-        # 5. Valence Electron Concentration (using RAW percentages)
-        descriptors['valence_electron_concentration'] = self._compute_weighted_mean(
-            composition, 'valence_electrons'
-        )
+        descriptors['weighted_mean_atomic_mass'] = self.compute_weighted_mean_atomic_mass(composition)
+        descriptors['electronegativity_variance'] = self.compute_electronegativity_variance(composition)
+        descriptors['atomic_radius_variance'] = self.compute_atomic_radius_variance(composition)
+        descriptors['weighted_avg_melting_point'] = self.compute_weighted_avg_melting_point(composition)
+        descriptors['valence_electron_concentration'] = self.compute_valence_electron_concentration(composition)
         
         return descriptors
-
-    def transform_dataframe(self, df: pd.DataFrame, composition_cols: List[str]) -> pd.DataFrame:
+    
+    def process_dataframe(self, df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
         """
-        Transform a dataframe of compositions into a feature matrix.
+        Process a DataFrame of solder compositions and compute descriptors.
+        
+        CRITICAL: This uses RAW elemental percentages from the input DataFrame,
+        NOT CLR transformed data.
         
         Args:
-            df: Input dataframe with composition columns
-            composition_cols: List of column names representing elemental percentages
+            df: DataFrame with columns for elemental percentages (e.g., 'Sn', 'Ag', 'Cu')
+                and other metadata
+            output_path: Path to save the output descriptors CSV
         
         Returns:
-            DataFrame with CLR-transformed composition features and physical descriptors
+            DataFrame with original columns plus descriptor columns
         """
-        # Create a copy to avoid modifying original
-        result_df = df.copy()
+        self.logger.info(f"Processing {len(df)} compositions for descriptor computation")
         
-        # Apply CLR transform to composition columns
-        clr_features = {}
+        # Identify elemental columns (columns that are not metadata)
+        # Assume elemental columns are uppercase letters or common element symbols
+        elemental_cols = []
+        for col in df.columns:
+            # Skip known non-elemental columns
+            if col.lower() in ['hardness_hv', 'alloy_family', 'source_citation', 'measurement_temp_c', 
+                               'composition_sum', 'index', 'id', 'record_id']:
+                continue
+            # Check if it looks like an element symbol (1-2 uppercase letters, maybe followed by lowercase)
+            if col.replace('.', '').replace('-', '').strip().isalpha() and len(col.strip()) <= 3:
+                elemental_cols.append(col)
+        
+        self.logger.info(f"Identified {len(elemental_cols)} elemental columns: {elemental_cols}")
+        
+        if len(elemental_cols) == 0:
+            self.logger.error("No elemental columns found in the DataFrame")
+            # Create empty descriptors dataframe
+            descriptors_df = pd.DataFrame()
+            for desc in DESCRIPTORS:
+                descriptors_df[desc] = np.nan
+            descriptors_df.to_csv(output_path, index=False)
+            return descriptors_df
+        
+        # Compute descriptors for each row
+        descriptors_list = []
+        valid_count = 0
+        
         for idx, row in df.iterrows():
-            composition = {col: row[col] for col in composition_cols}
-            clr_transformed = self._apply_clr_transform(composition)
-            for elem, value in clr_transformed.items():
-                col_name = f"clr_{elem}"
-                if col_name not in clr_features:
-                    clr_features[col_name] = []
-                clr_features[col_name].append(value)
+            composition = {}
+            for col in elemental_cols:
+                val = row[col]
+                if pd.notna(val) and val > 0:
+                    composition[col] = float(val)
+            
+            if len(composition) == 0:
+                self.logger.warning(f"Row {idx} has no valid elemental composition")
+                descriptors_list.append({desc: np.nan for desc in DESCRIPTORS})
+                continue
+            
+            try:
+                descriptors = self.compute_all_descriptors(composition)
+                descriptors_list.append(descriptors)
+                valid_count += 1
+            except Exception as e:
+                self.logger.error(f"Error computing descriptors for row {idx}: {e}")
+                descriptors_list.append({desc: np.nan for desc in DESCRIPTORS})
         
-        # Add CLR features to result
-        for col_name, values in clr_features.items():
-            result_df[col_name] = values
+        self.logger.info(f"Successfully computed descriptors for {valid_count}/{len(df)} compositions")
         
-        # Compute physical descriptors using RAW percentages
-        descriptors = {
-            'weighted_mean_atomic_mass': [],
-            'electronegativity_variance': [],
-            'atomic_radius_variance': [],
-            'weighted_avg_melting_point': [],
-            'valence_electron_concentration': []
-        }
+        # Create output DataFrame
+        descriptors_df = pd.DataFrame(descriptors_list)
         
-        for idx, row in df.iterrows():
-            composition = {col: row[col] for col in composition_cols}
-            desc_values = self.compute_descriptors(composition)
-            for desc_name, value in desc_values.items():
-                descriptors[desc_name].append(value)
+        # Ensure all descriptor columns exist
+        for desc in DESCRIPTORS:
+            if desc not in descriptors_df.columns:
+                descriptors_df[desc] = np.nan
         
-        # Add descriptor features to result
-        for desc_name, values in descriptors.items():
-            result_df[desc_name] = values
+        # Concatenate with original data if needed, or just save descriptors
+        # For this task, we save the descriptors separately
+        descriptors_df.to_csv(output_path, index=False)
         
-        return result_df
-
-    def main(self):
-        """
-        Main entry point for descriptor engine.
-        Reads cleaned data, computes descriptors, and saves output.
-        """
-        logger.info("Starting Descriptor Engine")
+        self.logger.info(f"Saved descriptors to {output_path}")
         
-        # Load cleaned data
-        cleaned_path = get_data_processed_dir() / "solder_hardness_cleaned.csv"
-        if not cleaned_path.exists():
-            logger.error(f"Cleaned data not found at {cleaned_path}")
-            return
-        
-        df = pd.read_csv(cleaned_path)
-        logger.info(f"Loaded {len(df)} records from {cleaned_path}")
-        
-        # Identify composition columns (assuming they start with 'element_' or are known elements)
-        # Common approach: look for columns that are elements
-        known_elements = ['Sn', 'Pb', 'Ag', 'Cu', 'Bi', 'In', 'Sb', 'Zn', 'Al', 'Ni', 'Fe', 'Mn', 'Cr', 'Co', 'Mo', 'W', 'Ti', 'V', 'Nb', 'Ta', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Pd', 'Rh', 'Ru', 'Ce', 'La', 'Nd', 'Pr', 'Sm', 'Gd', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sc', 'Y', 'Zr', 'Hf', 'Be', 'Mg', 'Ca', 'Sr', 'Ba', 'Li', 'Na', 'K', 'Rb', 'Cs', 'Fr', 'He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
-        
-        composition_cols = [col for col in df.columns if col.upper() in known_elements or col.startswith('element_')]
-        
-        if not composition_cols:
-            logger.error("No composition columns found in dataframe")
-            return
-        
-        logger.info(f"Found composition columns: {composition_cols}")
-        
-        # Transform dataframe
-        try:
-            transformed_df = self.transform_dataframe(df, composition_cols)
-            logger.info(f"Transformed dataframe with {len(transformed_df.columns)} columns")
-        except Exception as e:
-            logger.error(f"Transformation failed: {e}")
-            return
-        
-        # Save output
-        output_path = get_data_processed_dir() / "solder_hardness_features.csv"
-        transformed_df.to_csv(output_path, index=False)
-        logger.info(f"Saved feature matrix to {output_path}")
-        
-        # Log summary
-        logger.info(f"Descriptor computation complete. Output: {output_path}")
-        logger.info(f"Features computed: {list(transformed_df.columns)}")
+        return descriptors_df
 
 def main():
-    """Main entry point"""
+    """Main entry point for descriptor computation."""
+    config = get_config()
+    processed_dir = get_data_processed_dir()
+    
+    # Input file
+    input_file = processed_dir / "solder_hardness_cleaned.csv"
+    output_file = processed_dir / "descriptors.csv"
+    
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please run T013 (cleaner.py) first to generate solder_hardness_cleaned.csv")
+        return 1
+    
+    logger.info(f"Loading data from {input_file}")
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded {len(df)} records")
+    
+    # Initialize seed for reproducibility
+    set_seed(42)
+    
+    # Create engine and process
     engine = DescriptorEngine()
-    engine.main()
+    descriptors_df = engine.process_dataframe(df, output_file)
+    
+    if descriptors_df.empty:
+        logger.error("No descriptors were computed. Check input data.")
+        return 1
+    
+    logger.info(f"Descriptor computation complete. Output: {output_file}")
+    logger.info(f"Descriptors computed: {list(descriptors_df.columns)}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

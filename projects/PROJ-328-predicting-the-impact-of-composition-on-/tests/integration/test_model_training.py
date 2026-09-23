@@ -1,271 +1,237 @@
 """
-Integration test for the model training pipeline (Task T021).
+Integration test for the model training pipeline (T021).
 
-This test verifies the end-to-end flow of:
-1. Loading cleaned data from User Story 1.
-2. Generating features (CLR transform + Physical Descriptors).
-3. Training XGBoost and Linear Regression models.
-4. Running Cross-Validation.
-5. Verifying output artifacts and metrics.
+This test verifies the end-to-end execution of the model training workflow:
+1. Loads cleaned data from data/processed/solder_hardness_cleaned.csv
+2. Runs feature engineering (CLR transform + Physical Descriptors)
+3. Trains XGBoost and Linear Regression models (CPU-only)
+4. Performs Cross-Validation
+5. Performs Bootstrap analysis
+6. Performs SHAP analysis
+7. Verifies all required output artifacts are generated with valid content.
 
-It ensures that the pipeline components (features, models, evaluation)
-work together correctly on real data.
+CRITICAL: This test uses REAL data. If the cleaned dataset is missing or empty,
+the test will fail loudly to prevent fabrication.
 """
-
 import os
 import sys
+import pytest
+import subprocess
 import json
 import yaml
-import tempfile
-import shutil
-from pathlib import Path
-from typing import Dict, Any, List
-
-import pytest
-import numpy as np
 import pandas as pd
+from pathlib import Path
+import logging
+from typing import Dict, Any
 
-# Project root setup
-# We assume this test runs from the project root or code/ directory.
-# We need to ensure the code/ directory is in the path.
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
+# Add project root to path for imports if running directly
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from config import (
-    get_data_processed_dir,
-    get_data_outputs_dir,
-    get_models_dir,
-    get_cv_folds,
-    get_bootstrap_iterations,
-)
-from features.transformer import CLRTransformer
-from features.descriptor_engine import DescriptorEngine
-from models.xgboost_trainer import XGBoostTrainer
-from models.linear_trainer import LinearRegressionTrainer
-from evaluation.cv import run_kfold_cv, save_cv_results
-from utils.logging_config import get_logger
-from seed import init_reproducibility
+# Configure logging for the test
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-logger = get_logger("integration_test_model_training")
+# Constants for paths (relative to project root)
+DATA_PROCESSED_DIR = project_root / "data" / "processed"
+DATA_OUTPUTS_DIR = project_root / "data" / "outputs"
+CODE_DIR = project_root / "code"
 
+REQUIRED_ARTIFACTS = [
+    DATA_PROCESSED_DIR / "clr_features.csv",
+    DATA_PROCESSED_DIR / "descriptors.csv",
+    DATA_PROCESSED_DIR / "cv_results.json",
+    DATA_PROCESSED_DIR / "xgboost_model.pkl",
+    DATA_PROCESSED_DIR / "linear_model.pkl",
+    DATA_PROCESSED_DIR / "shap_ranking.yaml",
+    DATA_PROCESSED_DIR / "test_set_ci.yaml",
+    DATA_PROCESSED_DIR / "paired_ttest_results.yaml",
+    DATA_PROCESSED_DIR / "sensitivity_analysis.yaml",
+    DATA_PROCESSED_DIR / "vif_report.yaml",
+]
 
-@pytest.fixture
-def mock_cleaned_data(tmp_path: Path):
+def check_cleaned_data_exists():
+    """Verify the input cleaned dataset exists and has rows."""
+    cleaned_file = DATA_PROCESSED_DIR / "solder_hardness_cleaned.csv"
+    if not cleaned_file.exists():
+        pytest.fail(f"CRITICAL: Input file {cleaned_file} does not exist. "
+                    "The ingestion pipeline (T013) must run before this test.")
+    
+    df = pd.read_csv(cleaned_file)
+    if len(df) == 0:
+        pytest.fail(f"CRITICAL: Input file {cleaned_file} is empty. "
+                    "Real data ingestion failed or filtered out all records.")
+    logger.info(f"Found {len(df)} rows in cleaned data. Proceeding with integration test.")
+    return df
+
+def run_script(script_path: Path, env_vars: Dict[str, str] = None) -> subprocess.CompletedProcess:
+    """Run a Python script and capture output."""
+    cmd = [sys.executable, str(script_path)]
+    env = os.environ.copy()
+    if env_vars:
+        env.update(env_vars)
+    
+    logger.info(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(
+        cmd,
+        cwd=project_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=600  # 10 minute timeout for training
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"STDOUT:\n{result.stdout}")
+        logger.error(f"STDERR:\n{result.stderr}")
+        raise RuntimeError(f"Script failed: {script_path.name}\n{result.stderr}")
+    
+    return result
+
+def validate_artifact_exists(path: Path):
+    """Assert an artifact exists and is not empty."""
+    if not path.exists():
+        pytest.fail(f"Artifact missing: {path}")
+    
+    size = path.stat().st_size
+    if size == 0:
+        pytest.fail(f"Artifact is empty: {path}")
+    
+    # Validate JSON/YAML structure if applicable
+    if path.suffix == '.json':
+        try:
+            with open(path, 'r') as f:
+                json.load(f)
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Invalid JSON in {path}: {e}")
+    elif path.suffix in ['.yaml', '.yml']:
+        try:
+            with open(path, 'r') as f:
+                yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML in {path}: {e}")
+
+@pytest.mark.integration
+def test_model_training_pipeline_end_to_end():
     """
-    Creates a mock cleaned dataset that mimics the output of T013.
-    In a real CI run, this would load `data/processed/solder_hardness_cleaned.csv`.
-    For this integration test, we generate a small, valid synthetic dataset
-    that adheres to the schema to verify the pipeline logic without external dependencies.
+    End-to-end integration test for the model training pipeline.
+    
+    Steps:
+    1. Verify input data exists (T013 output).
+    2. Run Feature Engineering (T023b, T023c).
+    3. Run VIF Calculation (T024).
+    4. Run XGBoost Training (T025).
+    5. Run Linear Regression Training (T026).
+    6. Run Cross-Validation (T027).
+    7. Run Bootstrap Analysis (T028, T029b).
+    8. Run SHAP Analysis (T030).
+    9. Verify all outputs exist and contain valid data.
     """
-    # Create a small valid dataset (N=50) to satisfy N >= 50 threshold
-    n_samples = 50
-    np.random.seed(42)
     
-    data = {
-        "alloy_id": [f"ALLOY_{i:03d}" for i in range(n_samples)],
-        "Sn": np.random.uniform(0.5, 0.95, n_samples),
-        "Ag": np.random.uniform(0.0, 0.1, n_samples),
-        "Cu": np.random.uniform(0.0, 0.1, n_samples),
-        # Ensure sum is close to 1.0 but allow small variance for realism
-        "Bi": np.random.uniform(0.0, 0.05, n_samples),
-        "hardness_hv": np.random.uniform(10.0, 50.0, n_samples),
-        "measurement_temp_c": [25.0] * n_samples,
-        "alloy_family": ["SAC"] * n_samples,
-        "source_citation": ["MockSource"] * n_samples,
-    }
-    
-    # Normalize compositions to sum to 1.0 exactly for the test
-    composition_cols = ["Sn", "Ag", "Cu", "Bi"]
-    for col in composition_cols:
-        data[col] = data[col] / np.sum([data[c] for c in composition_cols], axis=0)
-    
-    df = pd.DataFrame(data)
-    
-    output_path = tmp_path / "solder_hardness_cleaned.csv"
-    df.to_csv(output_path, index=False)
-    return output_path
-
-
-@pytest.fixture
-def setup_test_dirs(tmp_path: Path):
-    """
-    Sets up temporary directory structure mimicking the project layout.
-    """
-    # Create necessary subdirectories
-    processed_dir = tmp_path / "data" / "processed"
-    outputs_dir = tmp_path / "data" / "outputs"
-    models_dir = tmp_path / "models"
-    
-    processed_dir.mkdir(parents=True)
-    outputs_dir.mkdir(parents=True)
-    models_dir.mkdir(parents=True)
-    
-    # Mock config files if needed (though we rely on defaults mostly)
-    status_file = processed_dir / ".ingestion_status.json"
-    with open(status_file, "w") as f:
-        json.dump({
-            "threshold_status": "N>=100",
-            "exact_N": 50,
-            "excluded_count": 0,
-            "power_limitation_warning": None
-        }, f)
-    
-    return {
-        "processed_dir": processed_dir,
-        "outputs_dir": outputs_dir,
-        "models_dir": models_dir,
-    }
-
-
-def test_integration_pipeline(mock_cleaned_data: Path, setup_test_dirs: Dict[str, Path]):
-    """
-    Full integration test: Load Data -> Features -> Train Models -> CV -> Verify Outputs.
-    """
-    # 1. Setup Paths
-    # Override config paths to use our temporary directories
-    # Note: In a real scenario, we might monkey-patch the config or pass paths explicitly.
-    # Here we assume the modules use the config functions which we can't easily override
-    # without modifying the config module. Instead, we will pass paths directly to the
-    # classes/functions that accept them, or rely on the fact that the test environment
-    # might set env vars.
-    #
-    # For this test, we will instantiate the classes and pass the data path explicitly
-    # if the API supports it, or we will simulate the flow by calling the main logic.
-    
-    # Since the existing API (e.g., XGBoostTrainer) might rely on global config paths,
-    # we need to ensure the temp directory structure is recognized or we adapt the test.
-    # Given the constraint "Extend, don't re-author", we will assume the classes accept
-    # a `data_path` or `output_dir` parameter, or we will modify the test to work with
-    # the existing API by setting environment variables or mocking.
-    #
-    # Let's assume the standard pattern: classes take paths in __init__ or run().
-    # If the existing code relies strictly on `get_data_processed_dir()`, we must
-    # ensure that function returns our temp path. However, we cannot change `config.py`
-    # in this task (T021).
-    #
-    # Workaround: We will run the pipeline logic by directly instantiating the components
-    # and passing the mock data path, assuming the classes are designed to be flexible.
-    # If they are not, we will simulate the steps.
-    
-    # Step 1: Load Data
-    logger.info("Loading cleaned data...")
-    df = pd.read_csv(mock_cleaned_data)
-    assert len(df) >= 50, "Mock data must have at least 50 samples."
+    # Step 1: Check Input Data
+    check_cleaned_data_exists()
     
     # Step 2: Feature Engineering
-    logger.info("Generating features...")
+    # Run Descriptor Engine (handles both CLR and Physical Descriptors)
+    # Based on API surface: code/features/descriptor_engine_main.py
+    descriptor_script = CODE_DIR / "features" / "descriptor_engine_main.py"
+    if descriptor_script.exists():
+        run_script(descriptor_script)
+    else:
+        # Fallback if main entry point is missing, try the module directly
+        # Assuming the module has a main() function we can call via python -m or similar
+        # But based on API, we assume the script exists. If not, fail.
+        pytest.fail(f"Feature engineering script not found: {descriptor_script}")
     
-    # Identify composition columns
-    composition_cols = [col for col in df.columns if col in ["Sn", "Ag", "Cu", "Bi"]]
-    target_col = "hardness_hv"
+    # Step 3: VIF Calculation
+    vif_script = CODE_DIR / "features" / "collinearity.py"
+    if vif_script.exists():
+        run_script(vif_script)
+    else:
+        logger.warning("VIF script not found, skipping VIF step (may cause downstream failures).")
     
-    X_raw = df[composition_cols].values
-    y = df[target_col].values
+    # Step 4 & 5: Model Training (XGBoost & Linear)
+    # Run XGBoost
+    xgb_script = CODE_DIR / "models" / "xgboost_trainer.py"
+    if xgb_script.exists():
+        run_script(xgb_script)
+    else:
+        pytest.fail(f"XGBoost trainer script not found: {xgb_script}")
     
-    # 2a. CLR Transform
-    clr_transformer = CLRTransformer()
-    X_clr = clr_transformer.fit_transform(X_raw)
-    assert X_clr.shape == X_raw.shape
-    assert not np.any(np.isnan(X_clr))
+    # Run Linear Regression
+    lin_script = CODE_DIR / "models" / "linear_trainer.py"
+    if lin_script.exists():
+        run_script(lin_script)
+    else:
+        pytest.fail(f"Linear Regression trainer script not found: {lin_script}")
     
-    # 2b. Physical Descriptors
-    # We need to pass the raw composition to the DescriptorEngine
-    descriptor_engine = DescriptorEngine()
-    # Assuming the engine can take a dataframe or numpy array
-    # If it expects a file, we might need to save X_raw to a temp file
-    # For this test, we assume it accepts the data directly or we use the main() flow.
-    # Let's assume a method like `compute_descriptors(df, composition_cols)` exists.
-    # If not, we rely on the `main` entry point which reads from config.
-    #
-    # To be safe and "extend don't re-author", we will call the `main` logic
-    # if it accepts arguments, or we simulate the output.
-    # However, the task requires REAL execution.
-    #
-    # Let's assume the DescriptorEngine has a method `process_dataframe`.
-    # If the API surface provided doesn't show it, we assume it's part of the class.
-    # Based on the API surface: `from features.descriptor_engine import DescriptorEngine`.
-    # We will assume it has a `run` or `process` method.
-    #
-    # If the class is strictly file-based, we write the raw data to a temp file
-    # and point the engine there.
+    # Step 6: Cross-Validation
+    cv_script = CODE_DIR / "evaluation" / "cv.py"
+    if cv_script.exists():
+        run_script(cv_script)
+    else:
+        pytest.fail(f"CV script not found: {cv_script}")
     
-    # Let's create a temporary feature file to simulate the flow
-    temp_features_path = setup_test_dirs["processed_dir"] / "features.csv"
+    # Step 7: Bootstrap Analysis
+    bootstrap_script = CODE_DIR / "evaluation" / "bootstrap.py"
+    if bootstrap_script.exists():
+        run_script(bootstrap_script)
+    else:
+        pytest.fail(f"Bootstrap script not found: {bootstrap_script}")
     
-    # Since we can't guarantee the internal API of DescriptorEngine without seeing the file,
-    # we will assume it can be instantiated and run on a dataframe.
-    # If it fails, the test will catch it.
-    try:
-        # Attempt to compute descriptors
-        # We assume the method signature: compute(df, composition_columns)
-        # If the class is different, we might need to adjust.
-        # Let's assume a standard interface for the sake of the test implementation.
-        descriptors = descriptor_engine.compute(X_raw) # Hypothetical method
-        X_features = np.hstack([X_clr, descriptors])
-    except AttributeError:
-        # Fallback if the method doesn't exist as assumed:
-        # We will create a mock descriptor matrix to proceed with the training test.
-        # This is acceptable for an integration test of the TRAINING pipeline if the
-        # feature generation is tested elsewhere.
-        logger.warning("DescriptorEngine method not found, using mock descriptors for training test.")
-        X_features = np.hstack([X_clr, np.random.rand(X_clr.shape[0], 5)])
+    # Step 8: SHAP Analysis
+    shap_script = CODE_DIR / "evaluation" / "shap_analysis.py"
+    if shap_script.exists():
+        run_script(shap_script)
+    else:
+        pytest.fail(f"SHAP script not found: {shap_script}")
     
-    assert X_features.shape[0] == len(df)
-    assert X_features.shape[1] > 0
+    # Step 9: Sensitivity Analysis (if applicable)
+    # This might depend on bootstrap results
+    sensitivity_script = CODE_DIR / "evaluation" / "sensitivity.py"
+    if sensitivity_script.exists():
+        try:
+            run_script(sensitivity_script)
+        except RuntimeError as e:
+            # Sensitivity might fail if bootstrap didn't produce enough samples
+            logger.warning(f"Sensitivity analysis failed (expected if data is small): {e}")
     
-    # Step 3: Train Models
-    logger.info("Training XGBoost model...")
-    xgb_trainer = XGBoostTrainer()
-    # Assuming the trainer accepts X, y
-    xgb_model = xgb_trainer.fit(X_features, y)
+    # Step 10: Verify Artifacts
+    logger.info("Verifying generated artifacts...")
+    missing_artifacts = []
+    invalid_artifacts = []
     
-    logger.info("Training Linear Regression model...")
-    lr_trainer = LinearRegressionTrainer()
-    lr_model = lr_trainer.fit(X_features, y)
+    for artifact in REQUIRED_ARTIFACTS:
+        try:
+            validate_artifact_exists(artifact)
+            logger.info(f"  OK: {artifact.name}")
+        except AssertionError as e:
+            missing_artifacts.append(str(artifact))
+            logger.error(f"  FAIL: {artifact.name} - {e}")
     
-    assert xgb_model is not None
-    assert lr_model is not None
+    if missing_artifacts:
+        pytest.fail(f"Integration test failed. Missing or invalid artifacts:\n" + "\n".join(missing_artifacts))
     
-    # Step 4: Cross-Validation
-    logger.info("Running Cross-Validation...")
-    cv_folds = get_cv_folds()
+    # Additional content validation for key files
+    # Check that test_set_ci.yaml has required keys
+    ci_file = DATA_PROCESSED_DIR / "test_set_ci.yaml"
+    if ci_file.exists():
+        with open(ci_file, 'r') as f:
+            ci_data = yaml.safe_load(f)
+        required_keys = ['r2_mean', 'r2_ci_lower', 'r2_ci_upper', 'rmse_mean', 'rmse_ci_lower', 'rmse_ci_upper']
+        missing_keys = [k for k in required_keys if k not in ci_data]
+        if missing_keys:
+            pytest.fail(f"test_set_ci.yaml missing keys: {missing_keys}")
     
-    # Run CV for XGBoost
-    xgb_cv_results = run_kfold_cv(xgb_trainer, X_features, y, cv_folds)
-    assert "r2_scores" in xgb_cv_results or "mean_r2" in xgb_cv_results
-    
-    # Run CV for Linear Regression
-    lr_cv_results = run_kfold_cv(lr_trainer, X_features, y, cv_folds)
-    assert "r2_scores" in lr_cv_results or "mean_r2" in lr_cv_results
-    
-    # Step 5: Save Results
-    logger.info("Saving CV results...")
-    # We need a path to save. Use the temp models dir.
-    cv_output_path = setup_test_dirs["models_dir"] / "cv_results.json"
-    save_cv_results(xgb_cv_results, lr_cv_results, cv_output_path)
-    
-    assert cv_output_path.exists()
-    
-    with open(cv_output_path, "r") as f:
-        saved_results = json.load(f)
-    
-    assert "xgboost" in saved_results
-    assert "linear_regression" in saved_results
-    assert saved_results["xgboost"]["mean_r2"] is not None
-    assert saved_results["linear_regression"]["mean_r2"] is not None
-    
-    # Step 6: Verify Metrics
-    logger.info("Verifying metrics...")
-    xgb_mean_r2 = saved_results["xgboost"]["mean_r2"]
-    lr_mean_r2 = saved_results["linear_regression"]["mean_r2"]
-    
-    # Basic sanity check: R2 should be between -1 and 1 (usually > 0 for this data)
-    assert -1.0 <= xgb_mean_r2 <= 1.0
-    assert -1.0 <= lr_mean_r2 <= 1.0
-    
-    logger.info("Integration test passed.")
+    # Check paired_ttest_results.yaml
+    ttest_file = DATA_PROCESSED_DIR / "paired_ttest_results.yaml"
+    if ttest_file.exists():
+        with open(ttest_file, 'r') as f:
+            ttest_data = yaml.safe_load(f)
+        required_keys = ['t_statistic', 'p_value', 'significant']
+        missing_keys = [k for k in required_keys if k not in ttest_data]
+        if missing_keys:
+            pytest.fail(f"paired_ttest_results.yaml missing keys: {missing_keys}")
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    pytest.main([__file__, "-v", "--tb=short"])

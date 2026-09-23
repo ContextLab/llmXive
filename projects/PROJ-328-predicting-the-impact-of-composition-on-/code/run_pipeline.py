@@ -1,125 +1,127 @@
-"""
-T060: Reconcile run-book vs implementation.
-This script acts as the main entry point for the pipeline execution,
-ensuring all required steps (Ingestion, Features, Models, Evaluation, Reporting)
-are run in the correct order and that declared deliverables are produced.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Optional
-
-# Add project root to path
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
+import subprocess
 
 from utils.logging_config import get_logger
-from config import get_data_processed_dir
+from seed import init_reproducibility
 
 logger = get_logger(__name__)
 
-def run_step(step_name: str, module_path: str, func_name: str = "main"):
-    """
-    Dynamically import and run a specific function from a module.
-    """
-    logger.info(f"--- Running Step: {step_name} ---")
+def run_step(command: str, step_name: str) -> bool:
+    """Runs a single pipeline step command."""
+    logger.info(f"Running step: {step_name}")
+    logger.info(f"Command: {command}")
     try:
-        # Construct module path relative to code/
-        # e.g., "ingestion.cleaner"
-        full_module_name = f"code.{module_path}"
-        
-        # Import the module
-        mod = __import__(full_module_name, fromlist=[func_name])
-        
-        # Get the function
-        if not hasattr(mod, func_name):
-            raise AttributeError(f"Module {full_module_name} has no attribute '{func_name}'")
-        
-        func = getattr(mod, func_name)
-        
-        # Run the function
-        func()
-        
-        logger.info(f"--- Step {step_name} completed successfully ---")
+        result = subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            logger.debug(result.stdout)
+        if result.stderr:
+            logger.debug(result.stderr)
+        logger.info(f"Step {step_name} completed successfully.")
         return True
-    except Exception as e:
-        logger.error(f"--- Step {step_name} FAILED: {e} ---", exc_info=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Step {step_name} failed with return code {e.returncode}")
+        logger.error(f"Stdout: {e.stdout}")
+        logger.error(f"Stderr: {e.stderr}")
         return False
 
-def verify_deliverables():
-    """
-    Verify that critical deliverables exist after pipeline run.
-    """
-    processed_dir = get_data_processed_dir()
-    required_files = [
-        processed_dir / "solder_hardness_cleaned.csv",
-        processed_dir / ".ingestion_status.json",
-        processed_dir / "report.yaml",
-        processed_dir / "test_metrics.yaml"
-    ]
-    
-    missing = []
-    for f in required_files:
-        if not f.exists():
-            missing.append(str(f))
-    
-    if missing:
-        logger.warning(f"Missing critical deliverables: {missing}")
-        # Do not exit with error here, as the pipeline might have partial success
-        # but we log it for the user.
-    else:
-        logger.info("All critical deliverables verified.")
+def verify_deliverables(deliverables: List[str]) -> bool:
+    """Verifies that all expected deliverable files exist."""
+    all_exist = True
+    for file_path in deliverables:
+        if not Path(file_path).exists():
+            logger.error(f"Deliverable missing: {file_path}")
+            all_exist = False
+        else:
+            logger.info(f"Deliverable found: {file_path}")
+    return all_exist
 
 def main():
     """
-    Execute the full pipeline.
+    Orchestrates the execution of the research pipeline.
     """
-    logger.info("Starting full pipeline execution.")
+    init_reproducibility()
     
-    # 1. Ingestion (T012, T013, T014)
-    # Note: T012a (API) and T012d (Scraper) are usually run separately or via aggregator.
-    # We assume raw data exists or the aggregator handles fetching if configured.
-    # For this run, we focus on cleaning and validation which are the core data prep steps.
+    # Define the sequence of steps based on the task dependencies
+    # Phase 1: Setup (Already done, but directories might need verification)
+    # Phase 2: Foundation (Already done)
+    
+    # Phase 3: User Story 1 (Ingestion)
+    # T012d-Execute (Literature Scraper)
+    # T013 (Cleaner)
+    # T014 (Validator) - produces .ingestion_status.json
+    
+    # Phase 4: User Story 2 (Features & Models)
+    # T023b (CLR Transform) - produces clr_features.csv
+    # T023c (Descriptors) - produces descriptors.csv
+    # T024 (VIF)
+    # T025 (XGBoost)
+    # T026 (Linear)
+    # ... (remaining steps)
+
     steps = [
-        ("Data Cleaning & Validation", "ingestion.cleaner"),
-        ("Data Validation & Status", "ingestion.validator"),
-        ("Generate Validation Report", "ingestion.generate_validation_report"),
+        # Ingestion Phase
+        ("python code/ingestion/literature_scraper.py", "T012d-Execute: Literature Scraper"),
+        ("python code/ingestion/cleaner.py", "T013: Data Cleaner"),
+        ("python code/ingestion/validator.py", "T014: Data Validator"),
         
-        # 2. Features (T023)
-        ("CLR Transformation", "features.transformer"),
-        ("Descriptor Engineering", "features.descriptor_engine"),
-        ("Collinearity Check", "features.collinearity"),
+        # Feature Engineering Phase (T023b is the focus of this task)
+        ("python code/features/descriptor_engine.py", "T023b/T023c: CLR Transform & Physical Descriptors"),
         
-        # 3. Models (T025, T026)
-        ("XGBoost Training", "models.xgboost_trainer"),
-        ("Linear Regression Training", "models.linear_trainer"),
+        # Collinearity
+        ("python code/features/collinearity.py", "T024: VIF Calculation"),
         
-        # 4. Evaluation (T027, T029, T030, T031)
-        ("Cross Validation", "evaluation.cv"),
-        ("Bootstrap Metrics", "evaluation.bootstrap"),
-        ("SHAP Analysis", "evaluation.shap_analysis"),
-        ("Model Comparison", "evaluation.model_comparison"),
-        ("Generate Predictions & Metrics", "evaluation.predict"),
-        ("Generate Report YAML", "evaluation.generate_report"),
+        # Model Training
+        ("python code/models/xgboost_trainer.py", "T025: XGBoost Training"),
+        ("python code/models/linear_trainer.py", "T026: Linear Regression Training"),
         
-        # 5. Reporting & Warnings (T035, T056, T057)
-        ("Add Power Limitation Warning", "evaluation.add_power_limitation_warning"),
+        # Evaluation
+        ("python code/evaluation/cv.py", "T027: Cross-Validation"),
+        ("python code/evaluation/bootstrap.py", "T028/T029b: Bootstrap Metrics"),
+        ("python code/evaluation/sensitivity.py", "T029c: Sensitivity Analysis"),
+        ("python code/evaluation/shap_analysis.py", "T030: SHAP Analysis"),
+        
+        # Reporting
+        ("python code/evaluation/generate_report.py", "T031c: Report Generation"),
     ]
+
+    failed_steps = []
     
-    success = True
-    for step_name, module in steps:
-        if not run_step(step_name, module):
-            logger.error(f"Pipeline halted at step: {step_name}")
-            success = False
-            break
-    
-    if success:
-        verify_deliverables()
-        logger.info("Pipeline execution completed.")
-    else:
-        logger.error("Pipeline execution failed.")
+    for cmd, name in steps:
+        if not run_step(cmd, name):
+            failed_steps.append(name)
+            # Depending on strictness, we might stop here. For now, continue to see other failures.
+            # But critical path failures should probably stop.
+            if "T013" in name or "T023b" in name or "T025" in name:
+                logger.critical(f"Critical step {name} failed. Stopping pipeline.")
+                break
+
+    if failed_steps:
+        logger.error(f"Pipeline failed. Failed steps: {failed_steps}")
         sys.exit(1)
+
+    # Verify critical deliverables
+    deliverables = [
+        "data/processed/.ingestion_status.json",
+        "data/processed/clr_features.csv",
+        "data/processed/descriptors.csv",
+        "data/processed/report.yaml"
+    ]
+
+    if not verify_deliverables(deliverables):
+        logger.error("Pipeline finished but critical deliverables are missing.")
+        sys.exit(1)
+
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

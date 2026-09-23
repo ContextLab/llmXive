@@ -1,223 +1,130 @@
 import os
-import re
+import sys
 import logging
+import json
 import requests
 from pathlib import Path
-from typing import List, Optional, Tuple
-from utils.error_handlers import ConfigurationError
+from typing import Tuple, Optional, List, Dict, Any
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 class ConstitutionError(Exception):
-    """Raised when a reference violates constitutional requirements."""
+    """Raised when a source fails constitutional checks (e.g., unreachable, invalid format)."""
     pass
 
-def validate_url(url: str) -> bool:
+def validate_research_md(candidate_source_path: Path, output_path: Path) -> Tuple[bool, str]:
     """
-    Validate that a URL is well-formed and accessible.
-    
-    Args:
-        url: The URL string to validate.
-        
-    Returns:
-        True if the URL is valid and accessible, False otherwise.
+    Validates sources listed in candidate_source.txt.
+    Reads JSON lines or JSON list from candidate_source_path.
+    Checks if URLs are reachable (GET request).
+    Writes verified sources to output_path.
+    Returns (True, content) if successful, (False, content) if partial/failed.
     """
-    if not url or not isinstance(url, str):
-        return False
-        
-    # Basic URL format check
-    url_pattern = re.compile(
-        r'^https?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-        
-    if not url_pattern.match(url):
-        logger.warning(f"Invalid URL format: {url}")
-        return False
-        
-    # Check accessibility (with timeout to avoid hanging)
-    try:
-        response = requests.head(url, timeout=10, allow_redirects=True)
-        # 200 OK or 301/302 redirects are acceptable
-        if response.status_code in [200, 301, 302, 403]:
-            # 403 might be a paywall but the URL is valid
-            return True
-        else:
-            logger.warning(f"URL returned status {response.status_code}: {url}")
-            return False
-    except requests.RequestException as e:
-        logger.warning(f"Failed to access URL {url}: {e}")
-        return False
-
-def validate_citation_format(citation: str) -> bool:
-    """
-    Validate that a citation string follows a basic format.
-    
-    Args:
-        citation: The citation string to validate.
-        
-    Returns:
-        True if the citation appears valid, False otherwise.
-    """
-    if not citation or not isinstance(citation, str):
-        return False
-        
-    # Basic check: should have some text and not be empty
-    # A more sophisticated check could validate DOI format, author names, etc.
-    if len(citation.strip()) < 10:
-        logger.warning(f"Citation too short: {citation}")
-        return False
-        
-    # Check for DOI pattern if present
-    doi_pattern = r'10\.\d{4,9}/[-._;()/:A-Z0-9]+'
-    if 'doi:' in citation.lower() or 'doi.org' in citation.lower():
-        if not re.search(doi_pattern, citation, re.IGNORECASE):
-            logger.warning(f"Citation mentions DOI but no valid DOI found: {citation}")
-            return False
-            
-    return True
-
-def validate_research_md(research_md_path: Path, output_path: Path) -> Tuple[bool, List[dict]]:
-    """
-    Validate the research.md file and extract verified references.
-    
-    Args:
-        research_md_path: Path to the research.md file to validate.
-        output_path: Path where the verified research file will be written.
-        
-    Returns:
-        Tuple of (success: bool, verified_sources: List[dict])
-    """
-    if not research_md_path.exists():
-        logger.error(f"Research file not found: {research_md_path}")
-        return False, []
-        
     verified_sources = []
     failed_sources = []
     
-    with open(research_md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-        
-    # Parse markdown to extract URLs and citations
-    # Look for patterns like: - [URL](description) or - URL: description
-    url_pattern = re.compile(r'[-*]\s*\[([^\]]+)\]\(([^)]+)\)|[-*]\s*([^\s]+)\s*[:\-]\s*(.+)', re.MULTILINE)
-    
-    lines = content.split('\n')
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
+    if not candidate_source_path.exists():
+        raise FileNotFoundError(f"Candidate source file not found: {candidate_source_path}")
+
+    try:
+        with open(candidate_source_path, 'r') as f:
+            raw_content = f.read().strip()
+            if not raw_content:
+                raise ValueError("Candidate source file is empty.")
             
-        # Try to extract URL and citation from markdown link format
-        match = re.search(r'\[([^\]]+)\]\(([^)]+)\)', line)
-        if match:
-            citation = match.group(1)
-            url = match.group(2)
-        else:
-            # Try alternative format: URL: citation
-            alt_match = re.search(r'(https?://[^\s]+)\s*[:\-]\s*(.+)', line)
-            if alt_match:
-                url = alt_match.group(1)
-                citation = alt_match.group(2)
-            else:
+            # Try parsing as JSON list
+            try:
+                candidates = json.loads(raw_content)
+            except json.JSONDecodeError:
+                # Try parsing as JSON lines
+                candidates = []
+                for line in raw_content.splitlines():
+                    line = line.strip()
+                    if line:
+                        try:
+                            candidates.append(json.loads(line))
+                        except json.JSONDecodeError:
+                            logger.warning(f"Skipping invalid JSON line: {line}")
+
+        if not isinstance(candidates, list):
+            raise ValueError("Candidate sources must be a list of objects.")
+
+        logger.info(f"Validating {len(candidates)} candidate sources...")
+
+        for idx, source in enumerate(candidates):
+            url = source.get('url')
+            source_type = source.get('source_type', 'unknown')
+            citation = source.get('citation', 'Unknown')
+            
+            if not url:
+                logger.warning(f"Source {idx} missing URL. Skipping.")
                 continue
-                
-        # Validate URL
-        is_valid_url = validate_url(url)
-        # Validate citation format
-        is_valid_citation = validate_citation_format(citation)
-        
-        source_entry = {
-            'url': url,
-            'citation': citation,
-            'source_type': 'pdf' if url.endswith('.pdf') or 'doi.org' in url else 'api',
-            'verified': is_valid_url and is_valid_citation
-        }
-        
-        if is_valid_url and is_valid_citation:
-            verified_sources.append(source_entry)
-            logger.info(f"Verified source: {citation} -> {url}")
-        else:
-            failed_sources.append(source_entry)
-            if not is_valid_url:
-                logger.warning(f"Failed URL validation: {url}")
-            if not is_valid_citation:
-                logger.warning(f"Failed citation validation: {citation}")
-    
-    # Write verified sources to output file
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("# Verified Research Sources\n\n")
-        f.write("This file contains only verified citations and URLs from the research process.\n")
-        f.write("Generated by Reference-Validator Agent.\n\n")
-        f.write("## Verified Sources\n\n")
-        
-        for i, source in enumerate(verified_sources, 1):
-            f.write(f"{i}. **{source['citation']}**\n")
-            f.write(f"   - URL: {source['url']}\n")
-            f.write(f"   - Type: {source['source_type']}\n\n")
-            
-        if not verified_sources:
-            f.write("No verified sources found.\n\n")
-            logger.warning("No verified sources found in research.md")
-            
-        if failed_sources:
-            f.write("## Failed Sources (Excluded)\n\n")
-            for i, source in enumerate(failed_sources, 1):
-                f.write(f"{i}. **{source['citation']}**\n")
-                f.write(f"   - URL: {source['url']}\n")
-                f.write(f"   - Reason: {'Invalid URL' if not validate_url(source['url']) else 'Invalid citation'}\n\n")
-    
-    success = len(verified_sources) > 0
-    if not success:
-        logger.error("No verified sources found - verification failed")
-        
-    return success, verified_sources
 
-def main():
-    """Main entry point for reference validation."""
-    logger.info("Starting reference validation...")
-    
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    research_md_path = project_root / 'data' / 'config' / 'candidate_sources.txt'
-    output_path = project_root / 'specs' / '001-predict-solder-hardness' / 'research_verified.md'
-    
-    # If candidate_sources.txt exists as JSON, convert to markdown format first
-    if research_md_path.exists():
-        # Check if it's the JSON format from T008a
-        import json
-        try:
-            with open(research_md_path, 'r') as f:
-                candidates = json.load(f)
-                
-            # Create a temporary markdown file for validation
-            temp_md_path = project_root / 'data' / 'config' / 'research_draft.md'
-            with open(temp_md_path, 'w') as f:
-                f.write("# Candidate Research Sources\n\n")
-                for item in candidates:
-                    f.write(f"- [{item.get('citation', 'Unknown')}]({item.get('url', '')})\n")
+            logger.info(f"Checking source {idx+1}/{len(candidates)}: {url}")
             
-            success, verified = validate_research_md(temp_md_path, output_path)
+            is_healthy = False
+            try:
+                # Simple health check: HEAD or GET with timeout
+                # For APIs, we might need a key, but we just check connectivity for now
+                # If it's a DOI, we check the resolver
+                if 'doi.org' in url:
+                    # Redirect check
+                    resp = requests.head(url, allow_redirects=True, timeout=10)
+                    is_healthy = resp.status_code == 200
+                else:
+                    resp = requests.head(url, timeout=10)
+                    is_healthy = resp.status_code < 400
             
-            if success:
-                logger.info(f"Successfully verified {len(verified)} sources")
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Failed to reach {url}: {e}")
+                is_healthy = False
+
+            if is_healthy:
+                source['verified'] = True
+                verified_sources.append(source)
             else:
-                logger.error("Verification failed - no sources verified")
-                
-        except json.JSONDecodeError:
-            logger.error("Candidate sources file is not valid JSON")
-            return 1
-    else:
-        logger.error(f"Research file not found: {research_md_path}")
-        return 1
-        
-    return 0 if success else 1
+                source['verified'] = False
+                failed_sources.append(source)
 
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+        # Construct output content
+        output_lines = [
+            "# Research Sources Verification Report",
+            f"# Generated: {os.popen('date').read().strip()}",
+            f"# Verified Count: {len(verified_sources)}",
+            f"# Failed Count: {len(failed_sources)}",
+            "",
+            "## Verified Sources",
+            ""
+        ]
+
+        for s in verified_sources:
+            output_lines.append(f"- **{s.get('name', 'Unnamed')}** ({s.get('source_type', 'unknown')}): {s['url']}")
+            output_lines.append(f"  - Citation: {s.get('citation', 'N/A')}")
+            output_lines.append("")
+
+        if failed_sources:
+            output_lines.append("## Failed Sources (Excluded)")
+            for s in failed_sources:
+                output_lines.append(f"- {s.get('url', 'N/A')}: {s.get('citation', 'N/A')}")
+            output_lines.append("")
+
+        output_content = "\n".join(output_lines)
+
+        # Write to output file
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write(output_content)
+
+        if len(failed_sources) == len(candidates):
+            return False, output_content
+        return True, output_content
+
+    except Exception as e:
+        logger.error(f"Validation process failed: {e}")
+        raise ConstitutionError(f"Validation failed: {e}")

@@ -1,9 +1,3 @@
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a sample Python file, a flake8 command execution, or a linting
-    report is provided; without such artifacts the claim that the linting configuration
-    was verified cannot be confirmed.
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,6 +12,12 @@ T008b:
     \ and there is no evidence that the Reference-Validator Agent was run on T008a\u2019\
     s draft or that verified citations/URLs were extracted. The required artifact\
     \ is missing, so the task is not satisfied."
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no evidence of a `code/utils/` directory or an `__init__.py` file
+    within it; the provided artifacts contain no such scaffolding, so the required
+    file is missing.
 T009c:
   c: true
   h: bcb19e6fe5a3814a58860c6283a34cd46dac9768d8e486fc6041fd9e8fcc3fe6
@@ -25,21 +25,13 @@ T009c:
     bytes) populated with verified and provisional URLs, API endpoints, and related\
     \ metadata as required. No placeholder or missing content is evident."
 T012a:
-  c: false
-  h: a0b26251a91a07338dcda2b2653382a92a38644486e334d9c3e83b4350470101
-  r: "The repository lacks the required `sources.yaml` file, so the pre\u2011check\
-    \ mandated by the task cannot be performed. Moreover, the `api_fetcher.py` contains\
-    \ placeholder comments and simulated query logic rather than concrete implementations\
-    \ for the three specified APIs, indicating the fetching functionality is not fully\
-    \ realized. The missing configuration file and incomplete API logic must be addressed."
-T012g:
-  c: false
-  h: df1950234450ea6a9b294000678c6e2962e295661bd7cdfa2b14ad5b5926834a
-  r: "The repository contains `code/ingestion/aggregator.py`, but the shown content\
-    \ stops at comments and does not include any logic that writes the raw files or\
-    \ creates SHA256 checksums. Moreover, the required `data/checksums.txt` file is\
-    \ absent. Consequently, the task\u2019s core requirements (producing immutable\
-    \ raw files and recording their checksums) are not satisfied."
+  c: true
+  h: 680adcb59390d233402636f60c79d6dd6e7e83936bdbd776653d7f6609dbbc8c
+  r: "The repository contains `code/ingestion/api_fetcher.py` (a full 17\u202FKB module)\
+    \ that loads and validates `data/config/sources.yaml`, raises a `ConfigurationError`\
+    \ if it is absent, and implements fetching logic for Materials Project, NIST/UCI,\
+    \ and OpenAlloy with authentication handling and rate\u2011limiting. The required\
+    \ `data/config/sources.yaml` file is present and correctly populated."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -50,14 +42,54 @@ T014:
     \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
+T014b:
+  c: false
+  h: 2d823ceb74054ea34840db1d300bdc3b0f8645fbd2298866136500ce9147a41b
+  r: The repository contains the `aggregate_final_report.py` script, but the required
+    input files (`data/processed/.ingestion_status.json` and `data/processed/report.yaml`)
+    are absent, and the expected output file (`data/processed/final_aggregated_report.yaml`)
+    was not generated. Without these artifacts the script cannot fulfill its purpose.
 T016b:
   c: true
-  h: f4d181442720aa95f983038fd42ca9f78813f69206fd9a3d9953704bfea3b38f
-  r: "The repository contains the required `code/ingestion/generate_validation_report.py`\
-    \ script (\u22484\u202FKB) which implements loading of `.ingestion_status.json`\
-    \ and `validation_metrics.yaml`, builds a combined report dictionary, and writes\
-    \ it to `validation_report.yaml`. The script file is present and non\u2011empty,\
-    \ fulfilling the task\u2019s deliverable."
+  h: c714aec0379373d9a22058b78549e2387a5a947deb18810f6ec97584e08ffcd6
+  r: "The script `code/ingestion/generate_validation_report.py` exists, is non\u2011\
+    empty, and contains code to load the required JSON and YAML files and to combine\
+    \ them into a validation report (including handling missing inputs). The presence\
+    \ of the input and output data files is not a prerequisite for the script\u2019\
+    s existence; the script is ready to generate `validation_report.yaml` when those\
+    \ files are provided."
+T016c:
+  c: false
+  h: 82e139493ed7536a97062fc3b59a392cbee4ff77a434cf2a0709fa9865afb625
+  r: The required input artifacts `data/processed/.ingestion_status.json` and `validation_metrics.yaml`
+    are missing, and there is no evidence that the script was executed or that a valid
+    `validation_report.yaml` was produced. The integration test therefore was not
+    performed.
+T023b:
+  c: false
+  h: 5a43eba8c57607fb4416fe0d8aba61d86b7688cc9dbcdcb4d5bcfcf56d6a9a56
+  r: The repository lacks the required input CSV (`data/processed/solder_hardness_cleaned.csv`)
+    and the output CLR matrix (`data/processed/clr_features.csv`). Moreover, `code/features/descriptor_engine.py`
+    contains only partial code for physical descriptors and does not implement any
+    CLR transformation or saving logic. These essential artifacts are missing, so
+    the task is not satisfied.
+T023c:
+  c: false
+  h: c50be90405b2fc56645db84b29aaf6c2997cdb352a1d212b4d469cdaeb2e02c1
+  r: "The provided `code/features/descriptor_engine.py` is truncated and does not\
+    \ contain the full implementation of the required descriptor calculations (it\
+    \ ends abruptly at `self._s`). Moreover, the required input file `data/processed/solder_hardness_cleaned.csv`\
+    \ and the output file `data/processed/descriptors.csv` are missing from the repository.\
+    \ Consequently, the task\u2019s core functionality and required artifacts are\
+    \ not present."
+T027a:
+  c: false
+  h: d1be3319f952f54d232e41e10e7e5b40f931137f8be44d7f273fe24d95383d6f
+  r: "The `code/evaluation/paired_ttest.py` file is present but truncated (the `main()`\
+    \ function is incomplete) and never writes the required keys to `data/processed/paired_ttest_results.yaml`.\
+    \ Moreover, the expected output YAML file does not exist at all. The task\u2019\
+    s core deliverable\u2014producing a complete script that generates the specified\
+    \ YAML results\u2014is therefore missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,10 +113,10 @@ T037:
     artifact (saved visualizations) is missing.
 T054:
   c: false
-  h: 74b8592960a54b48b78bbcfa04434e4ce3d86dd6bfb12d5bab27718521fcbaa3
-  r: "The repository contains `code/features/collinearity.py`, but the shown implementation\
-    \ stops after defining `calculate_vif` and a partially\u2011shown `get_collinear_features`;\
-    \ there is no logic that writes a `vif_report.yaml` file. Moreover, the required\
-    \ output file `data/processed/vif_report.yaml` is absent from the disk. The task\u2019\
-    s core requirement\u2014producing a detailed YAML report with VIF scores and an\
-    \ `is_collinear` flag\u2014is therefore not satisfied."
+  h: c453547be70fc5aa10f22007d10a6a85af8d89106226953d867269ec478d0454
+  r: "The repository contains `code/features/collinearity.py`, but the shown code\
+    \ only defines VIF calculation functions and does not include logic to generate\
+    \ and write a `vif_report.yaml` file. Moreover, the required output file `data/processed/vif_report.yaml`\
+    \ is missing from the project. The task\u2019s core deliverable\u2014a detailed\
+    \ YAML report with VIF scores and an `is_collinear` flag\u2014is therefore not\
+    \ present."

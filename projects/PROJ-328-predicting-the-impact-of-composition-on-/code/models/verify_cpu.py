@@ -1,14 +1,13 @@
 """
-Verify CPU Execution for Model Training.
+CPU Execution Verification Script.
 
-This module implements T024c: Verify that model training runs on CPU only
-and no GPU/CUDA devices are detected or used. This ensures compliance
-with FR-010 (CPU-only execution constraint).
+This module verifies that the model training environment is correctly
+configured for CPU-only execution. It checks for the absence of CUDA
+devices and validates that training loops run without GPU acceleration.
 
-CRITICAL: This script loads REAL data from the ingestion pipeline to verify
-the CPU constraint on actual data structures, not synthetic dummy data.
+CRITICAL: This script uses REAL data from the project's processed directory
+to verify the execution environment. It does NOT use synthetic data.
 """
-
 import os
 import sys
 import logging
@@ -16,203 +15,179 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
-# Import project utilities
-from utils.logging_config import get_logger
-from models.config_cpu import get_cpu_config, get_xgboost_params, get_linear_params
-from seed import init_reproducibility
-from utils.error_handlers import ConfigurationError
-from config import get_data_processed_dir
-
-# Attempt to import torch and xgboost for device checks
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
-    logging.warning("PyTorch not installed. Skipping PyTorch-specific GPU checks.")
-
-try:
-    import xgboost as xgb
-    XGBOOST_AVAILABLE = True
-except ImportError:
-    XGBOOST_AVAILABLE = False
-    logging.warning("XGBoost not installed. Skipping XGBoost-specific device checks.")
-
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+import numpy as np
 import pandas as pd
+import torch
+
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+
+logger = logging.getLogger(__name__)
 
 def check_no_cuda_available() -> bool:
     """
-    Check if CUDA is available in the environment.
-    Returns True if CUDA is NOT available (desired state for CPU-only).
-    Returns False if CUDA IS available (warning state).
-    """
-    if TORCH_AVAILABLE:
-        if torch.cuda.is_available():
-            logging.warning("CUDA is available in the environment. GPU usage might occur if not explicitly disabled.")
-            return False
-        return True
-    return True  # If torch not installed, we assume no CUDA issues
+    Verify that no CUDA devices are available or detected.
 
-def check_xgboost_device_log(params: Dict[str, Any]) -> bool:
+    Returns:
+        bool: True if no CUDA is available (as expected for CPU-only), False otherwise.
     """
-    Verify that XGBoost parameters explicitly disable GPU usage.
-    """
-    if not XGBOOST_AVAILABLE:
+    is_cuda_available = torch.cuda.is_available()
+    if is_cuda_available:
+        logger.warning("CUDA is available! This environment has GPU resources.")
+        logger.warning(f"Detected devices: {torch.cuda.device_count()}")
+        for i in range(torch.cuda.device_count()):
+            logger.warning(f"Device {i}: {torch.cuda.get_device_name(i)}")
+        return False
+    else:
+        logger.info("CUDA is NOT available. Environment is CPU-only.")
         return True
 
-    # Check for explicit device settings that might force GPU
-    if 'device' in params:
-        if params['device'] != 'cpu':
-            logging.error(f"XGBoost device parameter set to: {params['device']}. Expected 'cpu'.")
+def check_xgboost_device_log() -> bool:
+    """
+    Verify that XGBoost is configured to use CPU by attempting a small training run
+    and checking logs or configuration.
+
+    Returns:
+        bool: True if XGBoost is confirmed CPU-only, False otherwise.
+    """
+    try:
+        import xgboost as xgb
+        from models.config_cpu import get_xgboost_params
+
+        config = get_xgboost_params()
+        
+        # Check if device is explicitly set to cpu
+        if config.get("device") != "cpu":
+            logger.error("XGBoost config does not explicitly set device='cpu'")
             return False
-    
-    # Check for tree_method that might imply GPU
-    tree_method = params.get('tree_method', 'auto')
-    if tree_method in ['gpu_hist', 'hist', 'approx'] and 'gpu' in tree_method:
-        logging.error(f"XGBoost tree_method '{tree_method}' may use GPU.")
+        
+        if config.get("n_jobs", 0) != 1:
+            logger.warning("XGBoost n_jobs is not 1, which may allow multi-threading.")
+        
+        logger.info("XGBoost configuration verified for CPU execution.")
+        return True
+    except ImportError:
+        logger.error("XGBoost not installed. Cannot verify device config.")
         return False
 
-    logging.info("XGBoost configuration appears safe for CPU execution.")
-    return True
+def load_real_data_for_verification() -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load a small sample of REAL data from the processed dataset for verification.
 
-def load_real_data_for_verification() -> Tuple[pd.DataFrame, pd.Series]:
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: Features (X) and Target (y) arrays.
+    
+    Raises:
+        FileNotFoundError: If the cleaned data file is missing.
     """
-    Load the cleaned solder hardness dataset to verify CPU execution on REAL data.
-    This replaces the synthetic 'make_regression' call to satisfy the fabrication guard.
-    """
-    processed_dir = get_data_processed_dir()
-    cleaned_file = processed_dir / "solder_hardness_cleaned.csv"
-    
-    if not cleaned_file.exists():
-        raise FileNotFoundError(
-            f"Real data file not found at {cleaned_file}. "
-            "Ensure T013 (Data Cleaning) has been executed successfully before running T024c."
-        )
-    
-    df = pd.read_csv(cleaned_file)
-    
-    # Identify feature columns (exclude target and metadata)
-    # Based on T023b output, we expect CLR features and descriptors
-    # We assume the target is 'hardness_hv' and features are numeric columns excluding it
-    feature_cols = [col for col in df.columns if col not in ['hardness_hv', 'alloy_family', 'source_citation']]
-    
-    if len(feature_cols) == 0:
-        raise ValueError("No feature columns found in the cleaned dataset.")
-    
-    X = df[feature_cols].dropna(axis=0)
-    y = X.pop('hardness_hv') if 'hardness_hv' in X.columns else df.loc[X.index, 'hardness_hv']
-    
-    # Ensure we have valid data
-    if X.empty or y.empty:
-        raise ValueError("Data is empty after filtering NaNs.")
-        
-    return X, y
+    cleaned_path = DATA_PROCESSED_DIR / "solder_hardness_cleaned.csv"
+    descriptors_path = DATA_PROCESSED_DIR / "descriptors.csv"
 
-def run_dummy_training_loop() -> Dict[str, Any]:
-    """
-    Run a training loop on REAL data to verify CPU execution constraints.
-    Returns a status dictionary.
-    """
-    results = {
-        "cuda_available": False,
-        "xgboost_cpu_safe": False,
-        "training_success": False,
-        "data_source": "real",
-        "data_path": "",
-        "message": ""
-    }
+    if not cleaned_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {cleaned_path}")
+    if not descriptors_path.exists():
+        raise FileNotFoundError(f"Descriptors not found at {descriptors_path}")
 
-    # 1. Check CUDA availability
-    if not check_no_cuda_available():
-        results["cuda_available"] = True
-        # We do not fail here if CUDA is available, as long as we force CPU usage,
-        # but we log it. The task is to verify we are NOT using GPU.
-    
-    # 2. Check XGBoost configuration
-    xgb_params = get_xgboost_params()
-    if not check_xgboost_device_log(xgb_params):
-        results["xgboost_cpu_safe"] = False
+    # Load and merge as in the trainer
+    df_clean = pd.read_csv(cleaned_path)
+    df_desc = pd.read_csv(descriptors_path)
+
+    # Simple merge logic (assuming row alignment if no ID)
+    if 'index' in df_desc.columns and 'index' in df_clean.columns:
+        df_merged = pd.merge(df_desc, df_clean[['index', 'hardness_hv']], on='index')
     else:
-        results["xgboost_cpu_safe"] = True
+        df_desc['temp_idx'] = range(len(df_desc))
+        df_clean['temp_idx'] = range(len(df_clean))
+        df_merged = pd.merge(df_desc, df_clean[['temp_idx', 'hardness_hv']], on='temp_idx')
+        df_merged.drop(columns=['temp_idx'], inplace=True)
 
-    # 3. Load REAL data and run training
+    target_col = 'hardness_hv'
+    feature_cols = [col for col in df_merged.columns if col != target_col]
+    
+    X = df_merged[feature_cols].values
+    y = df_merged[target_col].values
+
+    # Take a small sample for verification (e.g., 50 rows)
+    n_sample = min(50, len(y))
+    indices = np.random.choice(len(y), n_sample, replace=False)
+    
+    logger.info(f"Loaded {n_sample} real samples for verification.")
+    return X[indices], y[indices]
+
+def run_dummy_training_loop() -> bool:
+    """
+    Run a small training loop using REAL data to verify CPU execution.
+    
+    This function attempts to train a simple model on real data to ensure
+    no GPU errors occur and that the process completes successfully.
+
+    Returns:
+        bool: True if training completes successfully on CPU, False otherwise.
+    """
     try:
-        processed_dir = get_data_processed_dir()
-        results["data_path"] = str(processed_dir / "solder_hardness_cleaned.csv")
-        
-        logging.info("Loading REAL data for CPU verification...")
+        # Load real data
         X, y = load_real_data_for_verification()
         
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        logger.info("Starting dummy training loop with real data...")
 
-        # Train Linear Regression (CPU only by default)
-        logging.info("Running Linear Regression training on REAL data (CPU)...")
-        lr_model = LinearRegression()
-        lr_model.fit(X_train, y_train)
-        lr_score = lr_model.score(X_test, y_test)
-        logging.info(f"Linear Regression training completed. R²: {lr_score:.4f}")
+        # Test Linear Regression
+        from sklearn.linear_model import LinearRegression
+        model = LinearRegression(n_jobs=1)
+        model.fit(X, y)
+        _ = model.predict(X)
+        logger.info("Linear Regression training completed successfully.")
 
-        # Train XGBoost (with CPU config)
-        if XGBOOST_AVAILABLE:
-            logging.info("Running XGBoost training on REAL data (CPU)...")
-            # Use a small number of estimators for speed verification
-            xgb_model = xgb.XGBRegressor(**xgb_params, random_state=42, n_estimators=2)
-            xgb_model.fit(X_train, y_train)
-            xgb_score = xgb_model.score(X_test, y_test)
-            logging.info(f"XGBoost training completed. R²: {xgb_score:.4f}")
-        
-        results["training_success"] = True
-        results["message"] = "Training loop completed on REAL data. CPU execution verified."
+        # Test XGBoost
+        try:
+            import xgboost as xgb
+            from models.config_cpu import get_xgboost_params
+            
+            params = get_xgboost_params()
+            dtrain = xgb.DMatrix(X, label=y)
+            bst = xgb.train(params, dtrain, num_boost_round=5)
+            _ = bst.predict(dtrain)
+            logger.info("XGBoost training completed successfully.")
+        except ImportError:
+            logger.warning("XGBoost not installed, skipping XGBoost verification.")
 
-    except FileNotFoundError as fnf:
-        results["training_success"] = False
-        results["message"] = f"Data file missing: {str(fnf)}"
-        logging.error(f"Data file missing: {str(fnf)}")
+        return True
     except Exception as e:
-        results["training_success"] = False
-        results["message"] = f"Training loop failed: {str(e)}"
-        logging.error(f"Training loop failed: {str(e)}")
-
-    return results
+        logger.error(f"Training loop failed: {e}", exc_info=True)
+        return False
 
 def main():
-    """
-    Main entry point for CPU verification.
-    """
-    logger = get_logger("verify_cpu")
-    logger.info("Starting CPU Execution Verification (T024c)...")
+    """Main entry point for CPU verification."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    # Initialize reproducibility
-    init_reproducibility()
+    logger.info("=== Starting CPU Execution Verification ===")
 
-    # Run checks
-    status = run_dummy_training_loop()
+    # 1. Check CUDA
+    no_cuda = check_no_cuda_available()
+    if not no_cuda:
+        logger.warning("Environment has CUDA, but we will proceed to verify CPU config.")
 
-    # Log results
-    logger.info(f"Verification Results: {json.dumps(status, indent=2)}")
+    # 2. Check XGBoost Config
+    xgb_ok = check_xgboost_device_log()
 
-    # Determine final verdict
-    if not status["training_success"]:
-        logger.error("CPU Verification FAILED: Training loop did not complete.")
-        sys.exit(1)
-    
-    if status["cuda_available"]:
-        logger.warning("CUDA is available but training forced to CPU. Verification PASSED with warning.")
+    # 3. Run Training Loop with Real Data
+    train_ok = run_dummy_training_loop()
+
+    # 4. Summary
+    logger.info("=== Verification Summary ===")
+    logger.info(f"CUDA Check: {'PASS' if no_cuda else 'WARNING (CUDA available)'}")
+    logger.info(f"XGBoost Config Check: {'PASS' if xgb_ok else 'FAIL'}")
+    logger.info(f"Training Loop Check: {'PASS' if train_ok else 'FAIL'}")
+
+    if train_ok:
+        logger.info("CPU Execution Verification: SUCCESS")
+        return 0
     else:
-        logger.info("CUDA not available. Verification PASSED.")
-
-    # Save results to a file for downstream tasks
-    output_path = Path("data/processed/cpu_verification_status.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(status, f, indent=2)
-    
-    logger.info(f"Verification status saved to {output_path}")
-    print(f"CPU Verification completed. Status: {status['message']}")
+        logger.error("CPU Execution Verification: FAILED")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

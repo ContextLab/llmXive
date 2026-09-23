@@ -1,34 +1,24 @@
 """
-Sample code file for testing flake8 configuration.
-This file contains intentional style variations to verify linting rules.
+Sample code file for verifying linting configuration (T003b).
+This file contains intentional style violations to test flake8 configuration.
 """
 import os
 import sys
 from pathlib import Path
 
-# Test long line that should be caught if max-line-length is too short
-long_variable_name_that_exceeds_eighty_eight_characters = "This is a test string to verify line length configuration in flake8"
+# This line is too long and should trigger E501 if max-line-length is 88
+very_long_variable_name_that_exceeds_the_standard_line_length_limit_for_linting_purposes = "This is a test string"
 
-def sample_function(
-    arg1,
-    arg2,
-    arg3
-):
-    """Sample function with multi-line arguments."""
-    # Test operator at start of line (W503) - should be ignored per config
-    result = (
-        arg1
-        + arg2
-        * arg3
-    )
+def sample_function(  ):
+    """Sample function with extra spaces."""
+    x=1+2
+    return x
+
+def another_function( x, y ):
+    """Another function with spacing issues."""
+    result = x+y
     return result
 
-def another_function():
-    """Another sample function."""
-    # Test unused import warning (F401) - we import but don't use
-    unused_module = os
-    return "function completed"
-
-# Test E203 (whitespace before ':') - should be ignored per config
-my_list = [1, 2, 3]
-slice_result = my_list[1:3]
+class SampleClass:
+    """A sample class."""
+    pass

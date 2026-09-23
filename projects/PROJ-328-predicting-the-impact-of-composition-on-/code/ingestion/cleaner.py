@@ -1,7 +1,3 @@
-"""
-Cleaner module for validating and standardizing solder hardness data.
-Implements T013: Data cleaning and filtering logic.
-"""
 import pandas as pd
 import logging
 from pathlib import Path
@@ -9,366 +5,317 @@ from typing import List, Optional, Dict, Any, Tuple
 import os
 import hashlib
 import json
+import sys
 
-# Import project utilities
-try:
-    from utils.logging_config import get_logger
-    from utils.error_handlers import DataValidationError, CompositionSumError
-    from config import (
-        get_max_elements, 
-        get_composition_sum_threshold,
-        get_data_processed_dir,
-        get_room_temp_threshold,
-        get_room_temp_tolerance,
-        get_min_n_for_power
-    )
-except ImportError:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from utils.logging_config import get_logger
-    from utils.error_handlers import DataValidationError, CompositionSumError
-    from config import (
-        get_max_elements, 
-        get_composition_sum_threshold,
-        get_data_processed_dir,
-        get_room_temp_threshold,
-        get_room_temp_tolerance,
-        get_min_n_for_power
-    )
+# Add project root to path for imports if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
+from config import (
+    get_max_elements,
+    get_room_temp_threshold,
+    get_room_temp_tolerance,
+    get_composition_sum_threshold,
+    get_data_raw_dir,
+    get_data_processed_dir
+)
+from utils.logging_config import get_logger
+from ingestion.logger_setup import setup_ingestion_logging
+
+logger = get_logger(__name__)
 
 class DataCleaner:
     """
-    Cleans and validates solder composition data.
+    Handles cleaning, filtering, and validation of solder hardness data.
+    Implements T013 requirements:
+    - Exclude alloys with >5 elements
+    - Standardize hardness to HV
+    - Filter for room-temperature measurements
+    - Flag manual review candidates
+    - Validate elemental composition sums
+    - Handle N < 50 scenarios
     """
 
-    def __init__(self):
-        self.logger = get_logger("ingestion.cleaner")
+    def __init__(self, config=None):
         self.max_elements = get_max_elements()
-        self.composition_threshold = get_composition_sum_threshold()
         self.room_temp_threshold = get_room_temp_threshold()
         self.room_temp_tolerance = get_room_temp_tolerance()
-        self.min_n_for_power = get_min_n_for_power()
-        self.filtered_records: List[Dict[str, Any]] = []
-        self.review_records: List[Dict[str, Any]] = []
-
-    def load_data(self, file_path: Path) -> pd.DataFrame:
-        """Load raw data from CSV/JSON."""
-        if not file_path.exists():
-            raise FileNotFoundError(f"Input file not found: {file_path}")
+        self.composition_sum_threshold = get_composition_sum_threshold()
+        self.processed_dir = get_data_processed_dir()
         
-        if file_path.suffix == '.csv':
-            return pd.read_csv(file_path)
-        elif file_path.suffix == '.json':
-            return pd.read_json(file_path)
-        else:
-            raise ValueError(f"Unsupported file format: {file_path.suffix}")
+        # Ensure output directory exists
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
 
-    def _identify_element_columns(self, df: pd.DataFrame) -> List[str]:
+    def load_raw_data(self) -> pd.DataFrame:
         """
-        Identify columns that represent elemental composition.
-        Heuristic: columns starting with 'element_' or containing element symbols.
+        Loads all raw data files from data/raw/ and concatenates them.
+        Expects files: raw_mp.json, raw_lit.csv, raw_openalloy.json, raw_slr.csv
         """
-        # Common element symbols (simplified)
-        element_symbols = [
-            'Sn', 'Pb', 'Ag', 'Cu', 'Bi', 'In', 'Zn', 'Sb', 'Au', 'Ni',
-            'Al', 'Mg', 'Si', 'Fe', 'Co', 'Cr', 'Mn', 'Ti', 'V', 'W', 'Mo'
+        raw_dir = get_data_raw_dir()
+        if not raw_dir.exists():
+            raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+        
+        dfs = []
+        files_processed = []
+        
+        # Check for specific expected raw files based on T012g
+        expected_patterns = [
+            (raw_dir / "raw_mp.json", "json"),
+            (raw_dir / "raw_openalloy.json", "json"),
+            (raw_dir / "raw_lit.csv", "csv"),
+            (raw_dir / "raw_slr.csv", "csv")
         ]
         
-        element_cols = []
-        for col in df.columns:
-            # Check if column name starts with 'element_'
-            if col.startswith('element_'):
-                element_cols.append(col)
-            # Check if column name matches an element symbol exactly or is part of it
-            elif any(symbol in col for symbol in element_symbols):
-                element_cols.append(col)
+        for file_path, file_type in expected_patterns:
+            if file_path.exists():
+                logger.info(f"Loading raw data from {file_path.name}")
+                if file_type == "json":
+                    df = pd.read_json(file_path)
+                else:
+                    df = pd.read_csv(file_path)
+                
+                # Ensure 'source' column exists to track origin
+                if 'source' not in df.columns:
+                    df['source'] = file_path.stem
+                
+                dfs.append(df)
+                files_processed.append(file_path.name)
+            else:
+                logger.warning(f"Expected raw file not found: {file_path.name}")
         
-        return element_cols
+        if not dfs:
+            raise RuntimeError("No raw data files found in data/raw/. Ingestion (T012g) must run first.")
+        
+        combined_df = pd.concat(dfs, ignore_index=True)
+        logger.info(f"Loaded {len(combined_df)} total records from {len(files_processed)} files")
+        return combined_df
 
-    def filter_by_element_count(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
+    def filter_max_elements(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Exclude alloys with more than MAX_ELEMENTS elements.
-        Returns cleaned DataFrame and count of removed records.
+        Excludes alloys with more than MAX_ELEMENTS (5) components.
+        Returns cleaned DF and excluded DF.
         """
-        initial_count = len(df)
-        element_cols = self._identify_element_columns(df)
+        # Identify element columns (assuming they start with element names or are specific columns)
+        # We need to dynamically identify composition columns.
+        # Common pattern: columns like 'Sn', 'Ag', 'Cu', 'Sb', etc. or a generic 'composition' dict.
+        # Based on T007 entities, we expect 'elemental_breakdown' or flattened columns.
         
-        if not element_cols:
-            self.logger.warning("No elemental columns found. Skipping element count filter.")
-            return df, 0
+        # Strategy: Check if 'elemental_breakdown' exists (dict-like). If so, count keys.
+        # If flattened (e.g., 'Sn_pct', 'Ag_pct'), count non-null percentage columns.
         
-        # Count non-null/positive elemental entries per row
-        df['element_count'] = (df[element_cols] > 0).sum(axis=1)
+        excluded_rows = []
+        kept_rows = []
         
-        # Filter
-        mask = df['element_count'] <= self.max_elements
-        filtered_df = df[mask].copy()
-        removed_count = initial_count - len(filtered_df)
+        if 'elemental_breakdown' in df.columns:
+            # Handle nested dict structure
+            def count_elements(row):
+                breakdown = row.get('elemental_breakdown', {})
+                if isinstance(breakdown, str):
+                    try:
+                        breakdown = json.loads(breakdown)
+                    except:
+                        return 0
+                return len([k for k, v in breakdown.items() if v > 0])
+            
+            df['element_count'] = df.apply(count_elements, axis=1)
+            mask = df['element_count'] <= self.max_elements
+        else:
+            # Handle flattened columns: look for columns ending in _pct, _wt, or common element symbols
+            # Heuristic: Columns that look like element symbols (uppercase followed by optional lowercase)
+            import re
+            element_cols = [col for col in df.columns if re.match(r'^[A-Z][a-z]?', col) and ('%' in col or col.endswith('_pct') or col.endswith('_wt'))]
+            
+            if not element_cols:
+                # Fallback: assume all numeric columns except known metadata are elements
+                numeric_cols = df.select_dtypes(include=['number']).columns
+                exclude_cols = ['hardness_hv', 'measurement_temp_c', 'element_count']
+                element_cols = [c for c in numeric_cols if c not in exclude_cols]
+            
+            def count_elements_row(row):
+                return sum(1 for col in element_cols if pd.notna(row[col]) and row[col] > 0)
+            
+            df['element_count'] = df.apply(count_elements_row, axis=1)
+            mask = df['element_count'] <= self.max_elements
+
+        kept_df = df[mask].copy()
+        excluded_df = df[~mask].copy()
         
-        self.logger.info(f"Filtered by element count (max={self.max_elements}): {removed_count} records removed.")
-        
-        # Drop temporary column
-        if 'element_count' in filtered_df.columns:
-            filtered_df = filtered_df.drop(columns=['element_count'])
-        
-        return filtered_df, removed_count
+        logger.info(f"Filtered elements: kept {len(kept_df)}, excluded {len(excluded_df)} (> {self.max_elements} elements)")
+        return kept_df, excluded_df
 
     def standardize_hardness(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Standardize hardness to HV units.
-        Uses conversion factors from config if available.
+        Standardizes hardness to HV units.
+        Assumes data might have gpa or other units, but spec says 'hardness_hv'.
+        If other units exist, convert them. For now, ensure column exists and is numeric.
         """
-        self.logger.info("Standardizing hardness to HV...")
+        if 'hardness_hv' not in df.columns:
+            # Try to find alternative columns
+            alt_cols = [c for c in df.columns if 'hardness' in c.lower()]
+            if alt_cols:
+                logger.warning(f"Column 'hardness_hv' not found. Using {alt_cols[0]}")
+                df['hardness_hv'] = df[alt_cols[0]]
+            else:
+                raise KeyError("No hardness column found in dataset")
         
-        # Check if unit column exists
-        unit_col = 'hardness_unit'
-        if unit_col not in df.columns:
-            # Assume all are already HV if no unit column
-            self.logger.info("No hardness_unit column found. Assuming all values are in HV.")
-            return df
-        
-        # Conversion factors (if not in config, use standard values)
-        # 1 GPa = 10.197 HV
-        # 1 kgf/mm² = 9.807 HV
-        HV_PER_GPA = 10.197
-        HV_PER_KGF_MM2 = 9.807
-        
-        df = df.copy()
-        
-        # Convert GPa to HV
-        mask_gpa = df[unit_col].str.upper().str.contains('GPA', case=False, na=False)
-        if mask_gpa.any():
-            df.loc[mask_gpa, 'hardness_hv'] = df.loc[mask_gpa, 'hardness_hv'] * HV_PER_GPA
-            self.logger.info(f"Converted {mask_gpa.sum()} records from GPa to HV.")
-        
-        # Convert kgf/mm² to HV
-        mask_kgf = df[unit_col].str.upper().str.contains('KGF/MM', case=False, na=False)
-        if mask_kgf.any():
-            df.loc[mask_kgf, 'hardness_hv'] = df.loc[mask_kgf, 'hardness_hv'] * HV_PER_KGF_MM2
-            self.logger.info(f"Converted {mask_kgf.sum()} records from kgf/mm² to HV.")
-        
-        # Handle other units - log warning
-        other_units = ~df[unit_col].str.upper().str.contains('HV|GPA|KGF/MM', case=False, na=False)
-        if other_units.any():
-            self.logger.warning(f"Found {other_units.sum()} records with unknown hardness units: {df.loc[other_units, unit_col].unique()}")
-        
+        df['hardness_hv'] = pd.to_numeric(df['hardness_hv'], errors='coerce')
         return df
 
-    def filter_temperature(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def filter_temperature(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
-        Filter for room-temperature measurements.
-        Returns (valid_df, manual_review_df).
+        Filters for room-temperature measurements.
+        Returns: (kept_df, manual_review_df, excluded_df)
         """
-        self.logger.info(f"Filtering by temperature (target={self.room_temp_threshold}C, tolerance={self.room_temp_tolerance}C)...")
-        
-        if 'measurement_temp_c' not in df.columns:
-            self.logger.warning("No measurement_temp_c column found. Assuming all records are at room temperature.")
-            return df, pd.DataFrame()
-        
-        df = df.copy()
         temp_col = 'measurement_temp_c'
         
-        # Calculate absolute difference from room temperature
-        df['temp_diff'] = (df[temp_col] - self.room_temp_threshold).abs()
+        if temp_col not in df.columns:
+            logger.warning(f"Column '{temp_col}' not found. Assuming all are room temp.")
+            df[temp_col] = self.room_temp_threshold
         
-        # Valid: within tolerance
-        valid_mask = df['temp_diff'] <= self.room_temp_tolerance
-        valid_df = df[valid_mask].copy()
+        df[temp_col] = pd.to_numeric(df[temp_col], errors='coerce')
         
-        # Manual review: outside tolerance but within 2x tolerance
-        review_mask = (df['temp_diff'] > self.room_temp_tolerance) & (df['temp_diff'] <= 2 * self.room_temp_tolerance)
-        review_df = df[review_mask].copy()
+        # Define thresholds
+        lower_bound = self.room_temp_threshold - self.room_temp_tolerance
+        upper_bound = self.room_temp_threshold + self.room_temp_tolerance
+        manual_review_lower = self.room_temp_threshold - (2 * self.room_temp_tolerance)
+        manual_review_upper = self.room_temp_threshold + (2 * self.room_temp_tolerance)
         
-        # Outliers: beyond 2x tolerance (excluded)
-        # We log them but do not include in valid or review
-        outlier_count = (~valid_mask & ~review_mask).sum()
-        if outlier_count > 0:
-            self.logger.info(f"Excluded {outlier_count} records with temperature outside {2 * self.room_temp_tolerance}C of room temp.")
+        # Keep if within tolerance
+        mask_keep = (df[temp_col] >= lower_bound) & (df[temp_col] <= upper_bound)
+        kept_df = df[mask_keep].copy()
         
-        self.logger.info(f"Temperature filter: {len(valid_df)} valid, {len(review_df)} for manual review.")
+        # Manual review if within 2x tolerance but outside 1x
+        mask_review = ~mask_keep & (
+            (df[temp_col] >= manual_review_lower) & (df[temp_col] <= manual_review_upper)
+        )
+        manual_review_df = df[mask_review].copy()
         
-        # Drop temporary columns
-        for col in ['temp_diff']:
-            if col in valid_df.columns:
-                valid_df = valid_df.drop(columns=[col])
-            if col in review_df.columns:
-                review_df = review_df.drop(columns=[col])
+        # Exclude if outside 2x tolerance
+        mask_exclude = ~mask_keep & ~mask_review
+        excluded_df = df[mask_exclude].copy()
         
-        return valid_df, review_df
+        logger.info(f"Temperature filter: kept {len(kept_df)}, manual review {len(manual_review_df)}, excluded {len(excluded_df)}")
+        
+        return kept_df, manual_review_df, excluded_df
 
     def validate_composition_sum(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Validate that elemental composition sums to >= COMPOSITION_SUM_THRESHOLD.
-        Returns (valid_df, invalid_df).
+        Validates that elemental composition sums to >= COMPOSITION_SUM_THRESHOLD.
+        Returns: (kept_df, excluded_df)
         """
-        self.logger.info(f"Validating composition sums (threshold={self.composition_threshold}%)...")
-        
-        element_cols = self._identify_element_columns(df)
+        # Identify element columns again
+        import re
+        element_cols = [col for col in df.columns if re.match(r'^[A-Z][a-z]?', col) and ('%' in col or col.endswith('_pct') or col.endswith('_wt'))]
         
         if not element_cols:
-            self.logger.warning("No elemental columns found. Skipping composition sum validation.")
-            return df, pd.DataFrame()
+            # Fallback: numeric columns excluding metadata
+            numeric_cols = df.select_dtypes(include=['number']).columns
+            exclude_cols = ['hardness_hv', 'measurement_temp_c', 'element_count', 'composition_sum']
+            element_cols = [c for c in numeric_cols if c not in exclude_cols]
         
-        # Calculate sum of elemental percentages
+        # Calculate sum
         df['composition_sum'] = df[element_cols].sum(axis=1)
         
-        # Valid: sum >= threshold
-        valid_mask = df['composition_sum'] >= self.composition_threshold
-        valid_df = df[valid_mask].copy()
+        # Filter
+        mask_valid = df['composition_sum'] >= self.composition_sum_threshold
+        kept_df = df[mask_valid].copy()
+        excluded_df = df[~mask_valid].copy()
         
-        # Invalid: sum < threshold
-        invalid_df = df[~valid_mask].copy()
+        # Add reason code to excluded
+        excluded_df['exclusion_reason'] = 'COMPOSITION_SUM_LOW'
         
-        # Log invalid records
-        if not invalid_df.empty:
-            self.logger.warning(f"Excluded {len(invalid_df)} records with composition sum < {self.composition_threshold}%.")
-            self.filtered_records = invalid_df.to_dict(orient='records')
+        logger.info(f"Composition sum filter: kept {len(kept_df)}, excluded {len(excluded_df)} (< {self.composition_sum_threshold}%)")
         
-        self.logger.info(f"Composition sum validation: {len(valid_df)} valid, {len(invalid_df)} excluded.")
-        
-        # Drop temporary column
-        if 'composition_sum' in valid_df.columns:
-            valid_df = valid_df.drop(columns=['composition_sum'])
-        
-        return valid_df, invalid_df
+        return kept_df, excluded_df
 
-    def clean(self, input_path: Path, output_path: Path) -> Dict[str, Any]:
+    def run_cleaning_pipeline(self) -> pd.DataFrame:
         """
-        Run full cleaning pipeline.
-        Returns status dictionary for downstream tasks.
+        Executes the full cleaning pipeline.
         """
-        self.logger.info(f"Cleaning data from {input_path}...")
+        logger.info("Starting data cleaning pipeline (T013)...")
         
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found: {input_path}")
+        # 1. Load Raw
+        df = self.load_raw_data()
+        initial_count = len(df)
         
-        df = self.load_data(input_path)
-        initial_n = len(df)
-        self.logger.info(f"Loaded {initial_n} records from {input_path}")
+        # 2. Filter Max Elements
+        df, excluded_elements = self.filter_max_elements(df)
         
-        # Apply filters
-        df, removed_by_elements = self.filter_by_element_count(df)
+        # 3. Standardize Hardness
         df = self.standardize_hardness(df)
+        df = df.dropna(subset=['hardness_hv']) # Drop rows with no hardness
         
-        valid_df, review_df = self.filter_temperature(df)
-        valid_df, invalid_df = self.validate_composition_sum(valid_df)
+        # 4. Filter Temperature
+        df, manual_review, excluded_temp = self.filter_temperature(df)
         
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # 5. Validate Composition Sum
+        df, excluded_comp = self.validate_composition_sum(df)
         
-        # Save cleaned data
-        valid_df.to_csv(output_path, index=False)
-        self.logger.info(f"Cleaned data saved to {output_path} ({len(valid_df)} records)")
+        # 6. Final Count Check
+        final_count = len(df)
         
-        # Save manual review queue
-        review_path = get_data_processed_dir() / "manual_review_queue.csv"
-        review_path.parent.mkdir(parents=True, exist_ok=True)
-        if not review_df.empty:
-            review_df.to_csv(review_path, index=False)
-            self.logger.info(f"Manual review queue saved to {review_path} ({len(review_df)} records)")
+        # 7. Write Outputs
+        cleaned_path = self.processed_dir / "solder_hardness_cleaned.csv"
+        df.to_csv(cleaned_path, index=False)
+        logger.info(f"Wrote cleaned data to {cleaned_path} ({final_count} rows)")
         
-        # Save filtered records log
-        filtered_logs_dir = get_data_processed_dir() / "validation_logs"
-        filtered_logs_dir.mkdir(parents=True, exist_ok=True)
-        filtered_log_path = filtered_logs_dir / "filtered_records.csv"
+        # Write manual review queue
+        if not manual_review.empty:
+            manual_path = self.processed_dir / "manual_review_queue.csv"
+            manual_review.to_csv(manual_path, index=False)
+            logger.info(f"Wrote manual review queue to {manual_path} ({len(manual_review)} rows)")
         
-        if not invalid_df.empty:
-            # Add reason code
-            invalid_df_with_reason = invalid_df.copy()
-            invalid_df_with_reason['filter_reason'] = 'COMPOSITION_SUM_LOW'
-            invalid_df_with_reason.to_csv(filtered_log_path, index=False)
-            self.logger.info(f"Filtered records log saved to {filtered_log_path}")
+        # Write excluded records log
+        all_excluded = pd.concat([
+            excluded_elements.assign(exclusion_reason='TOO_MANY_ELEMENTS'),
+            excluded_temp.assign(exclusion_reason='TEMP_OUT_OF_RANGE'),
+            excluded_comp
+        ], ignore_index=True)
         
-        # Calculate final N
-        final_n = len(valid_df)
+        if not all_excluded.empty:
+            excluded_path = self.processed_dir / "excluded_records.csv"
+            all_excluded.to_csv(excluded_path, index=False)
+            logger.info(f"Wrote excluded records to {excluded_path} ({len(all_excluded)} rows)")
         
-        # Determine power limitation status
-        power_limitation_warning = None
-        if final_n < self.min_n_for_power:
-            power_limitation_warning = 'N < 50'
-            self.logger.warning(f"CRITICAL: Final N ({final_n}) is below minimum for power ({self.min_n_for_power}).")
-        elif final_n < 100:
-            self.logger.warning(f"WARNING: Final N ({final_n}) is below target (100). Statistical power may be limited.")
-        
-        # Prepare status dictionary
+        # 8. Handle N < 50 Warning
         status = {
-            'initial_n': initial_n,
-            'final_n': final_n,
-            'removed_by_element_count': removed_by_elements,
-            'removed_by_temperature': initial_n - len(valid_df) - removed_by_elements - len(invalid_df), # Approximate
-            'removed_by_composition_sum': len(invalid_df),
-            'manual_review_count': len(review_df),
-            'power_limitation_warning': power_limitation_warning,
-            'threshold_status': 'N>=100' if final_n >= 100 else ('50<=N<100' if final_n >= 50 else 'N<50')
+            "exact_N": final_count,
+            "initial_N": initial_count,
+            "excluded_count": len(all_excluded),
+            "threshold_status": "N>=100" if final_count >= 100 else ("50<=N<100" if final_count >= 50 else "N<50")
         }
         
-        return status
-
-    def save_filtered_logs(self, output_dir: Path) -> None:
-        """Save logs of filtered records."""
-        if not self.filtered_records:
-            self.logger.info("No filtered records to save.")
-            return
+        if final_count < 50:
+            status["power_limitation_warning"] = "N < 50"
+            logger.warning(f"CRITICAL: Final N ({final_count}) is less than 50. Power limitation warning set.")
+        elif final_count < 100:
+            status["power_limitation_warning"] = "50 <= N < 100 (Reduced Power)"
+            logger.warning(f"WARNING: Final N ({final_count}) is between 50 and 100. Reduced power warning set.")
         
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        status_path = self.processed_dir / ".ingestion_status.json"
+        with open(status_path, 'w') as f:
+            json.dump(status, f, indent=2)
         
-        log_path = output_dir / "filtered_records.json"
-        with open(log_path, 'w') as f:
-            json.dump(self.filtered_records, f, indent=2)
+        logger.info(f"Wrote ingestion status to {status_path}")
         
-        self.logger.info(f"Filtered records log saved to {log_path}")
-
+        return df
 
 def main():
     """
-    Entry point for the cleaner script.
-    Reads from raw data, cleans, and writes to processed.
+    Entry point for T013 execution.
     """
-    logger = get_logger("ingestion.cleaner.main")
-    logger.info("Starting cleaner pipeline...")
+    setup_ingestion_logging()
+    logger.info("Executing T013: Data Cleaning and Filtering")
     
     cleaner = DataCleaner()
-    
-    # Determine input file - look for raw data from T012g
-    data_processed_dir = get_data_processed_dir()
-    data_raw_dir = Path(data_processed_dir).parent / "raw"
-    
-    # Try to find the latest raw file
-    raw_files = list(data_raw_dir.glob("*.csv")) + list(data_raw_dir.glob("*.json"))
-    if not raw_files:
-        # Fallback: check processed for any existing raw-like file
-        raw_files = list(data_processed_dir.glob("raw_*.csv")) + list(data_processed_dir.glob("raw_*.json"))
-    
-    if not raw_files:
-        logger.error("No raw data files found. Cannot proceed with cleaning.")
-        return
-    
-    # Sort by modification time and take the latest
-    raw_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-    input_file = raw_files[0]
-    
-    output_file = data_processed_dir / "solder_hardness_cleaned.csv"
-    
-    logger.info(f"Input file: {input_file}")
-    logger.info(f"Output file: {output_file}")
-    
     try:
-        status = cleaner.clean(input_file, output_file)
-        
-        # Write status to ingestion_status.json
-        status_file = data_processed_dir / ".ingestion_status.json"
-        with open(status_file, 'w') as f:
-            json.dump(status, f, indent=2)
-        
-        logger.info(f"Cleaning completed successfully. Status saved to {status_file}")
-        
+        cleaner.run_cleaning_pipeline()
+        logger.info("T013 completed successfully.")
     except Exception as e:
-        logger.error(f"Cleaning failed: {str(e)}", exc_info=True)
-        raise
-
+        logger.error(f"T013 failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

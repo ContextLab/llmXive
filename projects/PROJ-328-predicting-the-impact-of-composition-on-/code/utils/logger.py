@@ -27,7 +27,7 @@ class JSONFormatter(logging.Formatter):
         
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
-        if record.exc_text:
+        if hasattr(record, 'exc_text') and record.exc_text:
             log_data["exception_text"] = record.exc_text
         if hasattr(record, 'extra_data'):
             log_data["extra"] = record.extra_data
@@ -40,7 +40,7 @@ def get_logger(name: str) -> logging.Logger:
     
     Args:
         name: The name of the logger (typically __name__ of the module)
-        
+            
     Returns:
         A configured logger instance
     """
@@ -53,10 +53,10 @@ def init_project_logger(base_path: Path, log_level: int = logging.DEBUG) -> logg
     Args:
         base_path: The root path of the project
         log_level: The logging level to use (default: DEBUG)
-        
+            
     Returns:
         The configured project logger
-        
+            
     Raises:
         FileNotFoundError: If the logs directory cannot be created
     """
@@ -99,7 +99,7 @@ def create_module_logger(name: str, base_path: Optional[Path] = None) -> logging
     Args:
         name: The name of the logger (typically __name__)
         base_path: Optional project root path to initialize project logger
-        
+            
     Returns:
         A logger instance for the module
     """
