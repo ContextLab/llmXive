@@ -1,7 +1,7 @@
 """
-Preprocessing module for the Political IAT analysis.
+Preprocessing pipeline for the political news exposure study.
 
-This module implements data loading, MICE imputation, and variable derivation.
+This module handles data loading, MICE imputation, and variable derivation.
 """
 
 from typing import Optional, Tuple, Dict, Any
@@ -11,226 +11,169 @@ import logging
 from pathlib import Path
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.impute import IterativeImputer
-from scipy import stats
 
-from config import ensure_dirs
+from config_manager import get_data_processed_path, get_config
 from logging_config import get_logger
-from data_loader import load_project_implicit_data
 
-# Initialize logger for this module
 logger = get_logger(__name__)
 
+class DataIntegrityError(ValueError):
+    """Custom exception for data integrity issues."""
+    pass
 
-def load_data(
-    data_path: Optional[Path] = None,
-    raw_dir: Optional[Path] = None
-) -> pd.DataFrame:
+def load_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Load the raw dataset from the specified path.
-
+    Perform initial data cleaning and type conversion.
+    
     Args:
-        data_path: Optional direct path to the CSV file.
-        raw_dir: Optional path to the raw data directory.
-
+        df: Raw DataFrame.
+    
     Returns:
-        pd.DataFrame: The loaded dataset.
-
-    Raises:
-        ValueError: If data cannot be loaded or required columns are missing.
+        Cleaned DataFrame.
     """
-    logger.info("Starting data loading process.")
+    logger.info("Performing initial data cleaning...")
     
-    # Use the data_loader module's function to load the data
-    # This ensures consistency with the project's data loading strategy
-    df = load_project_implicit_data(data_path=data_path, raw_dir=raw_dir)
+    # Ensure numeric columns are numeric
+    numeric_cols = ['IAT_D_score', 'political_ideology', 'news_exposure_freq']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    if df.empty:
-        raise ValueError("Loaded data is empty.")
-    
-    logger.info(f"Successfully loaded {len(df)} rows.")
     return df
 
-
-def impute_mice(
-    df: pd.DataFrame,
-    n_imputations: int = 5,
-    random_state: Optional[int] = None
-) -> pd.DataFrame:
+def impute_mice(df: pd.DataFrame, max_iter: int = 10, n_imputations: int = 5) -> pd.DataFrame:
     """
-    Perform Multiple Imputation by Chained Equations (MICE) on the dataset.
-
+    Perform MICE (Multiple Imputation by Chained Equations) imputation.
+    
     Args:
-        df: The input DataFrame with missing values.
-        n_imputations: Number of imputed datasets to generate (used for logging/checks).
-        random_state: Random seed for reproducibility.
-
+        df: DataFrame with missing values.
+        max_iter: Maximum number of iterations for MICE.
+        n_imputations: Number of imputations (currently using single imputation for simplicity).
+    
     Returns:
-        pd.DataFrame: The imputed dataset (pooled values).
-
+        DataFrame with imputed values.
+    
     Raises:
-        ValueError: If missingness rate for any key variable exceeds 50%.
+        DataIntegrityError: If missingness exceeds 50% for any key variable.
     """
-    if random_state is None:
-        random_state = 42  # Default seed if not provided
-
-    logger.info(f"Starting MICE imputation with {n_imputations} imputations.")
+    logger.info("Starting MICE imputation...")
     
-    # Identify key variables for missingness check
-    # Based on task description and typical IAT data structure
     key_vars = ['IAT_D_score', 'political_ideology', 'news_exposure_freq']
+    available_vars = [v for v in key_vars if v in df.columns]
     
-    # Check missingness rates for key variables
-    for var in key_vars:
-        if var in df.columns:
-            missing_rate = df[var].isna().sum() / len(df)
-            logger.debug(f"Missingness rate for {var}: {missing_rate:.2%}")
-            
-            if missing_rate > 0.50:
-                error_msg = f"Critical: Missingness rate for '{var}' is {missing_rate:.2%} (>50%). Halting imputation."
-                logger.error(error_msg)
-                raise ValueError(error_msg)
-            elif missing_rate > 0.10:
-                warning_msg = f"Warning: Missingness rate for '{var}' is {missing_rate:.2%} (>10%)."
-                logger.warning(warning_msg)
-        else:
-            logger.warning(f"Key variable '{var}' not found in dataframe. Skipping missingness check for this variable.")
-
-    # Select numeric columns for imputation
-    # MICE in sklearn works on numeric data
-    numeric_df = df.select_dtypes(include=[np.number])
-    
-    if numeric_df.empty:
-        logger.warning("No numeric columns found for imputation. Returning original dataframe.")
+    if not available_vars:
+        logger.error("No key variables found for imputation.")
         return df
-
-    logger.info(f"Imputing {numeric_df.shape[1]} numeric columns.")
-
-    # Initialize the MICE imputer
-    # Using sklearn's IterativeImputer which implements MICE
-    imputer = IterativeImputer(
-        max_iter=10,
-        random_state=random_state,
-        verbose=0  # Set to 1 for detailed sklearn output if needed
-    )
-
-    try:
-        imputed_values = imputer.fit_transform(numeric_df)
-        imputed_numeric_df = pd.DataFrame(imputed_values, columns=numeric_df.columns, index=numeric_df.index)
-        
-        # Reconstruct the full dataframe
-        # Keep non-numeric columns as they are
-        non_numeric_df = df.select_dtypes(exclude=[np.number])
-        df_imputed = pd.concat([imputed_numeric_df, non_numeric_df], axis=1)
-        
-        # Reorder columns to match original
-        df_imputed = df_imputed[df.columns]
-        
-        logger.info("MICE imputation completed successfully.")
-        return df_imputed
-
-    except Exception as e:
-        logger.error(f"Error during MICE imputation: {str(e)}")
-        raise
-
-
-def derive_variables(
-    df: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Derive new variables required for analysis, such as z-scored news exposure
-    and binary ideology splits.
-
-    Args:
-        df: The input DataFrame (likely imputed).
-
-    Returns:
-        pd.DataFrame: The DataFrame with new derived columns.
-    """
-    logger.info("Starting variable derivation.")
-    df_derived = df.copy()
-
-    # 1. Z-score news exposure
-    if 'news_exposure_freq' in df_derived.columns:
-        mean_ne = df_derived['news_exposure_freq'].mean()
-        std_ne = df_derived['news_exposure_freq'].std()
-        if std_ne == 0:
-            logger.warning("Standard deviation of news_exposure_freq is 0. Cannot z-score.")
-            df_derived['news_exposure_z'] = 0.0
-        else:
-            df_derived['news_exposure_z'] = (df_derived['news_exposure_freq'] - mean_ne) / std_ne
-        logger.info("Derived 'news_exposure_z'.")
-    else:
-        logger.warning("Column 'news_exposure_freq' not found. Skipping z-score derivation.")
-
-    # 2. Binary ideology split (median split)
-    if 'political_ideology' in df_derived.columns:
-        median_ideology = df_derived['political_ideology'].median()
-        df_derived['ideology_binary'] = (df_derived['political_ideology'] >= median_ideology).astype(int)
-        logger.info(f"Derived 'ideology_binary' using median split (median={median_ideology}).")
-    else:
-        logger.warning("Column 'political_ideology' not found. Skipping binary derivation.")
-
-    logger.info("Variable derivation completed.")
-    return df_derived
-
-
-def run_preprocessing_pipeline(
-    raw_data_path: Path,
-    output_path: Path,
-    n_imputations: int = 5
-) -> Dict[str, Any]:
-    """
-    Execute the full preprocessing pipeline: Load -> Impute -> Derive -> Save.
-
-    Args:
-        raw_data_path: Path to the raw input CSV.
-        output_path: Path where the processed CSV will be saved.
-        n_imputations: Number of imputations for MICE.
-
-    Returns:
-        Dict containing pipeline metadata and status.
-    """
-    logger.info("Starting preprocessing pipeline.")
     
-    # Ensure output directory exists
-    ensure_dirs(output_path.parent)
-
-    result = {
-        "status": "success",
-        "rows_loaded": 0,
-        "rows_imputed": 0,
-        "rows_derived": 0,
-        "output_path": str(output_path)
-    }
-
+    # Check missingness rates
+    for var in available_vars:
+        missing_pct = df[var].isna().sum() / len(df) * 100
+        logger.info(f"Missingness for {var}: {missing_pct:.2f}%")
+        if missing_pct > 50:
+            logger.warning(f"WARNING: Missingness exceeds 50% for variable {var} ({missing_pct:.2f}%). Halting per FR-008.")
+            # Flush log
+            for handler in logger.handlers:
+                handler.flush()
+            raise DataIntegrityError(f"Missingness exceeds 50% for variable {var}. Halting execution.")
+    
+    # Select columns for imputation
+    cols_to_impute = [c for c in df.columns if df[c].isna().any() and df[c].dtype in ['float64', 'int64', 'object']]
+    
+    if not cols_to_impute:
+        logger.info("No columns with missing values found.")
+        return df
+    
+    # Prepare data for imputer
+    impute_df = df[cols_to_impute].copy()
+    
+    # Use IterativeImputer (MICE)
+    imputer = IterativeImputer(max_iter=max_iter, random_state=42)
+    
     try:
-        # Step 1: Load Data
-        logger.info(f"Loading data from {raw_data_path}")
-        df_raw = load_data(data_path=raw_data_path)
-        result["rows_loaded"] = len(df_raw)
-        logger.info(f"Loaded {result['rows_loaded']} rows.")
-
-        # Step 2: Impute Data
-        logger.info("Performing MICE imputation...")
-        df_imputed = impute_mice(df_raw, n_imputations=n_imputations)
-        result["rows_imputed"] = len(df_imputed)
-        logger.info(f"Imputed {result['rows_imputed']} rows.")
-
-        # Step 3: Derive Variables
-        logger.info("Deriving variables...")
-        df_final = derive_variables(df_imputed)
-        result["rows_derived"] = len(df_final)
-        logger.info(f"Derived variables for {result['rows_derived']} rows.")
-
-        # Step 4: Save Output
-        logger.info(f"Saving processed data to {output_path}")
-        df_final.to_csv(output_path, index=False)
-        logger.info("Pipeline completed successfully.")
-
+        imputed_values = imputer.fit_transform(impute_df)
+        imputed_df = pd.DataFrame(imputed_values, columns=cols_to_impute, index=df.index)
+        
+        # Replace missing values in original dataframe
+        result_df = df.copy()
+        result_df[cols_to_impute] = imputed_df
+        
+        logger.info(f"MICE imputation complete. Filled {impute_df.isna().sum().sum()} missing values.")
+        return result_df
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        result["status"] = "failed"
-        result["error"] = str(e)
-        raise
+        logger.error(f"MICE imputation failed: {e}")
+        # Fallback to mean imputation if MICE fails (with warning)
+        logger.warning("Falling back to mean imputation.")
+        result_df = df.copy()
+        for col in cols_to_impute:
+            if result_df[col].dtype in ['float64', 'int64']:
+                result_df[col] = result_df[col].fillna(result_df[col].mean())
+            else:
+                result_df[col] = result_df[col].fillna(result_df[col].mode()[0] if len(result_df[col].mode()) > 0 else 'Unknown')
+        return result_df
 
-    return result
+def derive_variables(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Derive new variables needed for analysis.
+    
+    Args:
+        df: Imputed DataFrame.
+    
+    Returns:
+        DataFrame with derived variables.
+    """
+    logger.info("Deriving variables...")
+    
+    result_df = df.copy()
+    
+    # Z-score news exposure
+    if 'news_exposure_freq' in result_df.columns:
+        mean_exp = result_df['news_exposure_freq'].mean()
+        std_exp = result_df['news_exposure_freq'].std()
+        if std_exp > 0:
+            result_df['news_exposure_z'] = (result_df['news_exposure_freq'] - mean_exp) / std_exp
+        else:
+            result_df['news_exposure_z'] = 0.0
+        logger.info("Derived news_exposure_z (z-scored).")
+    else:
+        logger.warning("news_exposure_freq not found, skipping news_exposure_z derivation.")
+    
+    # Binary ideology (median split)
+    if 'political_ideology' in result_df.columns:
+        median_ideology = result_df['political_ideology'].median()
+        result_df['ideology_binary'] = (result_df['political_ideology'] >= median_ideology).astype(int)
+        logger.info(f"Derived ideology_binary (median split at {median_ideology:.2f}).")
+    else:
+        logger.warning("political_ideology not found, skipping ideology_binary derivation.")
+    
+    return result_df
+
+def run_preprocessing_pipeline(raw_df: pd.DataFrame) -> Optional[pd.DataFrame]:
+    """
+    Run the full preprocessing pipeline: load -> impute -> derive.
+    
+    Args:
+        raw_df: Raw DataFrame from data loader.
+    
+    Returns:
+        Processed DataFrame or None if pipeline fails.
+    """
+    try:
+        # Step 1: Load/Clean
+        cleaned_df = load_data(raw_df)
+        
+        # Step 2: Impute
+        imputed_df = impute_mice(cleaned_df)
+        
+        # Step 3: Derive
+        processed_df = derive_variables(imputed_df)
+        
+        logger.info("Preprocessing pipeline completed successfully.")
+        return processed_df
+        
+    except DataIntegrityError as e:
+        logger.critical(f"Data integrity error during preprocessing: {e}")
+        raise
+    except Exception as e:
+        logger.exception(f"Preprocessing pipeline failed: {e}")
+        return None

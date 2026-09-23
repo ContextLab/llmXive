@@ -10,3 +10,7 @@ pyyaml>=6.0.0
 pytest>=7.0.0
 python-dotenv>=1.0.0
 multiprocess>=0.70.14
+jax  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

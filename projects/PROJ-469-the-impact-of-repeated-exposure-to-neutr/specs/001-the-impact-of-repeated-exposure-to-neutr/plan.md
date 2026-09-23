@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements an associational analysis of the impact of self-reported political news exposure on implicit political bias using the Project Implicit dataset. The technical approach involves loading a CSV dataset (with a fallback to user-provided local files), mapping variables via a codebook, handling missing data with Multiple Imputation by Chained Equations (MICE) and a Delta-Adjustment sensitivity check, fitting a linear regression model with an interaction term (News Exposure × Ideology), and performing robustness checks (1000 bootstrap resamples with Monte Carlo SE calculation, alpha sweep, covariate adjustment, and binary ideology split). All results are exported to a PDF report and CSV tables, strictly adhering to CPU-only compute constraints (2 cores, ~7 GB RAM) and framing findings as associational.
+This feature implements an associational analysis of the impact of self-reported political news exposure on implicit political bias using the Project Implicit dataset. The technical approach involves loading a CSV dataset (with a fallback to user-provided local files), mapping variables via a codebook, handling missing data with Multiple Imputation by Chained Equations (MICE) and a Delta-Adjustment sensitivity check, fitting a linear regression model with an interaction term (News Exposure × Ideology), and performing robustness checks (1000 bootstrap resamples with Monte Carlo SE calculation, alpha sweep, covariate adjustment, and binary ideology split). All results are exported to a PDF report and CSV tables, strictly adhering to CPU-only compute constraints (multiple cores, ~7 GB RAM) and framing findings as associational.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ This feature implements an associational analysis of the impact of self-reported
 **Primary Dependencies**: `pandas`, `scikit-learn` (for MICE and preprocessing), `statsmodels` (for linear regression and diagnostics), `seaborn`/`matplotlib` (for plotting), `scipy` (for power analysis), `jinja2` (for PDF report generation), `pyyaml` (for schema validation).
 **Storage**: Local file system (`data/`, `results/`, `code/`). No external database.
 **Testing**: `pytest` (unit tests for data loading, imputation logic, and model output validation).
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, ~7 GB RAM, no GPU).
+**Target Platform**: GitHub Actions Free Tier (Linux, multiple CPUs, ~7 GB RAM, no GPU).
 **Project Type**: Data analysis pipeline / Research artifact generator.
 **Performance Goals**: Complete full pipeline (load, impute, model, bootstrap, report) within 6 hours.
 **Constraints**: 

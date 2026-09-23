@@ -1,0 +1,10 @@
+status: none
+intent: Project Implicit Political IAT dataset download with codebook and HuggingFace
+  IAT python package
+required_fields:
+- iat_score
+- ideology
+- news_exposure
+cache_key: b4e1aa37304c6a45d241e336e4598a519537c927cb9e3ffaaa98d1d274291051
+searched_at: '2026-09-23T05:38:21.635501+00:00'
+retry_count: 1

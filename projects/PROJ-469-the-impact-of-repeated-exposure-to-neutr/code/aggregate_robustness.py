@@ -1,224 +1,138 @@
 """
-Aggregate Robustness Metrics Module (T026)
-
-This module consolidates results from:
-1. Bootstrap analysis (T021)
-2. Alpha sweep (T022)
-3. Covariate adjustment (T023)
-4. Binary model (T024b)
-
-It produces a single `results/robustness_metrics.csv` file containing
-the comparative metrics required for the US2 robustness checkpoint.
+Aggregation pipeline for robustness metrics.
+Consolidates bootstrap, alpha sweep, covariate, and binary model results.
 """
-
 import os
 import pandas as pd
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
-
-# Import from project API surface
+import json
 from config_manager import get_results_path, get_config
 from logging_config import get_logger
-from robustness import save_robustness_results
-from binary_model import save_binary_model_results
 
 logger = get_logger(__name__)
 
-
-def load_csv_safely(file_path: Path, description: str) -> Optional[pd.DataFrame]:
-    """
-    Safely load a CSV file if it exists. Returns None if not found.
-    """
-    if not file_path.exists():
-        logger.warning(f"{description} file not found at {file_path}. "
-                       "This may indicate a prerequisite task has not run yet.")
+def load_csv_safely(path: Path) -> Optional[pd.DataFrame]:
+    """Load a CSV file safely, returning None if not found."""
+    if not path.exists():
+        logger.warning(f"File not found: {path}")
         return None
     try:
-        return pd.read_csv(file_path)
+        return pd.read_csv(path)
     except Exception as e:
-        logger.error(f"Failed to load {description} from {file_path}: {e}")
+        logger.error(f"Error loading {path}: {e}")
         return None
 
-
-def extract_bootstrap_metrics(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
-    """
-    Extract key metrics from the bootstrap results dataframe.
-    Expected columns: interaction_coef, interaction_ci_lower, interaction_ci_upper, interaction_p_val
-    """
-    if df is None or df.empty:
+def extract_bootstrap_metrics(bootstrap_json_path: Path) -> Dict[str, Any]:
+    """Extract key metrics from bootstrap results JSON."""
+    if not bootstrap_json_path.exists():
+        return {}
+    try:
+        with open(bootstrap_json_path, 'r') as f:
+            data = json.load(f)
         return {
-            "bootstrap_interaction_coef": None,
-            "bootstrap_ci_lower": None,
-            "bootstrap_ci_upper": None,
-            "bootstrap_se": None,
-            "bootstrap_significant": None
+            "bootstrap_mean": data.get("mean", None),
+            "bootstrap_std": data.get("std", None),
+            "bootstrap_ci_lower": data.get("ci_lower", None),
+            "bootstrap_ci_upper": data.get("ci_upper", None),
+            "converged_pct": data.get("converged_pct", None)
         }
+    except Exception as e:
+        logger.error(f"Error extracting bootstrap metrics: {e}")
+        return {}
 
-    # Assuming the dataframe contains one row of summary stats or we take the mean/last
-    # Based on typical robustness output structure
-    row = df.iloc[-1] if hasattr(df, 'iloc') else df
+def extract_alpha_sweep_metrics(alpha_csv_path: Path) -> pd.DataFrame:
+    """Load alpha sweep results."""
+    return load_csv_safely(alpha_csv_path)
 
-    coef = row.get('interaction_coef') if 'interaction_coef' in row else row.get('coef', None)
-    ci_lower = row.get('interaction_ci_lower') if 'interaction_ci_lower' in row else row.get('ci_lower', None)
-    ci_upper = row.get('interaction_ci_upper') if 'interaction_ci_upper' in row else row.get('ci_upper', None)
-    p_val = row.get('interaction_p_val') if 'interaction_p_val' in row else row.get('p_val', None)
-    se = row.get('interaction_se') if 'interaction_se' in row else row.get('se', None)
+def extract_covariate_metrics(covariate_csv_path: Path) -> Optional[pd.DataFrame]:
+    """Load covariate model results."""
+    return load_csv_safely(covariate_csv_path)
 
-    return {
-        "bootstrap_interaction_coef": coef,
-        "bootstrap_ci_lower": ci_lower,
-        "bootstrap_ci_upper": ci_upper,
-        "bootstrap_se": se,
-        "bootstrap_significant": (p_val is not None and p_val < 0.05)
-    }
+def extract_binary_model_metrics(binary_csv_path: Path) -> Optional[pd.DataFrame]:
+    """Load binary model results."""
+    return load_csv_safely(binary_csv_path)
 
-
-def extract_alpha_sweep_metrics(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
+def aggregate_robustness_metrics(
+    bootstrap_metrics: Dict,
+    alpha_df: Optional[pd.DataFrame],
+    covariate_df: Optional[pd.DataFrame],
+    binary_df: Optional[pd.DataFrame]
+) -> pd.DataFrame:
     """
-    Extract metrics from alpha sweep.
-    Expected columns: alpha_level, significant, interaction_p_val
+    Aggregate all robustness metrics into a single summary DataFrame.
     """
-    if df is None or df.empty:
-        return {
-            "alpha_sweep_001_significant": None,
-            "alpha_sweep_005_significant": None,
-            "alpha_sweep_010_significant": None
-        }
+    rows = []
+    
+    # Bootstrap metrics
+    for key, value in bootstrap_metrics.items():
+        rows.append({"metric": key, "value": value, "source": "bootstrap"})
+        
+    # Alpha sweep
+    if alpha_df is not None:
+        for _, row in alpha_df.iterrows():
+            rows.append({
+                "metric": f"alpha_{row['alpha']}_significant",
+                "value": 1 if row['is_significant'] else 0,
+                "source": "alpha_sweep"
+            })
+            
+    # Covariate comparison
+    if covariate_df is not None:
+        interaction_row = covariate_df[covariate_df['term'] == 'news_exposure_z:political_ideology']
+        if not interaction_row.empty:
+            rows.append({
+                "metric": "covariate_interaction_coef",
+                "value": interaction_row['estimate'].values[0],
+                "source": "covariate_model"
+            })
+            rows.append({
+                "metric": "covariate_interaction_pval",
+                "value": interaction_row['p_value'].values[0],
+                "source": "covariate_model"
+            })
+            
+    # Binary model comparison
+    if binary_df is not None:
+        interaction_row = binary_df[binary_df['term'] == 'news_exposure_z:ideology_binary']
+        if not interaction_row.empty:
+            rows.append({
+                "metric": "binary_interaction_coef",
+                "value": interaction_row['estimate'].values[0],
+                "source": "binary_model"
+            })
+            rows.append({
+                "metric": "binary_interaction_pval",
+                "value": interaction_row['p_value'].values[0],
+                "source": "binary_model"
+            })
+            
+    return pd.DataFrame(rows)
 
-    # Pivot or filter to get significance at each alpha
-    results = {
-        "alpha_sweep_001_significant": None,
-        "alpha_sweep_005_significant": None,
-        "alpha_sweep_010_significant": None
-    }
-
-    for _, row in df.iterrows():
-        alpha = row.get('alpha_level')
-        sig = row.get('significant')
-        if alpha == 0.01:
-            results["alpha_sweep_001_significant"] = sig
-        elif alpha == 0.05:
-            results["alpha_sweep_005_significant"] = sig
-        elif alpha == 0.10:
-            results["alpha_sweep_010_significant"] = sig
-
-    return results
-
-
-def extract_covariate_metrics(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
-    """
-    Extract metrics from covariate adjustment model.
-    Expected columns: interaction_coef, interaction_p_val
-    """
-    if df is None or df.empty:
-        return {
-            "covariate_interaction_coef": None,
-            "covariate_interaction_p_val": None,
-            "covariate_stability_ratio": None
-        }
-
-    row = df.iloc[-1]
-    coef = row.get('interaction_coef')
-    p_val = row.get('interaction_p_val')
-
-    return {
-        "covariate_interaction_coef": coef,
-        "covariate_interaction_p_val": p_val,
-        "covariate_stability_ratio": None # Calculated later if primary model is available
-    }
-
-
-def extract_binary_model_metrics(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
-    """
-    Extract metrics from binary ideology model.
-    Expected columns: interaction_coef, interaction_p_val
-    """
-    if df is None or df.empty:
-        return {
-            "binary_interaction_coef": None,
-            "binary_interaction_p_val": None
-        }
-
-    row = df.iloc[-1]
-    coef = row.get('interaction_coef')
-    p_val = row.get('interaction_p_val')
-
-    return {
-        "binary_interaction_coef": coef,
-        "binary_interaction_p_val": p_val
-    }
-
-
-def aggregate_robustness_metrics() -> pd.DataFrame:
-    """
-    Main entry point for T026.
-    Loads results from prerequisite tasks (T021, T022, T023, T024b)
-    and aggregates them into a single CSV file: results/robustness_metrics.csv
-    """
-    logger.info("Starting aggregation of robustness metrics (T026)...")
-
+def run_aggregation_pipeline() -> pd.DataFrame:
+    """Run the full aggregation pipeline."""
     results_dir = get_results_path()
-    if not results_dir.exists():
-        results_dir.mkdir(parents=True, exist_ok=True)
-
-    # Define paths to prerequisite outputs
-    # These paths are derived from the task descriptions and standard naming conventions
-    bootstrap_path = results_dir / "bootstrap_results.csv"
-    alpha_sweep_path = results_dir / "alpha_sweep.csv"
-    covariate_path = results_dir / "covariate_adjustment.csv"
-    binary_path = results_dir / "binary_model_results.csv" # From T024b
-
-    # Load data
-    df_boot = load_csv_safely(bootstrap_path, "Bootstrap")
-    df_alpha = load_csv_safely(alpha_sweep_path, "Alpha Sweep")
-    df_cov = load_csv_safely(covariate_path, "Covariate Adjustment")
-    df_bin = load_csv_safely(binary_path, "Binary Model")
-
-    # Extract metrics
-    boot_metrics = extract_bootstrap_metrics(df_boot)
-    alpha_metrics = extract_alpha_sweep_metrics(df_alpha)
-    cov_metrics = extract_covariate_metrics(df_cov)
-    bin_metrics = extract_binary_model_metrics(df_bin)
-
-    # Merge all metrics into a single dictionary
-    aggregated = {**boot_metrics, **alpha_metrics, **cov_metrics, **bin_metrics}
-
-    # Calculate stability ratio if both primary (covariate) and primary (no covariate) are available
-    # Note: We assume the primary model results are in a separate file or we can infer from context.
-    # For this specific task, we focus on the metrics explicitly requested.
-    # If primary model results are needed for ratio, we would load primary_model_results.csv
-    primary_path = results_dir / "primary_model_results.csv"
-    df_primary = load_csv_safely(primary_path, "Primary Model")
-    if df_primary is not None and not df_primary.empty and cov_metrics['covariate_interaction_coef'] is not None:
-        primary_coef = df_primary.iloc[-1].get('interaction_coef')
-        if primary_coef is not None and primary_coef != 0:
-            ratio = cov_metrics['covariate_interaction_coef'] / primary_coef
-            aggregated['covariate_stability_ratio'] = ratio
-
-    # Create DataFrame
-    # We expect a single row of summary metrics
-    summary_df = pd.DataFrame([aggregated])
-
-    # Define output path
+    
+    # Load sources
+    bootstrap_metrics = extract_bootstrap_metrics(results_dir / "bootstrap_results.json")
+    alpha_df = extract_alpha_sweep_metrics(results_dir / "alpha_sweep.csv")
+    covariate_df = extract_covariate_metrics(results_dir / "covariate_model.csv")
+    binary_df = extract_binary_model_metrics(results_dir / "binary_model.csv")
+    
+    # Aggregate
+    aggregated_df = aggregate_robustness_metrics(bootstrap_metrics, alpha_df, covariate_df, binary_df)
+    
+    # Save
     output_path = results_dir / "robustness_metrics.csv"
+    aggregated_df.to_csv(output_path, index=False)
+    logger.info(f"Aggregated robustness metrics saved to {output_path}")
+    
+    return aggregated_df
 
-    # Save to CSV
-    summary_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved aggregated robustness metrics to {output_path}")
-
-    return summary_df
-
-
-def run_aggregation_pipeline():
-    """
-    Wrapper to run the aggregation pipeline as a script or module call.
-    """
-    setup_logger = get_logger(__name__)
-    setup_logger.info("Running robustness aggregation pipeline...")
-    df = aggregate_robustness_metrics()
-    setup_logger.info(f"Aggregation complete. Rows: {len(df)}")
-    return df
+def main():
+    """CLI entry point."""
+    run_aggregation_pipeline()
 
 if __name__ == "__main__":
-    run_aggregation_pipeline()
+    main()

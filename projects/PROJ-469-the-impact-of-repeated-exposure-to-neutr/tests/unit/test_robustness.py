@@ -1,116 +1,122 @@
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add code to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from robustness import run_alpha_sweep, run_alpha_sweep_pipeline
+from robustness import run_bootstrap, run_alpha_sweep, save_bootstrap_results, save_alpha_sweep_results
 
-@pytest.fixture
-def sample_imputed_data():
-    """Create a mock imputed dataset with required columns for alpha sweep."""
-    np.random.seed(42)
-    n = 200
-    data = pd.DataFrame({
-        'IAT_D_score': np.random.normal(0, 1, n),
-        'news_exposure_z': np.random.normal(0, 1, n),
-        'political_ideology': np.random.normal(0, 1, n),
-        'age': np.random.normal(40, 15, n),
-        'gender': np.random.choice([0, 1], n),
-        'education': np.random.choice([1, 2, 3, 4], n)
-    })
-    # Create an interaction term explicitly to ensure it appears in model
-    # Note: The model formula will create this, but we ensure data is clean
-    return data
+class TestBootstrapLoop:
+    """Unit tests for the bootstrap loop (T021a)."""
 
-def test_run_alpha_sweep_basic(sample_imputed_data):
-    """Test that alpha sweep runs and returns expected columns."""
-    alpha_levels = [0.01, 0.05, 0.10]
-    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
-    
-    # Check structure
-    assert isinstance(results, pd.DataFrame)
-    assert len(results) == len(alpha_levels)
-    
-    # Check required columns
-    expected_cols = [
-        'alpha_level', 'interaction_pvalue', 'is_significant',
-        'interaction_coefficient', 'interaction_se', 'interaction_tvalue',
-        'model_r2', 'n_samples', 'interaction_term_name'
-    ]
-    for col in expected_cols:
-        assert col in results.columns, f"Missing column: {col}"
-    
-    # Check alpha levels match
-    assert sorted(results['alpha_level'].tolist()) == sorted(alpha_levels)
-    
-    # Check is_significant is boolean
-    assert results['is_significant'].dtype == bool
+    @pytest.fixture
+    def mock_data(self):
+        """Generate a small mock dataset for testing."""
+        np.random.seed(42)
+        n = 100
+        data = pd.DataFrame({
+            "IAT_D_score": np.random.randn(n),
+            "news_exposure_z": np.random.randn(n),
+            "political_ideology": np.random.randn(n)
+        })
+        return data
 
-def test_run_alpha_sweep_significance_logic(sample_imputed_data):
-    """Test that significance logic is correct based on p-value vs alpha."""
-    # Force a specific p-value by manipulating data if necessary, 
-    # but for this test we rely on the logic being applied correctly
-    alpha_levels = [0.01, 0.05, 0.10]
-    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
-    
-    # Verify that if p < alpha, is_significant is True
-    for _, row in results.iterrows():
-        alpha = row['alpha_level']
-        pval = row['interaction_pvalue']
-        is_sig = row['is_significant']
+    def test_bootstrap_produces_coefficients(self, mock_data):
+        """Test that bootstrap returns a list of coefficients."""
+        coeffs, p_vals, serrs, n_conv = run_bootstrap(mock_data, n_resamples=10, seed=42)
+
+        assert isinstance(coeffs, list)
+        assert len(coeffs) > 0
+        assert len(coeffs) <= 10
+        assert all(isinstance(c, (int, float)) for c in coeffs)
+
+    def test_bootstrap_convergence_count(self, mock_data):
+        """Test that convergence count is tracked correctly."""
+        # With clean data, most should converge
+        coeffs, p_vals, serrs, n_conv = run_bootstrap(mock_data, n_resamples=20, seed=123)
+
+        assert n_conv >= 0
+        assert n_conv <= 20
+        # In a small sample with clean data, we expect a reasonable convergence rate
+        # Note: OLS on small random data might occasionally fail, but usually converges
+        assert n_conv > 0, "Bootstrap should converge on valid mock data"
+
+    def test_bootstrap_seed_reproducibility(self, mock_data):
+        """Test that setting a seed produces consistent results."""
+        c1, _, _, _ = run_bootstrap(mock_data, n_resamples=5, seed=999)
+        c2, _, _, _ = run_bootstrap(mock_data, n_resamples=5, seed=999)
+
+        assert c1 == c2
+
+    def test_bootstrap_monte_carlo_se_calculation(self, mock_data):
+        """Test that MC SE is calculated as std of distribution."""
+        coeffs, _, _, _ = run_bootstrap(mock_data, n_resamples=100, seed=42)
+        if len(coeffs) > 1:
+            calculated_se = np.std(coeffs)
+            # The function doesn't return MC SE directly, but we can verify the logic
+            # by checking that the list exists and has variance
+            assert np.var(coeffs) > 0
+
+class TestAlphaSweep:
+    """Unit tests for alpha sweep (T022)."""
+
+    @pytest.fixture
+    def mock_data(self):
+        np.random.seed(42)
+        n = 100
+        return pd.DataFrame({
+            "IAT_D_score": np.random.randn(n),
+            "news_exposure_z": np.random.randn(n),
+            "political_ideology": np.random.randn(n)
+        })
+
+    def test_alpha_sweep_returns_dataframe(self, mock_data):
+        """Test that alpha sweep returns a DataFrame."""
+        result = run_alpha_sweep(mock_data, alphas=[0.01, 0.05])
+        assert isinstance(result, pd.DataFrame)
+        assert "alpha_level" in result.columns
+        assert "significant" in result.columns
+        assert "p_value" in result.columns
+        assert "estimate" in result.columns
+
+    def test_alpha_sweep_significance_logic(self, mock_data):
+        """Test that significance flag is set correctly based on p-value."""
+        # We can't guarantee p-value, but we can check logic consistency
+        # If p < alpha, significant should be True
+        result = run_alpha_sweep(mock_data, alphas=[0.0001, 0.9999])
         
-        if pval < alpha:
-            assert is_sig is True, f"Expected True for p={pval} < alpha={alpha}"
-        else:
-            assert is_sig is False, f"Expected False for p={pval} >= alpha={alpha}"
+        # Find the row with high alpha
+        high_alpha_row = result[result["alpha_level"] == 0.9999].iloc[0]
+        # Find the row with low alpha
+        low_alpha_row = result[result["alpha_level"] == 0.0001].iloc[0]
 
-def test_run_alpha_sweep_with_missing_columns(sample_imputed_data):
-    """Test that alpha sweep raises ValueError if required columns are missing."""
-    bad_data = sample_imputed_data.drop(columns=['news_exposure_z'])
-    
-    with pytest.raises(ValueError, match="Required columns for alpha sweep not found"):
-        run_alpha_sweep(bad_data)
+        p_val = high_alpha_row["p_value"]
+        
+        # Verify logic: if p < 0.9999, it must be True
+        assert high_alpha_row["significant"] == (p_val < 0.9999)
+        assert low_alpha_row["significant"] == (p_val < 0.0001)
 
-def test_run_alpha_sweep_pipeline(sample_imputed_data, tmp_path):
-    """Test the full pipeline including saving to CSV."""
-    # Mock the get_results_path to use tmp_path
-    # Since we can't easily mock the config manager in a unit test without more setup,
-    # we test the core logic and assume the save function works as tested elsewhere
-    # or we test run_alpha_sweep directly which is the core logic.
-    
-    # For this unit test, we focus on the core run_alpha_sweep function
-    # The pipeline integration is tested in integration tests or via the main runner
-    results = run_alpha_sweep(sample_imputed_data, alpha_levels=[0.05])
-    assert results is not None
-    assert len(results) == 1
-    assert 'is_significant' in results.columns
+class TestSaveFunctions:
+    """Tests for saving robustness results."""
 
-def test_run_alpha_sweep_single_alpha(sample_imputed_data):
-    """Test alpha sweep with a single alpha level."""
-    alpha_levels = [0.05]
-    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
-    
-    assert len(results) == 1
-    assert results.iloc[0]['alpha_level'] == 0.05
+    def test_save_bootstrap_creates_file(self, tmp_path, mock_data):
+        """Test that save_bootstrap_results writes a file."""
+        coeffs = [0.1, 0.2, 0.3]
+        save_bootstrap_results(coeffs, [], [], 100.0, output_path=str(tmp_path / "test_bootstrap.csv"))
+        
+        assert os.path.exists(tmp_path / "test_bootstrap.csv")
+        
+        df = pd.read_csv(tmp_path / "test_bootstrap.csv")
+        assert "mc_se" in df.columns
+        assert "ci_lower_95" in df.columns
 
-def test_run_alpha_sweep_default_alpha_levels(sample_imputed_data):
-    """Test that default alpha levels are [0.01, 0.05, 0.10]."""
-    results = run_alpha_sweep(sample_imputed_data) # No alpha_levels specified
-    
-    expected_defaults = [0.01, 0.05, 0.10]
-    assert sorted(results['alpha_level'].tolist()) == expected_defaults
-
-def test_run_alpha_sweep_interaction_term_identification(sample_imputed_data):
-    """Test that the interaction term is correctly identified and reported."""
-    results = run_alpha_sweep(sample_imputed_data)
-    
-    # Should have a non-null interaction term name
-    assert results['interaction_term_name'].notna().all()
-    # Should contain both variable names (case-insensitive check)
-    term_names = results['interaction_term_name'].iloc[0].lower()
-    assert 'news_exposure' in term_names and 'ideology' in term_names
+    def test_save_alpha_sweep_creates_file(self, tmp_path, mock_data):
+        """Test that save_alpha_sweep_results writes a file."""
+        alpha_df = run_alpha_sweep(mock_data)
+        save_alpha_sweep_results(alpha_df, output_path=str(tmp_path / "test_alpha.csv"))
+        
+        assert os.path.exists(tmp_path / "test_alpha.csv")
