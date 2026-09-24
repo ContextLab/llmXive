@@ -1,43 +1,3 @@
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `verify_layout.cpp` file was provided in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`;
-    the required utility is missing, so the task is not satisfied.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The required files `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/counter_packed.hpp`\
-    \ and `counter_padded.hpp` are not present in the provided evidence; no code content,\
-    \ size, or pragma/alignment directives can be verified. Without these artifacts\
-    \ the task\u2019s core requirement is unmet."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (e.g., a modified `run_benchmarks.sh` implementing `taskset` core
-    pinning, code that creates the output directory, compiled binaries, CSV results,
-    or analysis outputs) are present or referenced. The claim lacks any concrete files
-    or evidence that the environment configuration was actually set up, so the requirement
-    is not satisfied.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `main.cpp` file was presented in `projects/PROJ-677-impact-of-cache-line-padding-false-sharing/code/benchmark/`,
-    and no code showing argument parsing for thread count and configuration (packed/padded)
-    is available. The required source artifact is missing, so the task is not satisfied.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `build.sh` script was presented in the evidence, and there is no indication
-    that a file exists at `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/build.sh`
-    containing commands to compile `main.cpp` (and `verify_layout.cpp`) with `-O3
-    -march=native`. The required artifact is missing, so the task is not satisfied.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main.cpp` file or any code changes were presented, so there is no evidence\
-    \ that single\u2011threaded validation logic was added to ensure atomic increments\
-    \ aren\u2019t optimized away. The required artifact (the modified source file)\
-    \ is missing."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,3 +41,44 @@ T025:
     setting logic was provided; there is no evidence of `cpupower` commands or sysfs\
     \ fallback code, nor any test output confirming the changes work. The required\
     \ artifact is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `run_benchmarks.sh` script or any code changes were presented, and\
+    \ there is no evidence (e.g., diff, script content, test output) showing that\
+    \ the script now repeats each configuration \u22655 times with timeout handling.\
+    \ The required artifact is missing, so the task is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV file, script, or code changes were presented that add a `status` column\
+    \ with the value `TIMEOUT` or that filter out such rows during analysis. The required\
+    \ artifact is missing, so the timeout\u2011handling requirement is not demonstrated."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `run_analysis.py` file (or its contents) was presented, so we
+    cannot confirm that raw CSVs are loaded and validated against Pydantic schemas
+    as required. The implementer must supply the actual script showing the loading
+    and validation logic.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `run_analysis.py` or any aggregation logic was provided;
+    the claim lacks the required artifact (the script computing mean throughput and
+    standard deviation per thread count/configuration). The implementer must supply
+    the updated file with the correct calculations.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_analysis.py` file or code changes were provided, and there is no evidence\
+    \ of a two\u2011sample t\u2011test or Cohen\u2019s\u202Fd implementation or of\
+    \ p\u2011values being output for each thread\u2011count comparison. The required\
+    \ artifact is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_analysis.py` file (or modified version) containing a Benjamini\u2011\
+    Hochberg FDR correction is provided, nor any evidence that the correction is applied\
+    \ to the p\u2011values from T032. The required artifact is missing, so the task\
+    \ is not satisfied."

@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-07-12T01:53:51.346740Z'
+- artifact_hash: 3218671ca5b5b4c480ea2412514ce2a36fde93d2dad76c823c73a8bd8d03bfe1
+  artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: allative case - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q655020
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q655020
+  verified_at: '2026-09-24T21:45:34.623150Z'

@@ -26,7 +26,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 0: Specification Alignment (Critical Prerequisite)
 
-- [ ] T000 [P] Perform a spec‑task alignment review: compare `spec.md` against the drafted `tasks.md`, flag any contradictions, and produce `docs/spec_alignment_report.md`.
+- [X] T000 [P] Perform a spec‑task alignment review: compare `spec.md` against the drafted `tasks.md`, flag any contradictions, and produce `docs/spec_alignment_report.md`.
 
 ---
 
@@ -36,7 +36,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T001a [P] Create code directory structure (`src/lib/`, `src/metrics/`, `src/experiment/`, `src/analysis/`, `tests/`)
 - [ ] T001b [P] Create data directory structure (`data/stimuli/`, `data/processed/`, `data/measurements/`, `data/raw/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `streamlit`) in `requirements.txt`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `streamlit`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -62,7 +62,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 0 - Conduct Human Pilot Study for Metric Validation (Priority: P0) 🎯 MVP
 
-**Goal**: Recruit a small cohort (n=20) to rate background images for perceived visual complexity to validate automated metrics (SC‑001). [UNRESOLVED-CLAIM: c_a4e1f5a4 — status=not_enough_info]
+**Goal**: Recruit a small cohort (n=20) to rate background images for perceived visual complexity to validate automated metrics (SC‑001).
 
 **Independent Test**: Run the pilot study interface, collect 20 human ratings, and verify that the resulting dataset correlates (r > 0.5) with automated metrics.
 
@@ -76,9 +76,9 @@ description: "Task list template for feature implementation"
 - [ ] T010 [US0] Implement `src/metrics/validate.py` to compute Pearson correlation between human ratings and automated metrics (entropy, variance, object count).
 - [ ] T013 [US0] Generate validation report (scatter plot + p‑value) in `data/derived/pilot_validation_report.md`.
 - [ ] T013b [US0] **Automated Pilot Gate**: Implement `src/experiment/pilot_gate.py` to check the pilot correlation; if r < 0.5, exit with a non-zero code to block downstream tasks (US-1/US-2) until the issue is resolved.
-- [ ] T007 [P] [US0] Unit test `test_ingest_human_ratings` in `tests/test_metrics.py`.
-- [ ] T008 [P] [US0] Unit test `test_correlation_calculation` in `tests/test_metrics.py`.
-- [ ] T009 [P] [US0] Integration test `test_pilot_study_data_flow` in `tests/test_metrics.py`.
+- [X] T007 [P] [US0] Unit test `test_ingest_human_ratings` in `tests/test_metrics.py`.
+- [X] T008 [P] [US0] Unit test `test_correlation_calculation` in `tests/test_metrics.py`.
+- [X] T009 [P] [US0] Integration test `test_pilot_study_data_flow` in `tests/test_metrics.py`.
 
 **Checkpoint**: User Story 0 should be fully functional and testable independently.
 
@@ -233,10 +233,10 @@ description: "Task list template for feature implementation"
 
 ## Notes
 
-- All YOLO inference is CPU‑only; no `load_in_8bit` or CUDA usage.
-- All data are real; no fabricated inputs.
+- {{claim:c_465b6173}}
+- {{claim:c_e4065dca}} (Wikidata Q655020, https://www.wikidata.org/wiki/Q655020)
 - NFR‑001 is met by resizing to 640×640 internally as a performance optimization for 1080p input.
 - T048a orchestrates reproducibility without violating the "no synthetic data" rule.
-- T054 fulfills SC‑002; T055 fulfills FR‑003's task‑difficulty control.
+- T054 fulfillsSC‑002; T055 fulfills FR‑003's task‑difficulty control.
 - Redundant directory creation removed; race conditions eliminated.
 - Every task now has a concrete deliverable and, where appropriate, a corresponding test.

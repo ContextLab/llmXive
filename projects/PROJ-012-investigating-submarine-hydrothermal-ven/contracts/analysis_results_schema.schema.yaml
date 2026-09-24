@@ -1,54 +1,144 @@
+# Analysis Results Schema
+# Used for validating LME, PERMANOVA, and other statistical outputs
+# (T022a-T035) and for contract tests (T016, T027)
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Analysis Results Schema
-description: Schema for diversity metrics and statistical analysis results.
+title: Analysis_Results
+description: >
+  Schema for statistical analysis outputs including LME models,
+  PERMANOVA tests, and diversity metrics.
 type: object
+
 required:
-  - sample_id
-  - metric_name
-  - value
+  - analysis_type
+  - model_stats
+
 properties:
-  sample_id:
+  analysis_type:
     type: string
-    description: Foreign key referencing the Sample entity.
-    pattern: "^[A-Za-z0-9_-]+$"
-  metric_name:
-    type: string
-    description: Name of the diversity metric or analysis type.
     enum:
-      - shannon
-      - simpson
-      - bray_curtis
-      - lme_result
-      - permanova_result
-      - dbrda_result
-  value:
-    type: number
-    description: Calculated value of the metric.
-  rarefaction_depth:
-    type: integer
-    description: Rarefaction depth used for calculation (if applicable).
-    minimum: 1
-    nullable: true
-  model_type:
+      - lme
+      - fixed_effects
+      - spearman
+      - permanova
+      - permanova_dispersion_confounded
+      - dbrda
+      - alpha_diversity
+      - sensitivity_analysis
+    description: Type of statistical analysis performed
+
+  model_stats:
+    type: array
+    description: List of result rows
+    items:
+      type: object
+      required:
+        - sample_id
+        - predictor
+        - estimate
+
+      properties:
+        sample_id:
+          type: string
+          description: Sample or group identifier
+
+        predictor:
+          type: string
+          description: Predictor variable name (e.g., pH, temperature)
+
+        estimate:
+          type: number
+          description: Coefficient estimate
+
+        se:
+          type: number
+          description: Standard error
+
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: P-value
+
+        model_type:
+          type: string
+          enum:
+            - lme
+            - fixed_effects
+            - spearman
+            - permanova
+            - dbrda
+          description: Model type used
+
+        r_squared:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: R-squared (for PERMANOVA/dbRDA)
+
+        f_statistic:
+          type: number
+          description: F-statistic (for PERMANOVA)
+
+        dispersion_confounded:
+          type: boolean
+          default: false
+          description: True if betadisper test indicated confounding
+
+        warning:
+          type: string
+          description: Warning message if non-linearity detected
+
+        metadata_flag:
+          type: string
+          default: "associational analysis of summary statistic"
+          description: FR-003.1 required flag
+
+  input_params:
+    type: object
+    description: Parameters used in the analysis
+    properties:
+      rarefaction_depth:
+        type: integer
+      transformation:
+        type: string
+      random_effects:
+        type: array
+        items:
+          type: string
+      fixed_effects:
+        type: array
+        items:
+          type: string
+
+  timestamp:
     type: string
-    description: Type of statistical model used (e.g., LME, Spearman).
-    nullable: true
-  estimate:
-    type: number
-    description: Regression coefficient or effect size.
-    nullable: true
-  se:
-    type: number
-    description: Standard error of the estimate.
-    nullable: true
-  p_value:
-    type: number
-    description: P-value from statistical test.
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
-  dispersion_confounded:
-    type: boolean
-    description: Flag indicating if PERMANOVA is confounded by dispersion.
-    nullable: true
-additionalProperties: false
+    format: date-time
+    description: When the analysis was run
+
+  software_versions:
+    type: object
+    properties:
+      qiime2:
+        type: string
+      statsmodels:
+        type: string
+      scipy:
+        type: string
+
+additionalProperties: true
+
+x-schema-version: "1.0.0"
+x-generated-from: specs/001-submarine-hydrothermal-vent-microbial-communities/spec.md
+x-related-tasks:
+  - T022a  # LME function
+  - T022b  # Fallback logic
+  - T023   # Residual analysis
+  - T024   # Alpha diversity output
+  - T025   # Metadata flag
+  - T026   # Sensitivity analysis
+  - T027   # PERMANOVA contract test
+  - T030   # Betadisper test
+  - T031   # PERMANOVA test
+  - T033   # dbRDA
+  - T035   # Beta diversity results

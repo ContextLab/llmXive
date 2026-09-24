@@ -1,4 +1,3 @@
-"""
-llmXive Project: Residue Distribution of Euler's Totient Function
-Package initialization for code module.
-"""
+# Code package for llmXive Residue Distribution Analysis
+# This file marks the 'code' directory as a Python package.
+pass

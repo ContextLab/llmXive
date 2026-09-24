@@ -1,1 +1,1 @@
-"""Unit tests package for the residue distribution analysis pipeline."""
+"""Unit tests package for llmXive residue distribution analysis."""

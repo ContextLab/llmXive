@@ -6,3 +6,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or a `black` config) or related setup scripts are present in the provided artifacts, so the requirement to configure ruff and black is not demonstrated. The implementer must add the appropriate configuration files and ensure they are non‑empty and correctly set up.
 - **T006** — declared artifact(s) missing/empty/invalid: conftest.py
 - **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T022b** — declared artifact(s) missing/empty/invalid: data/processed/lme_results.csv
+- **T025** — No artifact (e.g., output file, report, or code) was provided that shows a metadata flag explicitly stating “associational analysis of summary statistic.” Without a concrete file or snippet containing this flag, the requirement is not satisfied. The implementer must supply the actual output (e.g., CSV, JSON, or document) that includes the required metadata flag.
+- **T026** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis_log.json

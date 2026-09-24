@@ -1,92 +1,104 @@
 """
-Verify downloaded stimuli by computing SHA-256 checksums and recording them.
+verify_stimuli.py
+-----------------
+Compute and record SHA‑256 checksums for all stimulus files downloaded by the
+``fetch_stimuli`` step.
 
-This script reads the stimuli downloaded by T014 from `data/stimuli/`,
-computes a SHA-256 checksum for each file, and records the results in
-`state/artifact_hashes.json`.
+The script walks the ``data/stimuli`` directory (recursively), computes a
+checksum for each file using :func:`src.lib.utils.compute_file_checksum`,
+and writes a JSON manifest to ``state/artifact_hashes.json``.  The manifest
+maps each file's *project‑relative* path (as a string) to its checksum.
 
-It relies on `src/lib/utils.py` for the checksum computation logic.
+The module provides a ``verify_stimuli`` function that can be imported by
+other parts of the pipeline as well as a small CLI for manual execution.
 """
-import json
-import os
-import sys
-from pathlib import Path
-from typing import Dict, Any
 
-# Ensure the project root is in the path to allow relative imports
-# This script is expected to be run from the project root or code directory
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+import argparse
+import json
+from pathlib import Path
+from typing import Dict
 
 from src.lib.utils import compute_file_checksum
 
-STIMULI_DIR = project_root / "data" / "stimuli"
-STATE_DIR = project_root / "state"
-HASHES_FILE = STATE_DIR / "artifact_hashes.json"
 
-def verify_stimuli() -> Dict[str, Any]:
+def _gather_file_paths(root: Path) -> list[Path]:
+    """Return a list of all file paths under ``root`` (recursive)."""
+    return [p for p in root.rglob("*") if p.is_file()]
+
+
+def verify_stimuli(
+    stimuli_dir: Path = Path("data/stimuli"),
+    output_path: Path = Path("state/artifact_hashes.json"),
+) -> Dict[str, str]:
     """
-    Iterate over all files in the stimuli directory, compute their SHA-256 checksums,
-    and save the mapping to state/artifact_hashes.json.
-    
-    Returns:
-        Dict containing the number of files processed and the path to the output file.
+    Compute SHA‑256 checksums for every file in ``stimuli_dir`` and write a
+    JSON manifest to ``output_path``.
+
+    Parameters
+    ----------
+    stimuli_dir:
+        Directory containing the downloaded stimulus files.
+    output_path:
+        Destination JSON file that will contain a mapping from the
+        *project‑relative* file path (as a string) to its SHA‑256 checksum.
+
+    Returns
+    -------
+    dict
+        Mapping of relative file paths to their checksums.
     """
-    if not STIMULI_DIR.exists():
-        raise FileNotFoundError(
-            f"Stimuli directory not found at {STIMULI_DIR}. "
-            "Please ensure T014 (fetch_stimuli) has been executed successfully."
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Resolve absolute paths for reliable operation
+    stimuli_dir = stimuli_dir.resolve()
+    cwd = Path.cwd().resolve()
+
+    checksums: Dict[str, str] = {}
+    for file_path in _gather_file_paths(stimuli_dir):
+        # Compute the checksum using the shared utility
+        checksum = compute_file_checksum(file_path)
+
+        # Store path relative to the repository root (cwd)
+        rel_path = file_path.relative_to(cwd)
+        checksums[str(rel_path)] = checksum
+
+    # Write the manifest atomically
+    with output_path.open("w", encoding="utf-8") as fp:
+        json.dump(checksums, fp, indent=2, sort_keys=True)
+
+    return checksums
+
+
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Compute and record SHA‑256 checksums for all stimulus files. "
+            "The default stimulus directory is ``data/stimuli`` and the "
+            "default output file is ``state/artifact_hashes.json``."
         )
+    )
+    parser.add_argument(
+        "--stimuli-dir",
+        type=Path,
+        default=Path("data/stimuli"),
+        help="Directory containing stimulus files (default: data/stimuli).",
+    )
+    parser.add_argument(
+        "--output",
+        dest="output_path",
+        type=Path,
+        default=Path("state/artifact_hashes.json"),
+        help="Path to write the checksum manifest (default: state/artifact_hashes.json).",
+    )
+    return parser
 
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-    file_hashes = {}
-    files_processed = 0
+def main() -> None:
+    """Entry‑point for ``python -m src.metrics.verify_stimuli``."""
+    args = _build_arg_parser().parse_args()
+    verify_stimuli(stimuli_dir=args.stimuli_dir, output_path=args.output_path)
 
-    # Walk through the stimuli directory to find all image files
-    # Assuming standard image extensions based on the dataset nature
-    valid_extensions = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"}
-
-    for root, _, files in os.walk(STIMULI_DIR):
-        for file_name in files:
-            if any(file_name.lower().endswith(ext) for ext in valid_extensions):
-                file_path = Path(root) / file_name
-                
-                try:
-                    checksum = compute_file_checksum(file_path)
-                    # Use relative path from stimuli dir for cleaner storage
-                    relative_path = file_path.relative_to(STIMULI_DIR)
-                    file_hashes[str(relative_path)] = checksum
-                    files_processed += 1
-                except Exception as e:
-                    print(f"Error computing checksum for {file_path}: {e}", file=sys.stderr)
-
-    if files_processed == 0:
-        print("Warning: No valid image files found in the stimuli directory.", file=sys.stderr)
-
-    # Save the results to the state file
-    output_data = {
-        "source_directory": str(STIMULI_DIR),
-        "algorithm": "sha256",
-        "file_count": files_processed,
-        "hashes": file_hashes
-    }
-
-    with open(HASHES_FILE, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2)
-
-    print(f"Successfully verified {files_processed} stimuli.")
-    print(f"Checksums saved to: {HASHES_FILE}")
-
-    return output_data
-
-def main():
-    """Entry point for the script."""
-    try:
-        verify_stimuli()
-    except Exception as e:
-        print(f"Verification failed: {e}", file=sys.stderr)
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

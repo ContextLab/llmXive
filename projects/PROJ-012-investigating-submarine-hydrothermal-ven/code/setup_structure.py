@@ -1,17 +1,16 @@
 """
-Project Structure Initialization Script for PROJ-012.
-
-Creates the required directory hierarchy and placeholder files
-as specified in tasks.md T001.
+Project Structure Setup Script for llmXive - Submarine Hydrothermal Vent Research
+Creates the required directory structure and placeholder files as per the implementation plan.
 """
 import os
 from pathlib import Path
 
 def main():
-    """Create the project directory structure and essential placeholder files."""
-    root = Path(".")
-    
-    # Define required directories relative to project root
+    """Create the project directory structure and initial placeholder files."""
+    # Define the project root (current directory)
+    project_root = Path(".")
+
+    # Define required directories based on tasks.md
     directories = [
         "data/raw",
         "data/processed",
@@ -19,54 +18,49 @@ def main():
         "tests",
         "state",
         "results/figures",
-        # Additional standard directories for robustness
         "specs",
         "contracts",
-        "docs",
+        "docs"
     ]
-    
+
     # Create directories
-    created_dirs = []
-    for d in directories:
-        full_path = root / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        else:
-            # Ensure it is actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-    
-    # Create placeholder files (empty or minimal content) to ensure directories are tracked
-    # and to satisfy the requirement of "with at least placeholder files"
-    placeholders = [
-        ("data/raw/.gitkeep", "# Raw data storage - do not commit large files here"),
-        ("data/processed/.gitkeep", "# Processed data storage"),
-        ("code/.gitkeep", "# Code directory"),
-        ("tests/.gitkeep", "# Tests directory"),
-        ("state/.gitkeep", "# State and cache files"),
-        ("results/figures/.gitkeep", "# Generated figures"),
-        ("specs/.gitkeep", "# Specification documents"),
-        ("contracts/.gitkeep", "# Schema contracts"),
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
+
+    # Create placeholder files to ensure structure is recognized
+    placeholder_files = [
+        "data/raw/.gitkeep",
+        "data/processed/.gitkeep",
+        "code/.gitkeep",
+        "tests/.gitkeep",
+        "state/.gitkeep",
+        "results/figures/.gitkeep",
+        "specs/README.md",
+        "contracts/README.md",
+        "docs/README.md"
     ]
-    
-    created_files = []
-    for rel_path, content in placeholders:
-        full_path = root / rel_path
-        if not full_path.exists():
-            full_path.write_text(content + "\n")
-            created_files.append(str(full_path))
-    
-    # Report
-    print(f"Project structure initialized for PROJ-012.")
-    print(f"Created directories: {len(created_dirs)}")
-    for d in created_dirs:
-        print(f"  - {d}")
-    print(f"Created placeholder files: {len(created_files)}")
-    for f in created_files:
-        print(f"  - {f}")
-    
-    return 0
+
+    for file_path in placeholder_files:
+        full_path = project_root / file_path
+        # Ensure parent directory exists before creating file
+        if not full_path.parent.exists():
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write a small placeholder comment if file doesn't exist or is empty
+        if not full_path.exists() or full_path.stat().st_size == 0:
+            with open(full_path, "w") as f:
+                if file_path.endswith(".gitkeep"):
+                    f.write("# Placeholder to keep directory in version control\n")
+                else:
+                    f.write(f"# Placeholder for {file_path}\n")
+            print(f"Created placeholder file: {full_path}")
+        else:
+            print(f"File already exists: {full_path}")
+
+    print("\nProject structure setup complete.")
+    print("Directories created: data/raw/, data/processed/, code/, tests/, state/, results/figures/")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

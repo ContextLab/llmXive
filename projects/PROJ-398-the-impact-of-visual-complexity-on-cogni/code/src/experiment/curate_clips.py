@@ -1,36 +1,25 @@
-"""
-Curate meeting background video clips.
+"""curate_clips.py
+-----------------
+Implements the T032c task: filter fetched meeting background clips based
+on technical criteria (resolution ≥ 640×360, duration ≤ 10 seconds) and
+write a CSV manifest of the curated clips.
 
-This script scans a directory containing video clips (downloaded by
-``src.experiment.fetch_clips``), filters them according to technical
-criteria, and writes a CSV manifest of the curated clips.
+The script can be executed directly::
 
-Criteria
----------
-* Resolution must be at least 640 × 360 pixels.
-* Duration must be **≤ 10 seconds**.
+    python -m src.experiment.curate_clips \\
+          --input-dir data/raw/meeting_clips \\
+          --output-csv data/processed/curated_clips.csv
 
-The output CSV is written to ``data/processed/curated_clips.csv`` and
-contains the following columns:
+It expects the input directory to contain video files (any format
+readable by OpenCV).  For each video, it extracts the frame width,
+height, and duration (computed from frame count and FPS).  Clips that
+satisfy the criteria are written to the output CSV with the following
+columns:
 
-* ``clip_path`` – relative path to the video file (POSIX style)
-* ``width`` – video width in pixels
-* ``height`` – video height in pixels
-* ``duration_sec`` – video duration in seconds (float, rounded to 3 dp)
+    clip_path,width,height,duration_seconds
 
-The script can be executed directly:
-
-.. code-block:: bash
-
-    python code/src/experiment/curate_clips.py
-    # optional arguments:
-    #   --input-dir  Path to the directory containing raw clips
-    #   --output-csv Path to the CSV file to write (default:
-    #                data/processed/curated_clips.csv)
-
-The implementation deliberately avoids heavy third‑party video libraries;
-it uses OpenCV (already a project dependency) which works in headless
-environments.
+The implementation relies only on the public API surface already
+present in the repository (standard library + ``opencv-python-headless``).
 """
 
 import argparse
@@ -41,33 +30,13 @@ from typing import List, Tuple
 
 import cv2
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-
 
 def _get_video_properties(video_path: Path) -> Tuple[int, int, float]:
-    """
-    Return (width, height, duration_seconds) for a video file.
+    """Return (width, height, duration_seconds) of the video.
 
-    Parameters
-    ----------
-    video_path: Path
-        Path to the video file.
-
-    Returns
-    -------
-    width: int
-        Width in pixels.
-    height: int
-        Height in pixels.
-    duration_sec: float
-        Duration in seconds (rounded to 3 decimal places).
-
-    Raises
-    ------
-    RuntimeError
-        If the file cannot be opened or properties cannot be read.
+    Raises:
+        RuntimeError: If the video cannot be opened or its properties are
+        unavailable.
     """
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -78,125 +47,109 @@ def _get_video_properties(video_path: Path) -> Tuple[int, int, float]:
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 
-    # Guard against missing FPS (some containers report 0)
-    if fps <= 0:
-        # Approximate using frame count and a fallback of 30 fps
-        fps = 30.0
+    # Guard against zero or NaN fps which would cause division errors.
+    if fps <= 0 or frame_count <= 0:
+        cap.release()
+        raise RuntimeError(
+            f"Invalid FPS ({fps}) or frame count ({frame_count}) for {video_path}"
+        )
 
-    duration_sec = frame_count / fps if fps else 0.0
+    duration_seconds = frame_count / fps
     cap.release()
-    return width, height, round(duration_sec, 3)
-
-
-def _meets_criteria(width: int, height: int, duration_sec: float) -> bool:
-    """
-    Evaluate whether a clip satisfies the technical criteria.
-
-    - Minimum resolution: 640 × 360
-    - Maximum duration: 10 seconds
-    """
-    return (width >= 640) and (height >= 360) and (duration_sec <= 10.0)
-
-
-# ----------------------------------------------------------------------
-# Core curation logic
-# ----------------------------------------------------------------------
+    return width, height, duration_seconds
 
 
 def curate_clips(
-    input_dir: Path, output_csv: Path, video_extensions: List[str] = None
-) -> List[Path]:
+    input_dir: Path, output_csv: Path, min_width: int = 640, min_height: int = 360, max_duration: float = 10.0
+) -> List[Tuple[str, int, int, float]]:
+    """Filter video clips according to resolution and duration constraints.
+
+    Args:
+        input_dir: Directory containing the raw video clips.
+        output_csv: Destination CSV file that will contain the curated list.
+        min_width: Minimum allowed video width (default 640).
+        min_height: Minimum allowed video height (default 360).
+        max_duration: Maximum allowed duration in seconds (default 10.0).
+
+    Returns:
+        A list of tuples ``(clip_path, width, height, duration_seconds)`` for
+        all clips that satisfy the criteria.
     """
-    Scan ``input_dir`` for video files, filter them, and write a CSV.
+    input_dir = input_dir.expanduser().resolve()
+    output_csv = output_csv.expanduser().resolve()
 
-    Parameters
-    ----------
-    input_dir: Path
-        Directory containing raw video clips.
-    output_csv: Path
-        Destination CSV file.
-    video_extensions: list of str, optional
-        File extensions to consider as videos (case‑insensitive).
-        Defaults to common formats.
+    if not input_dir.is_dir():
+        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
 
-    Returns
-    -------
-    List[Path]
-        List of paths (relative to the project root) for clips that
-        satisfied the criteria.
-    """
-    if video_extensions is None:
-        video_extensions = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
-
-    input_dir = input_dir.resolve()
-    output_csv = output_csv.resolve()
+    # Ensure the parent directory of the CSV exists.
     output_csv.parent.mkdir(parents=True, exist_ok=True)
 
-    curated_records = []
+    curated: List[Tuple[str, int, int, float]] = []
 
-    for file_path in input_dir.rglob("*"):
-        if not file_path.is_file():
-            continue
-        if file_path.suffix.lower() not in video_extensions:
-            continue
+    # Iterate over video files.  We consider any file with a typical video
+    # extension; OpenCV will attempt to open it regardless.
+    video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
+    for video_path in sorted(input_dir.rglob("*")):
+        if video_path.suffix.lower() not in video_extensions:
+            continue  # Skip non‑video files.
 
         try:
-            width, height, duration_sec = _get_video_properties(file_path)
+            width, height, duration = _get_video_properties(video_path)
         except Exception as exc:
-            # Log to stdout; in a real system we would use logging.
-            print(f"Skipping unreadable video {file_path}: {exc}")
+            # Log the failure and continue with the next file.
+            print(f"[WARN] Skipping unreadable video {video_path}: {exc}")
             continue
 
-        if _meets_criteria(width, height, duration_sec):
-            # Store paths relative to the repository root for portability.
-            rel_path = file_path.relative_to(Path.cwd())
-            curated_records.append(
-                {
-                    "clip_path": str(rel_path).replace(os.sep, "/"),
-                    "width": width,
-                    "height": height,
-                    "duration_sec": duration_sec,
-                }
+        if width >= min_width and height >= min_height and duration <= max_duration:
+            curated.append(
+                (str(video_path), width, height, round(duration, 3))
             )
+        else:
+            # Optionally report why a clip was excluded for debugging.
+            reason = []
+            if width < min_width or height < min_height:
+                reason.append(
+                    f"resolution {width}x{height} < {min_width}x{min_height}"
+                )
+            if duration > max_duration:
+                reason.append(f"duration {duration:.2f}s > {max_duration}s")
+            print(f"[INFO] Excluding {video_path} ({', '.join(reason)})")
 
-    # Write CSV
-    fieldnames = ["clip_path", "width", "height", "duration_sec"]
+    # Write the CSV manifest.
     with output_csv.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in curated_records:
+        writer = csv.writer(csvfile)
+        writer.writerow(["clip_path", "width", "height", "duration_seconds"])
+        for row in curated:
             writer.writerow(row)
 
-    return [Path(r["clip_path"]) for r in curated_records]
-
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
+    print(f"[DONE] Curated {len(curated)} clips → {output_csv}")
+    return curated
 
 
-def _parse_args() -> argparse.Namespace:
+def parse_arguments() -> argparse.Namespace:
+    """Parse command‑line arguments for the script."""
     parser = argparse.ArgumentParser(
-        description="Curate meeting background video clips."
+        description="Curate meeting background video clips based on resolution and duration."
     )
     parser.add_argument(
         "--input-dir",
         type=Path,
-        default=Path("data/raw/clips"),
-        help="Directory containing raw video clips (default: data/raw/clips).",
+        default=Path("data/raw/meeting_clips"),
+        help="Directory containing raw video clips downloaded by fetch_clips.",
     )
     parser.add_argument(
         "--output-csv",
         type=Path,
         default=Path("data/processed/curated_clips.csv"),
-        help="Path to the output CSV file (default: data/processed/curated_clips.csv).",
+        help="Path to the output CSV file listing curated clips.",
     )
     return parser.parse_args()
 
 
 def main() -> None:
-    args = _parse_args()
-    curated = curate_clips(args.input_dir, args.output_csv)
-    print(f"Curated {len(curated)} clips → {args.output_csv}")
+    """Entry point for ``python -m src.experiment.curate_clips``."""
+    args = parse_arguments()
+    curate_clips(args.input_dir, args.output_csv)
 
 
 if __name__ == "__main__":

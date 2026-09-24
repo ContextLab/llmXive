@@ -3,36 +3,25 @@ from pathlib import Path
 
 def setup_data_directories():
     """
-    Creates the required data directory structure for the project.
-    
-    This function creates:
-    - data/raw/ for raw input data
-    - data/processed/ for processed data and analysis results
-    
+    Create the required data directory structure:
+    - data/raw/
+    - data/processed/
+
     Returns:
-        dict: A dictionary containing the paths to the created directories
+        dict: Paths to the created directories for verification/logging.
     """
-    base_path = Path(__file__).parent.parent / 'data'
-    raw_path = base_path / 'raw'
-    processed_path = base_path / 'processed'
-    
-    # Create directories if they don't exist
-    raw_path.mkdir(parents=True, exist_ok=True)
-    processed_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create a .gitkeep file to ensure directories are tracked by git
-    (raw_path / '.gitkeep').touch()
-    (processed_path / '.gitkeep').touch()
-    
+    base_path = Path("data")
+    raw_dir = base_path / "raw"
+    processed_dir = base_path / "processed"
+
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
     return {
-        'base': str(base_path),
-        'raw': str(raw_path),
-        'processed': str(processed_path)
+        "raw": str(raw_dir),
+        "processed": str(processed_dir)
     }
 
-if __name__ == '__main__':
-    result = setup_data_directories()
-    print(f"Data directories created successfully:")
-    print(f"  Base: {result['base']}")
-    print(f"  Raw: {result['raw']}")
-    print(f"  Processed: {result['processed']}")
+if __name__ == "__main__":
+    paths = setup_data_directories()
+    print(f"Created directories: {paths}")

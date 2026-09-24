@@ -53,3 +53,12 @@ T021:
     \ and there is no evidence of a `StatisticalResult` serialization containing the\
     \ required pass/fail and Bonferroni flags. Consequently the task\u2019s core deliverable\
     \ is missing."
+T027a:
+  c: false
+  h: 5a2bb1e29c1f678cbedc23d933eac0bc5febd366f7415f17564a58f95df17269
+  r: "The repository lacks `code/constants.py` entirely, so the required configurable\
+    \ parameters (C, c, \u03B4) are not defined. In `code/stats.py` the `calculate_theoretical_bounds`\
+    \ function contains only a placeholder comment and does not implement the Lebowitz\u2011\
+    Lockard or Pollack\u202F&\u202FRoy formulas, nor does it reference any constants.\
+    \ Consequently, the task\u2019s core requirement\u2014real error\u2011bound calculations\
+    \ without hard\u2011coded placeholders\u2014is not met."

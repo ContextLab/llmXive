@@ -1,56 +1,92 @@
+# Sample Metadata Schema
+# Used for validating input CSV files in the ingestion pipeline (T010-T014)
+# and for contract tests (T008)
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Sample Schema
-description: Schema for environmental sample metadata including pH and temperature logs.
+title: Sample
+description: >
+  Represents a single environmental sampling event with pH, temperature,
+  and metadata from submarine hydrothermal vent deployments.
 type: object
+
 required:
   - sample_id
   - timestamp
   - pH
-  - temperature
+  - temp
   - location
   - deployment_event
   - sensor_id
   - coordinates
+
 properties:
   sample_id:
     type: string
-    description: Unique identifier for the sample.
     pattern: "^[A-Za-z0-9_-]+$"
+    description: Unique identifier for the sample
+
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the sample collection.
+    description: ISO 8601 timestamp of sampling event
+
   pH:
     type: number
-    description: Measured pH value.
     minimum: 0.0
     maximum: 14.0
-  temperature:
+    description: Measured pH value
+    x-validation-rules:
+      - pH < 1.0 or pH > 10.0: FLAG AS OUTLIER (reject)
+      - 1.0 <= pH < 2.0: FLAG FOR REVIEW (edge range)
+      - 8.5 <= pH <= 10.0: FLAG FOR REVIEW (edge range)
+
+  temp:
     type: number
-    description: Measured temperature in Celsius.
-    minimum: -2.0
-  location:
-    type: string
-    description: Name of the hydrothermal vent site.
-  deployment_event:
-    type: string
-    description: Identifier for the specific sensor deployment event.
-  sensor_id:
-    type: string
-    description: Unique ID of the sensor used for measurement.
-  coordinates:
-    type: string
-    description: Latitude and longitude coordinates (e.g., "45.123,-123.456").
-    pattern: "^-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?$"
-  fastq_path:
-    type: string
-    description: Relative path to the raw FASTQ file.
-    nullable: true
+    description: Measured temperature in degrees Celsius
+
   pH_sd:
     type: number
-    description: Standard deviation of pH within the ±15 minute window.
     minimum: 0.0
+    description: Standard deviation of pH within ±15 min window
+    x-validation-rules:
+      - pH_sd > 0.2: Set pH_heterogeneous = True (exclude from analysis)
+
+  location:
+    type: string
+    description: Deployment location name
+
+  fastq_path:
+    type: string
+    format: uri-reference
+    description: Path to raw FASTQ file (relative to project root)
+
+  deployment_event:
+    type: string
+    description: Deployment event identifier
+
+  sensor_id:
+    type: string
+    description: Sensor identifier
+
+  coordinates:
+    type: string
+    pattern: "^[+-]?[0-9]+(\\.[0-9]+)?,[+-]?[0-9]+(\\.[0-9]+)?$"
+    description: GPS coordinates in lat,lon format
+
   pH_heterogeneous:
     type: boolean
-    description: Flag indicating if pH heterogeneity (SD > 0.2) is present.
+    default: false
+    description: True if pH_sd > 0.2 (flagged for exclusion)
+
 additionalProperties: false
+
+x-schema-version: "1.0.0"
+x-generated-from: specs/001-submarine-hydrothermal-vent-microbial-communities/spec.md
+x-related-tasks:
+  - T004  # pH heterogeneity calculation
+  - T010  # Load and validate sensor data
+  - T011  # Temporal alignment
+  - T012  # Outlier filtering
+  - T013  # Exclusion logic
+  - T014  # Unified output
+  - T008  # Contract test

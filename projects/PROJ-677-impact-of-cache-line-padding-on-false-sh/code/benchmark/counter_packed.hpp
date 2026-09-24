@@ -1,26 +1,18 @@
-#ifndef COUNTER_PACKED_HPP
-#define COUNTER_PACKED_HPP
+#pragma once
 
-#include <cstdint>
 #include <atomic>
+#include <cstdint>
 
-// Packed counter structure: No padding between members.
-// Expected size: 8 (atomic) + 8 (padding) + 8 (data) = 24 bytes (on 64-bit).
-// This structure is prone to false sharing if multiple threads access
-// different instances that reside on the same cache line.
+// Packed counter struct: 24 bytes total (3 * 8 bytes)
+// No padding between members, leading to potential false sharing
 #pragma pack(push, 1)
 struct CounterPacked {
-    std::atomic<long> value;
-    char padding[8]; // Explicit padding to align next member if needed, but struct remains packed
-    long data;
+    std::atomic<long> value1;
+    std::atomic<long> value2;
+    std::atomic<long> value3;
 
-    CounterPacked() : value(0), data(0) {
-        // Initialize padding to 0 for safety, though not strictly required for logic
-        for(int i = 0; i < 8; ++i) padding[i] = 0;
-    }
+    CounterPacked() : value1(0), value2(0), value3(0) {}
 };
 #pragma pack(pop)
 
 static_assert(sizeof(CounterPacked) == 24, "CounterPacked must be exactly 24 bytes");
-
-#endif // COUNTER_PACKED_HPP

@@ -1,28 +1,33 @@
-#pragma once
+#ifndef COUNTER_PACKED_HPP
+#define COUNTER_PACKED_HPP
+
 #include <atomic>
 #include <cstddef>
 
-// Packed counter struct: 24 bytes total
-// No padding between members, prone to false sharing
+// Packed Counter Struct
+// Uses #pragma pack(1) to force minimal alignment, resulting in false sharing
+// Expected size: 3 threads * (8 bytes atomic + 8 bytes padding + 8 bytes atomic) ≈ 24 bytes total
+// but with 3 counters in a struct, it's 3 * 8 = 24 bytes exactly.
+
 #pragma pack(push, 1)
 struct CounterPacked {
     std::atomic<long> value;
-    char padding[20]; // Ensure struct size is exactly 24 bytes if atomic is 8 bytes
-    // In practice, std::atomic<long> is 8 bytes on 64-bit, so total is 28 bytes unless packed strictly
-    // However, #pragma pack(1) forces 1-byte alignment.
-    // Let's define it explicitly to ensure we hit the ~24-32 byte range typical of "packed" without cache line alignment.
-    // To guarantee the specific size mentioned in the plan (24 bytes), we assume long is 8 bytes.
-    // struct { atomic<long> (8) + char[16] } = 24 bytes.
-    // We will use char[16] to make it exactly 24 bytes.
+    
+    CounterPacked() : value(0) {}
+    
+    void increment() {
+        value.fetch_add(1, std::memory_order_relaxed);
+    }
+    
+    long get() const {
+        return value.load(std::memory_order_relaxed);
+    }
 };
 #pragma pack(pop)
 
-// Re-defining for strict 24-byte size as per plan requirements
-#pragma pack(push, 1)
-struct CounterPackedStrict {
-    std::atomic<long> value;
-    char padding[16]; // 8 + 16 = 24 bytes
-};
-#pragma pack(pop)
+// Verify size is minimal (expected ~8 bytes per counter, but struct overhead might vary)
+// We expect this to be smaller than 64 bytes to encourage false sharing when multiple
+// instances are allocated contiguously.
+static_assert(sizeof(CounterPacked) <= 32, "Packed counter should be small");
 
-using Counter = CounterPackedStrict;
+#endif // COUNTER_PACKED_HPP

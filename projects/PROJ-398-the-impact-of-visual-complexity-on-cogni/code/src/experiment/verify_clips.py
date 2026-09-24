@@ -1,10 +1,14 @@
 """
-verify_clips.py
+src.experiment.verify_clips
+---------------------------
 
-Computes SHA‑256 checksums for each clip file in a given directory and records
-the dataset source information (URL and version ID) in ``research.md``.
-The script is idempotent – running it again will update the checksum manifest
-and ensure the metadata block is present in ``research.md``.
+This module provides a utility to verify downloaded meeting clips by
+computing SHA‑256 checksums for each clip file, persisting those checksums,
+and recording provenance information (dataset URL and version identifier)
+in the project's ``research.md`` document.
+
+The implementation is deliberately lightweight and has no external
+dependencies beyond the project's own utilities.
 """
 
 import argparse
@@ -14,154 +18,185 @@ from typing import Dict
 
 from src.lib.utils import compute_file_checksum
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
 
-def _collect_checksums(clips_dir: Path) -> Dict[str, str]:
+def parse_arguments() -> argparse.Namespace:
+    """Parse command‑line arguments for the verification script.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed arguments with attributes:
+        - clips_dir: Path to the directory containing clip files.
+        - manifest: Path to the JSON manifest produced by ``fetch_clips``.
+        - research_md: Path to the ``research.md`` file to be updated.
     """
-    Walk ``clips_dir`` (non‑recursively) and compute SHA‑256 checksums for each
-    file. Returns a mapping of relative file names to their checksum strings.
-    """
-    checksums: Dict[str, str] = {}
-    for item in clips_dir.iterdir():
-        if item.is_file():
-            rel_name = item.name
-            checksums[rel_name] = compute_file_checksum(item)
-    return checksums
-
-
-def _write_checksum_manifest(checksums: Dict[str, str], out_path: Path) -> None:
-    """
-    Write the checksum dictionary to ``out_path`` as pretty‑printed JSON.
-    """
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(checksums, f, indent=2, sort_keys=True)
-
-
-def _ensure_dataset_metadata(
-    research_md: Path, dataset_url: str, version_id: str
-) -> None:
-    """
-    Append (or update) a simple metadata block to ``research_md`` containing
-    the dataset URL and version ID. If the block already exists, it will be
-    replaced with the new values.
-    """
-    header = "## Dataset Information"
-    url_line = f"- dataset_url: {dataset_url}"
-    version_line = f"- version_id: {version_id}"
-    block = "\n".join([header, url_line, version_line])
-
-    if not research_md.exists():
-        research_md.parent.mkdir(parents=True, exist_ok=True)
-        research_md.write_text(block + "\n", encoding="utf-8")
-        return
-
-    content = research_md.read_text(encoding="utf-8")
-    if header in content:
-        # Replace existing block
-        parts = content.split(header, maxsplit=1)
-        before = parts[0].rstrip()
-        after = parts[1]
-        # Remove any following lines that start with '- '
-        after_lines = after.splitlines()
-        # Keep lines after the two metadata lines (or until a non‑metadata line)
-        keep_from = 0
-        for i, line in enumerate(after_lines):
-            if not line.startswith("- "):
-                keep_from = i
-                break
-        new_content = (
-            f"{before}\n{block}\n" + "\n".join(after_lines[keep_from:]).lstrip()
-        )
-        research_md.write_text(new_content, encoding="utf-8")
-    else:
-        # Simply append the block
-        with research_md.open("a", encoding="utf-8") as f:
-            f.write("\n" + block + "\n")
-
-
-# ---------------------------------------------------------------------------
-# Core verification function
-# ---------------------------------------------------------------------------
-
-def verify_clips(
-    clips_dir: Path,
-    checksum_output: Path,
-    research_md: Path,
-    dataset_url: str,
-    version_id: str,
-) -> None:
-    """
-    Compute checksums for all clips in ``clips_dir`` and write the manifest to
-    ``checksum_output``. Record ``dataset_url`` and ``version_id`` in the
-    ``research_md`` file.
-    """
-    if not clips_dir.is_dir():
-        raise FileNotFoundError(f"Clips directory not found: {clips_dir}")
-
-    # 1. Compute checksums
-    checksums = _collect_checksums(clips_dir)
-
-    # 2. Persist manifest
-    _write_checksum_manifest(checksums, checksum_output)
-
-    # 3. Record dataset metadata
-    _ensure_dataset_metadata(research_md, dataset_url, version_id)
-
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-
-def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Verify clip files by computing SHA‑256 checksums and "
-        "recording dataset provenance."
+        description=(
+            "Verify meeting clips by computing SHA‑256 checksums and "
+            "recording dataset provenance in research.md."
+        )
     )
     parser.add_argument(
         "--clips-dir",
         type=Path,
-        default=Path("data/stimuli/clips"),
+        required=True,
         help="Directory containing the downloaded clip files.",
     )
     parser.add_argument(
-        "--checksum-output",
+        "--manifest",
         type=Path,
-        default=Path("data/processed/clips_checksums.json"),
-        help="Path to write the JSON checksum manifest.",
+        required=True,
+        help="Path to the manifest JSON generated by fetch_clips.",
     )
     parser.add_argument(
         "--research-md",
         type=Path,
-        default=Path("research.md"),
-        help="Path to the project research markdown file.",
-    )
-    parser.add_argument(
-        "--dataset-url",
-        type=str,
         required=True,
-        help="URL of the source dataset (e.g., HuggingFace hub URL).",
-    )
-    parser.add_argument(
-        "--version-id",
-        type=str,
-        required=True,
-        help="Version identifier of the dataset (e.g., commit hash).",
+        help="Path to the research.md file where provenance will be recorded.",
     )
     return parser.parse_args()
 
 
+def _load_manifest(manifest_path: Path) -> Dict[str, str]:
+    """Load the manifest JSON and return its contents.
+
+    Parameters
+    ----------
+    manifest_path : Path
+        Path to the JSON manifest file.
+
+    Returns
+    -------
+    dict
+        Dictionary containing at least ``dataset_url`` and ``version_id`` keys
+        if they are present in the manifest.
+    """
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
+    with manifest_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        raise ValueError("Manifest JSON must be an object at the top level.")
+    return data
+
+
+def _compute_checksums(clips_dir: Path) -> Dict[str, str]:
+    """Compute SHA‑256 checksums for every regular file in ``clips_dir``.
+
+    Parameters
+    ----------
+    clips_dir : Path
+        Directory containing clip files.
+
+    Returns
+    -------
+    dict
+        Mapping from file name (relative to ``clips_dir``) to its SHA‑256 hex digest.
+    """
+    if not clips_dir.is_dir():
+        raise NotADirectoryError(f"Clips directory not found: {clips_dir}")
+
+    checksums: Dict[str, str] = {}
+    for entry in clips_dir.iterdir():
+        if entry.is_file():
+            checksum = compute_file_checksum(entry)
+            checksums[entry.name] = checksum
+    return checksums
+
+
+def _write_checksums(clips_dir: Path, checksums: Dict[str, str]) -> Path:
+    """Persist the checksum dictionary to ``checksums.json`` inside ``clips_dir``.
+
+    Parameters
+    ----------
+    clips_dir : Path
+        Directory where the checksum file will be written.
+    checksums : dict
+        Mapping of file names to SHA‑256 digests.
+
+    Returns
+    -------
+    Path
+        Path to the written ``checksums.json`` file.
+    """
+    output_path = clips_dir / "checksums.json"
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2, sort_keys=True)
+    return output_path
+
+
+def _update_research_md(
+    research_md_path: Path, dataset_url: str | None, version_id: str | None
+) -> None:
+    """Append provenance information to ``research.md`` if not already present.
+
+    The function is idempotent – it will not duplicate lines that already exist.
+
+    Parameters
+    ----------
+    research_md_path : Path
+        Path to the markdown file to be updated.
+    dataset_url : str | None
+        URL of the dataset source.
+    version_id : str | None
+        Identifier of the dataset version.
+    """
+    lines_to_add = []
+    if dataset_url:
+        lines_to_add.append(f"dataset_url: {dataset_url}")
+    if version_id:
+        lines_to_add.append(f"version_id: {version_id}")
+
+    # Ensure the file exists; create an empty one if it does not.
+    research_md_path.parent.mkdir(parents=True, exist_ok=True)
+    research_md_path.touch(exist_ok=True)
+
+    # Read existing content once.
+    with research_md_path.open("r+", encoding="utf-8") as f:
+        existing_content = f.read()
+        f.seek(0, 2)  # Move to end for appending.
+        for line in lines_to_add:
+            if line not in existing_content:
+                f.write(line + "\n")
+
+
+def verify_clips(
+    clips_dir: Path, manifest_path: Path, research_md_path: Path
+) -> Dict[str, str]:
+    """Main verification routine.
+
+    It computes checksums for all clips, writes them to a JSON file, and
+    records the dataset provenance in ``research.md``.
+
+    Parameters
+    ----------
+    clips_dir : Path
+        Directory containing the downloaded clip files.
+    manifest_path : Path
+        Path to the manifest JSON generated by ``fetch_clips``.
+    research_md_path : Path
+        Path to the project's ``research.md`` file.
+
+    Returns
+    -------
+    dict
+        Mapping of clip file names to their SHA‑256 checksums.
+    """
+    manifest = _load_manifest(manifest_path)
+    dataset_url = manifest.get("dataset_url")
+    version_id = manifest.get("version_id")
+
+    checksums = _compute_checksums(clips_dir)
+    _write_checksums(clips_dir, checksums)
+    _update_research_md(research_md_path, dataset_url, version_id)
+
+    return checksums
+
+
 def main() -> None:
-    args = _parse_args()
-    verify_clips(
-        clips_dir=args.clips_dir,
-        checksum_output=args.checksum_output,
-        research_md=args.research_md,
-        dataset_url=args.dataset_url,
-        version_id=args.version_id,
-    )
+    """Entry point for the CLI."""
+    args = parse_arguments()
+    verify_clips(args.clips_dir, args.manifest, args.research_md)
 
 
 if __name__ == "__main__":

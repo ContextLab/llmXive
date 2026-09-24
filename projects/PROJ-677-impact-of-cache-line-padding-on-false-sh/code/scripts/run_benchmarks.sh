@@ -1,117 +1,151 @@
 #!/bin/bash
-# run_benchmarks.sh - Execute the cache line padding benchmark
-# Handles core pinning via taskset and output directory creation
 #
-# Usage: ./run_benchmarks.sh [output_dir]
+# run_benchmarks.sh - Execute multi-threaded counter benchmarks with CPU pinning
 #
-# Environment variables:
-#   BENCHMARK_THREADS: Thread counts to test (default: 2 4 8)
-#   BENCHMARK_CONFIGS: Configurations to test (default: packed padded)
-#   BENCHMARK_RUNS: Number of repetitions per config (default: 5)
-#   BENCHMARK_OUTPUT_DIR: Output directory (default: data/raw)
+# This script configures the hardware environment (CPU governor and core pinning)
+# before running the benchmark binary. It attempts to use `cpupower` first,
+# falling back to direct sysfs writes if the tool is unavailable, as per
+# Plan: Hardware Configuration Transparency.
+#
 
 set -euo pipefail
 
 # Configuration
-THREAD_COUNTS="${BENCHMARK_THREADS:-2 4 8}"
-CONFIGS="${BENCHMARK_CONFIGS:-packed padded}"
-NUM_RUNS="${BENCHMARK_RUNS:-5}"
-OUTPUT_DIR="${BENCHMARK_OUTPUT_DIR:-data/raw}"
-BINARY_PATH="code/benchmark/benchmark"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BINARY_PATH="${PROJECT_ROOT}/benchmark/benchmark_runner"
+OUTPUT_DIR="${PROJECT_ROOT}/data/raw"
+LOG_FILE="${PROJECT_ROOT}/state/logs/benchmark_run.log"
 
-# Ensure we are in the project root
-cd "$PROJECT_ROOT"
+# Thread counts to test
+THREAD_COUNTS=(2 4 8)
+CONFIGS=("packed" "padded")
 
-# Create output directory
-echo "Creating output directory: $OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
+# Ensure output directory exists
+mkdir -p "${OUTPUT_DIR}"
+mkdir -p "$(dirname "${LOG_FILE}")"
 
-# Check if benchmark binary exists
-if [[ ! -x "$BINARY_PATH" ]]; then
-    echo "ERROR: Benchmark binary not found or not executable: $BINARY_PATH"
-    echo "Please run ./build.sh first."
-    exit 1
-fi
+# Logging helper
+log() {
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "${msg}" | tee -a "${LOG_FILE}"
+}
 
-# Function to set CPU governor to performance
-set_cpu_governor() {
-    echo "Setting CPU governor to 'performance'..."
+# -----------------------------------------------------------------------------
+# Hardware Configuration: CPU Governor and Pinning
+# -----------------------------------------------------------------------------
+configure_hardware() {
+    log "Starting hardware configuration..."
+    
+    # 1. Set CPU Governor to 'performance'
+    # Strategy: Try cpupower first, fallback to sysfs
+    local governor_set=false
+    
     if command -v cpupower &> /dev/null; then
-        sudo cpupower frequency-set -g performance
+        log "Attempting to set governor via cpupower..."
+        if sudo cpupower frequency-set -g performance 2>/dev/null; then
+            governor_set=true
+            log "Success: Governor set to 'performance' via cpupower."
+        else
+            log "Warning: cpupower failed (likely permission denied). Attempting sysfs fallback..."
+        fi
     else
-        # Fallback to direct sysfs write
-        for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-            if [[ -w "$cpu" ]]; then
-                echo "performance" | sudo tee "$cpu" > /dev/null
+        log "Warning: cpupower not found. Attempting sysfs fallback..."
+    fi
+
+    if [ "${governor_set}" = false ]; then
+        # Fallback: Direct sysfs write
+        # Iterate over all possible CPUs
+        for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
+            if [ -d "${cpu_dir}" ]; then
+                local gov_file="${cpu_dir}/cpufreq/scaling_governor"
+                if [ -w "${gov_file}" ]; then
+                    if echo "performance" | sudo tee "${gov_file}" > /dev/null; then
+                        log "Set ${cpu_dir} governor to 'performance' via sysfs."
+                    else
+                        log "Warning: Failed to set governor for ${cpu_dir} via sysfs."
+                    fi
+                fi
             fi
         done
     fi
-    echo "CPU governor set."
+
+    # Verify the setting (best effort)
+    if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]; then
+        local current_gov=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo "unknown")
+        if [ "${current_gov}" != "performance" ]; then
+            log "Warning: Current governor is '${current_gov}', expected 'performance'. Benchmarks may be noisy."
+        else
+            log "Verified: Governor is 'performance'."
+        fi
+    fi
+
+    # 2. Core Pinning (Affinity)
+    # We will pin the benchmark process to specific cores based on thread count
+    # using taskset. This is done per execution in the loop below.
+    log "Hardware configuration complete."
 }
 
-# Function to pin process to specific cores
-pin_to_cores() {
-    local core_range="$1"
-    echo "Pinning to cores: $core_range"
-}
+# -----------------------------------------------------------------------------
+# Benchmark Execution Loop
+# -----------------------------------------------------------------------------
+run_benchmarks() {
+    if [ ! -x "${BINARY_PATH}" ]; then
+        log "Error: Benchmark binary not found or not executable at ${BINARY_PATH}"
+        log "Please run build.sh first."
+        exit 1
+    fi
 
-# Set CPU governor
-set_cpu_governor
+    log "Starting benchmark execution..."
 
-# Initialize CSV header
-CSV_FILE="$OUTPUT_DIR/benchmark_results.csv"
-echo "thread_count,configuration,iteration_count,wall_clock_time_ms,core_pinning,status" > "$CSV_FILE"
-
-# Get total available cores
-TOTAL_CORES=$(nproc)
-echo "Total available cores: $TOTAL_CORES"
-
-# Run benchmarks
-for threads in $THREAD_COUNTS; do
-    for config in $CONFIGS; do
-        echo "========================================"
-        echo "Running: threads=$threads, config=$config"
-        echo "========================================"
-
-        for run in $(seq 1 $NUM_RUNS); do
-            echo "  Run $run/$NUM_RUNS..."
-
-            # Determine core range for this thread count
-            # Simple strategy: pin to first $threads cores
-            if [[ $threads -le $TOTAL_CORES ]]; then
-                CORE_RANGE=$(seq -s, 0 $((threads - 1)))
-            else
-                CORE_RANGE=$(seq -s, 0 $((TOTAL_CORES - 1)))
-                echo "  WARNING: Requested threads ($threads) > available cores ($TOTAL_CORES). Using all cores."
-            fi
-
-            # Prepare taskset command
-            TASKSET_CMD="taskset -c $CORE_RANGE"
-
-            # Run benchmark with timeout (30 seconds per run)
-            START_TIME=$(date +%s%N)
+    for threads in "${THREAD_COUNTS[@]}"; do
+        for config in "${CONFIGS[@]}"; do
+            local output_file="${OUTPUT_DIR}/results_threads_${threads}_${config}.csv"
             
-            if timeout 30s $TASKSET_CMD $BINARY_PATH --threads $threads --config $config >> "$CSV_FILE" 2>&1; then
-                END_TIME=$(date +%s%N)
-                ELAPSED_MS=$(( (END_TIME - START_TIME) / 1000000 ))
-                echo "  Completed in ${ELAPSED_MS}ms"
+            log "Running: threads=${threads}, config=${config} -> ${output_file}"
+            
+            # Determine affinity mask for taskset
+            # For simplicity, we pin to the first N cores available.
+            # In a real high-precision scenario, we might reserve specific cores.
+            # Here we use a mask of the first 'threads' cores (e.g., 2 threads -> 0x3)
+            local mask=$(( (1 << threads) - 1 ))
+            local mask_hex=$(printf "0x%x" ${mask})
+
+            log "Pinning process to cores 0-${threads-1} (mask: ${mask_hex})"
+
+            # Execute with taskset
+            # We append to the file. The binary handles the CSV header if it's a new file.
+            # We use timeout to prevent hanging indefinitely (e.g., 10 minutes per run)
+            if timeout 600 sudo taskset -c 0-${threads-1} "${BINARY_PATH}" \
+                --threads "${threads}" \
+                --config "${config}" \
+                --output "${output_file}" \
+                2>&1 | tee -a "${LOG_FILE}"; then
+                
+                log "Success: Benchmark completed for threads=${threads}, config=${config}."
             else
-                echo "  TIMEOUT or ERROR"
-                # Append timeout row
-                echo "$threads,$config,0,0,$CORE_RANGE,TIMEOUT" >> "$CSV_FILE"
+                local exit_code=$?
+                log "Warning: Benchmark failed or timed out for threads=${threads}, config=${config} (Exit code: ${exit_code})."
             fi
         done
     done
-done
 
-echo "========================================"
-echo "Benchmark complete."
-echo "Results written to: $CSV_FILE"
-echo "========================================"
+    log "All benchmark runs finished."
+}
 
-# Reset CPU governor to default (optional)
-# echo "Resetting CPU governor to default..."
-# if command -v cpupower &> /dev/null; then
-#     sudo cpupower frequency-set -g schedutil
-# fi
+# -----------------------------------------------------------------------------
+# Main Entry Point
+# -----------------------------------------------------------------------------
+main() {
+    log "=========================================="
+    log "Starting Benchmark Suite (T025: CPU Pinning)"
+    log "=========================================="
+    
+    configure_hardware
+    run_benchmarks
+    
+    log "=========================================="
+    log "Benchmark Suite Complete"
+    log "=========================================="
+}
+
+main "$@"

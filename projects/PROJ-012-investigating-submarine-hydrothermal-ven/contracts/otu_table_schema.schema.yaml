@@ -1,28 +1,76 @@
+# OTU/ASV Table Schema
+# Used for validating OTU tables from QIIME2 pipeline (T018-T021)
+# and for contract tests (T016)
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: OTU Table Schema
-description: Schema for Operational Taxonomic Unit (OTU) or ASV count tables.
+title: OTU_Table
+description: >
+  Represents a microbial abundance table (OTU or ASV) with taxonomy annotations.
+  Output from QIIME2 denoising pipeline.
 type: object
+
 required:
-  - sample_id
-  - otu_id
-  - count
+  - otu_table
+  - taxonomy
+  - sample_ids
+  - otu_ids
+
 properties:
-  sample_id:
-    type: string
-    description: Foreign key referencing the Sample entity.
-    pattern: "^[A-Za-z0-9_-]+$"
-  otu_id:
-    type: string
-    description: Unique identifier for the OTU or ASV.
-    pattern: "^[A-Za-z0-9_-]+$"
-  count:
-    type: integer
-    description: Read count for this OTU in the sample.
-    minimum: 0
+  otu_table:
+    type: object
+    description: >
+      Nested dictionary: {sample_id: {otu_id: abundance}}
+      Abundance must be non-negative integer.
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: integer
+        minimum: 0
+
   taxonomy:
+    type: object
+    description: >
+      Mapping of otu_id to taxonomy string.
+      Format: "Kingdom;Phylum;Class;Order;Family;Genus;Species"
+    additionalProperties:
+      type: string
+      pattern: "^[A-Za-z;\\s]+$"
+
+  sample_ids:
     type: array
-    description: Taxonomic classification path (Kingdom to Species).
     items:
       type: string
-    nullable: true
-additionalProperties: false
+    description: List of unique sample identifiers
+
+  otu_ids:
+    type: array
+    items:
+      type: string
+    description: List of unique OTU/ASV identifiers
+
+  metadata:
+    type: object
+    description: Optional metadata about the OTU table
+    properties:
+      pipeline_version:
+        type: string
+        description: QIIME2 version used
+      rarefaction_depth:
+        type: integer
+        minimum: 1
+        description: Depth used for rarefaction (if applicable)
+      transformation:
+        type: string
+        enum: [none, log, clr]
+        description: Transformation applied to counts
+
+additionalProperties: true
+
+x-schema-version: "1.0.0"
+x-generated-from: specs/001-submarine-hydrothermal-vent-microbial-communities/spec.md
+x-related-tasks:
+  - T018  # QIIME2 pipeline
+  - T019  # Rarefaction
+  - T020  # Alpha diversity calculation
+  - T021  # Transformation
+  - T016  # Contract test

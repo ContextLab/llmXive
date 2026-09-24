@@ -1,14 +1,16 @@
 """
-T032: Fetch Real Meeting Clips (Main Study)
+fetch_clips.py
 
-Downloads meeting background frames/clips from the 'video-conference-backgrounds'
-HuggingFace dataset. This task implements the data fetching logic for User Story 2.
+Fetch real meeting background frames/clips from the HuggingFace
+`video-conference-backgrounds` dataset.
 
-Output:
-    data/raw/meeting_clips/: Directory containing downloaded video/image files.
-    data/raw/meeting_clips_manifest.json: Manifest with metadata for each downloaded item.
+This script downloads the media files to a specified output directory and
+writes a manifest JSON file containing metadata (filename, source URL,
+SHA‑256 checksum). It is intended for the main study (US2) and must operate
+on real data – no synthetic fall‑backs are provided.
 """
 
+import argparse
 import json
 import os
 import sys
@@ -16,177 +18,188 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add project root to path for imports if running as script
-if "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
+import requests
 from datasets import load_dataset
-from PIL import Image
-import io
 
-# Constants
-DATASET_NAME = "HuggingFaceM4/video-conference-backgrounds"
-DATASET_SPLIT = "train"
-MAX_ITEMS = 500  # Limit to match pilot study scale for initial fetch
-OUTPUT_DIR = Path("data/raw/meeting_clips")
-MANIFEST_PATH = OUTPUT_DIR / "meeting_clips_manifest.json"
+# Local utilities for checksum computation
+from src.lib.utils import compute_file_checksum
 
-def ensure_output_directory():
-    """Create the output directory if it doesn't exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def download_dataset_items(max_items: int = MAX_ITEMS) -> List[Dict[str, Any]]:
+def ensure_output_directory(output_dir: Path) -> None:
     """
-    Download items from the HuggingFace dataset.
+    Ensure that the output directory exists.
 
-    Args:
-        max_items: Maximum number of items to download.
-
-    Returns:
-        List of metadata dictionaries for downloaded items.
+    Parameters
+    ----------
+    output_dir : Path
+        Directory where downloaded files will be stored.
     """
-    print(f"Loading dataset: {DATASET_NAME} (split: {DATASET_SPLIT})...")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+
+def download_dataset_items(
+    dataset_name: str = "HuggingFaceM4/video-conference-backgrounds",
+    split: str = "train",
+    output_dir: Path = Path("data/stimuli/meeting_clips"),
+    max_items: int | None = None,
+) -> List[Dict[str, Any]]:
+    """
+    Stream the dataset and download each media item.
+
+    The dataset contains either an ``image`` field (URL to a JPEG/PNG) or a
+    ``video`` field (URL to a video file). Only items with a direct URL are
+    downloaded; others are skipped with a warning.
+
+    Parameters
+    ----------
+    dataset_name : str
+        HuggingFace dataset identifier.
+    split : str
+        Split to download (e.g., ``train``).
+    output_dir : Path
+        Destination directory for downloaded files.
+    max_items : int | None
+        Optional cap on the number of items to fetch. ``None`` means download
+        the full split.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        Manifest entries for each successfully downloaded file.
+    """
+    manifest: List[Dict[str, Any]] = []
+
+    # Load dataset in streaming mode to avoid materialising the whole split.
     try:
-        dataset = load_dataset(DATASET_NAME, split=DATASET_SPLIT)
-    except Exception as e:
-        print(f"Error loading dataset: {e}")
-        sys.exit(1)
+        ds = load_dataset(dataset_name, split=split, streaming=True)
+    except Exception as exc:
+        print(f"Failed to load dataset {dataset_name} (split={split}): {exc}", file=sys.stderr)
+        raise
 
-    print(f"Dataset loaded. Total items: {len(dataset)}")
-    print(f"Fetching first {max_items} items...")
-
-    downloaded_items = []
-    processed_count = 0
-
-    # Iterate through the dataset
-    for idx, item in enumerate(dataset):
-        if processed_count >= max_items:
+    for idx, item in enumerate(ds):
+        if max_items is not None and idx >= max_items:
             break
 
-        try:
-            # Extract video frame or image based on dataset structure
-            # The dataset typically contains 'video' or 'image' keys
-            # We'll handle both cases
-            if "video" in item:
-                # If it's a video, extract frames (we'll take the first frame for now)
-                video_data = item["video"]
-                if isinstance(video_data, dict) and "bytes" in video_data:
-                    # Decode video bytes to extract frames
-                    # For simplicity, we'll save the video file directly if possible
-                    # or extract a frame if we have the right library
-                    video_bytes = video_data["bytes"]
-                    filename = f"clip_{idx:05d}.mp4"
-                    file_path = OUTPUT_DIR / filename
-
-                    with open(file_path, "wb") as f:
-                        f.write(video_bytes)
-
-                    downloaded_items.append({
-                        "id": idx,
-                        "filename": filename,
-                        "type": "video",
-                        "source_index": idx,
-                        "downloaded_at": time.strftime("%Y-%m-%d %H:%M:%S")
-                    })
-                    processed_count += 1
-                    print(f"Downloaded video: {filename} ({processed_count}/{max_items})")
-                elif isinstance(video_data, bytes):
-                    filename = f"clip_{idx:05d}.mp4"
-                    file_path = OUTPUT_DIR / filename
-                    with open(file_path, "wb") as f:
-                        f.write(video_data)
-                    downloaded_items.append({
-                        "id": idx,
-                        "filename": filename,
-                        "type": "video",
-                        "source_index": idx,
-                        "downloaded_at": time.strftime("%Y-%m-%d %H:%M:%S")
-                    })
-                    processed_count += 1
-                    print(f"Downloaded video: {filename} ({processed_count}/{max_items})")
-            elif "image" in item:
-                # Handle image data
-                image_data = item["image"]
-                if isinstance(image_data, Image.Image):
-                    filename = f"clip_{idx:05d}.png"
-                    file_path = OUTPUT_DIR / filename
-                    image_data.save(file_path)
-                    downloaded_items.append({
-                        "id": idx,
-                        "filename": filename,
-                        "type": "image",
-                        "source_index": idx,
-                        "downloaded_at": time.strftime("%Y-%m-%d %H:%M:%S")
-                    })
-                    processed_count += 1
-                    print(f"Downloaded image: {filename} ({processed_count}/{max_items})")
-                elif isinstance(image_data, dict) and "bytes" in image_data:
-                    # Load from bytes
-                    image_bytes = image_data["bytes"]
-                    img = Image.open(io.BytesIO(image_bytes))
-                    filename = f"clip_{idx:05d}.png"
-                    file_path = OUTPUT_DIR / filename
-                    img.save(file_path)
-                    downloaded_items.append({
-                        "id": idx,
-                        "filename": filename,
-                        "type": "image",
-                        "source_index": idx,
-                        "downloaded_at": time.strftime("%Y-%m-%d %H:%M:%S")
-                    })
-                    processed_count += 1
-                    print(f"Downloaded image: {filename} ({processed_count}/{max_items})")
-            else:
-                # Skip items without valid video or image data
-                print(f"Skipping item {idx}: no valid video or image data")
-
-        except Exception as e:
-            print(f"Error processing item {idx}: {e}")
+        # Determine the media URL. The dataset may provide either `image` or `video`.
+        url = item.get("image") or item.get("video")
+        if not isinstance(url, str):
+            print(f"Skipping item {idx}: no downloadable URL found.", file=sys.stderr)
             continue
 
-    return downloaded_items
+        # Derive a filename from the URL.
+        filename = Path(url).name
+        if not filename:
+            print(f"Skipping item {idx}: could not extract filename from URL.", file=sys.stderr)
+            continue
 
-def save_manifest(items: List[Dict[str, Any]]):
-    """Save the manifest of downloaded items."""
-    manifest = {
-        "dataset_name": DATASET_NAME,
-        "split": DATASET_SPLIT,
-        "total_downloaded": len(items),
-        "items": items
-    }
+        dest_path = output_dir / filename
 
-    with open(MANIFEST_PATH, "w") as f:
-        json.dump(manifest, f, indent=2)
+        # Skip already‑downloaded files to make the script resumable.
+        if dest_path.is_file():
+            checksum = compute_file_checksum(dest_path)
+            manifest.append(
+                {
+                    "filename": filename,
+                    "url": url,
+                    "checksum": checksum,
+                    "status": "already_exists",
+                }
+            )
+            continue
 
-    print(f"Manifest saved to: {MANIFEST_PATH}")
+        try:
+            with requests.get(url, stream=True, timeout=30) as response:
+                response.raise_for_status()
+                with open(dest_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:  # filter out keep‑alive chunks
+                            f.write(chunk)
+        except Exception as exc:
+            print(f"Failed to download {url}: {exc}", file=sys.stderr)
+            continue
 
-def main():
-    """Main entry point for fetching meeting clips."""
-    print("Starting T032: Fetch Real Meeting Clips (Main Study)")
-    print("=" * 60)
+        # Compute checksum for integrity verification.
+        checksum = compute_file_checksum(dest_path)
 
-    # Ensure output directory exists
-    ensure_output_directory()
+        manifest.append(
+            {
+                "filename": filename,
+                "url": url,
+                "checksum": checksum,
+                "status": "downloaded",
+            }
+        )
 
-    # Check if we already have a manifest and skip if done
-    if MANIFEST_PATH.exists():
-        print(f"Manifest already exists at {MANIFEST_PATH}. Skipping download.")
-        # Optionally, we could check if the files still exist
-        # For now, we'll just skip
-        return
+        # Simple progress output.
+        if (idx + 1) % 50 == 0:
+            print(f"Downloaded {idx + 1} items...")
 
-    # Download items
-    downloaded_items = download_dataset_items()
+    return manifest
 
-    if not downloaded_items:
-        print("No items were downloaded. Check the dataset or logs.")
-        sys.exit(1)
 
-    # Save manifest
-    save_manifest(downloaded_items)
+def save_manifest(manifest: List[Dict[str, Any]], output_dir: Path) -> None:
+    """
+    Write the manifest JSON file to the output directory.
 
-    print("=" * 60)
-    print(f"Completed T032: Successfully downloaded {len(downloaded_items)} items.")
+    Parameters
+    ----------
+    manifest : List[Dict[str, Any]]
+        List of metadata dictionaries for each downloaded file.
+    output_dir : Path
+        Directory where ``manifest.json`` will be written.
+    """
+    manifest_path = output_dir / "manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+    print(f"Manifest written to {manifest_path}")
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Fetch real meeting background clips from the HuggingFace dataset."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("data/stimuli/meeting_clips"),
+        help="Directory to store downloaded clips (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--max-items",
+        type=int,
+        default=None,
+        help="Maximum number of items to download (default: all).",
+    )
+    parser.add_argument(
+        "--split",
+        type=str,
+        default="train",
+        help="Dataset split to download (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="HuggingFaceM4/video-conference-backgrounds",
+        help="HuggingFace dataset identifier (default: %(default)s).",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_arguments()
+    output_dir: Path = args.output_dir
+    ensure_output_directory(output_dir)
+
+    start = time.time()
+    manifest = download_dataset_items(
+        dataset_name=args.dataset,
+        split=args.split,
+        output_dir=output_dir,
+        max_items=args.max_items,
+    )
+    save_manifest(manifest, output_dir)
+    elapsed = time.time() - start
+    print(f"Finished downloading. Total items: {len(manifest)}. Elapsed time: {elapsed:.2f}s")
+
 
 if __name__ == "__main__":
     main()

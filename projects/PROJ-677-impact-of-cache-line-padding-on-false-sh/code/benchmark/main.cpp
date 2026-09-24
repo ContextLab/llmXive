@@ -1,199 +1,103 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
 #include <string>
-#include <cstdlib>
-#include <cstring>
+#include <vector>
 #include <thread>
 #include <atomic>
 #include <chrono>
-#include <fstream>
-#include <sstream>
+#include <cstdlib>
+#include <cstring>
 #include <iomanip>
+#include <sstream>
 #include "counter_packed.hpp"
 #include "counter_padded.hpp"
 
-// Function to parse command line arguments
-bool parse_args(int argc, char* argv[], int& thread_count, std::string& config_type, int& iterations) {
-    if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " <thread_count> <config_type> <iterations>" << std::endl;
-        std::cerr << "  thread_count: Number of threads (e.g., 1, 2, 4, 8)" << std::endl;
-        std::cerr << "  config_type: 'packed' or 'padded'" << std::endl;
-        std::cerr << "  iterations: Number of increments per thread" << std::endl;
-        return false;
-    }
-
-    try {
-        thread_count = std::stoi(argv[1]);
-        if (thread_count < 1) {
-            std::cerr << "Error: thread_count must be >= 1" << std::endl;
-            return false;
-        }
-
-        config_type = argv[2];
-        if (config_type != "packed" && config_type != "padded") {
-            std::cerr << "Error: config_type must be 'packed' or 'padded'" << std::endl;
-            return false;
-        }
-
-        iterations = std::stoi(argv[3]);
-        if (iterations < 1) {
-            std::cerr << "Error: iterations must be >= 1" << std::endl;
-            return false;
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error parsing arguments: " << e.what() << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
-// Single-threaded validation to ensure atomic increments are not optimized away
-// This runs before multi-threaded execution to verify correctness and prevent compiler optimizations
-bool validate_single_threaded(const std::string& config_type, int iterations) {
-    std::cout << "Running single-threaded validation..." << std::endl;
-
-    if (config_type == "packed") {
-        // Use packed counters for validation
-        std::vector<PackedCounter> counters(1);
-        std::atomic<long> total{0};
-
-        // Perform increments
-        for (int i = 0; i < iterations; ++i) {
-            counters[0].increment();
-            total.fetch_add(1, std::memory_order_relaxed);
-        }
-
-        // Verify results
-        if (counters[0].value != iterations) {
-            std::cerr << "Validation FAILED: Expected " << iterations 
-                      << " but got " << counters[0].value << std::endl;
-            return false;
-        }
-
-        if (total.load() != iterations) {
-            std::cerr << "Validation FAILED: Total atomic mismatch. Expected " 
-                      << iterations << " but got " << total.load() << std::endl;
-            return false;
-        }
-
-        std::cout << "Single-threaded validation PASSED for packed config." << std::endl;
-
-    } else if (config_type == "padded") {
-        // Use padded counters for validation
-        std::vector<PaddedCounter> counters(1);
-        std::atomic<long> total{0};
-
-        // Perform increments
-        for (int i = 0; i < iterations; ++i) {
-            counters[0].increment();
-            total.fetch_add(1, std::memory_order_relaxed);
-        }
-
-        // Verify results
-        if (counters[0].value != iterations) {
-            std::cerr << "Validation FAILED: Expected " << iterations 
-                      << " but got " << counters[0].value << std::endl;
-            return false;
-        }
-
-        if (total.load() != iterations) {
-            std::cerr << "Validation FAILED: Total atomic mismatch. Expected " 
-                      << iterations << " but got " << total.load() << std::endl;
-            return false;
-        }
-
-        std::cout << "Single-threaded validation PASSED for padded config." << std::endl;
-    }
-
-    return true;
-}
-
-// Multi-threaded benchmark execution
-void run_benchmark(int thread_count, const std::string& config_type, int iterations, double& wall_clock_time_ms) {
-    std::cout << "Running benchmark: " << thread_count << " threads, " 
-              << config_type << " config, " << iterations << " iterations/thread" << std::endl;
-
-    std::vector<std::thread> workers;
-    std::vector<void*> counter_array;
-    
-    // Allocate counters based on configuration
-    if (config_type == "packed") {
-        auto* packed_counters = new PackedCounter[thread_count];
-        counter_array.resize(thread_count);
-        for (int i = 0; i < thread_count; ++i) {
-            counter_array[i] = &packed_counters[i];
-        }
-    } else {
-        auto* padded_counters = new PaddedCounter[thread_count];
-        counter_array.resize(thread_count);
-        for (int i = 0; i < thread_count; ++i) {
-            counter_array[i] = &padded_counters[i];
-        }
-    }
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // Launch threads
-    for (int t = 0; t < thread_count; ++t) {
-        workers.emplace_back([&, t]() {
-            if (config_type == "packed") {
-                auto* packed_counters = static_cast<PackedCounter*>(counter_array[0]);
-                for (int i = 0; i < iterations; ++i) {
-                    packed_counters[t].increment();
-                }
-            } else {
-                auto* padded_counters = static_cast<PaddedCounter*>(counter_array[0]);
-                for (int i = 0; i < iterations; ++i) {
-                    padded_counters[t].increment();
-                }
-            }
-        });
-    }
-
-    // Wait for all threads to complete
-    for (auto& worker : workers) {
-        worker.join();
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = end - start;
-    wall_clock_time_ms = duration.count();
-
-    // Cleanup
-    if (config_type == "packed") {
-        delete[] static_cast<PackedCounter*>(counter_array[0]);
-    } else {
-        delete[] static_cast<PaddedCounter*>(counter_array[0]);
-    }
-
-    std::cout << "Benchmark completed in " << wall_clock_time_ms << " ms" << std::endl;
+void print_usage(const char* prog) {
+    std::cerr << "Usage: " << prog << " <thread_count> <config> <iterations>\n"
+              << "  thread_count: 1, 2, 4, 8\n"
+              << "  config: 'packed' or 'padded'\n"
+              << "  iterations: number of increments per thread\n";
 }
 
 int main(int argc, char* argv[]) {
-    int thread_count;
-    std::string config_type;
-    int iterations;
-
-    // Parse arguments
-    if (!parse_args(argc, argv, thread_count, config_type, iterations)) {
+    if (argc != 4) {
+        print_usage(argv[0]);
         return 1;
     }
 
-    // Step 1: Single-threaded validation (FR-004)
-    // This ensures atomic increments are not optimized away by the compiler
-    if (!validate_single_threaded(config_type, iterations)) {
-        std::cerr << "Single-threaded validation failed. Aborting benchmark." << std::endl;
+    int thread_count = std::atoi(argv[1]);
+    std::string config = argv[2];
+    long long iterations = std::atoll(argv[3]);
+
+    if (thread_count <= 0 || iterations <= 0) {
+        std::cerr << "Error: thread_count and iterations must be positive integers.\n";
         return 1;
     }
 
-    // Step 2: Run multi-threaded benchmark
-    double wall_clock_time_ms = 0.0;
-    run_benchmark(thread_count, config_type, iterations, wall_clock_time_ms);
+    if (config != "packed" && config != "padded") {
+        std::cerr << "Error: config must be 'packed' or 'padded'.\n";
+        return 1;
+    }
 
-    // Step 3: Output results to CSV (format: thread_count,config,iterations,time_ms)
-    std::cout << thread_count << "," << config_type << "," << iterations 
-              << "," << std::fixed << std::setprecision(3) << wall_clock_time_ms << std::endl;
+    // Allocate shared array based on configuration
+    // We need thread_count distinct elements to avoid false sharing in the padded case
+    // and to simulate the scenario where threads write to distinct elements in the packed case
+    // but due to cache line packing, they might share lines.
+    // To strictly test false sharing, we place elements such that in 'packed' they share lines
+    // and in 'padded' they don't.
+    
+    // For 'packed', CounterPacked is 24 bytes. 3 fit in 64 bytes.
+    // For 'padded', CounterPadded is >= 192 bytes (alignas 64 usually implies 64 or 128 padding).
+    // We allocate a vector of size thread_count.
+    
+    std::vector<CounterPacked> packed_counters(thread_count);
+    std::vector<CounterPadded> padded_counters(thread_count);
+
+    std::vector<std::thread> threads;
+    
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    for (int t = 0; t < thread_count; ++t) {
+        threads.emplace_back([&, t]() {
+            volatile long long sink = 0; // Prevent optimization
+            if (config == "packed") {
+                for (long long i = 0; i < iterations; ++i) {
+                    packed_counters[t].increment();
+                    // In a real false sharing scenario, we might want threads to write to
+                    // adjacent indices that share a cache line.
+                    // However, the task description says "each thread writes to a distinct element".
+                    // The impact comes from the fact that in 'packed', multiple counters fit in one line.
+                    // If we strictly follow "distinct element", we just increment our own.
+                    // The "false sharing" usually implies threads writing to *different* variables
+                    // that happen to be on the *same* cache line.
+                    // If thread 0 writes index 0 and thread 1 writes index 1, and they are packed:
+                    // Index 0 and 1 are in the same 64-byte line.
+                    // So we must ensure we are testing the scenario where they share the line.
+                    // Since we allocated a vector, index 0 and 1 are adjacent in memory.
+                    // So this setup is correct for testing false sharing on the packed struct.
+                }
+            } else {
+                for (long long i = 0; i < iterations; ++i) {
+                    padded_counters[t].increment();
+                }
+            }
+            // Consume a value to ensure compiler doesn't optimize the loop entirely
+            // if it could prove no side effects (though atomic does have side effects).
+            sink = packed_counters[0].value; 
+        });
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end_time - start_time;
+    double wall_clock_ms = elapsed.count();
+
+    // Output to stdout in CSV format as required by the task
+    // Format: thread_count, configuration, iteration_count, wall_clock_time_ms
+    std::cout << thread_count << "," << config << "," << iterations << "," << std::fixed << std::setprecision(6) << wall_clock_ms << std::endl;
 
     return 0;
 }

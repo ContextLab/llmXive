@@ -88,8 +88,8 @@
 - [X] T021 [US2] Implement GLMM/Transformation logic (CLR or log-transform) for non-normal diversity indices; output transformed data to `data/processed/diversity_transformed.csv` for T022
 - [X] T022a [US2] Implement `code/analysis.py` LME function: `diversity ~ pH + (1|site)` using `statsmodels` (depends on T021); write results to `data/processed/lme_results.csv` with columns: estimate, se, p_value, model_type
 - [ ] T022b [US2] Implement fallback logic: If < 2 sites, run fixed-effects linear regression; if N < 10, run Spearman correlation; write results to `data/processed/lme_results.csv` with `model_type` column
-- [ ] T023 [US2] Add residual analysis in `code/analysis.py` to detect non-linearity; output warning and suggest polynomial term if detected (US-2)
-- [ ] T024 [US2] Generate `data/processed/alpha_diversity_results.csv` with pH, diversity metrics, and LME stats (estimate, SE, p-value, model_type)
+- [X] T023 [US2] Add residual analysis in `code/analysis.py` to detect non-linearity; output warning and suggest polynomial term if detected (US-2)
+- [X] T024 [US2] Generate `data/processed/alpha_diversity_results.csv` with pH, diversity metrics, and LME stats (estimate, SE, p-value, model_type)
 - [ ] T025 [US2] Add metadata flag in output explicitly stating "associational analysis of summary statistic" (FR-003.1)
 - [ ] T026 [US2] Implement sensitivity analysis for rarefaction depth (SC-003): sweep {5000, 10000, 20000} and log stability of results across thresholds to `data/processed/sensitivity_analysis_log.json`
 

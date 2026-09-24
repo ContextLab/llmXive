@@ -1,90 +1,87 @@
 #!/bin/bash
-# Security-hardened build script for PROJ-677
-# Implements: Input validation, restricted execution, safe compilation flags
+# build.sh - Compiles the cache line padding benchmark harness
+#
+# This script compiles main.cpp and verify_layout.cpp with optimization flags.
+# It implements robust logging for compilation warnings/errors and exits with
+# code 1 on any failure, ensuring the build process is transparent and fails loudly.
 
-set -euo pipefail
+set -e  # Exit immediately on any command failure
 
-# --- Security Hardening: Input Validation ---
-# Prevent command injection and path traversal
-if [[ $# -ne 0 ]]; then
-    echo "Error: build.sh does not accept arguments." >&2
-    echo "Usage: ./build.sh" >&2
-    exit 1
-fi
-
-# Define strict working directory
+# Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-BENCH_DIR="$PROJECT_ROOT/code/benchmark"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BENCHMARK_DIR="$PROJECT_ROOT/benchmark"
+BUILD_DIR="$PROJECT_ROOT/build"
 
-# Validate paths are within project root (prevent path traversal)
-if [[ "$BENCH_DIR" != "$PROJECT_ROOT"* ]]; then
-    echo "Error: Benchmark directory is outside project root." >&2
+# Source files
+MAIN_CPP="$BENCHMARK_DIR/main.cpp"
+VERIFY_LAYOUT_CPP="$BENCHMARK_DIR/verify_layout.cpp"
+
+# Compiler settings
+CXX="${CXX:-g++}"
+CXXFLAGS="-O3 -march=native -Wall -Wextra -Werror"
+
+# Output binaries
+BENCHMARK_BIN="$BUILD_DIR/benchmark"
+VERIFY_BIN="$BUILD_DIR/verify_layout"
+
+# Logging helper
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+log_info() {
+    log "INFO: $1"
+}
+
+log_warn() {
+    log "WARN: $1" >&2
+}
+
+log_error() {
+    log "ERROR: $1" >&2
+}
+
+# Ensure build directory exists
+log_info "Creating build directory: $BUILD_DIR"
+mkdir -p "$BUILD_DIR"
+
+# Check for required source files
+if [[ ! -f "$MAIN_CPP" ]]; then
+    log_error "Source file not found: $MAIN_CPP"
     exit 1
 fi
 
-# --- Security Hardening: Environment ---
-# Disable shell globbing expansion for safety
-set -f
-# Unset dangerous environment variables
-unset LD_PRELOAD LD_LIBRARY_PATH LD_AUDIT
-
-# --- Security Hardening: Compilation Flags ---
-# Use safe C++17 standard
-CXX="g++"
-CXXFLAGS="-std=c++17 -Wall -Wextra -Werror -Wformat=2 -Wformat-security"
-
-# Security hardening flags (if supported by compiler)
-# -D_FORTIFY_SOURCE=2: Runtime buffer overflow detection
-# -fstack-protector-strong: Stack smashing protection
-# -Wl,-z,relro,-z,now: Full RELRO (relocation read-only)
-# -fPIE -pie: Position Independent Executable
-HARDENING_FLAGS="-D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wl,-z,relro,-z,now -fPIE -pie"
-
-# --- Security Hardening: Source Verification ---
-# Check that source files exist and are not empty
-REQUIRED_SOURCES=("main.cpp" "verify_layout.cpp" "counter_packed.hpp" "counter_padded.hpp")
-for src in "${REQUIRED_SOURCES[@]}"; do
-    if [[ ! -f "$BENCH_DIR/$src" ]]; then
-        echo "Error: Required source file missing: $BENCH_DIR/$src" >&2
-        exit 1
-    fi
-    if [[ ! -s "$BENCH_DIR/$src" ]]; then
-        echo "Error: Source file is empty: $BENCH_DIR/$src" >&2
-        exit 1
-    fi
-done
-
-# --- Security Hardening: Build Execution ---
-# Create output directory securely
-OUTPUT_DIR="$PROJECT_ROOT/code/benchmark/bin"
-mkdir -p "$OUTPUT_DIR"
-
-# Compile verify_layout
-echo "Compiling verify_layout..."
-"$CXX" $CXXFLAGS $HARDENING_FLAGS -O3 -march=native \
-    "$BENCH_DIR/verify_layout.cpp" \
-    -o "$OUTPUT_DIR/verify_layout"
-
-if [[ ! -x "$OUTPUT_DIR/verify_layout" ]]; then
-    echo "Error: verify_layout compilation failed or output not executable." >&2
+if [[ ! -f "$VERIFY_LAYOUT_CPP" ]]; then
+    log_error "Source file not found: $VERIFY_LAYOUT_CPP"
     exit 1
 fi
 
-# Compile main benchmark
-echo "Compiling benchmark harness..."
-"$CXX" $CXXFLAGS $HARDENING_FLAGS -O3 -march=native \
-    "$BENCH_DIR/main.cpp" \
-    -o "$OUTPUT_DIR/benchmark_runner"
+# Compile verify_layout.cpp
+log_info "Compiling verify_layout.cpp..."
+if ! $CXX $CXXFLAGS -o "$VERIFY_BIN" "$VERIFY_LAYOUT_CPP" 2>&1; then
+    log_error "Compilation of verify_layout.cpp failed."
+    exit 1
+fi
+log_info "Successfully compiled: $VERIFY_BIN"
 
-if [[ ! -x "$OUTPUT_DIR/benchmark_runner" ]]; then
-    echo "Error: benchmark_runner compilation failed or output not executable." >&2
+# Compile main.cpp
+log_info "Compiling main.cpp..."
+if ! $CXX $CXXFLAGS -o "$BENCHMARK_BIN" "$MAIN_CPP" 2>&1; then
+    log_error "Compilation of main.cpp failed."
+    exit 1
+fi
+log_info "Successfully compiled: $BENCHMARK_BIN"
+
+log_info "Build completed successfully."
+log_info "Binaries available in: $BUILD_DIR"
+echo "  - $BENCHMARK_BIN"
+echo "  - $VERIFY_BIN"
+
+# Verify binaries exist and are executable
+if [[ ! -x "$BENCHMARK_BIN" ]] || [[ ! -x "$VERIFY_BIN" ]]; then
+    log_error "One or more binaries are not executable."
     exit 1
 fi
 
-# Set strict permissions on binaries (owner read/write/execute only)
-chmod 700 "$OUTPUT_DIR/verify_layout"
-chmod 700 "$OUTPUT_DIR/benchmark_runner"
-
-echo "Build completed successfully with security hardening flags."
-echo "Binaries available in: $OUTPUT_DIR"
+exit 0
