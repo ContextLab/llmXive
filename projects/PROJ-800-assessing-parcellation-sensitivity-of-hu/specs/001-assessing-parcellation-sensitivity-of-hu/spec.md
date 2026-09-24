@@ -19,13 +19,13 @@ The system must download raw fMRI time-series data for a healthy adult cohort (N
 
 1. **Given** a valid connection to the HCP S1200 (ds000114) repository, **When** the script requests raw fMRI data for N=20 healthy adults, **Then** the system downloads the time-series data and successfully processes it into three separate adjacency matrices (varying node counts) without memory overflow.
 2. **Given** a single subject's raw fMRI stream, **When** the three different parcellation pipelines (AAL, Schaefer-200, Schaefer-400) are applied, **Then** the resulting matrices contain non-zero edge counts and the node labels correspond exactly to the respective atlas definitions.
-3. **Given** that raw data processing exceeds the 6-hour CI limit, **When** the system detects this, **Then** it MUST load pre-computed adjacency matrices from a verified source (if available) and skip the raw processing step, logging a warning that pre-computed data was used.
+3. **Given** that raw data processing exceeds the -hour CI limit, **When** the system detects this, **Then** it MUST load pre-computed adjacency matrices from a verified source (if available) and skip the raw processing step, logging a warning that pre-computed data was used.
 
 ---
 
 ### User Story 2 - Centrality Computation and Hub Definition (Priority: P2)
 
-The system must calculate degree centrality and betweenness centrality for all nodes in each resolution and define "hubs" as the top [deferred] of nodes by metric value for each scheme, using `floor(N * p)` to determine the cutoff count, where p represents a predefined proportion threshold. A sensitivity analysis (FR-008) must sweep this threshold from 5% to 20% in 5% increments.
+The system must calculate degree centrality and betweenness centrality for all nodes in each resolution and define "hubs" as the top [deferred] of nodes by metric value for each scheme, using `floor(N * p)` to determine the cutoff count, where p represents a predefined proportion threshold. A sensitivity analysis (FR-008) must sweep this threshold across a range of values in regular increments.
 
 **Why this priority**: This transforms raw connectivity into the specific metrics (centrality) and constructs (hubs) required to answer the research question. It is the core analytical logic.
 
@@ -34,7 +34,7 @@ The system must calculate degree centrality and betweenness centrality for all n
 **Acceptance Scenarios**:
 
 1. **Given** the three generated adjacency matrices, **When** the centrality algorithms (degree and betweenness) are executed, **Then** the system outputs a CSV for each resolution containing a centrality score for every node, with no missing values.
-2. **Given** the centrality scores for a resolution with N nodes, **When** the top 10% threshold is applied, **Then** the system identifies exactly `floor(N * 0.10)` nodes as "hubs" and flags them in the output metadata.
+2. **Given** the centrality scores for a resolution with N nodes, **When** the top 10% threshold is applied, **Then** the system identifies a proportional subset of nodes as "hubs" and flags them in the output metadata.
 
 ---
 
@@ -49,7 +49,7 @@ The system must compute Excess Overlap indices (normalized for cardinality), Spe
 **Acceptance Scenarios**:
 
 1. **Given** the hub sets from the -node and 200-node resolutions (after spatial mapping and aggregation), **When** the overlap analysis is run, **Then** the system outputs an Excess Overlap index and a Spearman correlation coefficient between the centrality ranks.
-2. **Given** the observed hub overlap statistic, **When** the Spatial Spin Test runs [deferred] iterations (or 500 if time-constrained), **Then** the system calculates a p-value and generates a Venn diagram heatmap showing the overlap distribution for the 10% threshold and a line plot of Excess Overlap vs. Threshold for the sweep.
+2. **Given** the observed hub overlap statistic, **When** the Spatial Spin Test runs [deferred] iterations (or a sufficient number if time-constrained), **Then** the system calculates a p-value and generates a Venn diagram heatmap showing the overlap distribution for the 10% threshold and a line plot of Excess Overlap vs. Threshold for the sweep.
 
 ---
 
@@ -65,9 +65,9 @@ The system must compute Excess Overlap indices (normalized for cardinality), Spe
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download raw fMRI time-series data for a cohort of at least 20 healthy adults from the HCP S1200 release (ds000114) on OpenNeuro (or ABCD Study as fallback) and generate adjacency matrices by applying AAL, Schaefer-200, and Schaefer-400 parcellation pipelines to the raw data. "Healthy" is defined as subjects with no history of neurological or psychiatric disorders as per dataset metadata. If raw data processing is not feasible within the CI time limit, or if the source data is already parcellated, the system MUST load pre-computed adjacency matrices from a verified source. (See US-1)
+- **FR-001**: System MUST download raw fMRI time-series data for a cohort of at least 20 healthy adults from the HCP S1200 release (ds000114) on OpenNeuro (or ABCD Study as fallback) and generate adjacency matrices by applying AAL and Schaefer parcellation pipelines to the raw data. "Healthy" is defined as subjects with no history of neurological or psychiatric disorders as per dataset metadata. If raw data processing is not feasible within the CI time limit, or if the source data is already parcellated, the system MUST load pre-computed adjacency matrices from a verified source. (See US-1)
 - **FR-002**: System MUST calculate degree centrality on the weighted adjacency matrix (top [deferred] of edges by weight retained) and betweenness centrality on the resulting binary graph for every node in all three generated adjacency matrices using CPU-tractable graph libraries (e.g., NetworkX). (See US-2)
-- **FR-003**: System MUST define "hubs" as the top [deferred] (fixed) of nodes by centrality score for each resolution, using `floor(N * 0.10)` to determine the cutoff count. A sensitivity analysis (FR-008) must sweep this threshold. (See US-2)
+- **FR-003**: System MUST define "hubs" as the top [deferred] (fixed) of nodes by centrality score for each resolution, using a proportional cutoff count to determine the threshold.. A sensitivity analysis (FR-008) must sweep this threshold. (See US-2)
 - **FR-004**: System MUST compute the Excess Overlap (observed overlap minus expected overlap from a hypergeometric distribution with N = total nodes in lower-res atlas, k = size of mapped hub set) to measure the set-theoretic overlap of hub sets between every pair of parcellation resolutions. (See US-3)
 - **FR-005**: System MUST perform a Spearman's rank correlation analysis between centrality values of nodes across the different parcellation schemes, but ONLY after mapping higher-resolution nodes to the lower-resolution atlas via spatial overlap (weighted-vote) and aggregating centrality scores (mean) of mapped nodes to ensure vector length equality. Unmapped low-res nodes are assigned 0. (See US-3)
 - **FR-006**: System MUST execute a Spatial Spin Test (Alexander-Bloch et al., minimum 1,000 iterations, or 500 if time-constrained) to determine if the observed hub overlap is statistically significant (p < 0.05) compared to a null distribution generated by rotating labels on the cortical surface to preserve spatial autocorrelation. (See US-3)

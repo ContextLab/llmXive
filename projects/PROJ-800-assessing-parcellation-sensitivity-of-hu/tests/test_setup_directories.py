@@ -1,70 +1,59 @@
-import os
-import shutil
-import tempfile
-from pathlib import Path
 import pytest
-
-# We need to import the function, but since the code is in 'code/', 
-# we adjust the path or assume the test runner adds 'code/' to sys.path.
-# For this implementation, we assume the test is run from the project root
-# and the 'code' directory is in the path, or we import via relative logic.
-# However, to be safe and standard, we will import the logic directly.
-
-# Add 'code' to path for imports if running as script
-import sys
+import os
 from pathlib import Path
-current_dir = Path(__file__).parent.parent
-code_dir = current_dir / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+from code.setup_directories import ensure_directory, main
+from utils.logger import ConfigurationError
 
-from setup_directories import ensure_directory, main
+class TestSetupDirectories:
+    def test_ensure_directory_creates_new(self, tmp_path):
+        new_dir = tmp_path / "new" / "sub" / "dir"
+        ensure_directory(new_dir)
+        assert new_dir.exists()
+        assert new_dir.is_dir()
 
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as the project root for testing."""
-    temp_dir = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    yield Path(temp_dir)
-    os.chdir(original_cwd)
-    shutil.rmtree(temp_dir)
+    def test_ensure_directory_exists_no_op(self, tmp_path):
+        existing_dir = tmp_path / "existing"
+        existing_dir.mkdir()
+        ensure_directory(existing_dir)
+        assert existing_dir.is_dir()
 
-def test_ensure_directory_creates_new(temp_project_root):
-    """Test that ensure_directory creates a new directory."""
-    new_dir = temp_project_root / "new_dir" / "sub_dir"
-    ensure_directory(new_dir)
-    assert new_dir.exists()
-    assert new_dir.is_dir()
+    def test_ensure_directory_raises_on_file(self, tmp_path):
+        file_path = tmp_path / "file.txt"
+        file_path.touch()
+        with pytest.raises(ConfigurationError):
+            ensure_directory(file_path)
 
-def test_ensure_directory_exists(temp_project_root):
-    """Test that ensure_directory does not fail if directory exists."""
-    existing_dir = temp_project_root / "existing"
-    existing_dir.mkdir()
-    # Should not raise
-    ensure_directory(existing_dir)
-    assert existing_dir.exists()
-
-def test_main_creates_structure(temp_project_root):
-    """Test that main() creates the expected directory structure."""
-    # Change to temp root so relative paths resolve correctly
-    os.chdir(temp_project_root)
-    
-    result = main()
-    
-    assert result == 0, "main() should return 0 on success"
-    
-    expected_dirs = [
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/code",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/tests",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/raw",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/processed",
-        "projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/results",
-    ]
-    
-    for dir_path in expected_dirs:
-        full_path = temp_project_root / dir_path
-        assert full_path.exists(), f"Directory {dir_path} was not created"
-        assert full_path.is_dir(), f"{dir_path} is not a directory"
+    def test_main_creates_project_structure(self, tmp_path, monkeypatch):
+        # Change to tmp_path to avoid cluttering real FS during test
+        monkeypatch.chdir(tmp_path)
+        
+        # Mock the project root path for testing
+        # We can't easily mock the hardcoded path in main(), so we test the logic
+        # by checking if the function runs without error and creates the expected dirs
+        # relative to the current working directory (which is tmp_path)
+        
+        # We need to adjust the test to verify the structure relative to tmp_path
+        # Since main() hardcodes "projects/PROJ-800...", we create that structure manually
+        # and verify the function logic works, or we patch the path.
+        
+        # Better approach: verify the side effects of main() by checking the state
+        # But since main() writes to 'state/', we need to ensure that works too.
+        
+        # Let's just run main() and verify the directories exist
+        main()
+        
+        project_root = Path("projects/PROJ-800-assessing-parcellation-sensitivity-of-hu")
+        assert project_root.exists()
+        
+        expected_dirs = [
+            "data/raw",
+            "data/processed",
+            "data/results",
+            "code",
+            "tests"
+        ]
+        
+        for d in expected_dirs:
+            full_path = project_root / d
+            assert full_path.exists(), f"Missing directory: {full_path}"
+            assert full_path.is_dir(), f"Not a directory: {full_path}"

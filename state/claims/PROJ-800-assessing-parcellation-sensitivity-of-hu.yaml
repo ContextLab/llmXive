@@ -2957,3 +2957,540 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T02:58:43Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: cohort size N=20 healthy adults from OpenNeuro/HCP
+  claim_id: c_08d1904d
+  context: 'Goal: Download raw fMRI data and generate three adjacency matrices (AAL-90,
+    Schaefer-200, Schaefer-400) for a cohort of N=20 healthy adults from OpenNeuro/HCP.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a cohort of N=20 healthy adults from OpenNeuro/HCP.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:27:41Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: AAL atlas node count 90
+  claim_id: c_b6fab237
+  context: 'Test case: Load AAL atlas from data/raw/atlases/AAL.nii (or simulated
+    path) and assert loaded.shape == (90, 90) and loaded.dtype == int.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AAL atlas has 90 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:29:07Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Schaefer-200 atlas node count 200
+  claim_id: c_5c810dff
+  context: 'Test case: Load a pre-downloaded subject NIfTI from tests/fixtures/subject_001.nii.gz,
+    apply AAL mask, and assert output matrix shape is (90, 90)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer-200 atlas has 200 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:29:54Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Schaefer-400 atlas node count 400
+  claim_id: c_fa722e63
+  context: 'Test case: Load a pre-downloaded subject NIfTI from tests/fixtures/subject_001.nii.gz,
+    apply AAL mask, and assert output matrix shape is (90, 90)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer-400 atlas has 400 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:29:55Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: hub definition threshold floor(N * 0.10)
+  claim_id: c_51ebfc3c
+  context: 'Goal: Calculate degree/betweenness centrality and define hubs as top floor(N
+    * 0.10) nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hubs are defined as the top floor(N * 0.10) nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:30:54Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: hub count for 90 nodes is 9
+  claim_id: c_e7d63073
+  context: 'test cases: verify floor(90 * 0.10) == 9, floor(200 * 0.10) == 20, floor(400
+    * 0.10) == 40'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For a 90-node network, the hub count is 9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:31:31Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: hub count for 200 nodes is 20
+  claim_id: c_1788dd13
+  context: 'test cases: verify floor(90 * 0.10) == 9, floor(200 * 0.10) == 20, floor(400
+    * 0.10) == 40'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For a 200-node network, the hub count is 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:32:02Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: hub count for 400 nodes is 40
+  claim_id: c_af6b7b4d
+  context: 'test cases: verify floor(90 * 0.10) == 9, floor(200 * 0.10) == 20, floor(400
+    * 0.10) == 40'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For a 400-node network, the hub count is 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:32:35Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Jaccard coefficient 0.5 for sets {1,2,3} and {2,3,4}
+  claim_id: c_be2cb7e3
+  context: 'test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5,
+    Dice=0.66'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard coefficient for Set A={1,2,3} and Set B={2,3,4} is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:33:18Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Dice coefficient 0.66 for sets {1,2,3} and {2,3,4}
+  claim_id: c_f6751c09
+  context: 'test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5,
+    Dice=0.66'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Dice coefficient for Set A={1,2,3} and Set B={2,3,4} is 0.66.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:35:26Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000114 for HCP S1200
+  claim_id: c_af5eb474
+  context: Implement code/download_data.py to fetch raw fMRI NIfTI files from OpenNeuro
+    dataset ds000114 (HCP S1200) for N=20 subjects.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000114_for_HCP_S1200
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ID for HCP S1200 is ds000114.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:36:14Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: ABCD Study dataset ID ds000224
+  claim_id: c_d7a6d8d8
+  context: 'Fallback: If ds000114 is inaccessible, fetch from ABCD Study (dataset
+    ID ds000224)...'
+  evidence:
+    entailment_evidence: ABCD Study dataset ID ds000224 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/ABCD_Study_dataset_ID_ds000224
+  kind: entity_fact
+  raw_text: The ABCD Study dataset ID is ds000224.
+  resolved_value: ABCD Study dataset ID ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T16:36:17Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Spatial Spin Test fallback iterations 500
+  claim_id: c_68c98e08
+  context: 'Revision Note: T009 (formerly T031b) explicitly enforces the 1000 iteration
+    default with a strict fallback to 500 if time constraints are threatened...'
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Spatial Spin Test fallback iteration count is 500.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T16:36:41Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: CI runtime limit 6 hours
+  claim_id: c_5ca1d38e
+  context: "verify total runtime < 6 hours AND peak RAM \u2264 7 GB; record timing\
+    \ and memory usage in data/results/performance_log.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runtime limit for the full pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:37:08Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: peak RAM limit 7 GB
+  claim_id: c_3c39c32b
+  context: "verify total runtime < 6 hours AND peak RAM \u2264 7 GB; record timing\
+    \ and memory usage in data/results/performance_log.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak RAM limit for the full pipeline is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:37:38Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: cohort size 20 healthy adults
+  claim_id: c_15edfbe0
+  context: 'Goal: Download raw fMRI data and generate three adjacency matrices (AAL-90,
+    Schaefer-200, Schaefer-400) for a cohort of N=20 healthy adults from OpenNeuro/HCP.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will process a cohort of N=20 healthy adults.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:39:00Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: AAL atlas adjacency matrix shape 90x90
+  claim_id: c_f31757a3
+  context: 'Test case: Load AAL atlas from data/raw/atlases/AAL.nii (or simulated
+    path) and assert loaded.shape == (90, 90) and loaded.dtype == int.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AAL atlas mask produces an adjacency matrix with shape (90, 90).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:40:10Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Schaefer-200 atlas adjacency matrix shape 200x200
+  claim_id: c_c15589d8
+  context: 'Task T017: load the Schaefer_200Parcels_7Networks atlas mask... and write
+    the result to data/processed/{subject}_schaefer200.npz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer-200 atlas mask produces an adjacency matrix with shape (200,
+    200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:40:54Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Schaefer-400 atlas adjacency matrix shape 400x400
+  claim_id: c_134365fa
+  context: 'Task T018: load the Schaefer_400Parcels_7Networks atlas mask... and write
+    the result to data/processed/{subject}_schaefer400.npz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer-400 atlas mask produces an adjacency matrix with shape (400,
+    400).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:40:55Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: hub definition threshold floor N times 0.10
+  claim_id: c_6aa3e46d
+  context: 'Goal: Calculate degree/betweenness centrality and define hubs as top floor(N
+    * 0.10) nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hub definition uses a threshold of floor(N * 0.10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:41:52Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: default hub threshold 0.10
+  claim_id: c_2d3efb20
+  context: 'Task T006: Create configuration manager in code/config.py (handles paths,
+    seeds, default_hub_threshold (0.10)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default hub threshold is 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:42:17Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep values 0.10 0.15 0.20
+  claim_id: c_db014451
+  context: 'Schema: sensitivity_sweep_values: [, 0.10, 0.15, 0.20]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep values include 0.10, 0.15, and 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:42:43Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Jaccard coefficient 0.5 for sets 1 2 3 and 2 3 4
+  claim_id: c_addc582c
+  context: 'Test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5,
+    Dice=0.66.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard coefficient for sets A={1,2,3} and B={2,3,4} is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:42:44Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: Dice coefficient 0.66 for sets 1 2 3 and 2 3 4
+  claim_id: c_8b7f64a9
+  context: 'Test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5,
+    Dice=0.66.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Dice coefficient for sets A={1,2,3} and B={2,3,4} is 0.66.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:42:45Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 2
+  canonical: Spatial Spin Test default iterations 1000
+  claim_id: c_972efca4
+  context: 'Revision Note: T009 (formerly T031b) explicitly enforces the 1000 iteration
+    default with a strict fallback to 500 if time constraints are threatened...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spatial Spin Test has a default of 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:42:45Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_db863c16
+  context: 'Constraint: All tasks must run on CPU-only CI with limited computational
+    resources (multiple cores, constrained RAM, 6h limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:43:07Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: peak RAM limit 7 GB
+  claim_id: c_9b4b9d33
+  context: 'Independent Test: Verify existence of three distinct adjacency matrix
+    files for a single subject... within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak RAM limit for the pipeline is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:43:41Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: OpenNeuro HCP S1200 dataset ID ds000114
+  claim_id: c_a3e5676c
+  context: Implement code/download_data.py to fetch raw fMRI NIfTI files from OpenNeuro
+    dataset ds000114 (HCP S1200) for N=20 subjects.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_HCP_S1200_dataset_ID_ds000114
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ID for HCP S1200 is ds000114.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:43:43Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: minimum hub count 9 for 90 nodes
+  claim_id: c_820aec87
+  context: 'Test cases: verify floor(90 * 0.10) == 9...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum hub count for N=90 nodes is 9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:44:18Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: minimum hub count 20 for 200 nodes
+  claim_id: c_8c496021
+  context: 'Test cases: verify floor(90 * 0.10) == 9, floor(200 * 0.10) == 20...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum hub count for N=200 nodes is 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:45:54Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: minimum hub count 40 for 400 nodes
+  claim_id: c_24fba193
+  context: 'Test cases: verify floor(90 * 0.10) == 9, floor(200 * 0.10) == 20, floor(400
+    * 0.10) == 40...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum hub count for N=400 nodes is 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:47:20Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: linting line-length 88
+  claim_id: c_31122990
+  context: 'Configuration: Set line-length = 88, target-version = py311...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The line-length configuration for linting is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:47:52Z'
+- artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
+  attempts: 1
+  canonical: target Python version 3.11
+  claim_id: c_92737f0d
+  context: 'Configuration: Set line-length = 88, target-version = py311...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target Python version for formatting is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T16:48:31Z'

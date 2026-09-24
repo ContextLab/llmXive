@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T19:37:58.622541Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-800-assessing-parcellation-sensitivity-of-hu
-last_run_id: 4559153e-1927-4dfb-a8b6-f4704914da84
+last_run_id: 35f918c1-a157-4075-91ec-9f9fe49979aa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu
 title: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
-updated_at: '2026-09-21T02:58:44.043869Z'
+updated_at: '2026-09-24T16:57:42.122493Z'
