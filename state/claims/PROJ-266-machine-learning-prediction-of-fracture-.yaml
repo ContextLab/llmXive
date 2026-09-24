@@ -6114,3 +6114,1045 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T20:38:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Stability augmentation includes 10 degree rotations, 0.01 Gaussian noise,
+    and 10 percent brightness jitter
+  claim_id: c_0a2fa122
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing \u2013 rotations\
+    \ \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:23:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator assigns at least one sample each for steel, Al, and
+    Ti alloy families
+  claim_id: c_c1d25b06
+  context: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a). The generator MUST assign\
+    \ 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al', and\
+    \ 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_assigns_at_least_one_sample_each_for_ste
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:24:12Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic magnification calibration ranges from 1000 to 5000 pixels per
+    micron
+  claim_id: c_3649e9cd
+  context: 'Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    magnification_calibration = random uniform [1000, 5000] pixels/micron; section_thickness
+    = random uniform [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: magnification_calibration = random uniform [1000, 5000] pixels/micron
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:24:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic section thickness ranges from 10 to 50 nanometers
+  claim_id: c_653d89f6
+  context: 'Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    magnification_calibration = random uniform [1000, 5000] pixels/micron; section_thickness
+    = random uniform [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: section_thickness = random uniform [10, 50] nm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:25:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Generated dataset targets 2000 images exceeding the 500 image soft target
+  claim_id: c_4c20ae0c
+  context: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:25:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test uses alpha of 0.05 for CNN vs baseline comparison
+  claim_id: c_5c4e5d0c
+  context: Implement Wilcoxon signed-rank test function wilcoxon_test in code/train/stats.py,
+    integrate into evaluate.py, and output results to results/metrics.json. The test
+    compares the distribution of MAE differences between the CNN and each baseline
+    model across multiple seeds using alpha = 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test compares the distribution of MAE differences between the CNN
+    and each baseline model across multiple seeds using alpha = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:25:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Attribution analysis subset contains 10 images
+  claim_id: c_1c9c3adb
+  context: 'Select and lock a random subset of test images for attribution analysis.
+    Save the list of image IDs to data/explainability/attrib_subset.json. Verification:
+    python code/explain/select_subset.py && python -c "import json; d=json.load(open(''data/explainability/attrib_subset.json''));
+    assert len(d) == 10".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select and lock a random subset of test images for attribution analysis.
+    Save the list of image IDs to data/explainability/attrib_subset.json... assert
+    len(d) == 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:26:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator ensures at least one sample for steel, Al, and Ti
+    alloy families
+  claim_id: c_421437d2
+  context: The synthetic generator logic in code/data/synthetic_gen.py is designed
+    to produce images with synthetic ground truth K_IC values. The generator MUST
+    assign 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al',
+    and 'Ti'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_ensures_at_least_one_sample_for_steel,_A
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:26:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding spec soft target of 500
+    images
+  claim_id: c_f726960a
+  context: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:26:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator assigns steel Al and Ti alloy families with at least
+    one sample each
+  claim_id: c_c3a5c302
+  context: "T005 [S] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a). The generator MUST assign\
+    \ 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al', and\
+    \ 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_assigns_steel_Al_and_Ti_alloy_families_w
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:27:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test uses alpha 0.05 to compare CNN and baseline
+    MAE distributions
+  claim_id: c_001c8045
+  context: T025a [S] [US2] Implement Wilcoxon signed-rank test function wilcoxon_test
+    in code/train/stats.py, integrate into evaluate.py, and output results to results/metrics.json.
+    The test compares the distribution of MAE differences between the CNN and each
+    baseline model across multiple seeds using alpha = 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test compares the distribution of MAE differences between the CNN
+    and each baseline model across multiple seeds using alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:27:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability testing augmentation uses rotations 10 degrees Gaussian noise
+    0.01 and brightness jitter 10 percent
+  claim_id: c_21bc5d68
+  context: "T043 [P] [US3] Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses rotations \xB110\xB0\
+    , Gaussian noise \u03C3=0.01, and brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:27:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: IoU calculation reads from data/explainability/aug_views and outputs
+    to data/explainability/iou_scores.json
+  claim_id: c_8dbc3916
+  context: T044 [P] [US3] Calculate IoU between Grad-CAM heatmaps of augmented views.
+    The script MUST read augmented views from data/explainability/aug_views (generated
+    by T043) and output the IoU scores to data/explainability/iou_scores.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IoU_calculation_reads_from_data/explainability/aug_views_and
+  kind: entity_fact
+  raw_text: The script MUST read augmented views from data/explainability/aug_views
+    and output the IoU scores to data/explainability/iou_scores.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:28:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability report schema includes mean_iou std_iou and images_analyzed
+  claim_id: c_6e4f8a3e
+  context: 'T045 [P] [US3] Generate stability report stability_report.json with schema
+    { "mean_iou": float, "std_iou": float, "images_analyzed": int }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_report_schema_includes_mean_iou_std_iou_and_images
+  kind: entity_fact
+  raw_text: The stability report stability_report.json includes images_analyzed count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:28:25Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset includes at least one sample each for steel, Al, and
+    Ti alloy families
+  claim_id: c_d5838076
+  context: "T005 [S] Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a). The generator MUST assign\
+    \ 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al', and\
+    \ 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_includes_at_least_one_sample_each_for_stee
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:29:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation pipeline uses Gaussian noise sigma 0.01
+  claim_id: c_ceebe1a2
+  context: "T043: Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses Gaussian noise with\
+    \ \u03C3=0.01."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:30:07Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator assigns labels for steel, Al, and Ti alloy families
+  claim_id: c_daa453e5
+  context: "T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a). The generator MUST assign\
+    \ 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al', and\
+    \ 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_assigns_labels_for_steel,_Al,_and_Ti_all
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:30:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images
+  claim_id: c_826599a0
+  context: "T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "The synthetic generator produces \u2265 2,000 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:31:03Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: magnification calibration random uniform 1000 to 5000 pixels per micron
+  claim_id: c_88ade597
+  context: 'T053a: Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    magnification_calibration = random uniform [1000, 5000] pixels/micron.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: magnification_calibration is set to a random uniform value between 1000
+    and 5000 pixels/micron.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:31:23Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: section thickness random uniform 10 to 50 nm
+  claim_id: c_8a881a28
+  context: 'T053a: Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    section_thickness = random uniform [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: section_thickness is set to a random uniform value between 10 and 50 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:31:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: K_IC formula base_value plus alpha times grain_size plus beta times precipitate_density
+    plus noise
+  claim_id: c_bdcbdee6
+  context: 'T009a: Define Methodology in research.md Section 3.2: Explicitly write
+    the K_IC formula for synthetic generation: K_IC = base_value + alpha * grain_size
+    + beta * precipitate_density + noise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K_IC_formula_base_value_plus_alpha_times_grain_size_plus_bet
+  kind: entity_fact
+  raw_text: The synthetic ground truth K_IC formula is K_IC = base_value + alpha *
+    grain_size + beta * precipitate_density + noise.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:32:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: dataset schema alloy_family enum steel Al Ti
+  claim_id: c_2565c8c2
+  context: 'T006a: Create base data contracts in contracts/: dataset_schema.schema.yaml
+    and evaluation_schema.schema.yaml. Verification: ... assert s1[''properties''][''alloy_family''][''enum'']
+    == [''steel'', ''Al'', ''Ti''] ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_alloy_family_enum_steel_Al_Ti
+  kind: entity_fact
+  raw_text: The dataset schema enum for alloy_family includes steel, Al, and Ti.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:32:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: evaluation schema model_type enum cnn linear random_forest
+  claim_id: c_6ef2e207
+  context: 'T006a: Create base data contracts in contracts/: dataset_schema.schema.yaml
+    and evaluation_schema.schema.yaml. Verification: ... assert s2[''properties''][''model_type''][''enum'']
+    == [''cnn'', ''linear'', ''random_forest''] ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_schema_model_type_enum_cnn_linear_random_forest
+  kind: entity_fact
+  raw_text: The evaluation schema enum for model_type includes cnn, linear, and random_forest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:32:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: attribution schema properties image_id heatmap_paths iou_scores stability_threshold_met
+  claim_id: c_d07e3692
+  context: 'T006b: Create attribution schema contract contracts/attribution_schema.schema.yaml.
+    Verification: ... assert ''image_id'' in s[''properties''] and ''heatmap_paths''
+    in s[''properties''] and ''iou_scores'' in s[''properties''] and ''stability_threshold_met''
+    in s[''properties''] ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Attribution_schema_properties_image_id_heatmap_paths_iou_sco
+  kind: entity_fact
+  raw_text: The attribution schema includes properties for image_id, heatmap_paths,
+    iou_scores, and stability_threshold_met.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:33:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test alpha 0.05
+  claim_id: c_a7c04274
+  context: 'T025a: Implement Wilcoxon signed-rank test function wilcoxon_test in code/train/stats.py...
+    using alpha = 0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Wilcoxon signed-rank test
+      url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test uses an alpha value of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:33:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: random subset of 10 test images selected for attribution analysis
+  claim_id: c_da1567cb
+  context: 'T041: Select and lock a random subset of test images for attribution analysis.
+    Save the list of image IDs to data/explainability/attrib_subset.json. Verification:
+    ... assert len(d) == 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random subset of 10 test images is selected for attribution analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:33:30Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation pipeline uses rotations plus minus 10 degrees
+  claim_id: c_564924b3
+  context: "T043: Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses rotations of \xB1\
+    10\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:33:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation pipeline uses brightness jitter plus minus 10 percent
+  claim_id: c_186fcc8b
+  context: "T043: Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses brightness jitter\
+    \ of \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:33:53Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: dataset contains at least 2000 images stratified across steel aluminum
+    and titanium
+  claim_id: c_a998daad
+  context: 'The generated dataset consists of >= 2,000 images, stratified across three
+    alloy families: Steel, Aluminum, and Titanium. The distribution of grain sizes
+    and precipitate densities follows the specified random distributions, ensuring
+    a broad coverage of the microstructural space.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_2000_images_stratified_across_stee
+  kind: magnitude
+  raw_text: 'The generated dataset consists of >= 2,000 images, stratified across
+    three alloy families: Steel, Aluminum, and Titanium.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:35:06Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: wilcoxon signed-rank test performed on mean absolute error distributions
+    across multiple random seeds
+  claim_id: c_1dbde7d8
+  context: A Wilcoxon signed-rank test was performed on the Mean Absolute Error (MAE)
+    distributions across multiple random seeds. The results confirm that the improvement
+    of the CNN over the baselines is statistically significant (p < 0.05).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_performed_on_mean_absolute_error_d
+  kind: entity_fact
+  raw_text: A Wilcoxon signed-rank test was performed on the Mean Absolute Error (MAE)
+    distributions across multiple random seeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:35:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Stability augmentation includes rotations 10 degrees, Gaussian noise
+    0.01, brightness jitter 10 percent
+  claim_id: c_0279abeb
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Augmentation pipeline for stability testing includes rotations \xB110\xB0\
+    , Gaussian noise \u03C3=0.01, brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:36:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator assigns labels for steel, Al, and Ti with at least
+    one sample each
+  claim_id: c_27f8e193
+  context: "Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce \u2265 2,000 images with synthetic ground truth K_IC values using\
+    \ the formula defined in research.md Section 3.2 (T009a). The generator MUST assign\
+    \ 'alloy_family' labels ensuring at least one sample each for 'steel', 'Al', and\
+    \ 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_assigns_labels_for_steel,_Al,_and_Ti_wit
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: magnification_calibration is random uniform between 1000 and 5000 pixels/micron
+  claim_id: c_4797b506
+  context: 'Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    magnification_calibration = random uniform [1000, 5000] pixels/micron; section_thickness
+    = random uniform [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: magnification_calibration = random uniform [1000, 5000] pixels/micron
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: section_thickness is random uniform between 10 and 50 nm
+  claim_id: c_f32f4696
+  context: 'Define logic for sample preparation metadata (magnification calibration,
+    section thickness proxy) in research.md and code/data/synthetic_gen.py. Logic:
+    magnification_calibration = random uniform [1000, 5000] pixels/micron; section_thickness
+    = random uniform [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: section_thickness = random uniform [10, 50] nm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Generated dataset targets 2000 or more images
+  claim_id: c_7a460946
+  context: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test uses alpha 0.05
+  claim_id: c_141340b0
+  context: Implement Wilcoxon signed-rank test function wilcoxon_test in code/train/stats.py,
+    integrate into evaluate.py, and output results to results/metrics.json. The test
+    compares the distribution of MAE differences between the CNN and each baseline
+    model across multiple seeds using alpha = 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test compares the distribution of MAE differences between the CNN
+    and each baseline model across multiple seeds using alpha = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:49Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Attribution analysis subset size is 10 images
+  claim_id: c_e6145728
+  context: 'Select and lock a random subset of test images for attribution analysis.
+    Save the list of image IDs to data/explainability/attrib_subset.json. Verification:
+    python code/explain/select_subset.py && python -c "import json; d=json.load(open(''data/explainability/attrib_subset.json''));
+    assert len(d) == 10".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select and lock a random subset of test images for attribution analysis.
+    Save the list of image IDs to data/explainability/attrib_subset.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:36:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: "Stability testing augmentation includes rotations \xB110\xB0, Gaussian\
+    \ noise \u03C3=0.01, brightness jitter \xB110%"
+  claim_id: c_59504ac6
+  context: "T043 [P] [US3] Implement augmentation pipeline for stability testing (`code/explain/stability.py`)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing includes rotations \xB1\
+    10\xB0, Gaussian noise \u03C3=0.01, and brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T07:37:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator assigns at least one sample each for steel, Al, and
+    Ti alloy families
+  claim_id: c_1b28f3be
+  context: "T005 [S] Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce **\u2265 2,000** images with **synthetic ground truth** K_IC values\
+    \ using the formula defined in `research.md` Section 3.2 (T009a). The generator\
+    \ MUST assign 'alloy_family' labels ensuring at least one sample each for 'steel',\
+    \ 'Al', and 'Ti'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_assigns_at_least_one_sample_each_for_ste
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:37:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 2000 images with synthetic ground
+    truth K_IC values
+  claim_id: c_0ce9b095
+  context: "T005 [S] Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce **\u2265 2,000** images with **synthetic ground truth** K_IC values\
+    \ using the formula defined in `research.md` Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_synth
+  kind: magnitude
+  raw_text: "The generator MUST produce \u2265 2,000 images with synthetic ground\
+    \ truth K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:38:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 'Synthetic K_IC formula: base_value + alpha * grain_size + beta * precipitate_density
+    + noise'
+  claim_id: c_dc799ecb
+  context: 'T009a [S] Define Methodology in `research.md` Section 3.2: Explicitly
+    write the **K_IC formula** for synthetic generation: `K_IC = base_value + alpha
+    * grain_size + beta * precipitate_density + noise`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_K_IC_formula:_base_value_+_alpha_*_grain_size_+_be
+  kind: entity_fact
+  raw_text: 'The K_IC formula for synthetic generation is defined as: K_IC = base_value
+    + alpha * grain_size + beta * precipitate_density + noise.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:38:30Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Magnification calibration is random uniform between 1000 and 5000 pixels/micron
+  claim_id: c_60e4d53b
+  context: 'T053a [P] Define logic for **sample preparation metadata** (magnification
+    calibration, section thickness proxy) in `research.md` and `code/data/synthetic_gen.py`.
+    Logic: `magnification_calibration` = random uniform [1000, 5000] pixels/micron;
+    `section_thickness` = random uniform [10, 50] nm.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Magnification_calibration_is_random_uniform_between_1000_and
+  kind: entity_fact
+  raw_text: Magnification calibration is defined as random uniform [1000, 5000] pixels/micron.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:39:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Section thickness is random uniform between 10 and 50 nm
+  claim_id: c_b9058b15
+  context: 'T053a [P] Define logic for **sample preparation metadata** (magnification
+    calibration, section thickness proxy) in `research.md` and `code/data/synthetic_gen.py`.
+    Logic: `magnification_calibration` = random uniform [1000, 5000] pixels/micron;
+    `section_thickness` = random uniform [10, 50] nm.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Section_thickness_is_random_uniform_between_10_and_50_nm
+  kind: entity_fact
+  raw_text: Section thickness is defined as random uniform [10, 50] nm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:39:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test uses alpha 0.05 to compare CNN and baseline
+    MAE distributions
+  claim_id: c_56e81c20
+  context: T025a [S] [US2] Implement Wilcoxon signed-rank test function `wilcoxon_test`
+    in `code/train/stats.py`, integrate into `evaluate.py`, and output results to
+    `results/metrics.json`. The test compares the distribution of MAE differences
+    between the CNN and each baseline model across multiple seeds using **alpha =
+    0.05**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test compares the distribution of MAE differences
+    between the CNN and each baseline model across multiple seeds using alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:39:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Attribution analysis selects 10 test images
+  claim_id: c_abc73830
+  context: 'T041 [S] [US3] Select and lock a random subset of test images for attribution
+    analysis. Save the list of image IDs to `data/explainability/attrib_subset.json`.
+    **Verification**: `python code/explain/select_subset.py && python -c "import json;
+    d=json.load(open(''data/explainability/attrib_subset.json'')); assert len(d) ==
+    10"`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The attribution analysis selects and locks a random subset of 10 test
+    images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:40:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Dataset schema alloy_family enum values are steel, Al, and Ti
+  claim_id: c_70ea8047
+  context: 'T006a [P] Create base data contracts in `contracts/`: `dataset_schema.schema.yaml`
+    and `evaluation_schema.schema.yaml`. **Verification**: `python -c "import yaml,
+    pathlib; s1=yaml.safe_load(open(''contracts/dataset_schema.schema.yaml'')); s2=yaml.safe_load(open(''contracts/evaluation_schema.schema.yaml''));
+    assert s1[''properties''][''alloy_family''][''enum''] == [''steel'', ''Al'', ''Ti''];
+    ..."`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_alloy_family_enum_values_are_steel,_Al,_and_T
+  kind: entity_fact
+  raw_text: The dataset schema requires alloy_family enum values to be 'steel', 'Al',
+    and 'Ti'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:40:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Evaluation schema model_type enum values are cnn, linear, and random_forest
+  claim_id: c_56ca8ccb
+  context: 'T006a [P] Create base data contracts in `contracts/`: `dataset_schema.schema.yaml`
+    and `evaluation_schema.schema.yaml`. **Verification**: `... assert s2[''properties''][''model_type''][''enum'']
+    == [''cnn'', ''linear'', ''random_forest'']; ...`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_schema_model_type_enum_values_are_cnn,_linear,_an
+  kind: entity_fact
+  raw_text: The evaluation schema requires model_type enum values to be 'cnn', 'linear',
+    and 'random_forest'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:40:49Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: generated dataset contains over 2000 unique microstructure images stratified
+    by Steel Aluminum and Titanium
+  claim_id: c_29601bde
+  context: The generated dataset contains over 2,000 unique microstructure images,
+    stratified by alloy family (Steel, Aluminum, Titanium). Preliminary CNN training
+    demonstrates a correlation between microstructural texture features and the synthetic
+    K_IC values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated dataset contains over 2,000 unique microstructure images,
+    stratified by alloy family (Steel, Aluminum, Titanium).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:42:22Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: minimum resolvable feature size defined as 2 pixels corresponding to
+    Nyquist limit
+  claim_id: c_564e74b2
+  context: The minimum resolvable feature size is defined as 2 pixels, corresponding
+    to the Nyquist limit for the synthetic imaging process. Features smaller than
+    this threshold are not represented in the generated images.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_resolvable_feature_size_defined_as_2_pixels_correspo
+  kind: entity_fact
+  raw_text: The minimum resolvable feature size is defined as 2 pixels, corresponding
+    to the Nyquist limit for the synthetic imaging process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:42:59Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Magnification Calibration randomly sampled from 1000 to 5000 pixels per
+    micron
+  claim_id: c_f98efcab
+  context: 'Based on the simulated sample preparation parameters: Magnification Calibration:
+    Randomly sampled from [1000, 5000] pixels/micron. Section Thickness: Randomly
+    sampled from [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Magnification Calibration is randomly sampled from [1000, 5000] pixels/micron.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:43:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Section Thickness randomly sampled from 10 to 50 nm
+  claim_id: c_9dd19f4d
+  context: 'Magnification Calibration: Randomly sampled from [1000, 5000] pixels/micron.
+    Section Thickness: Randomly sampled from [10, 50] nm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Section Thickness is randomly sampled from [10, 50] nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T07:44:04Z'

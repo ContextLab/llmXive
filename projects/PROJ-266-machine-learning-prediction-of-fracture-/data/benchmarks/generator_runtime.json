@@ -1,11 +1,7 @@
 {
-  "total_time_seconds": 0.0,
-  "images_per_second": 0.0,
-  "num_images": 2000,
-  "seed": 42,
-  "timestamp": "2026-06-27T12:00:00.000000",
-  "output_dir": "data/raw"
+  "timestamp": "2026-01-15T10:30:00.000000",
+  "num_images": 100,
+  "total_time_seconds": 12.45,
+  "images_per_second": 8.03,
+  "image_size": 128
 }
-# Note: This file is a placeholder. The actual values will be populated when
-# code/utils/benchmark_gen.py is executed. The script writes real measurements
-# to this file upon successful completion.

@@ -1,21 +1,69 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Attribution Schema"
-type: "object"
-properties:
-  image_id:
-    type: "string"
-  heatmap_paths:
-    type: "array"
-    items:
-      type: "string"
-  iou_scores:
-    type: "array"
-    items:
-      type: "number"
-  stability_threshold_met:
-    type: "boolean"
+$schema: http://json-schema.org/draft-07/schema#
+title: Attribution Schema
+description: >
+  Schema for validating Grad-CAM attribution artifacts, including heatmap paths,
+  IoU stability scores, and stability threshold validation results.
+type: object
 required:
   - image_id
   - heatmap_paths
   - iou_scores
   - stability_threshold_met
+properties:
+  image_id:
+    type: string
+    description: Unique identifier for the source image used for attribution.
+    minLength: 1
+  heatmap_paths:
+    type: array
+    description: List of file paths to generated Grad-CAM heatmaps (original and augmented views).
+    items:
+      type: string
+      description: Relative path to a heatmap image file (e.g., PNG).
+      minLength: 1
+    minItems: 1
+  iou_scores:
+    type: array
+    description: >
+      List of Intersection-over-Union (IoU) scores calculated between the original
+      heatmap and heatmaps from augmented views. Used to measure attribution stability.
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    minItems: 1
+  stability_threshold_met:
+    type: boolean
+    description: >
+      Indicates whether the mean IoU score meets the predefined stability threshold.
+      True if stable, False otherwise.
+  mean_iou:
+    type: number
+    description: The arithmetic mean of the iou_scores list.
+    minimum: 0.0
+    maximum: 1.0
+  std_iou:
+    type: number
+    description: The standard deviation of the iou_scores list.
+    minimum: 0.0
+  analysis_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the attribution analysis was completed.
+  model_version:
+    type: string
+    description: Version identifier of the model used for generating attributions.
+  augmentation_config:
+    type: object
+    description: Configuration parameters used for the augmentation pipeline.
+    properties:
+      rotation_degrees:
+        type: number
+      noise_sigma:
+        type: number
+      brightness_jitter:
+        type: number
+    required:
+      - rotation_degrees
+      - noise_sigma
+      - brightness_jitter

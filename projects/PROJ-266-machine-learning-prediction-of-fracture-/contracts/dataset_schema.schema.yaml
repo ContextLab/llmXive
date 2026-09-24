@@ -1,32 +1,42 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema"
-type: "object"
-properties:
-  image_id:
-    type: "string"
-  alloy_family:
-    type: "string"
-    enum: ["steel", "Al", "Ti"]
-  k_ic:
-    type: "number"
-  num_grains:
-    type: "integer"
-  avg_grain_size_px:
-    type: "number"
-  precipitate_density:
-    type: "number"
-  magnification_calibration:
-    type: "number"
-  section_thickness:
-    type: "number"
-  surface_prep_protocol:
-    type: "string"
-  seed:
-    type: "integer"
+$schema: http://json-schema.org/draft-07/schema#
+title: Microstructure Dataset Schema
+description: Schema for validating microstructure image dataset metadata and properties.
+type: object
 required:
   - image_id
   - alloy_family
   - k_ic
-  - num_grains
-  - avg_grain_size_px
-  - precipitate_density
+  - magnification_calibration
+  - section_thickness
+properties:
+  image_id:
+    type: string
+    description: Unique identifier for the microstructure image.
+  alloy_family:
+    type: string
+    enum:
+      - steel
+      - Al
+      - Ti
+    description: The alloy family classification of the sample.
+  k_ic:
+    type: number
+    description: Fracture toughness value in MPa√m.
+  magnification_calibration:
+    type: number
+    description: Calibration factor in pixels per micron.
+  section_thickness:
+    type: number
+    description: Estimated section thickness in nanometers.
+  grain_size:
+    type: number
+    description: Average grain size in microns.
+  precipitate_density:
+    type: number
+    description: Density of precipitates per square micron.
+  file_path:
+    type: string
+    description: Relative path to the image file.
+  checksum:
+    type: string
+    description: SHA256 checksum of the image file.

@@ -5,22 +5,6 @@ T003:
     \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
     \ present. The required artifacts to demonstrate that linting and formatting tools\
     \ are configured are missing."
-T005:
-  c: false
-  h: 7d1ead6acad06decbc1db68f8c22f2b49d5734624a4fbb497e760efee49985ab
-  r: "The repository contains `code/data/synthetic_gen.py`, but the required output\
-    \ files are absent: `data/raw/metadata.json` does not exist and there are no PNG\
-    \ images in `data/raw/` to meet the \u2265\u202F2,000 count. Consequently the\
-    \ task\u2019s verification conditions are not satisfied."
-T005b:
-  c: false
-  h: 5fa47d63f66a32ae334ec3e5cc62e55bd64d420c8b552121e7b7866323077748
-  r: The `benchmark_gen.py` script is truncated and never writes the benchmark results
-    to `data/benchmarks/generator_runtime.json`; the JSON file is a static placeholder
-    with zero values and a comment. Consequently, the script does not actually measure
-    the generator runtime nor produce genuine metric values as required. The implementation
-    must be completed so that running the script generates real timing data and writes
-    it to the JSON file.
 T005d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,12 +12,20 @@ T005d:
     \ that it contains the required line \u201CSpec assumed \u2265500; generated \u2265\
     2000 images\u201D. The task\u2019s verification step cannot be satisfied without\
     \ the actual file."
-T009a:
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file containing the required text was provided; the verification\
-    \ command (`grep -q \"K_IC formula\" research.md && grep -q \"base_value\" research.md`)\
-    \ cannot succeed because the artifact is missing, so the methodology section and\
-    \ formula are not demonstrated. The implementer must add a `research.md` with\
-    \ Section\u202F3.2 that includes the explicit K_IC formula and the terms \u201C\
-    base_value\u201D, \u201Calpha\u201D, \u201Cbeta\u201D, etc."
+  r: "No evidence of a `projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md`\
+    \ file was presented, nor any content showing the required headings (\u201CIntroduction\u201D\
+    , \u201CMethodology\u201D, \u201CResolution Limits\u201D, \u201CResults\u201D\
+    , \u201CDiscussion\u201D). Without the file or its contents, the task requirement\
+    \ cannot be confirmed. The implementer must provide the actual `research.md` file\
+    \ with the specified sections."
+T053:
+  c: false
+  h: 1ec9e7dc72b4463ac193311984c5bdd04e72b5af1bc1dad96b6c40f3fb9899b1
+  r: "The `synthetic_gen.py` file now includes `magnification_calibration` and `section_thickness`\
+    \ in the per\u2011sample metadata, but no code creates or writes a `data/raw/metadata.json`\
+    \ file, and that file is absent from the repository. Consequently the verification\
+    \ command cannot succeed. The missing JSON output must be generated (e.g., by\
+    \ collecting the metadata from all samples and saving it to `data/raw/metadata.json`)."

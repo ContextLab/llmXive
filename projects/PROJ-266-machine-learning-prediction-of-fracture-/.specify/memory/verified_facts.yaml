@@ -1,5 +1,5 @@
-'|bootstrap calculation confidence interval iteration method use':
-  quote: 0.95, and simulated 1000 random samples of size n from each of three un-
-  source_id: math/0504516
-  url: https://arxiv.org/abs/math/0504516
-  value: '1000'
+'|alpha rank signed test use wilcoxon':
+  quote: '0.05'
+  source_id: Wilcoxon signed-rank test
+  url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+  value: '0.05'

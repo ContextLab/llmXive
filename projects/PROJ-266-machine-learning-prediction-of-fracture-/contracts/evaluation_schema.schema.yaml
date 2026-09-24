@@ -1,20 +1,43 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Evaluation Schema"
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    enum: ["cnn", "linear", "random_forest"]
-  r_squared:
-    type: "number"
-  mae:
-    type: "number"
-  rmse:
-    type: "number"
-  wilcoxon_p_value:
-    type: "number"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Evaluation Schema
+description: Schema for validating model evaluation metrics and configuration.
+type: object
 required:
   - model_type
   - r_squared
   - mae
   - rmse
+properties:
+  model_type:
+    type: string
+    enum:
+      - cnn
+      - linear
+      - random_forest
+    description: Type of model used for evaluation.
+  r_squared:
+    type: number
+    description: Coefficient of determination (R²).
+  mae:
+    type: number
+    description: Mean Absolute Error.
+  rmse:
+    type: number
+    description: Root Mean Square Error.
+  sample_count:
+    type: integer
+    description: Number of samples in the evaluation set.
+  split:
+    type: string
+    enum:
+      - train
+      - val
+      - test
+    description: Data split used for evaluation.
+  seed:
+    type: integer
+    description: Random seed used for reproducibility.
+  timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of the evaluation run.
