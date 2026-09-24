@@ -4,231 +4,186 @@ import json
 import logging
 import os
 import sys
-import subprocess
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from existing API surface
-from config import ZENODO_ID
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
+# --- Logging Setup ---
 def log_setup() -> logging.Logger:
-    """Setup logging for the DFT calculator."""
-    logger = logging.getLogger("dft_calculator")
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
+    """Configure the logger for this module."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
     return logger
 
-def load_raw_dataset(logger: logging.Logger) -> List[Dict[str, Any]]:
-    """
-    Load the raw barrier dataset from data/raw/barrier_dataset.csv.
-    Raises FileNotFoundError if the file does not exist.
-    """
-    input_path = Path("data/raw/barrier_dataset.csv")
-    if not input_path.exists():
-        raise FileNotFoundError(f"Raw dataset not found at {input_path}. Ensure T004b has completed.")
-    
-    logger.info(f"Loading raw dataset from {input_path}")
-    data = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-    
-    logger.info(f"Loaded {len(data)} rows from raw dataset")
-    return data
+logger = log_setup()
 
-def load_confounds(logger: logging.Logger) -> Dict[str, Dict[str, Any]]:
-    """
-    Load confounds data from data/confounds.csv to map molecule_id to properties.
-    Returns a dict: {molecule_id: {mw, atom_count, functional_groups}}
-    """
-    confounds_path = Path("data/confounds.csv")
-    if not confounds_path.exists():
-        # Confounds are optional for this specific task logic (stratification is by barrier)
-        # but we log if missing.
-        logger.warning(f"Confounds file not found at {confounds_path}. Skipping confounds lookup.")
-        return {}
-    
-    confounds_map = {}
-    with open(confounds_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Ensure numeric conversion if needed for later use, though not strictly used for stratification here
-            confounds_map[row['molecule_id']] = {
-                'mw': float(row['mw']),
-                'atom_count': int(row['atom_count']),
-                'functional_groups': row['functional_groups']
-            }
-    return confounds_map
+# --- Helper Functions ---
 
-def get_valid_geometry_indices(logger: logging.Logger, raw_data: List[Dict[str, Any]]) -> List[int]:
+def load_raw_dataset(filepath: Path) -> pd.DataFrame:
     """
-    Filter the raw data to only include molecules that have an optimized geometry file.
-    Returns a list of indices into raw_data that correspond to valid geometries.
+    Load the raw barrier dataset from CSV.
+    Expects columns: 'molecule_id', 'SMILES', 'experimental_barrier', etc.
     """
-    valid_indices = []
-    geometry_dir = Path("data/optimized_geometries")
-    
-    if not geometry_dir.exists():
-        logger.warning(f"Optimized geometries directory not found at {geometry_dir}. No geometries available.")
+    if not filepath.exists():
+        raise FileNotFoundError(f"Raw dataset not found at {filepath}. "
+                                "Ensure T004c (normalize_data) has completed.")
+    logger.info(f"Loading raw dataset from {filepath}")
+    df = pd.read_csv(filepath)
+    # Ensure molecule_id exists; if not, try to infer or raise
+    if 'molecule_id' not in df.columns:
+        # Fallback: assume index or SMILES if 'molecule_id' is missing but 'SMILES' exists
+        # However, per spec T004c/T013c, molecule_id should be present.
+        # We enforce strict schema compliance here.
+        raise ValueError("Raw dataset missing required column 'molecule_id'")
+    return df
+
+def load_confounds(filepath: Path) -> Optional[pd.DataFrame]:
+    """
+    Load confounds analysis if available (optional for this task, 
+    but good for future expansion).
+    """
+    if filepath.exists():
+        logger.info(f"Loading confounds from {filepath}")
+        return pd.read_csv(filepath)
+    logger.warning(f"Confounds file not found at {filepath}. Proceeding without it.")
+    return None
+
+def get_valid_geometry_indices(geometries_dir: Path) -> List[str]:
+    """
+    Scan the optimized geometries directory and return a list of molecule IDs
+    for which an .xyz file exists.
+    """
+    if not geometries_dir.exists():
+        logger.warning(f"Optimized geometries directory not found: {geometries_dir}")
         return []
 
-    for idx, row in enumerate(raw_data):
-        molecule_id = row.get('molecule_id', row.get('SMILES', f"mol_{idx}"))
-        geom_file = geometry_dir / f"{molecule_id}.xyz"
-        if geom_file.exists():
-            valid_indices.append(idx)
-        else:
-            logger.debug(f"Geometry missing for {molecule_id}, skipping.")
+    valid_ids = []
+    for file_path in geometries_dir.glob("*.xyz"):
+        # Filename is {molecule_id}.xyz
+        molecule_id = file_path.stem
+        valid_ids.append(molecule_id)
     
-    logger.info(f"Found {len(valid_indices)} valid geometries out of {len(raw_data)} total molecules.")
-    return valid_indices
+    logger.info(f"Found {len(valid_ids)} valid optimized geometries.")
+    return valid_ids
 
 def stratified_subset_selection(
-    raw_data: List[Dict[str, Any]], 
-    valid_indices: List[int], 
-    logger: logging.Logger
-) -> List[int]:
+    df: pd.DataFrame, 
+    target_column: str = 'experimental_barrier', 
+    sample_size: int = 50,
+    random_state: int = 42
+) -> List[str]:
     """
-    Select a stratified subset of up to 50 molecules based on experimental_barrier.
-    Logic:
-    1. Filter to valid_indices.
-    2. If count < 50, proceed with all valid.
-    3. If count >= 50, use pd.qcut to stratify by 'experimental_barrier' and select 50.
-    4. Log warning if proceeding with < 50.
+    Perform stratified selection on the dataset based on the target column.
+    If N >= 50, select 50 samples. Else select all.
+    Uses qcut for binning if continuous, or simple split if categorical.
     """
-    if not valid_indices:
-        logger.warning("No valid geometries found. Returning empty subset.")
-        return []
+    n_total = len(df)
+    logger.info(f"Performing stratified selection on {n_total} samples.")
 
-    subset_candidates = [raw_data[i] for i in valid_indices]
-    total_valid = len(subset_candidates)
-    target_size = 50
+    if n_total < 50:
+        logger.warning(f"Insufficient optimized geometries for full subset (N < 50), "
+                       f"proceeding with {n_total} samples; statistical power of t-test is limited")
+        return df['molecule_id'].tolist()
 
-    if total_valid < target_size:
-        logger.warning(f"Insufficient optimized geometries for full subset (N < 50), proceeding with {total_valid} samples")
-        return valid_indices
+    # Determine bins for stratification
+    # If target_column is numeric, use qcut to create bins
+    if pd.api.types.is_numeric_dtype(df[target_column]):
+        # Create 5 bins for stratification to ensure good coverage
+        try:
+            bins = pd.qcut(df[target_column], q=5, duplicates='drop')
+        except ValueError:
+            # Fallback if unique values < bins
+            bins = df[target_column]
+    else:
+        bins = df[target_column]
 
-    # We need pandas for qcut
-    try:
-        import pandas as pd
-    except ImportError:
-        logger.error("pandas is required for stratified selection. Install with 'pip install pandas'.")
-        sys.exit(1)
+    # Perform train_test_split with stratify, taking only the 'train' portion as our subset
+    # We want a subset of size 50. 
+    # Strategy: Split the full set into a subset of 50 and the rest.
+    # We use train_test_split with train_size=50 and stratify.
+    
+    # Note: sklearn's train_test_split with train_size=int works for exact count.
+    subset, _ = train_test_split(
+        df, 
+        train_size=sample_size, 
+        stratify=bins, 
+        random_state=random_state
+    )
+    
+    logger.info(f"Selected {len(subset)} samples via stratification.")
+    return subset['molecule_id'].tolist()
 
-    # Create a DataFrame for the candidates to facilitate stratification
-    df_candidates = pd.DataFrame(subset_candidates)
-    
-    # Ensure experimental_barrier is numeric
-    if 'experimental_barrier' not in df_candidates.columns:
-        raise ValueError("Column 'experimental_barrier' not found in raw dataset.")
-    
-    df_candidates['experimental_barrier'] = pd.to_numeric(df_candidates['experimental_barrier'], errors='coerce')
-    df_candidates = df_candidates.dropna(subset=['experimental_barrier'])
-    
-    # Re-map valid_indices based on the dropped rows (if any NaN in barrier)
-    # We need to track which original indices correspond to the valid rows in df_candidates
-    valid_indices_filtered = []
-    for i, idx in enumerate(valid_indices):
-        if pd.notna(raw_data[idx].get('experimental_barrier')):
-            valid_indices_filtered.append(idx)
-    
-    # If filtering removed too many, adjust
-    if len(valid_indices_filtered) < target_size:
-         logger.warning(f"After filtering NaN barriers, count is {len(valid_indices_filtered)} < 50. Proceeding.")
-         return valid_indices_filtered
-
-    # Create a series of indices to sample from
-    sample_indices = pd.Series(range(len(valid_indices_filtered)), index=valid_indices_filtered)
-    barriers = pd.Series([raw_data[i]['experimental_barrier'] for i in valid_indices_filtered])
-    
-    # Use qcut to create bins. If unique values < 2, fallback to simple random sample
-    try:
-        # Ensure at least 2 bins if possible, otherwise use 1
-        n_bins = min(10, len(barriers.unique()))
-        if n_bins < 2:
-            # If not enough variance, just take first 50
-            selected_indices = sample_indices.head(target_size).tolist()
-        else:
-            # Create bins
-            bins = pd.qcut(barriers, q=n_bins, duplicates='drop')
-            # Stratified sampling: take proportional samples from each bin to reach total 50
-            # Simplified: take equal number from each bin if possible, or proportional
-            counts = bins.value_counts()
-            target_per_bin = target_size // len(counts)
-            remainder = target_size % len(counts)
-            
-            selected_indices = []
-            bin_list = bins.tolist()
-            current_idx = 0
-            
-            # Strategy: iterate through bins, take target_per_bin + (1 if remainder > 0)
-            for bin_val in counts.index:
-                bin_mask = bins == bin_val
-                bin_indices = sample_indices[bin_mask].tolist()
-                take_count = target_per_bin + (1 if remainder > 0 else 0)
-                if remainder > 0:
-                    remainder -= 1
-                
-                # Take up to take_count from this bin
-                selected_indices.extend(bin_indices[:take_count])
-    except ValueError:
-        # Fallback if qcut fails (e.g., too few unique values)
-        logger.warning("qcut failed (likely low variance in barriers). Using random sample.")
-        selected_indices = sample_indices.sample(n=target_size, random_state=42).tolist()
-
-    logger.info(f"Selected {len(selected_indices)} molecules for DFT subset via stratification.")
-    return selected_indices
-
-def write_subset_indices(indices: List[int], logger: logging.Logger):
-    """Write the selected indices to state/splits.json for T021."""
-    output_dir = Path("state")
-    output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / "splits.json"
-    
-    data = {
-        "train_indices": indices, # For T020a, the subset IS the training set for DFT baseline
-        "test_indices": [],       # T021 will handle the train/test split logic using these indices
-        "random_state": 42,
-        "subset_size": len(indices)
-    }
-    
+def write_subset_indices(molecule_ids: List[str], output_path: Path) -> None:
+    """
+    Write the list of selected molecule IDs to a JSON file.
+    Format: {"molecule_ids": ["id1", "id2", ...]}
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    data = {"molecule_ids": molecule_ids}
     with open(output_path, 'w') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Subset indices written to {output_path}")
+
+def main() -> int:
+    """
+    Main entry point for T020a: Subset Selection.
     
-    logger.info(f"Wrote subset indices to {output_path}")
+    Logic:
+    1. Load raw dataset (data/raw/barrier_dataset.csv)
+    2. Load list of valid geometry IDs from data/optimized_geometries/
+    3. Merge raw dataset with valid IDs to create filtered set
+    4. Perform stratification on filtered set
+    5. Write selected IDs to state/selected_subset.json
+    """
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_path = project_root / "data" / "raw" / "barrier_dataset.csv"
+    geometries_dir = project_root / "data" / "optimized_geometries"
+    output_path = project_root / "state" / "selected_subset.json"
 
-def main():
-    """Main entry point for T020a: Subset selection logic."""
-    logger = log_setup()
-    logger.info("Starting T020a: Subset selection logic")
-
+    # Step 1: Load raw dataset
     try:
-        # 1. Load raw dataset
-        raw_data = load_raw_dataset(logger)
-        
-        # 2. Load confounds (optional for this logic but good practice)
-        load_confounds(logger)
-        
-        # 3. Filter to valid geometries
-        valid_indices = get_valid_geometry_indices(logger, raw_data)
-        
-        # 4. Select stratified subset
-        selected_indices = stratified_subset_selection(raw_data, valid_indices, logger)
-        
-        # 5. Write output
-        write_subset_indices(selected_indices, logger)
-        
-        logger.info("T020a completed successfully.")
-        
+        df_raw = load_raw_dataset(raw_data_path)
     except FileNotFoundError as e:
-        logger.error(f"Data dependency missing: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+        logger.error(str(e))
+        return 1
+
+    # Step 2: Get valid geometry IDs
+    valid_ids = get_valid_geometry_indices(geometries_dir)
+    if not valid_ids:
+        logger.error("No valid optimized geometries found. Cannot proceed with subset selection.")
+        return 1
+
+    # Step 3: Filter dataset to only include molecules with valid geometries
+    # Ensure we are filtering by 'molecule_id'
+    df_filtered = df_raw[df_raw['molecule_id'].isin(valid_ids)].copy()
+    
+    logger.info(f"Filtered dataset size: {len(df_filtered)} (from {len(df_raw)})")
+
+    if df_filtered.empty:
+        logger.error("No molecules in the raw dataset have corresponding optimized geometries.")
+        return 1
+
+    # Step 4: Stratified Selection
+    selected_ids = stratified_subset_selection(
+        df_filtered, 
+        target_column='experimental_barrier',
+        sample_size=50
+    )
+
+    # Step 5: Write output
+    write_subset_indices(selected_ids, output_path)
+
+    logger.info("T020a Subset Selection completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

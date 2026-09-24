@@ -9,11 +9,11 @@
     "python code/main.py optimize -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: optimize",
     "python code/main.py train -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: train"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-22T04:19:24Z"
+  "updated_at": "2026-09-24T13:24:39Z"
 }

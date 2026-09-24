@@ -13,6 +13,23 @@ T004a:
     \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
     \ entry) containing that ID was provided. The implementer must supply the extracted\
     \ Zenodo ID (and optionally the URL) as a concrete output."
+T004c:
+  c: false
+  h: fa02ab24a683f9521ef65655a46f38f38c074a274a81b233d7b79e144f22bc71
+  r: "The repository lacks the required `data/raw/barrier_dataset.csv` file (it is\
+    \ missing) and does not contain a `code/normalize_data.py` script. The existing\
+    \ `code/fetch_data.py` is truncated and shows no logic that moves or renames a\
+    \ downloaded (or extracted) file to `data/raw/barrier_dataset.csv`. Hence the\
+    \ task\u2019s core requirement is not met."
+T011:
+  c: false
+  h: f597e95bf7dace2661be659c457b9d0d2638b67b63d96f1a61e31866e328603e
+  r: "The required input file `data/raw/barrier_dataset.csv` does not exist, and consequently\
+    \ `data/confounds.csv` and `reports/confounds_coverage_report.md` were never generated.\
+    \ Moreover, the provided `code/confounds.py` is truncated, does not compute the\
+    \ requested MW, atom count, or functional\u2011group string for each `molecule_id`,\
+    \ and lacks the logic to write the output CSV or the coverage report. The task\
+    \ therefore remains unfinished."
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -20,22 +37,30 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T020a:
+T021:
   c: false
-  h: af3bcfe02d23f79aa42f84edca11bc62765e25bc88741b3af0a14b72e30f386f
-  r: The repository lacks the required `data/raw/barrier_dataset.csv` file, so the
-    script cannot load the raw dataset. Moreover, the provided `code/dft_calculator.py`
-    is truncated and does not contain the stratified subset selection, binning with
-    `pd.qcut`, or the fallback warning logic described in the task. Both the essential
-    data file and the full implementation are missing.
+  h: f3d2f238f221092f75d0a8d28a5715d5233abe11244e9d59d24ded884b4d5b6e
+  r: The provided `code/train_models.py` is truncated and does not contain the logic
+    to load `state/splits.json`, filter the descriptor files, train both Random Forest
+    models, or ensure identical splits and random state. Additionally, the required
+    input files `data/descriptors_semi.csv` and `data/descriptors_dft.csv` are missing
+    from the repository.
+T022:
+  c: false
+  h: 36f9065e8f5c76341fdef8eb059659e4a114bcd5f8ba682cd1809e4d03376a34
+  r: "The repository lacks the required output file `reports/evaluation.json` and\
+    \ the input `data/descriptors_dft.csv` (both are missing), so the script cannot\
+    \ be executed to produce the specified results. Additionally, the provided `code/evaluate_models.py`\
+    \ is truncated and does not demonstrate the full per\u2011fold MAE computation,\
+    \ paired t\u2011test logic, or the required JSON structure. These artifacts must\
+    \ be present and complete for the task to be considered done."
 T029:
   c: false
-  h: 0131451bc0c9e4e5044ba089292fbc698f5ea066f6ebaf690494d061543c576a
-  r: "The repository contains `code/sensitivity_analysis.py`, but the script does\
-    \ not produce the required `reports/sensitivity.csv` (the file is missing) and\
-    \ the visible code does not demonstrate extracting `feature_importances_` and\
-    \ writing a CSV with the columns `rank`, `descriptor`, `importance`, `cumulative_importance`.\
-    \ The task\u2019s verification criteria are therefore not met."
+  h: b2e9dd7a033adc8119336159bbc6d9eb0d434b13d1c67bd291acfe2176ba4d1b
+  r: The required output file `reports/sensitivity.csv` does not exist (and `reports/evaluation.json`
+    is also missing), so the verification step cannot be satisfied. The implementation
+    must generate the CSV with the specified columns and handle missing dependencies
+    as described.
 T033a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

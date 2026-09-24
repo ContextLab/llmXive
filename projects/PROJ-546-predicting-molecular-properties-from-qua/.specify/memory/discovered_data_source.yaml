@@ -1,10 +1,11 @@
 status: none
-intent: Zenodo experimental barrier dataset HOMO SMILES download python package dataset
+intent: download experimental reaction barrier dataset Zenodo HOMO SMILES python package
+  dataset
 required_fields:
 - reaction_id
-- reactant_smiles
-- product_smiles
-- activation_barrier
-cache_key: 6a2666c3b6e60c6f9c99d906ee849dd74da98240c9af88ee56fa4a4acbe9d23d
-searched_at: '2026-09-22T04:20:00.913918+00:00'
+- reaction_smiles
+- experimental_barrier
+- homo_energy
+cache_key: 57c00b7e8bcb0a3c5acd99457db4503243d4e16fe5c123dd8626478d8e8584db
+searched_at: '2026-09-24T13:25:27.854866+00:00'
 retry_count: 1
