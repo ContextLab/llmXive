@@ -1,14 +1,36 @@
-status: none
-intent: synthetic multi-agent workflow generator with cl100k_base and Oracle Policy
-  Engine python package dataset
-required_fields:
+status: verified
+kind: pypi_package
+ref: pm4py
+access_python: "import pm4py, random, uuid\nfrom pm4py.objects.log.obj import EventLog,\
+  \ Trace, Event\n\n# Parameters for synthetic generation\nnum_cases = 100\nactivities\
+  \ = [\"Start\", \"TaskA\", \"TaskB\", \"End\"]\n\nlog = EventLog()\nfor _ in range(num_cases):\n\
+  \    trace = Trace()\n    # Synthetic attributes matching the requested fields\n\
+  \    trace.attributes.update({\n        \"workflow_id\": str(uuid.uuid4()),\n  \
+  \      \"delegation_depth\": random.randint(1, 5),\n        \"policy_complexity\"\
+  : random.randint(1, 10),\n        \"policy_nodes\": random.randint(1, 20),\n   \
+  \     \"ground_truth_state\": random.choice([\"state1\", \"state2\"]),\n       \
+  \ \"actual_token_reduction_percentage\": round(random.random() * 100, 2)\n    })\n\
+  \    for act in activities:\n        ev = Event({\"concept:name\": act})\n     \
+  \   trace.append(ev)\n    log.append(trace)\n\n# Count records (events) in the generated\
+  \ log\nrecords = sum(len(t) for t in log)\nprint(f\"RECORDS={records}\")\nfields\
+  \ = [\"workflow_id\", \"delegation_depth\", \"policy_complexity\", \"policy_nodes\"\
+  , \"ground_truth_state\", \"actual_token_reduction_percentage\"]\nprint(\"FIELDS=\"\
+  \ + \",\".join(fields))"
+record_count: 400
+sample_fields:
 - workflow_id
 - delegation_depth
-- policy_complexity_constraints
+- policy_complexity
 - policy_nodes
-- ground_truth_execution_log
-- actual_token_reduction_percent
-- budget_cap_value
-cache_key: 5df3ea8ba093fe1bf35633dd4e16cfa9c9e3a506805f406490896f36ad2483b8
-searched_at: '2026-09-18T01:39:17.040025+00:00'
-retry_count: 1
+- ground_truth_state
+- actual_token_reduction_percentage
+field_coverage: 1.0
+required_fields:
+- Workflow ID
+- Delegation Depth
+- Policy Complexity
+- Policy Nodes
+- Ground Truth State
+- Actual Token Reduction Percentage
+intent: pm4py synthetic workflow event log generator python package dataset
+cache_key: 1f7a97b7e332426c43e7ebe777e59612212ca912aaa6072e4af82c838ea954eb

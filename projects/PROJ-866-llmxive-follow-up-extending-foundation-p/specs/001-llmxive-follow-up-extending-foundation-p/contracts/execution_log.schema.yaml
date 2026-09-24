@@ -1,57 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Log Schema"
-description: "Schema for a single workflow execution log."
+title: "ExecutionLog"
+description: "Schema for a single workflow execution record."
 type: "object"
-required:
-  - "workflow_id"
-  - "mode"
-  - "token_count"
-  - "actual_reduction_percent"
-  - "violations"
-  - "violation_count"
 properties:
   workflow_id:
     type: "string"
-    description: "Reference to the workflow ID."
+    description: "Reference to the executed workflow."
   mode:
     type: "string"
     enum:
-      - "full"
+      - "full_context"
       - "compressed"
     description: "Execution mode."
   compression_depth:
-    type: ["integer", "null"]
-    description: "Traversal depth for compressed mode."
+    type: "integer"
+    description: "Depth limit used for compression (0 for full)."
   token_count:
     type: "integer"
     minimum: 0
-    description: "Total tokens calculated via tiktoken."
-  actual_reduction_percent:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Actual token reduction percentage calculated as (Full - Compressed) / Full."
+    description: "Total tokens in the policy subgraph."
+  context_reduction_pct:
+    oneOf:
+      - type: "number"
+        minimum: 0.0
+        maximum: 100.0
+      - type: "string"
+        const: "[deferred]"
+    description: "Percentage reduction in context size or '[deferred]' for edge cases."
   violations:
     type: "array"
-    description: "List of policy violations."
+    description: "List of policy violations detected."
     items:
-      type: "object"
-      required:
-        - "node_id"
-        - "violation_type"
-        - "message"
-      properties:
-        node_id:
-          type: "string"
-        violation_type:
-          type: "string"
-        message:
-          type: "string"
-  violation_count:
-    type: "integer"
-    minimum: 0
-    description: "Total number of violations."
+      $ref: "#/definitions/Violation"
+  error_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of steps that resulted in violations."
   timestamp:
     type: "string"
     format: "date-time"
-    description: "Execution timestamp."
+    description: "ISO 8601 timestamp of execution."
+required:
+  - workflow_id
+  - mode
+  - compression_depth
+  - token_count
+  - context_reduction_pct
+  - violations
+  - error_rate
+  - timestamp
+definitions:
+  Violation:
+    type: "object"
+    properties:
+      node_id:
+        type: "string"
+      reason:
+        type: "string"
+      step_index:
+        type: "integer"
+    required:
+      - node_id
+      - reason
+      - step_index

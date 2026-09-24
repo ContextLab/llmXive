@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TradeOffCurve"
+description: "Schema for the aggregated regression analysis results (SSoT for paper)."
+type: "object"
+properties:
+  reduction_pct:
+    type: "number"
+    description: "Context reduction percentage (binned or interpolated)."
+  error_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Mean policy-violation error rate at this reduction level."
+  std_dev:
+    type: "number"
+    minimum: 0.0
+    description: "Standard deviation of error rate."
+  n_samples:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples contributing to this point."
+  threshold_confidence_lower:
+    type: "number"
+    description: "Lower bound of the 95% CI for the threshold (from bootstrapping)."
+  threshold_confidence_upper:
+    type: "number"
+    description: "Upper bound of the 95% CI for the threshold (from bootstrapping)."
+required:
+  - reduction_pct
+  - error_rate
+  - std_dev
+  - n_samples
+  - threshold_confidence_lower
+  - threshold_confidence_upper

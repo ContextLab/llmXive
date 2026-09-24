@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the final trade-off analysis results."
+description: "Schema for the final trade-off analysis results (intermediate artifact for code logic)."
 type: "object"
 required:
   - "compression_ratios"
@@ -25,12 +25,12 @@ properties:
       maximum: 1
   regression_coefficients:
     type: "object"
-    description: "Parameters of the fitted logistic regression model."
+    description: "Parameters of the fitted GLMM model."
     additionalProperties:
       type: "number"
   threshold:
     type: "number"
-    description: "Context reduction percentage where error rate exceeds 1%."
+    description: "Context reduction percentage where error rate exceeds 1% (rounded to 2 decimal places)."
   confidence_interval:
     type: "array"
     description: "95% CI for the threshold [lower, upper]."
@@ -40,7 +40,7 @@ properties:
     maxItems: 2
   multiple_comparison_correction:
     type: "string"
-    description: "Method used for secondary checks (e.g., Bonferroni)."
+    description: "Method used for secondary checks (e.g., Cochran-Armitage, Bonferroni)."
   sample_size:
     type: "integer"
     description: "Total number of workflows analyzed."
