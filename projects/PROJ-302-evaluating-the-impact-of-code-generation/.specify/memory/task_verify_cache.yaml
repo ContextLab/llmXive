@@ -13,52 +13,13 @@ T014b:
     \ code does not show loading a quantized CodeLlama\u20117B model on CUDA or handling\
     \ auto\u2011offload, so the core generation logic and output generation are not\
     \ demonstrated. The task\u2019s primary deliverable is therefore not satisfied."
-T023b:
+T030:
   c: false
-  h: 7c8ed8efc36fb00a3d492551ebbff159002c3d3b9fc2a3243c5edbf4424e6427
-  r: "The repository lacks the required `data/processed/matching_failure_report.json`\
-    \ file, and the provided `code/analysis/matching.py` excerpt shows only helper\
-    \ functions without any logic to retry matching, check SMD >\u202F0.1 after three\
-    \ attempts, write a failure report, or call `sys.exit(1)`. The task\u2019s core\
-    \ behavior is therefore not implemented."
-T032:
-  c: false
-  h: d94920ab06256e213019d0af6194e570bd3a7bd9cec0ffa834bfa131891d342b
-  r: "The required input `data/processed/analysis_results.json` and the output `reports/analysis_report.pdf`\
-    \ are both missing, and the provided `report_generator.py` does not contain a\
-    \ complete PDF\u2011generation implementation (no function that creates the PDF,\
-    \ no use of Jinja2, and the visible code is truncated). The task\u2019s content\
-    \ requirements are therefore not satisfied."
-T033a:
-  c: false
-  h: be0d96c6669521afd40433ab27ca5ec482e71b55db4e4ac0c3d38491698b614d
-  r: "The repository contains `code/data_acquisition/cohort_analyzer.py`, but the\
-    \ script does not produce the required `data/processed/cohort_segments.parquet`\
-    \ (the file is missing). Moreover, the shown source is truncated and lacks any\
-    \ logic that writes the segmented DataFrames to a Parquet file, so the task\u2019\
-    s output artifact is not generated."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or `quickstart.md` file was presented, nor any evidence
-    that documentation was updated. The required artifact is missing, so the task
-    is not satisfied.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\u201D\
-    \ are present; the only artifacts described pertain to data acquisition, synthetic\
-    \ code generation, and statistical analysis, which do not satisfy the stated task.\
-    \ The required refactored codebase (e.g., cleaned modules, diff reports, or updated\
-    \ repository) is missing."
-T038:
-  c: false
-  h: daecb8b36195df00f569bc1c2766548ca7ee90c360e3b877be19406eb73704d5
-  r: "The `code/main.py` file contains a partially\u2011written `check_runtime_gate`\
-    \ function that is truncated and never writes a runtime report, and the required\
-    \ `data/processed/runtime_report.json` file does not exist. The task\u2019s requirement\
-    \ to measure and enforce the 6\u2011hour limit and produce the JSON report is\
-    \ therefore not satisfied."
+  h: bb139126efcadb2e3aac3e9a9e75881d8a33931a50b3c41a9662bb602aa767ae
+  r: The repository lacks the required data files (`data/processed/merged_features.parquet`
+    and `data/processed/covariate_config.json`) and does not contain the expected
+    output `data/processed/sensitivity_summary.json`. Without these inputs the script
+    cannot be executed, and the verification step cannot be satisfied.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

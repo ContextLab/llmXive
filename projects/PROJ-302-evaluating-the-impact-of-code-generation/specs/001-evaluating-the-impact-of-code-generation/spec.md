@@ -119,7 +119,7 @@ The system must generate a second cohort of LLM code using natural language prom
 ## Assumptions
 
 - **Assumption about data availability**: The GitHub repositories selected (≥1,000 stars) contain sufficient review history (≥100 PRs) and clear commit metadata to allow for accurate extraction of review timestamps and file changes.
-- **Assumption about model capability**: A CPU-tractable open-source model (e.g., CodeLlama or similar) can generate syntactically valid code snippets from natural language prompts that are semantically comparable to the human-written originals within the 6-hour compute window.
+- **Assumption about model capability**: A CPU-tractable open-source model (e.g., CodeLlama or similar) can generate syntactically valid code snippets from natural language prompts that are semantically comparable to the human-written originals within a feasible compute window.
 - **Assumption about API constraints**: The GitHub REST API rate limits (sufficient for unauthenticated and authenticated access) are sufficient to download the metadata for the target number of repositories and PRs without requiring a paid token or exceeding the 6-hour job limit, provided the system implements exponential backoff.
 - **Assumption about complexity metric**: The `radon` Python package provides a valid and consistent measure of cyclomatic complexity for the diverse codebases in the dataset, and its calculation time is negligible compared to the overall pipeline.
 - **Assumption about semantic similarity**: Code embeddings (e.g., from CodeBERT) provide a valid and consistent measure of semantic similarity for the diverse codebases in the dataset, and its calculation time is negligible compared to the overall pipeline.

@@ -75,3 +75,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Cochran
   verified_at: '2026-09-22T00:53:07.492336Z'
+- artifact_hash: 3f5ac1a13f20c773039fd63aad132c147ccc732837bbc2fd7b0f4968e307c6fd
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-24T15:31:08.201948Z'

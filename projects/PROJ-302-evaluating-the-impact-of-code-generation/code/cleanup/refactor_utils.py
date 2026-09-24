@@ -1,337 +1,237 @@
-"""
-Code cleanup and refactoring utilities for the llmXive pipeline.
-
-This module centralizes common refactoring operations to improve code quality,
-reduce duplication, and enforce consistency across the project.
-
-Key refactoring areas:
-1. Standardize logging configuration across all modules
-2. Consolidate path handling utilities
-3. Remove redundant error handling patterns
-4. Enforce consistent type hinting
-5. Optimize import statements
-"""
 import os
 import sys
 import logging
 import ast
 import re
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Set
-import argparse
-import json
-from datetime import datetime
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project utils
-from utils.config import get_config, ensure_directories
-from utils.validators import validate_schema, ValidationError
-
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Refactoring rules configuration
-REFACTOR_RULES = {
-    "max_line_length": 100,
-    "max_function_length": 50,
-    "max_parameters": 5,
-    "required_docstring": True,
-    "type_hints_required": True,
-    "logging_required": True,
-    "remove_unused_imports": True,
-    "standardize_error_handling": True,
-}
-
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
-    """
-    Configure standardized logging across the project.
+# Configure logging
+def setup_logging(log_file: str = "logs/cleanup_report.log") -> logging.Logger:
+    """Setup logging for the cleanup/refactor utility."""
+    log_path = Path("logs")
+    log_path.mkdir(exist_ok=True)
     
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    logger = logging.getLogger("refactor_utils")
+    logger.setLevel(logging.INFO)
     
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger("llmXive_cleanup")
-    logger.setLevel(getattr(logging, log_level.upper()))
+    # Clear existing handlers to avoid duplicates
+    if logger.hasHandlers():
+        logger.handlers.clear()
     
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(getattr(logging, log_level.upper()))
-        formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+    # File handler
+    fh = logging.FileHandler(log_path / log_file)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     
     return logger
 
-def analyze_file_for_issues(file_path: Path, logger: Optional[logging.Logger] = None) -> Dict[str, Any]:
+def analyze_file_for_issues(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
     """
-    Analyze a Python file for common code quality issues.
+    Analyze a single Python file for common code quality issues.
     
-    Args:
-        file_path: Path to the Python file to analyze
-        logger: Optional logger instance
-    
-    Returns:
-        Dictionary containing analysis results and issues found
+    Checks:
+    - Unused imports
+    - Dead code (unreachable after return/raise/exit)
+    - Long functions (>50 lines)
+    - Deep nesting (>4 levels)
+    - Magic numbers
+    - TODO/FIXME comments
     """
-    if logger is None:
-        logger = setup_logging()
+    issues = []
     
-    issues = {
-        "file": str(file_path),
-        "line_count": 0,
-        "function_count": 0,
-        "issues_found": [],
-        "suggestions": [],
-    }
+    if not file_path.exists():
+        logger.warning(f"File not found: {file_path}")
+        return {"issues": issues, "status": "skipped"}
     
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
             lines = content.splitlines()
-            issues["line_count"] = len(lines)
-        
-        # Parse AST for deeper analysis
-        tree = ast.parse(content)
-        
-        # Check for functions
-        functions = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-        issues["function_count"] = len(functions)
-        
-        # Check line lengths
-        for i, line in enumerate(lines, 1):
-            if len(line) > REFACTOR_RULES["max_line_length"]:
-                issues["issues_found"].append({
-                    "type": "line_too_long",
-                    "line": i,
-                    "length": len(line),
-                    "max_allowed": REFACTOR_RULES["max_line_length"],
-                })
-        
-        # Check function complexity
-        for func in functions:
-            if len(func.args.args) > REFACTOR_RULES["max_parameters"]:
-                issues["issues_found"].append({
-                    "type": "too_many_parameters",
-                    "function": func.name,
-                    "count": len(func.args.args),
-                    "max_allowed": REFACTOR_RULES["max_parameters"],
-                })
-        
-        # Check for missing docstrings
-        if REFACTOR_RULES["required_docstring"]:
-            for func in functions:
-                if not ast.get_docstring(func):
-                    issues["issues_found"].append({
-                        "type": "missing_docstring",
-                        "function": func.name,
-                        "line": func.lineno,
+    
+        # Parse AST
+        try:
+            tree = ast.parse(content)
+        except SyntaxError as e:
+            issues.append({
+                "type": "syntax_error",
+                "line": e.lineno,
+                "message": str(e.msg)
+            })
+            return {"issues": issues, "status": "failed"}
+    
+        # Analyze AST
+        for node in ast.walk(tree):
+            # Check for long functions
+            if isinstance(node, ast.FunctionDef):
+                if node.end_lineno and (node.end_lineno - node.lineno) > 50:
+                    issues.append({
+                        "type": "long_function",
+                        "name": node.name,
+                        "line": node.lineno,
+                        "lines": node.end_lineno - node.lineno
                     })
-        
-        # Check for TODO comments
-        todo_pattern = re.compile(r"#\s*(TODO|FIXME|XXX|HACK):?\s*(.*)", re.IGNORECASE)
+                
+                # Check for deep nesting
+                max_depth = 0
+                current_depth = 0
+                for child in ast.walk(node):
+                    if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+                        current_depth += 1
+                        max_depth = max(max_depth, current_depth)
+                    elif isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+                        # This is a simplification; actual depth tracking is more complex
+                        pass
+                
+                # Simple depth check for common patterns
+                if hasattr(node, 'body'):
+                    for item in node.body:
+                        if isinstance(item, (ast.If, ast.For, ast.While)):
+                            if hasattr(item, 'body'):
+                                for sub_item in item.body:
+                                    if isinstance(sub_item, (ast.If, ast.For, ast.While)):
+                                        issues.append({
+                                            "type": "deep_nesting",
+                                            "name": node.name,
+                                            "line": node.lineno,
+                                            "message": "Nesting depth > 4 detected"
+                                        })
+                                        break
+            
+            # Check for magic numbers (excluding 0, 1, -1)
+            if isinstance(node, ast.Num):
+                if node.n not in (0, 1, -1):
+                    # Check if it's in an assignment or comparison context
+                    issues.append({
+                        "type": "magic_number",
+                        "value": node.n,
+                        "line": node.lineno
+                    })
+    
+        # Text-based checks
         for i, line in enumerate(lines, 1):
-            match = todo_pattern.search(line)
-            if match:
-                issues["issues_found"].append({
+            # Check for TODO/FIXME comments
+            if re.search(r'#\s*(TODO|FIXME|XXX|HACK):', line, re.IGNORECASE):
+                issues.append({
                     "type": "todo_comment",
                     "line": i,
-                    "content": match.group(2).strip() if match.group(2) else "No description",
+                    "content": line.strip()
                 })
-        
-        # Generate suggestions
-        if issues["issues_found"]:
-            issues["suggestions"].append("Review and fix identified issues before committing")
-            if any(issue["type"] == "todo_comment" for issue in issues["issues_found"]):
-                issues["suggestions"].append("Remove or resolve all TODO comments")
-            if any(issue["type"] == "missing_docstring" for issue in issues["issues_found"]):
-                issues["suggestions"].append("Add docstrings to all functions")
-        
-    except SyntaxError as e:
-        issues["issues_found"].append({
-            "type": "syntax_error",
-            "message": str(e),
-            "line": getattr(e, "lineno", None),
-        })
-    except Exception as e:
-        issues["issues_found"].append({
-            "type": "analysis_error",
-            "message": str(e),
-        })
-    
-    return issues
-
-def batch_analyze_directory(directory: Path, pattern: str = "*.py", logger: Optional[logging.Logger] = None) -> Dict[str, Any]:
-    """
-    Analyze all Python files in a directory recursively.
-    
-    Args:
-        directory: Directory to scan
-        pattern: Glob pattern for files to analyze
-        logger: Optional logger instance
-    
-    Returns:
-        Dictionary containing aggregated analysis results
-    """
-    if logger is None:
-        logger = setup_logging()
-    
-    logger.info(f"Analyzing directory: {directory}")
-    
-    results = {
-        "directory": str(directory),
-        "files_analyzed": 0,
-        "total_issues": 0,
-        "files_with_issues": 0,
-        "issue_breakdown": {},
-        "file_results": [],
-    }
-    
-    for py_file in directory.rglob(pattern):
-        if py_file.is_file():
-            file_result = analyze_file_for_issues(py_file, logger)
-            results["file_results"].append(file_result)
-            results["files_analyzed"] += 1
             
-            if file_result["issues_found"]:
-                results["files_with_issues"] += 1
-                results["total_issues"] += len(file_result["issues_found"])
-                
-                for issue in file_result["issues_found"]:
-                    issue_type = issue["type"]
-                    results["issue_breakdown"][issue_type] = results["issue_breakdown"].get(issue_type, 0) + 1
+            # Check for long lines (>120 chars)
+            if len(line) > 120:
+                issues.append({
+                    "type": "long_line",
+                    "line": i,
+                    "length": len(line)
+                })
     
-    logger.info(f"Analyzed {results['files_analyzed']} files, found {results['total_issues']} issues")
+        logger.info(f"Analyzed {file_path}: found {len(issues)} issues")
+        return {"issues": issues, "status": "success", "file": str(file_path)}
+    
+    except Exception as e:
+        logger.error(f"Error analyzing {file_path}: {e}")
+        return {"issues": [{"type": "error", "message": str(e)}], "status": "error"}
+
+def batch_analyze_directory(directory: Path, logger: logging.Logger) -> List[Dict[str, Any]]:
+    """Analyze all Python files in a directory recursively."""
+    results = []
+    python_files = list(directory.rglob("*.py"))
+    
+    logger.info(f"Found {len(python_files)} Python files in {directory}")
+    
+    for file_path in python_files:
+        # Skip test files and generated files
+        if "/tests/" in str(file_path) or "__pycache__" in str(file_path):
+            continue
+        
+        result = analyze_file_for_issues(file_path, logger)
+        results.append(result)
+    
     return results
 
-def generate_cleanup_report(analysis_results: Dict[str, Any], output_path: Path) -> None:
-    """
-    Generate a detailed cleanup report from analysis results.
+def generate_cleanup_report(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """Generate a cleanup report summarizing all issues found."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        analysis_results: Results from batch_analyze_directory
-        output_path: Path to write the JSON report
-    """
-    ensure_directories([output_path.parent])
-    
-    report = {
-        "generated_at": datetime.now().isoformat(),
-        "summary": {
-            "directory": analysis_results["directory"],
-            "files_analyzed": analysis_results["files_analyzed"],
-            "total_issues": analysis_results["total_issues"],
-            "files_with_issues": analysis_results["files_with_issues"],
-            "issue_breakdown": analysis_results["issue_breakdown"],
-        },
-        "details": analysis_results["file_results"],
-        "recommendations": [
-            "Run black and ruff for automatic formatting and linting",
-            "Address all TODO comments before release",
-            "Ensure all functions have docstrings",
-            "Keep line lengths under 100 characters",
-            "Limit function parameters to 5 or fewer",
-        ],
+    summary = {
+        "total_files": len(results),
+        "files_with_issues": sum(1 for r in results if r.get("issues") and r["status"] == "success"),
+        "total_issues": sum(len(r.get("issues", [])) for r in results if r["status"] == "success"),
+        "issue_types": {},
+        "files": []
     }
     
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    for result in results:
+        if result["status"] == "success":
+            for issue in result.get("issues", []):
+                issue_type = issue.get("type", "unknown")
+                summary["issue_types"][issue_type] = summary["issue_types"].get(issue_type, 0) + 1
+            summary["files"].append({
+                "file": result.get("file"),
+                "issue_count": len(result.get("issues", [])),
+                "issues": result.get("issues", [])
+            })
     
-    logging.getLogger("llmXive_cleanup").info(f"Cleanup report written to {output_path}")
+    import json
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2, default=str)
+    
+    logging.info(f"Cleanup report generated: {output_path}")
 
-def run_refactoring_checks(base_dir: Optional[Path] = None) -> Dict[str, Any]:
+def run_refactoring_checks(base_dir: Path = None) -> Path:
     """
-    Run comprehensive refactoring checks on the project.
+    Run all refactoring checks on the codebase and generate a report.
     
-    Args:
-        base_dir: Base directory to analyze (defaults to project root)
-    
-    Returns:
-        Dictionary containing refactoring check results
+    Returns the path to the generated report.
     """
     if base_dir is None:
-        base_dir = PROJECT_ROOT
+        base_dir = Path("code")
     
     logger = setup_logging()
     logger.info("Starting refactoring checks...")
     
-    # Analyze code directory
-    code_dir = base_dir / "code"
-    if code_dir.exists():
-        results = batch_analyze_directory(code_dir, logger=logger)
-    else:
-        results = {
-            "directory": str(code_dir),
-            "files_analyzed": 0,
-            "total_issues": 0,
-            "files_with_issues": 0,
-            "issue_breakdown": {},
-            "file_results": [],
-        }
+    # Analyze all Python files
+    results = batch_analyze_directory(base_dir, logger)
     
     # Generate report
-    report_path = base_dir / "data" / "processed" / "refactoring_report.json"
+    report_path = Path("data/processed/refactoring_report.json")
     generate_cleanup_report(results, report_path)
     
-    return {
-        "status": "completed",
-        "report_path": str(report_path),
-        "summary": results,
-    }
+    logger.info(f"Refactoring checks complete. Report: {report_path}")
+    return report_path
 
-def main() -> int:
-    """
-    Main entry point for the cleanup and refactoring utility.
+def main():
+    """Main entry point for the cleanup utility."""
+    import argparse
     
-    Returns:
-        Exit code (0 for success, 1 for issues found)
-    """
     parser = argparse.ArgumentParser(description="Code cleanup and refactoring utility")
-    parser.add_argument(
-        "--base-dir",
-        type=Path,
-        default=PROJECT_ROOT,
-        help="Base directory to analyze",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=None,
-        help="Custom output path for the report",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging",
-    )
-    
+    parser.add_argument("--dir", type=str, default="code", help="Directory to analyze")
+    parser.add_argument("--output", type=str, default="data/processed/refactoring_report.json", help="Output report path")
     args = parser.parse_args()
     
-    logger = setup_logging("DEBUG" if args.verbose else "INFO")
-    logger.info(f"Running refactoring checks on: {args.base_dir}")
+    base_dir = Path(args.dir)
+    output_path = Path(args.output)
     
-    try:
-        results = run_refactoring_checks(args.base_dir)
-        
-        if args.output:
-            ensure_directories([args.output.parent])
-            with open(args.output, "w", encoding="utf-8") as f:
-                json.dump(results, f, indent=2)
-            logger.info(f"Results written to {args.output}")
-        
-        # Check for critical issues
-        total_issues = results["summary"]["total_issues"]
-        if total_issues > 0:
-            logger.warning(f"Found {total_issues} issues that should be addressed")
-            return 1
-        
-        logger.info("No issues found. Code is clean!")
-        return 0
+    if not base_dir.exists():
+        print(f"Error: Directory {base_dir} does not exist")
+        sys.exit(1)
     
-    except Exception as e:
-        logger.error(f"Refactoring checks failed: {e}")
-        return 1
+    logger = setup_logging()
+    logger.info(f"Analyzing directory: {base_dir}")
+    
+    results = batch_analyze_directory(base_dir, logger)
+    generate_cleanup_report(results, output_path)
+    
+    print(f"Refactoring report generated: {output_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

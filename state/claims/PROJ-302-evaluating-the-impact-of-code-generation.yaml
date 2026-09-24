@@ -1072,3 +1072,632 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T21:58:05Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python dependencies pinned to specific versions including datasets 2.14.0
+    and torch 2.0.1
+  claim_id: c_c155ba2d
+  context: 'Phase 2: Foundational tasks for project initialization.'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project: Create `requirements.txt` with pinned versions:
+    `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1
+    radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2
+    pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0
+    reportlab==4.0.4 jinja2==3.1.2 google-cloud-bigquery==3.11.0 tenacity==8.2.2`'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T15:11:25Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Synthetic code generation uses CodeLlama-7B quantized to 8-bit or 4-bit
+  claim_id: c_c662c1d9
+  context: 'Phase 3: User Story 1 Implementation tasks for Context-Based Generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_acquisition/generator.py` to generate synthetic code
+    snippets using a small/8-bit quantized LLM (e.g., `CodeLlama-7B-8bit` or `4bit`)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:11:44Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GPU offload triggered if generation exceeds 60 seconds
+  claim_id: c_cdd26700
+  context: 'Phase 3: User Story 1 Implementation tasks describing the GPU escape hatch
+    strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Trigger a GitHub Actions workflow dispatch to a `runs-on: [self-hosted,
+    gpu]` runner group if generation time > 60s or fails'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:11:44Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GPU generation time limit is 30 seconds per snippet
+  claim_id: c_36e640fc
+  context: 'Phase 3: User Story 1 Implementation tasks describing the GPU escape hatch
+    constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce \u226430s generation time per snippet on GPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:11:44Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Syntax validation requires at least 95% success rate
+  claim_id: c_afbc3dd4
+  context: 'Phase 3: User Story 1 Implementation tasks for syntax validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Syntax_validation_requires_at_least_95%25_success_rate
+  kind: magnitude
+  raw_text: "Implement `code/data_acquisition/syntax_validator.py` to verify generated\
+    \ code is syntactically valid (\u226595% success rate)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:12:24Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Propensity score matching retries if SMD exceeds 0.1
+  claim_id: c_0a5f7d32
+  context: 'Phase 4: User Story 2 Implementation tasks for matching logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/analysis/matching.py` logic to: 1) If Standardized Mean
+    Difference (SMD) > 0.1, retry with interaction terms'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:13:05Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold set to alpha 0.05
+  claim_id: c_ceb523fc
+  context: 'Phase 4: User Story 2 Implementation tasks for significance flagging.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: 'Implement `code/analysis/significance.py` with function `check_significance(p_val:
+    float, alpha: float = 0.05) -> bool`'
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T15:13:17Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis requires a minimum of 5 valid subsets
+  claim_id: c_fe162e08
+  context: 'Phase 5: User Story 3 Implementation tasks describing constraints for
+    sensitivity analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_requires_a_minimum_of_5_valid_subsets
+  kind: magnitude
+  raw_text: 'Constraint: Must have at least 5 valid subsets for sensitivity analysis'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:14:19Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify generated code is syntactically valid with at least 95 percent
+    success rate
+  claim_id: c_0cbe4f18
+  context: 'Phase 3: User Story 1. Task T014b-VAL: SYNTAX VALIDATION.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_generated_code_is_syntactically_valid_with_at_least_9
+  kind: magnitude
+  raw_text: "Implement `code/data_acquisition/syntax_validator.py` to verify generated\
+    \ code is syntactically valid (\u226595% success rate)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:15:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: require at least 5 valid subsets for sensitivity analysis
+  claim_id: c_5a4562a3
+  context: 'Phase 5: User Story 3. Task T030: SENSITIVITY CONSISTENCY CHECK.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_5_valid_subsets_for_sensitivity_analysis
+  kind: magnitude
+  raw_text: Must have at least 5 valid subsets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:16:31Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: retry with interaction terms if Standardized Mean Difference is greater
+    than 0.1
+  claim_id: c_e34e69d6
+  context: 'Phase 4: User Story 2. Task T023a: MATCHING RETRY LOGIC.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retry_with_interaction_terms_if_Standardized_Mean_Difference
+  kind: magnitude
+  raw_text: If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:16:53Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify Standardized Mean Difference is less than 0.1 for all covariates
+  claim_id: c_5efa067b
+  context: 'Phase 4: User Story 2. Task T023b: MATCHING FAILURE REPORTING & HALT and
+    Task T034-MAIN.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Standardized_Mean_Difference_is_less_than_0.1_for_all
+  kind: magnitude
+  raw_text: Verify SMD < 0.1 for all covariates in the output.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:17:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce generation time of 30 seconds or less per snippet on GPU
+  claim_id: c_8f74c548
+  context: 'Phase 3: User Story 1. Task T014b-GEN: CONTEXT-BASED GENERATION.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce \u226430s generation time per snippet on GPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:17:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: trigger GitHub Actions workflow dispatch if generation time exceeds 60
+    seconds or fails
+  claim_id: c_23193489
+  context: 'Phase 3: User Story 1. Task T014b-GEN: CONTEXT-BASED GENERATION.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If generation time > 60s or fails, trigger a GitHub Actions workflow dispatch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:17:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify output file contains more than zero rows
+  claim_id: c_bb429a6b
+  context: 'Phase 3: User Story 1. Task T014: Implement classifier_runner.py.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_file_contains_more_than_zero_rows
+  kind: magnitude
+  raw_text: Verify that the output file contains >0 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:18:24Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: fetch PR metadata for repositories with at least 1000 stars
+  claim_id: c_9aa255fa
+  context: "T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to\
+    \ fetch PR metadata and file content for repos \u22651,000 stars (FR-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_PR_metadata_for_repositories_with_at_least_1000_stars
+  kind: magnitude
+  raw_text: "Implement code/data_acquisition/github_scraper.py to fetch PR metadata\
+    \ and file content for repos \u22651,000 stars"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:23:29Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: classifier output contains positive rows with human and llm-like author
+    types
+  claim_id: c_46d79a8e
+  context: 'T014 [US1] Implement `code/data_acquisition/classifier_runner.py`... Output:
+    `data/processed/classified_snippets.parquet`. **Verification**: Verify that the
+    output file contains >0 rows and that the ''author_type'' column has unique values
+    [''human'', ''llm-like''].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the output file contains >0 rows and that the 'author_type'
+    column has unique values ['human', 'llm-like']
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:23:29Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce 30 second generation time limit per snippet on GPU
+  claim_id: c_60e98f8a
+  context: "T014b-GEN [US1] **CONTEXT-BASED GENERATION (GPU ESCAPE HATCH)**... **Timeout**:\
+    \ Enforce \u226430s generation time per snippet on GPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce \u226430s generation time per snippet on GPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:23:29Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: trigger GPU workflow if CPU generation exceeds 60 seconds or fails
+  claim_id: c_283dc60a
+  context: 'T014b-GEN [US1] **CONTEXT-BASED GENERATION (GPU ESCAPE HATCH)**: ... **Strategy**:
+    Attempt generation on CPU first. If generation time > 60s or fails, trigger a
+    GitHub Actions workflow dispatch...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Attempt generation on CPU first. If generation time > 60s or fails, trigger
+    a GitHub Actions workflow dispatch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:23:30Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify generated code syntax with at least 95% success rate
+  claim_id: c_d946581f
+  context: "T014b-VAL [US1] **SYNTAX VALIDATION**: Implement `code/data_acquisition/syntax_validator.py`\
+    \ to verify generated code is syntactically valid (\u226595% success rate)."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_generated_code_syntax_with_at_least_95%25_success_rate
+  kind: magnitude
+  raw_text: "Implement code/data_acquisition/syntax_validator.py to verify generated\
+    \ code is syntactically valid (\u226595% success rate)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T15:23:32Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: syntax validation report validity rate at least 0.95
+  claim_id: c_4a8a38ef
+  context: "T014b-VAL [US1] ... **Verification**: Verify file exists and contains\
+    \ a 'validity_rate' key with value \u22650.95."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Syntax_validation_report_validity_rate_at_least_0.95
+  kind: magnitude
+  raw_text: "Verify file exists and contains a 'validity_rate' key with value \u2265\
+    0.95"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:24:35Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: compute semantic similarity using microsoft/codebert-base embeddings
+  claim_id: c_87e18e48
+  context: 'T017b-1 [US1] **SEMANTIC SIMILARITY COMPUTATION**: Implement `code/feature_extraction/semantic_similarity.py`
+    to compute semantic similarity scores for every code snippet using CodeBERT embeddings
+    (`microsoft/codebert-base`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_semantic_similarity_using_microsoft/codebert-base_em
+  kind: entity_fact
+  raw_text: Compute semantic similarity scores for every code snippet using CodeBERT
+    embeddings (microsoft/codebert-base)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:25:13Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: exclude semantic similarity from covariate set for propensity score matching
+  claim_id: c_b7fd5d5d
+  context: 'T017b-2 [US1] **COVARIATE CONFIGURATION**: ... **Note**: Explicitly **excludes**
+    ''semantic_similarity'' per Plan override.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_semantic_similarity_from_covariate_set_for_propensit
+  kind: entity_fact
+  raw_text: Define the covariate set for matching... explicitly excludes 'semantic_similarity'
+    per Plan override
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:25:39Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: retry matching with interaction terms if SMD exceeds 0.1
+  claim_id: c_812e0449
+  context: 'T023a [US2] **MATCHING RETRY LOGIC**: ... 1) If Standardized Mean Difference
+    (SMD) > 0.1, retry with interaction terms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:25:39Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: halt pipeline with exit code 1 if SMD remains above 0.1 after retries
+  claim_id: c_ad130222
+  context: 'T023b [US2] **MATCHING FAILURE REPORTING & HALT**: ... 1) If SMD > 0.1
+    after multiple retries, generate `data/processed/matching_failure_report.json`...
+    2) **HALT the pipeline with `sys.exit(1)`**.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If SMD > 0.1 after multiple retries, generate matching_failure_report.json
+    and HALT the pipeline with sys.exit(1)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T15:25:39Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: require at least 5 valid subsets for sensitivity analysis
+  claim_id: c_9455e1ad
+  context: 'T030 [US3] **SENSITIVITY CONSISTENCY CHECK**: ... **Constraint**: **Must
+    have at least 5 valid subsets**.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_5_valid_subsets_for_sensitivity_analysis
+  kind: magnitude
+  raw_text: Must have at least 5 valid subsets for sensitivity analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:26:14Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'cohort segments contain three unique generation sources: llm-prompt,
+    llm-context, human'
+  claim_id: c_33fe78fe
+  context: 'T033a [US4] **COHORT ANALYSIS**: ... **Verification**: Verify file contains
+    exactly three unique values in ''generation_source'' column: ''llm-prompt'', ''llm-context'',
+    ''human''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohort_segments_contain_three_unique_generation_sources:_llm
+  kind: entity_fact
+  raw_text: 'Verify file contains exactly three unique values in ''generation_source''
+    column: ''llm-prompt'', ''llm-context'', ''human'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:26:49Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify standardized mean difference less than 0.1 for all covariates
+  claim_id: c_05af958f
+  context: 'T034-MAIN [US4] ... **Verification**: Verify SMD < 0.1 for all covariates
+    in the output.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standardized_mean_difference_less_than_0.1_for_all_co
+  kind: magnitude
+  raw_text: Verify SMD < 0.1 for all covariates in the output
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:26:52Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify standardized mean difference less than 0.1 for all covariates
+    in spec validation
+  claim_id: c_40795930
+  context: 'T034-US4-VALID [US4] ... **Verification**: Verify SMD < 0.1 for all covariates
+    in the output.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standardized_mean_difference_less_than_0.1_for_all_co
+  kind: magnitude
+  raw_text: Verify SMD < 0.1 for all covariates in the output
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:26:54Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: trigger GPU generation if CPU generation time exceeds 60 seconds
+  claim_id: c_34069664
+  context: 'Phase 3: User Story 1. Task T014b-GEN. CPU limit conditional override.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data_acquisition/generator.py to generate synthetic code
+    snippets using a small/8-bit quantized LLM (e.g., CodeLlama-7B-8bit or 4bit).
+    Strategy: Attempt generation on CPU first. If generation time > 60s or fails,
+    trigger a GitHub Actions workflow dispatch... to re-run the generation on a GPU-enabled
+    runner.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:28:09Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce 30 second generation time limit per snippet on GPU
+  claim_id: c_4c93d88a
+  context: 'Phase 3: User Story 1. Task T014b-GEN. GPU timeout constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce \u226430s generation time per snippet on GPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:28:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify generated code syntactic validity at 95% success rate
+  claim_id: c_8fefb8c1
+  context: 'Phase 3: User Story 1. Task T014b-VAL. Verification requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/data_acquisition/syntax_validator.py to verify generated\
+    \ code is syntactically valid (\u226595% success rate)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:28:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: retry matching if Standardized Mean Difference exceeds 0.1
+  claim_id: c_6965dce2
+  context: 'Phase 4: User Story 2. Task T023a. Matching retry logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/analysis/matching.py logic to: 1) If Standardized Mean
+    Difference (SMD) > 0.1, retry with interaction terms.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:28:10Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: require at least 5 valid subsets for sensitivity analysis
+  claim_id: c_161acb3a
+  context: 'Phase 5: User Story 3. Task T030. Sensitivity analysis constraint.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_5_valid_subsets_for_sensitivity_analysis
+  kind: magnitude
+  raw_text: 'Constraint: Must have at least 5 valid subsets.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T15:28:39Z'

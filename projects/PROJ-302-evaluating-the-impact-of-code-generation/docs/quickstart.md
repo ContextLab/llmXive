@@ -1,218 +1,131 @@
 # Quickstart Guide: Evaluating the Impact of Code Generation on Code Review Time
 
-This guide provides step-by-step instructions to set up, run, and validate the research pipeline for evaluating the impact of LLM-generated code on code review times.
+This guide provides step-by-step instructions to set up, run, and validate the `llmXive` research pipeline for evaluating how LLM-generated code affects code review times.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip (Python package manager)
+- Python 3.9+
 - Git
-- A GitHub Personal Access Token (with `repo` scope) for API access
-- At least 16GB RAM recommended for full dataset processing
+- A GitHub Personal Access Token (with `public_repo` scope)
+- Sufficient disk space (~15GB for intermediate data)
+- (Optional) GPU for faster code generation (self-hosted runner required)
 
-## 1. Setup Environment
+## 1. Clone and Setup
 
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd PROJ-302-evaluating-the-impact-of-code-generation
+cd llmXive-evaluating-llm-code-generation-impact
+```
 
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+### Install Dependencies
 
-# Install dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-## 2. Configuration
+> **Note**: If you plan to use the GPU escape hatch for code generation, ensure you have access to a self-hosted GitHub Actions runner with GPU capabilities.
+
+### Configure Environment
 
 Create a `.env` file in the project root with your GitHub token:
 
 ```bash
 GITHUB_TOKEN=your_github_personal_access_token
-RANDOM_SEED=42
 ```
 
-Alternatively, set these as environment variables.
-
-## 3. Directory Structure
-
-The project uses the following directory structure:
+## 2. Project Structure
 
 ```
 .
-├── code/
-│ ├── data_acquisition/
-│ ├── feature_extraction/
-│ ├── analysis/
-│ └── utils/
-├── data/
-│ ├── raw/
-│ └── processed/
-├── tests/
-│ ├── contract/
-│ ├── integration/
-│ └── unit/
-├── docs/
-└── specs/
+├── code/ # Source code modules
+│ ├── data_acquisition/ # GitHub scraping, code generation
+│ ├── feature_extraction/# Complexity, timestamps, style metrics
+│ ├── analysis/ # Matching, statistical tests, sensitivity
+│ ├── utils/ # Config, models, validators
+│ └── main.py # Pipeline orchestrator
+├── data/ # Generated datasets and reports
+│ ├── raw/ # Raw GitHub API responses
+│ └── processed/ # Cleaned and enriched data
+├── reports/ # Final PDF and HTML reports
+├── docs/ # Documentation (this file)
+└── tests/ # Unit, integration, and contract tests
 ```
 
-## 4. Running the Pipeline
+## 3. Running the Pipeline
 
-### Phase 1: Data Acquisition (US1)
+The pipeline is orchestrated via `code/main.py`. It executes the following stages:
 
-Fetch GitHub PR metadata and generate synthetic LLM code snippets:
+1. **Data Acquisition**: Fetches PR metadata and code from GitHub.
+2. **Feature Extraction**: Computes complexity, style, and timestamp metrics.
+3. **Code Generation**: Generates synthetic LLM code (context-based and prompt-based).
+4. **Matching & Analysis**: Performs propensity score matching and statistical testing.
+5. **Sensitivity Analysis**: Validates results across complexity/size strata.
+6. **Report Generation**: Produces a PDF report with visualizations.
+
+### Execute Full Pipeline
 
 ```bash
-# Fetch PR data from repositories with >= 1000 stars
-python code/data_acquisition/github_scraper.py
-
-# Generate synthetic LLM code snippets
-python code/data_acquisition/synthetic_generator.py
-
-# Classify code snippets (diagnostic only)
-python code/data_acquisition/classifier_runner.py
+python code/main.py
 ```
 
-**Output**: `data/processed/generated_snippets.parquet`
+The script will:
+- Create necessary directories (`data/`, `reports/`, `logs/`).
+- Fetch data from GitHub (respects rate limits).
+- Generate synthetic code (CPU first; triggers GPU workflow if timeout > 60s).
+- Run matching and statistical tests.
+- Enforce gates (matching balance, sensitivity consistency, PII).
+- Generate `reports/analysis_report.pdf`.
 
-### Phase 2: Feature Extraction (US1)
+### Expected Outputs
 
-Extract complexity, timestamps, style features, and semantic similarity:
+After successful completion, you will find:
 
-```bash
-# Calculate code complexity metrics
-python code/feature_extraction/complexity.py
-
-# Extract review timestamps
-python code/feature_extraction/timestamps.py
-
-# Compute style features
-python code/feature_extraction/style_features.py
-
-# Calculate semantic similarity scores (diagnostic only)
-python code/feature_extraction/semantic_similarity.py
-```
-
-**Output**: `data/processed/diagnostic_scores.parquet`
-
-### Phase 3: Propensity Score Matching & Analysis (US2)
-
-Match LLM-like and human commits, perform statistical testing:
-
-```bash
-# Run propensity score matching
-python code/analysis/matching.py
-
-# Run statistical tests
-python code/analysis/statistical_test.py
-
-# Generate deviation report (documents exclusion of semantic similarity)
-python code/analysis/deviation_report_generator.py
-```
-
-**Output**:
+- `data/processed/merged_features.parquet`
 - `data/processed/matching_results.parquet`
-- `data/processed/statistical_results.json`
-- `data/processed/deviation_report.md`
-
-### Phase 4: Sensitivity Analysis & Visualization (US3)
-
-Perform sensitivity analysis across star-count quartiles and generate plots:
-
-```bash
-# Run sensitivity analysis
-python code/analysis/sensitivity.py
-
-# Generate visualizations
-python code/analysis/visualization.py
-```
-
-**Output**:
 - `data/processed/sensitivity_summary.json`
-- `figures/` (box plots, CDF curves, sensitivity plots)
+- `data/processed/runtime_report.json`
+- `reports/analysis_report.pdf`
+- `reports/visualizations/` (box plots, CDF curves)
 
-### Phase 5: Prompt-Based Cohort Validation (US4)
+## 4. Validation
 
-Generate and validate prompt-based LLM code cohort:
-
-```bash
-# Generate prompt-based cohort
-python code/data_acquisition/prompt_cohort_generator.py
-
-# Validate syntax of generated snippets
-python code/feature_extraction/prompt_cohort_validator.py
-
-# Run matching for prompt-based cohort
-python code/analysis/prompt_cohort_matching.py
-```
-
-**Output**: `data/processed/prompt_based_cohort.parquet`
-
-## 5. Validation
-
-Run the complete validation suite:
+Run the quickstart validator to ensure all components are functioning:
 
 ```bash
-# Contract tests
-python -m pytest tests/contract/ -v
-
-# Integration tests
-python -m pytest tests/integration/ -v
-
-# Unit tests
-python -m pytest tests/unit/ -v
+python code/quickstart_validator.py
 ```
 
-## 6. Generating the Final Report
+This script checks:
+- Directory structure integrity.
+- Existence of required output files.
+- Validity of JSON reports (SMD < 0.1, sensitivity consistency >= 80%).
+- PII scan results (should be clean).
 
-Combine all analysis results into a comprehensive HTML/PDF report:
+Exit code `0` indicates success.
 
-```bash
-python code/analysis/report_generator.py
-```
+## 5. Troubleshooting
 
-**Output**: `docs/final_report.html`, `docs/final_report.pdf`
+### Rate Limiting
+If you encounter GitHub API rate limits, ensure your `GITHUB_TOKEN` is valid and has the correct scopes. The pipeline includes exponential backoff (T013).
 
-## 7. Troubleshooting
+### Code Generation Timeout
+If CPU generation exceeds 60s, the pipeline will dispatch a GitHub Actions workflow to a GPU runner (T014b-GEN). Ensure your repository has the `.github/workflows/gpu-generation.yml` file and a self-hosted GPU runner is available.
 
-### GitHub API Rate Limiting
-If you encounter rate limiting, the pipeline automatically implements exponential backoff. Ensure your token has sufficient permissions.
+### Matching Failure
+If covariate balance (SMD) > 0.1 after retries, the pipeline halts and generates `data/processed/matching_failure_report.json`. Review the report and consider adjusting covariates.
 
-### Memory Issues
-For large datasets, consider processing in chunks or using streaming mode:
-```python
-# In your data loading code
-dataset = load_dataset("github_prs", split="train", streaming=True)
-```
+### Sensitivity Inconsistency
+If p < 0.05 in < 80% of subsets, the pipeline exits with code 1. Check `data/processed/sensitivity_summary.json` for details.
 
-### Generation Failures
-If LLM generation fails (T014b or T033), the pipeline will halt and generate `spec_amendment_request.md` with details about the failure.
+## 6. Extending the Pipeline
 
-### Matching Imbalance
-If propensity score matching fails to achieve balance (SMD > 0.1), check `data/processed/matching_failure_report.json` for diagnostic information.
+- **Add New Repos**: Modify `code/data_acquisition/github_scraper.py` to include additional repositories.
+- **Custom Covariates**: Edit `data/processed/covariate_config.json` to change matching variables.
+- **New Visualizations**: Extend `code/analysis/visualization.py` to add custom plots.
 
-## 8. Expected Outputs
+## 7. Citation
 
-After successful execution, you should have:
+If you use this pipeline in your research, please cite the project repository.
 
-- `data/processed/generated_snippets.parquet` - Synthetic LLM code snippets
-- `data/processed/diagnostic_scores.parquet` - Semantic similarity scores
-- `data/processed/matching_results.parquet` - Matched pairs
-- `data/processed/statistical_results.json` - P-values and effect sizes
-- `data/processed/sensitivity_summary.json` - Sensitivity analysis results
-- `data/processed/deviation_report.md` - Documentation of methodological choices
-- `figures/` - Visualization plots
-- `docs/final_report.html` - Comprehensive analysis report
-
-## 9. Next Steps
-
-- Review the `specs/` directory for detailed feature requirements
-- Check `tasks.md` for implementation status
-- Read `docs/research_methodology.md` for scientific rationale
-- Examine `docs/data_dictionary.md` for field definitions
-
-## Support
-
-For issues or questions, please refer to the project's issue tracker or contact the research team.
+---
+*Last updated: 2023-10-27*
