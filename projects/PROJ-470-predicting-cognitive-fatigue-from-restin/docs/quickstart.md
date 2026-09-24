@@ -1,96 +1,90 @@
 # Quickstart Guide: Predicting Cognitive Fatigue from Resting-State EEG
 
-This guide walks you through the complete pipeline for analyzing cognitive fatigue.
+## Environment Setup
 
-## 1. Environment Setup
+1. Create and activate a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
 
-Ensure you have Python 3.11+ installed.
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-```bash
-# Create virtual environment
-python -m venv code/.venv
-source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
+## Running the Pipeline
 
-# Install dependencies
-pip install -r code/requirements.txt
-```
+The pipeline consists of six main stages. Run them in order:
 
-## 2. Data Download
+### 1. Download Data
 
-Fetch the public EEG dataset containing resting-state recordings and fatigue ratings.
-
+Fetch the public EEG dataset with paired fatigue ratings:
 ```bash
 python code/download.py --validate
 ```
-
 This will:
-- Download data to `data/raw/`
-- Generate `data/raw/download_manifest.json`
+- Download the dataset to `data/raw/`
+- Create `data/raw/download_manifest.json`
+- Validate that required variables (eeg_data, fatigue_rating) are present
 - Create a sample file for testing
 
-## 3. Preprocessing
+### 2. Preprocess EEG
 
-Apply bandpass filtering (1-40 Hz), notch filter (50 Hz), and artifact rejection.
-
+Apply bandpass filtering (1-40 Hz), notch filter (50 Hz), and artifact rejection:
 ```bash
 python code/preprocess.py
 ```
+This will:
+- Read the sample file from `data/raw/download_manifest.json`
+- Apply filters and reject artifacts
+- Save cleaned data to `data/processed/cleaned_eeg.fif`
+- Log exclusions to `data/processed/exclusion_log.csv`
 
-Outputs:
-- `data/processed/cleaned_eeg.fif`
-- `data/processed/exclusion_log.csv`
+### 3. Extract Features
 
-## 4. Feature Extraction
-
-Calculate Lempel-Ziv Complexity (LZC) for each channel.
-
+Calculate Lempel-Ziv complexity and Permutation Entropy:
 ```bash
 python code/features.py
 ```
+This will:
+- Read cleaned EEG data
+- Compute LZC and PE for each channel/segment
+- Save metrics to `data/analysis/complexity_metrics.csv`
 
-Output:
-- `data/analysis/complexity_metrics.csv`
+### 4. Run Analysis
 
-## 5. Analysis
-
-Calculate deltas, correlations, ANCOVA, and Benjamini-Hochberg correction.
-
+Compute deltas and correlations:
 ```bash
-python code/analysis.py
+python code/analysis.py --all
 ```
+This will:
+- Validate input files
+- Calculate delta scores (Post - Pre)
+- Compute Pearson and Spearman correlations
+- Save results to `data/analysis/delta_scores.csv` and `data/analysis/correlation_results.csv`
 
-Outputs:
-- `data/analysis/delta_scores.csv`
-- `data/analysis/correlation_results.csv`
-- `data/analysis/ancova_results.csv`
-- `data/analysis/bh_corrected_pvalues.csv`
+### 5. Generate Report
 
-## 6. Sensitivity Analysis
-
-Generate sensitivity table at p<=0.05 and p<=0.01 thresholds.
-
-```bash
-python code/sensitivity_analysis.py
-```
-
-Output:
-- `data/analysis/sensitivity_table.csv`
-
-## 7. Collinearity Diagnostics (Optional)
-
-Check VIF for ANCOVA predictors.
-
-```bash
-python code/collinearity.py
-```
-
-## 8. Report Generation
-
-Generate the final markdown report.
-
+Create the final markdown report:
 ```bash
 python code/report.py
 ```
+This will:
+- Read all analysis results
+- Generate `docs/final_report.md` with tables and statistics
 
-Output:
-- `docs/final_report.md`
+## Verification
+
+After running the full pipeline, verify outputs:
+```bash
+python tests/unit/test_setup.py
+python tests/unit/test_skeleton.py
+```
+
+## Troubleshooting
+
+- **Missing dependencies**: Ensure all packages in `code/requirements.txt` are installed.
+- **Data not found**: Run `python code/download.py --validate` first.
+- **Memory errors**: Monitor usage with `python code/verify_memory.py`.
+- **Runtime errors**: Check `data/analysis/resource_usage.json` for diagnostics.

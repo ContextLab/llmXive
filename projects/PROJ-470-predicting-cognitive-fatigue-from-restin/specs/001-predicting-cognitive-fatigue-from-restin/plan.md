@@ -92,7 +92,7 @@ projects/PROJ-470-predicting-cognitive-fatigue-from-restin/
 
 - **T001**: **Verified Accuracy Check**. Validate all citations in `research.md` against the "Verified datasets" block. Fail if any citation is unreachable or mismatched. (Constitution II)
 - **T002**: **Data Validation**. Download dataset. Check for presence of both `eeg_data` and `fatigue_rating` variables. If N < 30, halt with error code and list available variables. (FR-001, SC-001)
-- **T003**: **Preprocessing**. Apply Low-frequency bandpass (e.g., below 40 Hz), A power line frequency notch
+- **T003**: **Preprocessing**. Apply Low-frequency bandpass (e.g., below a low-frequency threshold), A power line frequency notch
 
 The research question remains: How can we effectively remove power line interference from biomedical signals?
 The method remains: We will apply a notch filter tuned to the local mains frequency.

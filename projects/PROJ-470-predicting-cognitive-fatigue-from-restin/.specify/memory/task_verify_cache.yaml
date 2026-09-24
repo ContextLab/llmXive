@@ -1,20 +1,21 @@
 T006:
   c: false
-  h: 31172ac30297d8714ee243090f9d0cd3e51164f28c3e4f290f1169702c6ef7ff
-  r: The repository contains a `tests/unit/test_logging.py` that expects constants
-    `EXCLUSION_LOG_PATH` and `LOGS_DIR` and that `log_artifact_rejection`/`log_participant_exclusion`
-    write a CSV file, but `code/utils/logging.py` is truncated and does not show these
-    constants nor any code that actually creates `data/processed/exclusion_log.csv`.
-    Moreover the CSV file is absent on disk. Consequently the required logging utility
-    and its verification are not fully implemented.
-T010:
+  h: 564ebc9cedad23a0e1609502879aafe8552f9536995795c65d312c7cbf2b8743
+  r: "The repository contains `code/utils/logging.py` and a unit\u2011test file, but\
+    \ the logging functions never write to `data/processed/exclusion_log.csv` (the\
+    \ file is missing and `save_rejection_summary` is truncated/unfinished). Moreover,\
+    \ required helpers like `get_rejection_counts` are not defined, so the provided\
+    \ tests would fail. The task\u2019s core requirement\u2014creating a CSV log with\
+    \ the specified columns\u2014is not satisfied."
+T009:
   c: false
-  h: 3ee9d132d5749fd6978e60b3b070e9ffa55c22f0d5155f90aa66052c7ac5f791
-  r: "The repository contains a partially shown `code/download.py` that does not demonstrate\
-    \ the required validation of EEG\u202F+\u202Ffatigue variables, nor any download\
-    \ logic, and the script is truncated. Moreover, the required output artifacts\
-    \ `data/raw/download_manifest.json` and `data/processed/participant_exclusion_log.csv`\
-    \ are absent. The task\u2019s success conditions are therefore not met."
+  h: ec0e83d2252ba9a4a0f2b94e4d1a8b945181004eaf84fa8f6a8f04e5f4151b16
+  r: "The provided `code/download.py` contains only a placeholder docstring and a\
+    \ `pass` statement, with none of the required download, validation, manifest creation,\
+    \ atomic write, or sample file logic. Consequently, `data/raw/download_manifest.json`\
+    \ and the sample EEG file are absent, violating the core functional requirements.\
+    \ The task must be re\u2011implemented to perform the dataset search, variable\
+    \ checks, download, manifest generation, and sample file handling as specified."
 T011:
   c: false
   h: f1fc712b9d83c49a1ab86bb050465e06594c6b66a3c617eefac3fbd19304ac85
@@ -26,36 +27,28 @@ T011:
     \ not fulfilled."
 T012:
   c: false
-  h: 52f73d912d3ba39ed1aec8100efb01ccd2fd0ee57040ab97dde4636b6414fb6e
-  r: "The required `data/processed/exclusion_log.csv` file does not exist, so the\
-    \ logging requirement cannot be verified. Moreover, the provided `code/preprocess.py`\
-    \ snippet only shows a threshold check for amplitude and does not implement exclusion\
-    \ of segments shorter than 120\u202Fseconds, nor does it demonstrate writing the\
-    \ required columns (`participant_id, reason, timestamp`) to the CSV. The artifact\u2011\
-    rejection logic is therefore incomplete."
+  h: bf373cdf44801f67690d9ad9088b44fd9f9e6a83998fddbe8c648ad7e6cebfd4
+  r: "The `code/preprocess.py` file exists and contains logic to read `data/raw/download_manifest.json`,\
+    \ but the required `download_manifest.json` file is missing, causing the script\
+    \ to fail at runtime. Additionally, the provided code snippet is truncated, so\
+    \ we cannot confirm that the band\u2011pass (1\u201140\u202FHz) and notch (line\u2011\
+    noise) filtering are fully implemented. The missing manifest (and incomplete visible\
+    \ implementation) means the task\u2019s requirement is not satisfied."
 T013:
   c: false
-  h: 58002bd314e2fc236212f4fdc80d8880b0a64c6c8162347597917539eb57834e
-  r: "The `reject_artifacts` function only logs rejected channel indices and returns\
-    \ the original `raw` unchanged, so epochs >\xB1100\u202F\xB5V are not actually\
-    \ excluded. Moreover, the required `data/processed/exclusion_log.csv` file is\
-    \ missing entirely. The task\u2019s verification condition (log entries for rejected\
-    \ epochs) is therefore not satisfied."
+  h: 726642a6629a143c45a98e3018019e07ea8478ed5e01d3bfd2529cce5538f643
+  r: "The required output file `data/processed/exclusion_log.csv` does not exist,\
+    \ and the provided excerpt of `code/preprocess.py` shows no concrete implementation\
+    \ of epoch\u2011rejection logic that writes entries with reason \u201Camplitude_threshold\u201D\
+    . Without the log file and evident rejection code, the task is not fulfilled."
 T014:
   c: false
-  h: 58002bd314e2fc236212f4fdc80d8880b0a64c6c8162347597917539eb57834e
-  r: "The `data/processed/exclusion_log.csv` file does not exist, so no exclusion\
-    \ entries can be verified. Moreover, the `reject_short_segments` function in `code/preprocess.py`\
-    \ is truncated and does not show a complete implementation of the segment\u2011\
-    length validation or logging of the `\"segment_too_short\"` reason. Both required\
-    \ artifacts are missing/incomplete."
-T016:
-  c: false
-  h: 17ecdf0266cb70b6d7cbb2b7f9477368a7b966faf9ece8c7112e9deedae84a3f
-  r: The required `data/analysis/complexity_metrics.csv` file does not exist, and
-    `code/features.py` is incomplete (truncated, contains placeholder `pass` in the
-    LZC algorithm and no logic to compute PE or write the CSV). Both the output artifact
-    and a functional implementation are missing.
+  h: 726642a6629a143c45a98e3018019e07ea8478ed5e01d3bfd2529cce5538f643
+  r: "The required `data/processed/exclusion_log.csv` file does not exist, so the\
+    \ verification step cannot be satisfied. Additionally, the provided excerpt of\
+    \ `code/preprocess.py` does not show any concrete segment\u2011length validation\
+    \ logic or logging of rejections with the reason \u201Csegment_too_short\u201D\
+    . Both the artifact and the expected behavior are missing."
 T017:
   c: false
   h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a

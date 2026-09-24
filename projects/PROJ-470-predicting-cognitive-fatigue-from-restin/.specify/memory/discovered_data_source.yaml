@@ -1,15 +1,16 @@
 status: none
-intent: PhysioNet resting state EEG fatigue ratings dataset OpenNeuro download python
-  package dataset
+intent: PhysioNet resting state EEG fatigue ratings PVT Stroop dataset python package
+  dataset
 required_fields:
-- subject_id
-- EEG_signal
+- participant_id
+- eeg_signal
+- eeg_channels
 - sampling_rate
-- resting_state_marker
-- pre_fatigue_rating
-- post_fatigue_rating
-- task_event_markers
-- session_timestamp
-cache_key: c0bed27926519ed3a75ea9d9092cb8f0848980e16c8aa1b43bff7d44b24df802
-searched_at: '2026-09-03T02:45:01.021756+00:00'
+- fatigue_rating_pre
+- fatigue_rating_post
+- rating_scale
+- timestamp
+- task_condition
+cache_key: b4e7a1b68c496396bcd30cdc06b3f88b89d317a440ebf96d9f76468f2ad3a361
+searched_at: '2026-09-24T19:27:57.099735+00:00'
 retry_count: 1

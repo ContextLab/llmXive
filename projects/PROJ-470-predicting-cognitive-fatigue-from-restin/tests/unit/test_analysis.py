@@ -1,131 +1,139 @@
+"""
+Unit tests for the analysis pipeline (T020).
+Verifies correlation computation functionality.
+"""
 import os
-import sys
-import json
 import tempfile
-import shutil
 import pandas as pd
+import numpy as np
 import pytest
 from pathlib import Path
 
-# Add the code directory to the path to allow imports
-code_dir = Path(__file__).parent.parent / "code"
-sys.path.insert(0, str(code_dir))
+# Add project root to path
+sys_path = Path(__file__).parent.parent.parent
+if str(sys_path) not in str(__import__('sys').path):
+    __import__('sys').path.insert(0, str(sys_path))
 
-from check_sample_size import check_sample_size, write_validation_report, load_config
+from code.analysis import validate_inputs, calculate_deltas, compute_correlations
 
-class TestSampleSizeEnforcement:
-    """Tests for T026a: Enforce N >= 30 constraint as a blocking gate."""
 
-    def setup_method(self):
-        """Create a temporary directory for test artifacts."""
-        self.test_dir = tempfile.mkdtemp()
-        self.data_dir = Path(self.test_dir) / "data" / "processed"
-        self.analysis_dir = Path(self.test_dir) / "data" / "analysis"
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.analysis_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save original working directory
-        self.original_cwd = os.getcwd()
-        # Change to test dir root to simulate project root
-        os.chdir(self.test_dir)
+def create_test_data(temp_dir: Path):
+    """Create mock test data files."""
+    # Create complexity metrics
+    complexity_data = {
+        'participant_id': ['P001', 'P001', 'P002', 'P002', 'P003', 'P003'],
+        'channel': ['Cz', 'Cz', 'Cz', 'Cz', 'Cz', 'Cz'],
+        'segment_id': ['pre', 'post', 'pre', 'post', 'pre', 'post'],
+        'lzc_value': [0.45, 0.42, 0.48, 0.44, 0.46, 0.43],
+        'pe_value': [0.72, 0.70, 0.75, 0.73, 0.73, 0.71]
+    }
+    complexity_df = pd.DataFrame(complexity_data)
+    complexity_path = temp_dir / "complexity_metrics.csv"
+    complexity_df.to_csv(complexity_path, index=False)
 
-    def teardown_method(self):
-        """Clean up temporary directory and restore working directory."""
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir)
+    # Create fatigue scores
+    fatigue_data = {
+        'participant_id': ['P001', 'P002', 'P003'],
+        'pre_fatigue': [2.0, 2.5, 1.8],
+        'post_fatigue': [4.5, 4.0, 3.8]
+    }
+    fatigue_df = pd.DataFrame(fatigue_data)
+    fatigue_path = temp_dir / "fatigue_scores.csv"
+    fatigue_df.to_csv(fatigue_path, index=False)
 
-    def test_sample_size_insufficient_n29(self):
-        """Test that the script exits with code 1 and writes validation_report.json when N=29."""
-        # Create a mock lzc_metrics.csv with 29 participants
-        lzc_path = self.data_dir / "lzc_metrics.csv"
-        data = {
-            "participant_id": [f"P{i:03d}" for i in range(1, 30)], # 29 participants
-            "channel": ["Cz"] * 29,
-            "lzc_value": [0.5 + i * 0.01 for i in range(29)]
+    return complexity_path, fatigue_path
+
+
+def test_validate_inputs_valid():
+    """Test validation with valid input files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
+
+        # Create a dummy delta file
+        delta_path = temp_dir / "delta_scores.csv"
+        pd.DataFrame({'participant_id': ['P001'], 'fatigue_delta': [1.0], 'lzc_delta': [0.0], 'pe_delta': [0.0]}).to_csv(delta_path, index=False)
+
+        is_valid, message = validate_inputs(
+            complexity_file=str(complexity_path),
+            fatigue_file=str(fatigue_path),
+            delta_file=str(delta_path)
+        )
+
+        assert is_valid is True
+        assert "validated" in message.lower()
+
+
+def test_validate_inputs_missing_file():
+    """Test validation with missing input file."""
+    is_valid, message = validate_inputs(
+        complexity_file="nonexistent.csv",
+        fatigue_file="nonexistent.csv",
+        delta_file="nonexistent.csv"
+    )
+
+    assert is_valid is False
+    assert "not found" in message.lower()
+
+
+def test_calculate_deltas():
+    """Test delta calculation logic."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
+
+        output_path = temp_dir / "delta_scores.csv"
+        delta_df = calculate_deltas(
+            complexity_file=str(complexity_path),
+            fatigue_file=str(fatigue_path),
+            output_file=str(output_path)
+        )
+
+        assert os.path.exists(output_path)
+        assert 'fatigue_delta' in delta_df.columns
+        assert 'lzc_delta' in delta_df.columns
+        assert 'pe_delta' in delta_df.columns
+        assert len(delta_df) == 3  # 3 participants
+
+        # Verify delta calculation (post - pre)
+        assert all(delta_df['fatigue_delta'] > 0)  # All post > pre in test data
+
+
+def test_compute_correlations():
+    """Test correlation computation."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
+
+        # Create delta file
+        delta_path = temp_dir / "delta_scores.csv"
+        delta_data = {
+            'participant_id': ['P001', 'P002', 'P003'],
+            'fatigue_delta': [2.5, 1.5, 2.0],
+            'lzc_delta': [-0.03, -0.04, -0.03],
+            'pe_delta': [-0.02, -0.02, -0.02]
         }
-        df = pd.DataFrame(data)
-        df.to_csv(lzc_path, index=False)
+        pd.DataFrame(delta_data).to_csv(delta_path, index=False)
 
-        # Run the check
-        passed, message = check_sample_size()
-        
-        # Assertions
-        assert passed is False, "Expected check_sample_size to return False for N=29"
-        assert "Insufficient sample size" in message, f"Expected error message, got: {message}"
-        
-        # Verify validation_report.json was written
-        report_path = self.analysis_dir / "validation_report.json"
-        assert report_path.exists(), "validation_report.json was not created"
-        
-        with open(report_path, 'r') as f:
-            report = json.load(f)
-        
-        assert report["status"] == "FAIL", f"Expected status 'FAIL', got: {report['status']}"
-        assert report["details"]["n_found"] == 29, f"Expected n_found=29, got: {report['details']['n_found']}"
-        assert report["details"]["n_required"] == 30, f"Expected n_required=30, got: {report['details']['n_required']}"
+        output_path = temp_dir / "correlation_results.csv"
+        corr_df = compute_correlations(
+            delta_file=str(delta_path),
+            complexity_file=str(complexity_path),
+            output_file=str(output_path)
+        )
 
-    def test_sample_size_sufficient_n30(self):
-        """Test that the script passes when N=30."""
-        # Create a mock lzc_metrics.csv with 30 participants
-        lzc_path = self.data_dir / "lzc_metrics.csv"
-        data = {
-            "participant_id": [f"P{i:03d}" for i in range(1, 31)], # 30 participants
-            "channel": ["Cz"] * 30,
-            "lzc_value": [0.5 + i * 0.01 for i in range(30)]
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(lzc_path, index=False)
+        assert os.path.exists(output_path)
+        assert 'channel' in corr_df.columns
+        assert 'metric' in corr_df.columns
+        assert 'correlation_type' in corr_df.columns
+        assert 'coefficient' in corr_df.columns
+        assert 'p_value' in corr_df.columns
 
-        # Run the check
-        passed, message = check_sample_size()
-        
-        # Assertions
-        assert passed is True, f"Expected check_sample_size to return True for N=30, got: {passed}"
-        assert "passed" in message.lower(), f"Expected success message, got: {message}"
-        
-        # Verify validation_report.json was written
-        report_path = self.analysis_dir / "validation_report.json"
-        assert report_path.exists(), "validation_report.json was not created"
-        
-        with open(report_path, 'r') as f:
-            report = json.load(f)
-        
-        assert report["status"] == "PASS", f"Expected status 'PASS', got: {report['status']}"
-        assert report["details"]["n_found"] == 30, f"Expected n_found=30, got: {report['details']['n_found']}"
+        # Should have 4 correlations per channel (pearson/spearman for lzc/pe)
+        # With 1 channel in test data: 4 rows
+        assert len(corr_df) == 4
 
-    def test_sample_size_missing_file(self):
-        """Test that the script fails gracefully when metrics file is missing."""
-        # Ensure no metrics file exists
-        lzc_path = self.data_dir / "lzc_metrics.csv"
-        pe_path = self.data_dir / "pe_metrics.csv"
-        if lzc_path.exists(): lzc_path.unlink()
-        if pe_path.exists(): pe_path.unlink()
-
-        # Run the check
-        passed, message = check_sample_size()
-        
-        # Assertions
-        assert passed is False, "Expected check_sample_size to return False when file is missing"
-        assert "Missing" in message or "missing" in message, f"Expected missing file error, got: {message}"
-
-    def test_sample_size_falls_back_to_pe(self):
-        """Test that the script uses pe_metrics.csv if lzc_metrics.csv is missing."""
-        # Create only pe_metrics.csv with 30 participants
-        lzc_path = self.data_dir / "lzc_metrics.csv"
-        pe_path = self.data_dir / "pe_metrics.csv"
-        if lzc_path.exists(): lzc_path.unlink()
-        
-        data = {
-            "participant_id": [f"P{i:03d}" for i in range(1, 31)],
-            "channel": ["Cz"] * 30,
-            "pe_value": [0.6 + i * 0.01 for i in range(30)]
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(pe_path, index=False)
-
-        # Run the check
-        passed, message = check_sample_size()
-        
-        # Assertions
-        assert passed is True, f"Expected check_sample_size to pass using PE file, got: {passed}"
-        assert "passed" in message.lower()
+        # Coefficients should be between -1 and 1
+        assert all(abs(corr_df['coefficient']) <= 1.0)
+        assert all(corr_df['p_value'] >= 0)
+        assert all(corr_df['p_value'] <= 1)

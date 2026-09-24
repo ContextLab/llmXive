@@ -1,6 +1,6 @@
-filter_low: 1
-filter_high: 40
-artifact_threshold: 100
+filter_low: 1.0
+filter_high: 40.0
+artifact_threshold_uV: 100
 random_seed: 42
+notch_frequency: 50.0
 min_participants: 30
-notch_freq: 50

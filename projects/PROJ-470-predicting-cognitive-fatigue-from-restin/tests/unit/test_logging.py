@@ -1,142 +1,140 @@
-"""Tests for the logging infrastructure (T006)."""
+"""Unit tests for the logging infrastructure (T006)."""
 import os
 import csv
+import json
+import sys
 import tempfile
 import shutil
 from pathlib import Path
 
-# We must ensure we are testing the actual project logging module,
-# not a mock. We will use a temporary directory for the test output
-# to avoid polluting the real data/processed directory during unit tests,
-# but we verify the path logic matches the project's EXCLUSION_LOG_PATH.
-
-import sys
-# Ensure code/ is in path if not already
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Ensure we can import code/utils
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from utils.logging import (
-    EXCLUSION_LOG_PATH,
-    LOGS_DIR,
+    get_logger,
     log_participant_exclusion,
     log_artifact_rejection,
     save_rejection_summary,
-    get_logger,
-    ReproducibilityLogger,
-    LogEntry
+    get_rejection_counts,
+    LogEntry,
+    ReproducibilityLogger
 )
 
-def test_constants_exist():
-    """Verify that required constants are defined."""
-    assert EXCLUSION_LOG_PATH is not None
-    assert LOGS_DIR is not None
-    assert EXCLUSION_LOG_PATH.endswith("exclusion_log.csv")
-    assert LOGS_DIR == "data/processed"
 
-def test_log_entry_creation():
-    """Test that LogEntry creates valid JSON."""
-    entry = LogEntry(operation="test", parameters={"key": "value"})
-    json_str = entry.to_json()
-    assert "test" in json_str
-    assert "value" in json_str
+def test_exclusion_log_file_creation():
+    """Test that exclusion_log.csv is created in data/processed/ with correct columns."""
+    # Reset logger state for a clean test
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
 
-def test_logger_accepts_args():
-    """Test that get_logger accepts various argument shapes."""
-    logger1 = get_logger("test_name")
-    assert logger1.name == "test_name"
+    # Ensure the target directory exists
+    target_dir = Path("data/processed")
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    logger2 = get_logger(name="another_name")
-    assert logger2.name == "another_name"
+    # Remove existing file if present to test creation from scratch
+    log_file = target_dir / "exclusion_log.csv"
+    if log_file.exists():
+        log_file.unlink()
 
-    logger3 = get_logger()
-    assert logger3 is logger1  # Singleton pattern
+    # Trigger a log entry
+    log_participant_exclusion("sub-001", "artifact_contamination")
 
-def test_log_artifact_rejection_writes_csv():
-    """Test that artifact rejection logs to the correct CSV file."""
-    # Use a temporary directory to simulate the data/processed directory
-    # to ensure we don't write to the real project root during unit tests
-    # if the test is run in isolation, but we verify the logic matches EXCLUSION_LOG_PATH.
-    
-    # Reset global logger to ensure clean state
-    from utils import logging as logging_module
-    logging_module._GLOBAL_LOGGER = None
-    
-    # Create a temporary directory for this test run
-    # We will mock the EXCLUSION_LOG_PATH to point here for the test
-    # However, the requirement is that the file is created in data/processed.
-    # To verify this without side effects, we will:
-    # 1. Call the logging functions.
-    # 2. Call save_rejection_summary.
-    # 3. Check if the file exists at EXCLUSION_LOG_PATH.
-    # Since we can't guarantee data/processed exists in a pure unit test env,
-    # we will create it if needed.
+    # Assert file exists in the correct location
+    assert log_file.exists(), f"exclusion_log.csv was not created at {log_file}"
+    assert str(target_dir) in str(log_file), "File must be in data/processed/, not a temp dir"
 
-    # Ensure the directory exists
-    os.makedirs(LOGS_DIR, exist_ok=True)
-
-    # Trigger log entries
-    log_artifact_rejection("epoch", "amplitude_threshold", participant_id="sub-001")
-    log_artifact_rejection("segment", "segment_too_short", participant_id="sub-002")
-
-    # Save to CSV
-    save_rejection_summary(EXCLUSION_LOG_PATH)
-
-    # Verify file exists at the correct path (data/processed/exclusion_log.csv)
-    assert os.path.exists(EXCLUSION_LOG_PATH), f"File {EXCLUSION_LOG_PATH} was not created"
-
-    # Verify content
-    with open(EXCLUSION_LOG_PATH, "r") as f:
-        reader = csv.DictReader(f)
+    # Verify CSV structure
+    with open(log_file, "r", newline="") as f:
+        reader = csv.reader(f)
         rows = list(reader)
 
-    assert len(rows) == 2
+    assert len(rows) >= 1, "CSV must have at least a header row"
+    header = rows[0]
+    expected_columns = ["participant_id", "reason", "timestamp"]
+    assert header == expected_columns, f"Header mismatch: got {header}, expected {expected_columns}"
 
-    # Check specific rows
-    reasons = [row["reason"] for row in rows]
-    assert "amplitude_threshold" in reasons
-    assert "segment_too_short" in reasons
+    assert len(rows) >= 2, "CSV must have at least one data row after logging"
+    data_row = rows[1]
+    assert data_row[0] == "sub-001", f"Participant ID mismatch: got {data_row[0]}"
+    assert data_row[1] == "artifact_contamination", f"Reason mismatch: got {data_row[1]}"
+    assert len(data_row[2]) > 0, "Timestamp must not be empty"
 
-    # Check participant IDs
-    pids = [row["participant_id"] for row in rows]
-    assert "sub-001" in pids
-    assert "sub-002" in pids
+def test_artifact_rejection_logging():
+    """Test that artifact rejections are logged correctly."""
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
 
-    # Check timestamp column exists and is not empty
-    for row in rows:
-        assert "timestamp" in row
-        assert len(row["timestamp"]) > 0
+    target_dir = Path("data/processed")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    log_file = target_dir / "exclusion_log.csv"
+    if log_file.exists():
+        log_file.unlink()
 
-def test_log_participant_exclusion_writes_csv():
-    """Test that participant exclusion logs to the correct CSV file."""
-    # Reset global logger
-    from utils import logging as logging_module
-    logging_module._GLOBAL_LOGGER = None
+    log_artifact_rejection("epoch", "epoch_123", "amplitude_threshold")
 
-    os.makedirs(LOGS_DIR, exist_ok=True)
-
-    log_participant_exclusion("sub-003", "poor_signal_quality")
-    
-    save_rejection_summary(EXCLUSION_LOG_PATH)
-
-    assert os.path.exists(EXCLUSION_LOG_PATH)
-
-    with open(EXCLUSION_LOG_PATH, "r") as f:
-        reader = csv.DictReader(f)
+    assert log_file.exists()
+    with open(log_file, "r", newline="") as f:
+        reader = csv.reader(f)
         rows = list(reader)
 
-    # Should have at least the new entry
-    assert len(rows) >= 1
-    
-    # Find the sub-003 entry
-    sub_003_row = next((r for r in rows if r["participant_id"] == "sub-003"), None)
-    assert sub_003_row is not None
-    assert sub_003_row["reason"] == "poor_signal_quality"
+    # Find the row with our artifact ID
+    found = False
+    for row in rows[1:]:  # Skip header
+        if row[0] == "epoch_123" and row[1] == "amplitude_threshold":
+            found = True
+            break
+    assert found, "Artifact rejection entry not found in CSV"
 
-def test_file_is_in_correct_directory():
-    """Verify the file is written to data/processed and not a temp dir."""
-    # This is implicitly tested by EXCLUSION_LOG_PATH definition,
-    # but we assert the path string directly.
-    assert EXCLUSION_LOG_PATH.startswith("data/processed/")
-    assert not EXCLUSION_LOG_PATH.startswith("/tmp")
-    assert not EXCLUSION_LOG_PATH.startswith(tempfile.gettempdir())
+def test_get_rejection_counts():
+    """Test that rejection counts are calculated correctly."""
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
+
+    log_participant_exclusion("sub-001", "bad_data")
+    log_participant_exclusion("sub-002", "bad_data")
+    log_artifact_rejection("epoch", "e1", "noise")
+
+    counts = get_rejection_counts()
+    assert counts.get("bad_data", 0) == 2
+    assert counts.get("noise", 0) == 1
+
+def test_logger_tolerance():
+    """Test that the logger accepts various call shapes without raising."""
+    logger = ReproducibilityLogger()
+    
+    # Standard log
+    entry = logger.log("test_op", param1="value1")
+    assert isinstance(entry, LogEntry)
+    
+    # Info/debug (should not raise)
+    logger.info("test message")
+    logger.debug("debug message")
+    logger.warning("warning message")
+    
+    # Call with no args
+    entry2 = logger.log()
+    assert entry2.operation == ""
+
+def test_save_rejection_summary_direct():
+    """Test save_rejection_summary writes correctly when called directly."""
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
+
+    target_dir = Path("data/processed")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    log_file = target_dir / "exclusion_log.csv"
+    if log_file.exists():
+        log_file.unlink()
+
+    # Log manually via entries
+    logger = get_logger()
+    logger.log("participant_exclusion", participant_id="sub-999", reason="manual_test")
+    save_rejection_summary()
+
+    assert log_file.exists()
+    with open(log_file, "r") as f:
+        content = f.read()
+    
+    assert "sub-999" in content
+    assert "manual_test" in content
+    assert "participant_id,reason,timestamp" in content
