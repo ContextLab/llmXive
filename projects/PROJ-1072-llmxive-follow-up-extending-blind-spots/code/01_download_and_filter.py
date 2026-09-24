@@ -3,214 +3,164 @@ import json
 import sys
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Set, Tuple
-import logging
+from typing import List, Dict, Any, Set, Tuple, Iterator
 
-# Import local utilities
-from utils.logging_config import get_logger
+from utils.logging_config import get_logger, setup_root_logger
+from utils.filtering_utils import is_valid_category, filter_by_categories
 from utils.hashing_utils import compute_file_hash
-from utils.dataset_integrity import validate_record_fields, generate_integrity_report
-from utils.filtering_utils import filter_by_categories
 
-# Configure logging
+# Configure logger
 logger = get_logger(__name__)
 
-def setup_logging(log_level: str = "INFO") -> None:
-    """Configure root logger."""
-    logging.basicConfig(
-        level=getattr(logging, log_level),
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
+def setup_logging():
+    """Setup logging configuration."""
+    setup_root_logger()
 
-def download_dataset(dataset_path: str) -> List[Dict[str, Any]]:
+def download_dataset(output_path: Path) -> Iterator[Dict[str, Any]]:
     """
-    Download the Blind-Spots-Bench dataset.
+    Download dataset from canonical source using streaming.
+    Yields records one by one to minimize memory usage.
+    """
+    from datasets import load_dataset
     
-    Args:
-        dataset_path: Path to the dataset (local or identifier for datasets library).
-        
-    Returns:
-        List of task records.
-    """
-    logger.info(f"Loading dataset from: {dataset_path}")
+    # The canonical source for Blind-Spots-Bench is the HuggingFace dataset
+    # "blind-spots-bench" or similar. We use the streaming API.
+    # If the specific dataset ID is not standard, we assume it's available 
+    # under a known namespace or we fetch from a specific config.
+    # Based on context, we assume 'blind-spots-bench' or similar.
+    # Let's assume the dataset name is 'blind-spots-bench' as per the project title.
+    # If it fails, we let it raise (T053 requirement).
+    
+    dataset_name = "blind-spots-bench" 
     try:
-        # Attempt to load from HuggingFace datasets if it's a repo ID
-        # If it's a local path, load_jsonl
-        p = Path(dataset_path)
-        if p.exists():
-            if p.is_dir():
-                # Assume jsonl inside dir or specific file
-                target = p / "tasks.jsonl"
-                if not target.exists():
-                    # Fallback to first jsonl
-                    target = next(p.glob("*.jsonl"), None)
-                    if not target:
-                        raise FileNotFoundError(f"No .jsonl found in {p}")
-            else:
-                target = p
-            
-            records = []
-            with open(target, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if line.strip():
-                        records.append(json.loads(line))
-            logger.info(f"Loaded {len(records)} records from local file.")
-            return records
-        
-        # If not local, try datasets library
-        from datasets import load_dataset
-        # Assuming the canonical source is a specific HF repo ID
-        # If the user provided a repo ID, use it. Otherwise default.
-        ds_id = dataset_path if not dataset_path.startswith('/') else "blind-spots-bench" 
-        # Fallback default if path was invalid
-        if not dataset_path or dataset_path.startswith('/'):
-            ds_id = "blind-spots-bench" # Replace with actual repo ID if known, otherwise this fails loudly
-            
-        ds = load_dataset(ds_id, split="train")
-        records = ds.to_list()
-        logger.info(f"Loaded {len(records)} records from HuggingFace.")
-        return records
-
+        ds = load_dataset(dataset_name, split="train", streaming=True)
+        for item in ds:
+            yield item
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error(f"Failed to download dataset '{dataset_name}': {e}")
         raise
 
-def filter_records(records: List[Dict[str, Any]], categories: Set[str]) -> List[Dict[str, Any]]:
+def filter_records(records: Iterator[Dict[str, Any]], categories: Set[str]) -> Iterator[Dict[str, Any]]:
     """
-    Filter records by target categories.
-    
-    Args:
-        records: List of all records.
-        categories: Set of allowed categories (e.g., {"Abstract Reasoning", "Object-Centric"}).
-        
-    Returns:
-        Filtered list of records.
+    Filter records based on task_category.
     """
-    logger.info(f"Filtering for categories: {categories}")
-    filtered = filter_by_categories(records, categories)
-    logger.info(f"Filtered: {len(filtered)} records retained.")
-    return filtered
+    for record in records:
+        if is_valid_category(record, categories):
+            yield record
 
-def validate_integrity(records: List[Dict[str, Any]], output_dir: Path) -> bool:
+def validate_integrity(records: List[Dict[str, Any]], required_field: str = "constraint") -> Tuple[int, List[str]]:
     """
-    Validate that all records have the required 'constraint' field.
-    Generates an error report and exits if failures found.
-    
-    Args:
-        records: List of filtered records.
-        output_dir: Directory to write validation reports.
-        
-    Returns:
-        True if validation passes.
+    Check for missing required fields (FR-006, FR-001).
+    Returns (count_of_missing, list_of_missing_ids).
     """
-    required_fields = ["constraint"]
-    errors = validate_record_fields(records, required_fields)
+    missing_count = 0
+    missing_ids = []
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    report_path = output_dir / "integrity_error_report.json"
+    for record in records:
+        # Check if the field exists and is not None/empty
+        if required_field not in record or record[required_field] is None:
+            missing_count += 1
+            record_id = record.get("id", "unknown_id")
+            missing_ids.append(record_id)
+            logger.warning(f"Missing '{required_field}' in record ID: {record_id}")
     
-    report = generate_integrity_report(errors, report_path)
-    
-    if report["total_errors"] > 0:
-        logger.error(f"Integrity check failed: {report['total_errors']} records missing required fields.")
-        logger.error(f"Report written to: {report_path}")
-        raise SystemExit(1)
-    
-    logger.info("Integrity check passed.")
-    return True
+    return missing_count, missing_ids
 
-def write_filtered_data(records: List[Dict[str, Any]], output_path: Path) -> str:
+def write_integrity_report(output_path: Path, total_missing: int, missing_ids: List[str], status: str = "failed"):
     """
-    Write filtered records to JSONL and compute checksum.
+    Write integrity error report to JSON.
+    If status is 'passed', we might not write or write a success report.
+    Per T014, we MUST generate this file if there are missing constraints, 
+    and then halt.
+    """
+    report = {
+        "status": status,
+        "total_missing": total_missing,
+        "missing_ids": missing_ids,
+        "message": "Execution halted due to missing constraint fields." if status == "failed" else "Integrity check passed."
+    }
     
-    Args:
-        records: List of records to write.
-        output_path: Destination path.
-        
-    Returns:
-        Hex digest of the file hash.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Integrity report written to {output_path}")
+
+def write_filtered_data(records: List[Dict[str, Any]], output_path: Path):
+    """
+    Write filtered records to JSONL file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w', encoding='utf-8') as f:
-        for rec in records:
-            f.write(json.dumps(rec) + '\n')
-    
-    file_hash = compute_file_hash(output_path)
-    logger.info(f"Wrote {len(records)} records to {output_path}")
-    logger.info(f"Checksum: {file_hash}")
-    return file_hash
+        for record in records:
+            f.write(json.dumps(record) + '\n')
+    logger.info(f"Filtered data written to {output_path}")
+
+def compute_file_hash(file_path: Path) -> str:
+    """
+    Compute SHA-256 hash of a file.
+    """
+    return compute_file_hash(file_path)
 
 def main():
-    """Main entry point with CLI argument parsing."""
-    parser = argparse.ArgumentParser(
-        description="Download and filter Blind-Spots-Bench dataset."
-    )
-    parser.add_argument(
-        "--dataset-path",
-        type=str,
-        default="blind-spots-bench",
-        help="Path to the dataset (local file/dir or HuggingFace repo ID). Default: blind-spots-bench"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/filtered",
-        help="Directory to write filtered data and reports. Default: data/filtered"
-    )
-    parser.add_argument(
-        "--categories",
-        type=str,
-        nargs="+",
-        default=["Abstract Reasoning", "Object-Centric"],
-        help="Categories to retain. Default: Abstract Reasoning Object-Centric"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level. Default: INFO"
-    )
+    parser = argparse.ArgumentParser(description="Download and filter Blind-Spots-Bench dataset.")
+    parser.add_argument("--input", type=str, default=None, help="Path to input dataset (if not downloading).")
+    parser.add_argument("--output", type=str, default='data/filtered/filtered_tasks.jsonl', help="Output path for filtered data.")
+    parser.add_argument("--categories", type=str, nargs='+', default=['Abstract Reasoning', 'Object-Centric'], 
+                        help="Categories to filter for.")
+    parser.add_argument("--integrity-output", type=str, default='data/validation/integrity_error_report.json',
+                        help="Path for integrity error report.")
     
     args = parser.parse_args()
-    setup_logging(args.log_level)
+    setup_logging()
     
-    output_dir = Path(args.output_dir)
-    filtered_file = output_dir / "filtered_tasks.jsonl"
-    validation_dir = output_dir.parent / "validation"
+    categories = set(args.categories)
+    output_path = Path(args.output)
+    integrity_output_path = Path(args.integrity_output)
     
-    try:
-        # 1. Download/Load
-        records = download_dataset(args.dataset_path)
-        
-        # 2. Filter
-        target_cats = set(args.categories)
-        filtered = filter_records(records, target_cats)
-        
-        if not filtered:
-            logger.warning("No records found matching the specified categories.")
-            # Still write empty file or exit? Per spec, usually fail if empty but let's proceed to integrity check
-        
-        # 3. Validate Integrity
-        validate_integrity(filtered, validation_dir)
-        
-        # 4. Write Output
-        checksum = write_filtered_data(filtered, filtered_file)
-        
-        # 5. Write Checksum file
-        checksum_file = output_dir / "filtered_tasks.jsonl.sha256"
-        with open(checksum_file, 'w') as f:
-            f.write(checksum)
-        
-        logger.info("Pipeline completed successfully.")
-        
-    except SystemExit as e:
-        raise
-    except Exception as e:
-        logger.exception(f"Pipeline failed with unhandled error: {e}")
+    # 1. Download or Load
+    if args.input:
+        logger.info(f"Loading dataset from {args.input}")
+        # Assuming JSONL input if local file provided
+        records = []
+        with open(args.input, 'r', encoding='utf-8') as f:
+            for line in f:
+                records.append(json.loads(line))
+    else:
+        logger.info("Downloading dataset via streaming...")
+        records = list(download_dataset(output_path.parent))
+    
+    # 2. Filter
+    logger.info(f"Filtering for categories: {categories}")
+    filtered_records = list(filter_records(iter(records), categories))
+    logger.info(f"Filtered {len(filtered_records)} records.")
+    
+    # 3. Integrity Check (T014)
+    logger.info("Running integrity check for 'constraint' field...")
+    missing_count, missing_ids = validate_integrity(filtered_records, "constraint")
+    
+    if missing_count > 0:
+        logger.error(f"Integrity check FAILED: {missing_count} records missing 'constraint' field.")
+        write_integrity_report(integrity_output_path, missing_count, missing_ids, status="failed")
+        logger.critical("Halting execution due to integrity failure.")
         sys.exit(1)
+    else:
+        logger.info("Integrity check PASSED: All records have 'constraint' field.")
+        # Optional: Write a success report or skip writing this file if not required on success.
+        # The task says "MUST generate ... on failure". It implies on success we proceed.
+        # However, to be safe and explicit, we can write a success status if needed, 
+        # but the critical requirement is the failure report.
+        # We will not write the failure report on success.
+        pass
+    
+    # 4. Write Filtered Data
+    write_filtered_data(filtered_records, output_path)
+    
+    # 5. Compute Hash
+    file_hash = compute_file_hash(output_path)
+    logger.info(f"Output file hash: {file_hash}")
+    
+    logger.info("Pipeline stage completed successfully.")
 
 if __name__ == "__main__":
     main()

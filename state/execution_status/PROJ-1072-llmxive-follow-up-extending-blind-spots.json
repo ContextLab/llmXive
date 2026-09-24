@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-1072-llmxive-follow-up-extending-blind-spots",
+  "ok": false,
+  "reason": "7 run-book script(s) missing (plan/impl path mismatch): python src/main.py --step acquire; python src/main.py --step pilot; python src/main.py --step generate; 2 declared deliverable(s) absent: data/pilot/tuned_threshold.json; data/validation/integrity_error_report.json",
+  "artifacts": [],
+  "failures": [
+    "python src/main.py --step acquire -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step pilot -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step generate -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step parse -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step classify -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step stats -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory",
+    "python src/main.py --step full --sample-size 5 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/src/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-24T12:20:16Z"
+}

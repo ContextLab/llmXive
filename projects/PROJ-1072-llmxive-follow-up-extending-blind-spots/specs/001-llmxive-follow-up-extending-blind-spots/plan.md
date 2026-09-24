@@ -103,7 +103,7 @@ data/
 | **Semantic Equivalence Check** | Constraint paraphrasing is common in CoT; exact string matching yields high false-negative rates for "Perceptual Errors". | Simple string matching was rejected as it would fail to detect valid constraints rephrased by the model, violating the accuracy of the error classification. |
 | **4-bit Quantization** | Full precision models exceed 7 GB RAM on CPU; 8-bit may still be risky for larger context windows. | Running on a GPU-only runner was rejected to ensure reproducibility on standard CI; CPU-only execution is mandatory per spec constraints. |
 | **Fisher's Exact Fallback** | Sample sizes for specific sub-categories may be < 5, violating Chi-squared assumptions. | Relying solely on Chi-squared was rejected as it produces invalid p-values for small counts, risking statistical rigor. |
-| **Pilot Study (Threshold Validation)** | Arbitrary similarity thresholds (0.85) risk construct validity. | No pilot study was rejected because it would leave the semantic matching logic unvalidated, potentially biasing results. |
+| **Pilot Study (Threshold Validation)** | Arbitrary similarity thresholds risk construct validity. | No pilot study was rejected because it would leave the semantic matching logic unvalidated, potentially biasing results. |
 
 ## Implementation Phases & Tasks
 

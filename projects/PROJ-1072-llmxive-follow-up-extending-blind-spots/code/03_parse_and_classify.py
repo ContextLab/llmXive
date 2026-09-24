@@ -5,367 +5,312 @@ import re
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Set
 
-from utils.logging_config import get_logger, setup_root_logger
-from utils.semantic_matcher import is_paraphrase, encode_texts
-from utils.hashing_utils import compute_string_hash
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
-# --- Configuration Constants ---
-TOKEN_WINDOW_SIZE = 256
-SEMANTIC_THRESHOLD_PATH = Path("data/pilot/tuned_threshold.json")
-TRACE_INPUT_PATH = Path("data/traces/cot_traces.jsonl")
-TASK_RECORDS_PATH = Path("data/filtered/filtered_tasks.jsonl")
-OUTPUT_PATH = Path("data/results/parsed_traces.jsonl")
+from utils.logging_config import get_logger, setup_root_logger
+from utils.semantic_matcher import encode_texts, cosine_similarity, is_paraphrase
 
 logger = get_logger(__name__)
 
-def setup_logging() -> None:
-    """Configure logging for the parsing module."""
-    setup_root_logger(level=logging.INFO)
+# --- Configuration Constants ---
+TOKEN_WINDOW_SIZE = 256
+DEFAULT_THRESHOLD = 0.72  # Fallback if file missing, but task requires reading it
 
-def load_traces(path: Path = TRACE_INPUT_PATH) -> List[Dict[str, Any]]:
+def setup_logging():
+    """Configure logging for the script."""
+    setup_root_logger()
+    return logger
+
+def load_traces(trace_path: Path) -> List[Dict[str, Any]]:
     """Load CoT traces from JSONL file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Trace file not found: {path}")
-    
     traces = []
-    with open(path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            try:
-                traces.append(json.loads(line.strip()))
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decode error in {path} at line {line_num}: {e}")
-                continue
+    with open(trace_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                traces.append(json.loads(line))
+    logger.info(f"Loaded {len(traces)} traces from {trace_path}")
     return traces
 
-def load_task_records(path: Path = TASK_RECORDS_PATH) -> Dict[str, Dict[str, Any]]:
-    """Load task records and index by task_id."""
-    if not path.exists():
-        raise FileNotFoundError(f"Task records not found: {path}")
-    
-    records = {}
-    with open(path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            try:
-                record = json.loads(line.strip())
-                if 'task_id' in record:
-                    records[record['task_id']] = record
-                else:
-                    logger.warning(f"Task record missing 'task_id' at line {line_num}, skipping.")
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decode error in {path} at line {line_num}: {e}")
-    return records
+def load_task_records(task_path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load task records into a dictionary keyed by task_id."""
+    tasks = {}
+    with open(task_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                task = json.loads(line)
+                tasks[task['task_id']] = task
+    logger.info(f"Loaded {len(tasks)} task records from {task_path}")
+    return tasks
 
-def load_threshold(path: Path = SEMANTIC_THRESHOLD_PATH) -> float:
-    """Load the tuned semantic matching threshold."""
-    if not path.exists():
-        raise FileNotFoundError(f"Threshold file not found: {path}")
+def load_threshold(threshold_path: Path) -> float:
+    """Load the tuned threshold from JSON file."""
+    if not threshold_path.exists():
+        logger.error(f"Tuned threshold file not found: {threshold_path}")
+        raise FileNotFoundError(f"Tuned threshold file not found: {threshold_path}")
     
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(threshold_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-        if 'threshold' not in data:
-            raise ValueError("Threshold file missing 'threshold' key.")
-        return float(data['threshold'])
-
-def tokenize_text(text: str, tokenizer: Any = None) -> List[str]:
-    """
-    Tokenize text using a simple whitespace tokenizer if no specific tokenizer is provided.
-    In a real implementation, this would use the model's tokenizer.
-    For this script, we assume text is already pre-tokenized or use a robust splitter.
-    """
-    if tokenizer:
-        return tokenizer.encode(text, add_special_tokens=False)
-    # Fallback: Split by whitespace, keeping punctuation attached to words for simplicity
-    # This is a simplification; real tokenizers are more complex.
-    return text.split()
-
-def reconstruct_text_from_tokens(tokens: List[str]) -> str:
-    """Reconstruct text from a list of tokens."""
-    return " ".join(tokens)
-
-def find_exact_match(text: str, constraint: str, tokens: List[str], 
-                     start_offset: int = 0, end_offset: int = -1) -> Optional[Tuple[int, int]]:
-    """
-    Find exact word-boundary match of constraint in text (or tokens).
-    Returns (start_char_offset, end_char_offset) or None if not found.
     
-    Uses word-boundary matching to avoid false positives (e.g., "cat" in "category").
+    threshold = data.get('optimal_threshold')
+    if threshold is None:
+        logger.error("optimal_threshold key missing in tuned_threshold.json")
+        raise ValueError("optimal_threshold key missing in tuned_threshold.json")
+    
+    logger.info(f"Loaded threshold: {threshold}")
+    return threshold
+
+def load_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
+    """Load the semantic matching model."""
+    logger.info(f"Loading semantic model: {model_name}")
+    model = SentenceTransformer(model_name)
+    logger.info("Model loaded successfully")
+    return model
+
+def tokenize_text(text: str, tokenizer) -> List[str]:
+    """Tokenize text using the provided tokenizer."""
+    # Assuming tokenizer is a HuggingFace tokenizer or similar
+    # Returns list of tokens (strings)
+    return tokenizer.encode(text, add_special_tokens=False, return_tensors='pt')[0].tolist()
+
+def reconstruct_text_from_tokens(tokens: List[int], tokenizer) -> str:
+    """Reconstruct text from token IDs."""
+    return tokenizer.decode(tokens, skip_special_tokens=True)
+
+def find_exact_match(text: str, constraint: str) -> Optional[Tuple[int, int]]:
+    """
+    Find exact character offset of constraint string in text.
+    Returns (start, end) or None if not found.
+    Implements word-boundary check to avoid false positives.
     """
     if not constraint or not text:
         return None
-
-    # Normalize constraint for matching (lowercase, strip)
-    clean_constraint = constraint.strip()
-    if not clean_constraint:
-        return None
-
-    # Use regex with word boundaries to ensure exact match
-    # We escape special regex characters in the constraint
-    escaped_constraint = re.escape(clean_constraint)
-    # \b ensures word boundary (start/end of string or non-word char)
-    pattern = r'\b' + escaped_constraint + r'\b'
     
-    # Search in the text segment defined by offsets
-    # If tokens are provided, we might need to reconstruct the relevant segment
-    # For now, assume we search in the full text but respect offsets if they are char indices
-    search_text = text
-    if start_offset > 0 or end_offset != -1:
-        # If offsets are provided, they are assumed to be character indices in the original text
-        # However, the task says "first 256 tokens", so we need to map tokens to chars.
-        # For simplicity in this edge-case handler, we assume the caller has already sliced the text
-        # to the relevant window, or we search the whole text but the caller handles the window logic.
-        # To strictly follow "first 256 tokens", the caller should slice the text.
-        # Here we just perform the word-boundary search on the provided text.
-        pass
-
-    match = re.search(pattern, search_text)
+    # Use regex with word boundaries for robust matching
+    # Escape special regex characters in constraint
+    escaped_constraint = re.escape(constraint)
+    # Use \b for word boundary, but handle cases where constraint might not be surrounded by standard word chars
+    # A more robust approach for "constraint" which might be a phrase:
+    pattern = re.compile(r'\b' + escaped_constraint + r'\b', re.IGNORECASE)
+    match = pattern.search(text)
+    
     if match:
         return (match.start(), match.end())
     return None
 
-def find_semantic_match(text: str, constraint: str, threshold: float, 
-                        encoder: Any = None) -> bool:
+def find_semantic_match(text_segment: str, constraint: str, model: SentenceTransformer, threshold: float) -> bool:
     """
-    Check if text contains a semantic paraphrase of the constraint.
-    Uses sentence-transformers and cosine similarity.
+    Use semantic matching to detect paraphrased constraints.
+    Uses all-MiniLM-L6-v2 and the provided threshold.
     """
-    if not constraint or not text:
+    if not text_segment or not constraint:
         return False
-
-    if encoder is None:
-        from utils.semantic_matcher import encode_texts
-        # The encoder is usually cached globally or passed in. 
-        # For this function, we assume the global encoder or a passed one.
-        # If not provided, we rely on the module's internal state or raise.
-        # Given the API surface, we call the helper.
-        return is_paraphrase(text, constraint, threshold)
     
-    # If encoder is passed, use it directly
     try:
-        # We need to split text into sentences or chunks to match against constraint
-        # Simple approach: compare the whole text (or window) against the constraint
-        embeddings = encode_texts([text, constraint], encoder=encoder)
-        if embeddings is None or len(embeddings) != 2:
-            return False
+        # Encode texts
+        embeddings = encode_texts([text_segment, constraint], model)
         
-        sim = float(np.dot(embeddings[0], embeddings[1]) / (np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1])))
-        return sim >= threshold
+        # Compute cosine similarity
+        # embeddings shape: (2, dim)
+        sim = cosine_similarity(embeddings[0].unsqueeze(0), embeddings[1].unsqueeze(0))
+        similarity_score = float(sim[0][0])
+        
+        logger.debug(f"Semantic similarity: {similarity_score:.4f} (threshold: {threshold})")
+        
+        return similarity_score >= threshold
     except Exception as e:
         logger.warning(f"Semantic matching failed: {e}")
         return False
 
-def parse_trace(trace: Dict[str, Any], task_record: Dict[str, Any], 
-                threshold: float, encoder: Any = None) -> Dict[str, Any]:
+def parse_trace(trace: Dict[str, Any], constraint: str, tokenizer, model: SentenceTransformer, threshold: float) -> Dict[str, Any]:
     """
-    Parse a single trace to find constraint mentions.
-    Handles edge cases: word-boundary matching, null flags for missing constraints.
+    Parse a single trace to find first/last constraint offsets.
+    Checks first 256 tokens and last 256 tokens.
+    Falls back to semantic matching if exact match fails.
     """
+    trace_text = trace.get('cot_trace', '')
     task_id = trace.get('task_id', 'unknown')
-    trace_text = trace.get('trace', '')
-    constraint = task_record.get('constraint', '')
     
-    result = {
-        'task_id': task_id,
-        'trace_id': trace.get('trace_id', ''),
-        'constraint': constraint,
-        'first_mention': None,
-        'last_mention': None,
-        'first_mention_type': None, # 'exact' or 'semantic' or None
-        'last_mention_type': None,
-        'first_mention_offset': None, # (start, end)
-        'last_mention_offset': None,
-        'edge_case_flags': []
-    }
-
     if not trace_text:
-        result['edge_case_flags'].append('empty_trace')
-        return result
-
-    if not constraint:
-        result['edge_case_flags'].append('missing_constraint_in_task_record')
-        return result
-
-    # 1. Tokenize and slice windows
-    # We assume a simple tokenizer for now. In production, use the model's tokenizer.
-    tokens = tokenize_text(trace_text)
+        return {
+            'task_id': task_id,
+            'first_offset': None,
+            'last_offset': None,
+            'first_mention_type': 'none',
+            'last_mention_type': 'none',
+            'error': 'Empty trace'
+        }
     
-    if len(tokens) == 0:
-        result['edge_case_flags'].append('no_tokens')
-        return result
-
+    # Tokenize
+    try:
+        token_ids = tokenizer.encode(trace_text, add_special_tokens=False, return_tensors='pt')[0].tolist()
+    except Exception as e:
+        logger.warning(f"Tokenization failed for {task_id}: {e}")
+        return {
+            'task_id': task_id,
+            'first_offset': None,
+            'last_offset': None,
+            'first_mention_type': 'none',
+            'last_mention_type': 'none',
+            'error': f'Tokenization failed: {e}'
+        }
+    
     # Define windows
-    first_window_tokens = tokens[:TOKEN_WINDOW_SIZE]
-    last_window_tokens = tokens[-TOKEN_WINDOW_SIZE:] if len(tokens) > TOKEN_WINDOW_SIZE else tokens
-
+    first_window_tokens = token_ids[:TOKEN_WINDOW_SIZE]
+    last_window_tokens = token_ids[-TOKEN_WINDOW_SIZE:] if len(token_ids) > TOKEN_WINDOW_SIZE else token_ids
+    
     # Reconstruct text for windows
-    first_window_text = reconstruct_text_from_tokens(first_window_tokens)
-    last_window_text = reconstruct_text_from_tokens(last_window_tokens)
-
-    # 2. Search in First Window
+    first_window_text = tokenizer.decode(first_window_tokens, skip_special_tokens=True)
+    last_window_text = tokenizer.decode(last_window_tokens, skip_special_tokens=True)
+    
+    # Find first mention
     first_offset = None
-    first_type = None
-
-    # Try exact match with word boundaries
-    # We need to map token offsets back to char offsets in the original trace_text?
-    # The requirement says "first/last character offset".
-    # This is complex with tokenizers. For this implementation, we will report
-    # the match found in the window text. If strict char offsets are needed,
-    # we must map the token slice back to the original string.
+    first_type = 'none'
     
-    # Simplified approach for "edge case handling":
-    # We search the window text. If found, we record it.
-    # Word-boundary matching is handled in find_exact_match.
-    
-    exact_first = find_exact_match(first_window_text, constraint)
-    if exact_first:
-        first_offset = exact_first
+    # Try exact match in first window
+    exact_match = find_exact_match(first_window_text, constraint)
+    if exact_match:
+        first_offset = exact_match[0]
         first_type = 'exact'
     else:
         # Try semantic match
-        if find_semantic_match(first_window_text, constraint, threshold, encoder):
+        if find_semantic_match(first_window_text, constraint, model, threshold):
+            first_offset = 0  # Approximate, as semantic match doesn't give offset
             first_type = 'semantic'
-            # Semantic match doesn't give a specific offset easily without sliding window
-            # We mark it as found but offset might be approximate or None
-            # For strict requirements, we might need to find the specific sentence.
-            # Here we set offset to None and flag it.
-            first_offset = None 
     
-    if first_offset is None and first_type is None:
-        result['edge_case_flags'].append('no_first_mention_found')
-
-    # 3. Search in Last Window
+    # Find last mention
     last_offset = None
-    last_type = None
-
-    exact_last = find_exact_match(last_window_text, constraint)
-    if exact_last:
-        last_offset = exact_last
-        last_type = 'exact'
+    last_type = 'none'
+    
+    # Try exact match in last window
+    exact_match = find_exact_match(last_window_text, constraint)
+    if exact_match:
+        # Adjust offset to be relative to full text
+        # We need to estimate where this window starts in the full text
+        # For simplicity, we report offset within the window if semantic, or approximate
+        # A more accurate way: find last occurrence in full text
+        last_exact_full = find_exact_match(trace_text, constraint)
+        if last_exact_full:
+            last_offset = last_exact_full[0]
+            last_type = 'exact'
+        else:
+            last_offset = len(trace_text) - len(last_window_text) + exact_match[0]
+            last_type = 'exact'
     else:
-        if find_semantic_match(last_window_text, constraint, threshold, encoder):
+        # Try semantic match
+        if find_semantic_match(last_window_text, constraint, model, threshold):
+            # Estimate position: start of last window
+            start_of_last_window = max(0, len(trace_text) - len(last_window_text))
+            last_offset = start_of_last_window
             last_type = 'semantic'
-            last_offset = None
-
-    if last_offset is None and last_type is None:
-        result['edge_case_flags'].append('no_last_mention_found')
-
-    # 4. Handle Edge Cases for False Positives
-    # The find_exact_match function already uses \b word boundaries.
-    # We can add a flag if the constraint is a substring of a longer word (though \b prevents this).
-    # We can also check if the match length is suspiciously short (e.g. 1 char) - unlikely for constraints.
     
-    # 5. Set Result
-    result['first_mention'] = first_type is not None
-    result['last_mention'] = last_type is not None
-    result['first_mention_type'] = first_type
-    result['last_mention_type'] = last_type
-    result['first_mention_offset'] = first_offset
-    result['last_mention_offset'] = last_offset
+    return {
+        'task_id': task_id,
+        'first_offset': first_offset,
+        'last_offset': last_offset,
+        'first_mention_type': first_type,
+        'last_mention_type': last_type,
+        'first_mention_found': first_offset is not None,
+        'last_mention_found': last_offset is not None
+    }
 
-    return result
-
-def classify_error(parsed_trace: Dict[str, Any]) -> str:
+def classify_error(parsed_result: Dict[str, Any], task_record: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Classify error type based on temporal pattern of constraint mention.
+    Classify error type based on temporal pattern of constraint mentions.
     Logic:
-    - If constraint mentioned in first window AND last window -> Correct (or Procedural?)
-      * Spec FR-004: "Predictor = Temporal Pattern, Outcome = Ground Truth"
-      * Usually: Mentioned early AND late -> Correct understanding.
-      * Mentioned early ONLY -> Procedural (started right, lost it).
-      * Mentioned late ONLY -> Perceptual (saw it late, maybe guessed).
-      * Mentioned NEITHER -> Perceptual/Procedural (missed entirely).
-    
-    *Note: The exact logic for "Perceptual" vs "Procedural" depends on the specific hypothesis.
-    *Assumption based on typical reasoning traces:
-    * - First & Last: Correct / Strong
-    * - First only: Procedural (lost track)
-    * - Last only: Perceptual (found it late)
-    * - Neither: Perceptual (missed)
+    - First Missing = Perceptual
+    - First Present / Last Missing = Procedural
+    - Both Present = Correct (assuming outcome matches, but we use mention pattern as predictor)
     """
-    first = parsed_trace.get('first_mention', False)
-    last = parsed_trace.get('last_mention', False)
-
-    if first and last:
-        return "Correct"
-    elif first and not last:
-        return "Procedural"
-    elif not first and last:
-        return "Perceptual"
+    first_found = parsed_result.get('first_mention_found', False)
+    last_found = parsed_result.get('last_mention_found', False)
+    
+    classification = 'unknown'
+    reasoning = ''
+    
+    if not first_found:
+        classification = 'Perceptual'
+        reasoning = 'Constraint not mentioned in first window (Perceptual error)'
+    elif first_found and not last_found:
+        classification = 'Procedural'
+        reasoning = 'Constraint mentioned early but not in last window (Procedural error)'
+    elif first_found and last_found:
+        classification = 'Correct'
+        reasoning = 'Constraint mentioned in both windows (Correct execution)'
     else:
-        return "Perceptual" # Or "Unknown", but spec says Perceptual/Procedural/Correct
+        reasoning = 'Unexpected state in classification logic'
+    
+    return {
+        'classification': classification,
+        'reasoning': reasoning,
+        'first_mention_type': parsed_result.get('first_mention_type'),
+        'last_mention_type': parsed_result.get('last_mention_type')
+    }
 
-def process_all_traces(traces: List[Dict], task_records: Dict, 
-                       threshold: float, encoder: Any = None) -> List[Dict]:
-    """Process all traces and return results with classifications."""
+def process_all_traces(traces: List[Dict], tasks: Dict, model: SentenceTransformer, tokenizer, threshold: float) -> List[Dict]:
+    """Process all traces and classify errors."""
     results = []
     for trace in traces:
         task_id = trace.get('task_id')
-        if task_id not in task_records:
-            logger.warning(f"Task {task_id} not found in records, skipping.")
+        if task_id not in tasks:
+            logger.warning(f"Task {task_id} not found in task records, skipping")
             continue
         
-        task_record = task_records[task_id]
-        parsed = parse_trace(trace, task_record, threshold, encoder)
-        parsed['error_type'] = classify_error(parsed)
-        results.append(parsed)
+        task_record = tasks[task_id]
+        constraint = task_record.get('constraint', '')
+        
+        if not constraint:
+            logger.warning(f"No constraint found for task {task_id}, skipping")
+            continue
+        
+        parsed = parse_trace(trace, constraint, tokenizer, model, threshold)
+        classified = classify_error(parsed, task_record)
+        
+        result = {
+            'task_id': task_id,
+            'trace_id': trace.get('trace_id', task_id),
+            'constraint': constraint,
+            'parsed': parsed,
+            'classification': classified
+        }
+        results.append(result)
+    
     return results
 
-def write_results(results: List[Dict], path: Path = OUTPUT_PATH) -> None:
+def write_results(results: List[Dict], output_path: Path):
     """Write results to JSONL file."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
-        for res in results:
-            f.write(json.dumps(res) + '\n')
-    logger.info(f"Wrote {len(results)} results to {path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for result in results:
+            f.write(json.dumps(result) + '\n')
+    logger.info(f"Wrote {len(results)} results to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse and classify CoT traces.")
-    parser.add_argument('--traces', type=Path, default=TRACE_INPUT_PATH, help='Path to traces JSONL')
-    parser.add_argument('--tasks', type=Path, default=TASK_RECORDS_PATH, help='Path to task records JSONL')
-    parser.add_argument('--threshold', type=Path, default=SEMANTIC_THRESHOLD_PATH, help='Path to threshold JSON')
-    parser.add_argument('--output', type=Path, default=OUTPUT_PATH, help='Path to output JSONL')
+    parser = argparse.ArgumentParser(description='Parse CoT traces and classify errors')
+    parser.add_argument('--traces', type=str, required=True, help='Path to traces JSONL')
+    parser.add_argument('--tasks', type=str, required=True, help='Path to task records JSONL')
+    parser.add_argument('--output', type=str, required=True, help='Path to output JSONL')
+    parser.add_argument('--threshold', type=str, required=True, help='Path to tuned threshold JSON')
     args = parser.parse_args()
-
+    
     setup_logging()
     
-    # Load data
-    logger.info("Loading traces...")
-    traces = load_traces(args.traces)
-    logger.info(f"Loaded {len(traces)} traces.")
-
-    logger.info("Loading task records...")
-    task_records = load_task_records(args.tasks)
-    logger.info(f"Loaded {len(task_records)} task records.")
-
-    logger.info("Loading threshold...")
-    threshold = load_threshold(args.threshold)
-    logger.info(f"Using semantic threshold: {threshold}")
-
-    # Initialize encoder if needed
-    # The semantic_matcher module handles the model loading internally or via a global
-    encoder = None # Passed to functions if needed, or accessed globally in semantic_matcher
-
-    logger.info("Processing traces...")
-    results = process_all_traces(traces, task_records, threshold, encoder)
-
-    logger.info("Writing results...")
-    write_results(results, args.output)
-
-    # Summary stats
-    total = len(results)
-    correct = sum(1 for r in results if r['error_type'] == 'Correct')
-    procedural = sum(1 for r in results if r['error_type'] == 'Procedural')
-    perceptual = sum(1 for r in results if r['error_type'] == 'Perceptual')
+    # Load resources
+    traces = load_traces(Path(args.traces))
+    tasks = load_task_records(Path(args.tasks))
+    threshold = load_threshold(Path(args.threshold))
+    model = load_model()
     
-    logger.info(f"Summary: Total={total}, Correct={correct}, Procedural={procedural}, Perceptual={perceptual}")
+    # Get tokenizer from model
+    tokenizer = model.tokenizer
     
-    # Log edge cases
-    edge_cases = {}
-    for r in results:
-        for flag in r.get('edge_case_flags', []):
-            edge_cases[flag] = edge_cases.get(flag, 0) + 1
+    # Process
+    results = process_all_traces(traces, tasks, model, tokenizer, threshold)
     
-    if edge_cases:
-        logger.warning(f"Edge cases encountered: {edge_cases}")
+    # Write
+    write_results(results, Path(args.output))
+    
+    logger.info("Processing complete")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -49,17 +49,22 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes GPU fallback, streaming, and configuration.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (include `datasets`, `transformers`, `torch`, `sentence-transformers`, `scikit-learn`, `scipy`, `pandas`, `statsmodels`)
-- [X] T004 [P] Create specific YAML schema files: `task-record.schema.yaml`, `cot-trace.schema.yaml`, `analysis-result.schema.yaml` in `specs/001-blind-spots-order-analysis/contracts/`
+- [X] T003a [P] Create `config.yaml` with keys: `validation.sample_size`, `study.min_sample_size`, `inference.timeout_minutes` (Default: A representative sample size sufficient for statistical power., `inference.model_name`, `inference.device`)
+- [X] T004 [P] Create specific YAML schema files: `dataset.schema.yaml`, `trace.schema.yaml`, `output.schema.yaml` in `specs/001-blind-spots-order-analysis/contracts/` (Matches Plan.md structure)
 - [X] T005 [P] Implement `code/utils/hashing_utils.py` for artifact content hashing (Constitution Principle V)
 - [X] T006 [P] Implement `code/utils/logging_config.py` for structured logging across pipeline stages
-- [X] T007 [P] Implement `code/utils/dataset_integrity.py` for strict field validation (FR-006)
+- [X] T007 [P] Implement `code/utils/dataset_integrity.py` for strict field validation (FR-006) using `dataset.schema.yaml`
 - [X] T008 [P] Implement `code/utils/semantic_matcher.py` using `all-MiniLM-L6-v2` for paraphrase detection (FR-011)
 - [X] T009 [P] Create `code/run_pipeline.sh` orchestrator script
+- [X] T050 [US2] Implement streaming data loader in `code/01_download_and_filter.py`: Replace full dataset loading with `datasets.load_dataset(..., streaming=True)` to process tasks in chunks, ensuring RAM usage stays within acceptable limits for large subsets (Plan: Memory & Compute Strategy).
+- [X] T051 [US2] Implement strict CPU-only execution in `code/02_generate_cot.py`: Enforce `device="cpu"` and 4-bit quantization. **Do NOT implement GPU auto-detection or fallback**. If CPU execution fails (OOM/Timeout), the task fails, and the pipeline halts for human intervention to preserve reproducibility on standard CI runners (Constitution Principle I, Plan: Target Platform). **Must use fixed seed for reproducibility.**
+- [X] T052 [US2] Add explicit sample-size logging in `code/02_generate_cot.py`: Log the exact number of tasks processed, skipped (timeout), and generated, including the streaming chunk size or random seed used if sampling is applied (Spec: Large real datasets).
+- [X] T053 [US2] Implement strict "No Synthetic Fallback" guard in `code/01_download_and_filter.py`: Ensure `try/except` blocks for data fetching **raise** immediately on failure without generating `mock_*` or `synthetic_*` data (Spec: The loader must FAIL LOUDLY).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,9 +86,9 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/01_download_and_filter.py`: Download dataset from canonical arXiv source using `datasets` library
+- [X] T012 [US1] Implement `code/01_download_and_filter.py`: Download dataset from canonical arXiv source using `datasets` library (Streaming enabled per T050). **Internal check**: Verify the source URL is reachable and matches the spec before proceeding.
 - [X] T013 [US1] Implement filtering logic in T012: Retain only "Abstract Reasoning" and "Object-Centric" categories. **Filter criteria**: `task_category in ['Abstract Reasoning', 'Object-Centric']`. **Output path**: `data/filtered/filtered_tasks.jsonl`.
-- [X] T014 [US1] Implement integrity check in T012: Halt execution and log specific IDs if `constraint` field is missing (FR-006, FR-001). **MUST** generate `data/validation/integrity_error_report.json` with the count and IDs of missing constraints, then `raise SystemExit(1)` on failure to enforce hard stop.
+- [ ] T014 [US1] Implement integrity check in T012: Scan `data/filtered/filtered_tasks.jsonl` for missing `constraint` fields. **If missing**: Halt execution, log specific IDs, generate `data/validation/integrity_error_report.json`, and `raise SystemExit(1)`. **If clean**: Generate `data/validation/integrity_report.json` with status 'PASS' and proceed to T015. **Do NOT raise SystemExit on success.** (FR-006, FR-001).
 - [X] T015 [US1] Write filtered data to `data/filtered/filtered_tasks.jsonl` with checksum generation
 - [X] T016 [US1] Add CLI arguments for dataset path and output path in T012: `--input` (str, default=None), `--output` (str, default='data/filtered/filtered_tasks.jsonl').
 
@@ -95,9 +100,12 @@
 
 **Goal**: Validate semantic matching threshold on a small pilot set before full-scale generation.
 
-- [X] T017 [US1] Implement `code/pilot_study.py`: Generate CoT traces for a small pilot set (N=10) using the filtered dataset. **Save to `data/pilot/` (separate from production traces)**.
-- [X] T018 [US1] Implement `code/validate_pilot.py`: Load pilot traces and prompt experts (or use a rule-based oracle) to label "Constraint Mention" (Yes/No) for N=10 traces.
-- [X] T019 [US1] Implement `code/tune_threshold.py`: Iterate cosine similarity threshold (range within the theoretical bounds of the metric) to maximize agreement between automated semantic match and human/oracle labels. Select optimal threshold and save to `data/pilot/tuned_threshold.json`.
+- [X] T022a [US2] Implement `code/02_generate_cot.py` (Pilot Mode): Load 4-bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must support `--pilot` flag.**
+- [X] T017 [US2] Implement `code/pilot_study.py`: Generate CoT traces for a small pilot set (N=10) using the filtered dataset and T022a. **Save to `data/pilot/` (separate from production traces)**.
+- [X] T018a [US2] Implement `code/generate_pilot_annotation_request.py`: Generate a request file for human experts to label the N=10 pilot traces for "Constraint Mention" (Yes/No) and "Task Outcome" (Correct/Incorrect).
+- [X] T018b [US2] **Manual Step**: Human expert labels N=10 pilot traces. Save results to `data/pilot/pilot_ground_truth_labels.jsonl`. **Automated tasks T018c and T019 are blocked until this file exists.**
+- [X] T018c [US2] Implement `code/ingest_pilot_labels.py`: Ingest labels from `data/pilot/pilot_ground_truth_labels.jsonl`. **Must verify file presence before proceeding.**
+- [X] T019 [US2] Implement `code/tune_threshold.py`: Iterate cosine similarity threshold (range within the theoretical bounds of the metric) to maximize agreement between automated semantic match and human/oracle labels. Select optimal threshold and save to `data/pilot/tuned_threshold.json`. **This is an automated task that MUST run after T018c.**
 
 **Checkpoint**: Threshold validated - ready for full-scale generation
 
@@ -116,16 +124,16 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/02_generate_cot.py`: Load 4-bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009)
+- [ ] T022 [US2] Implement `code/02_generate_cot.py` (Full Mode): Load 4-bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must read tuned threshold from `data/pilot/tuned_threshold.json`**. **If `tuned_threshold.json` is missing, raise FileNotFoundError with a clear message indicating T019 must be run first.**
 - [X] T023 [US2] Implement inference loop in T022: Generate traces with `temperature=0.0`, enforce **Fixed 10-minute wall-clock timeout** per task (FR-012) using `signal.alarm`. **If timeout occurs, log error (ERR_TIMEOUT) and skip task; do NOT retry with extended time.**
 - [X] T024 [US2] Implement error handling in T022: Log timeout/empty response errors (JSON structured logs, severity WARNING, codes ERR_TIMEOUT, ERR_EMPTY) and skip task without crashing (Edge Case).
-- [X] T025 [US2] Implement Memory Guard in T022: If OOM, fallback to Mistral-7B-Int4 (4-bit) or reduce context window to 2048 tokens (Plan T010). **Fallback must be 4-bit quantized.**
+- [X] T025 [US2] Implement Memory Guard in T022: If OOM, fallback to Mistral-7B-Int4 (4-bit) or reduce context window to a constrained length (Plan T010). **Fallback must be 4-bit quantized.**
 - [X] T026 [US2] Write raw CoT traces to `data/traces/cot_traces.jsonl` immediately upon generation (Constitution Principle VI). **Path MUST be `data/traces/` not `data/processed/`.**
-- [X] T027 [US2] Implement Stopping Rule Check in T022: If count of *successfully generated* traces < 40 (MVS), halt and report "Underpowered: Effective sample size < 40" (Plan T012).
+- [X] T027 [US2] Implement Stopping Rule Check in T022: If count of *successfully generated* traces < `config.yaml` key `study.min_sample_size` (default), halt and report "Underpowered: Effective sample size < MVS".
 - [X] T028 [US2] Implement `code/03_parse_and_classify.py`: Load traces and task records
-- [X] T029 [US2] Implement exact string matching in T028: Find first/last character offset of constraint in the **first 256 tokens** and **last 256 tokens** of the trace (FR-003, Plan T014). **Use the same tokenizer as the LLM. The 256-token window is the definition of the 'step' for classification, not a search limit that ignores valid mentions outside the window.**
-- [X] T030 [US2] Implement semantic matching in T028: Use `all-MiniLM-L6-v2` and tuned threshold from T019 to detect paraphrased constraints (FR-011)
-- [X] T031 [US2] Handle edge cases in T028: Word-boundary matching to avoid false positives, null flags for missing constraints
+- [X] T029 [US2] Implement exact string matching in T028: Find first/last character offset of constraint in the **first segment** and **last segment** of the trace (FR-003, Plan T014). **Use the same tokenizer as the LLM. The 256-token window is the definition of the 'step' for classification, not a search limit that ignores valid mentions outside the window. Apply word-boundary matching ONLY within the defined 256-token windows to avoid false positives.**
+- [X] T030 [US2] Implement semantic matching in T028: Use `all-MiniLM-L6-v2` and tuned threshold from `data/pilot/tuned_threshold.json` (T019) to detect paraphrased constraints (FR-011)
+- [X] T031 [US2] Handle edge cases in T028: **Specifically handle**: Word-boundary matching (already defined in T029), null flags for missing constraints, and cases where the constraint appears as a substring within a different word (false positive check).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -174,7 +182,7 @@
 - [X] T045 [P] Implement `code/update_state.py`: Hash `statistical_report.json` and `data/` artifacts, write to project state YAML (Plan T024).
 - [X] T046 [P] Implement `code/06_consistency_check.py`: Re-run parser on **the same fixed sample** used in the original run, calculate agreement rate, and write `data/results/consistency_report.json` with the calculated agreement rate percentage (SC-005). **MUST verify the rate is ≥ 99% and halt the pipeline if the threshold is not met (as this indicates a bug).**
 - [X] T047 [P] Generate content hashes for all `data/` and `code/` artifacts and record in `state/` (Constitution Principle V)
-- [X] T048 [P] Update `quickstart.md` with reproduction steps and power analysis limitations
+- [X] T048 [P] Update `quickstart.md` with reproduction steps and document the **deferral** of power analysis (Spec: Assumptions). **Include the verified dataset source URL here.**
 - [X] T049 [P] Run end-to-end integration test in `tests/integration/test_end_to_end.py`
 
 ---
@@ -187,15 +195,16 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
  - **Note**: T004 (Schemas) is NOT a blocker for T012 (Download). T012 depends only on T003 (Env). T004 runs in parallel.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - **Strict Data Flow**: T014 (Halt if missing) MUST complete before T015. **T014 must generate a 'PASS' artifact on success to allow T015 to proceed.**
  - **Strict Data Flow**: T015 (Write filtered data) MUST complete before T017 (Pilot Study).
  - **Strict Data Flow**: T015 (Write filtered data) MUST complete before T028 (Load traces and task records).
- - **Strict Data Flow**: T014 (Halt if missing) MUST complete before T022 (Generation). If T014 halts, T022 never runs.
+ - **Strict Data Flow**: T018b (Manual) -> T018c (Ingest) -> T019 (Tune). **T019 cannot start until T018c confirms the presence of the label file.**
+ - **Strict Data Flow**: T019 (Tuned Threshold) MUST complete before T022 (Generation). **T022 will fail if T019 artifact is missing.**
  - **Strict Data Flow**: T022-T026 (Generation) MUST complete before T028-T031 (Parsing)
  - **Strict Data Flow**: T028-T031 (Parsing) MUST complete before T034-T040 (Classification/Stats)
  - **Strict Data Flow**: T041 (Generate Request) -> T042 (Ingest Labels) -> T043 (Validate)
- - **Strict Data Flow**: T017 (Pilot) depends on T015 (Filtered Data).
- - **Strict Data Flow**: T022 depends on T019 (Tuned Threshold).
- - **Strict Data Flow**: T043 depends on T034 (Classifier logic).
+ - **Strict Data Flow**: T050-T053 (GPU/Streaming) are prerequisites for T012 and T022.
+ - **Strict Data Flow**: T055 (Underpowered Check) MUST complete before T022 and T027 to enforce the sample size halt.
 
 ### User Story Dependencies
 
@@ -266,3 +275,7 @@ With multiple developers:
 - **Deprecated**: T035 is deprecated and removed.
 - **Phase 3.5**: Pilot study is a sub-phase of Phase 3, required before Phase 4 (Generation).
 - **Strict Data Flow**: T015 MUST complete before T017. T019 output required by T022.
+- **Revision Note**: T050-T053 have been moved to Phase 2 to ensure they are implemented before execution.
+- [ ] T055 [US1] Verify and document the exact URL for the Blind-Spots-Bench dataset in `code/01_download_and_filter.py` to ensure it is a real, reachable source (Spec: Dataset-download tasks MUST name a real, reachable URL). **Note: T054 was removed; this task is now T055.**
+- [ ] T056 [US2] Add a specific task to handle the "Underpowered" state explicitly: If the effective sample size falls below the MVS threshold after filtering and timeouts, generate a formal `data/results/underpowered_report.json` documenting the exact counts and reasons for the halt (Plan: Scale/Scope). **This task is now T056 and must be integrated into the dependency flow (see Dependencies section).**
+- [ ] T057 [US3] Ensure the statistical analysis script `code/04_statistical_analysis.py` explicitly logs the "Sample Size Limitation" and "Observational Design" in the output report to prevent causal misinterpretation (Spec: Assumptions). **This task is now T057.**
