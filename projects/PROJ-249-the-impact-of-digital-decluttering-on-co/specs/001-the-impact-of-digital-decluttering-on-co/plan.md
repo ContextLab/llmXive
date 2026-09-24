@@ -99,7 +99,7 @@ projects/PROJ-249-the-impact-of-digital-decluttering-on-co/
 ### Phase 1: Compliance & Intervention Logging (FR-002, FR-004)
 - **Goal**: Process daily logs and calculate compliance scores.
 - **Steps**:
-  1. Parse 7-day logs for each participant.
+  1. Parse multi-day logs for each participant.
   2. Apply rules: ≤30 min social media, no news, notifications off.
   3. Calculate compliance percentage per participant.
   4. Flag non-compliant days but retain data for analysis (US-2).
