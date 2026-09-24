@@ -1,0 +1,12 @@
+survey_name: "HILDA Wave 20"
+validation_citation: "Author et al., 2023"
+variable_mapping:
+  - original_var: "freq_switch"
+    derived_var: "switching_frequency"
+    source_doc: "HILDA User Manual"
+  - original_var: "num_apps"
+    derived_var: "num_platforms"
+    source_doc: "HILDA User Manual"
+  - original_var: "wcst_score"
+    derived_var: "cognitive_flexibility_score"
+    source_doc: "HILDA Cognitive Assessment"

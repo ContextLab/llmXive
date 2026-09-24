@@ -1,24 +1,3 @@
-[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-
-# Ignore lines that are too long (handled by Black)
-ignore = ["E501"]
-
-# Allow unused variables for test functions (e.g., `def test_foo(mock)`)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[lint.per-file-ignores]
-# Ignore import sorting in __init__.py files
-"code/__init__.py" = ["I"]
-
-[format]
-# Use double quotes for strings
-quote-style = "double"
-
-# Indent with 4 spaces
-indent-style = "space"
-
-# Match Black's line length
+target-version = "py311"
 line-length = 88
-target-version = "py39"
+select = ["E", "F", "W"]

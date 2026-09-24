@@ -1,0 +1,4 @@
+"""
+Test suite initialization.
+"""
+pass

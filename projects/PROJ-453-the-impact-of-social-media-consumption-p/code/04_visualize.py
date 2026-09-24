@@ -1,7 +1,3 @@
-"""
-Visualization module for the social media cognitive flexibility study.
-Generates publication-ready plots including stratified regression analysis.
-"""
 import os
 import sys
 import logging
@@ -10,206 +6,148 @@ import yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib
-import statsmodels.api as sm
+import seaborn as sns
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional
-from scipy import stats
+from typing import Dict, Any, Tuple
 
-# Configure matplotlib for non-interactive backend (critical for CI/runner environments)
-matplotlib.use('Agg')
+logger = logging.getLogger(__name__)
 
-# Import local utilities
-from config import ensure_directories, DATA_ROOT, RESULTS_ROOT
-from utils import log_setup
-
-logger = log_setup()
-
-# Constants
-FIGURE_ROOT = Path(RESULTS_ROOT) / "figures"
-MODEL_ROOT = Path(RESULTS_ROOT) / "models"
-DATA_PROCESSED = Path(DATA_ROOT) / "processed"
-RANDOM_SEED = 42
+def log_setup():
+    """Configure logging to stdout."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='[%(asctime)s] %(levelname)s: %(message)s',
+        stream=sys.stdout
+    )
 
 def load_model_summary() -> Dict[str, Any]:
-    """
-    Load the regression summary JSON produced by code/03_model.py.
-    Returns the dictionary containing coefficients, diagnostics, and interpretation.
-    """
-    summary_path = MODEL_ROOT / "regression_summary.json"
-    if not summary_path.exists():
-        raise FileNotFoundError(f"Model summary not found at {summary_path}. "
-                                "Run code/03_model.py first.")
-    with open(summary_path, 'r') as f:
+    """Load the regression summary JSON."""
+    path = Path("results/models/regression_summary.json")
+    if not path.exists():
+        raise FileNotFoundError(f"Model summary not found at {path}")
+    with open(path, 'r') as f:
         return json.load(f)
 
 def load_cleaned_data() -> pd.DataFrame:
-    """
-    Load the cleaned participant data.
-    """
-    data_path = DATA_PROCESSED / "participants_cleaned.csv"
-    if not data_path.exists():
-        raise FileNotFoundError(f"Cleaned data not found at {data_path}. "
-                                "Run code/02_engineer.py first.")
-    return pd.read_csv(data_path)
+    """Load the cleaned participant data."""
+    path = Path("data/processed/participants_cleaned.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {path}")
+    return pd.read_csv(path)
 
-def check_interaction_significance(model_summary: Dict[str, Any]) -> Tuple[bool, float]:
-    """
-    Check if the interaction term (switching_index * age) is statistically significant.
-    
-    Args:
-        model_summary: The dictionary loaded from regression_summary.json.
-        
-    Returns:
-        Tuple of (is_significant, p_value).
-    """
-    # The interaction term name depends on how it was named in 03_model.py
-    # Typically: 'switching_index:age' or similar
-    predictors = model_summary.get('coefficients', {})
+def check_interaction_significance(model_summary: Dict[str, Any]) -> bool:
+    """Check if interaction term is significant (p < 0.05)."""
     p_values = model_summary.get('p_values', {})
-    
-    # Look for interaction term keys
-    interaction_key = None
-    for key in predictors.keys():
-        if ':' in key or '*' in key or 'interaction' in key.lower():
-            interaction_key = key
-            break
-    
-    if interaction_key is None:
-        logger.warning("No interaction term found in model summary. "
-                       "Stratified plot will not be generated.")
-        return False, 1.0
-    
-    p_val = p_values.get(interaction_key, 1.0)
-    is_sig = p_val < 0.05
-    logger.info(f"Interaction term '{interaction_key}' p-value: {p_val:.4f}. "
-                f"Significant: {is_sig}")
-    return is_sig, p_val
+    interaction_p = p_values.get('interaction', 1.0)
+    return interaction_p < 0.05
 
-def generate_stratified_plot(df: pd.DataFrame, is_significant: bool) -> None:
-    """
-    Generate a stratified plot showing regression lines for distinct age groups.
-    
-    If the interaction term is significant, it splits data into age < 30 and age >= 30.
-    If not significant, it still generates the plot but notes the lack of significance.
-    
-    Args:
-        df: The cleaned dataframe.
-        is_significant: Boolean indicating if the interaction term was significant.
-    """
-    if not is_significant:
-        logger.info("Interaction term not significant. Generating plot with note.")
-    
-    # Define age groups
-    # Ensure column names match the schema
-    age_col = 'age'
-    switching_col = 'switching_index'
-    outcome_col = 'cognitive_flexibility_score'
-    
-    # Check if columns exist
-    missing_cols = [c for c in [age_col, switching_col, outcome_col] if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns for stratified plot: {missing_cols}")
-    
-    df = df.dropna(subset=[age_col, switching_col, outcome_col])
-    
-    # Create figure
-    plt.figure(figsize=(10, 7))
-    
-    # Split data
-    young_mask = df[age_col] < 30
-    old_mask = df[age_col] >= 30
-    
-    df_young = df[young_mask]
-    df_old = df[old_mask]
-    
-    # Colors
-    color_young = '#1f77b4'  # blue
-    color_old = '#ff7f0e'    # orange
-    
-    # Plot Young Group
-    if len(df_young) > 0:
-        x_young = df_young[switching_col]
-        y_young = df_young[outcome_col]
-        
-        # Fit regression for young
-        if len(x_young) > 1:
-            X_young = sm.add_constant(x_young)
-            model_young = sm.OLS(y_young, X_young).fit()
-            y_pred_young = model_young.predict(X_young)
-            
-            # Sort for line plotting
-            sort_idx = np.argsort(x_young)
-            plt.scatter(x_young, y_young, alpha=0.6, color=color_young, label=f'Age < 30 (n={len(df_young)})')
-            plt.plot(x_young[sort_idx], y_pred_young[sort_idx], color=color_young, linewidth=2, label=f'Fit (Age < 30)')
-        else:
-            plt.scatter(x_young, y_young, alpha=0.6, color=color_young, label=f'Age < 30 (n={len(df_young)})')
-    
-    # Plot Old Group
-    if len(df_old) > 0:
-        x_old = df_old[switching_col]
-        y_old = df_old[outcome_col]
-        
-        # Fit regression for old
-        if len(x_old) > 1:
-            X_old = sm.add_constant(x_old)
-            model_old = sm.OLS(y_old, X_old).fit()
-            y_pred_old = model_old.predict(X_old)
-            
-            sort_idx = np.argsort(x_old)
-            plt.scatter(x_old, y_old, alpha=0.6, color=color_old, label=f'Age >= 30 (n={len(df_old)})')
-            plt.plot(x_old[sort_idx], y_pred_old[sort_idx], color=color_old, linewidth=2, label=f'Fit (Age >= 30)')
-        else:
-            plt.scatter(x_old, y_old, alpha=0.6, color=color_old, label=f'Age >= 30 (n={len(df_old)})')
-    
-    plt.xlabel('Switching Index (Platforms × Frequency)', fontsize=12)
-    plt.ylabel('Cognitive Flexibility Score', fontsize=12)
-    title = "Cognitive Flexibility by Switching Index (Stratified by Age)"
-    if is_significant:
-        title += " - Interaction Significant"
-    else:
-        title += " - Interaction Not Significant"
-    plt.title(title, fontsize=14)
-    plt.legend(loc='best')
-    plt.grid(True, alpha=0.3)
-    
-    # Save
-    output_path = FIGURE_ROOT / "stratified_plot.png"
+def generate_regression_plot(df: pd.DataFrame, output_path: Path):
+    """Generate scatter plot with regression line and confidence interval."""
+    plt.figure(figsize=(10, 6))
+    sns.regplot(
+        data=df,
+        x='switching_index',
+        y='cognitive_flexibility_score',
+        ci=95,
+        scatter_kws={'alpha': 0.6}
+    )
+    plt.title('Switching Index vs Cognitive Flexibility Score')
+    plt.xlabel('Switching Index')
+    plt.ylabel('Cognitive Flexibility Score')
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    logger.info(f"Stratified plot saved to {output_path}")
+    logger.info(f"Saved regression plot to {output_path}")
+
+def generate_stratified_plot(df: pd.DataFrame, output_path: Path):
+    """Generate stratified plot for age groups."""
+    df['age_group'] = df['age'].apply(lambda x: '<30' if x < 30 else '>=30')
+    plt.figure(figsize=(10, 6))
+    sns.lmplot(
+        data=df,
+        x='switching_index',
+        y='cognitive_flexibility_score',
+        hue='age_group',
+        ci=95
+    )
+    plt.title('Stratified by Age Group')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Saved stratified plot to {output_path}")
+
+def generate_sensitivity_table(model_summary: Dict[str, Any], output_path: Path):
+    """Generate sensitivity table as image."""
+    # Create a simple table visualization
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.axis('off')
+    
+    # Prepare data for table
+    coeffs = model_summary.get('coefficients', {})
+    p_vals = model_summary.get('p_values', {})
+    
+    table_data = [
+        ['Variable', 'Coefficient', 'P-value'],
+        ['switching_index', f"{coeffs.get('switching_index', 0):.4f}", f"{p_vals.get('switching_index', 1):.4f}"],
+        ['total_screen_time', f"{coeffs.get('total_screen_time', 0):.4f}", f"{p_vals.get('total_screen_time', 1):.4f}"],
+        ['age', f"{coeffs.get('age', 0):.4f}", f"{p_vals.get('age', 1):.4f}"],
+    ]
+    
+    table = ax.table(cellText=table_data, loc='center', cellLoc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.5)
+    plt.title('Model Coefficients')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Saved sensitivity table to {output_path}")
+
+def write_final_report(model_summary: Dict[str, Any], output_path: Path):
+    """Write final JSON report."""
+    report = {
+        **model_summary,
+        'generated_at': str(pd.Timestamp.now())
+    }
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Saved final report to {output_path}")
 
 def main():
-    """
-    Main entry point for the visualization script.
-    """
-    logger.info("Starting visualization pipeline (Task T037).")
+    """Main entry point for visualization."""
+    log_setup()
+    logger.info("Starting visualization pipeline.")
+
+    # Load data
+    model_summary = load_model_summary()
+    df = load_cleaned_data()
+
+    # Check interaction significance
+    is_significant = check_interaction_significance(model_summary)
+
+    # Generate plots
+    Path("results/figures").mkdir(parents=True, exist_ok=True)
     
-    # Ensure directories exist
-    ensure_directories()
+    generate_regression_plot(
+        df,
+        Path("results/figures/regression_plot.png")
+    )
     
-    try:
-        # Load dependencies
-        logger.info("Loading cleaned data...")
-        df = load_cleaned_data()
-        
-        logger.info("Loading model summary...")
-        model_summary = load_model_summary()
-        
-        # Check interaction significance
-        is_sig, p_val = check_interaction_significance(model_summary)
-        
-        # Generate stratified plot
-        generate_stratified_plot(df, is_sig)
-        
-        logger.info("Visualization pipeline completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Visualization pipeline failed: {e}")
-        raise
+    if is_significant:
+        generate_stratified_plot(
+            df,
+            Path("results/figures/stratified_plot.png")
+        )
+    
+    generate_sensitivity_table(
+        model_summary,
+        Path("results/figures/sensitivity_table.png")
+    )
+
+    # Write final report
+    write_final_report(
+        model_summary,
+        Path("results/final_report.json")
+    )
+
+    logger.info("Visualization complete.")
 
 if __name__ == "__main__":
     main()

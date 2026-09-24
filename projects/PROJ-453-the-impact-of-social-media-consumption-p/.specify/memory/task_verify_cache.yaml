@@ -1,30 +1,34 @@
-T020:
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or log output was presented showing that logging
-    with level INFO, stdout destination, and the specified format has been added to
-    the data ingestion and variable engineering steps. The required logging implementation
-    is missing.
-T030a:
+  r: "No project directories or configuration files were provided; the only artifacts\
+    \ mentioned are high\u2011level user stories, and there is no concrete file structure,\
+    \ README, .gitignore, or config files on disk to verify the claimed setup. The\
+    \ required setup artifacts are missing."
+T010:
   c: false
-  h: 7c1688aa0baa1d05a685be3fc7a165443d86cb2b71048d40af704a515b6b226c
-  r: "The required output file `results/sensitivity_comparison.csv` is absent, and\
-    \ the provided `code/03_model.py` (even though partially shown) contains no logic\
-    \ that writes such a CSV or performs the specified sensitivity analysis and SC\u2011\
-    003 verification. Consequently the task\u2019s deliverables are not present."
-T030c:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No utility files, scripts, or other artifacts are present; the claim provides
+    only a description of user stories without any actual code, CSV output, or analysis
+    results, so the required foundational utilities have not been delivered.
+T013:
+  c: true
+  h: e666c11651b829aa8f6719c328efc31128a16267a6c6521e3e1b29f94e9642ff
+  r: "The `tests/contract/test_dataset_schema.py` file exists, is non\u2011empty,\
+    \ and implements the required `test_schema_matches_yaml` function that checks\
+    \ for the presence of `contracts/dataset.schema.yaml` and validates required fields.\
+    \ No further artifacts are needed for this task."
+T016a:
   c: false
-  h: 7c1688aa0baa1d05a685be3fc7a165443d86cb2b71048d40af704a515b6b226c
-  r: "The required `results/sensitivity_comparison.csv` file is absent, and the provided\
-    \ `code/03_model.py` (as shown) contains no logic that reads this CSV, checks\
-    \ beta sign consistency, or validates the Benjamini\u2011Hochberg\u2011adjusted\
-    \ p\u2011values, nor does it log the specified success/failure message. Both the\
-    \ data artifact and the necessary verification implementation are missing."
-T031:
+  h: 3057029a22df0dd2419370bde3daefea027225ae8ba12900ef4e665d69544f32
+  r: "The required `data/instrument_sources.yaml` file does not exist, and the provided\
+    \ `code/01_ingest.py` snippet shows no logic that writes such a YAML file after\
+    \ data download. Without the generated YAML artifact, the task\u2019s core requirement\
+    \ is unmet."
+T041:
   c: false
-  h: 85e6272f078cfb3b9c7566a50dedaa32840509ea34612c0c099b6a516b2902c0
-  r: "The repository lacks the required `contracts/output.schema.yaml` (or any `schema.yaml`)\
-    \ file, so the script cannot actually validate against the specified contract.\
-    \ Moreover, `code/03_model.py` only performs a very simple key\u2011presence check\
-    \ rather than a full schema validation, and never loads the missing contract file.\
-    \ Both the artifact and its behavior fall short of the task\u2019s requirement."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, or output artifacts (e.g., ingestion script, cleaned CSV,
+    regression JSON report, or visualizations) were provided, so none of the required
+    user stories can be verified as completed. The implementer must supply the actual
+    pipeline scripts and resulting outputs.

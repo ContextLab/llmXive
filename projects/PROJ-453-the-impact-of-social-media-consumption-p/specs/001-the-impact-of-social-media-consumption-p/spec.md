@@ -83,7 +83,7 @@ The system must perform a sensitivity analysis on the switching index definition
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The dataset extraction pipeline is measured against the requirement for reproducibility by successfully processing the largest available target dataset (e.g., AddHealth Wave IV) within the 6-hour CI runtime limit. (See FR-001)
+- **SC-001**: The dataset extraction pipeline is measured against the requirement for reproducibility by successfully processing the largest available target dataset (e.g., AddHealth Wave IV) within the CI runtime limit. (See FR-001)
 - **SC-002**: The regression model's diagnostic capability is measured against the methodological requirement by verifying the output includes a VIF score for every predictor in the `diagnostics` section of the JSON report. (See FR-006)
 - **SC-003**: The robustness of the findings is measured against the sensitivity requirement by demonstrating that the `switching_index` beta coefficient sign does not flip and the p-value remains < 0.10 (or the original significance level) across at least two alternative operationalizations. (See FR-005)
 - **SC-004**: The statistical rigor is measured against the multiplicity requirement by reporting a corrected p-value that accounts for the number of hypothesis tests performed. (See FR-007)

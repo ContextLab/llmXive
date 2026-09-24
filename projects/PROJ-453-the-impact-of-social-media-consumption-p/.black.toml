@@ -1,22 +1,2 @@
-[tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-# Formatting style
-skip-string-normalization = false
-# Experimental settings (optional, can be enabled if needed)
-# experimental-string-processing = true
+target-version = "py311"

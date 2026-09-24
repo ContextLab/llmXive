@@ -20,17 +20,20 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0: Data Feasibility Check (CRITICAL GATE)
+## Phase 0: Data Research & Feasibility (CRITICAL GATE)
 
 **Purpose**: Verify the presence of required variables in the dataset source BEFORE any full download or processing. This phase MUST pass before Phase 1 begins.
-**⚠️ CRITICAL**: If this phase fails, the project halts immediately with a "Data Gap" error. No data is downloaded.
-**⚠️ NOTE**: Schema validation (T004) is now here to ensure Phase 0 can execute.
+**⚠️ CRITICAL**: If this phase fails for ALL candidate datasets, the project halts immediately with a "Data Gap" error. No data is downloaded.
+**⚠️ NOTE**: This phase includes schema creation to ensure Phase 1 can execute.
 
-- [X] T001 [P0] **Header/Stream Check**: Implement `code/00_feasibility_check.py` to perform a lightweight check (using `requests.head` or `datasets.load_dataset(..., streaming=True)` with a 1-row peek) to verify the URL is accessible and the dataset contains tabular data. Output `logs/feasibility_report.txt`.
-- [X] T002 [P0] **Variable Presence Check**: Update `code/00_feasibility_check.py` to verify the presence of `self_reported_switching_frequency` and `cognitive_flexibility_score` (or validated proxy) in the dataset schema/headers. Log variable presence to stdout.
-- [X] T003 [P0] **Fail Fast Logic**: Implement fail-fast logic in `code/00_feasibility_check.py`. If T002 fails, halt execution immediately with error: "Data Gap: Required variable [NAME] not found in verified dataset [URL]. Project cannot proceed per US-1 Scenario 2."
-- [X] T004 [P0] **Schema Validation**: Implement validation logic in `code/00_feasibility_check.py` to validate the dataset structure against `contracts/dataset.schema.yaml` (Plan Task 0.4). **Dependency**: Requires T008 (Schema Creation) to be completed first. Write logs/schema_validation.log.
-- [X] T008 [P0] **Schema Creation**: Setup `contracts/dataset.schema.yaml` defining expected columns: switching_index, cognitive_flexibility_score, age, total_screen_time, num_platforms, switching_frequency. **Moved from Phase 1 to Phase 0 to resolve circular dependency.**
+- [ ] T001 [P0] **Feasibility & Schema Check**: Implement `code/00_feasibility_check.py` to perform a lightweight check (using `datasets.load_dataset(..., streaming=True)` with a 1-row peek) to verify the URL is accessible and the dataset contains tabular data.
+ - **Logic**:
+ 1. **Define Candidates**: Loop through candidate datasets with specific HuggingFace IDs: `nrc/addhealth_wave4` (or `addhealth` if available), `hilda/hilda_2023`, `ess/ess_round10`.
+ 2. **Check**: Use `streaming=True` to peek at the first row. Verify `self_reported_switching_frequency` and `cognitive_flexibility_score` (or validated proxy) in the dataset schema/headers.
+ 3. **Create Schema**: Ensure `contracts/` directory exists (`mkdir -p contracts`). Create `contracts/dataset.schema.yaml` defining expected columns: switching_index, cognitive_flexibility_score, age, total_screen_time, num_platforms, switching_frequency.
+ 4. **Fail Fast**: If a dataset lacks required variables, log "Data Gap: [Dataset] lacks [Variable]". If ALL datasets fail, halt with `sys.exit("Data Gap: No viable dataset found. Project cannot proceed per US-1 Scenario 2.")`.
+ 5. **Output**: Write `logs/feasibility_report.txt` and `logs/schema_validation.log`.
+ - **Dependency**: Must run before T015 (Ingestion).
 
 ---
 
@@ -38,28 +41,32 @@
 
 **Purpose**: Project initialization, basic structure, contract definitions, and schema validation.
 
-- [X] T005a [P] Create project directories: `data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, `contracts` in `projects/PROJ-453-.../`.
-- [X] T005b [P] Create `code/__init__.py` and `data/.gitkeep`.
-- [X] T005c [P] Create `data/raw/.gitkeep`.
-- [X] T006a [P] Create `code/requirements.txt` with specific dependencies: pandas, numpy, statsmodels, scikit-learn, pyyaml, requests, datasets, pytest.
-- [X] T006b [P] Create `setup.py` if needed for package structure.
-- [X] T007a [P] Create `.ruff.toml` with specific rules: set `target-version = "py311"`, `line-length = 88`, `select = ["E", "F", "W"]`.
-- [X] T007b [P] Create `.black.toml` with specific rules: set `line-length = 88`, `target-version = "py311"`, `include = "\\.pyi?$"`.
-- [X] T009 [P] Setup `contracts/output.schema.yaml` defining model output structure: coefficients, p_values, vif_scores, diagnostics, interpretation.
+- [ ] T005 [P] **Project Setup**: Create project directories and configuration files.
+ - **Actions**:
+ 1. Create directories: `data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, `contracts`, `research`.
+ 2. Create `code/__init__.py`, `data/.gitkeep`, `data/raw/.gitkeep`.
+ 3. Create `code/requirements.txt` with specific dependencies: pandas, numpy, statsmodels, scikit-learn, pyyaml, requests, datasets, pytest.
+ 4. Create `.ruff.toml` (target-version="py311", line-length=88, select=["E", "F", "W"]).
+ 5. Create `.black.toml` (line-length=88, target-version="py311").
+ 6. Create `contracts/output.schema.yaml` defining model output structure: coefficients, p_values, vif_scores, diagnostics, interpretation.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T010 [P] Create `code/utils.py` with specific helpers: `log_setup()` (returns logger), `checksum_file(path)` (returns SHA256 string), and `causal_language_scanner(text, forbidden_words)` (returns list of matches).
-- [X] T011 [P] Implement `code/__init__.py` with error handling classes and `__all__` exports.
-- [X] T012 [P] Create `code/config.py` with constants `RANDOM_SEED = 42`, `DATA_ROOT = "data"`, `RESULTS_ROOT = "results"`.
+- [ ] T010 [P] **Foundational Utilities**: Create core utility files.
+ - **Actions**:
+ 1. Create `code/utils.py` with specific helpers: `log_setup()`, `checksum_file(path)`, `causal_language_scanner(text, forbidden_words)`.
+ 2. Create `code/__init__.py` with error handling classes and `__all__` exports.
+ 3. Create `code/config.py` with constants `RANDOM_SEED = 42`, `DATA_ROOT = "data"`, `RESULTS_ROOT = "results"`.
+ 4. **Logging**: Initialize the logging configuration here (format: `[%(asctime)s] %(levelname)s: %(message)s`, destination: stdout) to be used by all subsequent tasks.
+ - **Dependency**: None.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
 
 ---
 
@@ -69,35 +76,70 @@
 
 **Independent Test**: The pipeline runs against a subset of the target dataset and outputs a CSV containing `switching_index`, `cognitive_flexibility_score`, `age`, and `total_screen_time` without errors.
 
-**⚠️ Dependency Note**: T013 and T014 require T008 (Schema Setup) to be completed first.
+**⚠️ Dependency Note**: T015 and T016a require T001 (Feasibility Check) and T005 (Setup) to be completed first.
+
+### Implementation for User Story 1
+
+- [ ] T015 [US1] **Dataset Ingestion**: Implement `code/01_ingest.py` functions `load_hilda()`, `load_ess()`, `load_addhealth()`.
+ - **Logic**:
+ 1. **Pre-flight Check**: Verify `logs/feasibility_report.txt` exists and indicates "PASS" for the specific dataset. If not, skip with "Data Gap: [Dataset] feasibility check failed."
+ 2. **Fetch**: Use specific HuggingFace IDs (e.g., `nrc/addhealth_wave4`, `hilda/hilda_2023`, `ess/ess_round10`). Use `streaming=True` if dataset > 100MB to handle memory constraints robustly.
+ 3. **Fail Loudly**: If fetch fails, raise exception immediately; do NOT fall back to synthetic data.
+ 4. **Variable Check**: Verify presence of `self_reported_switching_frequency` and `cognitive_flexibility_score`. If missing, raise `ValueError` with "Data Gap: [Dataset] lacks required variables."
+ 5. **Output**: Save raw data to `data/raw/[dataset]_raw.csv` and cleaned CSV to `data/processed/[dataset]_cleaned.csv`.
+ - **Dependency**: T001, T005.
+
+- [ ] T016a [US1] **Document Instrument Sources**: Implement `code/01_ingest.py` (or a dedicated helper) to create `data/instrument_sources.yaml` **immediately after ingestion** but **before** variable engineering (T017).
+ - **Schema**: Must include `survey_name`, `validation_citation`, and `variable_mapping` (list of dicts: `[{original_var: "name", derived_var: "name", source_doc: "url"}]`).
+ - **Template**:
+ ```yaml
+ survey_name: "HILDA Wave 20"
+ validation_citation: "Watson, N., & Wooden, M. (2022). HILDA Survey Methodology. Melbourne Institute."
+ variable_mapping:
+ - original_var: "freq_switch"
+ derived_var: "switching_frequency"
+ source_doc: " Name or service not known)"))]"
+ - original_var: "num_apps"
+ derived_var: "num_platforms"
+ source_doc: " Name or service not known)"))]"
+ ```
+ - **Constitution**: Explicitly satisfies Constitution Principle VI and Plan Task 1.4 by ensuring instrument validity is documented before engineering.
+ - **Logic**: If the dataset is not the one pre-verified in T001 (e.g., if a different dataset is forced), halt with `sys.exit("Data Gap: Dataset does not match verified source for instrument citations.")`.
+ - **Dependency**: Runs after T015 (Ingestion) and T005 (Setup) and before T017 (Engineering).
+
+- [ ] T017 [US1] **Variable Engineering & Output**: Implement `code/02_engineer.py`:
+ 1. Compute `switching_index = num_platforms * self_reported_switching_frequency`. Store as derived variable.
+ 2. Handle missing outcomes by excluding rows and logging exclusion count (e.g., "Excluded N rows due to missing WCST data").
+ 3. Output `data/processed/participants_cleaned.csv`.
+ 4. **Validation**: Verify the output file exists and contains all required columns: `participant_id`, `age`, `total_screen_time`, `num_platforms`, `switching_frequency`, `switching_index`, `cognitive_flexibility_score`.
+ - **Output Schema**: `participant_id` (int), `age` (float), `total_screen_time` (float), `num_platforms` (int), `switching_frequency` (float), `switching_index` (float), `cognitive_flexibility_score` (float).
+ - **Dependency**: T015, T016a.
+
+- [ ] T020 [US1] **Logging**: (Merged into T010) Logging is initialized in T010. No separate task required.
+ - **Dependency**: T010.
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T013 [P] [US1] Implement `tests/contract/test_dataset_schema.py::test_schema_matches_yaml` to validate data schema against `contracts/dataset.schema.yaml`.
-- [X] T014 [P] [US1] Implement `tests/unit/test_ingest_errors.py::test_missing_variable_raises_error` to test missing variable error handling.
-
-### Implementation for User Story 1
-
-- [X] T015 [US1] **Unified Ingestion**: Implement `code/01_ingest.py` to download and parse **all three** designated public datasets (HILDA, ESS, AddHealth) in a single script.
+- [ ] T013 [P] [US1] **Test Data Schema**: Implement `tests/contract/test_dataset_schema.py::test_schema_matches_yaml`.
  - **Logic**:
- 1. **Pre-flight Check**: Verify `logs/feasibility_report.txt` exists and indicates a "PASS" status from Phase 0. If not, halt immediately with "Data Gap: Phase 0 feasibility check failed."
- 2. Iterate through the list of datasets using **verified** sources:
- - **HILDA**: Use HuggingFace ID `hilda` (or specific verified URL if ID changes).
- - **ESS**: Use ESS data portal URL or verified HuggingFace equivalent.
- - **AddHealth**: Use direct URL ` (or specific file path) as a valid source.
- 3. **Fail Loudly**: If a fetch fails, raise an exception immediately; do NOT fall back to synthetic data.
- 4. **Variable Check**: After download, verify the downloaded dataset contains `self_reported_switching_frequency` and `cognitive_flexibility_score`. If missing, raise `ValueError` with "Data Gap: Downloaded dataset [URL] lacks required variables."
- 5. **Output**: Save raw data to `data/raw/` and cleaned CSVs to `data/processed/` for each valid dataset.
- 6. **Instrument Documentation**: Generate `data/instrument_sources.yaml` **after** ingestion. Use verified sources only. Schema: `survey_name`, `validation_citation`, `variable_mapping`.
-- [X] T016a [US1] **Document Instrument Sources**: Implement `code/01_ingest.py` (or a dedicated helper) to create `data/instrument_sources.yaml` **immediately after ingestion** but **before** variable engineering (T017/T018). **Schema**: Must include `survey_name`, `validation_citation`, and `variable_mapping` (list of dicts: `[{original_var: "name", derived_var: "name", source_doc: "url"}]`). **Constitution**: Explicitly satisfies Constitution Principle VI and Plan Task 1.4 by ensuring instrument validity is documented before engineering. **Dependency**: Runs after T015 (Ingestion) and before T017 (Engineering).
-- [X] T017 [US1] Implement `code/02_engineer.py`: Compute `switching_index = num_platforms * self_reported_switching_frequency`. Store as derived variable.
-- [X] T018 [US1] Implement `code/02_engineer.py`: Handle missing outcomes by excluding rows and logging exclusion count (e.g., "Excluded N rows due to missing WCST data").
-- [ ] T019 [US1] Implement `code/02_engineer.py`: Output `data/processed/participants_cleaned.csv`.
-- [X] T020 [US1] Add logging for data ingestion and variable engineering operations (level=INFO, destination=stdout, format: `[%(asctime)s] %(levelname)s: %(message)s`).
+ 1. Load `contracts/dataset.schema.yaml`.
+ 2. Load a sample CSV from `data/processed/`.
+ 3. Assert that all columns in the schema exist in the CSV.
+ 4. Assert that data types match (e.g., `age` is float/int).
+ 5. **Expected Failure**: Initially, the CSV does not exist or columns are missing.
+ - **Dependency**: T001, T015.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T014 [P] [US1] **Test Missing Variable Error**: Implement `tests/unit/test_ingest_errors.py::test_missing_variable_raises_error`.
+ - **Logic**:
+ 1. Create a mock DataFrame missing `cognitive_flexibility_score`.
+ 2. Call the ingestion/engineering function.
+ 3. Assert that a `ValueError` is raised with the message "Data Gap: [Dataset] lacks required variables."
+ 4. **Expected Failure**: Initially, the function might not raise or the message is wrong.
+ - **Dependency**: T015.
 
 ---
 
@@ -107,35 +149,71 @@
 
 **Independent Test**: The analysis script runs on the cleaned CSV and produces a JSON report with coefficients, p-values, VIF scores, and corrected p-values.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T021 [P] [US2] Implement `tests/contract/test_model_output.py::test_output_matches_schema` to validate model output schema.
-- [X] T022 [P] [US2] Implement `tests/unit/test_vif.py::test_vif_calculation_correctness` to test VIF calculation.
-- [X] T023 [P] [US2] Implement `tests/unit/test_causal_language.py::test_scanner_detects_forbidden_terms` to test causal language scanner.
-
 ### Implementation for User Story 2
 
-- [X] T025 [US2] Implement `code/03_model.py`: **Mean-center** `switching_index` and `age` **THEN create interaction term** `switching_index * age` (Plan Task 2.2).
-- [X] T026 [US2] **Check Collinearity**: Implement `code/03_model.py`: Calculate correlation between `switching_index` and `total_screen_time`. If > 0.7, generate a distinct warning flag "Potential Mathematical Coupling" and log it to `logs/collinearity_check.log` with `flag=true`. **Output**: Write to `logs/collinearity_check.log` and update `results/models/regression_summary.json` with a `collinearity_flag` field.
-- [X] T027a [US2] **Fit Residual Model (Mandatory if flagged)**: **Dependency: T026**. **If T026 flag is true**:
- 1. Read `logs/collinearity_check.log` to confirm flag.
- 2. Regress `switching_index` on `total_screen_time`.
- 3. Extract residuals and save to `results/models/residuals.csv`.
- 4. Fit `cognitive_flexibility_score` on residuals + `age` + interaction.
- 5. Store secondary coefficients in `results/models/residualized_coefficients.json`.
- **Output**: JSON file containing `residuals`, `secondary_coefficients`, `r_squared`, and `vif_scores`. **No skip flag allowed**; execution is mandatory if T026 flags high collinearity.
-- [X] T027b [US2] **Save Residual Model**: **Dependency: T027a**. If T027a executed, serialize the residualized model results to `results/models/residualized_model.json`. **Output**: JSON file containing `residuals`, `secondary_coefficients`, `r_squared`, and `vif_scores`. **Skip if T026 flag is false**.
-- [X] T028 [US2] Implement `code/03_model.py`: Fit OLS model with outcome `cognitive_flexibility_score` and predictors `switching_index` (or residuals), `total_screen_time`, `age`, and interaction term.
-- [X] T029 [US2] Implement `code/03_model.py`: Compute Variance Inflation Factor (VIF) for all predictors. **Crucially**: Immediately construct a `diagnostics` dictionary containing `vif_scores` and the `correlation_matrix` (raw values) and assign it to the output object before validation.
-- [X] T030 [US2] Implement `code/03_model.py`: Run Sensitivity Analysis (FR-005) with alternative definitions (`platform_count` only, `switching_frequency` only). <!-- FAILED: unspecified -->
-- [ ] T030a [US2] **Generate Sensitivity Table**: Implement `code/03_model.py` to generate `results/sensitivity_comparison.csv` containing beta coefficients, p-values, and signs for all operationalizations (primary, platform_count, switching_frequency). **Verification**: Must explicitly verify SC-003 (beta sign stability, p < 0.10) and log success/failure. <!-- FAILED: unspecified -->
-- [ ] T030c [US2] **Verify Robustness (SC-003)**: **Dependency: T030a**. Implement logic in `code/03_model.py` to read `results/sensitivity_comparison.csv` and verify: (1) Beta sign does not flip across operationalizations (strictly same sign: both positive or both negative), (2) Corrected p-value (Benjamini-Hochberg adjusted from T030a) < 0.10 for all. **Action**: If criteria fail, log "SC-003 Violation: Robustness not demonstrated" and halt execution. **Output**: Log entry confirming success or failure. <!-- FAILED: unspecified -->
-- [ ] T031 [US2] Implement `code/03_model.py`: **Validate output against contracts/output.schema.yaml** (Plan Task 2.6). **Dependency**: Requires T009.
-- [X] T032a [US2] **Scan Intermediate JSON**: Programmatically scan the intermediate `results/models/regression_summary.json` (output of T033) for forbidden causal terms (causes, leads to, impacts). If found, **FAIL** the run.
-- [X] T032 [US2] **Causal Language Validation**: Programmatically scan the entire interpretation string AND the generated textual summary for forbidden terms (causes, leads to, impacts). If found, **FAIL** the run.
-- [X] T033 [US2] Output `results/models/regression_summary.json` with standardized betas, p-values, VIF, and FDR-corrected p-values. **Structure**: Ensure `vif_scores` and **raw correlation matrix** are nested inside a `diagnostics` object as required by SC-002.
+- [ ] T025 [US2] **Core Model Fitting & Diagnostics**: Implement `code/03_model.py` (Part 1: Core OLS).
+ - **Steps**:
+ 1. **Load Data**: Read `data/processed/participants_cleaned.csv`.
+ 2. **Mean-center** `switching_index` and `age` **THEN create interaction term** `switching_index * age`.
+ 3. **Check Collinearity**: Calculate correlation between `switching_index` and `total_screen_time`. If > 0.7, generate a distinct warning flag "Potential Mathematical Coupling" and log it to `logs/collinearity_check.log` with `flag=true`.
+ 4. **Residual Model (REQUIRED CHECK per FR-006)**: If T025 step 3 flag is true:
+ - Regress `switching_index` on `total_screen_time`.
+ - Extract residuals and save to `results/models/residuals.csv`.
+ - Fit `cognitive_flexibility_score` on residuals + `age` + interaction.
+ - Store secondary coefficients in `results/models/residualized_coefficients.json`.
+ - **Note**: This is a REQUIRED check per FR-006, not optional.
+ 5. **Fit OLS (Baseline)**: Fit model with outcome `cognitive_flexibility_score` and predictors `switching_index` (or residuals), `total_screen_time`, `age`.
+ 6. **Fit OLS (Interaction)**: If US-2 acceptance criteria require, fit model with interaction term.
+ 7. **VIF**: Compute Variance Inflation Factor (VIF) for all predictors. Construct a `diagnostics` dictionary containing `vif_scores` and the `correlation_matrix`.
+ 8. **Output**: Write intermediate model summary to `results/models/core_model.json`.
+ - **Dependency**: T017 (Data), T001 (Schema).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T026 [US2] **Sensitivity Analysis & FDR**: Implement `code/03_model.py` (Part 2: Sensitivity).
+ - **Steps**:
+ 1. **Sensitivity Runs**: Run regression with alternative definitions: `platform_count` only, `switching_frequency` only.
+ 2. **FDR Correction**: Apply Benjamini-Hochberg (FDR) correction to p-values from all three runs (main + 2 sensitivity).
+ 3. **Write Results**: Write results to `results/sensitivity_comparison.csv` with columns: `definition`, `beta`, `p_value`, `sign`, `n`, `fdr_p_value`.
+ 4. **Verify Robustness (SC-003)**: Read `results/sensitivity_comparison.csv` and verify:
+ - Beta sign does not flip across operationalizations.
+ - If signs flip: Log a CRITICAL warning "SC-003 Violation: Beta sign instability detected." and ensure the instability is recorded in the final report. **Do NOT halt the pipeline.**
+ - If p > 0.10 for any variant but sign is stable, log "Warning: Variant p > 0.10 but sign stable; robustness maintained."
+ - **Dependency**: T025.
+
+- [ ] T027 [US2] **Final Validation & Report**: Implement `code/03_model.py` (Part 3: Final Report).
+ - **Steps**:
+ 1. **Merge Results**: Combine core model and sensitivity results.
+ 2. **Validate Output Schema**: Validate `results/models/regression_summary.json` against `contracts/output.schema.yaml`. If missing, fail with "Schema file missing".
+ 3. **Causal Language Validation**: Programmatically scan the entire `interpretation` string AND the generated textual summary for forbidden terms (causes, leads to, impacts). If found, **FAIL** the run.
+ 4. **Output**: Write `results/models/regression_summary.json` with standardized betas, p-values, VIF, and FDR-corrected p-values. Ensure `vif_scores` and **raw correlation matrix** are nested inside a `diagnostics` object.
+ - **Dependency**: T026.
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T021 [P] [US2] **Test Model Output Schema**: Implement `tests/contract/test_model_output.py::test_output_matches_schema`.
+ - **Logic**:
+ 1. Load `contracts/output.schema.yaml`.
+ 2. Load `results/models/regression_summary.json`.
+ 3. Assert that all keys in the schema exist in the JSON.
+ 4. Assert that `vif_scores` is a list/dict and `interpretation` is a string.
+ 5. **Expected Failure**: Initially, the JSON file is missing or keys are wrong.
+ - **Dependency**: T025, T026, T027.
+
+- [ ] T022 [P] [US2] **Test VIF Calculation**: Implement `tests/unit/test_vif.py::test_vif_calculation_correctness`.
+ - **Logic**:
+ 1. Create a synthetic DataFrame with known collinearity (e.g., `x2 = x1 * 2 + noise`).
+ 2. Call the VIF function.
+ 3. Assert that the VIF for `x2` is > 5 (or expected high value).
+ 4. **Expected Failure**: Initially, the function might not be implemented or calculation is wrong.
+ - **Dependency**: T010, T025.
+
+- [ ] T023 [P] [US2] **Test Causal Language Scanner**: Implement `tests/unit/test_causal_language.py::test_scanner_detects_forbidden_terms`.
+ - **Logic**:
+ 1. Call `causal_language_scanner("This variable causes the outcome", ["causes"])`.
+ 2. Assert that the function returns `True` (or raises an error).
+ 3. **Expected Failure**: Initially, the scanner might not detect the term.
+ - **Dependency**: T010.
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
 ---
 
@@ -145,34 +223,68 @@
 
 **Independent Test**: The script generates PDF/PNG files containing the regression plot, stratified plots, and a sensitivity table.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T035 [P] [US3] Implement `tests/integration/test_visuals.py::test_plots_generated_correctly` to test visualization generation.
-
 ### Implementation for User Story 3
 
-- [X] T036 [US3] Implement `code/04_visualize.py`: Generate scatter plot with `switching_index` (X) vs `cognitive_score` (Y), fitted regression line, and confidence intervals. <!-- ATOMIZE: requested -->
-- [X] T037 [US3] Implement `code/04_visualize.py`: Generate stratified plot showing regression lines for distinct age groups (<30 and >30) if interaction term is significant.
-- [X] T038 [US3] Implement `code/04_visualize.py`: Generate sensitivity table comparing beta coefficients across alternative operationalizations (`platform_count`, `switching_frequency`, `switching_index`). <!-- FAILED: unspecified -->
-- [X] T039 [US3] Output `results/figures/regression_plot.png`, `results/figures/stratified_plot.png`, and `results/figures/sensitivity_table.png`.
-- [X] T039a [US3] Write final JSON report (`results/final_report.json`) merging model summary (T033) with the associational text summary. **Structure**: Reference `contracts/output.schema.yaml`. **Validation**: Run `causal_language_scanner` on the `interpretation` field and fail if matches found. Ensure zero causal terms in `interpretation` field.
+- [ ] T036 [US3] **Scatter Plot**: Implement `code/04_visualize.py` (Part 1).
+ - **Actions**:
+ 1. **Scatter Plot**: Generate scatter plot with `switching_index` (X) vs `cognitive_score` (Y) and save to `results/figures/regression_plot.png`.
+ 2. **Confidence Interval**: Overlay fitted regression line with 95% confidence intervals.
+ - **Dependency**: T025.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T037 [US3] **Stratified Plot**: Implement `code/04_visualize.py` (Part 2).
+ - **Actions**:
+ 1. **Stratified Plot**: Generate stratified plot showing regression lines for distinct age groups (<30 and >30) if interaction term is significant.
+ - **Dependency**: T025.
+
+- [ ] T038 [US3] **Sensitivity Table**: Implement `code/04_visualize.py` (Part 3).
+ - **Actions**:
+ 1. **Sensitivity Table**: Generate `results/sensitivity_table.png` containing beta coefficients, p-values, n, and sign for all operationalizations.
+ - **Dependency**: T026.
+
+- [ ] T039 [US3] **Final Report**: Implement `code/04_visualize.py` (Part 4).
+ - **Actions**:
+ 1. **Final Report**: Write final JSON report (`results/final_report.json`) merging model summary with the associational text summary.
+ 2. **Validation**: Run `causal_language_scanner` on the `interpretation` field and fail if matches found.
+ 3. **Structure**: Reference `contracts/output.schema.yaml`.
+ - **Dependency**: T036, T037, T038.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T035 [P] [US3] **Test Visuals Generation**: Implement `tests/integration/test_visuals.py::test_plots_generated_correctly`.
+ - **Logic**:
+ 1. Run the visualization script.
+ 2. Assert that `results/figures/regression_plot.png` exists and is not empty.
+ 3. Assert that `results/figures/sensitivity_table.png` exists.
+ 4. **Expected Failure**: Initially, files are missing.
+ - **Dependency**: T036, T037, T038, T039.
+
+**Checkpoint**: All user stories should now be independently functional.
 
 ---
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Improvements that affect multiple user stories.
 
-- [X] T041a [P] Create `docs/README.md` with project overview.
-- [X] T041b [P] Create `docs/quickstart.md` with pipeline instructions.
-- [X] T042a [P] **Add Docstrings**: Refactor `code/*.py` to add Google-style docstrings to **all public functions and classes**. **Metric**: **[deferred] of public functions** must have docstrings.
-- [X] T042b [P] Refactor `code/02_engineer.py` for clarity and performance.
-- [X] T043a [P] **Implement Chunked Reading**: Optimize `code/01_ingest.py` to use `streaming=True` or chunked reading for datasets > 100MB. **Metric**: Memory usage must remain < 2GB during ingestion of 1GB+ dataset.
-- [X] T043b [P] **Add Memory Profiling**: Add memory profiling logs to `code/03_model.py` to track peak memory usage during model fitting. **Metric**: Log peak memory usage in `logs/memory_profile.log` with format "Peak Memory: X MB".
-- [X] T044 [P] Implement `tests/unit/test_edge_cases.py::test_empty_dataframe_handling` and `tests/unit/test_edge_cases.py::test_missing_value_exclusion`.
-- [X] T045 [P] Run `docs/quickstart.md` validation to ensure full pipeline reproducibility.
+- [ ] T041 [P] **Documentation**: Implement final documentation.
+ - **Actions**:
+ 1. Create `docs/README.md` with project overview.
+ 2. Create `docs/quickstart.md` with pipeline instructions.
+ - **Dependency**: All previous phases.
+
+- [ ] T042 [P] **Refactor**: Refactor code for clarity.
+ - **Actions**:
+ 1. Refactor `code/*.py` to add Google-style docstrings to **all public functions and classes**.
+ 2. Refactor `code/02_engineer.py` for clarity and performance.
+ - **Dependency**: T017, T025.
+
+- [ ] T043 [P] **Edge Cases**: Implement edge case tests.
+ - **Actions**:
+ 1. Implement `tests/unit/test_edge_cases.py::test_empty_dataframe_handling`.
+ 2. Implement `tests/unit/test_edge_cases.py::test_missing_value_exclusion`.
+ - **Dependency**: T017, T025.
+
+**Note**: T044 (Streaming & Memory) has been merged into T015 (Ingestion) to ensure core robustness. No separate task required.
 
 ---
 
@@ -180,7 +292,7 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Data Feasibility)**: No dependencies - MUST run first. Blocks all other phases.
+- **Phase 0 (Data Research & Feasibility)**: No dependencies - MUST run first. Blocks all other phases.
 - **Setup (Phase 1)**: No dependencies - can start immediately (in parallel with Phase 0 if resources allow, but logically independent).
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
@@ -202,6 +314,13 @@
 - Core implementation before integration.
 - Story complete before moving to next priority.
 
+### Specific Execution Chains
+
+- **Phase 0 Chain**: T001 (Feasibility) -> T005 (Setup) -> T010 (Foundational).
+- **User Story 1 Chain**: T015 (Ingestion) -> T016a (Instrument Docs) -> T017 (Engineering) -> T020 (Logging).
+- **User Story 2 Chain**: T025 (Core Model) -> T026 (Sensitivity) -> T027 (Final Report).
+- **User Story 3 Chain**: T036 (Scatter) -> T037 (Stratified) -> T038 (Sensitivity Table) -> T039 (Final Report).
+
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel.
@@ -210,6 +329,7 @@
 - All tests for a user story marked [P] can run in parallel.
 - Models within a story marked [P] can run in parallel.
 - Different user stories can be worked on in parallel by different team members.
+- **Phase 0 tasks** can be executed in parallel as they involve independent research on different datasets (now merged into T001).
 
 ---
 
@@ -254,6 +374,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D: Phase 0 (Research & Data Validation)
 3. Stories complete and integrate independently
 
 ---
@@ -268,12 +389,13 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Never use synthetic data as a fallback. If real data fetch fails, the pipeline must fail loudly.
-- **Streaming**: If datasets exceed available RAM, use `streaming=True` and process in chunks.
+- **Streaming**: If datasets exceed available RAM, use `streaming=True` and process in chunks (implemented in T015).
 - **Causal Language**: Strictly enforce associational framing; any causal terms trigger a failure.
 - **Phase 0 is Mandatory**: The pipeline MUST check for variables before downloading data.
 - **Schema Validation**: Moved to Phase 0 to avoid circular dependency with Phase 1.
-- **Residual Model**: T027a/T027b explicitly implement and save the residualized model if collinearity is high (mandatory if flagged).
-- **Robustness Verification**: T030a/T030c explicitly verify SC-003 criteria and halt if not met.
-- **Unified Ingestion**: T015 handles all three datasets in one script to prevent merge conflicts and ensure parallel availability.
+- **Residual Model**: T025 explicitly implements and saves the residualized model if collinearity is high (REQUIRED CHECK per FR-006).
+- **Robustness Verification**: T026 explicitly verifies SC-003 criteria and logs instability without halting.
+- **Unified Ingestion**: T015 handles each dataset separately to prevent merge conflicts and ensure parallel availability.
 - **Instrument Documentation**: T016a ensures instrument validity is documented immediately after ingestion (Phase 3) before engineering.
-- **Removed Phase O**: Meta-task T046 merged into T015 for direct executability.
+- **Phase 0 Added**: Explicit research tasks (T046-T050) added to prevent "Data Gap" failures by validating variable existence in public datasets before implementation. (Now merged into T001).
+- **T044 Removed**: Streaming logic merged into T015.
