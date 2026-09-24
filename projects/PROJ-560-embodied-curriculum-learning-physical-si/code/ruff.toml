@@ -1,26 +1,40 @@
-# Ruff configuration for llmXive Embodied Curriculum Learning Project
-# This file is deprecated in favor of pyproject.toml but kept for legacy tool compatibility
-# as per T003 requirements to explicitly create ruff.toml.
-
+# Ruff configuration for Embodied Curriculum Learning project
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 
 [lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ANN",# flake8-annotations (type hints)
 ]
 ignore = [
-    "E501",
-    "B008",
+    "E501", # Line too long (handled by black)
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
 ]
 
 [lint.isort]
 known-first-party = ["src"]
-force-single-line = true
-lines-after-imports = 2
+force-sort-within-sections = true
+combine-as-imports = true
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files
+"code/tests/*" = [
+    "ANN", # Allow missing type annotations in tests
+    "S101", # Allow assert statements in tests
+]
+# Ignore specific rules for scripts
+"code/src/cli.py" = [
+    "T201", # Allow print statements in CLI
+]
+"code/src/logging_config.py" = [
+    "T201", # Allow print statements in logging setup if needed
+]

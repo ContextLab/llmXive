@@ -1,3 +1,1 @@
-"""
-Tests for the Embodied Curriculum Learning project.
-"""
+# Test package initialization

@@ -37,7 +37,7 @@ The system must perform independent samples t-tests comparing the mean gain scor
 
 ### User Story 3 - Sensitivity Analysis for Thresholds (Priority: P3)
 
-The system must execute a sensitivity analysis sweeping the inclusion threshold for "valid learning gains" (e.g., minimum pre-post difference) across a defined set (0.01, 0.05, 0.10) to demonstrate the robustness of the headline effect size, but only if the dataset size (N) ≥ 30.
+The system must execute a sensitivity analysis sweeping the inclusion threshold for "valid learning gains" (e.g., minimum pre-post difference) across a defined set of representative values. to demonstrate the robustness of the headline effect size, but only if the dataset size (N) ≥ 30.
 
 **Why this priority**: This addresses the methodological soundness requirement for threshold justification. It ensures that the research conclusion is not an artifact of an arbitrary cutoff choice.
 

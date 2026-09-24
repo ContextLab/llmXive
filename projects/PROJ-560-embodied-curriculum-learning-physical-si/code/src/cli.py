@@ -5,159 +5,149 @@ import os
 import logging
 from typing import List, Optional
 
-from .logging_config import setup_logging
-from .data_loader import load_public_dataset, generate_synthetic_fallback, calculate_gain_scores, write_processed_data, handle_synthetic_fallback_failure
-from .stats_engine import run_ancova, run_t_test, calculate_effect_size, calculate_confidence_interval, apply_bonferroni_correction, check_collinearity, calculate_power, frame_inference, aggregate_results, write_analysis_results
-from .sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
-from .models import DatasetRecord, AnalysisResult, SensitivitySweep
+from .data_loader import main as data_loader_main
+from .synthetic_gen import SyntheticDataGenerator
 from .utils import set_seed
+from .logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Embodied Curriculum Learning Analysis CLI")
-    parser.add_argument("--mode", type=str, required=True, choices=["secondary_analysis", "synthetic"],
-                        help="Mode of operation: 'secondary_analysis' for public data, 'synthetic' for generated data.")
-    parser.add_argument("--input", type=str, default=None, help="Path to input CSV/JSON file (for secondary_analysis).")
-    parser.add_argument("--sweep_thresholds", type=str, default="0.01,0.05,0.10",
-                        help="Comma-separated list of significance thresholds for sensitivity sweep.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
-    parser.add_argument("--concept_definition", type=str, default=None, help="Concept definition string (for synthetic mode).")
-    parser.add_argument("--n", type=int, default=1000, help="Number of records to generate (for synthetic mode).")
-    return parser.parse_args()
-
-def run_secondary_analysis(input_path: str, sweep_thresholds: List[float], seed: int) -> dict:
+def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     """
-    Run analysis on public data.
+    Parse command line arguments.
+    
+    Args:
+        args: List of arguments. If None, sys.argv[1:] is used.
+        
+    Returns:
+        Parsed arguments namespace.
     """
-    set_seed(seed)
-    logger.info(f"Loading public dataset from {input_path}")
-    records = load_public_dataset(input_path)
-    
-    if not records:
-        logger.error("No records loaded from public dataset.")
-        return {}
-
-    # Calculate gain scores
-    gain_records = calculate_gain_scores(records)
-    write_processed_data(gain_records, "data/processed/validated_fallback.csv")
-
-    # Run primary stats
-    ancova_result = run_ancova(gain_records)
-    t_test_result = run_t_test(
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
-    )
-    effect_size = calculate_effect_size(
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
-    )
-    ci = calculate_confidence_interval(effect_size)
-    collinearity = check_collinearity(gain_records)
-    power = calculate_power(gain_records)
-    inference = frame_inference(ancova_result)
-    
-    # Run sensitivity sweep
-    sweep_results = run_sensitivity_sweep(gain_records, sweep_thresholds)
-    robustness_warning = check_robustness_warning(sweep_results)
-
-    # Aggregate results
-    results = aggregate_results(
-        ancova_f_statistic=ancova_result['f_statistic'],
-        ancova_p_value=ancova_result['p_value'],
-        t_statistic=t_test_result[0],
-        p_value=t_test_result[1],
-        effect_size_cohen_d=effect_size,
-        confidence_interval=ci,
-        inference_framing=inference,
-        collinearity_diagnostics=collinearity,
-        power_analysis=power,
-        robustness_warning=robustness_warning,
-        sensitivity_sweep=aggregate_results_for_report(sweep_results)
+    parser = argparse.ArgumentParser(
+        description="Embodied Curriculum Learning Analysis Tool"
     )
     
-    write_analysis_results(results, "data/processed/results.json")
-    return results
+    parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["secondary_analysis", "synthetic"],
+        default="secondary_analysis",
+        help="Operation mode: 'secondary_analysis' for public data, 'synthetic' for synthetic generation"
+    )
+    
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=None,
+        help="Path to input dataset (CSV or JSON). Required for secondary_analysis mode if public data is used."
+    )
+    
+    parser.add_argument(
+        "--sweep_thresholds",
+        type=float,
+        nargs="+",
+        default=[0.01, 0.05, 0.10],
+        help="Thresholds for sensitivity sweep analysis"
+    )
+    
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility"
+    )
+    
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=100,
+        help="Number of records to generate in synthetic mode"
+    )
+    
+    parser.add_argument(
+        "--mean_diff_embodied",
+        type=float,
+        default=5.0,
+        help="Mean difference for embodied group in synthetic data"
+    )
+    
+    parser.add_argument(
+        "--mean_diff_static",
+        type=float,
+        default=2.0,
+        help="Mean difference for static group in synthetic data"
+    )
+    
+    return parser.parse_args(args)
 
-def run_synthetic_generation(n: int, concept_definition: str, sweep_thresholds: List[float], seed: int) -> dict:
+def run_secondary_analysis(args: argparse.Namespace) -> None:
     """
-    Generate synthetic data and run analysis.
+    Run secondary analysis on public data.
+    
+    Args:
+        args: Parsed command line arguments.
     """
-    set_seed(seed)
-    logger.info(f"Generating synthetic data with n={n}, concept={concept_definition}")
+    if not args.input:
+        logger.error("Input file path is required for secondary_analysis mode")
+        sys.exit(1)
     
-    from .synthetic_gen import SyntheticDataGenerator, generate_mapping_log
-    
-    # Generate mapping log first (required for synthetic mode)
-    generate_mapping_log("data/synthetic/mapping_log.json", concept_definition)
-    
-    generator = SyntheticDataGenerator(seed=seed)
-    records = generator.generate(n=n, concept_definition=concept_definition)
-    
-    if not records:
-        logger.error("Failed to generate synthetic data.")
-        return {}
-
-    # Calculate gain scores
-    gain_records = calculate_gain_scores(records)
-    write_processed_data(gain_records, "data/synthetic/validated_synthetic.csv")
-
-    # Run primary stats
-    ancova_result = run_ancova(gain_records)
-    t_test_result = run_t_test(
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
-    )
-    effect_size = calculate_effect_size(
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "embodied"],
-        [r.post_test_score - r.pre_test_score for r in gain_records if r.instruction_type == "static"]
-    )
-    ci = calculate_confidence_interval(effect_size)
-    collinearity = check_collinearity(gain_records)
-    power = calculate_power(gain_records)
-    inference = frame_inference(ancova_result)
-    
-    # Run sensitivity sweep
-    sweep_results = run_sensitivity_sweep(gain_records, sweep_thresholds)
-    robustness_warning = check_robustness_warning(sweep_results)
-
-    # Aggregate results
-    results = aggregate_results(
-        ancova_f_statistic=ancova_result['f_statistic'],
-        ancova_p_value=ancova_result['p_value'],
-        t_statistic=t_test_result[0],
-        p_value=t_test_result[1],
-        effect_size_cohen_d=effect_size,
-        confidence_interval=ci,
-        inference_framing=inference,
-        collinearity_diagnostics=collinearity,
-        power_analysis=power,
-        robustness_warning=robustness_warning,
-        sensitivity_sweep=aggregate_results_for_report(sweep_results)
-    )
-    
-    write_analysis_results(results, "data/synthetic/results.json")
-    return results
-
-def main():
-    args = parse_args()
     setup_logging()
+    set_seed(args.seed)
     
-    thresholds = [float(x) for x in args.sweep_thresholds.split(",")]
+    from .data_loader import load_public_dataset_with_fallback, calculate_gain_scores, write_processed_data
+    
+    records = load_public_dataset_with_fallback(
+        file_path=args.input,
+        n=args.n,
+        seed=args.seed,
+        mode="secondary_analysis"
+    )
+    
+    gain_records = calculate_gain_scores(records)
+    output_path = "data/processed/validated_fallback.csv"
+    write_processed_data(gain_records, output_path)
+    
+    logger.info(f"Secondary analysis complete. Output: {output_path}")
+
+def run_synthetic_generation(args: argparse.Namespace) -> None:
+    """
+    Run synthetic data generation.
+    
+    Args:
+        args: Parsed command line arguments.
+    """
+    setup_logging()
+    set_seed(args.seed)
+    
+    generator = SyntheticDataGenerator()
+    records = generator.generate(
+        n=args.n,
+        seed=args.seed,
+        mean_diff_embodied=args.mean_diff_embodied,
+        mean_diff_static=args.mean_diff_static
+    )
+    
+    # Write synthetic data
+    from .data_loader import write_processed_data
+    output_path = "data/synthetic/generated_data.csv"
+    write_processed_data(records, output_path)
+    
+    # Write mapping log if required
+    mapping_log_path = "data/synthetic/mapping_log.json"
+    generator.write_mapping_log(mapping_log_path)
+    
+    logger.info(f"Synthetic generation complete. Data: {output_path}, Mapping: {mapping_log_path}")
+
+def main() -> None:
+    """Main entry point for CLI."""
+    args = parse_args()
     
     if args.mode == "secondary_analysis":
-        if not args.input:
-            logger.error("--input is required for secondary_analysis mode.")
-            sys.exit(1)
-        results = run_secondary_analysis(args.input, thresholds, args.seed)
+        run_secondary_analysis(args)
     elif args.mode == "synthetic":
-        if not args.concept_definition:
-            logger.error("--concept_definition is required for synthetic mode.")
-            sys.exit(1)
-        results = run_synthetic_generation(args.n, args.concept_definition, thresholds, args.seed)
-    
-    logger.info("Analysis complete.")
-    print(json.dumps(results, indent=2, default=str))
+        run_synthetic_generation(args)
+    else:
+        logger.error(f"Unknown mode: {args.mode}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

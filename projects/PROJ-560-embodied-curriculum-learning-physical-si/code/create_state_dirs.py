@@ -1,43 +1,55 @@
-"""
-Script to create the state directories required for the project.
-Follows Constitution Principle III and FR-001.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Project root is assumed to be the parent of this script's directory
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# The specific state directory path for this project
-STATE_DIR_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-560-embodied-curriculum-learning-physical-si"
-
-def create_directory(path: Path) -> bool:
+def create_directory(path: str) -> bool:
     """
-    Creates a directory if it does not exist.
-    Returns True if successful, False otherwise.
+    Create a directory if it does not exist.
+    
+    Args:
+        path: The path to the directory to create.
+        
+    Returns:
+        True if the directory was created or already exists, False otherwise.
     """
     try:
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+        dir_path = Path(path)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Directory created/exists: {dir_path.resolve()}")
         return True
-    except OSError as e:
+    except Exception as e:
         print(f"Error creating directory {path}: {e}", file=sys.stderr)
         return False
 
 def main():
     """
-    Main entry point to create the state directory structure.
+    Main function to create state directories for the project.
     """
-    print(f"Project Root: {PROJECT_ROOT}")
-    print(f"Target State Directory: {STATE_DIR_PATH}")
-
-    if create_directory(STATE_DIR_PATH):
-        print("State directory setup complete.")
-        sys.exit(0)
+    project_root = Path(__file__).resolve().parent.parent
+    state_base = project_root / "state"
+    project_state = state_base / "projects" / "PROJ-560-embodied-curriculum-learning-physical-si"
+    
+    print(f"Creating state directories under: {project_state}")
+    
+    if create_directory(str(project_state)):
+        # Create standard subdirectories for state management
+        subdirs = [
+            "runs",
+            "checkpoints",
+            "logs",
+            "artifacts"
+        ]
+        
+        for subdir in subdirs:
+            subdir_path = project_state / subdir
+            if not create_directory(str(subdir_path)):
+                print(f"Warning: Failed to create subdirectory {subdir_path}", file=sys.stderr)
+        
+        print("State directory structure initialization complete.")
+        return 0
     else:
-        print("Failed to create state directory.", file=sys.stderr)
-        sys.exit(1)
+        print("Failed to create state directory structure.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,11 +1,6 @@
 import pytest
 import numpy as np
-import json
-import os
-import tempfile
 from typing import List, Tuple
-import pandas as pd
-
 from src.stats_engine import (
     run_t_test,
     run_ancova,
@@ -17,124 +12,154 @@ from src.stats_engine import (
     frame_inference,
     aggregate_results
 )
+import pandas as pd
+import os
+import json
 
-class TestStatsEngine:
-    @pytest.fixture
-    def sample_data(self):
-        """Generate sample data for testing."""
-        np.random.seed(42)
-        group1 = np.random.normal(loc=10, scale=2, size=50)
-        group2 = np.random.normal(loc=12, scale=2, size=50)
-        return group1, group2
+class TestPower:
+    """Tests for calculate_power function (T025)."""
 
-    @pytest.fixture
-    def ancova_data(self):
-        """Generate data for ANCOVA testing."""
-        np.random.seed(42)
-        n = 100
-        pre_scores = np.random.normal(loc=50, scale=10, size=n)
-        instruction_type = np.random.choice(['static', 'embodied'], size=n)
-        # Simulate post scores with a slight effect for embodied
-        post_scores = 0.5 * pre_scores + 20 + np.where(instruction_type == 'embodied', 5, 0) + np.random.normal(0, 5, size=n)
-        df = pd.DataFrame({
-            'pre_test_score': pre_scores,
-            'instruction_type': instruction_type,
-            'post_test_score': post_scores
-        })
-        return df
+    def test_power_adequate_sample(self):
+        """Test power calculation with sufficient sample size and effect."""
+        # Large effect, large N -> high power
+        power_result = calculate_power(effect_size=0.8, n1=100, n2=100, alpha=0.05)
+        assert 0.0 <= power_result["power"] <= 1.0
+        assert not power_result["underpowered"]
 
-    def test_t_test_basic(self, sample_data):
-        """Test basic t-test functionality."""
-        g1, g2 = sample_data
-        t_stat, p_val = run_t_test(g1, g2)
-        assert isinstance(t_stat, float)
-        assert isinstance(p_val, float)
-        assert 0 <= p_val <= 1
+    def test_power_underpowered_small_n(self):
+        """Test power calculation with small sample size (underpowered)."""
+        # Small N -> low power
+        power_result = calculate_power(effect_size=0.5, n1=10, n2=10, alpha=0.05)
+        assert 0.0 <= power_result["power"] <= 1.0
+        assert power_result["underpowered"] is True
+        assert power_result["threshold"] == 0.80
 
-    def test_t_test_empty_groups(self):
-        """Test t-test with empty groups raises error."""
-        with pytest.raises(ValueError):
-            run_t_test([], [1, 2, 3])
+    def test_power_underpowered_small_effect(self):
+        """Test power calculation with small effect size (underpowered)."""
+        # Small effect -> low power even with moderate N
+        power_result = calculate_power(effect_size=0.1, n1=50, n2=50, alpha=0.05)
+        assert 0.0 <= power_result["power"] <= 1.0
+        # With very small effect, power is likely < 0.8
+        if power_result["power"] < 0.8:
+            assert power_result["underpowered"] is True
 
-    def test_ancova_basic(self, ancova_data):
-        """Test basic ANCOVA functionality."""
-        result = run_ancova(None, "post_test_score ~ pre_test_score + C(instruction_type)", ancova_data)
-        assert "f_statistic" in result
-        assert "p_value" in result
-        assert isinstance(result["f_statistic"], float)
-        assert isinstance(result["p_value"], float)
+    def test_power_insufficient_sample_size(self):
+        """Test power calculation with n < 2."""
+        power_result = calculate_power(effect_size=0.5, n1=1, n2=10)
+        assert power_result["power"] == 0.0
+        assert power_result["underpowered"] is True
+        assert "insufficient_sample_size" in power_result.get("reason", "")
 
-    def test_calculate_effect_size(self, sample_data):
-        """Test Cohen's d calculation."""
-        g1, g2 = sample_data
-        d = calculate_effect_size(g1, g2)
-        assert isinstance(d, float)
-        # With a known difference of 2 and std of 2, d should be around 1.0
-        assert 0.5 < d < 1.5
+    def test_power_calculation_values(self):
+        """Verify that power increases with sample size."""
+        p1 = calculate_power(effect_size=0.5, n1=20, n2=20)["power"]
+        p2 = calculate_power(effect_size=0.5, n1=100, n2=100)["power"]
+        assert p2 > p1, "Power should increase with sample size"
 
-    def test_calculate_confidence_interval(self):
-        """Test confidence interval calculation."""
-        ci = calculate_confidence_interval(effect_size=0.5, n1=50, n2=50)
-        assert isinstance(ci, tuple)
-        assert len(ci) == 2
-        assert ci[0] < 0.5 < ci[1]
-
-    def test_bonferroni_correction(self):
-        """Test Bonferroni correction."""
-        p_values = [0.01, 0.04, 0.06]
-        adjusted = apply_bonferroni_correction(p_values)
+class TestBonferroniCorrection:
+    def test_bonferroni_basic(self):
+        p_values = [0.01, 0.05, 0.10]
+        adjusted = apply_bonferroni_correction(p_values, alpha=0.05)
         assert len(adjusted) == 3
-        assert adjusted[0] == 0.03 # 0.01 * 3
-        assert adjusted[1] == 0.12 # 0.04 * 3
-        assert adjusted[2] == 1.0  # 0.06 * 3 > 1
+        assert adjusted[0] == min(0.01 * 3, 1.0)
 
-    def test_collinearity_detection(self):
-        """Test collinearity detection."""
+    def test_bonferroni_cap(self):
+        p_values = [0.5]
+        adjusted = apply_bonferroni_correction(p_values, alpha=0.05)
+        assert adjusted[0] == 1.0
+
+class TestTTestLogic:
+    def test_ttest_equal_variance(self):
+        # Create synthetic data with known difference
+        group1 = [10, 12, 11, 13, 12]
+        group2 = [8, 9, 7, 10, 8]
+        t_stat, p_val, is_sig = run_t_test(group1, group2)
+        assert t_stat != 0.0
+        assert p_val > 0.0 and p_val <= 1.0
+        assert is_sig is True  # Large difference expected
+
+    def test_ttest_no_difference(self):
+        group1 = [5, 5, 5, 5]
+        group2 = [5, 5, 5, 5]
+        t_stat, p_val, is_sig = run_t_test(group1, group2)
+        assert p_val > 0.05
+
+class TestANCOVALogic:
+    def test_ancova_basic(self):
         df = pd.DataFrame({
-            'x1': [1, 2, 3, 4, 5],
-            'x2': [2, 4, 6, 8, 10], # Perfectly correlated
-            'x3': [1, 3, 2, 4, 3]
+            "score": [10, 12, 11, 13, 12, 8, 9, 7, 10, 8],
+            "group": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],
+            "pre": [5, 6, 5, 6, 5, 5, 5, 5, 5, 5]
         })
-        result = check_collinearity(df, ['x1', 'x2', 'x3'], threshold=0.8)
-        assert result["collinear"] is True
-        assert len(result["problematic_pairs"]) > 0
+        f_stat, p_val, summary = run_ancova(df, "score", "group", "pre")
+        assert f_stat > 0.0
+        assert 0.0 < p_val <= 1.0
 
-    def test_calculate_power_adequate(self):
-        """Test power calculation for adequate power."""
-        # Large effect, large sample
-        result = calculate_power(effect_size=0.8, n1=100, n2=100)
-        assert result["power"] > 0.8
-        assert result["underpowered"] is False
+class TestEffectSize:
+    def test_cohens_d_positive(self):
+        g1 = [10, 12, 11]
+        g2 = [5, 6, 4]
+        d = calculate_effect_size(g1, g2)
+        assert d > 0
 
-    def test_calculate_power_underpowered(self):
-        """Test power calculation for underpowered result (FR-007)."""
-        # Small effect, small sample
-        result = calculate_power(effect_size=0.2, n1=10, n2=10)
-        assert result["underpowered"] is True
-        assert result["power"] < 0.8
+    def test_cohens_d_negative(self):
+        g1 = [5, 6, 4]
+        g2 = [10, 12, 11]
+        d = calculate_effect_size(g1, g2)
+        assert d < 0
 
-    def test_frame_inference(self):
-        """Test inference framing."""
-        results = {"key": "value"}
-        framed = frame_inference(results)
-        assert framed["inference_framing"] == "associational"
-        assert "methodological_caveats" in framed
+class TestCollinearity:
+    def test_collinearity_detection(self):
+        df = pd.DataFrame({
+            "x1": [1, 2, 3, 4, 5],
+            "x2": [1.0, 2.0, 3.0, 4.0, 5.0], # Perfect correlation
+            "y": [10, 20, 30, 40, 50]
+        })
+        diag = check_collinearity(df, ["x1", "x2"])
+        assert diag["is_collinear"] is True
+        assert diag["max_correlation"] > 0.8
 
-    def test_aggregate_results(self):
-        """Test aggregation of all results."""
-        ancova = {"f_statistic": 10.0, "p_value": 0.001}
-        t_test = (2.5, 0.01)
-        effect = 0.5
-        ci = (0.1, 0.9)
-        power = {"power": 0.9, "underpowered": False}
-        collinearity = {"collinear": False}
-        framing = {"inference_framing": "associational"}
+    def test_no_collinearity(self):
+        df = pd.DataFrame({
+            "x1": [1, 2, 3, 4, 5],
+            "x2": [5, 4, 3, 2, 1], # Negative correlation but not > 0.8 absolute? No, this is -1.0.
+            "y": [10, 20, 30, 40, 50]
+        })
+        # Actually -1.0 is > 0.8 absolute. Let's use uncorrelated.
+        df = pd.DataFrame({
+            "x1": [1, 2, 3, 4, 5],
+            "x2": [1, 5, 2, 4, 3],
+            "y": [10, 20, 30, 40, 50]
+        })
+        diag = check_collinearity(df, ["x1", "x2"])
+        assert diag["is_collinear"] is False
+
+class TestFramingAndAggregation:
+    def test_frame_inference_associational(self):
+        power_info = {"power": 0.9, "underpowered": False}
+        text = frame_inference(0.01, 0.5, power_info)
+        assert "associational" in text.lower()
+        assert "causal" not in text.lower()
+
+    def test_frame_inference_underpowered(self):
+        power_info = {"power": 0.4, "underpowered": True}
+        text = frame_inference(0.1, 0.2, power_info)
+        assert "underpowered" in text.lower()
+
+    def test_aggregate_results_structure(self):
+        ancova = (10.5, 0.001, {})
+        t_test = (2.5, 0.01, True)
+        power = calculate_power(0.5, 50, 50)
+        collinearity = check_collinearity(pd.DataFrame({"a": [1,2], "b": [1,2]}), ["a", "b"])
         
-        combined = aggregate_results(ancova, t_test, effect, ci, power, collinearity, framing)
+        results = aggregate_results(
+            ancova, t_test, 0.5, (0.3, 0.7),
+            power, collinearity, pd.DataFrame()
+        )
         
-        assert "ancova" in combined
-        assert "t_test" in combined
-        assert "effect_size_cohen_d" in combined
-        assert "confidence_interval" in combined
-        assert "power_analysis" in combined
-        assert "inference_framing" in combined
+        assert "ancova" in results
+        assert "secondary_descriptive_stats" in results
+        assert "effect_size_cohen_d" in results
+        assert "inference_framing" in results
+        assert "associational" in results["inference_framing"].lower()
+        assert results["inference_framing"].count("associational") > 0

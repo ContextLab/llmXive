@@ -6,39 +6,117 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 
 from .models import DatasetRecord
-from .synthetic_gen import SyntheticDataGenerator, generate_mapping_log
+from .synthetic_gen import SyntheticDataGenerator
+from .utils import set_seed
+from .logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = ['pre_test_score', 'post_test_score', 'instruction_type']
+REQUIRED_COLUMNS = ["pre_test_score", "post_test_score", "instruction_type"]
+SKIPPED_LOG_PATH = Path("data/derivation_logs/skipped_records.log")
 
-def log_skipped_record(record_id: Optional[str], reason: str, source: str = "unknown"):
+def log_skipped_record(record: Dict[str, Any], reason: str) -> None:
+    """Log a skipped record to the derivation log in JSONL format."""
+    SKIPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    log_entry = {
+        "timestamp": record.get("timestamp", ""),
+        "error_code": "DATA_SKIP",
+        "reason": reason,
+        "record_preview": record
+    }
+    with open(SKIPPED_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_entry) + "\n")
+    logger.warning(f"Skipped record: {reason}")
+
+def handle_synthetic_fallback_failure(dataset_source: str) -> None:
+    """Handle the case where synthetic generation fails. Exits with code 1."""
+    error_msg = "Primary research question cannot be answered: missing instruction_type and synthetic generation failed"
+    logger.error(error_msg)
+    
+    # Log to derivation log
+    SKIPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    log_entry = {
+        "timestamp": "",
+        "error_code": "FALLBACK_FAILED",
+        "reason": "synthetic_gen_failed",
+        "dataset_source": dataset_source
+    }
+    with open(SKIPPED_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_entry) + "\n")
+    
+    sys.exit(1)
+
+def load_public_dataset(file_path: str) -> List[DatasetRecord]:
     """
-    Logs a skipped record to the derivation logs.
+    Load a public dataset from a CSV or JSON file.
     
     Args:
-        record_id: The ID of the skipped record.
-        reason: The reason for skipping.
-        source: The source dataset or file.
+        file_path: Path to the CSV or JSON file.
+        
+    Returns:
+        List of DatasetRecord objects.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
-    log_entry = {
-        "timestamp": logging.Formatter('%Y-%m-%d %H:%M:%S').format(logging.LogRecord('', logging.INFO, '', 0, '', (), None)),
-        "record_id": record_id,
-        "reason": reason,
-        "source": source
-    }
-    log_file_path = Path("data/derivation_logs/skipped_records.log")
-    log_file_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
     
-    with open(log_file_path, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    data: List[Dict[str, Any]] = []
     
-    logger.warning(f"Skipped record {record_id} from {source}: {reason}")
+    if path.suffix.lower() == ".csv":
+        with open(path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            data = list(reader)
+    elif path.suffix.lower() in [".json", ".jsonl"]:
+        with open(path, "r", encoding="utf-8") as f:
+            if path.suffix == ".json":
+                data = json.load(f)
+            else:
+                data = [json.loads(line) for line in f if line.strip()]
+    else:
+        raise ValueError(f"Unsupported file format: {path.suffix}")
+    
+    # Validate required columns
+    if data:
+        first_record = data[0]
+        missing_cols = [col for col in REQUIRED_COLUMNS if col not in first_record]
+        if missing_cols:
+            raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    return [
+        DatasetRecord(
+            pre_test_score=float(r.get("pre_test_score", 0)),
+            post_test_score=float(r.get("post_test_score", 0)),
+            instruction_type=str(r.get("instruction_type", "unknown")),
+            covariates={k: v for k, v in r.items() if k not in REQUIRED_COLUMNS}
+        )
+        for r in data
+    ]
+
+def generate_synthetic_fallback(n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> List[DatasetRecord]:
+    """
+    Generate synthetic data as a fallback when public data lacks instruction_type.
+    
+    Args:
+        n: Number of records to generate.
+        seed: Random seed for reproducibility.
+        mean_diff_embodied: Mean difference for embodied group.
+        mean_diff_static: Mean difference for static group.
+        
+    Returns:
+        List of DatasetRecord objects.
+    """
+    set_seed(seed)
+    generator = SyntheticDataGenerator()
+    return generator.generate(n=n, seed=seed, mean_diff_embodied=mean_diff_embodied, mean_diff_static=mean_diff_static)
 
 def calculate_gain_scores(records: List[DatasetRecord]) -> List[DatasetRecord]:
     """
-    Calculates gain scores (post - pre) for each record.
-    Skips records with missing values and logs them.
+    Calculate gain scores (post - pre) for each record.
+    Logs records with missing values to the derivation log.
     
     Args:
         records: List of DatasetRecord objects.
@@ -51,185 +129,102 @@ def calculate_gain_scores(records: List[DatasetRecord]) -> List[DatasetRecord]:
         pre = record.pre_test_score
         post = record.post_test_score
         
-        if pre is None or post is None:
-            log_skipped_record(record_id=str(i), reason="Missing pre or post test score", source="input_data")
+        if pre is None or post is None or (isinstance(pre, float) and (pre != pre)) or (isinstance(post, float) and (post != post)):
+            log_skipped_record({"index": i, "pre": pre, "post": post}, "missing_or_nan_scores")
             continue
         
-        # Create a new record with gain score
-        # Note: DatasetRecord might need a gain_score field if not present. 
-        # Assuming we store it in covariates or a new field if we modify the dataclass.
-        # For now, we assume the record is updated or we create a new structure.
-        # Let's assume we add gain_score to the record if possible, or just process it.
-        # Since we can't easily modify the dataclass instance fields without redefinition,
-        # we will log the gain or assume the downstream consumer handles it.
-        # However, the task implies we compute it. Let's add it to covariates if needed, 
-        # or assume the record object is mutable and we add a property.
-        # Given the constraints, let's assume we just return the list and log the gain.
-        # But to be useful, let's assume we are updating the record's internal state 
-        # or we are just filtering. The prompt says "compute... excluding rows".
-        
         gain = post - pre
-        # We will store the gain in the record's covariates for now if it's not there,
-        # or assume the record object has a gain_score attribute added dynamically.
-        # A safer approach for the dataclass is to assume we are just validating 
-        # and returning the list, but the task says "compute".
-        # Let's add a dynamic attribute for gain_score.
-        record.gain_score = gain
-        processed_records.append(record)
-        
-        logger.info(f"Calculated gain score for record {i}: {gain}")
+        processed_records.append(DatasetRecord(
+            pre_test_score=pre,
+            post_test_score=post,
+            instruction_type=record.instruction_type,
+            covariates=record.covariates,
+            gain_score=gain
+        ))
     
     return processed_records
 
-def write_processed_data(records: List[DatasetRecord], output_path: str):
+def write_processed_data(records: List[DatasetRecord], output_path: str) -> None:
     """
-    Writes processed records to a CSV file.
+    Write processed records to a CSV file.
     
     Args:
         records: List of DatasetRecord objects.
         output_path: Path to the output CSV file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    if not records:
-        logger.warning("No records to write.")
-        return
-
-    fieldnames = ['pre_test_score', 'post_test_score', 'instruction_type', 'gain_score']
-    # Add covariates keys if present
-    if records and records[0].covariates:
-        fieldnames.extend(records[0].covariates.keys())
-
-    with open(output_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-        writer.writeheader()
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["pre_test_score", "post_test_score", "instruction_type", "gain_score"])
         for record in records:
-            row = {
-                'pre_test_score': record.pre_test_score,
-                'post_test_score': record.post_test_score,
-                'instruction_type': record.instruction_type,
-                'gain_score': getattr(record, 'gain_score', None)
-            }
-            if record.covariates:
-                row.update(record.covariates)
-            writer.writerow(row)
-    
-    logger.info(f"Wrote {len(records)} processed records to {output_path}")
+            writer.writerow([
+                record.pre_test_score,
+                record.post_test_score,
+                record.instruction_type,
+                getattr(record, "gain_score", None)
+            ])
+    logger.info(f"Wrote {len(records)} records to {output_path}")
 
-def load_public_dataset(input_path: str) -> List[DatasetRecord]:
+def load_public_dataset_with_fallback(
+    file_path: Optional[str] = None,
+    n: int = 100,
+    seed: int = 42,
+    mean_diff_embodied: float = 5.0,
+    mean_diff_static: float = 2.0,
+    mode: str = "secondary_analysis"
+) -> List[DatasetRecord]:
     """
-    Loads a public dataset from CSV or JSON.
-    Validates required columns.
-    If 'instruction_type' is missing, invokes SyntheticDataGenerator.
+    Load public dataset with fallback to synthetic generation.
     
     Args:
-        input_path: Path to the input file.
+        file_path: Path to public dataset. If None or missing instruction_type, uses synthetic.
+        n: Number of synthetic records if fallback is used.
+        seed: Random seed for synthetic generation.
+        mean_diff_embodied: Mean difference for embodied group in synthetic.
+        mean_diff_static: Mean difference for static group in synthetic.
+        mode: Operation mode ('secondary_analysis' or 'synthetic').
         
     Returns:
         List of DatasetRecord objects.
-        
-    Raises:
-        ValueError: If required columns are missing and fallback fails.
     """
-    logger.info(f"Attempting to load public dataset from {input_path}")
-    path = Path(input_path)
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    records = []
-    data = []
-
-    if path.suffix == '.csv':
-        with open(path, 'r') as f:
-            reader = csv.DictReader(f)
-            data = list(reader)
-    elif path.suffix == '.json':
-        with open(path, 'r') as f:
-            data = json.load(f)
-    else:
-        raise ValueError(f"Unsupported file format: {path.suffix}")
-
-    if not data:
-        logger.warning("Dataset is empty.")
-        return []
-
-    # Check for required columns
-    first_row = data[0]
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in first_row]
-
-    if missing_cols:
-        logger.warning(f"Missing required columns: {missing_cols}")
-        if 'instruction_type' in missing_cols:
-            logger.info("Missing 'instruction_type'. Invoking SyntheticDataGenerator fallback.")
-            return generate_synthetic_fallback()
-        else:
-            # If other columns are missing, we cannot proceed
-            handle_synthetic_fallback_failure("Missing critical columns other than instruction_type")
-
-    for i, row in enumerate(data):
+    # If file_path is provided, try to load it
+    if file_path and Path(file_path).exists():
         try:
-            record = DatasetRecord(
-                pre_test_score=float(row['pre_test_score']),
-                post_test_score=float(row['post_test_score']),
-                instruction_type=row['instruction_type'],
-                covariates={k: v for k, v in row.items() if k not in REQUIRED_COLUMNS}
-            )
-            records.append(record)
-        except (ValueError, KeyError) as e:
-            log_skipped_record(str(i), str(e), source=input_path)
-
-    logger.info(f"Successfully loaded {len(records)} records from {input_path}")
-    return records
-
-def generate_synthetic_fallback() -> List[DatasetRecord]:
-    """
-    Generates synthetic data when public data lacks 'instruction_type'.
-    """
-    logger.info("Generating synthetic fallback data.")
-    generator = SyntheticDataGenerator(seed=42)
-    # Generate a reasonable sample size for validation
-    records = generator.generate(n_samples=1000)
+            records = load_public_dataset(file_path)
+            if records and all(r.instruction_type for r in records):
+                return records
+            # If loaded but missing instruction_type, fall through to synthetic
+            logger.warning("Public data loaded but missing instruction_type. Falling back to synthetic.")
+        except Exception as e:
+            logger.warning(f"Failed to load public dataset: {e}. Falling back to synthetic.")
     
-    # Generate mapping log as required by Constitution Principle VI
-    # This is skipped if --mode=secondary_analysis, but here we are in fallback mode
-    # which implies we are not in secondary analysis (since we have data but missing type)
-    # So we generate the log.
-    try:
-        generate_mapping_log("data/synthetic/mapping_log.json")
-        logger.info("Generated mapping_log.json for synthetic data.")
-    except Exception as e:
-        logger.error(f"Failed to generate mapping_log.json: {e}")
-        # Continue anyway, but log the error
-
-    return records
-
-def handle_synthetic_fallback_failure(reason: str):
-    """
-    Handles failure of synthetic data generation or missing critical columns.
-    Logs error and exits.
+    # Fallback to synthetic
+    if mode == "secondary_analysis":
+        handle_synthetic_fallback_failure(file_path or "unknown")
     
-    Args:
-        reason: The reason for failure.
-    """
-    error_msg = f"CRITICAL ERROR: {reason}. Primary research question cannot be answered."
-    logger.error(error_msg)
-    
-    # Log to derivation log
-    log_entry = {
-        "timestamp": logging.Formatter('%Y-%m-%d %H:%M:%S').format(logging.LogRecord('', logging.ERROR, '', 0, '', (), None)),
-        "error_code": "FALLBACK_FAILURE",
-        "reason": reason,
-        "dataset_source": "unknown"
-    }
-    log_file_path = Path("data/derivation_logs/skipped_records.log")
-    log_file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_file_path, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
-    
-    sys.exit(1)
+    return generate_synthetic_fallback(n, seed, mean_diff_embodied, mean_diff_static)
 
-def main():
-    # Placeholder for direct execution if needed
-    pass
+def main() -> None:
+    """Main entry point for data loading module."""
+    import sys
+    from .cli import parse_args
+    
+    args = parse_args(sys.argv[1:])
+    setup_logging()
+    
+    records = load_public_dataset_with_fallback(
+        file_path=args.input,
+        n=args.n,
+        seed=args.seed,
+        mode=args.mode
+    )
+    
+    gain_records = calculate_gain_scores(records)
+    output_path = f"data/processed/validated_fallback.csv"
+    write_processed_data(gain_records, output_path)
+    
+    logger.info(f"Data processing complete. Output: {output_path}")
+
+import sys

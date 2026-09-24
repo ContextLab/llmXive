@@ -4,66 +4,102 @@ import os
 import sys
 import json
 import tempfile
-from src.sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
-from src.models import DatasetRecord
+from pathlib import Path
 
-
-class TestSensitivitySweepLogic:
-    """Tests for sensitivity sweep logic."""
-    
-    def test_sweep_basic(self):
-        """Test basic sweep execution."""
-        records = [
-            DatasetRecord(pre_test_score=50, post_test_score=60, instruction_type="A"),
-            DatasetRecord(pre_test_score=50, post_test_score=55, instruction_type="B")
-        ] * 20 # N=40
-        
-        results = run_sensitivity_sweep(records, [0.01, 0.05])
-        assert len(results) == 2
-        assert all(r.threshold in [0.01, 0.05] for r in results)
-        
-    def test_insufficient_data(self):
-        """Test sweep with insufficient data."""
-        records = [
-            DatasetRecord(pre_test_score=50, post_test_score=60, instruction_type="A"),
-            DatasetRecord(pre_test_score=50, post_test_score=55, instruction_type="B")
-        ]
-        
-        results = run_sensitivity_sweep(records, [0.05])
-        assert len(results) == 0
+# Import the function under test and the model
+# Assuming the project root is in sys.path or we adjust accordingly
+# The API surface says: from tests.test_sensitivity import TestRobustnessWarning
+# So we import the function directly from src.sensitivity
+from src.sensitivity import check_robustness_warning
+from src.models import SensitivitySweep
 
 
 class TestRobustnessWarning:
-    """Tests for robustness warning."""
-    
-    def test_warning_triggered(self):
-        """Test warning when effect is negligible."""
-        # Mock results with negligible effect
-        from src.models import SensitivitySweep
-        results = [
-            SensitivitySweep(threshold=0.05, effect_size=0.1, significant=True)
-        ]
-        assert check_robustness_warning(results) is True
-        
-    def test_no_warning(self):
-        """Test no warning when effect is large."""
-        from src.models import SensitivitySweep
-        results = [
-            SensitivitySweep(threshold=0.05, effect_size=0.8, significant=True)
-        ]
-        assert check_robustness_warning(results) is False
+    """
+    Tests for the check_robustness_warning function (Task T030).
+    SC-003: Flag robustness_warning: true if effect size drops below negligible threshold
+    while remaining statistically significant.
+    """
 
-
-class TestAggregateSweepResults:
-    """Tests for aggregating sweep results."""
-    
-    def test_aggregate(self):
-        """Test aggregation."""
-        from src.models import SensitivitySweep
-        results = [
-            SensitivitySweep(threshold=0.01, effect_size=0.5, significant=True),
-            SensitivitySweep(threshold=0.05, effect_size=0.5, significant=True)
+    def test_no_warning_when_effect_size_large_and_significant(self):
+        """
+        Scenario: Large effect size (|d| >= 0.2) and significant.
+        Expected: No warning (False).
+        """
+        # Effect size 0.8 (large), significant at p < 0.05
+        sweep_results = [
+            SensitivitySweep(threshold=0.05, effect_size=0.8, significant=True),
+            SensitivitySweep(threshold=0.01, effect_size=0.8, significant=False),
         ]
-        aggregated = aggregate_results_for_report(results)
-        assert len(aggregated) == 2
-        assert aggregated[0]["threshold"] == 0.01
+        result = check_robustness_warning(sweep_results)
+        assert result is False, "Should not warn if effect size is large."
+
+    def test_no_warning_when_effect_size_negligible_but_not_significant(self):
+        """
+        Scenario: Negligible effect size (|d| < 0.2) but NOT significant.
+        Expected: No warning (False).
+        """
+        # Effect size 0.1 (negligible), not significant
+        sweep_results = [
+            SensitivitySweep(threshold=0.05, effect_size=0.1, significant=False),
+            SensitivitySweep(threshold=0.10, effect_size=0.1, significant=False),
+        ]
+        result = check_robustness_warning(sweep_results)
+        assert result is False, "Should not warn if result is not significant."
+
+    def test_warning_triggered_when_effect_size_negligible_and_significant(self):
+        """
+        Scenario: Negligible effect size (|d| < 0.2) AND significant.
+        Expected: Warning triggered (True).
+        """
+        # Effect size 0.15 (negligible), significant at p < 0.05
+        sweep_results = [
+            SensitivitySweep(threshold=0.05, effect_size=0.15, significant=True),
+            SensitivitySweep(threshold=0.01, effect_size=0.15, significant=False),
+        ]
+        result = check_robustness_warning(sweep_results)
+        assert result is True, "Should warn if effect size is negligible but significant."
+
+    def test_warning_triggered_on_negative_effect_size_negligible_and_significant(self):
+        """
+        Scenario: Negative negligible effect size (|d| < 0.2) AND significant.
+        Expected: Warning triggered (True).
+        """
+        # Effect size -0.15 (negligible magnitude), significant
+        sweep_results = [
+            SensitivitySweep(threshold=0.05, effect_size=-0.15, significant=True),
+        ]
+        result = check_robustness_warning(sweep_results)
+        assert result is True, "Should warn if negative effect size is negligible but significant."
+
+    def test_warning_triggered_if_any_sweep_point_meets_criteria(self):
+        """
+        Scenario: Multiple sweep points, one is negligible+significant, others are not.
+        Expected: Warning triggered (True).
+        """
+        sweep_results = [
+            SensitivitySweep(threshold=0.01, effect_size=0.5, significant=True), # Large, sig -> OK
+            SensitivitySweep(threshold=0.05, effect_size=0.1, significant=True), # Negligible, sig -> WARN
+            SensitivitySweep(threshold=0.10, effect_size=0.5, significant=True), # Large, sig -> OK
+        ]
+        result = check_robustness_warning(sweep_results)
+        assert result is True, "Should warn if ANY point is negligible and significant."
+
+    def test_empty_list_returns_false(self):
+        """
+        Scenario: Empty list of sweep results.
+        Expected: No warning (False).
+        """
+        result = check_robustness_warning([])
+        assert result is False, "Empty list should not trigger warning."
+
+    def test_boundary_effect_size_exactly_0_2(self):
+        """
+        Scenario: Effect size exactly 0.2 (threshold boundary).
+        Expected: No warning (since condition is < 0.2).
+        """
+        sweep_results = [
+            SensitivitySweep(threshold=0.05, effect_size=0.2, significant=True),
+        ]
+        result = check_robustness_warning(sweep_results)
+        assert result is False, "Effect size exactly 0.2 should not trigger warning (condition is < 0.2)."

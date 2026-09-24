@@ -1,34 +1,59 @@
+"""
+Script to create required data directories for the project.
+Creates: data/raw/, data/processed/, data/synthetic/, data/derivation_logs/
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directory(path: Path) -> None:
-    """Create a directory if it does not exist."""
-    if not path.exists():
+
+def create_directory(path: Path) -> bool:
+    """
+    Create a directory if it does not exist.
+    
+    Args:
+        path: Path object representing the directory to create
+        
+    Returns:
+        True if directory was created or already exists, False otherwise
+    """
+    try:
         path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-    else:
-        print(f"Directory already exists: {path}")
+        return True
+    except OSError as e:
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+        return False
 
-def main() -> None:
-    """Create the required data directories."""
-    # Define the base data directory relative to the project root
-    # Assuming the script is run from the project root or code/ directory
-    # We use a relative path strategy that works from the code/ directory
-    project_root = Path(__file__).resolve().parent.parent
-    data_base = project_root / "data"
 
-    directories = [
-        data_base / "raw",
-        data_base / "processed",
-        data_base / "synthetic",
-        data_base / "derivation_logs",
+def main():
+    """Create all required data directories."""
+    # Define the data directories to create
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/synthetic",
+        "data/derivation_logs"
     ]
+    
+    # Get the project root (parent of code/)
+    project_root = Path(__file__).parent.parent
+    
+    # Create each directory
+    success = True
+    for dir_name in data_dirs:
+        dir_path = project_root / dir_name
+        if not create_directory(dir_path):
+            success = False
+            print(f"Failed to create directory: {dir_path}", file=sys.stderr)
+        else:
+            print(f"Created directory: {dir_path}")
+    
+    if not success:
+        print("Some directories failed to create.", file=sys.stderr)
+        sys.exit(1)
+    
+    print("All data directories created successfully.")
 
-    for directory in directories:
-        create_directory(directory)
-
-    print("Data directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

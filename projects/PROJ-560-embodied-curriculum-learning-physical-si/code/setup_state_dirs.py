@@ -1,54 +1,48 @@
+"""
+Script to create state directories for the project.
+Ensures the state directory structure exists for project PROJ-560.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directory(path: str) -> bool:
+def create_directory(path: Path) -> bool:
     """
-    Create a directory at the specified path if it does not already exist.
-
+    Create a directory if it does not exist.
+    
     Args:
-        path: The absolute or relative path to the directory to create.
-
+        path: The Path object representing the directory to create.
+        
     Returns:
         True if the directory was created or already exists, False otherwise.
     """
-    dir_path = Path(path)
     try:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
+        path.mkdir(parents=True, exist_ok=True)
         return True
     except OSError as e:
-        print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
         return False
 
 def main():
     """
-    Main entry point for creating state directories for the project.
+    Main entry point to create state directories.
     Creates the specific state directory for PROJ-560.
     """
-    # Define the project root relative to the script location or CWD
-    # Assuming the script is run from the project root or code/ directory
-    project_root = Path.cwd()
+    # Define the project root relative to this script's location
+    # Assuming script is in code/ and project root is one level up
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
     
-    # Define the specific state directory path as per task T001c
     state_dir = project_root / "state" / "projects" / "PROJ-560-embodied-curriculum-learning-physical-si"
     
     print(f"Ensuring state directory exists: {state_dir}")
-    success = create_directory(str(state_dir))
     
-    if not success:
-        sys.exit(1)
-    
-    # Verify creation
-    if state_dir.exists() and state_dir.is_dir():
-        print(f"Successfully verified state directory: {state_dir}")
-        sys.exit(0)
+    if create_directory(state_dir):
+        print(f"Successfully created or verified directory: {state_dir}")
+        return 0
     else:
-        print(f"Failed to verify state directory creation: {state_dir}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Failed to create directory: {state_dir}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

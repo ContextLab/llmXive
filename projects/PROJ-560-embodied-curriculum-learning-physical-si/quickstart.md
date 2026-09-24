@@ -73,9 +73,9 @@ All input datasets (CSV or JSON) must contain the following columns:
 
 ### Automatic Synthetic Fallback
 The system is designed to handle public datasets that lack the `instruction_type` column.
-- **Behavior**: If `instruction_type` is missing from the provided input file, the system **automatically invokes** the `SyntheticDataGenerator`.
+- **Behavior**: If `instruction_type` is missing from the provided input file, the system **automatically invokes** the `SyntheticDataGenerator` (T014).
 - **Purpose**: This fallback is strictly for **pipeline validation**. It generates a labeled dataset with configurable statistical properties to ensure the analysis pipeline functions correctly when real-world data is incomplete or unavailable.
-- **Warning**: Synthetic data is not a substitute for real experimental data in final research conclusions. If the synthetic generation fails, the system will exit with an error code and log the failure.
+- **Warning**: Synthetic data is not a substitute for real experimental data in final research conclusions. If the synthetic generation fails, the system will exit with an error code and log the failure to `data/derivation_logs/skipped_records.log`.
 
 ### Running with Synthetic Data (Fallback Scenario)
 If you do not have a public dataset with the required `instruction_type` column, or if you wish to validate the pipeline's statistical engine without external data dependencies, use the synthetic generation mode.

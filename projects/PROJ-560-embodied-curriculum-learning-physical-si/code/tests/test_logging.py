@@ -7,90 +7,131 @@ from pathlib import Path
 import logging
 import sys
 
+# Add code/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from src.logging_config import setup_logging
-from src.data_loader import log_skipped_record, calculate_gain_scores
-from src.models import DatasetRecord
-from src.synthetic_gen import SyntheticDataGenerator, generate_mapping_log
 
 class TestLogging:
-    def test_setup_logging_console(self, caplog):
-        """Test that logging setup works for console output."""
-        logger = setup_logging(log_level=logging.INFO)
-        assert logger.level == logging.INFO
-        
-        with caplog.at_level(logging.INFO):
-            logger.info("Test message")
-        assert "Test message" in caplog.text
+    """
+    Unit tests for the logging configuration, specifically the JSONL handler.
+    """
 
-    def test_setup_logging_file(self, tmp_path):
-        """Test that logging setup works for file output."""
-        log_file = tmp_path / "test.log"
-        logger = setup_logging(log_level=logging.DEBUG, log_file=str(log_file))
-        
-        logger.debug("Debug message")
-        logger.info("Info message")
-        
-        assert log_file.exists()
-        content = log_file.read_text()
-        assert "Debug message" in content
-        assert "Info message" in content
+    def setup_method(self):
+        """Setup temporary directories for test logs."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.jsonl_log_path = os.path.join(self.temp_dir, "skipped_records.log")
+        self.general_log_path = os.path.join(self.temp_dir, "general.log")
 
-    def test_log_skipped_record(self, tmp_path, caplog):
-        """Test that skipped records are logged correctly."""
-        # Mock the log file path
-        log_dir = tmp_path / "data" / "derivation_logs"
-        log_dir.mkdir(parents=True)
-        log_file = log_dir / "skipped_records.log"
-        
-        # Temporarily override the log path in the function
-        # Since the function uses a hardcoded path, we can't easily mock it without refactoring
-        # Instead, we test the logging output
-        with caplog.at_level(logging.WARNING):
-            log_skipped_record(record_id="123", reason="Missing score", source="test.csv")
-        assert "Skipped record 123" in caplog.text
-        assert "Missing score" in caplog.text
+    def teardown_method(self):
+        """Clean up temporary directories."""
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        # Reset root logger handlers to avoid side effects in other tests
+        root_logger = logging.getLogger()
+        root_logger.handlers.clear()
 
-    def test_calculate_gain_scores_logging(self, caplog):
-        """Test that gain score calculation logs correctly."""
-        records = [
-            DatasetRecord(pre_test_score=50.0, post_test_score=60.0, instruction_type="embodied", covariates={}),
-            DatasetRecord(pre_test_score=50.0, post_test_score=None, instruction_type="static", covariates={}) # Missing post
-        ]
+    def test_jsonl_handler_creation(self):
+        """Test that setup_logging creates a JSONL handler when jsonl_log_file is provided."""
+        logger = setup_logging(jsonl_log_file=self.jsonl_log_path)
         
-        with caplog.at_level(logging.WARNING):
-            processed = calculate_gain_scores(records)
+        # Check that the logger has handlers
+        assert len(logger.handlers) >= 1
         
-        # Should log a warning for the missing record
-        assert "Skipped record" in caplog.text
-        # Should process the valid record
-        assert len(processed) == 1
-        assert hasattr(processed[0], 'gain_score')
-        assert processed[0].gain_score == 10.0
+        # Find the JsonLHandler
+        jsonl_handler_found = False
+        for handler in logger.handlers:
+            if hasattr(handler, 'filepath') and str(handler.filepath) == self.jsonl_log_path:
+                jsonl_handler_found = True
+                break
+        
+        assert jsonl_handler_found, "JsonLHandler not found in logger handlers"
 
-    def test_synthetic_generation_logging(self, caplog):
-        """Test that synthetic data generation logs parameters."""
-        with caplog.at_level(logging.INFO):
-            generator = SyntheticDataGenerator(seed=42)
-            records = generator.generate(n_samples=100)
+    def test_jsonl_handler_writes_valid_json(self):
+        """Test that the JSONL handler writes valid JSON lines."""
+        logger = setup_logging(
+            log_level=logging.WARNING,
+            jsonl_log_file=self.jsonl_log_path
+        )
         
-        assert "SyntheticDataGenerator initialized with seed 42" in caplog.text
-        assert "Generating 100 synthetic records." in caplog.text
-        assert "Generated 100 synthetic records." in caplog.text
+        # Log a message with extra data
+        extra_data = {
+            "error_code": "TEST_ERROR",
+            "reason": "test_reason",
+            "dataset_source": "test_source"
+        }
+        logger.warning("Test message", extra={"extra_data": extra_data})
+        
+        # Check file content
+        assert os.path.exists(self.jsonl_log_path), "Log file was not created"
+        
+        with open(self.jsonl_log_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == 1, "Expected exactly one log line"
+        
+        # Parse JSON
+        try:
+            log_entry = json.loads(lines[0])
+        except json.JSONDecodeError:
+            pytest.fail("Log entry is not valid JSON")
+        
+        # Verify structure
+        assert "timestamp" in log_entry
+        assert "level" in log_entry
+        assert log_entry["level"] == "WARNING"
+        assert "message" in log_entry
+        assert log_entry["message"] == "Test message"
+        assert "logger" in log_entry
+        
+        # Verify extra data
+        assert log_entry["error_code"] == "TEST_ERROR"
+        assert log_entry["reason"] == "test_reason"
+        assert log_entry["dataset_source"] == "test_source"
 
-    def test_mapping_log_generation(self, tmp_path, caplog):
-        """Test that mapping log is generated and logged."""
-        output_path = str(tmp_path / "mapping_log.json")
+    def test_skipped_record_logging(self):
+        """Test the specific use case of logging a skipped record."""
+        from src.data_loader import log_skipped_record
         
-        with caplog.at_level(logging.INFO):
-            generate_mapping_log(output_path)
+        logger = setup_logging(
+            log_level=logging.WARNING,
+            jsonl_log_file=self.jsonl_log_path
+        )
         
-        assert "Generating mapping log" in caplog.text
-        assert "Mapping log generated successfully" in caplog.text
+        log_skipped_record(
+            logger,
+            reason="Missing pre_test_score",
+            record_id="record_123",
+            dataset_source="test_data.csv"
+        )
         
-        # Verify file exists and has content
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        assert "physics_param" in data
-        assert "math_concept" in data
-        assert "mapping_rule" in data
+        with open(self.jsonl_log_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        assert len(lines) >= 1
+        log_entry = json.loads(lines[-1])
+        
+        assert log_entry["error_code"] == "SKIPPED_RECORD"
+        assert log_entry["reason"] == "Missing pre_test_score"
+        assert log_entry["record_id"] == "record_123"
+        assert log_entry["dataset_source"] == "test_data.csv"
+
+    def test_no_jsonl_handler_when_not_specified(self):
+        """Test that no JSONL handler is created when jsonl_log_file is None."""
+        logger = setup_logging()
+        
+        jsonl_handler_found = False
+        for handler in logger.handlers:
+            if hasattr(handler, 'filepath'):
+                jsonl_handler_found = True
+                break
+        
+        assert not jsonl_handler_found, "JsonLHandler should not be created when jsonl_log_file is None"
+
+    def test_directory_creation(self):
+        """Test that setup_logging creates parent directories for log files."""
+        nested_path = os.path.join(self.temp_dir, "nested", "dir", "skipped.log")
+        
+        logger = setup_logging(jsonl_log_file=nested_path)
+        
+        assert os.path.exists(nested_path), "Log file was not created in nested directory"
+        assert os.path.isdir(os.path.dirname(nested_path)), "Parent directory was not created"

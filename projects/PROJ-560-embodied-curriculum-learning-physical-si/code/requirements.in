@@ -3,4 +3,6 @@ scipy
 statsmodels
 numpy
 pyyaml
-json
+pytest
+black
+ruff
