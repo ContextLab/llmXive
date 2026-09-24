@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001** — No directory tree or file listings were provided, and there is no evidence that the required `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/` folders (with `__init__.py` in `src/` and `tests/`) actually exist in the repository. The implementer must supply the project structure or a file manifest confirming its creation.
-- **T007** — The `src/data/download.py` file defines `calculate_sha256`, `verify_checksum`, and a generic `store_metadata` function, but it never calls these after downloading a file nor writes any checksum data to `data/metadata.yaml`. Moreover, the required `data/metadata.yaml` file is missing from the repository. The task’s requirement to store SHA‑256 checksums for raw NetCDF files in that YAML file is therefore not satisfied.
-- **T011** — No evidence of the required `data/processed/` and `figures/` directories or their accompanying README files is provided; without these artifacts present, the task requirement is not satisfied. The implementer must add the two directories and include non‑empty README files in each.

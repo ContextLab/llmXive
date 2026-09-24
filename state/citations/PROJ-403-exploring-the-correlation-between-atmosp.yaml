@@ -31,9 +31,20 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/atmospheric-river-geopotential
   verified_at: '2026-07-06T18:41:44.421834Z'
-- artifact_hash: 0f80816cb3e7ad8d66cdeefa881764687dccfabfb81805f50bcee375aff2b724
+- artifact_hash: 60e51578aae08774f62004b268ea3fd8a5f42813ca5f27acb3a5ec5180301548
   artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.cpc.ncep.noaa.gov/data/teledoc/teleindex.shtml`
+  verification_status: mismatch
+  verified_against_url: https://www.cpc.ncep.noaa.gov/data/teledoc/teleindex.shtml
+  verified_at: '2026-09-24T02:30:55.162004Z'
+- artifact_hash: 60e51578aae08774f62004b268ea3fd8a5f42813ca5f27acb3a5ec5180301548
+  artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: 'Climate Prediction Center - Monitoring &amp; Data: Current Monthly
@@ -42,4 +53,4 @@
   value: https://www.cpc.ncep.noaa.gov/data/indices/`
   verification_status: pending
   verified_against_url: https://www.cpc.ncep.noaa.gov/data/indices/
-  verified_at: '2026-09-21T21:26:59.389486Z'
+  verified_at: '2026-09-24T02:30:55.162004Z'

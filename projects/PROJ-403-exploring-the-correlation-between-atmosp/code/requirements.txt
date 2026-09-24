@@ -15,3 +15,4 @@ pytest-cov>=4.1.0
 cdsapi>=0.7.0
 pyyaml>=6.0.1
 click>=8.1.0
+pytest  # auto-added: imported by run-book but missing from venv
