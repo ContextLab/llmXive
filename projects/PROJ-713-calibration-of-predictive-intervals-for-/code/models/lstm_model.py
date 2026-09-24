@@ -4,389 +4,383 @@ from typing import Dict, Any, Tuple, Optional, List
 import logging
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.preprocessing import StandardScaler
-
-from utils.exceptions import ModelConvergenceError, CalibrationError
+import os
+import json
+from pathlib import Path
 from utils.logger import get_logger
+from utils.exceptions import ModelConvergenceError, DataValidationError
+from config import PROJECT_ROOT, RESULTS_DIR
 
 logger = get_logger(__name__)
 
+# Ensure results directory exists
+RESULTS_PATH = Path(PROJECT_ROOT) / RESULTS_DIR
+RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+SKIPPED_LOG_PATH = RESULTS_PATH / "skipped_series.log"
+
+class TimeSeriesLSTM(nn.Module):
+    """
+    Single hidden layer LSTM for time series forecasting.
+    Architecture: Input -> LSTM(32 units) -> Dense -> Output
+    """
+    def __init__(self, input_size: int, hidden_size: int = 32, output_size: int = 1):
+        super(TimeSeriesLSTM, self).__init__()
+        self.hidden_size = hidden_size
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+        
+    def forward(self, x):
+        # x shape: (batch, seq_len, input_size)
+        lstm_out, (h_n, c_n) = self.lstm(x)
+        # Take the last time step output
+        last_out = lstm_out[:, -1, :]
+        out = self.fc(last_out)
+        return out
+
 class LSTMModel:
     """
-    LSTM model for time series forecasting with predictive interval calibration.
-    
-    Implements single hidden layer (32 units), max 50 epochs, early stopping (patience=5).
-    CPU-only training. Includes fallback to Empirical CDF if intervals are invalid.
+    Wrapper for LSTM time series model with interval generation.
+    Implements retry logic with reduced learning rate and fallback to 
+    residual-based Gaussian intervals on failure.
     """
     
     def __init__(
         self,
-        sequence_length: int = 24,
+        input_size: int = 1,
         hidden_size: int = 32,
         max_epochs: int = 50,
-        patience: int =5,
-        learning_rate: float = 0.01,
+        patience: int = 5,
+        learning_rate: float = 0.001,
         batch_size: int = 32,
-        random_seed: int = 42
+        forecast_horizon: int = 1
     ):
-        self.sequence_length = sequence_length
+        self.input_size = input_size
         self.hidden_size = hidden_size
         self.max_epochs = max_epochs
         self.patience = patience
         self.learning_rate = learning_rate
         self.batch_size = batch_size
-        self.random_seed = random_seed
+        self.forecast_horizon = forecast_horizon
         
-        self.model = None
-        self.scaler = StandardScaler()
-        self._device = torch.device('cpu')
-        self._is_fitted = False
+        self.model = TimeSeriesLSTM(input_size, hidden_size)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(self.device)
+        self.history = []
+        self.is_fitted = False
         
-        # Set random seeds for reproducibility
-        torch.manual_seed(random_seed)
-        np.random.seed(random_seed)
-        
-        logger.info(f"Initialized LSTMModel with hidden_size={hidden_size}, lr={learning_rate}")
-
-    def _create_sequences(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Create sequences for LSTM input."""
+    def _prepare_sequences(self, data: np.ndarray, seq_length: int) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Prepare time series data for LSTM training.
+        Returns: X (samples, seq_len, input_size), y (samples, forecast_horizon)
+        """
         X, y = [], []
-        for i in range(len(data) - self.sequence_length):
-            X.append(data[i:i + self.sequence_length])
-            y.append(data[i + self.sequence_length])
+        for i in range(len(data) - seq_length - self.forecast_horizon + 1):
+            X.append(data[i:i+seq_length])
+            y.append(data[i+seq_length:i+seq_length+self.forecast_horizon])
+        
         return np.array(X), np.array(y)
 
-    def _build_model(self, input_size: int) -> nn.Module:
-        """Build the LSTM network."""
-        class LSTMNet(nn.Module):
-            def __init__(self, input_size, hidden_size):
-                super(LSTMNet, self).__init__()
-                self.lstm = nn.LSTM(
-                    input_size=input_size,
-                    hidden_size=hidden_size,
-                    num_layers=1,
-                    batch_first=True
-                )
-                self.fc = nn.Linear(hidden_size, 1)
-                
-            def forward(self, x):
-                lstm_out, _ = self.lstm(x)
-                last_output = lstm_out[:, -1, :]
-                return self.fc(last_output)
-        
-        return LSTMNet(input_size, self.hidden_size)
-
-    def _check_stability(self, predictions: np.ndarray, residuals: np.ndarray) -> bool:
+    def _train_model(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+        lr: float
+    ) -> bool:
         """
-        Check for NaN/Inf in predictions and non-Gaussian residuals.
-        Returns True if stable, False if fallback is needed.
+        Train the LSTM model with early stopping.
+        Returns True if training converges successfully, False otherwise.
         """
-        # Check for NaN/Inf in predictions
-        if np.any(np.isnan(predictions)) or np.any(np.isinf(predictions)):
-            logger.warning("NaN/Inf detected in predictions. Stability check failed.")
-            return False
-        
-        # Check for NaN/Inf in residuals
-        if np.any(np.isnan(residuals)) or np.any(np.isinf(residuals)):
-            logger.warning("NaN/Inf detected in residuals. Stability check failed.")
-            return False
-        
-        # Check variance of residuals (non-Gaussian if variance is too low or too high relative to mean)
-        if len(residuals) > 1:
-            var_residuals = np.var(residuals)
-            mean_residuals = np.mean(residuals)
-            
-            # If variance is effectively zero or extremely large relative to mean
-            if var_residuals < 1e-8:
-                logger.warning("Residual variance too low (near zero). Fallback to Empirical CDF.")
-                return False
-            if np.isinf(var_residuals):
-                logger.warning("Residual variance is infinite. Fallback to Empirical CDF.")
-                return False
-        
-        return True
-
-    def fit(self, train_data: np.ndarray, val_data: Optional[np.ndarray] = None) -> 'LSTMModel':
-        """
-        Fit the LSTM model to training data.
-        
-        Args:
-            train_data: 1D array of training time series data
-            val_data: Optional 1D array of validation data for early stopping
-        
-        Returns:
-            self
-        """
-        logger.info("Starting LSTM model training...")
-        
-        # Standardize data
-        train_scaled = self.scaler.fit_transform(train_data.reshape(-1, 1)).flatten()
-        val_scaled = None
-        if val_data is not None:
-            val_scaled = self.scaler.transform(val_data.reshape(-1, 1)).flatten()
-        
-        # Create sequences
-        X_train, y_train = self._create_sequences(train_scaled)
-        
-        if val_scaled is not None:
-            X_val, y_val = self._create_sequences(val_scaled)
-            val_tensor = torch.tensor(X_val, dtype=torch.float32).unsqueeze(-1)
-            val_target = torch.tensor(y_val, dtype=torch.float32)
-        
-        # Convert to tensors
-        X_tensor = torch.tensor(X_train, dtype=torch.float32).unsqueeze(-1)  # Add feature dimension
-        y_tensor = torch.tensor(y_train, dtype=torch.float32)
-        
-        dataset = TensorDataset(X_tensor, y_tensor)
-        dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
-        
-        # Build model
-        self.model = self._build_model(input_size=1).to(self._device)
+        self.model = TimeSeriesLSTM(self.input_size, self.hidden_size).to(self.device)
         criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
         
-        # Training loop with early stopping
+        X_train_t = torch.FloatTensor(X_train).to(self.device)
+        y_train_t = torch.FloatTensor(y_train).to(self.device)
+        X_val_t = torch.FloatTensor(X_val).to(self.device)
+        y_val_t = torch.FloatTensor(y_val).to(self.device)
+        
         best_val_loss = float('inf')
         patience_counter = 0
-        best_model_state = None
+        self.history = []
         
-        for epoch in range(self.max_epochs):
-            self.model.train()
-            total_loss = 0
-            
-            for batch_X, batch_y in dataloader:
-                batch_X, batch_y = batch_X.to(self._device), batch_y.to(self._device)
-                
+        try:
+            for epoch in range(self.max_epochs):
+                self.model.train()
                 optimizer.zero_grad()
-                outputs = self.model(batch_X).squeeze()
-                loss = criterion(outputs, batch_y)
-                loss.backward()
-                optimizer.step()
                 
-                total_loss += loss.item()
-            
-            avg_train_loss = total_loss / len(dataloader)
-            
-            # Validation if provided
-            if val_scaled is not None:
+                # Mini-batch training
+                indices = torch.randperm(len(X_train_t))
+                epoch_loss = 0
+                num_batches = 0
+                
+                for i in range(0, len(X_train_t), self.batch_size):
+                    batch_idx = indices[i:i+self.batch_size]
+                    batch_X = X_train_t[batch_idx]
+                    batch_y = y_train_t[batch_idx]
+                    
+                    pred = self.model(batch_X)
+                    loss = criterion(pred, batch_y)
+                    
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                    optimizer.step()
+                    
+                    epoch_loss += loss.item()
+                    num_batches += 1
+                
+                avg_train_loss = epoch_loss / num_batches
+                
+                # Validation
                 self.model.eval()
                 with torch.no_grad():
-                    val_outputs = self.model(val_tensor.to(self._device)).squeeze()
-                    val_loss = criterion(val_outputs, val_target.to(self._device)).item()
+                    val_pred = self.model(X_val_t)
+                    val_loss = criterion(val_pred, y_val_t).item()
                 
-                logger.debug(f"Epoch {epoch+1}/{self.max_epochs} - Train Loss: {avg_train_loss:.6f}, Val Loss: {val_loss:.6f}")
+                self.history.append({
+                    'epoch': epoch,
+                    'train_loss': avg_train_loss,
+                    'val_loss': val_loss
+                })
                 
-                if val_loss < best_val_loss:
+                logger.debug(f"Epoch {epoch}: Train Loss: {avg_train_loss:.6f}, Val Loss: {val_loss:.6f}")
+                
+                # Early stopping
+                if val_loss < best_val_loss - 1e-6:
                     best_val_loss = val_loss
                     patience_counter = 0
-                    best_model_state = self.model.state_dict().copy()
+                    # Save best model state
+                    self.best_state = {k: v.cpu().clone() for k, v in self.model.state_dict().items()}
                 else:
                     patience_counter += 1
-                    
-                    if patience_counter >= self.patience:
-                        logger.info(f"Early stopping at epoch {epoch+1}")
-                        break
-            else:
-                logger.debug(f"Epoch {epoch+1}/{self.max_epochs} - Train Loss: {avg_train_loss:.6f}")
-        
-        # Restore best model state if validation was used
-        if val_scaled is not None and best_model_state is not None:
-            self.model.load_state_dict(best_model_state)
-        
-        self._is_fitted = True
-        logger.info("LSTM model training completed.")
-        return self
+                
+                if patience_counter >= self.patience:
+                    logger.info(f"Early stopping at epoch {epoch}")
+                    break
+            
+            # Restore best model
+            if hasattr(self, 'best_state'):
+                self.model.load_state_dict(self.best_state)
+            
+            self.is_fitted = True
+            return True
+            
+        except Exception as e:
+            logger.error(f"Training failed: {str(e)}")
+            return False
 
-    def predict(self, data: np.ndarray, return_intervals: bool = True, 
-                confidence_level: float = 0.95) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+    def _generate_residual_intervals(
+        self,
+        train_residuals: np.ndarray,
+        forecast_point: np.ndarray,
+        level: float = 0.95
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Generate predictions with predictive intervals.
-        
-        Args:
-            data: 1D array of time series data for prediction
-            return_intervals: Whether to return confidence intervals
-            confidence_level: Confidence level for intervals (e.g., 0.95 for 95%)
-        
-        Returns:
-            Tuple of (predictions, lower_bound, upper_bound)
-            If fallback to Empirical CDF is triggered, returns Empirical CDF-based intervals.
+        Generate prediction intervals based on residual distribution.
         """
-        if not self._is_fitted:
-            raise ModelConvergenceError("Model has not been fitted yet. Call fit() first.")
+        if len(train_residuals) == 0:
+            raise ValueError("No residuals available for interval estimation")
         
-        logger.info("Generating predictions with LSTM model...")
+        alpha = 1 - level
+        lower_quantile = alpha / 2
+        upper_quantile = 1 - alpha / 2
         
-        # Standardize data
-        data_scaled = self.scaler.transform(data.reshape(-1, 1)).flatten()
+        lower_margin = np.quantile(train_residuals, lower_quantile)
+        upper_margin = np.quantile(train_residuals, upper_quantile)
         
-        # Create sequences for prediction
-        X_pred, _ = self._create_sequences(data_scaled)
-        X_tensor = torch.tensor(X_pred, dtype=torch.float32).unsqueeze(-1).to(self._device)
+        lower_bound = forecast_point + lower_margin
+        upper_bound = forecast_point + upper_margin
         
-        # Generate predictions
+        return lower_bound, upper_bound
+
+    def fit(
+        self,
+        series: np.ndarray,
+        train_ratio: float = 0.8,
+        seq_length: int = 24,
+        series_id: str = "unknown"
+    ) -> Dict[str, Any]:
+        """
+        Fit the LSTM model to the time series.
+        Implements retry logic with reduced learning rate.
+        Returns training metadata including fallback status.
+        """
+        n = len(series)
+        train_size = int(n * train_ratio)
+        
+        # Prepare training data
+        X_train, y_train = self._prepare_sequences(series[:train_size], seq_length)
+        X_val, y_val = self._prepare_sequences(series[:train_size], seq_length)
+        
+        # Ensure we have enough data
+        if len(X_train) < 10:
+            raise DataValidationError(
+                f"Series {series_id} has insufficient data for LSTM training. "
+                f"Need at least {seq_length + 10} points, got {len(series)}"
+            )
+        
+        # Split training and validation
+        val_size = max(1, len(X_train) // 5)
+        X_tr, y_tr = X_train[:-val_size], y_train[:-val_size]
+        X_vl, y_vl = X_train[-val_size:], y_train[-val_size:]
+        
+        # Retry logic
+        learning_rates = [self.learning_rate, self.learning_rate * 0.1, self.learning_rate * 0.01]
+        max_retries = 2
+        success = False
+        last_error = None
+        
+        for attempt in range(max_retries + 1):
+            lr = learning_rates[min(attempt, len(learning_rates) - 1)]
+            logger.info(f"Attempting LSTM training for series {series_id}, attempt {attempt + 1}, lr={lr}")
+            
+            success = self._train_model(X_tr, y_tr, X_vl, y_vl, lr)
+            
+            if success:
+                logger.info(f"LSTM training succeeded for series {series_id} on attempt {attempt + 1}")
+                break
+            
+            last_error = f"Training failed with lr={lr}"
+            logger.warning(f"Attempt {attempt + 1} failed: {last_error}")
+        
+        result = {
+            'series_id': series_id,
+            'model': 'LSTM',
+            'success': success,
+            'fallback_applied': False,
+            'failure_reason': None,
+            'final_lr': learning_rates[-1] if not success else learning_rates[min(max_retries, len(learning_rates) - 1)],
+            'epochs_run': len(self.history) if hasattr(self, 'history') else 0
+        }
+        
+        if not success:
+            result['failure_reason'] = last_error or "Unknown training failure"
+            result['fallback_applied'] = True
+            
+            # Log to skipped_series.log
+            log_entry = {
+                'series_id': series_id,
+                'model': 'LSTM',
+                'failure_reason': result['failure_reason'],
+                'fallback_applied': True,
+                'timestamp': pd.Timestamp.now().isoformat()
+            }
+            
+            with open(SKIPPED_LOG_PATH, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
+            
+            logger.warning(f"LSTM failed for series {series_id}. Fallback will be used.")
+        
+        return result
+
+    def predict(
+        self,
+        series: np.ndarray,
+        seq_length: int = 24,
+        forecast_horizon: Optional[int] = None,
+        use_fallback: bool = False,
+        series_id: str = "unknown"
+    ) -> Dict[str, Any]:
+        """
+        Generate point forecasts and prediction intervals.
+        If use_fallback is True, uses residual-based Gaussian intervals.
+        """
+        if forecast_horizon is None:
+            forecast_horizon = self.forecast_horizon
+        
+        if use_fallback:
+            # Fallback: use simple residual-based intervals
+            logger.info(f"Using fallback interval estimation for series {series_id}")
+            
+            # Generate point forecast (simple last value + small noise estimate)
+            point_forecast = series[-1]
+            
+            # Estimate residuals from last few observations
+            if len(series) > seq_length:
+                recent = series[-seq_length:]
+                residuals = np.diff(recent)
+                residual_std = np.std(residuals) if len(residuals) > 0 else 0.1
+            else:
+                residual_std = 0.1
+            
+            # Generate intervals for different confidence levels
+            intervals = {}
+            for level in [0.80, 0.95]:
+                alpha = 1 - level
+                margin = np.quantile(np.abs(np.random.normal(0, residual_std, 10000)), 1 - alpha/2)
+                intervals[level] = {
+                    'lower': point_forecast - margin,
+                    'upper': point_forecast + margin
+                }
+            
+            return {
+                'series_id': series_id,
+                'point_forecast': point_forecast,
+                'intervals': intervals,
+                'method': 'fallback_residual_gaussian'
+            }
+        
+        if not self.is_fitted:
+            raise ModelConvergenceError(f"Model not fitted. Call fit() first.")
+        
+        # Prepare input sequence
+        if len(series) < seq_length:
+            raise DataValidationError(
+                f"Insufficient data for prediction. Need {seq_length} points, got {len(series)}"
+            )
+        
+        input_seq = series[-seq_length:].reshape(1, seq_length, 1)
+        input_tensor = torch.FloatTensor(input_seq).to(self.device)
+        
+        # Generate prediction
         self.model.eval()
         with torch.no_grad():
-            predictions_scaled = self.model(X_tensor).cpu().numpy().flatten()
+            forecast = self.model(input_tensor).cpu().numpy().flatten()
         
-        # Inverse transform predictions
-        predictions = self.scaler.inverse_transform(
-            predictions_scaled.reshape(-1, 1)
-        ).flatten()
+        # Estimate residuals from training history if available
+        # For simplicity, use a heuristic based on forecast magnitude
+        residual_std = np.std(series[-seq_length:]) * 0.1  # Heuristic estimate
         
-        if not return_intervals:
-            return predictions, None, None
+        intervals = {}
+        for level in [0.80, 0.95]:
+            alpha = 1 - level
+            z_score = 1.96 if level == 0.95 else 1.28
+            margin = z_score * residual_std * np.sqrt(forecast_horizon)
+            intervals[level] = {
+                'lower': forecast[0] - margin,
+                'upper': forecast[0] + margin
+            }
         
-        # Generate residuals for interval estimation
-        # We need to simulate residuals from the training phase
-        # Since we don't store training residuals, we'll use the last part of training data
-        # to estimate residual distribution
-        
-        # For a robust estimate, we'll use the training data that was used for fitting
-        # and compute residuals on the validation set if available, or a portion of training
-        # However, since we don't have access to the original training split here,
-        # we'll estimate residuals by predicting on the last 'sequence_length' points of training data
-        
-        # Alternative approach: Use the difference between actual and predicted on the training data
-        # We'll use the last portion of the training data that we can reconstruct
-        
-        # For now, we'll generate predictions on the training data to estimate residuals
-        # This is a simplification - in practice, we should store training residuals during fit
-        
-        # Let's use the training data to estimate residuals
-        # We'll create sequences from the training data and predict
-        # But we need to be careful not to use the same data we're predicting on
-        
-        # For interval estimation, we'll use the residuals from the validation set if available
-        # or estimate from the training data by predicting on a hold-out portion
-        
-        # Since we don't have the original split, we'll use a simple approach:
-        # We'll assume the residuals are normally distributed with mean 0 and std estimated from
-        # the prediction errors on the last part of the training data
-        
-        # To get residuals, we need to predict on the training data and compare with actual
-        # We'll use the last part of the training data for this
-        
-        # Let's estimate residuals by predicting on the last part of the training data
-        # We'll use the same sequence creation logic
-        
-        # For simplicity, we'll estimate the residual standard deviation from the training process
-        # We'll use the last epoch's training loss as a proxy for residual variance
-        # This is not ideal, but we need to make an assumption here
-        
-        # Better approach: We'll generate multiple predictions with dropout to estimate uncertainty
-        # But since we're not using dropout, we'll use the empirical residuals from the training data
-        
-        # Let's use a simpler approach: estimate residuals from the training data
-        # We'll predict on the last part of the training data and compute residuals
-        
-        # For now, we'll assume the residuals are normally distributed
-        # We'll estimate the standard deviation from the training loss
-        
-        # Since we don't have access to the original training residuals, we'll use a heuristic
-        # We'll estimate the residual std from the last part of the training data
-        
-        # Create a temporary model to predict on the training data
-        # We'll use the last 2*sequence_length points to estimate residuals
-        
-        # This is a simplification - in a real implementation, we would store training residuals
-        
-        # For the purpose of this implementation, we'll use the following approach:
-        # 1. Generate predictions on the last part of the training data
-        # 2. Compute residuals
-        # 3. Use these residuals to estimate the interval width
-        
-        # However, since we don't have the original training data in this method,
-        # we'll use a different approach: we'll assume the residuals are normally distributed
-        # and estimate the std from the prediction errors on the validation set if available
-        
-        # Since we don't have the validation data here, we'll use a fixed estimate
-        # based on the assumption that the model has converged reasonably well
-        
-        # For a more robust implementation, we would need to store the training residuals
-        # during the fit method. Since we don't have that, we'll use a heuristic.
-        
-        # Let's use the following approach:
-        # We'll generate predictions on the last part of the input data (excluding the first sequence_length points)
-        # and compare with the actual values to estimate residuals
-        
-        # This is not ideal, but it's the best we can do without storing training residuals
-        
-        # We'll use the last 50% of the data (after sequence_length) to estimate residuals
-        if len(data) > 2 * self.sequence_length:
-            # Use the last part of the data to estimate residuals
-            start_idx = len(data) - self.sequence_length
-            end_idx = len(data)
-            
-            # Create sequences for the last part
-            X_last, y_last = self._create_sequences(data_scaled[start_idx:end_idx + self.sequence_length])
-            X_last_tensor = torch.tensor(X_last, dtype=torch.float32).unsqueeze(-1).to(self._device)
-            
-            with torch.no_grad():
-                pred_last_scaled = self.model(X_last_tensor).cpu().numpy().flatten()
-            
-            pred_last = self.scaler.inverse_transform(pred_last_scaled.reshape(-1, 1)).flatten()
-            actual_last = data[end_idx - self.sequence_length:end_idx]
-            
-            residuals = actual_last - pred_last
-            
-            if len(residuals) > 1:
-                residual_std = np.std(residuals)
-                residual_mean = np.mean(residuals)
-            else:
-                residual_std = 1.0
-                residual_mean = 0.0
-        else:
-            # Not enough data to estimate residuals, use a default
-            residual_std = 1.0
-            residual_mean = 0.0
-        
-        # Check stability
-        is_stable = self._check_stability(predictions, np.array([residual_std]))
-        
-        if is_stable:
-            # Use Gaussian-based intervals
-            logger.info("Using Gaussian-based intervals for predictions.")
-            z_score = np.abs(np.percentile(np.random.standard_normal(10000), 100 * (1 - confidence_level) / 2))
-            lower_bound = predictions - z_score * residual_std
-            upper_bound = predictions + z_score * residual_std
-        else:
-            # Fallback to Empirical CDF
-            logger.warning("Stability check failed. Using Empirical CDF for intervals.")
-            # We need to generate empirical residuals
-            # Since we don't have stored residuals, we'll use the estimated residuals from above
-            # and assume they represent the residual distribution
-            
-            # For Empirical CDF, we'll use the residuals we computed
-            # If we have enough residuals, we can use them directly
-            # Otherwise, we'll use the Gaussian approximation as a fallback to the fallback
-            
-            if len(data) > 2 * self.sequence_length and len(residuals) > 10:
-                # Use empirical quantiles
-                alpha = (1 - confidence_level) / 2
-                lower_quantile = np.percentile(residuals, 100 * alpha)
-                upper_quantile = np.percentile(residuals, 100 * (1 - alpha))
-                
-                lower_bound = predictions + lower_quantile
-                upper_bound = predictions + upper_quantile
-            else:
-                # Not enough data for Empirical CDF, fall back to Gaussian
-                logger.warning("Not enough data for Empirical CDF. Using Gaussian approximation.")
-                z_score = np.abs(np.percentile(np.random.standard_normal(10000), 100 * (1 - confidence_level) / 2))
-                lower_bound = predictions - z_score * residual_std
-                upper_bound = predictions + z_score * residual_std
-        
-        return predictions, lower_bound, upper_bound
+        return {
+            'series_id': series_id,
+            'point_forecast': forecast[0],
+            'intervals': intervals,
+            'method': 'lstm'
+        }
 
-    def get_intervals(self, data: np.ndarray, confidence_level: float = 0.95) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def get_intervals(
+        self,
+        series: np.ndarray,
+        level: float = 0.95,
+        seq_length: int = 24,
+        series_id: str = "unknown",
+        use_fallback: bool = False
+    ) -> Tuple[float, float]:
         """
-        Convenience method to get predictions and intervals.
-        
-        Args:
-            data: 1D array of time series data
-            confidence_level: Confidence level for intervals
-        
-        Returns:
-            Tuple of (predictions, lower_bound, upper_bound)
+        Convenience method to get prediction intervals for a specific level.
         """
-        return self.predict(data, return_intervals=True, confidence_level=confidence_level)
+        result = self.predict(
+            series=series,
+            seq_length=seq_length,
+            use_fallback=use_fallback,
+            series_id=series_id
+        )
+        
+        if level not in result['intervals']:
+            raise ValueError(f"Level {level} not in available intervals: {list(result['intervals'].keys())}")
+        
+        return (
+            result['intervals'][level]['lower'],
+            result['intervals'][level]['upper']
+        )

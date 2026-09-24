@@ -62,21 +62,16 @@ venv.bak/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Project specific
-data/raw/*
-!data/raw/.gitkeep
+data/raw/*.csv
 data/processed/*
-!data/processed/.gitkeep
 results/*
-!results/.gitkeep
-logs/
-*.log
+logs/*
+state/*
+.mypy_cache/
+.ruff_cache/

@@ -1,233 +1,158 @@
 """
-Setup script for data directory structures with checksum verification.
-
-This module creates the required directory structure for raw and processed data
-and provides utilities for checksum computation and verification to ensure
-data integrity.
+Script to ensure project data directories exist.
+Implements idempotency and verification as per T001c.
 """
 import os
-import hashlib
+import sys
 import logging
 from pathlib import Path
-import sys
-import json
-from typing import Optional, Dict, Any
+import time
 
-# Import project configuration
-try:
-    from config import DATA_RAW_DIR, DATA_PROCESSED_DIR, PROJECT_ROOT
-except ImportError:
-    # Fallback for direct execution
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-    DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-    DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+# Add project root to path to allow relative imports if run as module,
+# though this script is designed to be run directly from project root or code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-from utils.logger import get_logger, log_event
-from utils.exceptions import DataValidationError, ConfigurationError
+# Ensure logging is configured
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-
-def ensure_dir(path: Path) -> bool:
+def ensure_dir(path: Path, max_retries: int = 3, base_delay: float = 0.5) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensure a directory exists. Implements exponential backoff retry logic
+    to handle potential transient filesystem issues.
     
     Args:
-        path: Path object representing the directory to create
+        path: Path object of the directory to create.
+        max_retries: Maximum number of retry attempts.
+        base_delay: Initial delay in seconds between retries.
         
     Returns:
-        True if directory exists or was created successfully, False otherwise
-        
-    Raises:
-        ConfigurationError: If directory creation fails due to permissions
+        True if directory exists or was created successfully, False otherwise.
     """
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Directory ensured: {path}")
+    if path.exists() and path.is_dir():
+        logger.info(f"Directory already exists: {path}")
         return True
-    except PermissionError as e:
-        error_msg = f"Permission denied creating directory: {path}"
-        logger.error(error_msg)
-        raise ConfigurationError(error_msg) from e
-    except OSError as e:
-        error_msg = f"OS error creating directory {path}: {e}"
-        logger.error(error_msg)
-        raise ConfigurationError(error_msg) from e
+    
+    for attempt in range(max_retries):
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {path}")
+            
+            # Verify creation
+            if path.exists() and path.is_dir():
+                # Check writability
+                test_file = path / ".write_test"
+                try:
+                    test_file.touch()
+                    test_file.unlink()
+                    logger.info(f"Verified writability: {path}")
+                    return True
+                except (PermissionError, OSError) as e:
+                    logger.error(f"Directory exists but is not writable: {path} - {e}")
+                    return False
+            else:
+                logger.warning(f"Directory creation verification failed: {path}")
+                
+        except OSError as e:
+            delay = base_delay * (2 ** attempt)
+            logger.warning(f"Attempt {attempt + 1} failed for {path}: {e}. Retrying in {delay}s...")
+            time.sleep(delay)
+    
+    logger.error(f"Failed to create directory after {max_retries} attempts: {path}")
+    return False
 
-
-def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
+def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute the cryptographic checksum of a file.
+    Compute SHA-256 checksum of a file.
     
     Args:
-        file_path: Path to the file to checksum
-        algorithm: Hash algorithm to use (default: sha256)
+        file_path: Path to the file.
         
     Returns:
-        Hexadecimal string of the file checksum
-        
-    Raises:
-        DataValidationError: If file does not exist or cannot be read
+        Hexadecimal string of the SHA-256 checksum.
     """
-    if not file_path.exists():
-        raise DataValidationError(f"File does not exist: {file_path}")
-    
-    if not file_path.is_file():
-        raise DataValidationError(f"Path is not a file: {file_path}")
-    
-    try:
-        hasher = hashlib.new(algorithm)
-        with open(file_path, 'rb') as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(8192), b''):
-                hasher.update(chunk)
-        return hasher.hexdigest()
-    except IOError as e:
-        error_msg = f"Failed to read file for checksum: {file_path}"
-        logger.error(error_msg)
-        raise DataValidationError(error_msg) from e
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-
-def verify_checksum(file_path: Path, expected_checksum: str, algorithm: str = 'sha256') -> bool:
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
     """
     Verify a file's checksum against an expected value.
     
     Args:
-        file_path: Path to the file to verify
-        expected_checksum: Expected hexadecimal checksum string
-        algorithm: Hash algorithm to use (default: sha256)
+        file_path: Path to the file.
+        expected_checksum: Expected SHA-256 checksum.
         
     Returns:
-        True if checksum matches, False otherwise
-        
-    Raises:
-        DataValidationError: If file does not exist or checksum format is invalid
+        True if checksum matches, False otherwise.
     """
     if not file_path.exists():
-        raise DataValidationError(f"File does not exist for checksum verification: {file_path}")
+        logger.error(f"File does not exist for checksum verification: {file_path}")
+        return False
     
-    if not file_path.is_file():
-        raise DataValidationError(f"Path is not a file: {file_path}")
-    
-    try:
-        computed = compute_file_checksum(file_path, algorithm)
-        matches = computed.lower() == expected_checksum.lower()
-        
-        if not matches:
-            logger.warning(
-                f"Checksum mismatch for {file_path.name}. "
-                f"Expected: {expected_checksum}, Got: {computed}"
-            )
-        
-        return matches
-    except DataValidationError:
-        raise
-    except Exception as e:
-        error_msg = f"Unexpected error during checksum verification: {e}"
-        logger.error(error_msg)
-        raise DataValidationError(error_msg) from e
+    actual_checksum = compute_file_checksum(file_path)
+    if actual_checksum == expected_checksum:
+        logger.info(f"Checksum verified for {file_path}")
+        return True
+    else:
+        logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Got: {actual_checksum}")
+        return False
 
-
-def create_checksum_manifest(directory: Path, output_path: Optional[Path] = None) -> Dict[str, str]:
+def create_checksum_manifest(directory: Path, manifest_path: Path) -> None:
     """
-    Create a manifest of checksums for all files in a directory.
+    Create a JSON manifest of checksums for all files in a directory.
     
     Args:
-        directory: Directory to scan for files
-        output_path: Optional path to write the manifest JSON file
-        
-    Returns:
-        Dictionary mapping relative file paths to their checksums
+        directory: Directory to scan.
+        manifest_path: Path where the manifest JSON will be saved.
     """
-    if not directory.exists():
-        raise DataValidationError(f"Directory does not exist: {directory}")
-    
     manifest = {}
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.startswith('.'):
+                continue
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(directory)
+            manifest[str(rel_path)] = compute_file_checksum(file_path)
     
-    for file_path in directory.rglob('*'):
-        if file_path.is_file():
-            try:
-                relative_path = file_path.relative_to(directory)
-                checksum = compute_file_checksum(file_path)
-                manifest[str(relative_path)] = checksum
-                logger.debug(f"Computed checksum for {relative_path}: {checksum[:16]}...")
-            except DataValidationError as e:
-                logger.warning(f"Skipping file {file_path}: {e}")
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Checksum manifest written to {output_path}")
-    
-    return manifest
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Checksum manifest created at {manifest_path}")
 
-
-def setup_data_directories() -> Dict[str, Path]:
+def setup_data_directories() -> bool:
     """
-    Initialize the complete data directory structure with verification.
-    
-    Creates the required directory hierarchy for raw and processed data,
-    and generates initial checksum manifests.
-    
-    Returns:
-        Dictionary mapping directory names to their Path objects
-        
-    Raises:
-        ConfigurationError: If directory creation fails
+    Main function to set up all required data directories.
+    Specifically targets T001c: data/raw/
     """
-    logger.info("Starting data directory setup...")
+    raw_data_dir = PROJECT_ROOT / "data" / "raw"
     
-    directories = {
-        'raw': DATA_RAW_DIR,
-        'processed': DATA_PROCESSED_DIR,
-        'raw/m4': DATA_RAW_DIR / 'm4',
-        'raw/uci': DATA_RAW_DIR / 'uci',
-        'processed/m4': DATA_PROCESSED_DIR / 'm4',
-        'processed/uci': DATA_PROCESSED_DIR / 'uci',
-    }
+    logger.info(f"Setting up data directory: {raw_data_dir}")
+    success = ensure_dir(raw_data_dir)
     
-    created_dirs = []
-    for name, path in directories.items():
-        if ensure_dir(path):
-            created_dirs.append(str(path))
-    
-    # Create initial manifests
-    manifest_raw = DATA_RAW_DIR / '.checksums.json'
-    manifest_processed = DATA_PROCESSED_DIR / '.checksums.json'
-    
-    create_checksum_manifest(DATA_RAW_DIR, manifest_raw)
-    create_checksum_manifest(DATA_PROCESSED_DIR, manifest_processed)
-    
-    log_event(
-        event_type="data_dirs_setup",
-        success=True,
-        message=f"Created {len(created_dirs)} directories",
-        data={
-            "directories": created_dirs,
-            "manifests": [str(manifest_raw), str(manifest_processed)]
-        }
-    )
-    
-    logger.info("Data directory setup completed successfully.")
-    return directories
-
+    if success:
+        logger.info(f"Successfully verified directory: {raw_data_dir}")
+        return True
+    else:
+        logger.error(f"Failed to setup data directory: {raw_data_dir}")
+        return False
 
 def main():
-    """Main entry point for command-line execution."""
-    try:
-        dirs = setup_data_directories()
-        print(f"Successfully created data directories:")
-        for name, path in dirs.items():
-            print(f"  - {name}: {path}")
-        return 0
-    except (ConfigurationError, DataValidationError) as e:
-        logger.error(f"Setup failed: {e}")
-        return 1
-    except Exception as e:
-        logger.exception(f"Unexpected error during setup: {e}")
-        return 1
-
+    """Entry point for the script."""
+    logger.info("Starting data directory setup (T001c)...")
+    success = setup_data_directories()
+    
+    if success:
+        logger.info("Data directory setup completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("Data directory setup failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

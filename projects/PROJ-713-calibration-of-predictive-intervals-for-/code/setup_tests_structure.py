@@ -1,83 +1,95 @@
 """
-Script to create the tests directory structure for the project.
-
-This script creates the necessary directory hierarchy under the 'tests/'
-directory to support unit, contract, and integration tests as defined
-in the project plan.
+Setup script to create and verify the 'tests/' project directory.
+Ensures idempotency (creates if not exists) and verifies writability.
 """
 import os
 import sys
+import argparse
 from pathlib import Path
+from utils.logger import get_logger
 
-# Import project root configuration
-# Assuming config.py is in the root of the 'code' directory or project root
-# Adjusting import to work relative to this script's location
+# Import project root and config logic if available, otherwise define locally
 try:
     from config import PROJECT_ROOT
 except ImportError:
-    # Fallback if running directly without config import path setup
-    _current = Path(__file__).resolve()
-    _project_root = _current.parent.parent
-    PROJECT_ROOT = _project_root
-    sys.path.insert(0, str(_project_root))
-    from config import PROJECT_ROOT
-
-from utils.logger import get_logger
+    # Fallback if config.py is not yet fully loaded or in a different context
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 logger = get_logger(__name__)
 
-def ensure_dir(path: Path) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {path}")
-    else:
-        logger.debug(f"Directory already exists: {path}")
 
-def main() -> int:
+def ensure_dir(path: Path) -> bool:
     """
-    Main function to create the tests directory structure.
-    
-    Returns:
-        int: 0 on success, 1 on failure.
+    Ensure the directory exists. If it does not, create it.
+    Returns True if successful, False otherwise.
     """
-    logger.info("Starting tests directory structure setup...")
-    
-    base_dir = Path(PROJECT_ROOT) / "tests"
-    
-    # Define the required directory structure
-    # Based on tasks.md: tests/unit/, tests/contract/, tests/integration/
-    dirs_to_create = [
-        base_dir,
-        base_dir / "unit",
-        base_dir / "contract",
-        base_dir / "integration",
-        base_dir / "__pycache__", # Optional, but good practice to ensure structure
-    ]
-    
-    success = True
-    for dir_path in dirs_to_create:
-        try:
-            ensure_dir(dir_path)
-        except OSError as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            success = False
-    
-    if success:
-        logger.info("Tests directory structure created successfully.")
-        # List created structure for verification
-        logger.info(f"Created structure under: {base_dir}")
-        for root, dirs, _ in os.walk(base_dir):
-            level = root.replace(str(base_dir), '').count(os.sep)
-            indent = ' ' * 2 * level
-            logger.info(f"{indent}{os.path.basename(root)}/")
-            sub_indent = ' ' * 2 * (level + 1)
-            for d in dirs:
-                logger.info(f"{sub_indent}{d}/")
-        return 0
-    else:
-        logger.error("Failed to create some directories.")
-        return 1
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Directory ensured: {path}")
+        return True
+    except PermissionError:
+        logger.error(f"Permission denied creating directory: {path}")
+        return False
+    except OSError as e:
+        logger.error(f"OS error creating directory {path}: {e}")
+        return False
+
+
+def verify_writable(path: Path) -> bool:
+    """
+    Verify that the directory is writable by attempting to create a temporary file.
+    Returns True if writable, False otherwise.
+    """
+    test_file = path / ".write_test_001b.tmp"
+    try:
+        # Create a temporary file
+        test_file.touch()
+        # Try to write a small amount of data
+        with open(test_file, 'w') as f:
+            f.write("test")
+        # Remove the test file
+        test_file.unlink()
+        logger.info(f"Directory is writable: {path}")
+        return True
+    except PermissionError:
+        logger.error(f"Permission denied writing to directory: {path}")
+        return False
+    except OSError as e:
+        logger.error(f"OS error writing to directory {path}: {e}")
+        return False
+
+
+def main(args=None):
+    """
+    Main entry point for the setup script.
+    Creates the 'tests/' directory and verifies it is writable.
+    """
+    parser = argparse.ArgumentParser(description="Setup tests directory")
+    parser.add_argument(
+        "--path",
+        type=str,
+        default="tests",
+        help="Relative path to the tests directory (default: tests)"
+    )
+    parsed_args = parser.parse_args(args)
+
+    target_path = PROJECT_ROOT / parsed_args.path
+
+    logger.info(f"Starting setup for tests directory: {target_path}")
+
+    # Ensure directory exists (Idempotent)
+    if not ensure_dir(target_path):
+        logger.error("Failed to create tests directory.")
+        sys.exit(1)
+
+    # Verify writability
+    if not verify_writable(target_path):
+        logger.error("Tests directory exists but is not writable.")
+        sys.exit(1)
+
+    logger.info(f"Task T001b completed successfully: {target_path} exists and is writable.")
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

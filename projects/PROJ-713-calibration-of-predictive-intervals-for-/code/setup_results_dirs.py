@@ -1,67 +1,88 @@
 """
-Setup script to create the results directory structure.
-This ensures that `results/` and `figures/` directories exist
-before any evaluation scripts attempt to write output files.
+Script to create and verify the 'results/' directory for the project.
+
+This task (T001e) ensures the 'results/' directory exists and is writable.
+It is idempotent: running it multiple times will not fail if the directory
+already exists.
 """
 import os
-from pathlib import Path
 import sys
-
-# Add parent directory to path to allow imports from project root
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from config import PROJECT_ROOT, RESULTS_DIR, FIGURES_DIR
+import argparse
+import tempfile
+from pathlib import Path
 from utils.logger import get_logger
+from config import PROJECT_ROOT, RESULTS_DIR
 
 logger = get_logger(__name__)
 
 
-def ensure_dir(directory_path: Path) -> None:
+def ensure_dir(directory_path: Path) -> bool:
     """
-    Ensure a directory exists. If not, create it and its parents.
-
+    Ensure the specified directory exists.
+    
     Args:
-        directory_path: Path object representing the directory to create.
+        directory_path: The Path object representing the directory to create.
+        
+    Returns:
+        bool: True if the directory exists (or was created) and is writable, False otherwise.
     """
-    if not directory_path.exists():
+    try:
+        # Create directory if it doesn't exist (idempotent)
         directory_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {directory_path}")
-    else:
-        logger.debug(f"Directory already exists: {directory_path}")
+        
+        # Verify writability by attempting to create a temporary file
+        test_file = directory_path / ".write_test"
+        try:
+            with open(test_file, 'w') as f:
+                f.write("test")
+            # If we can write, remove the test file
+            test_file.unlink()
+            logger.info(f"Directory '{directory_path}' exists and is writable.")
+            return True
+        except (IOError, OSError) as e:
+            logger.error(f"Directory '{directory_path}' exists but is not writable: {e}")
+            return False
+        
+    except OSError as e:
+        logger.error(f"Failed to create directory '{directory_path}': {e}")
+        return False
 
 
-def main() -> int:
+def main(args: Optional[argparse.Namespace] = None) -> int:
     """
-    Main entry point for setting up results directories.
-
+    Main entry point for the results directory setup script.
+    
+    Args:
+        args: Optional namespace of command-line arguments. If None, parses from sys.argv.
+        
     Returns:
         int: Exit code (0 for success, 1 for failure).
     """
-    logger.info("Starting results directory setup...")
-
-    try:
-        # Ensure results directory exists
-        ensure_dir(RESULTS_DIR)
-
-        # Ensure figures directory exists (often used alongside results)
-        ensure_dir(FIGURES_DIR)
-
-        # List created directories for verification
-        logger.info(f"Results directory ready: {RESULTS_DIR}")
-        logger.info(f"Figures directory ready: {FIGURES_DIR}")
-
-        # Verify subdirectories expected by the pipeline
-        expected_subdirs = ["coverage", "distributional", "significance", "conformal"]
-        for subdir_name in expected_subdirs:
-            subdir_path = RESULTS_DIR / subdir_name
-            ensure_dir(subdir_path)
-            logger.debug(f"Ensured subdirectory: {subdir_path}")
-
-        logger.info("Results directory structure setup complete.")
+    parser = argparse.ArgumentParser(
+        description="Create and verify the 'results/' directory for the project."
+    )
+    parser.add_argument(
+        "--path",
+        type=str,
+        default=str(RESULTS_DIR),
+        help=f"Path to the results directory (default: {RESULTS_DIR})"
+    )
+    
+    parsed_args = parser.parse_args() if args is None else args
+    
+    results_path = Path(parsed_args.path)
+    
+    # If relative path, resolve relative to PROJECT_ROOT
+    if not results_path.is_absolute():
+        results_path = PROJECT_ROOT / results_path
+    
+    logger.info(f"Ensuring results directory exists at: {results_path}")
+    
+    if ensure_dir(results_path):
+        logger.info("Task T001e completed successfully.")
         return 0
-
-    except Exception as e:
-        logger.error(f"Failed to setup results directories: {e}", exc_info=True)
+    else:
+        logger.error("Task T001e failed: Could not ensure results directory is writable.")
         return 1
 
 

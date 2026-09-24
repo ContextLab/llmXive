@@ -1,4 +1,5 @@
 import os
+import random
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -13,7 +14,7 @@ TESTS_DIR = PROJECT_ROOT / "tests"
 DATA_RAW_DIR = DATA_DIR / "raw"
 DATA_PROCESSED_DIR = DATA_DIR / "processed"
 
-# Random seed for reproducibility
+# Random seed for reproducibility (Global Seed)
 SEED = 42
 
 # Configuration constants
@@ -58,6 +59,29 @@ class Config:
     SAMPLE_METADATA_FILE = DATA_PROCESSED_DIR / "sample_metadata.json"
     SKIPPED_SERIES_LOG = RESULTS_DIR / "skipped_series.log"
     BENCHMARK_TIMING_FILE = RESULTS_DIR / "benchmark_timing.csv"
+
+def set_seed(seed: int = SEED):
+    """
+    Sets the random seed for reproducibility across all libraries.
+    Must be called before any model training or data shuffling.
+    """
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
+    
+    try:
+        import torch
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    except ImportError:
+        pass
 
 # Ensure directories exist
 def ensure_dirs():

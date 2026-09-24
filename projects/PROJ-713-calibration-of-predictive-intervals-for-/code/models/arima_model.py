@@ -1,76 +1,97 @@
-"""
-ARIMA model implementation for time series forecasting with predictive intervals.
-"""
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Tuple, Optional, List
 import logging
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.arima.model import ARIMA as StatsmodelsARIMA
-from utils.logger import get_logger
-from utils.exceptions import ModelConvergenceError
-from config import ARIMA_ORDER
+from config import set_seed, SEED
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class ARIMAModel:
-    """ARIMA model wrapper for forecasting with conditional variance intervals."""
+    """
+    ARIMA model wrapper using statsmodels.
+    Implements seed pinning for reproducibility.
+    """
 
-    def __init__(self, order: Tuple[int, int, int] = ARIMA_ORDER):
-        """
-        Initialize ARIMA model.
-
-        Args:
-            order: ARIMA order (p, d, q)
-        """
+    def __init__(self, order: Tuple[int, int, int] = (1, 1, 1), seasonal_order: Optional[Tuple[int, int, int, int]] = None):
         self.order = order
+        self.seasonal_order = seasonal_order
         self.model = None
         self.results = None
-        self.logger = logger
+        self._set_seed()
 
-    def fit(self, train_data: pd.Series) -> None:
+    def _set_seed(self):
+        """Ensure reproducibility by setting global seed."""
+        set_seed(SEED)
+
+    def fit(self, data: pd.Series) -> 'ARIMAModel':
         """
-        Fit ARIMA model to training data.
-
+        Fit the ARIMA model to the data.
+        
         Args:
-            train_data: Training time series data
-        """
-        try:
-            self.logger.info(f"Fitting ARIMA model with order {self.order}")
-            self.model = StatsmodelsARIMA(train_data, order=self.order)
-            self.results = self.model.fit()
-            self.logger.info("ARIMA model fitted successfully")
-        except Exception as e:
-            raise ModelConvergenceError(f"ARIMA model failed to converge: {str(e)}")
-
-    def predict_intervals(
-        self,
-        n_periods: int,
-        conf_level: float = 0.95
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Generate forecasts with predictive intervals.
-
-        Args:
-            n_periods: Number of periods to forecast
-            conf_level: Confidence level for intervals (default: 0.95)
-
+            data: Time series data (pandas Series)
+        
         Returns:
-            Tuple of (forecasts, lower_bounds, upper_bounds)
+            self
+        """
+        self._set_seed()
+        try:
+            if self.seasonal_order:
+                self.model = SARIMAX(data, order=self.order, seasonal_order=self.seasonal_order)
+            else:
+                self.model = StatsmodelsARIMA(data, order=self.order)
+            
+            self.results = self.model.fit()
+        except Exception as e:
+            logger.error(f"ARIMA model fitting failed: {str(e)}")
+            raise
+        
+        return self
+
+    def predict(self, steps: int = 1, alpha: float = 0.05) -> Dict[str, Any]:
+        """
+        Generate predictions and prediction intervals.
+        
+        Args:
+            steps: Number of steps to forecast
+            alpha: Significance level (e.g., 0.05 for 95% interval)
+        
+        Returns:
+            Dictionary with 'forecast', 'lower', 'upper' keys
         """
         if self.results is None:
             raise ValueError("Model must be fitted before prediction")
+        
+        self._set_seed()
+        forecast = self.results.get_forecast(steps=steps)
+        
+        # Get confidence intervals
+        conf_int = forecast.conf_int(alpha=alpha)
+        
+        return {
+            'forecast': forecast.predicted_mean.values,
+            'lower': conf_int.iloc[:, 0].values,
+            'upper': conf_int.iloc[:, 1].values
+        }
 
-        # Generate forecast with intervals
-        forecast = self.results.get_forecast(steps=n_periods)
-        conf_int = forecast.conf_int(alpha=1 - conf_level, method='conditional')
-
-        predictions = forecast.predicted_mean.values
-        lower_bounds = conf_int.iloc[:, 0].values
-        upper_bounds = conf_int.iloc[:, 1].values
-
-        return predictions, lower_bounds, upper_bounds
-
-    def get_params(self) -> Dict[str, Any]:
-        """Return model parameters."""
-        return {"order": self.order}
+    def get_intervals(self, steps: int = 1, confidence_levels: List[float] = [0.80, 0.95]) -> Dict[str, Any]:
+        """
+        Generate prediction intervals for multiple confidence levels.
+        
+        Args:
+            steps: Number of steps to forecast
+            confidence_levels: List of confidence levels (e.g., [0.80, 0.95])
+        
+        Returns:
+            Dictionary mapping confidence level to (lower, upper) arrays
+        """
+        intervals = {}
+        for level in confidence_levels:
+            alpha = 1.0 - level
+            res = self.predict(steps=steps, alpha=alpha)
+            intervals[level] = {
+                'lower': res['lower'],
+                'upper': res['upper']
+            }
+        return intervals

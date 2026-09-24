@@ -1,0 +1,13 @@
+# Project Configuration for Calibration of Predictive Intervals
+# Generated for task T001f: Define directory paths
+# All paths are relative to the project root
+
+paths:
+  code: "code"
+  tests: "tests"
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  results: "results"
+
+# Additional configuration can be added here as the project evolves
+# For example, hyperparameters, model settings, etc.

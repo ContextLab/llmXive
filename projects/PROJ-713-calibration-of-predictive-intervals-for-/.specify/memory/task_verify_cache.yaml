@@ -1,26 +1,62 @@
-T001:
+T000:
+  c: false
+  h: f3f279d696c6ac96e8a81ce2583e6e434e21bd892229124676396dd8779709a1
+  r: "The `data/raw/m4.csv` and `data/raw/uci.csv` files are absent, so the required\
+    \ verification step cannot succeed. Moreover, `fetcher.py` contains placeholder\
+    \ SHA\u2011256 values and incomplete/unfinished logic (e.g., comments about \u201C\
+    placeholder\u201D hashes and truncated code), indicating it does not reliably\
+    \ download and validate the datasets as specified. The task\u2019s core requirement\u2014\
+    ensuring the two CSV files exist and match real checksums\u2014is not met."
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree (`code/`, `tests/`, `data/raw/`, `data/processed/`, `results/`)
-    is presented, nor any script showing a retry loop with exponential backoff around
-    `os.path.isdir`. The required artifacts are missing, so the task is not satisfied.
-T003:
+  r: "I could find no artifact showing that a `code/` directory exists (or that it\
+    \ is writable); the implementer provided no file\u2011system evidence or screenshots\
+    \ confirming creation and idempotency. The required directory must be present\
+    \ and demonstrably writable to satisfy the task."
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with Black settings, pre\u2011commit hooks) are present in the provided evidence;\
-    \ the only artifact shown relates to the predictive\u2011interval calibration\
-    \ feature, not to the requested linting setup. The required linting configuration\
-    \ is therefore missing."
-T015:
+  r: No evidence was provided showing that a `tests/` directory exists in the project,
+    nor any proof that it is writable or that the creation is idempotent. The implementer
+    must create the directory (or show its presence) and demonstrate write access.
+T001c:
   c: false
-  h: 78299bbb5acab3808e74f232ffae5ddd216c4a0813527644a804e3047a30894c
-  r: "The provided `code/models/lstm_model.py` contains a fallback mechanism (\u201C\
-    Includes fallback to Empirical CDF if intervals are invalid\u201D) which the task\
-    \ explicitly forbids, and it does not implement the required retry\u2011with\u2011\
-    reduced\u2011learning\u2011rate logic nor any logging to `results/skipped_series.log`\
-    \ (the log file is missing). Consequently the task requirements are not fully\
-    \ met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/raw/` directory (or any script creating it) was provided;\
+    \ without a visible, non\u2011empty, writable directory we cannot confirm the\
+    \ required artifact exists or that idempotent creation was implemented. The implementer\
+    \ must supply proof that the directory was created (e.g., a filesystem listing,\
+    \ a script run output, or a test confirming writability)."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `data/processed/` directory actually exists
+    or is writable; the implementer did not supply any filesystem listing, script
+    output, or other artifact confirming creation of the directory. The claim cannot
+    be verified.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `results/` directory being created, nor any check that it exists
+    and is writable. The implementer only provided feature specifications; the required
+    artifact (the `results/` folder) is missing.
+T017:
+  c: false
+  h: 76178f209e7ad92f8e2d25c7bd17c0aa4a9b566a9f89351273f7dd81362d2361
+  r: "The provided `runner_single.py` is incomplete (truncated) and does not demonstrate\
+    \ emitting the required JSON, nor does the repository contain the required `results/coverage.csv`\
+    \ file needed to verify schema alignment. Without the CSV and a complete script,\
+    \ the task\u2019s output requirements cannot be satisfied."
+T018:
+  c: false
+  h: d10389112748f2e55a08fc203e0b7e5e2d273f34ea4bec41ab16a58cd1105c5d
+  r: "The provided `code/evaluation/runner.py` is present but the visible portion\
+    \ shows no call to a global data\u2011validation routine from `code/data_loader.py`,\
+    \ no import or use of the required T040 component, and no code that writes the\
+    \ aggregated metrics to `results/coverage.csv` or `results/distributional_metrics.csv`.\
+    \ Consequently the script does not demonstrably fulfill the full\u2011pipeline,\
+    \ validation, aggregation, and output requirements."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,38 +80,24 @@ T031:
     files and a complete script, the task requirements are not met.
 T031b:
   c: false
-  h: 4f12104d8d94735b6672fbb77ab55eee0528484793edafd5683d66ae13621ab2
-  r: The required output file `results/conformal_results.csv` does not exist, and
-    the provided `conformal_orchestrator.py` is truncated and does not show the logic
-    that writes a CSV with the specified columns (`series_id`, `model`, `calibration_metric`,
-    `baseline_value`, `conformal_value`). Both the artifact and its expected behavior
-    are missing.
+  h: 61173760e1a5e8387188171fa8e3154b52ee36d5dfe8da46e539ac8f509fcbfa
+  r: "The repository contains `code/calibration/conformal_orchestrator.py`, but the\
+    \ required output file `results/conformal_results.csv` is absent, so the orchestrator\u2019\
+    s results are not produced and the required columns and calculated `improvement_delta`\
+    \ cannot be verified. The missing CSV must be generated for the task to be considered\
+    \ complete."
 T033a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No API documentation files for `code/models/` or `code/metrics/` were presented;
     the response contains only the task description and specifications, with no generated
     documentation artifacts. The required deliverables are missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "There is no provided artifact showing any code changes, removal of hard\u2011\
-    coded file paths, or setting of random seeds for reproducibility. The only evidence\
-    \ present is a feature specification for predictive\u2011interval calibration,\
-    \ which does not address the requested cleanup and refactoring tasks. Consequently,\
-    \ the requirement for code cleanup and seed reproducibility is unmet."
 T035a:
   c: false
   h: f128be074d0cbe1f4de2031be29a757d0aa8f045fa776f145210dd9bd3cd6b24
   r: The required artifact `results/benchmark_timing.csv` does not exist, so no runtime
     data was recorded to verify the time limit constraint. The implementer must generate
     the CSV file with the pipeline timing results.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of new test files in `tests/unit/` was provided; the claim lacks\
-    \ any displayed or described unit test code that checks constant\u2011variance\
-    \ or NaN edge cases, so the required artifact is missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -90,3 +112,10 @@ T038:
     \ the `state/` directory\u2019s hash values and `updated_at` timestamps are being\
     \ computed and stored correctly; the claim lacks any concrete artifact to verify\
     \ the requirement."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that `constitution.md` was modified; the content of\
+    \ Principle\u202FVI was not shown, nor is there a file excerpt confirming the\
+    \ replacement of \u201CKolmogorov\u2013Smirnov (KS) test\u201D with \u201CLjung\u2011\
+    Box test\u201D. The required artifact (the updated constitution file) is missing."

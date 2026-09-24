@@ -9,7 +9,7 @@ This feature implements a rigorous benchmarking pipeline to evaluate the calibra
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `pandas`, `numpy`, `statsmodels` (ARIMA), `prophet` (Facebook), `torch` (LSTM), `scikit-learn`, `properscoring` (CRPS), `scipy` (Ljung-Box), `datasets` (Hugging Face), `pyyaml`, `ucimlrepo`.  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`).  
 **Testing**: `pytest` (unit tests for edge cases, integration tests for pipeline).  
@@ -112,7 +112,7 @@ projects/PROJ-713-calibration-of-predictive-intervals-for-/
 | **LSTM on CPU** | Spec requires LSTM for benchmarking; GPU not available. | Using a synthetic stand-in would violate "Verified Accuracy" and "Data Hygiene". The plan uses a lightweight architecture (a reduced number of units) and early stopping to ensure CPU feasibility within 6h **when applied to the sampled 500 series**. |
 | **Robust Error Handling** | Time series often have zero variance or missing values causing ARIMA/LSTM to fail. | A simple `try/except` that crashes the pipeline would lose data. The plan implements series-level isolation with logging and fallbacks to ensure the pipeline completes for valid series. |
 | **Ljung-Box vs KS** | Spec FR-004 and SC-002 require Ljung-Box for autocorrelation. | The Kolmogorov-Smirnov test assumes independence, which is invalid for time-series residuals. The plan strictly adheres to Ljung-Box as per the Spec, correcting the Constitution's KS requirement. |
-| **Sampling Strategy** | Full M4 (100k series) exceeds 6h runtime on 2 CPU. | Processing all series would timeout. A stratified random sample of a balanced set of series (250 M4, 250 UCI) ensures statistical power for bootstrap tests while fitting the time budget. **This reduction from a large-scale dataset to a manageable subset is the primary enabler of the 6h limit..** |
+| **Sampling Strategy** | Full M (100k series) exceeds 6h runtime on 2 CPU. | Processing all series would timeout. A stratified random sample of a balanced set of series (a substantial set of M4 and UCI series) ensures statistical power for bootstrap tests while fitting the time budget. **This reduction from a large-scale dataset to a manageable subset is the primary enabler of the 6h limit..** |
 
 ## Power Analysis & Sampling Strategy
 

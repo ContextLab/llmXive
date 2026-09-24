@@ -1,12 +1,14 @@
 """
-Single-series runner for debugging predictive interval calibration.
+Single-series evaluation runner for debugging and traceability.
 
-This script evaluates a single time series using a specified model
-and computes calibration metrics (coverage, PIT, CRPS).
+This script loads a specific time series, fits a specified model,
+generates predictive intervals, and computes calibration metrics.
+It outputs a JSON dictionary suitable for debugging and verification.
 
 Usage:
-    python -m code.evaluation.runner_single --series_id <id> --model_type <model> --config_path <path>
+    python -m code.evaluation.runner_single --series-id "M4_hourly_1" --model-type "ARIMA" --config-path "code/config.yaml"
 """
+
 import os
 import sys
 import argparse
@@ -15,223 +17,182 @@ import traceback
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Project root setup
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import ensure_dirs, PROJECT_ROOT as CONFIG_ROOT, RESULTS_DIR
+from config import Config, ensure_dirs
 from utils.logger import get_logger
-from utils.exceptions import DataValidationError, ModelConvergenceError, ConfigurationError
-from data_loader import fetch_data, load_m4_hourly, load_uci_electricity, split_series, standardize
+from utils.exceptions import DataValidationError, ModelConvergenceError, CalibrationError
+from data_loader import fetch_data, split_series, standardize
 from models.arima_model import ARIMAModel
 from models.prophet_model import ProphetModel
 from models.lstm_model import LSTMModel
-from metrics.coverage import compute_coverage
+from metrics.coverage import compute_coverage, compute_coverage_deviation
 from metrics.pit import calculate_pit, ljung_box_test
-from metrics.crps import compute_crps
+from metrics.crps import compute_crps_for_series
 
 logger = get_logger(__name__)
 
-
 def load_model(model_type: str):
-    """Factory function to instantiate the requested model."""
-    model_type = model_type.lower()
-    if model_type == 'arima':
+    """
+    Factory function to instantiate the requested model.
+    """
+    model_type = model_type.upper()
+    if model_type == "ARIMA":
         return ARIMAModel()
-    elif model_type == 'prophet':
+    elif model_type == "PROPHET":
         return ProphetModel()
-    elif model_type == 'lstm':
+    elif model_type == "LSTM":
         return LSTMModel()
     else:
-        raise ConfigurationError(f"Unknown model type: {model_type}. Supported: arima, prophet, lstm")
+        raise ValueError(f"Unsupported model type: {model_type}. Choose from ARIMA, PROPHET, LSTM.")
 
-
-def process_single_series(series_id: str, model_type: str, config_path: Optional[str] = None) -> Dict[str, Any]:
+def process_single_series(series_id: str, model_type: str, config: Config) -> Dict[str, Any]:
     """
-    Process a single series and compute calibration metrics.
+    Core logic to process a single series: load, fit, predict, evaluate.
 
-    Args:
-        series_id: Identifier for the series (e.g., 'M4_H1', 'UCI_E_1').
-        model_type: Model to use ('arima', 'prophet', 'lstm').
-        config_path: Path to config file (optional, uses defaults if None).
-
-    Returns:
-        Dictionary with keys: coverage_0.80, coverage_0.95, pit_p_value, crps.
+    Returns a dictionary with keys matching the required JSON schema:
+    - series_id
+    - model
+    - coverage_0.80
+    - coverage_0.95
+    - pit_p_value
+    - crps
+    - nominal_level (internal use for alignment with CSV schema)
+    - empirical_coverage (internal use)
+    - deviation (internal use)
     """
-    logger.info(f"Starting evaluation for series_id={series_id}, model={model_type}")
+    logger.info(f"Processing series: {series_id} with model: {model_type}")
 
     # 1. Load Data
-    # Attempt to fetch data based on series_id prefix or content
-    # Assuming series_id format hints at source (M4 vs UCI)
-    raw_data = None
+    # We assume the data has been fetched to data/raw/ by T000.
+    # We need to locate the specific series. For this implementation,
+    # we assume the data_loader can fetch a specific series or we iterate.
+    # Given the API surface, we use fetch_data and filter.
+    
     try:
-        if series_id.startswith("M4"):
-            # Attempt to load M4 data. In a real scenario, we might have a mapping.
-            # For this runner, we assume fetch_data can resolve the ID or we load full M4 and filter.
-            # Given the constraints of a single-series runner, we try to load the specific series if possible,
-            # or load the dataset and filter.
-            # Using the data_loader's fetch_data which likely handles the bulk download.
-            df = fetch_data("M4", series_id) # Hypothetical signature based on typical patterns
-            # Fallback if fetch_data expects bulk:
-            if df is None:
-                # Load full M4 hourly as example for M4
-                df = load_m4_hourly()
-                df = df[df['series_id'] == series_id]
-                if df.empty:
-                    raise DataValidationError(f"Series {series_id} not found in M4 dataset")
-        elif series_id.startswith("UCI"):
-            df = fetch_data("UCI", series_id)
-            if df is None:
-                df = load_uci_electricity()
-                df = df[df['series_id'] == series_id]
-                if df.empty:
-                    raise DataValidationError(f"Series {series_id} not found in UCI dataset")
-        else:
-            # Try generic fetch
-            df = fetch_data("generic", series_id)
-            if df is None:
-                raise DataValidationError(f"Could not determine data source for series_id: {series_id}")
+        # Fetch all data (or the specific dataset containing the series)
+        # The exact implementation of fetch_data depends on T000 output structure.
+        # Assuming fetch_data returns a dict or dataframe with 'series_id' column if applicable.
+        # If series_id is a key in a dict of series:
+        data_df = fetch_data(config.paths.data_raw, series_id=series_id)
+        
+        if data_df is None or data_df.empty:
+            raise DataValidationError(f"Series {series_id} not found in raw data.")
 
-        # Standardize and split
-        train_df, test_df = split_series(df, test_ratio=0.2)
-        train_values = standardize(train_df['value'].values)
-        test_values = standardize(test_df['value'].values)
-        test_timestamps = test_df['timestamp'].values if 'timestamp' in test_df.columns else None
+        # Split into train/test
+        # Assuming standard split ratio from config
+        train_df, test_df = split_series(data_df, test_size=config.test_size)
+        
+        # Standardize
+        train_std, test_std, scaler = standardize(train_df, test_df)
 
     except Exception as e:
-        logger.error(f"Failed to load data for {series_id}: {e}")
-        raise
+        logger.error(f"Data loading failed for {series_id}: {str(e)}")
+        raise DataValidationError(f"Failed to load data for {series_id}: {str(e)}")
 
     # 2. Fit Model
-    model = load_model(model_type)
     try:
-        model.fit(train_values)
+        model = load_model(model_type)
+        model.fit(train_std)
+    except ModelConvergenceError as e:
+        logger.error(f"Model {model_type} failed to converge on {series_id}: {str(e)}")
+        raise
     except Exception as e:
-        logger.error(f"Model fitting failed for {series_id}: {e}")
-        raise ModelConvergenceError(f"Model {model_type} failed to converge for series {series_id}")
+        logger.error(f"Unexpected error fitting model {model_type}: {str(e)}")
+        raise ModelConvergenceError(f"Model fitting failed for {series_id}: {str(e)}")
 
     # 3. Generate Forecasts and Intervals
-    # We need to generate intervals for the test set horizon
-    # Assuming model.predict returns mean, lower, upper for the test horizon
+    # We need predictions and interval bounds for the test set
     try:
-        # Determine horizon
-        horizon = len(test_values)
-        forecasts = model.predict(horizon=horizon)
-        
-        # forecasts expected structure: dict or object with 'mean', 'lower_80', 'upper_80', etc.
-        # If model returns raw arrays, we might need to adjust based on specific model implementation.
-        # Assuming standard interface:
-        pred_mean = forecasts['mean']
-        pred_lower_80 = forecasts['lower_80']
-        pred_upper_80 = forecasts['upper_80']
-        pred_lower_95 = forecasts['lower_95']
-        pred_upper_95 = forecasts['upper_95']
-
+        forecast = model.predict(n_periods=len(test_std))
+        # forecast should contain: 'mean', 'lower_0.80', 'upper_0.80', 'lower_0.95', 'upper_0.95'
+        # or similar structure. Adjust based on actual model output.
+        if 'mean' not in forecast or 'lower_0.80' not in forecast:
+            raise CalibrationError("Model prediction missing required interval bounds.")
     except Exception as e:
-        logger.error(f"Prediction failed for {series_id}: {e}")
+        logger.error(f"Prediction failed for {series_id}: {str(e)}")
         raise
 
     # 4. Compute Metrics
-    results = {}
+    results = {
+        "series_id": series_id,
+        "model": model_type,
+    }
 
     # Coverage 0.80
-    cov_80 = compute_coverage(test_values, pred_lower_80, pred_upper_80, level=0.80)
-    results['coverage_0.80'] = float(cov_80)
+    try:
+        cov_80 = compute_coverage(test_std['value'], forecast['lower_0.80'], forecast['upper_0.80'])
+        dev_80 = compute_coverage_deviation(cov_80, 0.80)
+        results["coverage_0.80"] = cov_80
+        results["deviation_0.80"] = dev_80
+        results["nominal_level_0.80"] = 0.80
+        results["empirical_coverage_0.80"] = cov_80
+    except Exception as e:
+        logger.warning(f"Coverage 0.80 calculation failed: {str(e)}")
+        results["coverage_0.80"] = None
+        results["deviation_0.80"] = None
 
     # Coverage 0.95
-    cov_95 = compute_coverage(test_values, pred_lower_95, pred_upper_95, level=0.95)
-    results['coverage_0.95'] = float(cov_95)
+    try:
+        cov_95 = compute_coverage(test_std['value'], forecast['lower_0.95'], forecast['upper_0.95'])
+        dev_95 = compute_coverage_deviation(cov_95, 0.95)
+        results["coverage_0.95"] = cov_95
+        results["deviation_0.95"] = dev_95
+        results["nominal_level_0.95"] = 0.95
+        results["empirical_coverage_0.95"] = cov_95
+    except Exception as e:
+        logger.warning(f"Coverage 0.95 calculation failed: {str(e)}")
+        results["coverage_0.95"] = None
+        results["deviation_0.95"] = None
 
     # PIT and Ljung-Box
-    # Calculate PIT values (Probability Integral Transform)
-    # Requires the full predictive distribution. If only intervals are available, 
-    # we approximate or use the model's sampling method if available.
-    # For this implementation, we assume the model can provide samples or we approximate PIT from intervals.
-    # If the model supports `predict_samples`, use that. Otherwise, we might need to approximate.
-    # Given the task asks for PIT p-value, we assume we have a way to get the CDF or samples.
-    # Let's assume the model provides a method to get samples or we use the interval info to approximate.
-    # For robustness, we'll try to get samples if the model has it, else we might need to mock the distribution.
-    # However, the task implies real metrics. Let's assume we use the interval bounds to approximate a normal or t-dist if needed,
-    # OR the model returns samples.
-    
-    # Fallback: If we don't have samples, we can't compute exact PIT. 
-    # We will assume the model returns a distribution object or we use the interval info to estimate.
-    # For this code, we will assume the model has a `predict_samples` method or similar.
-    # If not, we might need to implement a generic wrapper.
-    # Let's assume we can get samples from the model's internal state or a method.
     try:
-        if hasattr(model, 'predict_samples'):
-            pit_samples = model.predict_samples(horizon=horizon, n_samples=1000)
-            pit_values = calculate_pit(test_values, pit_samples)
-            _, p_value = ljung_box_test(pit_values)
-            results['pit_p_value'] = float(p_value)
-        else:
-            # Fallback for models that don't expose samples directly:
-            # Approximate PIT using the interval bounds assuming a Gaussian distribution
-            # This is a simplification.
-            import numpy as np
-            from scipy.stats import norm
-            # Estimate sigma from intervals: (upper - lower) / (2 * z)
-            sigma_80 = (pred_upper_80 - pred_lower_80) / (2 * 1.28155)
-            # PIT = CDF((y - mean) / sigma)
-            z_scores = (test_values - pred_mean) / sigma_80
-            pit_values = norm.cdf(z_scores)
-            _, p_value = ljung_box_test(pit_values)
-            results['pit_p_value'] = float(p_value)
+        # Calculate PIT for the test set
+        # Assuming compute_crps_for_series or similar returns PIT values
+        pit_values = calculate_pit(test_std['value'], forecast)
+        _, pit_p_value = ljung_box_test(pit_values)
+        results["pit_p_value"] = pit_p_value
     except Exception as e:
-        logger.warning(f"Could not compute PIT for {series_id}: {e}. Setting to NaN.")
-        results['pit_p_value'] = float('nan')
+        logger.warning(f"PIT calculation failed: {str(e)}")
+        results["pit_p_value"] = None
 
     # CRPS
-    # CRPS requires samples or a parametric distribution
     try:
-        if hasattr(model, 'predict_samples'):
-            pit_samples = model.predict_samples(horizon=horizon, n_samples=1000)
-            crps_val = compute_crps(test_values, pit_samples)
-            results['crps'] = float(crps_val)
-        else:
-            # Approximate CRPS using Gaussian assumption
-            import numpy as np
-            from properscoring import crps_gaussian
-            sigma_80 = (pred_upper_80 - pred_lower_80) / (2 * 1.28155)
-            crps_val = crps_gaussian(test_values, mu=pred_mean, sigma=sigma_80)
-            results['crps'] = float(np.mean(crps_val))
+        crps_val = compute_crps_for_series(test_std['value'], forecast)
+        results["crps"] = crps_val
     except Exception as e:
-        logger.warning(f"Could not compute CRPS for {series_id}: {e}. Setting to NaN.")
-        results['crps'] = float('nan')
+        logger.warning(f"CRPS calculation failed: {str(e)}")
+        results["crps"] = None
 
-    logger.info(f"Completed evaluation for {series_id}. Results: {results}")
+    logger.info(f"Completed processing for {series_id}")
     return results
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Single-series calibration runner")
-    parser.add_argument("--series_id", type=str, required=True, help="ID of the series to evaluate")
-    parser.add_argument("--model_type", type=str, required=True, choices=['arima', 'prophet', 'lstm'], help="Model type")
-    parser.add_argument("--config_path", type=str, default=None, help="Path to config file")
+    parser = argparse.ArgumentParser(description="Single-series evaluation runner for debugging.")
+    parser.add_argument("--series-id", type=str, required=True, help="ID of the series to process")
+    parser.add_argument("--model-type", type=str, required=True, choices=["ARIMA", "PROPHET", "LSTM"], help="Model type")
+    parser.add_argument("--config-path", type=str, default="code/config.yaml", help="Path to config file")
     
     args = parser.parse_args()
 
     try:
-        # Ensure output directories exist
-        ensure_dirs()
+        # Load config
+        config = Config(args.config_path)
+        ensure_dirs(config)
 
-        results = process_single_series(
-            series_id=args.series_id,
-            model_type=args.model_type,
-            config_path=args.config_path
-        )
+        # Process
+        results = process_single_series(args.series_id, args.model_type, config)
 
-        # Output as JSON to stdout
-        print(json.dumps(results))
+        # Output JSON to stdout
+        print(json.dumps(results, indent=2, default=str))
 
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline execution failed: {str(e)}")
         traceback.print_exc()
-        # Exit with error code
+        # Return error code
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
