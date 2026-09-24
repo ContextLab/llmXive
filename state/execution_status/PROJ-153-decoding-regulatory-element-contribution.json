@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-153-decoding-regulatory-element-contribution",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/03_annotate.py; python code/04_filter.py; python code/05_weights.py; 4 declared deliverable(s) absent: data/processed/delta_peak_signal.tsv; data/processed/peak_signal_matrix.tsv; data/processed/vif_flags.tsv",
+  "artifacts": [],
+  "failures": [
+    "python code/03_annotate.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/03_annotate.py': [Errno 2] No such file or directory",
+    "python code/04_filter.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/04_filter.py': [Errno 2] No such file or directory",
+    "python code/05_weights.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/05_weights.py': [Errno 2] No such file or directory",
+    "python code/08_visualize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/08_visualize.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-24T15:29:10Z"
+}

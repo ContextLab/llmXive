@@ -1,12 +1,12 @@
 """
-T013c: Compute weights for CREs and apply them to delta peak signal.
+T013c: Compute CRE weights based on validation flags and apply to delta peak signal.
 
-This script implements FR-015:
-1. Join validation flags (motif/Hi-C) and VIF flags.
-2. Exclude collinear CREs (VIF > 5).
-3. Compute weights based on validation source.
-4. Apply weights to delta peak signal.
-5. Output weighted delta peak signal to data/processed/weights.tsv.
+This script implements the core weighting logic for User Story 1:
+1. Joins motif, Hi-C, and VIF validation flags.
+2. Filters CREs based on inclusive OR of motif/Hi-C validation and excludes collinear CREs.
+3. Computes weights: -log10(motif_score) if motif validated, else log10(hic_score + 1) if Hi-C validated.
+4. Applies weights to delta peak signal.
+5. Outputs the final weighted signal table.
 """
 
 import os
@@ -14,7 +14,7 @@ import sys
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 import pandas as pd
 import numpy as np
 
@@ -22,233 +22,207 @@ import numpy as np
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%dT%H:%M:%S'
+    handlers=[
+        logging.FileHandler('logs/pipeline.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_cre_validation_flags(filepath: str) -> pd.DataFrame:
+def load_cre_validation_flags(motif_path: str, hic_path: str) -> pd.DataFrame:
     """
-    Load CRE validation flags from T013a output.
-    Expected columns: cre_id, motif_validated, hic_validated, validation_score
+    Load and join motif and Hi-C validation flags.
+    
+    Args:
+        motif_path: Path to motif_validation_flags.tsv
+        hic_path: Path to hic_validation_flags.tsv
+        
+    Returns:
+        DataFrame with merged validation flags.
     """
-    logger.info(f"Loading CRE validation flags from {filepath}")
-    df = pd.read_csv(filepath, sep='\t')
+    logger.info(f"Loading motif validation flags from {motif_path}")
+    if not os.path.exists(motif_path):
+        raise FileNotFoundError(f"Motif validation file not found: {motif_path}")
+    df_motif = pd.read_csv(motif_path, sep='\t')
     
-    required_cols = {'cre_id', 'motif_validated', 'hic_validated', 'validation_score'}
-    if not required_cols.issubset(set(df.columns)):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Missing required columns in validation flags: {missing}")
+    logger.info(f"Loading Hi-C validation flags from {hic_path}")
+    if not os.path.exists(hic_path):
+        raise FileNotFoundError(f"Hi-C validation file not found: {hic_path}")
+    df_hic = pd.read_csv(hic_path, sep='\t')
     
-    # Ensure boolean columns are properly typed
-    df['motif_validated'] = df['motif_validated'].astype(bool)
-    df['hic_validated'] = df['hic_validated'].astype(bool)
+    # Merge on cre_id using outer join to see all CREs first
+    # Then we will filter based on logic
+    df_merged = pd.merge(
+        df_motif[['cre_id', 'motif_validated', 'motif_score']],
+        df_hic[['cre_id', 'hic_validated', 'hic_score']],
+        on='cre_id',
+        how='outer'
+    )
     
-    logger.info(f"Loaded {len(df)} CREs with validation flags")
-    return df
+    # Fill missing values with False/0.0 for boolean/numeric logic
+    df_merged['motif_validated'] = df_merged['motif_validated'].fillna(False).astype(bool)
+    df_merged['hic_validated'] = df_merged['hic_validated'].fillna(False).astype(bool)
+    df_merged['motif_score'] = df_merged['motif_score'].fillna(1.0) # Default to non-significant if missing
+    df_merged['hic_score'] = df_merged['hic_score'].fillna(0.0)
+    
+    return df_merged
 
-def load_vif_flags(filepath: str) -> pd.DataFrame:
+def load_vif_flags(vif_path: str) -> pd.DataFrame:
     """
-    Load VIF flags from T013b output.
-    Expected columns: cre_id, vif_score, is_collinear
+    Load VIF flags.
+    
+    Args:
+        vif_path: Path to vif_flags.tsv
+        
+    Returns:
+        DataFrame with VIF flags.
     """
-    logger.info(f"Loading VIF flags from {filepath}")
-    df = pd.read_csv(filepath, sep='\t')
-    
-    required_cols = {'cre_id', 'vif_score', 'is_collinear'}
-    if not required_cols.issubset(set(df.columns)):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Missing required columns in VIF flags: {missing}")
-    
-    df['is_collinear'] = df['is_collinear'].astype(bool)
-    
-    logger.info(f"Loaded {len(df)} CREs with VIF scores")
-    return df
+    logger.info(f"Loading VIF flags from {vif_path}")
+    if not os.path.exists(vif_path):
+        raise FileNotFoundError(f"VIF flags file not found: {vif_path}")
+    df_vif = pd.read_csv(vif_path, sep='\t')
+    return df_vif[['cre_id', 'vif_score', 'is_collinear']]
 
-def load_delta_peak_signal(filepath: str) -> pd.DataFrame:
+def load_delta_peak_signal(delta_path: str) -> pd.DataFrame:
     """
-    Load delta peak signal from T043 output.
-    Expected columns: cre_id, gene_id, delta_signal (or similar)
+    Load delta peak signal.
+    
+    Args:
+        delta_path: Path to delta_peak_signal.tsv
+        
+    Returns:
+        DataFrame with delta peak signal.
     """
-    logger.info(f"Loading delta peak signal from {filepath}")
-    df = pd.read_csv(filepath, sep='\t')
-    
-    # Check for required columns
-    if 'cre_id' not in df.columns:
-        raise ValueError("Missing 'cre_id' column in delta peak signal file")
-    
-    # Identify the signal column (could be 'delta_signal', 'signal', etc.)
-    signal_cols = [col for col in df.columns if 'signal' in col.lower() and col != 'cre_id']
-    if not signal_cols:
-        raise ValueError("No signal column found in delta peak signal file")
-    
-    # Use the first matching signal column
-    signal_col = signal_cols[0]
-    logger.info(f"Using signal column: {signal_col}")
-    
-    logger.info(f"Loaded {len(df)} delta peak signal entries")
-    return df, signal_col
+    logger.info(f"Loading delta peak signal from {delta_path}")
+    if not os.path.exists(delta_path):
+        raise FileNotFoundError(f"Delta peak signal file not found: {delta_path}")
+    df_delta = pd.read_csv(delta_path, sep='\t')
+    return df_delta[['cre_id', 'gene_id', 'delta_peak_signal']]
 
 def compute_weights_and_apply(
-    validation_df: pd.DataFrame,
-    vif_df: pd.DataFrame,
-    delta_df: pd.DataFrame,
-    signal_col: str
+    df_flags: pd.DataFrame,
+    df_vif: pd.DataFrame,
+    df_delta: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    Join datasets, filter collinear CREs, compute weights, and apply to delta signal.
+    Apply filtering and weighting logic.
     
-    Weight logic (FR-015):
-    - If motif_validated is true: weight = -log10(motif_score)
-    - Else if hic_validated is true: weight = log10(hi_c_score + 1)
-    - Else: exclude
-    """
-    logger.info("Joining validation, VIF, and delta signal datasets")
+    Logic:
+    1. Retain CRE if (motif_validated OR hic_validated) is TRUE.
+    2. Exclude if is_collinear is TRUE.
+    3. Compute weight:
+       - if motif_validated: weight = -log10(motif_score)
+       - else if hic_validated: weight = log10(hic_score + 1)
+       - else: exclude (should not happen due to step 1)
+    4. Apply weight to delta_peak_signal.
     
-    # Merge validation and VIF flags on cre_id
-    merged_df = pd.merge(
-        validation_df,
-        vif_df,
-        on='cre_id',
-        how='inner',
-        suffixes=('_val', '_vif')
-    )
-    logger.info(f"After join with VIF: {len(merged_df)} CREs")
-    
-    # Exclude collinear CREs (VIF > 5)
-    non_collinear_df = merged_df[~merged_df['is_collinear']].copy()
-    excluded_collinear = len(merged_df) - len(non_collinear_df)
-    logger.info(f"Excluded {excluded_collinear} collinear CREs (VIF > 5)")
-    
-    # Merge with delta signal
-    final_df = pd.merge(
-        non_collinear_df,
-        delta_df[['cre_id', 'gene_id', signal_col]],
-        on='cre_id',
-        how='inner'
-    )
-    logger.info(f"After join with delta signal: {len(final_df)} CREs")
-    
-    # Compute weights and apply
-    def compute_weight(row):
-        motif_validated = row['motif_validated']
-        hic_validated = row['hic_validated']
-        validation_score = row['validation_score']
+    Args:
+        df_flags: Merged motif/Hi-C flags
+        df_vif: VIF flags
+        df_delta: Delta peak signal
         
-        if motif_validated:
-            # Weight = -log10(motif_score)
-            # Ensure validation_score is positive (motif p-value)
-            if validation_score <= 0:
-                return None, 'invalid_motif_score'
-            weight = -np.log10(validation_score)
+    Returns:
+        DataFrame with weighted delta peak signal.
+    """
+    logger.info("Applying filtering and weighting logic...")
+    
+    # Join all data on cre_id
+    df_combined = pd.merge(df_flags, df_vif, on='cre_id', how='inner')
+    df_combined = pd.merge(df_combined, df_delta, on='cre_id', how='inner')
+    
+    # Step 1: Filter for (motif_validated OR hic_validated)
+    mask_validated = df_combined['motif_validated'] | df_combined['hic_validated']
+    df_filtered = df_combined[mask_validated].copy()
+    logger.info(f"Filtered to {len(df_filtered)} CREs with valid motif OR Hi-C evidence.")
+    
+    if len(df_filtered) == 0:
+        logger.warning("No CREs passed validation. Output will be empty.")
+        return pd.DataFrame(columns=['cre_id', 'gene_id', 'weighted_delta_peak_signal', 'weight_source'])
+
+    # Step 2: Exclude collinear CREs
+    mask_collinear = ~df_filtered['is_collinear']
+    df_final = df_filtered[mask_collinear].copy()
+    excluded_collinear = len(df_filtered) - len(df_final)
+    logger.info(f"Excluded {excluded_collinear} collinear CREs. Remaining: {len(df_final)}")
+    
+    if len(df_final) == 0:
+        logger.warning("No CREs remained after excluding collinear ones. Output will be empty.")
+        return pd.DataFrame(columns=['cre_id', 'gene_id', 'weighted_delta_peak_signal', 'weight_source'])
+
+    # Step 3 & 4: Compute weights and apply
+    def calculate_weight(row):
+        if row['motif_validated']:
+            # Avoid log10(0) or log10(negative) if score is weird, though score should be p-value < 1
+            score = row['motif_score']
+            if score <= 0:
+                score = 1e-300 # Fallback to avoid log domain error, though p-values should be > 0
+            weight = -np.log10(score)
             return weight, 'motif'
-        elif hic_validated:
-            # Weight = log10(hi_c_score + 1)
-            weight = np.log10(validation_score + 1)
+        elif row['hic_validated']:
+            score = row['hic_score']
+            weight = np.log10(score + 1)
             return weight, 'hic'
         else:
-            return None, 'no_validation'
+            # Should not be reached due to mask_validated
+            return 0.0, 'none'
+
+    weights_sources = df_final.apply(calculate_weight, axis=1)
+    df_final['weight'] = [w[0] for w in weights_sources]
+    df_final['weight_source'] = [w[1] for w in weights_sources]
     
-    # Apply weight computation
-    weight_results = final_df.apply(compute_weight, axis=1)
-    final_df['weight'] = [w[0] for w in weight_results]
-    final_df['weight_source'] = [w[1] for w in weight_results]
-    
-    # Filter out CREs without valid weights
-    valid_weights_df = final_df[final_df['weight'].notna()].copy()
-    excluded_no_weight = len(final_df) - len(valid_weights_df)
-    logger.info(f"Excluded {excluded_no_weight} CREs with no valid weight")
-    
-    # Compute weighted delta signal
-    valid_weights_df['weighted_delta_peak_signal'] = (
-        valid_weights_df['weight'] * valid_weights_df[signal_col]
-    )
+    df_final['weighted_delta_peak_signal'] = df_final['delta_peak_signal'] * df_final['weight']
     
     # Select output columns
-    output_df = valid_weights_df[[
-        'cre_id', 
-        'gene_id', 
-        'weighted_delta_peak_signal', 
-        'weight_source'
-    ]].copy()
+    df_output = df_final[['cre_id', 'gene_id', 'weighted_delta_peak_signal', 'weight_source']]
     
-    logger.info(f"Final output: {len(output_df)} weighted CREs")
-    return output_df
+    logger.info(f"Computed weights for {len(df_output)} CREs.")
+    return df_output
 
-def write_output(df: pd.DataFrame, filepath: str):
-    """Write the weighted delta peak signal to TSV file."""
-    logger.info(f"Writing output to {filepath}")
-    df.to_csv(filepath, sep='\t', index=False)
-    logger.info(f"Successfully wrote {len(df)} rows to {filepath}")
+def write_output(df: pd.DataFrame, output_path: str):
+    """
+    Write the final weighted table to disk.
+    
+    Args:
+        df: DataFrame to write
+        output_path: Path to output file
+    """
+    logger.info(f"Writing output to {output_path}")
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    df.to_csv(output_path, sep='\t', index=False)
+    logger.info("Output written successfully.")
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Compute weights for CREs and apply to delta peak signal (T013c)'
-    )
-    parser.add_argument(
-        '--validation-flags',
-        type=str,
-        default='data/processed/cre_validation_flags.tsv',
-        help='Path to CRE validation flags from T013a'
-    )
-    parser.add_argument(
-        '--vif-flags',
-        type=str,
-        default='data/processed/vif_flags.tsv',
-        help='Path to VIF flags from T013b'
-    )
-    parser.add_argument(
-        '--delta-signal',
-        type=str,
-        default='data/processed/delta_peak_signal.tsv',
-        help='Path to delta peak signal from T043'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/processed/weights.tsv',
-        help='Path for output weights file'
-    )
+    parser = argparse.ArgumentParser(description='Compute CRE weights and apply to delta signal.')
+    parser.add_argument('--motif-flags', type=str, required=True, help='Path to motif_validation_flags.tsv')
+    parser.add_argument('--hic-flags', type=str, required=True, help='Path to hic_validation_flags.tsv')
+    parser.add_argument('--vif-flags', type=str, required=True, help='Path to vif_flags.tsv')
+    parser.add_argument('--delta-signal', type=str, required=True, help='Path to delta_peak_signal.tsv')
+    parser.add_argument('--output', type=str, required=True, help='Path to output weights.tsv')
     
     args = parser.parse_args()
     
-    # Validate input files exist
-    input_files = [
-        args.validation_flags,
-        args.vif_flags,
-        args.delta_signal
-    ]
-    
-    for filepath in input_files:
-        if not os.path.exists(filepath):
-            logger.error(f"Input file not found: {filepath}")
-            sys.exit(1)
-    
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     try:
         # Load data
-        validation_df = load_cre_validation_flags(args.validation_flags)
-        vif_df = load_vif_flags(args.vif_flags)
-        delta_df, signal_col = load_delta_peak_signal(args.delta_signal)
+        df_flags = load_cre_validation_flags(args.motif_flags, args.hic_flags)
+        df_vif = load_vif_flags(args.vif_flags)
+        df_delta = load_delta_peak_signal(args.delta_signal)
         
-        # Compute weights and apply
-        weighted_df = compute_weights_and_apply(
-            validation_df,
-            vif_df,
-            delta_df,
-            signal_col
-        )
+        # Process
+        df_result = compute_weights_and_apply(df_flags, df_vif, df_delta)
         
-        # Write output
-        write_output(weighted_df, args.output)
+        # Write
+        write_output(df_result, args.output)
         
-        logger.info("T013c completed successfully")
+        logger.info("Task T013c completed successfully.")
         
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during weight computation: {e}")
-        raise
+        logger.error(f"Error during processing: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

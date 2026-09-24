@@ -1,20 +1,11 @@
-T013b:
+T007c:
   c: false
-  h: 5d2b153b191a6ef2cfea96d9becaaea5e6a5ce2ee9c328bb3a1be194d02a8582
-  r: "The repository lacks the required `data/processed/peak_signal_matrix.tsv` input\
-    \ and the expected `data/processed/vif_flags.tsv` output, so the script cannot\
-    \ be executed or verified. Additionally, the provided `code/05b_check_collinearity.py`\
-    \ is truncated and does not show a complete VIF calculation and file\u2011writing\
-    \ logic. These missing artifacts prevent the task from being considered fulfilled."
-T013c:
-  c: false
-  h: b7d4b504b7353f21df54d08d4c162bf13c54a9d5730dd1a5f026ca77547beaca
-  r: The repository lacks the required input data files (`cre_validation_flags.tsv`,
-    `vif_flags.tsv`, `delta_peak_signal.tsv`) and the expected output file (`weights.tsv`).
-    Moreover, the provided `code/05c_compute_weights.py` is truncated and does not
-    contain the full implementation needed to perform the joins, exclusions, weight
-    calculations, and output generation. Without these artifacts the task is not genuinely
-    completed.
+  h: d8de0a8705bf355c899126fc9d3a73495ea657adb24803870f6381622a078a6b
+  r: "The repository contains a partially\u2011written `code/03c_extract_peak_signals.R`\
+    \ (it ends abruptly and never defines the full processing loop or writes the output),\
+    \ and the required output `data/processed/peak_signal_matrix.tsv` is absent. Consequently\
+    \ the task\u2019s core deliverable \u2013 a populated peak\u2011signal matrix\
+    \ file \u2013 is missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

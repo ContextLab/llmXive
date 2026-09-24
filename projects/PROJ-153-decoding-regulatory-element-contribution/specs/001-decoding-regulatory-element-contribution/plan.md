@@ -13,11 +13,11 @@ This project implements a computational pipeline to identify cis-regulatory elem
 **Primary Dependencies**: `pysam`, `pandas`, `statsmodels`, `scikit-learn`, `rpy2` (for `lme4`/`clusterProfiler`), `pybedtools`, `deepTools` (CLI), `bowtie2` (CLI), `fastp` (CLI), `MACS2` (CLI), `bioconductor`.  
 **Storage**: Local file system (`data/raw`, `data/processed`, `results`), SQLite for metadata (optional), HDF5/Parquet for intermediate matrices.  
 **Testing**: `pytest` (Python), `testthat` (R), contract validation via YAML schemas.  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions runner: Multiple CPU, 7GB RAM, no GPU).  
 **Project Type**: Bioinformatics pipeline / CLI tool.  
 **Performance Goals**: Complete analysis within 5 hours on CPU; memory < 6GB; streaming data to avoid OOM.  
 **Constraints**: No GPU; CPU-only statistical models; strict adherence to FDR thresholds; no synthetic data generation.  
-**Scale/Scope**: ~5000 genes, [deferred] CREs (estimated based on yeast genome size and typical ChIP-seq depth); 3 stress conditions.
+**Scale/Scope**: A substantial number of genes, [deferred] CREs (estimated based on yeast genome size and typical ChIP-seq depth); stress conditions.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
