@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T11:37:06.164789Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-035-exploring-the-correlation-between-crysta
-last_run_id: c7f04fc2-0274-4b7d-9f1b-7605f79f8150
+last_run_id: 7b1770d1-1ead-4fdd-80b9-d65ca902c24b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta
 title: Exploring the Correlation Between Crystal Structure and Thermal Conductivity
   in Perovskites
-updated_at: '2026-09-21T20:57:09.955467Z'
+updated_at: '2026-09-24T02:10:19.740624Z'

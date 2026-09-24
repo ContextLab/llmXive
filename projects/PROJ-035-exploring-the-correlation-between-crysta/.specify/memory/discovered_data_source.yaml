@@ -1,0 +1,18 @@
+status: none
+intent: Materials Project perovskite structures NIST thermal conductivity experimental
+  dataset python package dataset
+required_fields:
+- material_id
+- mp_id
+- formula
+- spacegroup
+- lattice_parameters
+- structure_file
+- thermal_conductivity
+- temperature
+- measurement_method
+- source
+- doi
+cache_key: 2e8728201c063889224243e3697c9b851285315cc85fbae6c242dcfef9e85dc2
+searched_at: '2026-09-24T01:47:20.151084+00:00'
+retry_count: 1

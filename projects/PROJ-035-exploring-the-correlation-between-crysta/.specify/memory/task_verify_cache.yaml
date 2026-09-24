@@ -5,13 +5,13 @@ T005b:
     \ file `data/metadata.yaml` is absent, indicating the script has not been executed\
     \ or does not correctly write the metadata file. The missing `metadata.yaml` means\
     \ the task\u2019s core requirement is not satisfied."
-T009:
+T014:
   c: false
-  h: 3b8e9d0c0492c7bf205bea2dcf40fb75772675dd2553e01efb90ac157fd29d90
-  r: "The required artifact `src/utils/validation.py` does not exist in the repository,\
-    \ so the requested VIF exclusion logic and causal\u2011language scanner functions\
-    \ cannot be present. The implementer must add the file and implement the specified\
-    \ functionality."
+  h: 8f5edd2b1647e6ada6c814f11013435dbd59c3f0fbdc1890494732effe760204
+  r: "The provided `provenance_validator.py` is truncated and contains errors (e.g.,\
+    \ an incomplete variable name `reaso`), uses an incorrect NIST ID regex, never\
+    \ writes `data/cleaned/provenance_report.json`, and does not implement the required\
+    \ exit\u2011code behavior. The expected JSON report file is also missing."
 T014b:
   c: false
   h: fb2d654b6f63b9f7b2724e0288440bce8eff4ac34a7d05411dd77a0df6bb64d9
@@ -19,15 +19,13 @@ T014b:
     \ actual data\u2011fetching, validation, and CSV\u2011writing logic required by\
     \ T014b, and the expected output file `data/raw/thermal_raw.csv` is absent. Consequently\
     \ the implementation cannot be confirmed to meet the specification."
-T023:
+T021d:
   c: false
-  h: 5d7f20e817445be41d5413e2c8f2fc8d1b18f3d07da78ab03498a36191ab4bfd
-  r: "The repository lacks the required input file `data/results/sensitivity_analysis.json`\
-    \ and the expected output `data/results/correlation_matrix.json`. Moreover, the\
-    \ provided `src/analysis/correlation.py` does not show implementation of the command\u2011\
-    line interface (`--correction-method`, `--seed`), nor does it demonstrate reading\
-    \ the missing JSON or writing the required fields. These essential artifacts are\
-    \ absent, so the task is not genuinely completed."
+  h: 395ff7701a0bbb0e5d493542f4de95e514def65ada0b6b7cfeff7c0eb57f6081
+  r: The repository lacks a `data/descriptors.csv` file, so no descriptors are being
+    written out, and the provided excerpt of `src/descriptors/compute_descriptors.py`
+    does not show an implementation of the required `compute_unit_cell_volume(structure)`
+    function. Both the essential function and the required output file are missing.
 T025b:
   c: false
   h: ac5a84bcd476ffa9e7e365b3be0737c231b10d1726c2d41324b70eaf82b8d406
@@ -35,14 +33,6 @@ T025b:
     `data/results/vif_report.json` are absent, indicating the VIF check was not run
     and the filtered dataset/report were not generated. The presence of `src/utils/validation.py`
     alone does not satisfy the execution requirement.
-T028:
-  c: false
-  h: 2c1476b9e17a45bf8749d05279286b337dd987b94f48e50e0d9a152a7be934e5
-  r: "The required input file `data/cleaned/descriptors_vif_filtered.csv` is missing,\
-    \ and the `evaluate_test` function is truncated (does not show R\xB2, RMSE, feature\u2011\
-    importance reporting, or the explicit R\xB2\u202F>\u202F0.5 pass/fail check, nor\
-    \ does the script read the required CSV or handle the `--seed` argument). These\
-    \ critical pieces are absent, so the task is not fully satisfied."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

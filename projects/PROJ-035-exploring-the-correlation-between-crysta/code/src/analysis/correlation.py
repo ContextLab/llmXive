@@ -1,356 +1,158 @@
-"""
-Correlation Analysis Module for Perovskite Thermal Conductivity Study.
-
-Implements Pearson and Spearman correlation calculations with multiple-comparison
-correction (Bonferroni or FDR) on stratified perovskite datasets.
-"""
 import sys
 import logging
 import json
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
-
-import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr, spearmanr
-from statsmodels.stats.multitest import multipletests
+import numpy as np
+from scipy import stats
 
-from src.utils.seed_manager import init_seed, get_seed, setup_logger_module as seed_setup_logger
+# Add parent to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.utils.validation import setup_logger
+from src.utils.sensitivity import run_sensitivity_analysis
 
+STRATIFIED_PATH = Path("data/cleaned/stratified_data.csv")
+CORRELATION_OUTPUT_PATH = Path("data/results/correlation_matrix.json")
+SUMMARY_OUTPUT_PATH = Path("data/results/stratified_summary.md")
 
-def setup_logger_module(name: str, level: int = logging.INFO) -> logging.Logger:
-    """Initialize a module-specific logger."""
-    return setup_logger(name, level)
-
-
-def compute_correlation_matrix(
-    df: pd.DataFrame,
-    predictors: List[str],
-    target: str = "thermal_conductivity",
-    method: str = "pearson",
-    seed: Optional[int] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def compute_correlation_matrix(df: pd.DataFrame, target_col: str = 'thermal_conductivity', predictor_cols: List[str] = None) -> Dict[str, Any]:
     """
-    Compute correlation matrix between predictors and target.
-
-    Args:
-        df: Input dataframe containing predictors and target.
-        predictors: List of predictor column names.
-        target: Target column name.
-        method: Correlation method ('pearson' or 'spearman').
-        seed: Random seed for reproducibility (not used in deterministic correlation).
-
-    Returns:
-        Tuple of (correlation_values_df, p_values_df)
+    Compute Pearson and Spearman correlations.
     """
-    if seed is not None:
-        init_seed(seed)
-
-    logger = setup_logger_module("correlation")
-    logger.info(f"Computing {method} correlation for {len(predictors)} predictors")
-
-    # Ensure all columns exist
-    missing = [col for col in predictors + [target] if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns in dataframe: {missing}")
-
-    # Drop rows with NaN in relevant columns
-    clean_df = df[predictors + [target]].dropna()
-
-    if len(clean_df) == 0:
-        raise ValueError("No valid data rows after dropping NaN values")
-
-    correlations = []
-    p_values = []
-
-    for pred in predictors:
-        if method == "pearson":
-            corr, p_val = pearsonr(clean_df[pred], clean_df[target])
-        elif method == "spearman":
-            corr, p_val = spearmanr(clean_df[pred], clean_df[target])
-        else:
-            raise ValueError(f"Unknown correlation method: {method}")
-
-        correlations.append(corr)
-        p_values.append(p_val)
-
-    corr_df = pd.DataFrame({
-        "predictor": predictors,
-        "correlation": correlations
-    })
-    p_df = pd.DataFrame({
-        "predictor": predictors,
-        "p_value": p_values
-    })
-
-    logger.info(f"Correlation computation complete. Min corr: {min(correlations):.4f}, Max corr: {max(correlations):.4f}")
-
-    return corr_df, p_df
-
-
-def apply_multiple_comparison_correction(
-    p_values: List[float],
-    method: str = "bonferroni",
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Apply multiple-comparison correction to p-values.
-
-    Args:
-        p_values: List of raw p-values.
-        method: Correction method ('bonferroni' or 'fdr').
-        alpha: Significance threshold.
-
-    Returns:
-        Dictionary with 'corrected_p_values', 'is_significant', 'method', and 'alpha'.
-    """
-    if not p_values:
-        return {
-            "corrected_p_values": [],
-            "is_significant": [],
-            "method": method,
-            "alpha": alpha
-        }
-
-    p_array = np.array(p_values)
-
-    if method == "bonferroni":
-        corrected = multipletests(p_array, alpha=alpha, method='bonferroni')
-    elif method == "fdr":
-        corrected = multipletests(p_array, alpha=alpha, method='fdr_bh')
-    else:
-        raise ValueError(f"Unknown correction method: {method}. Use 'bonferroni' or 'fdr'.")
-
-    # corrected[0]: reject, [1]: p-corrected, [2]: p-value (original), [3]: alpha-corrected
-    return {
-        "corrected_p_values": corrected[1].tolist(),
-        "is_significant": corrected[0].tolist(),
-        "method": method,
-        "alpha": alpha
-    }
-
-
-def stratified_correlation_analysis(
-    df: pd.DataFrame,
-    stratify_column: str = "chemistry_class",
-    predictors: List[str] = None,
-    target: str = "thermal_conductivity",
-    correlation_methods: List[str] = None,
-    correction_method: str = "bonferroni",
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Perform correlation analysis stratified by a categorical column.
-
-    Args:
-        df: Input dataframe.
-        stratify_column: Column to stratify by (e.g., 'chemistry_class').
-        predictors: List of predictor columns. Defaults to numeric columns excluding target.
-        target: Target variable column name.
-        correlation_methods: List of methods to compute ('pearson', 'spearman').
-        correction_method: Multiple comparison correction method.
-        seed: Random seed.
-
-    Returns:
-        Dictionary containing stratified results and corrected p-values.
-    """
-    if seed is not None:
-        init_seed(seed)
-
-    logger = setup_logger_module("correlation")
-    logger.info(f"Starting stratified analysis by '{stratify_column}'")
-
-    if predictors is None:
-        # Default: all numeric columns except target and stratify column
+    if predictor_cols is None:
+        # Select numeric columns excluding target
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        predictors = [c for c in numeric_cols if c != target and c != stratify_column]
-
-    if correlation_methods is None:
-        correlation_methods = ["pearson", "spearman"]
-
-    results = {
-        "stratified_results": {},
-        "corrected_p_values": {},
-        "metadata": {
-            "stratify_column": stratify_column,
-            "predictors": predictors,
-            "target": target,
-            "correlation_methods": correlation_methods,
-            "correction_method": correction_method,
-            "seed": seed
-        }
-    }
-
-    groups = df[stratify_column].unique()
-    logger.info(f"Found {len(groups)} strata: {groups}")
-
-    for group in groups:
-        group_df = df[df[stratify_column] == group]
-        logger.info(f"Processing stratum: {group} (n={len(group_df)})")
-
-        if len(group_df) < 5:
-            logger.warning(f"Skipping stratum '{group}' with insufficient samples ({len(group_df)} < 5)")
-            continue
-
-        group_results = {}
-        all_p_values = []
-
-        for method in correlation_methods:
-            corr_df, p_df = compute_correlation_matrix(
-                group_df, predictors, target, method, seed
-            )
-
-            # Store correlations
-            group_results[method] = {
-                "correlations": corr_df.to_dict(orient="records"),
-                "p_values": p_df["p_value"].tolist()
-            }
-
-            # Collect p-values for correction
-            all_p_values.extend(p_df["p_value"].tolist())
-
-        # Apply correction to all p-values in this stratum
-        correction_result = apply_multiple_comparison_correction(
-            all_p_values, correction_method
-        )
-
-        results["stratified_results"][str(group)] = group_results
-        results["corrected_p_values"][str(group)] = correction_result
-
-    logger.info("Stratified correlation analysis complete")
+        predictor_cols = [c for c in numeric_cols if c != target_col]
+    
+    results = {}
+    for col in predictor_cols:
+        if col in df.columns and target_col in df.columns:
+            # Drop NaNs
+            valid_data = df[[col, target_col]].dropna()
+            if len(valid_data) > 2:
+                pearson_r, pearson_p = stats.pearsonr(valid_data[col], valid_data[target_col])
+                spearman_r, spearman_p = stats.spearmanr(valid_data[col], valid_data[target_col])
+                results[col] = {
+                    'pearson_r': pearson_r,
+                    'pearson_p': pearson_p,
+                    'spearman_r': spearman_r,
+                    'spearman_p': spearman_p
+                }
     return results
 
+def apply_multiple_comparison_correction(p_values: List[float], method: str = 'bonferroni') -> List[float]:
+    """
+    Apply multiple comparison correction to p-values.
+    """
+    if not p_values:
+        return []
+    if method == 'bonferroni':
+        return [p * len(p_values) for p in p_values]
+    elif method == 'fdr':
+        # Benjamini-Hochberg
+        sorted_indices = np.argsort(p_values)
+        sorted_p = np.array(p_values)[sorted_indices]
+        n = len(sorted_p)
+        corrected = sorted_p * n / (np.arange(1, n+1))
+        # Ensure monotonicity
+        for i in range(n-2, -1, -1):
+            corrected[i] = min(corrected[i], corrected[i+1])
+        # Restore order
+        result = np.zeros(n)
+        result[sorted_indices] = corrected
+        return result.tolist()
+    return p_values
 
-def save_correlation_results(
-    results: Dict[str, Any],
-    output_path: Union[str, Path]
-) -> None:
-    """Save correlation results to a JSON file."""
-    output_path = Path(output_path)
+def stratified_correlation_analysis(df: pd.DataFrame, target_col: str = 'thermal_conductivity') -> Dict[str, Any]:
+    """
+    Perform correlation analysis for each chemistry class.
+    """
+    if 'chemistry_class' not in df.columns:
+        raise ValueError("DataFrame must have 'chemistry_class' column.")
+    
+    classes = df['chemistry_class'].unique()
+    stratified_results = {}
+    
+    for cls in classes:
+        cls_df = df[df['chemistry_class'] == cls]
+        if len(cls_df) < 5:
+            continue
+        
+        corr_results = compute_correlation_matrix(cls_df, target_col)
+        # Apply correction
+        p_values = [v['pearson_p'] for v in corr_results.values()]
+        corrected_p = apply_multiple_comparison_correction(p_values, method='bonferroni')
+        
+        # Map back
+        corrected_map = {}
+        for i, col in enumerate(corr_results.keys()):
+            corrected_map[col] = corrected_p[i]
+        
+        stratified_results[cls] = {
+            'correlations': corr_results,
+            'corrected_p_values': corrected_map,
+            'sample_size': len(cls_df)
+        }
+    
+    return stratified_results
+
+def save_correlation_results(results: Dict[str, Any], output_path: Path):
+    """
+    Save correlation results to JSON.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(results, f, indent=2)
 
-    logging.getLogger("correlation").info(f"Results saved to {output_path}")
-
+def generate_stratified_summary(results: Dict[str, Any], output_path: Path):
+    """
+    Generate a markdown summary of the stratified analysis.
+    """
+    lines = ["# Stratified Correlation Analysis Summary\n\n"]
+    for cls, data in results.items():
+        lines.append(f"## Chemistry Class: {cls}\n")
+        lines.append(f"- Sample Size: {data['sample_size']}\n")
+        lines.append("| Descriptor | Pearson R | Corrected P |\n")
+        lines.append("|---|---|---|\n")
+        for desc, corr_data in data['correlations'].items():
+            corr_p = data['corrected_p_values'].get(desc, 0)
+            sig = "***" if corr_p < 0.05 else ""
+            lines.append(f"| {desc} | {corr_data['pearson_r']:.3f} | {corr_p:.4f} {sig} |\n")
+        lines.append("\n")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.writelines(lines)
 
 def main():
-    """CLI entry point for correlation analysis."""
-    parser = argparse.ArgumentParser(
-        description="Compute stratified correlations with multiple-comparison correction."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to stratified input CSV (output of T022 stratify.py)"
-    )
-    parser.add_argument(
-        "--sensitivity-input",
-        type=str,
-        required=True,
-        help="Path to sensitivity analysis JSON (output of T023b)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/results/correlation_matrix.json",
-        help="Output path for correlation results JSON"
-    )
-    parser.add_argument(
-        "--stratify-column",
-        type=str,
-        default="chemistry_class",
-        help="Column to stratify by"
-    )
-    parser.add_argument(
-        "--correction-method",
-        type=str,
-        default="bonferroni",
-        choices=["bonferroni", "fdr"],
-        help="Multiple comparison correction method"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=None,
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--predictors",
-        type=str,
-        nargs="+",
-        default=None,
-        help="List of predictor columns (default: auto-detect numeric)"
-    )
-
-    args = parser.parse_args()
-
-    # Initialize logger
-    logger = setup_logger("correlation_main", logging.INFO)
-    logger.info(f"Starting correlation analysis with args: {args}")
-
-    # Validate sensitivity input exists (dependency T023b)
-    sens_path = Path(args.sensitivity_input)
-    if not sens_path.exists():
-        logger.error(f"Sensitivity analysis file not found: {sens_path}")
+    """
+    Main entry point for correlation analysis.
+    """
+    logger = setup_logger("correlation")
+    
+    if not STRATIFIED_PATH.exists():
+        logger.error(f"Input file {STRATIFIED_PATH} not found.")
         sys.exit(1)
-
-    # Load sensitivity analysis to verify it ran (optional validation)
+    
     try:
-        with open(sens_path, 'r') as f:
-            sens_data = json.load(f)
-        logger.info(f"Loaded sensitivity analysis: {list(sens_data.keys())}")
+        df = pd.read_csv(STRATIFIED_PATH)
     except Exception as e:
-        logger.warning(f"Could not parse sensitivity file: {e}")
-
-    # Load input data
-    input_path = Path(args.input)
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
+        logger.error(f"Failed to read {STRATIFIED_PATH}: {e}")
         sys.exit(1)
-
-    try:
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows from {input_path}")
-    except Exception as e:
-        logger.error(f"Failed to load input CSV: {e}")
-        sys.exit(1)
-
-    # Run analysis
-    predictors = args.predictors
-    if predictors:
-        # Validate predictors exist
-        missing = [p for p in predictors if p not in df.columns]
-        if missing:
-            logger.error(f"Predictors not found in data: {missing}")
-            sys.exit(1)
-
-    try:
-        results = stratified_correlation_analysis(
-            df=df,
-            stratify_column=args.stratify_column,
-            predictors=predictors,
-            target="thermal_conductivity",
-            correlation_methods=["pearson", "spearman"],
-            correction_method=args.correction_method,
-            seed=args.seed
-        )
-    except Exception as e:
-        logger.error(f"Correlation analysis failed: {e}")
-        sys.exit(1)
-
-    # Save results
-    try:
-        save_correlation_results(results, args.output)
-        logger.info(f"Successfully wrote results to {args.output}")
-    except Exception as e:
-        logger.error(f"Failed to save results: {e}")
-        sys.exit(1)
-
+    
+    logger.info("Running stratified correlation analysis...")
+    results = stratified_correlation_analysis(df)
+    
+    save_correlation_results(results, CORRELATION_OUTPUT_PATH)
+    generate_stratified_summary(results, SUMMARY_OUTPUT_PATH)
+    
+    logger.info(f"Correlation results saved to {CORRELATION_OUTPUT_PATH}")
+    logger.info(f"Summary saved to {SUMMARY_OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main()

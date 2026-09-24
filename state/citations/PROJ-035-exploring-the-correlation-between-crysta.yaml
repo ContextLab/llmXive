@@ -9,3 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/perovskite-thermal-correlation
   verified_at: '2026-06-29T05:43:03.882230Z'
+- artifact_hash: 440f082ba47a1f3131554f7a60dc5c1e893c87f6ec164e7255a4bd39dccf0bb3
+  artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nist/thermal-conductivity-perovskites/resolve/main/thermal_data.csv
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/nist/thermal-conductivity-perovskites/resolve/main/thermal_data.csv
+  verified_at: '2026-09-24T02:10:18.448482Z'
