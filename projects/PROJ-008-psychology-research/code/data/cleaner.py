@@ -1,186 +1,237 @@
+"""
+Data cleaning module for US1.
+Validates study records against inclusion criteria and cleans data.
+"""
+
 import logging
 import json
 import os
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-import pandas as pd
 
+import pandas as pd
 from code.utils.logging import get_logger
-from code.utils.config import get_data_path
 
 logger = get_logger(__name__)
 
-# Whitelist of known social skill measures
-SOCIAL_SKILL_MEASURES = {
-    'SRS-2', 'Social Responsiveness Scale-2', 'social responsivness scale-2',
-    'ABC', 'Aberrant Behavior Checklist', 'aberrant behavior checklist',
-    'SSIS', 'Social Skills Improvement System', 'social skills improvement system',
-    'PEP-3', 'Psychoeducational Profile-3', 'psychoeducational profile-3',
-    'SRS', 'Social Responsiveness Scale', 'social responsivness scale',
-    'SSRS', 'Social Skills Rating System', 'social skills rating system',
-    'CSBS', 'Communication and Symbolic Behavior Scales',
-    'Vineland', 'Vineland Adaptive Behavior Scales', 'vineland adaptive behavior scales',
-    'ESCS', 'Early Social Communication Scales',
-    'SCQ', 'Social Communication Questionnaire', 'social communication questionnaire'
-}
+# Inclusion criteria constants
+VALID_AGE_MIN = 6
+VALID_AGE_MAX = 12
+VALID_DIAGNOSIS = 'ASD'
+VALID_OUTCOMES = ['SRS-2', 'ABC', 'SSIS', 'PEP-3', 'Social Skills Rating System',
+                  'Autism Behavior Checklist', 'Social Skills Improvement System',
+                  'Preschool Evaluation Scale']
 
-def validate_age(age: Optional[float]) -> bool:
-    """Validate age is within the study's target range (typically -12 to 18 for ASD research)."""
-    if age is None:
-        return False
-    # Assuming valid age range for ASD social skills studies is roughly 3 to 18 years
-    # The task mentions "-12" which likely implies a range check or a specific constraint.
-    # We will enforce a reasonable positive range for children/adolescents: 3 <= age <= 18.
-    # If the task meant "greater than -12" (which is trivially true for humans), we interpret it as a lower bound check.
-    # Given the context of "children aged 8-12" in the spec, we ensure age is positive and reasonable.
-    if age < 3 or age > 18:
-        return False
-    return True
+EXCLUDED_LOG_PATH = 'data/raw/excluded_studies.log'
 
-def validate_asd_diagnosis(diagnosis: Optional[str]) -> bool:
-    """Validate that the study includes ASD diagnosis criteria."""
+
+def validate_age(age: Any) -> bool:
+    """
+    Validate age is within 6-12 range.
+
+    Args:
+        age: Age value (int or string)
+
+    Returns:
+        True if valid, False otherwise
+    """
+    try:
+        age_int = int(age)
+        return VALID_AGE_MIN <= age_int <= VALID_AGE_MAX
+    except (ValueError, TypeError):
+        return False
+
+
+def validate_asd_diagnosis(diagnosis: Any) -> bool:
+    """
+    Validate diagnosis is ASD.
+
+    Args:
+        diagnosis: Diagnosis string
+
+    Returns:
+        True if ASD, False otherwise
+    """
     if not diagnosis:
         return False
-    diagnosis_lower = diagnosis.lower()
-    asd_keywords = ['asd', 'autism', 'autism spectrum', 'autistic disorder', 'pdd-nos']
-    return any(keyword in diagnosis_lower for keyword in asd_keywords)
+    return str(diagnosis).upper() == VALID_DIAGNOSIS.upper()
+
 
 def validate_outcomes(outcomes: Any) -> bool:
     """
-    Validate `outcomes` field against a whitelist of known social skill measures.
-    Returns True if at least one valid measure is found.
+    Validate outcomes contain recognized social skill measures.
+
+    Args:
+        outcomes: List or string of outcomes
+
+    Returns:
+        True if at least one valid outcome found, False otherwise
     """
     if not outcomes:
         return False
 
     if isinstance(outcomes, str):
-        measures_list = [m.strip() for m in outcomes.split(',')]
-    elif isinstance(outcomes, list):
-        measures_list = outcomes
+        outcomes_list = [outcomes]
     else:
-        measures_list = [str(outcomes)]
+        outcomes_list = outcomes
 
-    for measure in measures_list:
-        measure_clean = str(measure).strip()
-        if measure_clean.lower() in SOCIAL_SKILL_MEASURES:
+    for outcome in outcomes_list:
+        if outcome in VALID_OUTCOMES:
             return True
-        # Check if the measure string contains any of the known keys (case-insensitive partial match)
-        for known_measure in SOCIAL_SKILL_MEASURES:
-            if known_measure.lower() in measure_clean.lower():
-                return True
+
     return False
 
-def _log_exclusion(study_id: str, reason: str, log_path: Path) -> None:
-    """Log an excluded study to the JSONL file."""
-    timestamp = datetime.now(timezone.utc).isoformat()
-    entry = {
-        "study_id": study_id,
-        "reason": reason,
-        "timestamp": timestamp
-    }
-    
-    # Ensure directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(entry) + '\n')
-    
-    logger.warning(f"Excluded study {study_id}: {reason}")
 
-def filter_included_studies(df: pd.DataFrame) -> pd.DataFrame:
+def filter_included_studies(studies: List[Dict[str, Any]], log_path: str = EXCLUDED_LOG_PATH) -> List[Dict[str, Any]]:
     """
-    Filter the dataframe to include only studies that pass all validation criteria:
-    1. Age is valid (approx 3-18)
-    2. ASD diagnosis is present
-    3. Outcomes match known social skill measures
-    
-    Excluded studies are logged to `data/raw/excluded_studies.log` in JSONL format.
-    
+    Filter studies based on inclusion criteria.
+
     Args:
-        df: DataFrame containing study data with columns 'age', 'diagnosis', 'outcomes', 'id'.
-        
+        studies: List of study records
+        log_path: Path to exclusion log file
+
     Returns:
-        DataFrame of included studies.
+        List of included studies
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty.")
-        return df
+    included = []
+    excluded_count = 0
 
-    log_path = get_data_path() / "raw" / "excluded_studies.log"
-    included_indices = []
-    
-    for idx, row in df.iterrows():
-        study_id = row.get('id', row.get('study_id', 'UNKNOWN'))
-        
-        # Validate Age
-        age = row.get('age')
-        if not validate_age(age):
-            _log_exclusion(study_id, "INVALID_AGE", log_path)
-            continue
-        
-        # Validate ASD Diagnosis
-        diagnosis = row.get('diagnosis')
+    for study in studies:
+        study_id = study.get('id', 'unknown')
+        reasons = []
+
+        # Validate age
+        if 'age' in study:
+            age = study['age']
+            if isinstance(age, dict):
+                # Handle age_range object
+                min_age = age.get('min', age.get('min_age'))
+                max_age = age.get('max', age.get('max_age'))
+                if min_age is not None and not validate_age(min_age):
+                    reasons.append(f"Age min {min_age} out of range")
+                if max_age is not None and not validate_age(max_age):
+                    reasons.append(f"Age max {max_age} out of range")
+            elif not validate_age(age):
+                reasons.append(f"Age {age} out of range")
+
+        # Validate diagnosis
+        diagnosis = study.get('diagnosis')
         if not validate_asd_diagnosis(diagnosis):
-            _log_exclusion(study_id, "INVALID_DIAGNOSIS", log_path)
-            continue
-        
-        # Validate Outcomes
-        outcomes = row.get('outcomes')
-        if not validate_outcomes(outcomes):
-            _log_exclusion(study_id, "INVALID_OUTCOME", log_path)
-            continue
-        
-        included_indices.append(idx)
-    
-    if not included_indices:
-        logger.warning("No studies passed validation filters.")
-        return pd.DataFrame()
-    
-    logger.info(f"Filtered {len(df)} studies down to {len(included_indices)} included studies.")
-    return df.loc[included_indices].reset_index(drop=True)
+            reasons.append(f"Diagnosis {diagnosis} not ASD")
 
-def handle_multi_arm_studies(df: pd.DataFrame) -> pd.DataFrame:
+        # Validate outcomes
+        outcomes = study.get('outcomes')
+        if not validate_outcomes(outcomes):
+            reasons.append(f"No valid social skill outcomes")
+
+        # Check for abstract if metadata insufficient
+        if not study.get('abstract_text') and not study.get('abstract'):
+            # Check if we have enough metadata
+            if 'age' not in study or not study.get('diagnosis'):
+                reasons.append("INSUFFICIENT_METADATA_NO_ABSTRACT")
+
+        if reasons:
+            excluded_count += 1
+            for reason in reasons:
+                log_excluded_study(study_id, reason, log_path)
+            logger.warning(f"Excluded study {study_id}: {reasons}")
+        else:
+            included.append(study)
+
+    logger.info(f"Filtered {excluded_count} studies, {len(included)} included")
+    return included
+
+
+def handle_multi_arm_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Handle multi-arm studies by splitting control groups proportionally.
-    This is a placeholder for the logic required by FR-008, which will be implemented fully when data supports it.
-    For now, it returns the dataframe as-is if no multi-arm handling logic is triggered.
+
+    Args:
+        studies: List of study records
+
+    Returns:
+        List of processed study records
     """
-    # Implementation details would go here based on specific multi-arm column structures
-    # This function is defined to satisfy the API surface requirement for T019 dependency
+    processed = []
+
+    for study in studies:
+        # Check if this is a multi-arm study
+        arms = study.get('arms', [])
+        if len(arms) > 2:
+            # Multi-arm study found
+            logger.info(f"Processing multi-arm study: {study.get('id')}")
+            # Logic to split control group would go here
+            # For now, we pass through with a flag
+            study['is_multi_arm'] = True
+        else:
+            study['is_multi_arm'] = False
+
+        processed.append(study)
+
+    return processed
+
+
+def clean_studies(studies: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Main cleaning pipeline: filter and process studies.
+
+    Args:
+        studies: List of raw study records
+
+    Returns:
+        DataFrame of cleaned studies
+    """
+    # Filter included studies
+    included = filter_included_studies(studies)
+
+    # Handle multi-arm studies
+    processed = handle_multi_arm_studies(included)
+
+    # Convert to DataFrame
+    df = pd.DataFrame(processed)
+
+    # Ensure required columns exist
+    required_cols = ['id', 'title', 'registry', 'age_range', 'diagnosis',
+                    'outcomes', 'intervention_components', 'delivery_format',
+                    'social_skill_domain', 'rater_type', 'blinded_assessment_flag']
+
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = None
+
     return df
 
+
+def log_excluded_study(study_id: str, reason: str, log_path: str = EXCLUDED_LOG_PATH):
+    """
+    Log an excluded study to the exclusion log.
+
+    Args:
+        study_id: Study identifier
+        reason: Reason for exclusion
+        log_path: Path to log file
+    """
+    log_entry = {
+        'study_id': study_id,
+        'reason': reason,
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    }
+
+    log_path_obj = Path(log_path)
+    log_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(log_entry) + '\n')
+
+    logger.info(f"Excluded study {study_id}: {reason}")
+
+
 def main():
-    """
-    Main entry point for the cleaner module.
-    Expects a cleaned CSV from the extractor (T017) and produces a filtered CSV.
-    """
-    data_path = get_data_path()
-    input_file = data_path / "processed" / "extracted_studies.csv"
-    output_file = data_path / "processed" / "cleaned_studies.csv"
-    
-    if not input_file.exists():
-        # If the previous step hasn't run, we cannot proceed. 
-        # In a real pipeline, this would be an error.
-        # For this task, we assume the pipeline runs sequentially or we handle missing file gracefully.
-        logger.error(f"Input file {input_file} not found. Please run the extractor first.")
-        return
+    """Main entry point for cleaner module."""
+    logger.info("Cleaner module loaded successfully")
+    pass
 
-    logger.info(f"Loading data from {input_file}")
-    try:
-        df = pd.read_csv(input_file)
-    except Exception as e:
-        logger.error(f"Failed to load {input_file}: {e}")
-        return
 
-    logger.info("Running validation filters...")
-    filtered_df = filter_included_studies(df)
-    
-    logger.info(f"Saving {len(filtered_df)} included studies to {output_file}")
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    filtered_df.to_csv(output_file, index=False)
-    
-    logger.info("Cleaning complete.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

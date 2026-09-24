@@ -1,3 +1,9 @@
+"""
+Data extraction module for US1.
+Implements extraction of intervention components, delivery formats, blinding status,
+and social skill domains from registry metadata.
+"""
+
 import logging
 import os
 import re
@@ -6,222 +12,253 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from code.utils.logging import get_logger
-from code.data.models import Study
 
-# Initialize logger
 logger = get_logger(__name__)
 
-# Constants for paths
-EXCLUDED_LOG_PATH = Path("data/raw/excluded_studies.log")
+# Constants for extraction patterns
+MINDFULNESS_COMPONENTS = {
+    'breathing': r'\bbreathing\b',
+    'body scan': r'\bbody\s+scan\b',
+    'mindful movement': r'\bmindful\s+movement\b',
+    'mindful eating': r'\bmindful\s+eating\b'
+}
 
-def extract_intervention_components(description: str, abstract: Optional[str] = None) -> List[str]:
-    """
-    Extract mindfulness intervention components from description and abstract.
-    Logic: Scan 'description' and 'abstract' fields using case-insensitive, whole-word regex.
-    Patterns: 'breathing', 'body scan', 'mindful movement', 'mindful eating'.
-    """
-    components = []
-    text_to_scan = f"{description or ''} {abstract or ''}"
-    patterns = [
-        r'\bbreathing\b',
-        r'\bbody\s+scan\b',
-        r'\bmindful\s+movement\b',
-        r'\bmindful\s+eating\b'
-    ]
-    for pattern in patterns:
-        if re.search(pattern, text_to_scan, re.IGNORECASE):
-            # Normalize component name
-            component_name = pattern.replace(r'\b', '').replace(r'\s+', ' ').strip()
-            if component_name not in components:
-                components.append(component_name)
-    return components
+SOCIAL_SKILL_DOMAINS = {
+    'communication': [r'\bspeech\b', r'\blanguage\b', r'\bverbal\b', r'\bnon-verbal\b'],
+    'peer interaction': [r'\bpeer\b', r'\bsocial\b', r'\bgroup\b', r'\bplay\b'],
+    'emotional regulation': [r'\bemotion\b', r'\baffect\b', r'\bregulation\b', r'\btantrum\b']
+}
 
-def extract_delivery_format(description: str, abstract: Optional[str] = None) -> str:
+DELIVERY_FORMATS = ['caregiver-mediated', 'child-led', 'mixed', 'not-reported']
+
+BLINDING_STATUSES = ['blinded', 'unblinded', 'mixed', 'unknown']
+
+
+def extract_intervention_components(text: Optional[str]) -> List[str]:
     """
-    Extract delivery format from description and abstract.
-    Returns one of: caregiver-mediated, child-led, mixed, not-reported.
+    Extract mindfulness intervention components from text.
+    Uses case-insensitive, whole-word regex patterns.
+
+    Args:
+        text: Text to search (description or abstract)
+
+    Returns:
+        List of detected components
     """
-    text_to_scan = f"{description or ''} {abstract or ''}".lower()
-    
-    caregiver_indicators = ['caregiver', 'parent', 'family', 'mediated by parent', 'mediated by caregiver']
-    child_indicators = ['child-led', 'self-led', 'autonomous', 'independent practice']
-    
-    has_caregiver = any(ind in text_to_scan for ind in caregiver_indicators)
-    has_child = any(ind in text_to_scan for ind in child_indicators)
-    
+    if not text:
+        return []
+
+    text_lower = text.lower()
+    detected = []
+
+    for component, pattern in MINDFULNESS_COMPONENTS.items():
+        if re.search(pattern, text_lower):
+            detected.append(component)
+
+    return detected
+
+
+def extract_social_skill_domain(text: Optional[str]) -> str:
+    """
+    Extract social skill domain from text.
+    Assigns first matching domain; if multiple, assigns 'mixed'.
+
+    Args:
+        text: Text to search (description or abstract)
+
+    Returns:
+        One of: communication, peer interaction, emotional regulation, mixed
+    """
+    if not text:
+        return 'not-reported'
+
+    text_lower = text.lower()
+    matched_domains = []
+
+    for domain, patterns in SOCIAL_SKILL_DOMAINS.items():
+        for pattern in patterns:
+            if re.search(pattern, text_lower):
+                if domain not in matched_domains:
+                    matched_domains.append(domain)
+                break
+
+    if len(matched_domains) == 0:
+        return 'not-reported'
+    elif len(matched_domains) == 1:
+        return matched_domains[0]
+    else:
+        return 'mixed'
+
+
+def extract_delivery_format(text: Optional[str]) -> str:
+    """
+    Extract delivery format from text.
+    Looks for keywords indicating caregiver-mediated or child-led.
+
+    Args:
+        text: Text to search (description or abstract)
+
+    Returns:
+        One of: caregiver-mediated, child-led, mixed, not-reported
+    """
+    if not text:
+        return 'not-reported'
+
+    text_lower = text.lower()
+
+    caregiver_keywords = ['caregiver', 'parent', 'family-mediated', 'adult-led']
+    child_keywords = ['child-led', 'self-directed', 'peer-led']
+
+    has_caregiver = any(kw in text_lower for kw in caregiver_keywords)
+    has_child = any(kw in text_lower for kw in child_keywords)
+
     if has_caregiver and has_child:
-        return "mixed"
+        return 'mixed'
     elif has_caregiver:
-        return "caregiver-mediated"
+        return 'caregiver-mediated'
     elif has_child:
-        return "child-led"
+        return 'child-led'
     else:
-        return "not-reported"
+        return 'not-reported'
 
-def extract_blinding_status(description: str, abstract: Optional[str] = None) -> str:
-    """
-    Extract blinding status from description and abstract.
-    """
-    text_to_scan = f"{description or ''} {abstract or ''}".lower()
-    if 'single-blind' in text_to_scan or 'single blind' in text_to_scan:
-        return "single-blind"
-    elif 'double-blind' in text_to_scan or 'double blind' in text_to_scan:
-        return "double-blind"
-    else:
-        return "not-reported"
 
-def extract_social_skill_domain(description: str, abstract: Optional[str] = None) -> str:
+def extract_blinding_status(record: Dict[str, Any]) -> tuple:
     """
-    Extract social skill domain from description and abstract.
-    Domains: communication, peer interaction, emotional regulation, mixed.
-    """
-    text_to_scan = f"{description or ''} {abstract or ''}".lower()
-    
-    domain_patterns = {
-        'communication': ['speech', 'language', 'verbal', 'non-verbal'],
-        'peer interaction': ['peer', 'social', 'group', 'play'],
-        'emotional regulation': ['emotion', 'affect', 'regulation', 'tantrum']
-    }
-    
-    matches = []
-    for domain, keywords in domain_patterns.items():
-        if any(kw in text_to_scan for kw in keywords):
-            matches.append(domain)
-    
-    if len(matches) == 0:
-        return "not-reported"
-    elif len(matches) == 1:
-        return matches[0]
-    else:
-        return "mixed"
+    Extract rater blinding status from registry metadata.
 
-def extract_study_metadata(study_data: Dict[str, Any]) -> Dict[str, Any]:
+    Logic:
+    - Check for explicit 'rater_type' field: values 'blinded', 'unblinded', 'mixed'
+    - Check for 'blinded_assessment_flag': boolean
+    - If both primary (unblinded) and secondary (blinded) outcomes exist, flag as 'mixed'
+    - Default to 'unknown' if no information found
+
+    Args:
+        record: Registry metadata dictionary
+
+    Returns:
+        Tuple of (rater_type, blinded_assessment_flag)
     """
-    Extract standard metadata fields from raw study data dictionary.
+    rater_type = 'unknown'
+    blinded_flag = None
+
+    # Check explicit rater_type field
+    if 'rater_type' in record:
+        rater_val = record['rater_type'].lower()
+        if rater_val in ['blinded', 'unblinded', 'mixed']:
+            rater_type = rater_val
+
+    # Check blinded_assessment_flag
+    if 'blinded_assessment_flag' in record:
+        blinded_flag = bool(record['blinded_assessment_flag'])
+
+    # If we have both fields, reconcile
+    if rater_type != 'unknown' and blinded_flag is not None:
+        if rater_type == 'mixed':
+            pass  # Already mixed
+        elif rater_type == 'blinded' and not blinded_flag:
+            rater_type = 'mixed'
+        elif rater_type == 'unblinded' and blinded_flag:
+            rater_type = 'mixed'
+    elif rater_type == 'unknown' and blinded_flag is not None:
+        rater_type = 'blinded' if blinded_flag else 'unblinded'
+
+    return rater_type, blinded_flag
+
+
+def extract_study_metadata(record: Dict[str, Any]) -> Dict[str, Any]:
     """
+    Extract all metadata fields for a study record.
+
+    Args:
+        record: Raw registry record
+
+    Returns:
+        Dictionary with extracted fields
+    """
+    # Combine description and abstract for text extraction
+    text_content = ''
+    if 'description' in record:
+        text_content += ' ' + str(record['description'])
+    if 'abstract' in record:
+        text_content += ' ' + str(record['abstract'])
+
     return {
-        'id': study_data.get('NCTId') or study_data.get('id', 'UNKNOWN'),
-        'title': study_data.get('BriefTitle') or study_data.get('Title', ''),
-        'registry': study_data.get('source', 'ClinicalTrials.gov'),
-        'age_range': study_data.get('AgeRange', study_data.get('Ages', '')),
-        'diagnosis': study_data.get('Condition', ''),
-        'outcomes': study_data.get('Outcome', ''),
-        'description': study_data.get('OverallOfficial', '') or study_data.get('Description', ''),
-        'abstract_text': study_data.get('BriefSummary', study_data.get('Abstract', ''))
+        'intervention_components': extract_intervention_components(text_content),
+        'social_skill_domain': extract_social_skill_domain(text_content),
+        'delivery_format': extract_delivery_format(text_content),
+        'abstract_text': record.get('abstract', None)
     }
 
-def extract_abstract_from_pdf(pdf_path: Path) -> Optional[str]:
-    """
-    Attempt to extract abstract text from a PDF file.
-    NOTE: T020 explicitly forbids PDF reconstruction if metadata is insufficient.
-    This function is a placeholder to satisfy the API surface but should not be
-    invoked for the primary fallback logic described in T020.
-    """
-    logger.warning("PDF extraction is not implemented per T020 constraints (no PDF reconstruction).")
-    return None
 
-def log_excluded_study(study_id: str, reason: str) -> None:
+def extract_blinding_status_from_record(record: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Log an excluded study to the JSONL excluded_studies.log file.
-    Format: {study_id: str, reason: str, timestamp: str}
+    Extract blinding-specific fields from a record.
+
+    Args:
+        record: Raw registry record
+
+    Returns:
+        Dictionary with rater_type and blinded_assessment_flag
     """
-    EXCLUDED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).isoformat()
-    entry = {
-        "study_id": study_id,
-        "reason": reason,
-        "timestamp": timestamp
+    rater_type, blinded_flag = extract_blinding_status(record)
+    return {
+        'rater_type': rater_type,
+        'blinded_assessment_flag': blinded_flag
     }
-    
-    with open(EXCLUDED_LOG_PATH, 'a', encoding='utf-8') as f:
-        f.write(f"{entry}\n")
-    
+
+
+def process_studies_with_fallback(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Process a list of study records, extracting all metadata and blinding status.
+
+    Args:
+        studies: List of raw registry records
+
+    Returns:
+        List of enriched study dictionaries
+    """
+    processed = []
+    for study in studies:
+        enriched = dict(study)
+        metadata = extract_study_metadata(study)
+        blinding = extract_blinding_status_from_record(study)
+        enriched.update(metadata)
+        enriched.update(blinding)
+        processed.append(enriched)
+
+    return processed
+
+
+def log_excluded_study(study_id: str, reason: str, log_path: str):
+    """
+    Log an excluded study to the excluded_studies.log file.
+
+    Args:
+        study_id: The study identifier
+        reason: Reason for exclusion
+        log_path: Path to the log file
+    """
+    log_entry = {
+        'study_id': study_id,
+        'reason': reason,
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    }
+
+    log_path_obj = Path(log_path)
+    log_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(f"{log_entry}\n")
+
     logger.info(f"Excluded study {study_id}: {reason}")
 
-def process_studies_with_fallback(studies: List[Dict[str, Any]]) -> List[Study]:
-    """
-    Process a list of raw study dictionaries into Study objects.
-    Implements T020 Abstract-only text extraction fallback.
-    
-    Logic:
-    1. Extract metadata (including abstract).
-    2. If metadata (age, diagnosis) is insufficient to confirm inclusion criteria:
-       - Check if abstract is available.
-       - If abstract is available, use it for further validation (conceptually).
-       - If abstract is NOT available, flag study in excluded_studies.log with reason "INSUFFICIENT_METADATA_NO_ABSTRACT".
-    3. DO NOT attempt PDF reconstruction.
-    """
-    processed_studies = []
-    
-    for raw_study in studies:
-        metadata = extract_study_metadata(raw_study)
-        study_id = metadata['id']
-        description = metadata['description']
-        abstract_text = metadata['abstract_text']
-        
-        # Check inclusion criteria (simplified check for age/diagnosis presence)
-        # In a real scenario, this would involve parsing age ranges and diagnosis strings.
-        # Here we assume if age_range or diagnosis is empty/missing, criteria are insufficient.
-        age_sufficient = bool(metadata['age_range'])
-        diagnosis_sufficient = bool(metadata['diagnosis'])
-        
-        if not age_sufficient or not diagnosis_sufficient:
-            # Metadata insufficient
-            if abstract_text:
-                # Abstract available: use it for further validation.
-                # For this implementation, we assume the abstract might contain the missing info.
-                # We proceed but note that in a real pipeline, we'd re-scan the abstract.
-                # If the abstract also fails validation, it would be caught by downstream validation.
-                # For T020, the key is that we have the abstract, so we don't exclude yet.
-                # We update the metadata with abstract for downstream use.
-                metadata['abstract_text'] = abstract_text
-                logger.info(f"Study {study_id}: Metadata insufficient, but abstract available for validation.")
-                # We proceed to create the study object, assuming the abstract might save it.
-                # If downstream validation fails, it will be excluded there.
-                # However, if the task implies immediate exclusion if abstract doesn't solve it,
-                # we would need more logic. The prompt says: "if abstract is available, use it for further validation".
-                # It does not explicitly say to exclude if abstract is available but validation still fails.
-                # It says: "if not [abstract available], flag the study...".
-                # So if abstract IS available, we do NOT flag here.
-                pass
-            else:
-                # No abstract available
-                log_excluded_study(study_id, "INSUFFICIENT_METADATA_NO_ABSTRACT")
-                continue # Skip this study
-        
-        # Extract other fields
-        intervention_components = extract_intervention_components(description, abstract_text)
-        delivery_format = extract_delivery_format(description, abstract_text)
-        blinding_status = extract_blinding_status(description, abstract_text)
-        social_skill_domain = extract_social_skill_domain(description, abstract_text)
-        
-        study = Study(
-            id=study_id,
-            title=metadata['title'],
-            registry=metadata['registry'],
-            age_range=metadata['age_range'],
-            diagnosis=metadata['diagnosis'],
-            outcomes=metadata['outcomes'],
-            intervention_components=intervention_components,
-            delivery_format=delivery_format,
-            social_skill_domain=social_skill_domain,
-            blinding_status=blinding_status,
-            abstract_text=abstract_text
-        )
-        processed_studies.append(study)
-        
-    return processed_studies
 
 def main():
-    """
-    Entry point for the extractor module.
-    Primarily used for testing or as a component in the pipeline.
-    """
-    logger.info("Extractor module loaded.")
-    # Example usage would be integrated into the pipeline
-    # studies = collector.fetch_studies()
-    # processed = process_studies_with_fallback(studies)
-    # cleaner.filter_included_studies(processed)
+    """Main entry point for extraction module (testing/debugging)."""
+    logger.info("Extraction module loaded successfully")
+    # Example usage would be in the pipeline context
+    pass
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

@@ -171,3 +171,161 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-13T13:59:17Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Mock registry response contains 3 records
+  claim_id: c_95b31081
+  context: 'T015b [P] [US1] **Create Mock Data Generator**: Generate `data/raw/mock_registry_response.json`
+    containing exactly 3 records'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate `data/raw/mock_registry_response.json` containing exactly 3 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:44:12Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Mock blinded response contains 2 records
+  claim_id: c_4711d369
+  context: 'T015c [P] [US1] **Create Blinding Mock Data**: Generate `data/raw/mock_blinded_response.json`
+    containing 2 records derived from Record 1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate `data/raw/mock_blinded_response.json` containing 2 records derived
+    from Record 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:44:55Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Simulated unblinded effect size 0.5 vs blinded 0.1
+  claim_id: c_2a832c0f
+  context: 'T027b [P] [US2] **Unit test for Blinding Bias Detection**: Create `tests/unit/test_blinding_bias.py`.
+    **Logic: Simulate a dataset where ''unblinded'' studies show a 0.5 effect size
+    and ''blinded'' studies show a 0.1 effect size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a dataset where 'unblinded' studies show a 0.5 effect size and
+    'blinded' studies show a 0.1 effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:45:36Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Whitelist includes SRS-2, ABC, SSIS, PEP-3
+  claim_id: c_bbc6cd07
+  context: 'T018 [US1] depends on T007, T016: Implement data cleaner in `code/data/cleaner.py`
+    (FR-007) to validate age **6-12 (per US1 in spec.md)**, ASD diagnosis, and social
+    skill outcomes. **Logic: Validate `outcomes` field against a whitelist of known
+    social skill measures (e.g., ''SRS-2'', ''ABC'', ''SSIS'', ''PEP-3'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate `outcomes` field against a whitelist of known social skill measures
+    (e.g., 'SRS-2', 'ABC', 'SSIS', 'PEP-3').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:45:54Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: API backoff max 30s
+  claim_id: c_d8742f60
+  context: 'T016 [US1] depends on T007, T015b: Implement API collector in `code/data/collector.py`
+    (FR-001, FR-002) with rate-limiting (requests per minute per API) and exponential
+    backoff (base s, max 30s) for **ClinicalTrials.gov and OSF ONLY**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_backoff_max_30s
+  kind: entity_fact
+  raw_text: Exponential backoff base s, max 30s for ClinicalTrials.gov and OSF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:46:21Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Blinding bias calculation requires 3 blinded and 3 unblinded studies
+  claim_id: c_659e887e
+  context: 'T033b [US2] depends on T022, T028, T030: **Implement Blinding Bias Quantification**:
+    Extend `code/analysis/meta_analysis.py` to perform a specific subgroup analysis
+    comparing `blinded_assessment_flag = true` vs `false`. **Logic: If N(blinded)
+    >= 3 and N(unblinded) >= 3, calculate the difference in pooled effect sizes between
+    the two groups.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N(blinded) >= 3 and N(unblinded) >= 3, calculate the difference in
+    pooled effect sizes between the two groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:46:41Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Funnel plot suppression threshold 10 studies
+  claim_id: c_d588a3c0
+  context: 'T040 [US3] depends on T039: Implement conditional logic to suppress funnel
+    plot/Egger''s test if N < 10 and add warning to report (FR-014)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Suppress funnel plot and Egger's test if N < 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:46:42Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Funnel plot generation threshold 10 studies
+  claim_id: c_c8a4c7a6
+  context: "T038 [US3] depends on T028-T033: Implement funnel plot generator in `code/viz/plots.py`\
+    \ (FR-006) with asymmetry visual cues (only if N \u2265 10)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate `data/processed/funnel_plot.png` only if N \u2265 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:46:42Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Subgroup analysis suppression threshold 10 studies
+  claim_id: c_ddd5dc3b
+  context: 'T033 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T028,
+    T029, T007: Implement conditional logic to suppress subgroup/meta-regression if
+    N < 10 and switch to descriptive synthesis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to descriptive synthesis if N < 10 for subgroup analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:46:42Z'

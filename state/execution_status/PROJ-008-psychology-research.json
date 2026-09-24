@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-008-psychology-research",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/descriptive_synthesis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026synthesis.     \"\"\"     # Mock data for testing     class Mo\u2026\u201d; 4 command(s) failed: python code/data/collector.py --start-year 2015 --end-year 2024 (rc=1); python code/data/cleaner.py --input data/raw/ --output data/processed/ (rc=1); python code/analysis/effect_sizes.py --input data/processed/clean_studies.csv --output data/processed/effect_sizes.csv (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_studies.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/collector.py --start-year 2015 --end-year 2024 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/data/collector.py\", line 14, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/data/cleaner.py --input data/raw/ --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/data/cleaner.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/analysis/effect_sizes.py --input data/processed/clean_studies.csv --output data/processed/effect_sizes.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/analysis/effect_sizes.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --output data/processed/results.json --plots-dir viz/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/analysis/meta_analysis.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-24T01:38:32Z"
+}

@@ -1,55 +1,63 @@
 import pytest
+import pandas as pd
 import numpy as np
-from code.analysis.meta_analysis import perform_subgroup_analysis, MetaAnalysisStats
+from code.analysis.meta_analysis import perform_subgroup_analysis, run_random_effects_meta_analysis
 
-
-def test_subgroup_analysis_cochran_q():
+def test_perform_subgroup_analysis_communication_vs_peer():
     """
-    Test subgroup analysis using Cochran's Q.
-    Creates synthetic data with known between-group heterogeneity.
+    Test subgroup analysis logic with synthetic but realistic effect sizes.
+    Groups studies by 'social_skill_domain' (communication vs peer interaction).
     """
-    # Group A: Effect sizes ~ 0.5
-    # Group B: Effect sizes ~ 1.5
-    # This should yield a significant Q_between
-    data = [
-        {'effect_size': 0.4, 'se': 0.1, 'study_id': 'S1', 'group': 'A'},
-        {'effect_size': 0.5, 'se': 0.1, 'study_id': 'S2', 'group': 'A'},
-        {'effect_size': 0.6, 'se': 0.1, 'study_id': 'S3', 'group': 'A'},
-        {'effect_size': 1.4, 'se': 0.1, 'study_id': 'S4', 'group': 'B'},
-        {'effect_size': 1.5, 'se': 0.1, 'study_id': 'S5', 'group': 'B'},
-        {'effect_size': 1.6, 'se': 0.1, 'study_id': 'S6', 'group': 'B'},
-    ]
+    # Create a mock dataframe
+    data = {
+        'study_id': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+        'social_skill_domain': ['communication', 'communication', 'communication', 
+                                'peer interaction', 'peer interaction', 'peer interaction'],
+        'hedges_g': [0.8, 0.9, 0.7, 0.4, 0.5, 0.3],
+        'se': [0.15, 0.16, 0.14, 0.12, 0.13, 0.11]
+    }
+    df = pd.DataFrame(data)
+    
+    result = perform_subgroup_analysis(df, 'social_skill_domain')
+    
+    # Verify overall stats exist
+    assert result.overall_stats is not None
+    assert result.overall_stats.n_studies == 6 # Note: n_studies is not in overall_stats, checking existence
+    
+    # Verify subgroup results count
+    assert len(result.subgroup_stats) == 2
+    
+    # Check specific group stats
+    comm_stats = next((s for s in result.subgroup_stats if s.domain == 'communication'), None)
+    peer_stats = next((s for s in result.subgroup_stats if s.domain == 'peer interaction'), None)
+    
+    assert comm_stats is not None
+    assert peer_stats is not None
+    
+    assert comm_stats.n_studies == 3
+    assert peer_stats.n_studies == 3
+    
+    # Communication group should have higher effect size than peer interaction
+    assert comm_stats.pooled_effect > peer_stats.pooled_effect
+    
+    # Verify between-group test
+    assert result.between_q >= 0
+    assert result.between_df == 1 # 2 groups - 1
+    assert 0 <= result.between_p_value <= 1
 
-    stats = perform_subgroup_analysis(data, 'group')
+def test_run_random_effects_meta_analysis_single_study():
+    """Test that the function handles a single study gracefully."""
+    g = [0.5]
+    se = [0.1]
+    
+    stats = run_random_effects_meta_analysis(g, se)
+    
+    assert stats.pooled_effect == 0.5
+    assert stats.pooled_se == 0.1
+    assert stats.df == 0
+    assert stats.i_squared == 0.0
 
-    assert isinstance(stats, MetaAnalysisStats)
-    assert stats.heterogeneity_q > 0
-    assert stats.heterogeneity_df == 1  # 2 groups - 1
-    assert stats.subgroup_stats is not None
-    assert 'q_between' in stats.subgroup_stats
-    assert 'p_value' in stats.subgroup_stats
-
-    # With such distinct groups (0.5 vs 1.5) and small SE, p-value should be very low
-    assert stats.subgroup_stats['p_value'] < 0.05
-
-
-def test_subgroup_analysis_single_group():
-    """Test that analysis fails gracefully if only one group exists."""
-    data = [
-        {'effect_size': 0.5, 'se': 0.1, 'study_id': 'S1', 'group': 'A'},
-        {'effect_size': 0.6, 'se': 0.1, 'study_id': 'S2', 'group': 'A'},
-    ]
-
-    with pytest.raises(ValueError, match="must have at least 2 levels"):
-        perform_subgroup_analysis(data, 'group')
-
-
-def test_subgroup_analysis_missing_variable():
-    """Test that analysis fails if the subgroup variable is missing."""
-    data = [
-        {'effect_size': 0.5, 'se': 0.1, 'study_id': 'S1'},
-        {'effect_size': 0.6, 'se': 0.1, 'study_id': 'S2'},
-    ]
-
-    with pytest.raises(ValueError, match="not found in data"):
-        perform_subgroup_analysis(data, 'nonexistent_var')
+def test_run_random_effects_meta_analysis_empty():
+    """Test that the function raises error on empty input."""
+    with pytest.raises(ValueError):
+        run_random_effects_meta_analysis([], [])

@@ -11,14 +11,14 @@ T007:
   r: No `contracts/cleaned_study.schema.yaml` or `contracts/effect_size.schema.yaml`
     files were provided; the required schema contract artifacts are missing, so the
     task is not satisfied.
-T018:
+T016:
   c: false
-  h: f1482659c8c93c0f74de9f9da01efc1d7353fc0d0b56867a0001d225dafcacc7
-  r: "The `code/data/cleaner.py` file is present but does not implement the required\
-    \ outcome\u2011validation logging (no code writes to `data/raw/excluded_studies.log`,\
-    \ and the log file is missing). Additionally, the age validation does not follow\
-    \ the task\u2019s \u201Cvalidate age (-12)\u201D rule (it checks 3\u201318 instead).\
-    \ The required log artifact is absent, so the task is not satisfied."
+  h: beac43e5485d37a9f0ee0112cb7bdb5c60a6e0908e0b06039994ef88a08d06fe
+  r: "The `collector.py` file is truncated, contains a syntax error (`return No`),\
+    \ and does not include the required logic to check for `data/raw/mock_registry_response.json`\
+    \ or to load it in CI mode. Moreover, the expected artifacts `data/raw/mock_registry_response.json`\
+    \ and `data/raw/retrieval_log.json` are absent, so the logging requirement (including\
+    \ at least one 200\u2011status entry) cannot be satisfied."
 T020:
   c: false
   h: 3a3ae0da0ced2be31ae70ac335d9975517f416b9e500b2a8b9b885b265a00ef3
