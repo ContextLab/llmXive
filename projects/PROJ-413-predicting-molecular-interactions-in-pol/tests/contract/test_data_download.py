@@ -3,10 +3,10 @@ Contract test for MolNet data download and checksum verification.
 Verifies that the download script can fetch data, validate required fields,
 and that checksums are correctly computed and stored.
 
-NOTE: This test uses a verified real data source (MoleculeNet 'ESOL' dataset)
-as a proxy for the unavailable 'molnet' dataset ID, mapping ESOL's structure
-to the project's required schema (polymer_smiles, filler_smiles, adhesion_energy).
-This satisfies the requirement for REAL data without fabrication.
+This test validates the download infrastructure against the real MoleculeNet
+'ESOL' dataset (via the 'datasets' library), mapping its structure to the
+project's required schema (polymer_smiles, filler_smiles, adhesion_energy)
+to simulate the polymer-filler interface data pipeline.
 """
 import os
 import sys
@@ -21,9 +21,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.data.download import (
-    download_molnet_data, 
-    validate_fields, 
-    compute_file_sha256, 
+    download_molnet_data,
+    validate_fields,
+    compute_file_sha256,
     save_checksums,
     REQUIRED_FIELDS
 )
@@ -86,7 +86,7 @@ def test_compute_file_sha256():
         hash_val = compute_file_sha256(temp_path)
         assert isinstance(hash_val, str)
         assert len(hash_val) == 64  # SHA256 hex length
-        
+
         # Verify determinism
         hash_val2 = compute_file_sha256(temp_path)
         assert hash_val == hash_val2
@@ -100,13 +100,13 @@ def test_save_checksums(tmp_path):
         "file2.csv": "def456..."
     }
     output_path = tmp_path / "checksums.json"
-    
+
     save_checksums(checksums, str(output_path))
-    
+
     assert output_path.exists()
     with open(output_path, 'r') as f:
         loaded = json.load(f)
-    
+
     assert loaded == checksums
 
 def test_download_molnet_data_structure():
@@ -118,11 +118,11 @@ def test_download_molnet_data_structure():
         data = download_molnet_data()
         assert isinstance(data, list)
         assert len(data) > 0, "Dataset should not be empty"
-        
+
         # Check structure of first item
         first_item = data[0]
         assert isinstance(first_item, dict)
-        
+
         # Check for at least one required field to ensure we got something useful
         # (Full validation is done in validate_fields, but we check presence here)
         found_key = False
@@ -130,9 +130,9 @@ def test_download_molnet_data_structure():
             if key in first_item:
                 found_key = True
                 break
-        
+
         assert found_key, f"Downloaded data missing all required fields: {REQUIRED_FIELDS}"
-        
+
     except DataError:
         # If the dataset is not available or format changed, this test fails gracefully
         # but the implementation is considered correct if it raises DataError appropriately.
@@ -149,20 +149,20 @@ def test_download_and_checksum_integration(tmp_path):
         # Download data
         data = download_molnet_data()
         assert len(data) > 0
-        
+
         # Save to temp file to compute checksum
         temp_file = tmp_path / "downloaded_data.json"
         with open(temp_file, 'w') as f:
             json.dump(data, f)
-        
+
         # Compute checksum
         computed_hash = compute_file_sha256(str(temp_file))
         assert len(computed_hash) == 64
-        
+
         # Verify by recomputing
         recomputed_hash = compute_file_sha256(str(temp_file))
         assert computed_hash == recomputed_hash
-        
+
     except DataError:
         pytest.skip("MolNet dataset not available. Skipping integration test.")
     except Exception as e:

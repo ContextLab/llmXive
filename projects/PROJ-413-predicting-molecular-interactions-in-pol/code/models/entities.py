@@ -40,16 +40,17 @@ class MolecularGraph:
             raise TypeError("edge_index must be a numpy array")
         if self.edge_index.shape[0] != 2:
             raise ValueError("edge_index must have shape (2, num_edges)")
-        if len(self.node_features) != len(self.node_attributes):
-            # Allow empty attributes if not provided, but if provided, must match node count
-            if len(self.node_attributes) > 0:
-                raise ValueError("node_attributes length must match number of nodes")
+        
+        num_nodes = len(self.node_features)
+        if len(self.node_attributes) > 0 and len(self.node_attributes) != num_nodes:
+            raise ValueError(f"node_attributes length ({len(self.node_attributes)}) must match number of nodes ({num_nodes})")
+        
         if self.edge_features is not None:
-            if len(self.edge_features) != self.edge_index.shape[1]:
-                raise ValueError("edge_features length must match number of edges")
-            if len(self.edge_features) != len(self.edge_attributes):
-                if len(self.edge_attributes) > 0:
-                    raise ValueError("edge_attributes length must match number of edges")
+            num_edges = self.edge_index.shape[1]
+            if len(self.edge_features) != num_edges:
+                raise ValueError(f"edge_features length ({len(self.edge_features)}) must match number of edges ({num_edges})")
+            if len(self.edge_attributes) > 0 and len(self.edge_attributes) != num_edges:
+                raise ValueError(f"edge_attributes length ({len(self.edge_attributes)}) must match number of edges ({num_edges})")
 
 
 @dataclass

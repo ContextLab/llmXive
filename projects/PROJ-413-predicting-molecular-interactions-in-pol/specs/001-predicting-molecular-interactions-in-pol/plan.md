@@ -93,7 +93,7 @@ projects/PROJ-413-predicting-molecular-interactions-in-pol/
 
 1. **Permutation Test** (`analysis/perm_test.py`):  
    - **Methodology**: Full re-training of the GAT on **permuted labels** (not frozen model evaluation) to establish a valid null distribution.  
-   - **Feasibility**: Reduced to **A fixed number of iterations sufficient for convergence will be employed.** on a **reduced subset (100 samples)** for **10 epochs** per iteration. Total epochs = 1000. This fits the -hour limit.  
+   - **Feasibility**: Reduced to **A fixed number of iterations sufficient for convergence will be employed.** on a **reduced subset (a sample of manageable size)** for **10 epochs** per iteration. Total epochs = 1000. This fits the -hour limit.  
    - Compute observed MSE from the full‑data trained model; p‑value = proportion of permuted MSE ≤ observed MSE.  
 
 2. **Multiple‑Comparison Correction**:  

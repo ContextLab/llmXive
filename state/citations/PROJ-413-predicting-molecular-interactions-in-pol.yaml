@@ -1,4 +1,4 @@
-- artifact_hash: 77fec449ed4fa2d8276b5518c86dc93429a56e0dd29de38e7db3b2fa1fba6dbb
+- artifact_hash: bc01ed9efd4eded3a56438cc36b66a38e3ea720c166c2f30abda56b4d7b16460
   artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-09-21T06:57:09.691740Z'
+  verified_at: '2026-09-24T22:09:22.368427Z'
