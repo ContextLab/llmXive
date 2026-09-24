@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-29T21:49:37Z",
+  "fetched_at": "2026-09-24T12:38:46Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation\"",
       "target_n": 5
     },
-    "duration_seconds": 223.045,
-    "ended_at": "2026-08-29T21:49:37Z",
+    "duration_seconds": 38.662,
+    "ended_at": "2026-09-24T12:38:46Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "embodied AI world models in dynamic environments"
+          "embodied AI world models for robotics"
         ],
         [
           3,
-          "spatiotemporal representation learning for robotics"
+          "dynamic scene reconstruction for robot control"
         ],
         [
           4,
-          "4D scene understanding for robotic control"
+          "spatiotemporal generative models for manipulation"
         ],
         [
           5,
-          "neural 4D reconstruction for robot planning"
+          "video prediction models for robotic tasks"
         ],
         [
           6,
-          "video-based world models for embodied agents"
+          "3D+time neural scene representations"
         ],
         [
           7,
-          "dynamic scene modeling for robotic manipulation tasks"
+          "foundation models for embodied manipulation"
         ],
         [
           8,
-          "4D Gaussian splatting for robot interaction"
+          "generative world models for robot planning"
         ],
         [
           9,
-          "neural radiance fields for temporal robotic prediction"
+          "multi-view 4D reconstruction in robotics"
         ],
         [
           10,
-          "predictive world models for physical robot tasks"
+          "neural radiance fields for dynamic manipulation"
         ],
         [
           11,
-          "long-horizon robotic planning with 4D environments"
+          "sim-to-real transfer with generative world models"
         ],
         [
           12,
-          "real-time 4D perception for embodied manipulation"
+          "video-based policy learning for robotics"
         ],
         [
           13,
-          "generative 4D models for robot policy learning"
+          "4D semantic scene understanding for robots"
         ],
         [
           14,
-          "spatiotemporal transformer architectures for robotics"
+          "predictive modeling of physical interactions"
         ],
         [
           15,
-          "4D neural fields for dynamic object manipulation"
+          "diffusion models for robotic world simulation"
         ],
         [
           16,
-          "video prediction models for robotic control systems"
+          "embodied vision-language-action models"
         ],
         [
           17,
-          "embodied vision-language-action models with 4D context"
+          "continuous-time scene representation learning"
         ],
         [
           18,
-          "continuous time world models for robot manipulation"
+          "robotic manipulation via generative simulation"
         ],
         [
           19,
-          "4D scene graph generation for robotic tasks"
+          "4D object pose estimation and tracking"
         ],
         [
           20,
-          "dynamic neural representations for embodied AI"
+          "neural implicit representations for dynamic environments"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "world models robot manipulation policy learning",
-      "4D scene reconstruction NeRF Gaussian Splatting",
-      "embodied AI sim-to-real transfer robotic control",
-      "action-conditioned video prediction manipulation benchmarks",
-      "dynamic scene understanding temporal reasoning robotics"
+      "world model generalization embodied AI",
+      "RynnWorld-4D robotic manipulation benchmark",
+      "homophily graph neural networks 4D dynamics",
+      "sample efficiency policy learning manipulation",
+      "training data leakage world model memorization"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2508.13073"
+        "2507.00917"
       ]
     },
     "per_query_hit_count": {
-      "4D scene reconstruction NeRF Gaussian Splatting": 3,
-      "action-conditioned video prediction manipulation benchmarks": 3,
-      "dynamic scene understanding temporal reasoning robotics": 3,
-      "embodied AI sim-to-real transfer robotic control": 3,
+      "RynnWorld-4D robotic manipulation benchmark": 3,
+      "homophily graph neural networks 4D dynamics": 3,
       "llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation\" computer science": 3,
-      "world models robot manipulation policy learning": 3
+      "sample efficiency policy learning manipulation": 3,
+      "training data leakage world model memorization": 3,
+      "world model generalization embodied AI": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-29T21:45:54Z",
+    "started_at": "2026-09-24T12:38:08Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
       "raw": "llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-29T21:47:10Z",
+        "failed_at": "2026-09-24T12:38:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-29T21:47:10Z",
+        "failed_at": "2026-09-24T12:38:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,131 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
-          "claimed_authors": [
-            "Jake Bruce",
-            "Niko Suenderhauf",
-            "Piotr Mirowski",
-            "Raia Hadsell",
-            "Michael Milford"
-          ],
-          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1711.10137"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
-          "claimed_authors": [
-            "Ashwin Balakrishna",
-            "Brijen Thananjeyan",
-            "Jonathan Lee",
-            "Felix Li",
-            "Arsh Zahed",
-            "Joseph E. Gonzalez",
-            "Ken Goldberg"
-          ],
-          "claimed_title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.03423"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='On-Policy Robot Imitation Learning from a Converging Supervisor')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The most data-efficient algorithms for reinforcement learning in robotics are model-based policy search algorithms, which alternate between learning a dynamical model of the robot and optimizing a policy to maximize the expected return given the model and its uncertainties. However, the current algorithms lack an effective exploration strategy to deal with sparse or misleading reward scenarios: if they do not experience any state with a positive reward during the initial random exploration, it is very unlikely to solve the problem. Here, we propose a novel model-based policy search algorithm, Multi-DEX, that leverages a learned dynamical model to efficiently explore the task space and solve tasks with sparse rewards in a few episodes. To achieve this, we frame the policy search problem as a multi-objective, model-based policy optimization problem with three objectives: (1) generate maximally novel state trajectories, (2) maximize the expected return and (3) keep the system in state-space regions for which the model is as accurate as possible. We then optimize these objectives using a Pareto-based multi-objective optimization algorithm. The experiments show that Multi-DEX is able to solve sparse reward scenarios (with a simulated robotic arm) in much lower interaction time than VIME, TRPO, GEP-PG, CMA-ES and Black-DROPS.",
-          "claimed_authors": [
-            "Rituraj Kaushik",
-            "Konstantinos Chatzilygeroudis",
-            "Jean-Baptiste Mouret"
-          ],
-          "claimed_title": "Multi-objective Model-based Policy Search for Data-efficient Learning with Sparse Rewards",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1806.09351"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Multi-objective Model-based Policy Search for Data-efficient Learning with Sparse Rewards')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In March 2020, Neural Radiance Field (NeRF) revolutionized Computer Vision, allowing for implicit, neural network-based scene representation and novel view synthesis. NeRF models have found diverse applications in robotics, urban mapping, autonomous navigation, virtual reality/augmented reality, and more. In August 2023, Gaussian Splatting, a direct competitor to the NeRF-based framework, was proposed, gaining tremendous momentum and overtaking NeRF-based research in terms of interest as the dominant framework for novel view synthesis. We present a comprehensive survey of NeRF papers from the past five years (2020-2025). These include papers from the pre-Gaussian Splatting era, where NeRF dominated the field for novel view synthesis and 3D implicit and hybrid representation neural field learning. We also include works from the post-Gaussian Splatting era where NeRF and implicit/hybrid neural fields found more niche applications.\n  Our survey is organized into architecture and application-based taxonomies in the pre-Gaussian Splatting era, as well as a categorization of active research areas for NeRF, neural field, and implicit/hybrid neural representation methods. We provide an introduction to the theory of NeRF and its training via differentiable volume rendering. We also present a benchmark comparison of the performance and speed of classical NeRF, implicit and hybrid neural representation, and neural field models, and an overview of key datasets.",
-          "claimed_authors": [
-            "Kyle Gao",
-            "Yina Gao",
-            "Hongjie He",
-            "Dening Lu",
-            "Linlin Xu",
-            "Jonathan Li"
-          ],
-          "claimed_title": "NeRF: Neural Radiance Field in 3D Vision: A Comprehensive Review (Updated Post-Gaussian Splatting)",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2210.00379"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='NeRF: Neural Radiance Field in 3D Vision: A Comprehensive Review (Updated Post-Gaussian Splatting)')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent progress in 4D representations, such as Dynamic NeRF and 4D Gaussian Splatting (4DGS), has enabled dynamic 4D scene reconstruction. However, text-driven 4D scene editing remains under-explored due to the challenge of ensuring both multi-view and temporal consistency across space and time during editing. Existing studies rely on 2D diffusion models that edit frames independently, often causing motion distortion, geometric drift, and incomplete editing. We introduce Dynamic-eDiTor, a training-free text-driven 4D editing framework leveraging Multimodal Diffusion Transformer (MM-DiT) and 4DGS. This mechanism consists of Spatio-Temporal Sub-Grid Attention (STGA) for locally consistent cross-view and temporal fusion, and Context Token Propagation (CTP) for global propagation via token inheritance and optical-flow-guided token replacement. Together, these components allow Dynamic-eDiTor to perform seamless, globally consistent multi-view video without additional training and directly optimize pre-trained source 4DGS. Extensive experiments on multi-view video dataset DyNeRF demonstrate that our method achieves superior editing fidelity and both multi-view and temporal consistency prior approaches. Project page for results and code: https://di-lee.github.io/dynamic-eDiTor/",
-          "claimed_authors": [
-            "Dong In Lee",
-            "Hyungjun Doh",
-            "Seunggeun Chi",
-            "Runlin Duan",
-            "Sangpil Kim",
-            "Karthik Ramani"
-          ],
-          "claimed_title": "Dynamic-eDiTor: Training-Free Text-Driven 4D Scene Editing with Multimodal Diffusion Transformer",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.00677"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Dynamic-eDiTor: Training-Free Text-Driven 4D Scene Editing with Multimodal Diffusion Transformer')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Existing dynamic scene reconstruction methods based on Gaussian Splatting enable real-time rendering and generate realistic images. However, adjusting the camera's focal length or the distance between Gaussian primitives and the camera to modify rendering resolution often introduces strong artifacts, stemming from the frequency constraints of 4D Gaussians and Gaussian scale mismatch induced by the 2D dilated filter. To address this, we derive a maximum sampling frequency formulation for 4D Gaussian Splatting and introduce a 4D scale-adaptive filter and scale loss, which flexibly regulates the sampling frequency of 4D Gaussian Splatting. Our approach eliminates high-frequency artifacts under increased rendering frequencies while effectively reducing redundant Gaussians in multi-view video reconstruction. We validate the proposed method through monocular and multi-view video reconstruction experiments.Ours project page: https://4d-alias-free.github.io/4D-Alias-free/",
-          "claimed_authors": [
-            "Zilong Chen",
-            "Huan-ang Gao",
-            "Delin Qu",
-            "Haohan Chi",
-            "Hao Tang",
-            "Kai Zhang",
-            "Hao Zhao"
-          ],
-          "claimed_title": "Alias-free 4D Gaussian Splatting",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.18367"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Alias-free 4D Gaussian Splatting')",
-        "failed_at": "2026-08-29T21:47:10Z",
+        "failed_at": "2026-09-24T12:38:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -340,161 +216,259 @@
           "primary_pointer": "2407.06886"
         },
         "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
-        "failed_at": "2026-08-29T21:47:10Z",
+        "failed_at": "2026-09-24T12:38:35Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Current vision-based robotics simulation benchmarks have significantly advanced robotic manipulation research. However, robotics is fundamentally a real-world problem, and evaluation for real-world applications has lagged behind in evaluating generalist policies. In this paper, we discuss challenges and desiderata in designing benchmarks for generalist robotic manipulation policies for the goal of sim-to-real policy transfer. We propose 1) utilizing high visual-fidelity simulation for improved sim-to-real transfer, 2) evaluating policies by systematically increasing task complexity and scenario perturbation to assess robustness, and 3) quantifying performance alignment between real-world performance and its simulation counterparts.",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) integrates perception, cognition, planning, and interaction into agents that operate in open-world, safety-critical environments. As these systems gain autonomy and enter domains such as transportation, healthcare, and industrial or assistive robotics, ensuring their safety becomes both technically challenging and socially indispensable. Unlike digital AI systems, embodied agents must act under uncertain sensing, incomplete knowledge, and dynamic human-robot interactions, where failures can directly lead to physical harm. This survey provides a comprehensive and structured review of safety research in embodied AI, examining attacks and defenses across the full embodied pipeline, from perception and cognition to planning, action and interaction, and agentic system. We introduce a multi-level taxonomy that unifies fragmented lines of work and connects embodied-specific safety findings with broader advances in vision, language, and multimodal foundation models. Our review synthesizes insights from over 500 papers spanning adversarial, backdoor, jailbreak, and hardware-level attacks; attack detection, safe training and robust inference; and risk-aware human-agent interaction. This analysis reveals several overlooked challenges, including the fragility of multimodal perception fusion, the instability of planning under jailbreak attacks, and the trustworthiness of human-agent interaction in open-ended scenarios. By organizing the field into a coherent framework and identifying critical research gaps, this survey provides a roadmap for building embodied agents that are not only capable and autonomous but also safe, robust, and reliable in real-world deployment.",
           "claimed_authors": [
-            "Xuning Yang",
-            "Clemens Eppner",
-            "Jonathan Tremblay",
-            "Dieter Fox",
-            "Stan Birchfield",
-            "Fabio Ramos"
+            "Xiao Li",
+            "Xiang Zheng",
+            "Yifeng Gao",
+            "Xinyu Xia",
+            "Yixu Wang",
+            "Xin Wang",
+            "Ye Sun",
+            "Yunhan Zhao",
+            "Ming Wen",
+            "Jiayu Li",
+            "Zixing Chen",
+            "Xun Gong",
+            "Yi Liu",
+            "Yige Li",
+            "Yutao Wu",
+            "Cong Wang",
+            "Jun Sun",
+            "Yixin Cao",
+            "Zhineng Chen",
+            "Jingjing Chen",
+            "Tao Gui",
+            "Qi Zhang",
+            "Zuxuan Wu",
+            "Xipeng Qiu",
+            "Xuanjing Huang",
+            "Tiehua Zhang",
+            "Zhipeng Wei",
+            "Kun Wang",
+            "Xinfeng Li",
+            "Hanxun Huang",
+            "Sarah Erfani",
+            "James Bailey",
+            "Jianping Wang",
+            "Chaowei Xiao",
+            "Ran He",
+            "Bo Li",
+            "Xingjun Ma",
+            "Yu-Gang Jiang"
           ],
-          "claimed_title": "Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.11117"
-        },
-        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
-          "claimed_authors": [
-            "Mai Xu",
-            "Chen Li",
-            "Zulin Wang",
-            "Zhenzhong Chen",
-            "Zhenyu Guan"
-          ],
-          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1709.06342"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
-        "failed_at": "2026-08-29T21:47:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The rapid proliferation of user-generated content (UGC) on short-form video platforms has made video engagement prediction increasingly important for optimizing recommendation systems and guiding content creation. However, this task remains challenging due to the complex interplay of factors such as semantic content, visual quality, audio characteristics, and user background. Prior studies have leveraged various types of features from different modalities, such as visual quality, semantic content, background sound, etc., but often struggle to effectively model their cross-feature and cross-modality interactions. In this work, we empirically investigate the potential of large multimodal models (LMMs) for video engagement prediction. We adopt two representative LMMs: VideoLLaMA2, which integrates audio, visual, and language modalities, and Qwen2.5-VL, which models only visual and language modalities. Specifically, VideoLLaMA2 jointly processes key video frames, text-based metadata, and background sound, while Qwen2.5-VL utilizes only key video frames and text-based metadata. Trained on the SnapUGC dataset, both models demonstrate competitive performance against state-of-the-art baselines, showcasing the effectiveness of LMMs in engagement prediction. Notably, VideoLLaMA2 consistently outperforms Qwen2.5-VL, highlighting the importance of audio features in engagement prediction. By ensembling two types of models, our method achieves first place in the ICCV VQualA 2025 EVQA-SnapUGC Challenge on short-form video engagement prediction. The code is available at https://github.com/sunwei925/LMM-EVQA.git.",
-          "claimed_authors": [
-            "Wei Sun",
-            "Linhan Cao",
-            "Yuqin Cao",
-            "Weixia Zhang",
-            "Wen Wen",
-            "Kaiwei Zhang",
-            "Zijian Chen",
-            "Fangfang Lu",
-            "Xiongkuo Min",
-            "Guangtao Zhai"
-          ],
-          "claimed_title": "Engagement Prediction of Short Videos with Large Multimodal Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.02516"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Engagement Prediction of Short Videos with Large Multimodal Models')",
-        "failed_at": "2026-08-29T21:47:11Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present Xiaomi-Robotics-1, a foundational vision-language-action (VLA) model capable of (1) following diverse language instructions to perform a wide range of mobile manipulation tasks in unseen environments out-of-the-box, and (2) efficiently adapting to novel downstream tasks with minimal fine-tuning data. We propose a two-stage training recipe consisting of pre-training and post-training. During pre-training, we imbue the model with broad and generalizable action-generation capabilities by training on over 100k hours of real-world manipulation trajectories collected via UMI devices. Crucially, we develop a scalable auto-labeling pipeline that annotates trajectory clips with natural languages describing scene state transitions, providing rich and precise conditioning for action learning. During post-training, we aim to align these capabilities with robot embodiments and imperative instructions that humans naturally use to prompt robots. Extensive experiments demonstrate strong scaling behavior. Xiaomi-Robotics-1 consistently improves with increased data scales and model sizes during pre-training. This scaling behavior directly transfers to post-training, where a stronger pre-training model yields better out-of-the-box real-robot performance in unseen environments. Furthermore, Xiaomi-Robotics-1 serves as a strong robot foundation policy that can be efficiently fine-tuned on complex, dexterous tasks with high data efficiency. Across multiple simulation benchmarks, Xiaomi-Robotics-1 outperforms state-of-the-art methods. Notably, it establishes a new state-of-the-art with a 57.4% success rate on RoboCasa365, surpassing the previous best of 46.6%. Furthermore, it achieves an average score of 20.07 on RoboDojo, significantly outperforming the prior state-of-the-art (13.07). Code and model checkpoints will be released. Project page: https://robotics.xiaomi.com/xiaomi-robotics-1.html",
-          "claimed_authors": [
-            " Xiaomi Robotics Team",
-            "Jun Guo",
-            "Piaopiao Jin",
-            "Jason Li",
-            "Peiyan Li",
-            "Yingyan Li",
-            "Futeng Liu",
-            "Wanli Peng",
-            "Optimus Qin",
-            "Yifei Su",
-            "Nan Sun",
-            "Qiao Sun",
-            "Runze Suo",
-            "Heyun Wang",
-            "Yunhong Wang",
-            "Rujie Wu",
-            "Caoyu Xia",
-            "Lina Zhang",
-            "Jack Zhao",
-            "Guoliang Chen",
-            "Wenlong Chen",
-            "Xinze He",
-            "Bin Li",
-            "Qing Li",
-            "Zhuorong Li",
-            "Heng Qu",
-            "Wenxuan Song",
-            "Diyun Xiang",
-            "Yifan Xie",
-            "Peiran Xu",
-            "Hangjun Ye",
-            "Wen Ye",
-            "Han Zhao",
-            "Quanyun Zhou"
-          ],
-          "claimed_title": "Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories",
+          "claimed_title": "Safety in Embodied AI: A Survey of Risks, Attacks, and Defenses",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2607.15330"
+          "primary_pointer": "2605.02900"
         },
-        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories')",
-        "failed_at": "2026-08-29T21:47:11Z",
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Safety in Embodied AI: A Survey of Risks, Attacks, and Defenses')",
+        "failed_at": "2026-09-24T12:38:35Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper provides a review of deep learning applications in scene understanding in autonomous robots, including innovations in object detection, semantic and instance segmentation, depth estimation, 3D reconstruction, and visual SLAM. It emphasizes how these techniques address limitations of traditional geometric models, improve depth perception in real time despite occlusions and textureless surfaces, and enhance semantic reasoning to understand the environment better. When these perception modules are integrated into dynamic and unstructured environments, they become more effective in decisionmaking, navigation and interaction. Lastly, the review outlines the existing problems and research directions to advance learning-based scene understanding of autonomous robots.",
+          "claimed_abstract": "We present a benchmark to facilitate simulated manipulation; an attempt to overcome the obstacles of physical benchmarks through the distribution of a real world, ground truth dataset. Users are given various simulated manipulation tasks with assigned protocols having the objective of replicating the real world results of a recorded dataset. The benchmark comprises of a range of metrics used to characterise the successes of submitted environments whilst providing insight into their deficiencies. We apply our benchmark to two simulation environments, PyBullet and V-Rep, and publish the results. All materials required to benchmark an environment, including protocols and the dataset, can be found at the benchmarks' website https://research.csiro.au/robotics/manipulation-benchmark/.",
           "claimed_authors": [
-            "Afia Maham",
-            "Dur E Nayab Tashfa"
+            "Jack Collins",
+            "Jessie McVicar",
+            "David Wedlock",
+            "Ross Brown",
+            "David Howard",
+            "Jürgen Leitner"
           ],
-          "claimed_title": "Deep Learning Perspective of Scene Understanding in Autonomous Robots",
+          "claimed_title": "Benchmarking Simulated Robotic Manipulation through a Real World Dataset",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.14020"
+          "claimed_year": 2019,
+          "primary_pointer": "1911.01557"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Deep Learning Perspective of Scene Understanding in Autonomous Robots')",
-        "failed_at": "2026-08-29T21:47:11Z",
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Benchmarking Simulated Robotic Manipulation through a Real World Dataset')",
+        "failed_at": "2026-09-24T12:38:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent advances in multimodal large language models (MLLMs) have shown remarkable capabilities in integrating vision and language for complex reasoning. While most existing benchmarks evaluate models under offline settings with a fixed set of pre-recorded inputs, we introduce OST-Bench, a benchmark designed to evaluate Online Spatio-Temporal understanding from the perspective of an agent actively exploring a scene. The Online aspect emphasizes the need to process and reason over incrementally acquired observations, while the Spatio-Temporal component requires integrating current visual inputs with historical memory to support dynamic spatial reasoning. OST-Bench better reflects the challenges of real-world embodied perception. Built on an efficient data collection pipeline, OST-Bench consists of 1.4k scenes and 10k question-answer pairs collected from ScanNet, Matterport3D, and ARKitScenes. We evaluate several leading MLLMs on OST-Bench and observe that they fall short on tasks requiring complex spatio-temporal reasoning. Under the online setting, their accuracy declines as the exploration horizon extends and the memory grows. Through further experimental analysis, we identify common error patterns across models and find that both complex clue-based spatial reasoning demands and long-term memory retrieval requirements significantly drop model performance along two separate axes, highlighting the core challenges that must be addressed to improve online embodied reasoning. To foster further research and development in the field, our codes, dataset, and benchmark are available. Our project page is: https://rbler1234.github.io/OSTBench.github.io/",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
           "claimed_authors": [
-            "Jingli Lin",
-            "Chenming Zhu",
-            "Runsen Xu",
-            "Xiaohan Mao",
-            "Xihui Liu",
-            "Tai Wang",
-            "Jiangmiao Pang"
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
           ],
-          "claimed_title": "OST-Bench: Evaluating the Capabilities of MLLMs in Online Spatio-temporal Scene Understanding",
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.07984"
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
         },
-        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='OST-Bench: Evaluating the Capabilities of MLLMs in Online Spatio-temporal Scene Understanding')",
-        "failed_at": "2026-08-29T21:47:11Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An essential requirement for the representation of functional patterns in complex neural networks, such as the mammalian cerebral cortex, is the existence of stable regimes of network activation, typically arising from a limited parameter range. In this range of limited sustained activity (LSA), the activity of neural populations in the network persists between the extremes of either quickly dying out or activating the whole network. Hierarchical modular networks were previously found to show a wider parameter range for LSA than random or small-world networks not possessing hierarchical organization or multiple modules. Here we explored how variation in the number of hierarchical levels and modules per level influenced network dynamics and occurrence of LSA. We tested hierarchical configurations of different network sizes, approximating the large-scale networks linking cortical columns in one hemisphere of the rat, cat, or macaque monkey brain. Scaling of the network size affected the number of hierarchical levels and modules in the optimal networks, also depending on whether global edge density or the numbers of connections per node were kept constant. For constant edge density, only few network configurations, possessing an intermediate number of levels and a large number of modules, led to a large range of LSA independent of brain size. For a constant number of node connections, there was a trend for optimal configurations in larger-size networks to possess a larger number of hierarchical levels or more modules. These results may help to explain the trend to greater network complexity apparent in larger brains and may indicate that this complexity is required for maintaining stable levels of neural activation.",
+          "claimed_authors": [
+            "Marcus Kaiser",
+            "Claus C. Hilgetag"
+          ],
+          "claimed_title": "Optimal hierarchical modular topologies for producing limited sustained activation of neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.3081"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Optimal hierarchical modular topologies for producing limited sustained activation of neural networks')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autonomous learning of object manipulation skills can enable robots to acquire rich behavioral repertoires that scale to the variety of objects found in the real world. However, current motion skill learning methods typically restrict the behavior to a compact, low-dimensional representation, limiting its expressiveness and generality. In this paper, we extend a recently developed policy search method \\cite{la-lnnpg-14} and use it to learn a range of dynamic manipulation behaviors with highly general policy representations, without using known models or example demonstrations. Our approach learns a set of trajectories for the desired motion skill by using iteratively refitted time-varying linear models, and then unifies these trajectories into a single control policy that can generalize to new situations. To enable this method to run on a real robot, we introduce several improvements that reduce the sample count and automate parameter selection. We show that our method can acquire fast, fluent behaviors after only minutes of interaction time, and can learn robust controllers for complex tasks, including putting together a toy airplane, stacking tight-fitting lego blocks, placing wooden rings onto tight-fitting pegs, inserting a shoe tree into a shoe, and screwing bottle caps onto bottles.",
+          "claimed_authors": [
+            "Sergey Levine",
+            "Nolan Wagener",
+            "Pieter Abbeel"
+          ],
+          "claimed_title": "Learning Contact-Rich Manipulation Skills with Guided Policy Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.05611"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Learning Contact-Rich Manipulation Skills with Guided Policy Search')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most data-efficient algorithms for reinforcement learning in robotics are model-based policy search algorithms, which alternate between learning a dynamical model of the robot and optimizing a policy to maximize the expected return given the model and its uncertainties. However, the current algorithms lack an effective exploration strategy to deal with sparse or misleading reward scenarios: if they do not experience any state with a positive reward during the initial random exploration, it is very unlikely to solve the problem. Here, we propose a novel model-based policy search algorithm, Multi-DEX, that leverages a learned dynamical model to efficiently explore the task space and solve tasks with sparse rewards in a few episodes. To achieve this, we frame the policy search problem as a multi-objective, model-based policy optimization problem with three objectives: (1) generate maximally novel state trajectories, (2) maximize the expected return and (3) keep the system in state-space regions for which the model is as accurate as possible. We then optimize these objectives using a Pareto-based multi-objective optimization algorithm. The experiments show that Multi-DEX is able to solve sparse reward scenarios (with a simulated robotic arm) in much lower interaction time than VIME, TRPO, GEP-PG, CMA-ES and Black-DROPS.",
+          "claimed_authors": [
+            "Rituraj Kaushik",
+            "Konstantinos Chatzilygeroudis",
+            "Jean-Baptiste Mouret"
+          ],
+          "claimed_title": "Multi-objective Model-based Policy Search for Data-efficient Learning with Sparse Rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.09351"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Multi-objective Model-based Policy Search for Data-efficient Learning with Sparse Rewards')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-09-24T12:38:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RynnWorld-4D: 4D Embodied World Models for Robotic', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-09-24T12:38:36Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -502,78 +476,104 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Zixing Wang",
-            "Kausik Sivakumar",
-            "Jinghuan Shang",
-            "Yafei Hu",
-            "Zhaoming Xie",
-            "Ran Gong",
-            "Xiaohan Zhang",
-            "Karl Schmeckpeper"
+            "Xiaoxiao Long",
+            "Qingrui Zhao",
+            "Kaiwen Zhang",
+            "Zihao Zhang",
+            "Dingrui Wang",
+            "Yumeng Liu",
+            "Zhengjie Shu",
+            "Yi Lu",
+            "Shouzheng Wang",
+            "Xinzhe Wei",
+            "Wei Li",
+            "Wei Yin",
+            "Yao Yao",
+            "Jia Pan",
+            "Qiu Shen",
+            "Ruigang Yang",
+            "Xun Cao",
+            "Qionghai Dai"
           ],
-          "title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "title": "A Survey: Learning Embodied Intelligence from Physical Simulators and World Models",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2025
         },
-        "primary_pointer": "2606.31101",
-        "summary": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
-        "summary_grounded_pdf": false,
+        "primary_pointer": "2507.00917",
+        "summary": "The pursuit of artificial general intelligence (AGI) has placed embodied intelligence at the forefront of robotics research. Embodied intelligence focuses on agents capable of perceiving, reasoning, and acting within the physical world. Achieving robust embodied intelligence requires not only advanced perception and control, but also the ability to ground abstract cognition in real-world interactions. Two foundational technologies, physical simulators and world models, have emerged as critical enablers in this quest. Physical simulators provide controlled, high-fidelity environments for training and evaluating robotic agents, allowing safe and efficient development of complex behaviors. In contrast, world models empower robots with internal representations of their surroundings, enabling predictive planning and adaptive decision-making beyond direct sensory input. This survey systematically reviews recent advances in learning embodied AI through the integration of physical simulators and world models. We analyze their complementary roles in enhancing autonomy, adaptability, and generalization in intelligent robots, and discuss the interplay between external simulation and internal modeling in bridging the gap between simulated training and real-world deployment. By synthesizing current progress and identifying open challenges, this survey aims to provide a comprehensive perspective on the path toward more capable and generalizable embodied AI systems. We also maintain an active repository that contains up-to-date literature and open-source projects at https://github.com/NJU3DV-LoongGroup/Embodied-World-Models-Survey.",
+        "summary_grounded_pdf": true,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.31101",
+          "final_url": "https://arxiv.org/abs/2507.00917",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.5288,
           "query_relevance_score": 0.3636,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:10Z"
+          "verified_at": "2026-09-24T12:38:35Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Ronghan Chen",
-            "Yandan Yang",
-            "Zuojin Tang",
-            "Dongjie Huo",
-            "Tong Lin",
-            "Haoning Wu",
-            "Haoyun Liu",
-            "Yuzhi Chen",
-            "Lulu Zheng",
-            "Botai Yuan",
-            "Tianlun Li",
-            "Mingxin Wang",
-            "Dekang Qi",
-            "Bin Hu",
-            "Wei Mei",
-            "Yuze Xuan",
-            "Haolong Yang",
-            "Yanqing Zhu",
-            "Mu Xu",
-            "Zhiheng Ma",
-            "Xinyuan Chang"
+            "Haoyu Zhao",
+            "Xingyue Zhao",
+            "Siteng Huang",
+            "Xin Li",
+            "Deli Zhao",
+            "Zhongyu Li"
           ],
-          "title": "ABot-M0.5: Unified Mobility-and-Manipulation World Action Model",
+          "title": "RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation",
           "venue": "arXiv",
           "year": 2026
         },
-        "primary_pointer": "2607.00678",
-        "summary": "Mobile manipulation is a key capability for general-purpose robots, yet remains challenging for current embodied learning methods. VLA policies are typically reactive and lack explicit world modeling, while existing World Action Models (WAMs) are still poorly aligned with the structure of mobile manipulation: they operate on coarse video chunks, model entangled navigation-manipulation actions, and train inverse dynamics under supervision that does not match autoregressive inference. As a result, they often miss fine-grained contact dynamics, suffer from action-distribution conflicts, and accumulate errors over long-horizon rollouts. We propose ABot-M0.5, a new WAM built on the insight that mobile manipulation requires alignment at three levels: temporal granularity, action space, and train-test consistency. To align temporal granularity, we introduce intermediate latent actions that capture local visual state transitions and serve as an bridging action space between video latents and embodiment-specific controls. To align action space, we design a dual-level Mixture-of-Transformers architecture that disentangles both modality representations and heterogeneous action subspaces such as base movement and arm manipulation. To align inference conditions, we propose the dream-forcing training strategy that progressively trains inverse dynamics on model-predicted videos, improving train-test alignment and robustness during autoregressive prediction. Experiments on challenging mobile and fine-grained manipulation benchmarks demonstrate that ABot-M0.5 achieves state-of-the-art performance in both long-horizon task success and finegrained control accuracy. These results highlight the critical importance of granularity-aligned, action-disentangled, and inference-consistent world-action modeling.",
+        "primary_pointer": "2607.06559",
+        "summary": "Robotic manipulation in the open world requires not only recognizing what a scene looks like, but also anticipating how its 3D structure moves under interaction. We argue that synchronized RGB, depth, and optical flow, namely RGB-DF, provide a physically grounded representation that captures the underlying 4D dynamics of a scene. Compared to 2D pixel videos, this multi-modal synergy aligns visual appearance with geometric structure and temporal motion, creating a representation space significantly closer to the low-level end-effector actions demanded by robotic systems, thereby narrowing the gap between world prediction and policy learning. Building on this insight, we introduce RynnWorld-4D, a generative model that co-produces future RGB frames, depth maps, and optical flow from a single RGB-D image and a language instruction within one unified diffusion process. This 4D world model features a tri-branch architecture that integrates cross-modal attention with frame-wise 3D RoPE, ensuring that appearance, geometry, and motion evolve consistently. To supply training data at scale, we curate Rynn4DDataset 1.0, a massive dataset of over 254.4 million frames across egocentric human and robotic manipulation videos with high-quality pseudo-labels for depth and optical flow. We further propose RynnWorld-4D-Policy, an inverse dynamics head that consumes the internal 4D representations of RynnWorld-4D in a single forward pass, bypassing expensive multi-step denoising, to output robot actions in a closed-loop manner. Experiments show that RynnWorld-4D produces temporally and spatially coherent 4D predictions, and that RynnWorld-4D-Policy achieves state-of-the-art performance on real-world dexterous bimanual manipulation tasks, particularly excelling in tasks demanding spatial precision and temporal coordination.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2607.00678",
+          "final_url": "https://arxiv.org/abs/2607.06559",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.3636,
+          "query_relevance_score": 0.5455,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:10Z"
+          "verified_at": "2026-09-24T12:38:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rui Shao",
+            "Wei Li",
+            "Lingsen Zhang",
+            "Renshan Zhang",
+            "Zhiyang Liu",
+            "Ran Chen",
+            "Liqiang Nie"
+          ],
+          "title": "Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.13073",
+        "summary": "Robotic manipulation, a key frontier in robotics and embodied AI, requires precise motor control and multimodal understanding, yet traditional rule-based methods fail to scale or generalize in unstructured, novel environments. In recent years, Vision-Language-Action (VLA) models, built upon Large Vision-Language Models (VLMs) pretrained on vast image-text datasets, have emerged as a transformative paradigm. This survey provides the first systematic, taxonomy-oriented review of large VLM-based VLA models for robotic manipulation. We begin by clearly defining large VLM-based VLA models and delineating two principal architectural paradigms: (1) monolithic models, encompassing single-system and dual-system designs with differing levels of integration; and (2) hierarchical models, which explicitly decouple planning from execution via interpretable intermediate representations. Building on this foundation, we present an in-depth examination of large VLM-based VLA models: (1) integration with advanced domains, including reinforcement learning, training-free optimization, learning from human videos, and world model integration; (2) synthesis of distinctive characteristics, consolidating architectural traits, operational strengths, and the datasets and benchmarks that support their development; (3) identification of promising directions, including memory mechanisms, 4D perception, efficient adaptation, multi-agent cooperation, and other emerging capabilities. This survey consolidates recent advances to resolve inconsistencies in existing taxonomies, mitigate research fragmentation, and fill a critical gap through the systematic integration of studies at the intersection of large VLMs and robotic manipulation. We provide a regularly updated project page to document ongoing progress: https://github.com/JiuTian-VL/Large-VLM-based-VLA-for-Robotic-Manipulation",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.13073",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-24T12:38:36Z"
         }
       },
       {
@@ -608,67 +608,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:16Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Haoyu Zhao",
-            "Xingyue Zhao",
-            "Siteng Huang",
-            "Xin Li",
-            "Deli Zhao",
-            "Zhongyu Li"
-          ],
-          "title": "RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2607.06559",
-        "summary": "Robotic manipulation in the open world requires not only recognizing what a scene looks like, but also anticipating how its 3D structure moves under interaction. We argue that synchronized RGB, depth, and optical flow, namely RGB-DF, provide a physically grounded representation that captures the underlying 4D dynamics of a scene. Compared to 2D pixel videos, this multi-modal synergy aligns visual appearance with geometric structure and temporal motion, creating a representation space significantly closer to the low-level end-effector actions demanded by robotic systems, thereby narrowing the gap between world prediction and policy learning. Building on this insight, we introduce RynnWorld-4D, a generative model that co-produces future RGB frames, depth maps, and optical flow from a single RGB-D image and a language instruction within one unified diffusion process. This 4D world model features a tri-branch architecture that integrates cross-modal attention with frame-wise 3D RoPE, ensuring that appearance, geometry, and motion evolve consistently. To supply training data at scale, we curate Rynn4DDataset 1.0, a massive dataset of over 254.4 million frames across egocentric human and robotic manipulation videos with high-quality pseudo-labels for depth and optical flow. We further propose RynnWorld-4D-Policy, an inverse dynamics head that consumes the internal 4D representations of RynnWorld-4D in a single forward pass, bypassing expensive multi-step denoising, to output robot actions in a closed-loop manner. Experiments show that RynnWorld-4D produces temporally and spatially coherent 4D predictions, and that RynnWorld-4D-Policy achieves state-of-the-art performance on real-world dexterous bimanual manipulation tasks, particularly excelling in tasks demanding spatial precision and temporal coordination.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2607.06559",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:16Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jack Collins",
-            "Jessie McVicar",
-            "David Wedlock",
-            "Ross Brown",
-            "David Howard",
-            "Jürgen Leitner"
-          ],
-          "title": "Benchmarking Simulated Robotic Manipulation through a Real World Dataset",
-          "venue": "arXiv",
-          "year": 2019
-        },
-        "primary_pointer": "1911.01557",
-        "summary": "We present a benchmark to facilitate simulated manipulation; an attempt to overcome the obstacles of physical benchmarks through the distribution of a real world, ground truth dataset. Users are given various simulated manipulation tasks with assigned protocols having the objective of replicating the real world results of a recorded dataset. The benchmark comprises of a range of metrics used to characterise the successes of submitted environments whilst providing insight into their deficiencies. We apply our benchmark to two simulation environments, PyBullet and V-Rep, and publish the results. All materials required to benchmark an environment, including protocols and the dataset, can be found at the benchmarks' website https://research.csiro.au/robotics/manipulation-benchmark/.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1911.01557",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:16Z"
+          "verified_at": "2026-09-24T12:38:41Z"
         }
       },
       {
@@ -715,38 +655,37 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:17Z"
+          "verified_at": "2026-09-24T12:38:42Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Rui Shao",
-            "Wei Li",
-            "Lingsen Zhang",
-            "Renshan Zhang",
-            "Zhiyang Liu",
-            "Ran Chen",
-            "Liqiang Nie"
+            "Jack Collins",
+            "Jessie McVicar",
+            "David Wedlock",
+            "Ross Brown",
+            "David Howard",
+            "Jürgen Leitner"
           ],
-          "title": "Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey",
+          "title": "Benchmarking Simulated Robotic Manipulation through a Real World Dataset",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2019
         },
-        "primary_pointer": "2508.13073",
-        "summary": "Robotic manipulation, a key frontier in robotics and embodied AI, requires precise motor control and multimodal understanding, yet traditional rule-based methods fail to scale or generalize in unstructured, novel environments. In recent years, Vision-Language-Action (VLA) models, built upon Large Vision-Language Models (VLMs) pretrained on vast image-text datasets, have emerged as a transformative paradigm. This survey provides the first systematic, taxonomy-oriented review of large VLM-based VLA models for robotic manipulation. We begin by clearly defining large VLM-based VLA models and delineating two principal architectural paradigms: (1) monolithic models, encompassing single-system and dual-system designs with differing levels of integration; and (2) hierarchical models, which explicitly decouple planning from execution via interpretable intermediate representations. Building on this foundation, we present an in-depth examination of large VLM-based VLA models: (1) integration with advanced domains, including reinforcement learning, training-free optimization, learning from human videos, and world model integration; (2) synthesis of distinctive characteristics, consolidating architectural traits, operational strengths, and the datasets and benchmarks that support their development; (3) identification of promising directions, including memory mechanisms, 4D perception, efficient adaptation, multi-agent cooperation, and other emerging capabilities. This survey consolidates recent advances to resolve inconsistencies in existing taxonomies, mitigate research fragmentation, and fill a critical gap through the systematic integration of studies at the intersection of large VLMs and robotic manipulation. We provide a regularly updated project page to document ongoing progress: https://github.com/JiuTian-VL/Large-VLM-based-VLA-for-Robotic-Manipulation",
+        "primary_pointer": "1911.01557",
+        "summary": "We present a benchmark to facilitate simulated manipulation; an attempt to overcome the obstacles of physical benchmarks through the distribution of a real world, ground truth dataset. Users are given various simulated manipulation tasks with assigned protocols having the objective of replicating the real world results of a recorded dataset. The benchmark comprises of a range of metrics used to characterise the successes of submitted environments whilst providing insight into their deficiencies. We apply our benchmark to two simulation environments, PyBullet and V-Rep, and publish the results. All materials required to benchmark an environment, including protocols and the dataset, can be found at the benchmarks' website https://research.csiro.au/robotics/manipulation-benchmark/.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2508.13073",
+          "final_url": "https://arxiv.org/abs/1911.01557",
           "http_status": 200,
-          "pdf_sample_score": 0.3253,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-29T21:47:17Z"
+          "verified_at": "2026-09-24T12:38:42Z"
         }
       }
     ]

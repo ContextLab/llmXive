@@ -1,7 +1,3 @@
-"""
-FedAvg Orchestrator for Federated Learning with Differential Privacy.
-Implements FedAvg with Opacus, dynamic batch sizing, and comprehensive logging.
-"""
 import logging
 import time
 from pathlib import Path
@@ -9,463 +5,437 @@ from typing import Dict, List, Optional, Tuple, Any, Set
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Subset
-from opacus import PrivacyEngine
-from opacus.validators import ModuleValidator
+from torch.utils.data import DataLoader
+from torch.optim import Optimizer
 
 from config import Config
-from models.cnn import SmallCNN, SmallMLP, get_model
-from training.dp_utils import (
-    DPConfig,
-    calculate_noise_multiplier,
-    configure_dp_optimizer,
-    get_privacy_spent,
-    validate_dp_config,
-)
-from training.logging import (
-    TrainingMetrics,
-    ExperimentLogger,
-    log_training_round,
-    load_metrics_csv,
-)
-from data.partition import load_femnist_data, apply_dirichlet_partition, save_partition_metadata
+from models.cnn import get_model
+from training.logging import ExperimentLogger, TrainingMetrics, log_training_round
+from training.dp_utils import DPConfig, configure_dp_optimizer, get_privacy_spent
+from data.partition import load_femnist_data, apply_dirichlet_partition, partition_femnist
+from data.generate_partition_metadata import generate_metadata_for_configuration
 
 logger = logging.getLogger(__name__)
 
-
 class FedAvgOrchestrator:
     """
-    Orchestrates Federated Averaging training with Differential Privacy.
-    Supports dynamic batch sizing to handle OOM errors.
+    Core FedAvg orchestrator implementing client selection, local training,
+    and gradient aggregation. This is the base implementation without DP noise.
+    T018b will extend this to integrate Opacus DP noise wrapper.
     """
 
     def __init__(
         self,
         config: Config,
-        dp_config: DPConfig,
-        model_class: nn.Module,
-        partition_dir: Path,
-        output_dir: Path,
+        device: torch.device,
+        global_model: nn.Module,
+        logger: ExperimentLogger,
+        dp_config: Optional[DPConfig] = None
     ):
         self.config = config
+        self.device = device
+        self.global_model = global_model
+        self.logger = logger
         self.dp_config = dp_config
-        self.model_class = model_class
-        self.partition_dir = partition_dir
-        self.output_dir = output_dir
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.privacy_accountant = None
+        
+        if dp_config:
+            # Initialize privacy accountant for DP (placeholder for T018b integration)
+            # For T018a (core loop without DP), this remains None or unused
+            logger.info("DP configuration provided but not active in core loop (T018a)")
 
-        # Validate DP config
-        validate_dp_config(dp_config)
+    def _select_clients(self, total_clients: int, num_clients: int) -> List[int]:
+        """
+        Select a subset of clients for the current round.
+        For T018a, we use random selection without replacement.
+        """
+        if num_clients >= total_clients:
+            return list(range(total_clients))
+        
+        selected = np.random.choice(total_clients, size=num_clients, replace=False)
+        return sorted(selected.tolist())
 
-        # Initialize logger
-        self.logger = ExperimentLogger(
-            output_dir=output_dir,
-            experiment_id=f"seed_{config.seed}_alpha_{config.alpha}_eps_{config.epsilon}",
-        )
-
-        # Initialize global model
-        self.global_model = get_model(model_class=model_class, num_classes=62)  # FEMNIST has 62 classes
-        self.global_model.to(self.config.device)
-
-        # DP Privacy Engine (initialized per round or once, depending on strategy)
-        self.privacy_engine = None
-
-        # Metrics tracking
-        self.round_metrics: List[Dict[str, Any]] = []
-
-    def _load_client_data(self, client_id: int, partition_metadata: Dict) -> DataLoader:
-        """Load data for a specific client from partition metadata."""
-        # This is a simplified loader; in production, this would load from parquet files
-        # based on the partition metadata
-        try:
-            # Load FEMNIST data
-            dataset = load_femnist_data(self.config.dataset)
-            
-            # Apply partitioning logic (simplified for this example)
-            # In reality, this would use the pre-computed partition metadata
-            indices = partition_metadata.get(f"client_{client_id}", [])
-            
-            if not indices:
-                logger.warning(f"Client {client_id} has no data samples")
-                return None
-            
-            client_dataset = Subset(dataset, indices)
-            
-            # Dynamic batch sizing: start with configured batch size
-            batch_size = self.config.batch_size
-            min_batch_size = 16
-            
-            # Ensure batch size is at least min_batch_size if dataset is small
-            if len(client_dataset) < batch_size:
-                batch_size = max(len(client_dataset), min_batch_size)
-            
-            return DataLoader(
-                client_dataset,
-                batch_size=batch_size,
-                shuffle=True,
-                num_workers=0,  # Set to 0 for simplicity in this example
-                drop_last=True,
-            )
-        except Exception as e:
-            logger.error(f"Failed to load data for client {client_id}: {e}")
-            return None
-
-    def _train_client(
+    def _get_client_data_loader(
         self,
         client_id: int,
-        local_data: DataLoader,
-        epochs: int,
-        lr: float,
-        is_dp: bool,
-        current_batch_size: int,
-    ) -> Tuple[Optional[nn.Module], int, bool]:
+        partition_data: Dict[int, Dict[str, Any]],
+        batch_size: int
+    ) -> Optional[DataLoader]:
         """
-        Train a single client's model locally.
-        Returns (updated_model, samples_used, is_time_limited).
+        Retrieve data loader for a specific client.
+        Returns None if client has no data.
         """
-        if local_data is None:
-            logger.warning(f"Client {client_id} has no data, skipping training")
-            return None, 0, False
+        if client_id not in partition_data:
+            logger.warning(f"Client {client_id} not found in partition data")
+            return None
+        
+        client_data = partition_data[client_id]
+        if not client_data or 'data_loader' not in client_data:
+            logger.warning(f"Client {client_id} has no data loader")
+            return None
+        
+        return client_data['data_loader']
 
-        # Clone global model for local training
-        local_model = get_model(model_class=self.model_class, num_classes=62)
+    def _train_local(
+        self,
+        client_id: int,
+        data_loader: DataLoader,
+        local_epochs: int,
+        learning_rate: float
+    ) -> Tuple[Dict[str, float], Optional[Dict[str, torch.Tensor]]]:
+        """
+        Train model locally on client data.
+        Returns metrics and updated model parameters (if valid).
+        """
+        # Create a local copy of the model
+        local_model = get_model(self.config.dataset)
         local_model.load_state_dict(self.global_model.state_dict())
-        local_model.to(self.config.device)
+        local_model.to(self.device)
         local_model.train()
 
-        # Configure optimizer
-        optimizer = torch.optim.SGD(
-            local_model.parameters(),
-            lr=lr,
-            momentum=0.9,
-        )
-
-        # Configure DP if enabled
-        privacy_engine = None
-        if is_dp:
-            # Calculate noise multiplier
-            noise_multiplier = calculate_noise_multiplier(
-                target_epsilon=self.dp_config.target_epsilon,
-                delta=self.dp_config.delta,
-                steps_per_epoch=len(local_data),
-                epochs=epochs,
-                max_grad_norm=self.dp_config.max_grad_norm,
-                noise_multiplier=self.dp_config.noise_multiplier,
-            )
-            
-            privacy_engine = PrivacyEngine(
-                local_model,
-                batch_size=current_batch_size,
-                sample_size=len(local_data.dataset),
-                alphas=self.dp_config.alphas,
-                noise_multiplier=noise_multiplier,
-                max_grad_norm=self.dp_config.max_grad_norm,
-            )
-            
-            privacy_engine.attach(optimizer)
-
+        optimizer = torch.optim.SGD(local_model.parameters(), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
-        samples_processed = 0
-        is_time_limited = False
 
-        start_time = time.time()
-        time_limit = self.config.time_limit_seconds if hasattr(self.config, 'time_limit_seconds') else 3600
+        metrics = {
+            'loss': 0.0,
+            'accuracy': 0.0,
+            'samples': 0
+        }
 
-        for epoch in range(epochs):
-            epoch_loss = 0.0
-            epoch_samples = 0
+        total_samples = 0
+        total_correct = 0
+        total_loss = 0.0
 
-            for batch_idx, (data, target) in enumerate(local_data):
-                # Check time limit
-                if time.time() - start_time > time_limit:
-                    logger.warning(f"Time limit exceeded for client {client_id} at epoch {epoch}")
-                    is_time_limited = True
-                    break
-
-                data, target = data.to(self.config.device), target.to(self.config.device)
-
+        for epoch in range(local_epochs):
+            for batch_idx, (data, target) in enumerate(data_loader):
+                data, target = data.to(self.device), target.to(self.device)
+                
                 optimizer.zero_grad()
                 output = local_model(data)
                 loss = criterion(output, target)
-
-                # DP: clip and accumulate gradients
-                if is_dp:
-                    loss.backward()
-                    # Privacy engine handles gradient clipping and noise addition
-                    optimizer.step()
-                else:
-                    loss.backward()
-                    optimizer.step()
-
-                epoch_loss += loss.item() * data.size(0)
-                epoch_samples += data.size(0)
-                samples_processed += data.size(0)
-
-            if is_time_limited:
-                break
-
-            # Log epoch metrics
-            avg_loss = epoch_loss / epoch_samples if epoch_samples > 0 else 0
-            logger.debug(f"Client {client_id} Epoch {epoch}: Loss={avg_loss:.4f}")
-
-        # Detach model from privacy engine if used
-        if privacy_engine:
-            privacy_engine.detach()
-
-        samples_used = samples_processed
-        return local_model, samples_used, is_time_limited
-
-    def _aggregate_models(
-        self,
-        client_models: List[Tuple[nn.Module, int]],
-    ) -> nn.Module:
-        """
-        Aggregate client models using FedAvg.
-        client_models: List of (model, samples_used) tuples
-        """
-        if not client_models:
-            logger.warning("No client models to aggregate")
-            return self.global_model
-
-        total_samples = sum(samples for _, samples in client_models)
-        
-        # Initialize aggregated model
-        aggregated_model = get_model(model_class=self.model_class, num_classes=62)
-        aggregated_model.load_state_dict(self.global_model.state_dict())
-
-        # Aggregate parameters weighted by samples
-        for param_name, param in aggregated_model.state_dict().items():
-            weighted_sum = torch.zeros_like(param)
-            for model, samples in client_models:
-                weighted_sum += model.state_dict()[param_name] * samples
-            
-            param.copy_(weighted_sum / total_samples)
-
-        return aggregated_model
-
-    def _reduce_batch_size(self, current_batch_size: int) -> int:
-        """
-        Reduce batch size by half, floor to next power of 2, with hard minimum of 16.
-        """
-        min_batch_size = 16
-        if current_batch_size <= min_batch_size:
-            return min_batch_size
-        
-        # Floor to next power of 2
-        reduced = current_batch_size // 2
-        # Ensure it's at least min_batch_size
-        return max(reduced, min_batch_size)
-
-    def train_round(
-        self,
-        round_num: int,
-        num_clients: int,
-        clients_to_sample: Optional[int] = None,
-        epochs: int = 1,
-        lr: float = 0.01,
-        is_dp: bool = True,
-    ) -> Dict[str, Any]:
-        """
-        Execute a single round of FedAvg training.
-        Returns round metrics.
-        """
-        logger.info(f"Starting round {round_num} with {num_clients} clients")
-        
-        # Load partition metadata
-        partition_files = list(self.partition_dir.glob("partition_*.json"))
-        if not partition_files:
-            raise FileNotFoundError(f"No partition files found in {self.partition_dir}")
-        
-        # Use the first partition file (in practice, would load all or specific one)
-        partition_file = partition_files[0]
-        with open(partition_file, 'r') as f:
-            partition_metadata = json.load(f)
-        
-        # Sample clients if specified
-        client_ids = list(range(num_clients))
-        if clients_to_sample and clients_to_sample < num_clients:
-            np.random.seed(self.config.seed + round_num)
-            client_ids = np.random.choice(client_ids, size=clients_to_sample, replace=False).tolist()
-
-        client_models = []
-        total_samples = 0
-        time_limited_clients = 0
-        oom_occurred = False
-        current_batch_size = self.config.batch_size
-
-        for client_id in client_ids:
-            try:
-                # Load client data
-                local_data = self._load_client_data(client_id, partition_metadata)
                 
-                if local_data is None:
-                    continue
+                # T018a: No DP noise application here (reserved for T018b)
+                # If dp_config were active, we would clip gradients and add noise here
+                
+                loss.backward()
+                optimizer.step()
 
-                # Train client
-                local_model, samples_used, is_time_limited = self._train_client(
-                    client_id=client_id,
-                    local_data=local_data,
-                    epochs=epochs,
-                    lr=lr,
-                    is_dp=is_dp,
-                    current_batch_size=current_batch_size,
-                )
+                total_loss += loss.item() * data.size(0)
+                total_samples += data.size(0)
+                
+                # Calculate accuracy
+                pred = output.argmax(dim=1, keepdim=True)
+                total_correct += pred.eq(target.view_as(pred)).sum().item()
 
-                if local_model is None:
-                    continue
+        if total_samples == 0:
+            logger.warning(f"Client {client_id} had no samples for training")
+            return {}, None
 
-                if is_time_limited:
-                    time_limited_clients += 1
+        avg_loss = total_loss / total_samples
+        accuracy = total_correct / total_samples
 
-                client_models.append((local_model, samples_used))
-                total_samples += samples_used
-
-            except RuntimeError as e:
-                if "out of memory" in str(e).lower():
-                    logger.warning(f"OOM for client {client_id} with batch size {current_batch_size}")
-                    oom_occurred = True
-                    current_batch_size = self._reduce_batch_size(current_batch_size)
-                    logger.info(f"Reduced batch size to {current_batch_size} for next client")
-                    # Retry with smaller batch size
-                    local_data = self._load_client_data(client_id, partition_metadata)
-                    if local_data:
-                        local_model, samples_used, is_time_limited = self._train_client(
-                            client_id=client_id,
-                            local_data=local_data,
-                            epochs=epochs,
-                            lr=lr,
-                            is_dp=is_dp,
-                            current_batch_size=current_batch_size,
-                        )
-                        if local_model is not None:
-                            client_models.append((local_model, samples_used))
-                            total_samples += samples_used
-                    else:
-                        logger.error(f"Failed to load data for client {client_id} after OOM recovery")
-                else:
-                    logger.error(f"Error training client {client_id}: {e}")
-                    raise
-            except Exception as e:
-                logger.error(f"Unexpected error for client {client_id}: {e}")
-                raise
-
-        if not client_models:
-            logger.warning("No clients successfully trained in this round")
-            return {
-                "round": round_num,
-                "success": False,
-                "error": "No clients trained",
-            }
-
-        # Aggregate models
-        self.global_model = self._aggregate_models(client_models)
-
-        # Evaluate global model
-        # (Simplified evaluation - in practice, would use a held-out test set)
-        global_accuracy = 0.0  # Placeholder
-        if hasattr(self.config, 'test_data') and self.config.test_data:
-            # Evaluate on test data
-            pass
-
-        # Log metrics
-        round_metrics = {
-            "round": round_num,
-            "success": True,
-            "num_clients": len(client_models),
-            "total_samples": total_samples,
-            "time_limited_clients": time_limited_clients,
-            "oom_occurred": oom_occurred,
-            "batch_size_used": current_batch_size,
-            "global_accuracy": global_accuracy,
-            "privacy_budget_used": 0.0,  # Placeholder - would calculate from privacy engine
+        metrics = {
+            'loss': avg_loss,
+            'accuracy': accuracy,
+            'samples': total_samples
         }
 
-        if is_dp and self.privacy_engine:
-            epsilon_spent, delta_spent = get_privacy_spent(self.privacy_engine)
-            round_metrics["privacy_budget_used"] = epsilon_spent
-            round_metrics["delta_spent"] = delta_spent
-
-        self.round_metrics.append(round_metrics)
-        self.logger.log_round(round_metrics)
-
-        logger.info(f"Round {round_num} completed: {len(client_models)} clients, accuracy={global_accuracy:.4f}")
-        return round_metrics
-
-    def train(
-        self,
-        total_rounds: int,
-        num_clients: int,
-        clients_per_round: int,
-        epochs_per_round: int = 1,
-        lr: float = 0.01,
-        is_dp: bool = True,
-    ) -> List[Dict[str, Any]]:
-        """
-        Run full training for specified number of rounds.
-        Returns list of round metrics.
-        """
-        logger.info(f"Starting training for {total_rounds} rounds")
+        # Return updated parameters
+        updated_params = {k: v.clone() for k, v in local_model.state_dict().items()}
         
-        for round_num in range(1, total_rounds + 1):
-            metrics = self.train_round(
-                round_num=round_num,
-                num_clients=num_clients,
-                clients_to_sample=clients_per_round,
-                epochs=epochs_per_round,
-                lr=lr,
-                is_dp=is_dp,
-            )
+        return metrics, updated_params
+
+    def _aggregate_weights(
+        self,
+        client_updates: List[Tuple[int, Dict[str, torch.Tensor], int]],
+        total_samples: int
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client updates using weighted averaging based on sample count.
+        """
+        if not client_updates:
+            return {}
+
+        # Initialize aggregated parameters
+        aggregated = None
+        sample_weights = []
+
+        for client_id, params, num_samples in client_updates:
+            sample_weights.append(num_samples)
+            if aggregated is None:
+                aggregated = {k: v.clone() * num_samples for k, v in params.items()}
+            else:
+                for k in params:
+                    aggregated[k] += params[k] * num_samples
+
+        # Normalize by total samples
+        total_weight = sum(sample_weights)
+        if total_weight == 0:
+            logger.error("Total sample weight is zero, cannot aggregate")
+            return {}
+
+        for k in aggregated:
+            aggregated[k] /= total_weight
+
+        return aggregated
+
+    def run_round(
+        self,
+        round_num: int,
+        partition_data: Dict[int, Dict[str, Any]],
+        num_clients: int,
+        local_epochs: int,
+        learning_rate: float,
+        batch_size: int
+    ) -> Dict[str, Any]:
+        """
+        Execute one round of FedAvg.
+        """
+        start_time = time.time()
+        
+        total_clients = len(partition_data)
+        selected_client_ids = self._select_clients(total_clients, num_clients)
+        
+        logger.info(f"Round {round_num}: Selected {len(selected_client_ids)} clients from {total_clients}")
+
+        client_updates = []
+        client_metrics = []
+        skipped_clients = 0
+
+        for client_id in selected_client_ids:
+            data_loader = self._get_client_data_loader(client_id, partition_data, batch_size)
             
-            if not metrics.get("success", False):
-                logger.error(f"Training failed at round {round_num}")
+            if data_loader is None:
+                logger.warning(f"Skipping client {client_id}: no data available")
+                skipped_clients += 1
+                continue
+
+            client_metrics_data, updated_params = self._train_local(
+                client_id, data_loader, local_epochs, learning_rate
+            )
+
+            if updated_params is None:
+                logger.warning(f"Skipping client {client_id}: training returned no updates")
+                skipped_clients += 1
+                continue
+
+            # T019b: Check for zero-sample clients (should be caught by data_loader check, but double-check)
+            if client_metrics_data.get('samples', 0) == 0:
+                logger.warning(f"Skipping client {client_id}: zero samples after training")
+                skipped_clients += 1
+                continue
+
+            client_updates.append((client_id, updated_params, client_metrics_data['samples']))
+            client_metrics.append({
+                'client_id': client_id,
+                'metrics': client_metrics_data
+            })
+
+        if not client_updates:
+            logger.warning("No valid client updates received for this round")
+            return {
+                'round': round_num,
+                'global_accuracy': None,
+                'global_loss': None,
+                'skipped_clients': skipped_clients,
+                'active_clients': 0,
+                'round_time': time.time() - start_time,
+                'is_time_limited': False
+            }
+
+        # Aggregate updates
+        aggregated_params = self._aggregate_weights(client_updates, sum([u[2] for u in client_updates]))
+        
+        # Update global model
+        self.global_model.load_state_dict(aggregated_params)
+        self.global_model.to(self.device)
+        self.global_model.eval()
+
+        # Calculate global metrics (evaluate on a holdout set or average client metrics)
+        # For simplicity, we average client accuracies weighted by samples
+        total_weighted_accuracy = 0.0
+        total_weighted_loss = 0.0
+        total_samples_global = 0
+
+        for client_id, params, num_samples in client_updates:
+            # Find corresponding metrics
+            for cm in client_metrics:
+                if cm['client_id'] == client_id:
+                    metrics = cm['metrics']
+                    total_weighted_accuracy += metrics['accuracy'] * num_samples
+                    total_weighted_loss += metrics['loss'] * num_samples
+                    total_samples_global += num_samples
+                    break
+
+        global_accuracy = total_weighted_accuracy / total_samples_global if total_samples_global > 0 else 0.0
+        global_loss = total_weighted_loss / total_samples_global if total_samples_global > 0 else 0.0
+
+        round_duration = time.time() - start_time
+
+        # Log metrics
+        metrics_record = TrainingMetrics(
+            round=round_num,
+            global_accuracy=global_accuracy,
+            global_loss=global_loss,
+            num_clients=len(client_updates),
+            skipped_clients=skipped_clients,
+            round_time=round_duration,
+            alpha=self.config.alpha,
+            epsilon=self.config.epsilon,
+            seed=self.config.seed,
+            dataset=self.config.dataset,
+            is_time_limited=False,  # T020: Will be set based on timeout logic
+            is_utility_collapse=False,  # T021: Will be set based on accuracy threshold
+            minority_accuracy=None,  # T019: Calculated separately
+            majority_accuracy=None  # T019: Calculated separately
+        )
+
+        log_training_round(self.logger, metrics_record)
+
+        logger.info(
+            f"Round {round_num} complete: "
+            f"Global Acc={global_accuracy:.4f}, "
+            f"Global Loss={global_loss:.4f}, "
+            f"Clients={len(client_updates)}, "
+            f"Skipped={skipped_clients}, "
+            f"Time={round_duration:.2f}s"
+        )
+
+        return {
+            'round': round_num,
+            'global_accuracy': global_accuracy,
+            'global_loss': global_loss,
+            'num_clients': len(client_updates),
+            'skipped_clients': skipped_clients,
+            'round_time': round_duration,
+            'is_time_limited': False
+        }
+
+    def run_experiment(
+        self,
+        partition_data: Dict[int, Dict[str, Any]],
+        num_rounds: int,
+        num_clients_per_round: int,
+        local_epochs: int,
+        learning_rate: float,
+        batch_size: int,
+        target_accuracy: float = 0.90
+    ) -> Dict[str, Any]:
+        """
+        Run the full Federated Learning experiment.
+        """
+        logger.info(f"Starting FedAvg experiment: {num_rounds} rounds, "
+                   f"{num_clients_per_round} clients/round, "
+                   f"{local_epochs} local epochs")
+
+        start_time = time.time()
+        results = {
+            'rounds': [],
+            'final_accuracy': None,
+            'total_time': 0.0,
+            'is_time_limited': False,
+            'is_utility_collapse': False
+        }
+
+        for round_num in range(1, num_rounds + 1):
+            round_result = self.run_round(
+                round_num=round_num,
+                partition_data=partition_data,
+                num_clients=num_clients_per_round,
+                local_epochs=local_epochs,
+                learning_rate=learning_rate,
+                batch_size=batch_size
+            )
+
+            results['rounds'].append(round_result)
+
+            # T020: Check for timeout (placeholder - actual timeout logic would be implemented here)
+            # For T018a, we assume no timeout unless explicitly triggered
+            if round_result['is_time_limited']:
+                results['is_time_limited'] = True
+                logger.warning("Time limit reached, stopping early")
                 break
 
-        # Save final model
-        model_path = self.output_dir / "final_model.pt"
-        torch.save(self.global_model.state_dict(), model_path)
-        logger.info(f"Final model saved to {model_path}")
+            # T021: Check for utility collapse
+            if round_result['global_accuracy'] is not None and round_result['global_accuracy'] < 0.05:
+                results['is_utility_collapse'] = True
+                logger.warning("Utility collapse detected (accuracy < 0.05)")
+                # Continue running to log the collapse, but flag it
 
-        # Save metrics
-        self.logger.save_metrics()
+            # Check if target accuracy reached
+            if round_result['global_accuracy'] is not None and round_result['global_accuracy'] >= target_accuracy:
+                logger.info(f"Target accuracy {target_accuracy} reached at round {round_num}")
+                # Optionally break early, but we continue to log full trajectory
 
-        return self.round_metrics
+        results['total_time'] = time.time() - start_time
+        results['final_accuracy'] = results['rounds'][-1]['global_accuracy'] if results['rounds'] else None
 
+        logger.info(f"Experiment complete: {results['total_time']:.2f}s, "
+                   f"Final Acc={results['final_accuracy']:.4f}")
 
-def run_experiment(config: Config, dp_config: DPConfig) -> Dict[str, Any]:
+        return results
+
+def run_experiment(
+    config: Config,
+    num_rounds: int,
+    num_clients_per_round: int,
+    local_epochs: int,
+    learning_rate: float,
+    batch_size: int,
+    target_accuracy: float = 0.90
+) -> Dict[str, Any]:
     """
-    Run a complete FedAvg experiment with the given configuration.
+    Main entry point for running a FedAvg experiment.
+    T018a: Core implementation without DP noise.
+    T018b: Will integrate DP noise wrapper and moments accountant.
     """
-    logger.info(f"Running experiment with config: seed={config.seed}, alpha={config.alpha}, epsilon={config.epsilon}")
-    
-    # Determine model class
-    if config.model_type == "cnn":
-        model_class = SmallCNN
-    elif config.model_type == "mlp":
-        model_class = SmallMLP
-    else:
-        raise ValueError(f"Unknown model type: {config.model_type}")
-    
+    # Set random seed for reproducibility
+    torch.manual_seed(config.seed)
+    np.random.seed(config.seed)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+
+    # Load data partitions (assumes T011 and T012 have completed)
+    # The partition data should be pre-loaded and cached
+    partition_data = partition_femnist(
+        seed=config.seed,
+        alpha=config.alpha,
+        data_path=Path("data/raw/femnist.parquet"),
+        output_dir=Path("data/partitions")
+    )
+
+    # Initialize global model
+    global_model = get_model(config.dataset)
+    global_model.to(device)
+
+    # Initialize logger
+    logger_instance = ExperimentLogger(
+        experiment_dir=Path("results"),
+        config=config
+    )
+
+    # Initialize DP config (for future T018b integration)
+    dp_config = None  # T018a: No DP noise
+
     # Create orchestrator
     orchestrator = FedAvgOrchestrator(
         config=config,
-        dp_config=dp_config,
-        model_class=model_class,
-        partition_dir=config.partition_dir,
-        output_dir=config.results_dir,
+        device=device,
+        global_model=global_model,
+        logger=logger_instance,
+        dp_config=dp_config
     )
-    
-    # Run training
-    metrics = orchestrator.train(
-        total_rounds=config.total_rounds,
-        num_clients=config.num_clients,
-        clients_per_round=config.clients_per_round,
-        epochs_per_round=config.epochs_per_round,
-        lr=config.learning_rate,
-        is_dp=config.enable_dp,
+
+    # Run experiment
+    results = orchestrator.run_experiment(
+        partition_data=partition_data,
+        num_rounds=num_rounds,
+        num_clients_per_round=num_clients_per_round,
+        local_epochs=local_epochs,
+        learning_rate=learning_rate,
+        batch_size=batch_size,
+        target_accuracy=target_accuracy
     )
-    
-    return {
-        "config": config,
-        "metrics": metrics,
-        "final_model_path": config.results_dir / "final_model.pt",
-    }
+
+    return results

@@ -1,9 +1,9 @@
 status: none
-intent: UCI Machine Learning Repository Python package for Breast Cancer Wisconsin
-  Ionosphere Heart Disease python package dataset
+intent: download UCI Machine Learning Repository datasets breast cancer ionosphere
+  heart disease python package dataset
 required_fields:
-- numeric_feature_columns
-- binary_target_column
-cache_key: e5dadf47c93394927932371f0f9af35dfabc6db56d8748f0638e5bd02158ede2
-searched_at: '2026-09-22T15:22:22.106140+00:00'
+- numeric feature columns
+- binary target label
+cache_key: 177b4e35f04447fa76c70324dd2c465a9cab34447a05e119a73a264592940c78
+searched_at: '2026-09-24T12:41:33.694923+00:00'
 retry_count: 1
