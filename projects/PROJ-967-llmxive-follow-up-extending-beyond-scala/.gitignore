@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,49 +20,37 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
+# Virtual Environments
 venv/
-ENV/
 env/
+ENV/
+.venv/
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
+
+# Data (Raw and Processed)
+data/raw/*.parquet
+data/raw/*.csv
+data/raw/*.json
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.pkl
+
+# Results
+results/*.json
+results/*.pkl
+results/*.png
+results/*.csv
+results/*.txt
+
+# Logs
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Project specific
-projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/*.parquet
-projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/*.parquet
-projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/*.pkl
-projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/*.prof

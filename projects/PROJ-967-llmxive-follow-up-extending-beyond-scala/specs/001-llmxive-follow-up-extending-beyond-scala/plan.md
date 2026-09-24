@@ -20,7 +20,7 @@ This feature implements a computational study to quantify the "structural entang
 **Project Type**: Data Science / Research Pipeline (Simulated)  
 **Performance Goals**: Complete ingestion, feature engineering, and 5-fold CV training within 6 hours.  
 **Constraints**: No local GPU; memory usage < 7 GB; strict handling of missing data; dataset must be verified as open-access (OxfordPets).  
-**Scale/Scope**: Analysis of the OxfordPets_test dataset (approx. 10k samples) with synthetic distribution generation.
+**Scale/Scope**: Analysis of the OxfordPets_test dataset (a large-scale collection of samples) with synthetic distribution generation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

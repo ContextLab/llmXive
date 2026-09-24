@@ -1,24 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Z-Reward Dataset Schema"
-description: "Schema for the raw Z-Reward evaluation dataset ingestion."
+title: "OxfordPets + Simulated Outputs Dataset Schema"
+description: |
+  Provisional schema for the dataset derived from the Oxford Pets dataset,
+  augmented with simulated teacher scores, student scalars, and human annotations
+  as per the project's synthetic data generation strategy (Task T037).
+  This schema reflects the structure of `data/raw/oxford_pets_simulated.parquet`.
 type: object
 required:
   - sample_id
-  - prompt
+  - image_path
+  - species_id
   - teacher_scores
   - student_scalar
   - human_annotations
-  - metadata
+  - primary_dimension
 properties:
   sample_id:
     type: string
-    description: "Unique identifier for the sample."
-  prompt:
+    description: "Unique identifier for the sample (derived from image filename or index)."
+  image_path:
     type: string
-    description: "The text prompt used for generation."
+    description: "Relative path to the image file within the Oxford Pets dataset."
+  species_id:
+    type: integer
+    description: "Integer ID representing the pet breed/species (0 to 36)."
   teacher_scores:
     type: object
-    description: "Teacher model scores for the four rubric dimensions."
+    description: "Simulated teacher model scores for the four rubric dimensions."
     required:
       - alignment
       - realism
@@ -27,46 +35,43 @@ properties:
     properties:
       alignment:
         type: number
-        description: "Teacher score for alignment."
+        description: "Simulated teacher score for alignment (0.0 - 1.0)."
       realism:
         type: number
-        description: "Teacher score for realism."
+        description: "Simulated teacher score for realism (0.0 - 1.0)."
       aesthetics:
         type: number
-        description: "Teacher score for aesthetics."
+        description: "Simulated teacher score for aesthetics (0.0 - 1.0)."
       plausibility:
         type: number
-        description: "Teacher score for plausibility."
+        description: "Simulated teacher score for plausibility (0.0 - 1.0)."
   student_scalar:
     type: number
-    description: "Scalar output from the student model."
+    description: "Simulated scalar output from the student model (0.0 - 1.0)."
   human_annotations:
     type: object
-    description: "Human annotations for the four rubric dimensions. May contain nulls."
+    description: "Simulated human annotations for the four rubric dimensions. May contain nulls."
     properties:
       alignment:
         type: ["number", "null"]
-        description: "Human annotation for alignment."
+        description: "Simulated human annotation for alignment."
       realism:
         type: ["number", "null"]
-        description: "Human annotation for realism."
+        description: "Simulated human annotation for realism."
       aesthetics:
         type: ["number", "null"]
-        description: "Human annotation for aesthetics."
+        description: "Simulated human annotation for aesthetics."
       plausibility:
         type: ["number", "null"]
-        description: "Human annotation for plausibility."
-  metadata:
-    type: object
-    description: "Metadata including the primary quality dimension."
-    required:
-      - primary_dimension
-    properties:
-      primary_dimension:
-        type: string
-        enum:
-          - alignment
-          - realism
-          - aesthetics
-          - plausibility
-        description: "The dimension used for fidelity loss calculation."
+        description: "Simulated human annotation for plausibility."
+  primary_dimension:
+    type: string
+    enum:
+      - alignment
+      - realism
+      - aesthetics
+      - plausibility
+    description: |
+      The dimension derived for fidelity loss calculation.
+      Determined by `hash(species_id) % 4` mapping to the enum list.
+      (0: alignment, 1: realism, 2: aesthetics, 3: plausibility)

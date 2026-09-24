@@ -3,42 +3,38 @@ import sys
 from pathlib import Path
 import logging
 
-def ensure_directory(dir_path: str) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    path = Path(dir_path)
+def ensure_directory(path: Path) -> None:
+    """Create directory if it doesn't exist."""
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
         logging.info(f"Created directory: {path}")
     else:
-        logging.info(f"Directory already exists: {path}")
+        logging.debug(f"Directory already exists: {path}")
 
-def main() -> None:
+def main():
     """Create the project directory structure for PROJ-967."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
+        format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-    # Define the base project root relative to repository root
-    # Assuming this script runs from the repository root or code/ directory
-    # We use relative paths as specified in the task description
-    base_path = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+    # Define the project root relative to the repository root
+    # Assuming the script is run from the repository root or code/ directory
+    repo_root = Path(__file__).parent.parent
+    project_root = repo_root / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
 
-    # Define required directories
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "results",
-        base_path / "code",
-        base_path / "tests",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
+        project_root / "code",
+        project_root / "tests",
     ]
 
-    logging.info(f"Creating project structure at: {base_path}")
+    for dir_path in directories:
+        ensure_directory(dir_path)
 
-    for directory in directories:
-        ensure_directory(str(directory))
-
-    logging.info("Project directory structure creation complete.")
+    logging.info("Project directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

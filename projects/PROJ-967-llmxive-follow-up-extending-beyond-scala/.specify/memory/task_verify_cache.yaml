@@ -1,26 +1,48 @@
-T000b:
-  c: false
-  h: 0caa0067e84f686a90df814381c40744636b8c19e50eb495c4a42d4e35e13c9c
-  r: "The provided artifacts include only a static `config.json` (with `IS_SYNTHETIC_RUN:\
-    \ false`) and an empty `lineage_report.json`; there is no `research.md` file,\
-    \ no output from `reference-validator`, and no evidence that the required keys\
-    \ (`title_token_overlap`, `checksum`, `source_type`) were extracted and written.\
-    \ The task\u2019s core verification and file\u2011population steps are missing."
-T000e:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or pipeline component was provided that checks the outputs\
-    \ of T000b/T037 and raises the required `RuntimeError` with the exact message\
-    \ when real data is missing. The artifact needed to enforce the \u201CFail Loud\u201D\
-    \ behavior is absent."
-T012:
+  r: No directory structure was presented in the evidence; the required folders (`projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,
+    `.../data/processed`, `.../results`, `.../code`, `.../tests`) are not shown to
+    exist or contain any files. The implementer must create these directories (and
+    optionally add a placeholder file to prove they exist).
+T001b:
   c: false
-  h: 71119e22d203e5e4766d587a458335d7b46eeca35f70f06b5b8761e91d637119
-  r: "The repository contains a partially\u2011implemented `code/ingest.py`, but it\
-    \ never writes the processed data to `data/processed/raw_data.parquet` (the file\
-    \ is missing) and the script does not load or handle the required `logits` and\
-    \ pre\u2011computed inference output columns. Consequently the core ingestion\
-    \ requirement is not fulfilled."
+  h: a37b0fe83c9673714ba7dae5f44bc533c1dd6f7594212e87c7e3cc7ba4c54997
+  r: The required files under `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`
+    (`code/requirements.txt`, `.gitignore`, and `pytest.ini`) are missing; only a
+    unrelated `code/requirements.txt` exists elsewhere. No empty files were created
+    at the specified locations.
+T001c:
+  c: false
+  h: 2de8a2082eead43a635a4e7dafae7056763d52c07fb7e003947718ad62584a8e
+  r: "The required file `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`\
+    \ does not exist, and the only existing `requirements.txt` contains extra, non\u2011\
+    pinned dependencies (`pyarrow>=10.0.0`, `datasets>=2.14.0`). The task\u2019s requirement\
+    \ for a file at the specified path with only the listed pinned versions is therefore\
+    \ unmet."
+T003a:
+  c: false
+  h: 72f75df7c8ce4262e432e2bac4335015c3aa2b7e723241e071771d07ebc86a86
+  r: The `pyproject.toml` file exists and contains pinned versions and configuration,
+    but the required `.ruff.toml` file is missing entirely, so the task of creating
+    both linting/formatting config files is not fulfilled. The implementer must add
+    a `.ruff.toml` with the appropriate settings.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or output artifacts (e.g., ingestion script, JSON\
+    \ feature records, Random Forest training results) are present to demonstrate\
+    \ that the Z\u2011Reward dataset was loaded, teacher/student scores aligned, entanglement\
+    \ metrics computed, or a predictive model trained. The required artifacts are\
+    \ missing, so the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or output artifacts (e.g., ingestion script, JSON\
+    \ feature records, Random Forest training code, logs, or results) are present\
+    \ to demonstrate that the dataset was loaded, entanglement features were computed,\
+    \ or the predictive model was trained and validated as required. The implementer\u2019\
+    s claim cannot be verified without these concrete artifacts."
 T022b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,26 +102,19 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T037:
+T037c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No dataset files, download script, or verification logs are present; the claim\
-    \ provides only a description without any tangible artifact confirming that the\
-    \ Z\u2011Reward evaluation dataset was actually obtained and stored. The required\
-    \ evidence (downloaded data and/or ingestion code) is missing."
-T037b:
+  r: "No code, scripts, data files, or output artifacts (e.g., ingestion script, JSON\
+    \ feature records, Random Forest training code or results) are present to demonstrate\
+    \ that the dataset was ingested, entanglement features were computed, or the predictive\
+    \ model was trained and validated as required. The implementer\u2019s claim cannot\
+    \ be verified without these concrete artifacts."
+T037z:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No synthetic dataset files, generation scripts, or documentation were provided;\
-    \ the only evidence is the task description itself, which does not include any\
-    \ actual artifact. The required output\u2014a synthetic dataset for unit testing\u2014\
-    is missing."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or output artifacts (e.g., ingestion script, JSON feature
-    records, covariance matrix, Random Forest training script, or evaluation results)
-    were provided. Without these concrete artifacts, the required dataset loading,
-    entanglement computation, and predictive modeling steps cannot be verified. The
-    implementer must supply the actual scripts and generated outputs that satisfy
-    the three user stories.
+  r: "No dataset files, ingestion script, feature\u2011engineering code, or model\u2011\
+    training artifacts were provided. The claim lacks any concrete files or outputs\
+    \ that demonstrate loading the Z\u2011Reward dataset, computing per\u2011sample\
+    \ entanglement metrics, or producing the required JSON records and logs, so the\
+    \ task requirements are not satisfied."

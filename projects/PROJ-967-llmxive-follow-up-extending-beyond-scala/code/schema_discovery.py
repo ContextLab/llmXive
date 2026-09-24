@@ -5,178 +5,260 @@ import sys
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import yaml
 import pandas as pd
+import yaml
 
-# Setup logging
-def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
+# Local imports based on provided API surface
+# No local modules defined for setup_logging, so we define it here
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
     logger = logging.getLogger("schema_discovery")
-    logger.setLevel(log_level)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(file_handler)
     return logger
-
-logger = setup_logging()
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
     """Load the provisional schema from a YAML file."""
+    logger = logging.getLogger("schema_discovery")
     logger.info(f"Loading schema from {schema_path}")
-    with open(schema_path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(schema_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        logger.error(f"Schema file not found: {schema_path}")
+        raise
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing schema YAML: {e}")
+        raise
 
 def save_schema(schema: Dict[str, Any], schema_path: str) -> None:
-    """Save the updated schema to a YAML file."""
+    """Save the schema to a YAML file."""
+    logger = logging.getLogger("schema_discovery")
     logger.info(f"Saving schema to {schema_path}")
-    with open(schema_path, "w", encoding="utf-8") as f:
+    with open(schema_path, 'w') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
 
 def load_dataset(data_path: str) -> pd.DataFrame:
     """Load the dataset from a Parquet file."""
+    logger = logging.getLogger("schema_discovery")
     logger.info(f"Loading dataset from {data_path}")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Dataset file not found: {data_path}")
-    return pd.read_parquet(data_path)
+    try:
+        df = pd.read_parquet(data_path)
+        logger.info(f"Dataset loaded successfully. Shape: {df.shape}")
+        return df
+    except FileNotFoundError:
+        logger.error(f"Dataset file not found: {data_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading dataset: {e}")
+        raise
 
 def discover_schema(df: pd.DataFrame) -> Dict[str, Any]:
-    """Discover the schema of the loaded DataFrame."""
-    fields = []
+    """Infer the schema from the dataframe."""
+    logger = logging.getLogger("schema_discovery")
+    schema = {
+        "columns": {}
+    }
+    
     for col in df.columns:
         dtype = str(df[col].dtype)
-        field_info = {
-            "name": col,
+        sample_values = df[col].dropna().head(5).tolist()
+        schema["columns"][col] = {
             "type": dtype,
+            "sample_values": sample_values
         }
-        # Handle nested structures if present
-        if df[col].apply(lambda x: isinstance(x, dict)).any():
-            field_info["type"] = "object"
-            # Attempt to extract properties if it's a dict column
-            sample = df[col].dropna().iloc[0]
-            if isinstance(sample, dict):
-                props = {}
-                for k, v in sample.items():
-                    props[k] = type(v).__name__
-                field_info["properties"] = props
-        fields.append(field_info)
     
-    return {
-        "schema_version": "1.0",
-        "fields": fields
+    logger.info(f"Discovered schema for {len(df.columns)} columns")
+    return schema
+
+def validate_schema(discovered_schema: Dict[str, Any], contract_schema: Dict[str, Any]) -> Dict[str, Any]:
+    """Compare discovered schema with the contract schema."""
+    logger = logging.getLogger("schema_discovery")
+    validation_result = {
+        "is_valid": True,
+        "discrepancies": [],
+        "missing_columns": [],
+        "extra_columns": []
     }
+    
+    contract_columns = set(contract_schema.get("columns", {}).keys())
+    discovered_columns = set(discovered_schema.get("columns", {}).keys())
+    
+    # Check for missing columns (required by contract)
+    missing = contract_columns - discovered_columns
+    if missing:
+        validation_result["missing_columns"] = list(missing)
+        validation_result["is_valid"] = False
+        logger.warning(f"Missing columns found: {missing}")
+    
+    # Check for extra columns (not in contract)
+    extra = discovered_columns - contract_columns
+    if extra:
+        validation_result["extra_columns"] = list(extra)
+        logger.info(f"Extra columns found (not in contract): {extra}")
+    
+    # Check for type mismatches
+    for col in contract_columns.intersection(discovered_columns):
+        contract_type = contract_schema["columns"][col].get("type")
+        discovered_type = discovered_schema["columns"][col].get("type")
+        
+        # Simple type comparison (could be more sophisticated)
+        if contract_type and discovered_type and contract_type != discovered_type:
+            validation_result["discrepancies"].append({
+                "column": col,
+                "contract_type": contract_type,
+                "discovered_type": discovered_type
+            })
+            # Not necessarily invalid if it's a compatible type (e.g., int vs float)
+            # For strict validation, we might mark it invalid
+            # validation_result["is_valid"] = False
+            logger.warning(f"Type mismatch for column {col}: contract={contract_type}, discovered={discovered_type}")
+    
+    return validation_result
 
-def validate_schema(discovered: Dict[str, Any], provisional: Dict[str, Any]) -> List[str]:
-    """Compare discovered schema against provisional schema and return discrepancies."""
-    discrepancies = []
-    discovered_fields = {f["name"]: f for f in discovered["fields"]}
-    provisional_fields = {f["name"]: f for f in provisional["fields"]}
-
-    # Check for missing required fields
-    for name, prov_field in provisional_fields.items():
-        if name not in discovered_fields:
-            discrepancies.append(f"Missing required field: {name}")
+def update_contract(discovered_schema: Dict[str, Any], contract_path: str, force_update: bool = False) -> None:
+    """Update the contract schema with the discovered schema if there are discrepancies."""
+    logger = logging.getLogger("schema_discovery")
+    
+    if force_update:
+        logger.info("Force updating contract schema with discovered schema")
+        save_schema(discovered_schema, contract_path)
+        return
+    
+    # Load current contract
+    try:
+        current_contract = load_schema(contract_path)
+    except FileNotFoundError:
+        logger.info("No existing contract found. Saving discovered schema as new contract.")
+        save_schema(discovered_schema, contract_path)
+        return
+    
+    # Compare and decide
+    validation = validate_schema(discovered_schema, current_contract)
+    
+    if not validation["is_valid"] or validation["extra_columns"]:
+        logger.info("Discrepancies found. Updating contract schema.")
+        # Merge: keep contract structure but update types if different
+        # For this task, we overwrite with discovered schema if there are significant changes
+        # or if the contract was missing columns
+        if validation["missing_columns"]:
+            logger.warning("Contract is missing columns present in data. Overwriting contract.")
+            save_schema(discovered_schema, contract_path)
+        elif validation["discrepancies"]:
+            logger.warning("Type discrepancies found. Updating contract types.")
+            # Create a merged schema
+            merged_schema = current_contract.copy()
+            if "columns" not in merged_schema:
+                merged_schema["columns"] = {}
+            for col, info in discovered_schema["columns"].items():
+                merged_schema["columns"][col] = info
+            save_schema(merged_schema, contract_path)
         else:
-            disc_field = discovered_fields[name]
-            # Type check (simple string comparison for now)
-            if disc_field["type"] != prov_field["type"]:
-                discrepancies.append(f"Type mismatch for {name}: discovered '{disc_field['type']}', expected '{prov_field['type']}'")
-            
-            # Check properties if object type
-            if prov_field.get("properties"):
-                disc_props = disc_field.get("properties", {})
-                for prop_name in prov_field["properties"]:
-                    if prop_name not in disc_props:
-                        discrepancies.append(f"Missing property '{prop_name}' in object field '{name}'")
-
-    # Check for extra fields (optional, but good to log)
-    for name in discovered_fields:
-        if name not in provisional_fields:
-            logger.warning(f"Extra field found in dataset: {name}")
-
-    return discrepancies
-
-def update_contract(discovered: Dict[str, Any], contract_path: str) -> None:
-    """Overwrite the contract file with the discovered schema."""
-    logger.info(f"Overwriting contract at {contract_path} with discovered schema.")
-    save_schema(discovered, contract_path)
+            logger.info("No critical discrepancies. Keeping existing contract.")
+    else:
+        logger.info("Schema matches contract. No update needed.")
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Schema Discovery and Validation Tool")
+    parser = argparse.ArgumentParser(description="Schema Discovery and Validation")
     parser.add_argument(
-        "--input-data",
+        "--dataset-path",
         type=str,
-        required=True,
-        help="Path to the input Parquet file (output of T037 or T037b)"
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/oxford_pets_simulated.parquet",
+        help="Path to the raw dataset file"
     )
     parser.add_argument(
         "--contract-path",
         type=str,
         default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/contracts/dataset.schema.yaml",
-        help="Path to the provisional schema contract file"
+        help="Path to the contract schema file"
     )
     parser.add_argument(
         "--output-path",
         type=str,
-        help="Optional path to save the final discovered schema (if different from contract)"
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/schema_validation_report.json",
+        help="Path to save the validation report"
+    )
+    parser.add_argument(
+        "--force-update",
+        action="store_true",
+        help="Force update the contract schema even if it matches"
+    )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/schema_discovery.log",
+        help="Path to the log file"
     )
     return parser.parse_args()
 
 def main() -> None:
     args = parse_args()
+    logger = setup_logging(args.log_file)
     
-    # 1. Load Provisional Schema
-    try:
-        provisional_schema = load_schema(args.contract_path)
-    except FileNotFoundError:
-        logger.error(f"Provisional schema not found at {args.contract_path}. Cannot proceed.")
-        sys.exit(1)
-
-    # 2. Load Dataset
-    try:
-        df = load_dataset(args.input_data)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        sys.exit(1)
-
-    # 3. Discover Schema
-    discovered_schema = discover_schema(df)
-    logger.info(f"Discovered {len(discovered_schema['fields'])} fields.")
-
-    # 4. Validate
-    discrepancies = validate_schema(discovered_schema, provisional_schema)
+    logger.info("Starting Schema Discovery and Validation")
     
-    if discrepancies:
-        logger.warning("Schema discrepancies found:")
-        for d in discrepancies:
-            logger.warning(f"  - {d}")
+    try:
+        # 1. Load the raw dataset
+        df = load_dataset(args.dataset_path)
         
-        # Check for critical mismatches (missing rubric dimensions)
-        critical_fields = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-        # We need to check if these are inside teacher_scores or human_annotations
-        # Based on T001d, they are properties of 'teacher_scores' object.
-        # If the object exists but properties are missing, it's critical.
+        # 2. Infer actual column names and map to logical fields
+        discovered_schema = discover_schema(df)
         
-        teacher_scores_field = next((f for f in discovered_schema["fields"] if f["name"] == "teacher_scores"), None)
-        if teacher_scores_field:
-            props = teacher_scores_field.get("properties", {})
-            missing_dims = [dim for dim in critical_fields if dim not in props]
-            if missing_dims:
-                logger.critical(f"Critical mismatch: Missing rubric dimensions in teacher_scores: {missing_dims}")
-                raise RuntimeError(f"Critical Schema Mismatch: Missing dimensions {missing_dims}")
+        # 3. Validate against provisional contract schema
+        try:
+            contract_schema = load_schema(args.contract_path)
+        except FileNotFoundError:
+            logger.warning(f"Contract schema not found at {args.contract_path}. Creating new contract.")
+            contract_schema = {"columns": {}}
+        
+        validation_result = validate_schema(discovered_schema, contract_schema)
+        
+        # Check for missing rubric dimensions (specific requirement)
+        rubric_dims = ["dimension_1", "dimension_2", "dimension_3", "dimension_4"]
+        missing_dims = [d for d in rubric_dims if d not in discovered_schema["columns"]]
+        
+        if missing_dims:
+            logger.error(f"Missing rubric dimensions: {missing_dims}")
+            raise RuntimeError(f"Missing required rubric dimensions: {missing_dims}")
+        
+        # 4. On discrepancy, overwrite contract
+        update_contract(discovered_schema, args.contract_path, args.force_update)
+        
+        # 5. Save validation report
+        report = {
+            "dataset_path": args.dataset_path,
+            "contract_path": args.contract_path,
+            "discovered_schema": discovered_schema,
+            "validation_result": validation_result,
+            "rubric_dimensions_check": {
+                "required": rubric_dims,
+                "found": [d for d in rubric_dims if d in discovered_schema["columns"]],
+                "missing": missing_dims,
+                "all_present": len(missing_dims) == 0
+            }
+        }
+        
+        os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
+        with open(args.output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Validation report saved to {args.output_path}")
+        
+        if not validation_result["is_valid"]:
+            logger.warning("Schema validation failed. Please review the discrepancies.")
+            sys.exit(1)
         else:
-            logger.critical("Critical mismatch: Missing 'teacher_scores' field entirely.")
-            raise RuntimeError("Critical Schema Mismatch: Missing 'teacher_scores' field.")
-
-        # If we have discrepancies but no critical errors, we proceed to update.
-        logger.info("Overwriting contract with discovered schema to resolve discrepancies.")
-        target_path = args.output_path if args.output_path else args.contract_path
-        update_contract(discovered_schema, target_path)
-    else:
-        logger.info("Schema validation successful. No discrepancies found.")
-
-    logger.info("Schema Discovery and Validation completed successfully.")
+            logger.info("Schema validation successful.")
+            
+    except Exception as e:
+        logger.error(f"Schema discovery and validation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

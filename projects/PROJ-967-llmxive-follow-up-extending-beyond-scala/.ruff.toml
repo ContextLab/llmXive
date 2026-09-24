@@ -1,11 +1,52 @@
+# Ruff configuration for llmXive project
+# Pinned tool version: ruff==0.9.0
+
+# Target Python version
+target-version = "py310"
+
+# Line length configuration
+line-length = 88
+
+# Exclude common directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
 [lint]
-select = ["E", "F", "W", "I", "D"]
-ignore = ["D100", "D104"]
-line-length = 100
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
 
-[lint.pydocstyle]
-convention = "google"
+# Ignore specific rules that are too strict for this project
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults
+]
 
-[format]
-quote-style = "double"
-indent-style = "space"
+[lint.per-file-ignores]
+# Allow longer lines in test files
+"tests/*" = ["E501"]
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["code"]
+force-sort-within-sections = true
+combine-as-imports = true
+
+[lint.flake8-comprehensions]
+# Allow unnecessary list comprehension in some cases
+allow-dict-calls-with-keyword-arguments = true
