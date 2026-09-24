@@ -1,9 +1,3 @@
-"""
-Model loading and validation utilities for the HiLS (Hierarchical Sparse Attention) pipeline.
-
-This module provides functionality to load pre-trained checkpoints, validate their
-compatibility with the current configuration, and initialize the model for inference.
-"""
 import os
 import logging
 from typing import Dict, Any, Optional, Tuple
@@ -11,7 +5,6 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from .config import Config
 
-# Configure module logger
 logger = logging.getLogger(__name__)
 
 
@@ -22,173 +15,167 @@ class HiLSModelLoaderError(Exception):
 
 class HiLSModelLoader:
     """
-    A class to encapsulate the logic for loading and managing HiLS model checkpoints.
-    
-    Attributes:
-        config (Config): The configuration object containing model paths and hyperparameters.
-        model (AutoModelForCausalLM): The loaded transformer model.
-        tokenizer (AutoTokenizer): The loaded tokenizer.
+    Handles loading and validation of the pre-trained HiLS model checkpoint.
+    Ensures compatibility with the configuration before inference tasks begin.
     """
+
     def __init__(self, config: Config):
         """
-        Initialize the HiLSModelLoader.
-        
+        Initialize the loader with configuration.
+
         Args:
-            config (Config): Configuration object with model_path and other settings.
+            config: The configuration object containing model_path and other settings.
         """
         self.config = config
+        self.model_path = config.model_path
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model: Optional[AutoModelForCausalLM] = None
         self.tokenizer: Optional[AutoTokenizer] = None
-        self._is_loaded = False
 
-    def load_checkpoint(self, checkpoint_path: Optional[str] = None) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    def load(self) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
         """
         Load the pre-trained HiLS model and tokenizer.
-        
-        If checkpoint_path is provided, it overrides the path in config.
-        
-        Args:
-            checkpoint_path (str, optional): Path to the checkpoint directory. Defaults to config.model_path.
-        
+
         Returns:
-            Tuple[AutoModelForCausalLM, AutoTokenizer]: The loaded model and tokenizer.
-        
+            A tuple containing the loaded model and tokenizer.
+
         Raises:
-            HiLSModelLoaderError: If loading fails or the checkpoint is invalid.
+            HiLSModelLoaderError: If the model cannot be loaded or validated.
         """
-        path_to_load = checkpoint_path or self.config.model_path
-        
-        if not path_to_load:
-            raise HiLSModelLoaderError("Model path is not specified in config or arguments.")
-        
-        if not os.path.exists(path_to_load):
-            raise HiLSModelLoaderError(f"Checkpoint path does not exist: {path_to_load}")
+        if not self.model_path:
+            raise HiLSModelLoaderError("Model path is not specified in configuration.")
+
+        if not os.path.exists(self.model_path) and not self.model_path.startswith("hf://") and not self.model_path.startswith("http"):
+            # Check if it's a local path that doesn't exist
+            if not os.path.isdir(self.model_path):
+                logger.warning(f"Local model path {self.model_path} does not exist. Attempting to load from HuggingFace Hub.")
 
         try:
-            logger.info(f"Loading model from {path_to_load}...")
+            logger.info(f"Loading model from {self.model_path}...")
             
             # Load tokenizer
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                path_to_load,
-                trust_remote_code=True,
-                use_fast=True
-            )
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             
-            # Ensure padding token is set if not already
+            # Handle special case for models without pad token
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
-                logger.warning("Pad token was None, set to eos_token.")
 
             # Load model
-            # Note: Using torch_dtype=torch.float16 for efficiency if CUDA is available, 
-            # otherwise float32. This can be made configurable if needed.
-            torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-            
+            # Use appropriate dtype based on device and availability
+            if self.device == "cuda":
+                model_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+            else:
+                model_dtype = torch.float32
+
             self.model = AutoModelForCausalLM.from_pretrained(
-                path_to_load,
-                torch_dtype=torch_dtype,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True,
-                device_map="auto" if torch.cuda.is_available() else None
+                self.model_path,
+                torch_dtype=model_dtype,
+                device_map="auto" if self.device == "cuda" else None,
+                low_cpu_mem_usage=True
             )
+
+            if self.device == "cpu":
+                self.model = self.model.to(self.device)
+
+            logger.info(f"Model loaded successfully on {self.device}.")
             
-            self.model.eval()
-            self._is_loaded = True
+            # Validate the loaded model
+            self.validate_checkpoint()
             
-            logger.info(f"Successfully loaded model from {path_to_load}")
             return self.model, self.tokenizer
 
         except Exception as e:
-            logger.error(f"Failed to load model from {path_to_load}: {str(e)}")
-            raise HiLSModelLoaderError(f"Model loading failed: {str(e)}") from e
+            error_msg = f"Failed to load HiLS model from {self.model_path}: {str(e)}"
+            logger.error(error_msg)
+            raise HiLSModelLoaderError(error_msg) from e
 
     def validate_checkpoint(self) -> bool:
         """
-        Validate the loaded checkpoint against configuration requirements.
-        
-        This checks for:
-        - Model existence and basic structure
-        - Compatibility of model architecture with expected config
-        - Tokenizer vocabulary size matching model embedding size (if applicable)
-        
+        Validate the loaded checkpoint for compatibility.
+
+        Checks:
+        - Model has attention layers compatible with HiLS
+        - Tokenizer is properly configured
+        - Model is in eval mode
+
         Returns:
-            bool: True if validation passes.
-        
+            True if validation passes.
+
         Raises:
             HiLSModelLoaderError: If validation fails.
         """
-        if not self._is_loaded or self.model is None or self.tokenizer is None:
-            raise HiLSModelLoaderError("Model or tokenizer not loaded. Call load_checkpoint first.")
+        if self.model is None or self.tokenizer is None:
+            raise HiLSModelLoaderError("Model or tokenizer not loaded. Cannot validate.")
 
-        # Basic structural validation
-        if not hasattr(self.model, 'config'):
+        # Ensure model is in evaluation mode
+        self.model.eval()
+
+        # Basic structure validation
+        if not hasattr(self.model, "config"):
             raise HiLSModelLoaderError("Loaded model does not have a config attribute.")
-        
-        # Check for expected attention mechanism attributes if HiLS specific
-        # This assumes the model has been fine-tuned or is a variant that includes HiLS layers
-        # We check for the presence of a specific attribute that might denote HiLS layers
-        # Since the exact architecture varies, we do a generic check for the model type
-        # and ensure it's a causal LM.
-        if not isinstance(self.model, AutoModelForCausalLM):
-            raise HiLSModelLoaderError("Loaded model is not a causal language model.")
 
-        # Validate tokenizer vocab size matches model embeddings (if accessible)
-        try:
-            if hasattr(self.model, 'get_input_embeddings'):
-                embeddings = self.model.get_input_embeddings()
-                if embeddings is not None:
-                    model_vocab_size = embeddings.num_embeddings
-                    tokenizer_vocab_size = len(self.tokenizer)
-                    
-                    # Allow a small mismatch if the tokenizer was extended but model embeddings not resized
-                    # In a strict HiLS setup, these should match or the model should have been resized.
-                    # For this validation, we just log if they differ significantly.
-                    if abs(model_vocab_size - tokenizer_vocab_size) > 100:
-                        logger.warning(
-                            f"Vocabulary size mismatch: Model={model_vocab_size}, Tokenizer={tokenizer_vocab_size}. "
-                            "Ensure the model was resized correctly if using custom tokens."
-                        )
-        except Exception as e:
-            logger.warning(f"Could not verify embedding/vocab size match: {e}")
+        # Check for essential components
+        if not hasattr(self.model, "get_input_embeddings"):
+            raise HiLSModelLoaderError("Model missing input embeddings.")
+
+        # Verify tokenizer configuration
+        if self.tokenizer.pad_token_id is None:
+            raise HiLSModelLoaderError("Tokenizer pad_token_id is None.")
+
+        # Log model details
+        logger.info(f"Model type: {self.model.config.model_type}")
+        logger.info(f"Vocabulary size: {len(self.tokenizer)}")
+        logger.info(f"Max sequence length: {self.model.config.max_position_embeddings}")
+
+        # Optional: Check for HiLS-specific attributes if available
+        # This is a placeholder for specific HiLS validation logic
+        if hasattr(self.model.config, "hils_config"):
+            logger.info("HiLS configuration detected in model config.")
+        else:
+            logger.warning("No explicit HiLS configuration found in model config. Assuming standard compatibility.")
 
         logger.info("Checkpoint validation passed.")
         return True
 
 
-def load_hils_checkpoint(config: Config, checkpoint_path: Optional[str] = None) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+def load_hils_checkpoint(config: Config) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Convenience function to load the HiLS checkpoint.
-    
+    Convenience function to load and validate the HiLS checkpoint.
+
     Args:
-        config (Config): Project configuration.
-        checkpoint_path (str, optional): Override path.
-        
+        config: The configuration object.
+
     Returns:
-        Tuple[AutoModelForCausalLM, AutoTokenizer]: Loaded model and tokenizer.
+        A tuple of (model, tokenizer).
     """
     loader = HiLSModelLoader(config)
-    model, tokenizer = loader.load_checkpoint(checkpoint_path)
-    
-    if not loader.validate_checkpoint():
-        # validate_checkpoint raises on failure, but we keep the logic here for clarity
-        pass
-        
-    return model, tokenizer
+    return loader.load()
 
 
-def validate_checkpoint(config: Config, checkpoint_path: str) -> bool:
+def validate_checkpoint(model: AutoModelForCausalLM, tokenizer: AutoTokenizer) -> bool:
     """
-    Validate a checkpoint without fully loading it into memory (if possible) or after loading.
-    
-    For this implementation, we load it to validate the actual weights and architecture.
-    
+    Validate a loaded checkpoint.
+
     Args:
-        config (Config): Project configuration.
-        checkpoint_path (str): Path to the checkpoint.
-        
+        model: The loaded model.
+        tokenizer: The loaded tokenizer.
+
     Returns:
-        bool: True if valid.
+        True if valid.
+
+    Raises:
+        HiLSModelLoaderError: If invalid.
     """
-    loader = HiLSModelLoader(config)
-    loader.load_checkpoint(checkpoint_path)
-    return loader.validate_checkpoint()
+    if model is None or tokenizer is None:
+        raise HiLSModelLoaderError("Model or tokenizer is None.")
+
+    model.eval()
+
+    if not hasattr(model, "config"):
+        raise HiLSModelLoaderError("Model missing config.")
+
+    if tokenizer.pad_token_id is None:
+        raise HiLSModelLoaderError("Tokenizer pad_token_id is None.")
+
+    logger.info("Manual checkpoint validation passed.")
+    return True

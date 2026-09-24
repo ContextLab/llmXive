@@ -1127,3 +1127,142 @@
   source_type: external
   status: verified
   updated_at: '2026-09-21T23:45:17Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: retain documents with token count >= 32000
+  claim_id: c_a0c65889
+  context: 'Phase 2: Foundational - T005 Implement document filtering logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement document filtering logic: Add function to retain only documents\
+    \ with token count \u2265 32,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:34:02Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: skip documents with length less than 2048 tokens
+  claim_id: c_5e93206c
+  context: 'Phase 3: User Story 1 - T013 Implement chunking logic'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_documents_with_length_less_than_2048_tokens
+  kind: magnitude
+  raw_text: 'Add function to chunk_document(text: str, chunk_size: int) -> List[Chunk];
+    if len(text) < 2048, skip and log'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:34:24Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: latency < 50ms on a 2-core CPU
+  claim_id: c_c9c333a9
+  context: 'Phase 4: User Story 2 - T023 Add performance check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function benchmark_lookup(index: StaticIndex, token_count: int) in
+    src/clustering.py that returns True if latency < 50ms on a 2-core CPU'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:34:24Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: perform a paired t-test using scipy.stats.ttest_rel
+  claim_id: c_3f383c0e
+  context: 'Phase 5: User Story 3 - T029 Implement statistical significance testing'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_a_paired_t-test_using_scipy.stats.ttest_rel
+  kind: entity_fact
+  raw_text: 'Add function run_statistical_tests(dynamic_scores: List[float], static_scores:
+    List[float]) that performs a paired t-test using scipy.stats.ttest_rel'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:34:43Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'latency measurement protocol: 32k token input context, 10 runs, 2 warm-up
+    iterations, 2 cores'
+  claim_id: c_7d36906f
+  context: 'Phase 5: User Story 3 - T030 Implement latency measurement protocol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function measure_latency(model, dataset) using time module on a multi-core
+    CPU with specific protocol: 32k token input context, 10 runs, 2 warm-up iterations,
+    2 cores'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:35:02Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'sensitivity analysis sweep values: 50, 100, 200'
+  claim_id: c_33f62f2c
+  context: 'Phase 5: User Story 3 - T031 Implement sensitivity analysis sweep'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function sweep_k_values(k_values: List[int] = [50, 100, 200]) that
+    iterates K, rebuilds index, and generates a structured report of perplexity and
+    QA accuracy trade-offs'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:35:57Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: use HotpotQA as the primary benchmark for downstream long-context QA
+    evaluation
+  claim_id: c_d06dae11
+  context: 'Phase 5: User Story 3 - T028 Implement downstream long-context QA evaluation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_HotpotQA_as_the_primary_benchmark_for_downstream_long-co
+  kind: entity_fact
+  raw_text: Implement downstream long-context QA evaluation using HotpotQA as the
+    primary benchmark
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:36:35Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt dependencies: transformers>=4.40.0, datasets>=2.18.0,
+    scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, torch>=2.0.0, pytest>=7.0.0'
+  claim_id: c_394382b7
+  context: 'Phase 1: Setup - T001b Create requirements.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create requirements.txt containing transformers>=4.40.0, datasets>=2.18.0,
+    scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, torch>=2.0.0, pytest>=7.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T08:36:38Z'

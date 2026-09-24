@@ -6,92 +6,108 @@ from typing import Optional, Dict, Any
 import hashlib
 import os
 
-# Global logger instance to be reused
-_logger: Optional[logging.Logger] = None
-
-# Attempt to read version hash from git or fallback to a static hash of the project root
+# Attempt to get version info from environment or git
 def _get_version_hash() -> str:
     """
-    Attempts to retrieve the current git commit hash.
-    Falls back to a hash of the project root path if git is unavailable.
+    Attempts to retrieve a version hash from the environment.
+    If not found, returns a deterministic hash of the project root path
+    to ensure a unique identifier per environment run.
     """
+    env_hash = os.environ.get("LLMXIVE_VERSION_HASH")
+    if env_hash:
+        return env_hash
+
     try:
-        # Try to get git commit hash
+        # Fallback: try to get git commit hash if available
         import subprocess
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True,
             text=True,
-            check=True,
-            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+            timeout=2
         )
-        return result.stdout.strip()
+        if result.returncode == 0:
+            return result.stdout.strip()
     except Exception:
-        # Fallback: deterministic hash based on project root
-        root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        return hashlib.sha256(root_path.encode('utf-8')).hexdigest()[:8]
+        pass
 
-VERSION_HASH = _get_version_hash()
+    # Final fallback: hash the absolute path of the project root
+    # to ensure uniqueness even in non-git environments.
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    return hashlib.sha256(project_root.encode('utf-8')).hexdigest()[:12]
+
 
 class JSONFormatter(logging.Formatter):
     """
-    Custom logging formatter that outputs log records as JSON lines.
-    Expected fields: timestamp, level, message, version_hash.
+    Custom logging formatter that outputs JSON lines.
+    Fields: timestamp, level, message, version_hash
     """
 
+    def __init__(self, version_hash: Optional[str] = None):
+        super().__init__()
+        self.version_hash = version_hash or _get_version_hash()
+
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
+        log_entry: Dict[str, Any] = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
-            "version_hash": VERSION_HASH
+            "version_hash": self.version_hash
         }
 
         # Include exception info if present
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            log_entry["exception"] = self.formatException(record.exc_info)
 
-        # Include extra fields if provided
-        if hasattr(record, 'extra_data') and isinstance(record.extra_data, dict):
-            log_data.update(record.extra_data)
+        # Include extra fields if present
+        if hasattr(record, 'extra_data'):
+            log_entry.update(record.extra_data)
 
-        return json.dumps(log_data)
+        return json.dumps(log_entry)
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+
+def get_logger(name: str = "llmxive", level: int = logging.INFO) -> logging.Logger:
     """
-    Retrieves or creates a logger configured for JSON line output.
-    The logger writes to stdout.
-    """
-    global _logger
-    
-    # If a specific name is requested and it's not the global one, handle it
-    if name is not None:
-        logger = logging.getLogger(name)
-    else:
-        if _logger is None:
-            _logger = logging.getLogger("llmxive")
-            _logger.setLevel(logging.INFO)
-            
-            # Prevent adding handlers multiple times
-            if not _logger.handlers:
-                handler = logging.StreamHandler(sys.stdout)
-                handler.setFormatter(JSONFormatter())
-                _logger.addHandler(handler)
-        
-        return _logger
+    Creates and configures a logger that outputs JSON lines to stdout.
 
-    # Ensure the specific logger also has the JSON handler if it doesn't
+    Args:
+        name: Logger name (usually __name__)
+        level: Logging level (default INFO)
+
+    Returns:
+        Configured logger instance
+    """
+    logger = logging.getLogger(name)
+
+    # Avoid adding handlers multiple times if called repeatedly
     if not logger.handlers:
+        logger.setLevel(level)
+
+        # Create console handler
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(JSONFormatter())
+        handler.setLevel(level)
+
+        # Set formatter
+        formatter = JSONFormatter()
+        handler.setFormatter(formatter)
+
+        # Add handler to logger
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+
+        # Prevent propagation to root logger to avoid duplicate logs
+        logger.propagate = False
 
     return logger
 
-def log_version_info() -> None:
+
+def log_version_info(logger: Optional[logging.Logger] = None) -> None:
     """
-    Logs the current version hash to help with reproducibility tracking.
+    Logs the current version hash to the logger.
+    If no logger is provided, uses the default 'llmxive' logger.
     """
-    logger = get_logger()
-    logger.info(f"Initialized logger with version_hash: {VERSION_HASH}")
+    if logger is None:
+        logger = get_logger()
+
+    version = _get_version_hash()
+    logger.info(f"Initialized with version hash: {version}")

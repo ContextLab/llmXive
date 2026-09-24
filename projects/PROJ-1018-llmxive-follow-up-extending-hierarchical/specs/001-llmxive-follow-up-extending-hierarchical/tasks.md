@@ -43,8 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project directory structure: Create directories `src/`, `tests/`, `data/raw/`, `data/interim/`, `data/processed/` in `projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/`
-- [X] T001b Create configuration files: Create empty `requirements.txt` and `pyproject.toml` files in `projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/`
+- [X] T001 Create project directory structure: Create directories `src/`, `tests/`, `data/raw/`, `data/interim/`, `data/processed/` within the project's code root as defined in plan.md (`projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/`).
+- [X] T001b Create `requirements.txt`: Create `requirements.txt` in `projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/` containing `transformers>=4.40.0`, `datasets>=2.18.0`, `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `torch>=2.0.0`, `pytest>=7.0.0`, `pyarrow>=12.0.0`
+- [X] T001c Create `pyproject.toml`: Create `pyproject.toml` in `projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/` with explicit metadata fields (`name`, `version`, `description`, `authors`, `dependencies`) and build system configuration
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools in `pyproject.toml`
 
 ---
@@ -55,12 +56,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002a Pin dependencies: Create `requirements.txt` containing `transformers>=4.40.0`, `datasets>=2.18.0`, `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `torch>=2.0.0`, `pytest>=7.0.0`
-- [X] T002b Initialize pyproject.toml: Create `pyproject.toml` with project metadata and build system configuration in `projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/`
-- [ ] T004 [P] Implement robust data loader for `lmsys/pg-19-test` using `datasets.load_dataset` with streaming enabled (`streaming=True`) in `src/data_loader.py`
-- [ ] T005 Implement document filtering logic: Add function to retain only documents with token count ≥ 32,000, logging excluded counts in `src/data_loader.py` (Depends on T004)
+- [ ] T004 Implement robust data loader for `lmsys/pg-19-test` using `datasets.load_dataset` with streaming enabled (`streaming=True`) in `src/data_loader.py`
+- [ ] T005 Implement document filtering logic: Add function to retain only documents with token count ≥ 32,000, logging excluded counts, and output filtered dataset to `data/interim/filtered_pg19.json` in `src/data_loader.py`. **Output Format**: JSON list of dicts with keys `[document_id, text, token_count]`. [Depends on T004]
 - [ ] T006 Implement error handling for failed real data fetches: Add logic to raise explicit exceptions (NO synthetic fallbacks) in `src/data_loader.py` (Depends on T005)
-- [ ] T006b Implement dataset sampling logic: Add function to sample dataset if memory limits are exceeded (e.g., `itertools.islice` or random seed) and verify memory constraints in `src/data_loader.py`
+- [ ] T006b Implement dataset sampling logic: Add function to sample dataset if memory limits are exceeded using **random strategy** with `seed=42` and `sample_size=100` documents, output to `data/interim/filtered_sampled_pg19.json` in `src/data_loader.py`. **Output Format**: JSON list of dicts with keys `[document_id, text, token_count]`. [Depends on T005]
 - [ ] T007 Create base configuration manager: Create `src/config.py` defining a `Config` dataclass with fields `seed`, `chunk_size`, `model_path`, `k_clusters`
 - [ ] T007b Load/Initialize pre-trained HiLS checkpoint: Add function to load and validate the pre-trained HiLS model checkpoint in `src/model_loader.py`, ensuring compatibility before inference tasks begin
 - [ ] T008 [P] Setup logging infrastructure: Create `src/logging_utils.py` implementing a logger that outputs JSON lines with fields `timestamp`, `level`, `message`, `version_hash`
@@ -78,20 +77,20 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `RelevanceProfile` data structure: Add class `RelevanceProfile` in `src/models.py` with fields `chunk_id: str`, `scores: List[float]`, `document_id: str`
-- [ ] T012 [US1] Implement dynamic HiLS inference wrapper: Add class `DynamicHiLSWrapper` in `src/extraction.py` with methods `extract_scores(chunk)` and `handle_errors()` to extract raw retrieval score matrices (Depends on T007b)
-- [ ] T012b [US1] Execute Dynamic Baseline Inference: Implement function `run_dynamic_inference(model, dataset, wrapper)` in `src/extraction.py` to load the pre-trained checkpoint (T007b), execute the forward pass for every chunk in the validation set, and aggregate results into `relevance_profiles.json` (Depends on T012, T007b)
-- [ ] T013 [US1] Implement chunking logic: Add function `chunk_document(text: str, chunk_size: int) -> List[Chunk]` in `src/extraction.py`; if `len(text) < 2048`, skip and log [Depends on T005]; else pad to `chunk_size`
-- [ ] T013b [US1] Verify Edge Case Logging: Add function `verify_edge_case_logging(logs: List[str])` in `src/extraction.py` to assert that documents shorter than 2048 tokens are correctly skipped or padded and the action is recorded in the log (Depends on T013)
-- [ ] T014 [US1] Implement aggregation logic: Add function `aggregate_profiles(chunks: List[Chunk]) -> List[RelevanceProfile]` in `src/extraction.py` to compute canonical relevance profiles per chunk across the validation set
-- [ ] T015 [US1] Implement JSON serialization: Add function `save_profiles(profiles: List[RelevanceProfile], path: str)` in `src/extraction.py` that writes a JSON array of objects with keys `chunk_id`, `scores` to `data/interim/relevance_profiles.json` (Depends on T012b)
+- [ ] T013 [US1] Implement chunking logic: Add function `chunk_document(text: str, chunk_size: int, tokenizer)` in `src/extraction.py`; load tokenizer from `model_path` (T007b) before execution. If `len(tokens) < 2048`, skip and log. Else pad to `chunk_size`. [Depends on T005, T007b]
+- [ ] T013b [US1] Verify Edge Case Logging: Add function `verify_edge_case_logging(logs: List[str])` in `src/extraction.py` to assert that documents shorter than 2048 tokens are correctly skipped or padded. **Assert Condition**: Log contains "WARNING: Skipping document <id>: length <N> < 2048" or "WARNING: Padding document <id> to <N> tokens". [Depends on T013]
+- [ ] T012 [US1] Implement dynamic HiLS inference wrapper: Add class `DynamicHiLSWrapper` in `src/extraction.py` with methods `extract_scores(chunk)` and `handle_errors()` to extract raw retrieval score matrices. [Depends on T007b]
+- [ ] T012b [US1] Execute Dynamic Baseline Inference: Implement function `run_dynamic_inference(model, dataset, wrapper)` in `src/extraction.py` to load the pre-trained checkpoint (T007b), pass the `model` object to `wrapper`, execute the forward pass for every chunk in the validation set, and aggregate results into `data/interim/relevance_profiles.json`. [Depends on T012, T013, T007b]
 - [ ] T016 [US1] Add validation: Add function `validate_profiles(profiles: List[RelevanceProfile])` in `src/extraction.py` to ensure no retrieval scores are null/NaN and dimensions match configuration
+- [ ] T014 [US1] Implement aggregation logic: Add function `aggregate_profiles(chunks: List[Chunk]) -> List[RelevanceProfile]` in `src/extraction.py` to compute canonical relevance profiles per chunk across the validation set
+- [ ] T015 [US1] Implement JSON serialization: Add function `save_profiles(profiles: List[RelevanceProfile], path: str)` in `src/extraction.py` that writes a JSON array of objects with keys `chunk_id`, `scores` to `data/interim/relevance_profiles.json` (Depends on T016)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Execution depends on code.
 
-- [ ] T009 [P] [US1] Contract test for extraction output format in `tests/test_extraction.py` (pytest function: `test_extraction_output_schema`)
-- [ ] T010 [P] [US1] Integration test for end-to-end extraction on sample data in `tests/test_extraction.py` (pytest function: `test_end_to_end_extraction`): Assert `len(scores) > 0` and `shape == (num_chunks, num_tokens)` where `num_chunks` and `num_tokens` are derived from the sample input
+- [X] T009 [P] [US1] Contract test for extraction output format in `tests/test_extraction.py` (pytest function: `test_extraction_output_schema`)
+- [X] T010 [P] [US1] Integration test for end-to-end extraction on sample data in `tests/test_extraction.py` (pytest function: `test_end_to_end_extraction`): Assert `len(scores) > 0` and `shape == (num_chunks, num_tokens)` where `num_chunks` and `num_tokens` are derived from the sample input
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -126,22 +125,19 @@
 
 **Independent Test**: Run evaluation on a small subset; verify output includes perplexity, QA accuracy, p-value, and latency comparison.
 
+**Note**: Spec FR-005 mandates a 'paired t-test' for statistical significance. The plan.md 'Complexity Tracking' suggests a Wilcoxon test due to normality assumptions. Per the Constitution, the Spec (FR-005) takes precedence for task execution. The task below implements the paired t-test as required by the Spec.
+
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement "Static-HiLS" inference pipeline: Add function `static_inference(model, static_index, input_ids)` in `src/inference.py` that replaces attention mask generation with `static_index.chunk_to_cluster` lookup (Depends on T022)
-- [ ] T033a [US3] Execute Test Set Evaluation: Implement function `run_test_evaluation(dynamic_model, static_model, test_dataset, static_index)` in `src/evaluation.py` to explicitly orchestrate the execution of the dynamic baseline inference AND the static variant inference on the held-out test set, generating the comparison data required for FR-004 (Depends on T015, T022, T026)
-- [ ] T027 [US3] Implement perplexity calculation: Add function `calculate_perplexity(model, dataset)` in `src/evaluation.py` for both dynamic and static models on held-out test set (Depends on T033a)
-- [ ] T028 [US3] Implement downstream long-context QA evaluation: Add function `evaluate_qa(model, dataset)` in `src/evaluation.py` using **HotpotQA** (or equivalent long-context QA) as the primary benchmark. Note: Needle-in-Haystack is optional for internal validation only. Calculate and report QA accuracy degradation against dynamic baseline (Depends on T033a)
-- [ ] T029 [US3] Implement statistical significance testing: Add function `run_statistical_tests(dynamic_scores: List[float], static_scores: List[float]) -> Dict[str, float]` in `src/evaluation.py` that performs a **paired t-test** using `scipy.stats.ttest_rel` and returns p-value and test_type. **Note**: This task implements the paired t-test per spec FR-005/SC-003, overriding the plan.md 'Wilcoxon' recommendation. The plan.md will be updated in a subsequent iteration to align with the spec.
-- [ ] T030 [US3] Implement latency measurement protocol: Add function `measure_latency(model, dataset)` in `src/evaluation.py` using `time` module on a multi-core CPU with specific protocol: A token input of moderate scale, 10 runs, 2 warm-up iterations, 2 cores
-- [ ] T030b [US3] Implement memory footprint measurement: Add function `measure_retrieval_memory(static_index, dynamic_module)` in `src/evaluation.py` using `tracemalloc` to isolate **dynamic retrieval module** memory usage. Implementation must wrap the retrieval hook execution context in a `tracemalloc` context manager while explicitly excluding model weights, to measure only the dynamic retrieval module's memory usage as required by SC-005 (Depends on T033a)
-- [ ] T031 [US3] Implement sensitivity analysis sweep: Add function `sweep_k_values(k_values: List[int] = [representative_small, 100, 200])
-
-The specific value to remove/generalize: 'representative_small'
-
-Rewritten passage:
-sweep_k_values(k_values: List[int] = [representative_small, 100, 200])` in `src/evaluation.py` that iterates K, rebuilds index, and appends results to a list (Depends on T020)
-- [ ] T032 [US3] Generate structured `EvaluationReport`: Add function `generate_report(metrics: Dict) -> EvaluationReport` in `src/evaluation.py` that serializes to `data/processed/evaluation_report.json` with keys `perplexity`, `qa_accuracy`, `p_value`, `latency`, `memory_footprint` (Depends on T027, T028, T029, T030, T030b, T031)
+- [ ] T026 [US3] Implement "Static-HiLS" inference pipeline: Add function `static_inference(model, static_index, input_ids)` in `src/inference.py` that modifies the HiLS attention mask generation to **bypass dynamic retrieval** and use the `static_index.chunk_to_cluster` lookup table for attention sparsity patterns (Depends on T022)
+- [ ] T027 [US3] Implement perplexity calculation: Add function `calculate_perplexity(model, dataset)` in `src/evaluation.py` for both dynamic and static models on held-out test set (Depends on T026)
+- [ ] T028 [US3] Implement downstream long-context QA evaluation: Add function `evaluate_qa(model, dataset)` in `src/evaluation.py`. **Primary Dataset**: `hotpotqa` (HF ID: `hotpotqa`, split: `validation`). **Fallback**: `narrativeqa` (HF ID: `narrativeqa`, split: `validation`). **Requirement**: Verify `hotpotqa` availability before execution; if unavailable, verify `narrativeqa` availability AND verify that `narrativeqa` contains documents compatible with the long-context constraints of the PG-19 test set (e.g., sufficient document length) before using it as a fallback. Calculate and report QA accuracy degradation against dynamic baseline (Depends on T026)
+- [ ] T029 [US3] Implement statistical significance testing: Add function `run_statistical_tests(dynamic_scores: List[float], static_scores: List[float]) -> Dict[str, float]` in `src/evaluation.py` that performs a **paired t-test** using `scipy.stats.ttest_rel` and returns p-value and test_type. Implements spec FR-005 requirement. (Depends on T027)
+- [ ] T030 [US3] Implement latency measurement protocol: Add function `measure_latency(model, dataset)` in `src/evaluation.py` using `time` module on a multi-core CPU with specific protocol: **32k token input context**, **10 runs**, **2 warm-up iterations**, 2 cores. Write results to `data/processed/latency_metrics.json` (Depends on T026)
+- [ ] T030b [US3] Implement memory footprint measurement: Add function `measure_retrieval_memory(static_index, dynamic_wrapper)` in `src/evaluation.py`. **Target**: Measure memory of the `DynamicHiLSWrapper` (T012) specifically. **Method**: Wrap the `DynamicHiLSWrapper.extract_scores` method in a `tracemalloc` context manager. Exclude model weights. Write results to `data/processed/memory_metrics.json` (Depends on T026)
+- [ ] T031 [US3] Implement sensitivity analysis sweep: Add function `sweep_k_values(k_values: List[int] = [50, 100, 200])` in `src/evaluation.py` that iterates K, rebuilds index (using artifact `data/processed/static_index.json`), and **generates a structured report of perplexity and QA accuracy trade-offs** (Depends on T020, T022)
+- [ ] T032 [US3] Generate structured `EvaluationReport`: Add function `generate_report(metrics: Dict) -> EvaluationReport` in `src/evaluation.py` that serializes to `data/processed/evaluation_report.json` with keys `perplexity`, `qa_accuracy`, `p_value`, `latency`, `memory_footprint` (Depends on T033a)
+- [ ] T033a [US3] Execute Test Set Evaluation: Implement function `run_test_evaluation(dynamic_model, static_model, test_dataset, static_index)` in `src/evaluation.py` to explicitly orchestrate the execution of the dynamic baseline inference AND the static variant inference on the held-out test set. **Scope**: Single-run evaluation (T027-T030). Aggregate results into final comparison data. (Depends on T027, T028, T029, T030, T030b)
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -168,18 +164,18 @@ sweep_k_values(k_values: List[int] = [representative_small, 100, 200])` in `src/
 
 ### Phase Dependencies
 
-- **Setup **(Phase 1): No dependencies - can start immediately
-- **Foundational **(Phase 2): Depends on Setup completion - BLOCKS all user stories
-- **User Stories **(Phase 3+): All depend on Foundational phase completion
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish **(Final Phase): Depends on all desired user stories being complete
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 **(P1): Can start after Foundational (Phase 2) - No dependencies on other stories. **Produces** `data/interim/relevance_profiles.json`.
-- **User Story 2 **(P2): Can start after Foundational (Phase 2) - **Depends on** output of US1 (`relevance_profiles.json`). **Produces** `data/processed/static_index.json`.
-- **User Story 3 **(P3): Can start after Foundational (Phase 2) - **Depends on** output of US2 (`static_index.json`) and US1 (for baseline comparison).
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Produces** `data/interim/relevance_profiles.json`.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on** output of US1 (`relevance_profiles.json`). **Produces** `data/processed/static_index.json`.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on** output of US2 (`static_index.json`) and US1 (for baseline comparison).
 
 ### Within Each User Story
 
@@ -191,12 +187,12 @@ sweep_k_values(k_values: List[int] = [representative_small, 100, 200])` in `src/
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- All Setup tasks marked [P] can run in parallel.
+- In Phase 2 (Foundational), T004, T005, and T006 form a **sequential dependency chain** and **CANNOT** run in parallel. T004 must complete to establish a stable data stream before T005 and T006 can execute. Only T008 (Logging) is marked [P] and can run in parallel with the T004-T006 chain.
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows).
+- All tests for a user story marked [P] can run in parallel.
+- Models within a story marked [P] can run in parallel.
+- Different user stories can be worked on in parallel by different team members.
 
 ---
 
@@ -256,7 +252,9 @@ With multiple developers:
 - **Data Hygiene**: Never fall back to synthetic data; if real fetch fails, raise an error.
 - **Streaming**: Use `datasets.load_dataset(..., streaming=True)` for PG-19 to handle large contexts within RAM limits.
 - **Avoid**: Vague tasks, same file conflicts, cross-story dependencies that break independence.
-- **Statistical Method**: T029 explicitly mandates 'paired t-test' per spec FR-005, overriding plan.md 'Wilcoxon' recommendation.
-- **Memory Isolation**: T030b explicitly isolates 'retrieval module' memory usage using `tracemalloc` on the retrieval hook context.
-- **QA Benchmark**: T028 explicitly requires 'HotpotQA' per spec FR-007.
-- **Hardware Constraints**: T023 and T030 explicitly enforce 2-core CPU constraints.
+- **Statistical Method**: T029 explicitly mandates 'paired t-test' per spec FR-005.
+- **Memory Isolation**: T030b explicitly isolates 'dynamic retrieval module' (DynamicHiLSWrapper) memory usage using `tracemalloc` on the `extract_scores` method.
+- **QA Benchmark**: T028 explicitly requires 'hotpotqa' (HF ID: `hotpotqa`) with verified fallback 'narrativeqa' (HF ID: `narrativeqa`) only after availability AND compatibility check.
+- **Hardware Constraints**: T023 and T030 explicitly enforce 2-core CPU constraints and 32k token context.
+- **Sweep Values**: T031 uses explicit values `[50, 100, 200]` for sensitivity analysis as per spec FR-008.
+- **Plan Note**: The plan.md Test Coverage Matrix currently lists 'Wilcoxon test execution' for FR-005, which contradicts spec FR-005 (paired t-test). This is a plan artifact issue flagged for update; tasks follow the spec (FR-005) which takes precedence.

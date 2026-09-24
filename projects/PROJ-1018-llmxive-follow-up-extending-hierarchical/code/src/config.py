@@ -9,54 +9,48 @@ import torch
 @dataclass
 class Config:
     """
-    Base configuration manager for the llmXive pipeline.
+    Base configuration manager for the llmXive hierarchical sparse attention pipeline.
     
-    This dataclass centralizes all hyperparameters and runtime settings
-    required for data loading, model inference, clustering, and evaluation.
+    Attributes:
+        seed (int): Random seed for reproducibility across numpy, torch, and python.
+        chunk_size (int): Size of text chunks for processing (default 2048).
+        model_path (str): Path or identifier for the pre-trained HiLS model.
+        k_clusters (int): Number of clusters for K-Means static index construction.
+        data_root (str): Root directory for data artifacts (raw, interim, processed).
+        output_dir (str): Directory for output artifacts.
+        log_level (str): Logging level (DEBUG, INFO, WARNING, ERROR).
     """
-    # Randomness control for reproducibility
     seed: int = 42
-    
-    # Data processing parameters
     chunk_size: int = 2048
-    
-    # Model configuration
-    model_path: str = "lmsys/pg-19-test"
-    
-    # Clustering parameters (User Story 2)
+    model_path: str = "lmsys/pg-19-test"  # Default to dataset identifier, overridden for model
     k_clusters: int = 100
-    
-    # Optional: Override paths if needed
-    data_dir: str = field(default_factory=lambda: "data")
-    output_dir: str = field(default_factory=lambda: "data/processed")
-    interim_dir: str = field(default_factory=lambda: "data/interim")
-    
-    # Performance tuning
-    max_workers: int = 4
-    batch_size: int = 32
-    
-    # Logging
+    data_root: str = "data"
+    output_dir: str = "data/processed"
     log_level: str = "INFO"
     
     def __post_init__(self):
-        """Validate and initialize derived settings."""
-        self._set_seed(self.seed)
-        self._validate_paths()
-    
-    def _set_seed(self, seed: int) -> None:
-        """Set global random seeds for reproducibility."""
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
+        """Initialize random states based on the seed."""
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+        torch.manual_seed(self.seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    
-    def _validate_paths(self) -> None:
-        """Ensure required directories exist."""
-        for path in [self.data_dir, self.output_dir, self.interim_dir]:
-            if not os.path.exists(path):
-                os.makedirs(path, exist_ok=True)
-    
+            torch.cuda.manual_seed_all(self.seed)
+        
+        # Ensure data directories exist if paths are relative
+        if not os.path.isabs(self.data_root):
+            # Resolve relative to project root or current working directory
+            full_data_root = os.path.abspath(self.data_root)
+            if not os.path.exists(full_data_root):
+                os.makedirs(full_data_root, exist_ok=True)
+            
+            interim_dir = os.path.join(full_data_root, "interim")
+            if not os.path.exists(interim_dir):
+                os.makedirs(interim_dir, exist_ok=True)
+                
+            processed_dir = os.path.join(full_data_root, "processed")
+            if not os.path.exists(processed_dir):
+                os.makedirs(processed_dir, exist_ok=True)
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to a dictionary for serialization."""
         return {
@@ -64,15 +58,20 @@ class Config:
             "chunk_size": self.chunk_size,
             "model_path": self.model_path,
             "k_clusters": self.k_clusters,
-            "data_dir": self.data_dir,
+            "data_root": self.data_root,
             "output_dir": self.output_dir,
-            "interim_dir": self.interim_dir,
-            "max_workers": self.max_workers,
-            "batch_size": self.batch_size,
             "log_level": self.log_level
         }
-    
+
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "Config":
+    def from_dict(cls, data: Dict[str, Any]) -> "Config":
         """Create a Config instance from a dictionary."""
-        return cls(**{k: v for k, v in config_dict.items() if k in cls.__dataclass_fields__})
+        return cls(
+            seed=data.get("seed", 42),
+            chunk_size=data.get("chunk_size", 2048),
+            model_path=data.get("model_path", "lmsys/pg-19-test"),
+            k_clusters=data.get("k_clusters", 100),
+            data_root=data.get("data_root", "data"),
+            output_dir=data.get("output_dir", "data/processed"),
+            log_level=data.get("log_level", "INFO")
+        )

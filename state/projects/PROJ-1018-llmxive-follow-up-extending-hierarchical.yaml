@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1018-llmxive-follow-up-extending-hierarchical
-last_run_id: fcb07cee-0a0d-4947-a2c6-ae821c9df29c
+last_run_id: a82b2679-f868-46df-855b-0036caeacfc9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical
 title: 'llmXive follow-up: extending "Hierarchical Sparse Attention Done Right: Toward
   Infinite Context Mode"'
-updated_at: '2026-09-21T23:52:35.754657Z'
+updated_at: '2026-09-24T08:53:02.226683Z'

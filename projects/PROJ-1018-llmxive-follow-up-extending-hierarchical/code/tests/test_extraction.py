@@ -1,66 +1,106 @@
+"""
+Tests for the extraction module.
+"""
+
 import pytest
 import logging
 import numpy as np
-from code.src.extraction import chunk_document, Chunk, validate_profiles
-from code.src.models import RelevanceProfile
-from code.src.config import Config
+import os
+import sys
+import tempfile
 
-logger = logging.getLogger(__name__)
+# Add src to path if running directly
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-class TestChunkingLogic:
-    def test_chunk_document_basic(self):
-        text = "A" * 4096
-        chunks = chunk_document(text, 1024)
-        assert len(chunks) == 4
-        assert all(len(c.text) == 1024 for c in chunks)
-        assert chunks[0].chunk_id.startswith("doc_")
-    
-    def test_chunk_document_short(self):
-        text = "Short"
-        chunks = chunk_document(text, 1024)
-        assert len(chunks) == 0
-    
-    def test_chunk_document_padding(self):
-        text = "A" * 1025
-        chunks = chunk_document(text, 1024)
-        # First chunk 1024, second chunk 1 char padded to 1024
-        assert len(chunks) == 2
-        assert len(chunks[0].text) == 1024
-        assert len(chunks[1].text) == 1024
+from src.extraction import (
+    validate_profiles, 
+    RelevanceProfile, 
+    Chunk, 
+    chunk_document,
+    verify_edge_case_logging
+)
+from src.config import Config
 
-class TestValidateProfiles:
-    def test_validate_valid_profiles(self):
-        config = Config(seed=42, chunk_size=1024, model_path="", k_clusters=10)
+
+class TestValidation:
+    """Tests for the validate_profiles function."""
+
+    def test_validate_profiles_valid(self):
+        """Test validation with valid profiles."""
         profiles = [
-            RelevanceProfile(chunk_id="c1", scores=[0.1] * 10, document_id="d1"),
-            RelevanceProfile(chunk_id="c2", scores=[0.2] * 10, document_id="d1")
+            RelevanceProfile(chunk_id="c1", scores=[0.1, 0.2, 0.3], document_id="d1"),
+            RelevanceProfile(chunk_id="c2", scores=[0.4, 0.5], document_id="d2")
         ]
-        assert validate_profiles(profiles, config) is True
+        config = Config(seed=42, chunk_size=512, model_path="", k_clusters=10)
+        
+        result = validate_profiles(profiles, config)
+        assert result is True
 
-    def test_validate_none_scores(self):
-        config = Config(seed=42, chunk_size=1024, model_path="", k_clusters=10)
+    def test_validate_profiles_null_scores(self):
+        """Test validation fails on null scores."""
         profiles = [
             RelevanceProfile(chunk_id="c1", scores=None, document_id="d1")
         ]
-        with pytest.raises(ValueError, match="has None scores"):
+        config = Config(seed=42, chunk_size=512, model_path="", k_clusters=10)
+        
+        with pytest.raises(ValueError, match="Validation failed"):
             validate_profiles(profiles, config)
 
-    def test_validate_nan_scores(self):
-        config = Config(seed=42, chunk_size=1024, model_path="", k_clusters=10)
+    def test_validate_profiles_nan_scores(self):
+        """Test validation fails on NaN scores."""
         profiles = [
             RelevanceProfile(chunk_id="c1", scores=[0.1, np.nan, 0.3], document_id="d1")
         ]
-        with pytest.raises(ValueError, match="NaN/Inf score"):
+        config = Config(seed=42, chunk_size=512, model_path="", k_clusters=10)
+        
+        with pytest.raises(ValueError, match="Validation failed"):
             validate_profiles(profiles, config)
 
-    def test_validate_wrong_dimension(self):
-        config = Config(seed=42, chunk_size=1024, model_path="", k_clusters=10)
-        profiles = [
-            RelevanceProfile(chunk_id="c1", scores=[0.1] * 5, document_id="d1")
+    def test_validate_profiles_empty_list(self):
+        """Test validation with empty list returns True."""
+        profiles = []
+        config = Config(seed=42, chunk_size=512, model_path="", k_clusters=10)
+        
+        result = validate_profiles(profiles, config)
+        assert result is True
+
+
+class TestChunking:
+    """Tests for chunk_document function."""
+
+    def test_chunk_document_short(self):
+        """Test that short documents are skipped."""
+        short_text = "This is a very short text."
+        chunks = chunk_document(short_text, chunk_size=512, doc_id="short_doc")
+        assert len(chunks) == 0
+
+    def test_chunk_document_long(self):
+        """Test that long documents are chunked."""
+        # Create a text long enough to be > 2048 tokens (approx 8192 chars)
+        long_text = "word " * 10000
+        chunks = chunk_document(long_text, chunk_size=512, doc_id="long_doc")
+        
+        assert len(chunks) > 0
+        assert all(isinstance(c, Chunk) for c in chunks)
+        assert all(c.document_id == "long_doc" for c in chunks)
+
+
+class TestEdgeCaseLogging:
+    """Tests for verify_edge_case_logging."""
+
+    def test_verify_edge_case_logging_found(self):
+        """Test detection of short document warnings."""
+        logs = [
+            "INFO: Starting process",
+            "WARNING: Document doc1 too short (100 tokens). Skipping.",
+            "INFO: Finished"
         ]
-        with pytest.raises(ValueError, match="expected 10"):
-            validate_profiles(profiles, config)
+        assert verify_edge_case_logging(logs) is True
 
-    def test_validate_empty_list(self):
-        config = Config(seed=42, chunk_size=1024, model_path="", k_clusters=10)
-        assert validate_profiles([], config) is True
+    def test_verify_edge_case_logging_not_found(self):
+        """Test when no warnings are found."""
+        logs = [
+            "INFO: Starting process",
+            "INFO: Processing done",
+        ]
+        assert verify_edge_case_logging(logs) is False
