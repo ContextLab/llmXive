@@ -1,58 +1,39 @@
-# Ruff configuration for llmXive project
-# T003: Configure linting (ruff)
-
 [lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
+select = ["E", "F", "W", "I", "N", "UP", "D", "B", "C", "T", "A", "SIM"]
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in tests)
+  "E501",  # Line too long (black handles this)
+  "E701",  # Multiple statements on one line (style preference)
+  "D100",  # Missing docstring in public module (optional for scripts)
+  "D101",  # Missing docstring in public class (optional for scripts)
+  "D102",  # Missing docstring in public method (optional for scripts)
+  "D200",  # One-line docstring should end with period (style)
+  "D401",  # Section title should be capitalized (style)
+  "SIM102", # Use a single `if` statement instead of nested `if`s (optional)
+  "SIM108", # Use ternary operator instead of `if`/`else` (optional)
+  "B019",  # lru_cache with maxsize 1 on methods (optional)
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
+[lint.per-flake]
+max-size = 100
 
-# Exclude a few files from linting
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
+[lint.pyflakes]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["F403", "F405"], "code/src/data/preprocess.py" = ["F403", "F405"], "code/src/models/teacher_loader.py" = ["F403", "F405"] }
 
-# Same as Black.
-line-length = 88
+[lint.isort]
+known-first-party = ["core", "data", "models", "scripts", "tests", "setup"]
+known-third-party = ["transformers", "datasets", "torch", "bitsandbytes", "sklearn", "scipy", "pandas", "numpy", "statsmodels", "yaml", "pytest"]
+force-grid-sort = true
+skip = ["__init__.py", "venv", ".git", "data/raw", "data/processed", "data/results", "artifacts"]
 
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.format]
+line-length = 120
+target-version = "py310"
 
-[lint.per-file-ignores]
-# Ignore `E402` (import violations) in all `__init__.py` files
-"__init__.py" = ["E402"]
+[lint.mccabe]
+max-complexity = 15
 
-# Ignore `F401` (unused imports) in test files if needed
-"tests/*.py" = ["F401"]
+[lint.flake8-bugbear]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["B019"], "code/src/data/preprocess.py" = ["B019"], "code/src/models/teacher_loader.py" = ["B019"] }
+
+[lint.flake8-bandit]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["S104"], "code/src/data/preprocess.py" = ["S104"], "code/src/models/teacher_loader.py" = ["S104"] }

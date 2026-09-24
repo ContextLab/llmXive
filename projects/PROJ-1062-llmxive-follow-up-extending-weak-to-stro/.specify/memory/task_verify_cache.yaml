@@ -1,3 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy is provided; the claim that the
+    listed folders (`src/data/`, `src/models/`, `src/training/`, `src/analysis/`,
+    `src/config/`, `tests/unit/`, `tests/integration/`, `contracts/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `artifacts/`) exist is unsupported. The implementer
+    must create and show these directories (e.g., a file tree listing) to satisfy
+    the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts only contain a feature specification for cross\u2011\
+    architecture experiments; there are no linting or formatting configuration files\
+    \ (e.g., `pyproject.toml`, `.ruff.toml`, or Black settings) nor any evidence that\
+    \ ruff and Black have been set up or run. Consequently, the requirement to configure\
+    \ linting (ruff) and formatting (black) is not satisfied."
 T005:
   c: true
   h: 738be5d91bd14aa0ec1d6f94487b3984ba8d4cd5a29d0d94e3f4c562d5de7802

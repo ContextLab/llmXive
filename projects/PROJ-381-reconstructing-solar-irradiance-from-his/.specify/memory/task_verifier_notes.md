@@ -8,3 +8,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T008** — No configuration files, scripts, or documentation for managing environment variables (e.g., `.env` templates, `dotenv` setup, path‑resolution utilities, or README instructions) were provided. The evidence only contains a feature specification unrelated to environment variable management, so the required artifact is missing.
+- **T014c** — The repository contains `code/data/preprocessing.py`, but the file is truncated and does not show any logic that writes the combined, preprocessed dataset to `data/processed/preprocessed_data.parquet`. Moreover, the expected parquet file is absent from the filesystem. Consequently, the required output artifact is missing and the implementation is not demonstrably complete.

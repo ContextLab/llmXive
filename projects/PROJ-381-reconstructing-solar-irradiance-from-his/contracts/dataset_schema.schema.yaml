@@ -1,101 +1,117 @@
-# Dataset Schema Definition for Solar Irradiance Reconstruction Pipeline
-# Defines the structure for SunspotRecord and TSIRecord entities
-# Used for validation of data ingestion and preprocessing stages
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Solar Irradiance Reconstruction Dataset Schema"
-description: "Schema for sunspot number and Total Solar Irradiance records"
-type: "object"
-
+$schema: http://json-schema.org/draft-07/schema#
+title: Solar Irradiance Reconstruction Dataset Schemas
+description: >
+  Defines the schema for SunspotRecord (input GSN data) and TSIRecord (target/output TSI data)
+  entities used in the reconstruction pipeline.
+type: object
 definitions:
   SunspotRecord:
-    description: "Record representing a sunspot number observation"
-    type: "object"
+    type: object
+    description: >
+      Represents a single observation from the SILSO Group Sunspot Number (GSN) dataset.
+      Includes historical and modern records with cycle mapping.
     required:
       - date
       - gsn
-      - source
       - cycle_id
     properties:
       date:
-        type: "string"
-        format: "date"
-        description: "Observation date in YYYY-MM-DD format"
+        type: string
+        format: date
+        description: Observation date in YYYY-MM-DD format.
       gsn:
-        type: "number"
-        minimum: 0
-        description: "Group Sunspot Number (GSN) value"
-      uncertainty:
-        type: "number"
-        minimum: 0
-        description: "Uncertainty estimate for GSN measurement"
-      source:
-        type: "string"
-        enum:
-          - "SILSO"
-          - "Historical"
-        description: "Data source identifier"
+        type: number
+        description: Group Sunspot Number (dimensionless).
       cycle_id:
-        type: ["integer", "null"]
-        description: "Solar cycle identifier (1-25+), null if unknown"
-      is_gap_filled:
-        type: "boolean"
-        description: "Flag indicating if this value was gap-filled"
-      gap_fill_method:
-        type: ["string", "null"]
+        type: integer
+        description: >
+          Official SILSO solar cycle identifier (1-25).
+          Values < 1 indicate pre-cycle-1 data or unknown.
+      uncertainty:
+        type: number
+        nullable: true
+        description: Estimated uncertainty of the GSN measurement, if available.
+      source:
+        type: string
         enum:
-          - "linear_interpolation"
-          - "tsi_proxy"
-          - null
-        description: "Method used for gap filling if applicable"
-    
+          - SILSO
+          - historical_reconstruction
+        description: Origin of the data point.
+      is_gap_filled:
+        type: boolean
+        default: false
+        description: True if this value was interpolated or filled by the preprocessing step.
+
   TSIRecord:
-    description: "Record representing a Total Solar Irradiance observation"
-    type: "object"
+    type: object
+    description: >
+      Represents a Total Solar Irradiance measurement or reconstruction.
+      Used for both satellite-era ground truth and pre-satellite reconstructions.
     required:
       - date
       - tsi
-      - source
+      - source_type
     properties:
       date:
-        type: "string"
-        format: "date"
-        description: "Observation date in YYYY-MM-DD format"
+        type: string
+        format: date
+        description: Observation or reconstruction date in YYYY-MM-DD format.
       tsi:
-        type: "number"
-        minimum: 1360
-        maximum: 1370
-        description: "Total Solar Irradiance in W/m²"
-      uncertainty:
-        type: "number"
-        minimum: 0
-        description: "Uncertainty estimate for TSI measurement"
-      source:
-        type: "string"
+        type: number
+        description: Total Solar Irradiance in W/m².
+      source_type:
+        type: string
         enum:
-          - "SORCE"
-          - "TIM"
-          - "SORCE_TIM"
-          - "CMIP6"
-          - "Baseline_2007"
-        description: "Data source identifier"
+          - satellite_observation
+          - model_reconstruction
+          - proxy_value
+        description: Indicates if the value is measured, modeled, or a fallback proxy.
       instrument:
-        type: ["string", "null"]
-        description: "Instrument name if applicable"
-      is_gap_filled:
-        type: "boolean"
-        description: "Flag indicating if this value was gap-filled"
-      gap_fill_method:
-        type: ["string", "null"]
-        enum:
-          - "linear_interpolation"
-          - "tsi_proxy"
-          - null
-        description: "Method used for gap filling if applicable"
+        type: string
+        nullable: true
+        description: Instrument name (e.g., 'SORCE/TIM', 'ACRIM3') if satellite observation.
+      uncertainty:
+        type: number
+        nullable: true
+        description: Measurement or reconstruction uncertainty in W/m².
       cycle_id:
-        type: ["integer", "null"]
-        description: "Solar cycle identifier (1-25+), null if unknown"
+        type: integer
+        nullable: true
+        description: Associated solar cycle ID, if known.
+      lower_bound:
+        type: number
+        nullable: true
+        description: Lower bound of the uncertainty interval (for reconstructions).
+      upper_bound:
+        type: number
+        nullable: true
+        description: Upper bound of the uncertainty interval (for reconstructions).
 
-oneOf:
-  - $ref: "#/definitions/SunspotRecord"
-  - $ref: "#/definitions/TSIRecord"
+properties:
+  sunspot_records:
+    type: array
+    items:
+      $ref: '#/definitions/SunspotRecord'
+    description: List of ingested and preprocessed sunspot records.
+  tsi_records:
+    type: array
+    items:
+      $ref: '#/definitions/TSIRecord'
+    description: List of TSI measurements or reconstructions.
+  metadata:
+    type: object
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      generated_at:
+        type: string
+        format: date-time
+      data_sources:
+        type: array
+        items:
+          type: string
+        description: List of source URLs or dataset identifiers used.
+      preprocessing_notes:
+        type: string
+        description: Summary of gap filling and normalization steps applied.

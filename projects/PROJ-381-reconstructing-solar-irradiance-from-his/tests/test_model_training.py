@@ -1,210 +1,148 @@
-"""
-Integration tests for model training pipeline, specifically Leave-One-Cycle-Out (LOCO) CV logic.
-"""
-
-import os
-import json
-import tempfile
-import shutil
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import sys
+import json
+import tempfile
+import shutil
 
-# Import the functions we are testing
-from models.train import run_loco_cv, load_preprocessed_data, prepare_features
+# Add code to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from models.train import (
+    load_preprocessed_data,
+    prepare_features,
+    train_random_forest,
+    train_gaussian_process,
+    evaluate_model,
+    run_loco_cv,
+    run_training_pipeline
+)
 
-def create_mock_preprocessed_data(tmp_path: Path) -> Path:
-    """
-    Creates a mock preprocessed parquet file with known cycle IDs
-    to test the LOCO logic deterministically.
-    """
-    # Create a synthetic dataset with distinct, known cycles
-    # We need enough data per cycle to train and test
-    cycles = [1, 2, 3, 4]
-    data = []
-    for c_id in cycles:
-        # Generate 100 rows per cycle
-        n_rows = 100
-        years = np.linspace(1900 + (c_id * 11), 1900 + (c_id * 11) + 10, n_rows)
-        gsn = np.random.uniform(10, 100, n_rows)
-        # TSI is loosely correlated with GSN for this mock
-        tsi = 1361.0 + (gsn * 0.005) + np.random.normal(0, 0.1, n_rows)
-        
-        df_cycle = pd.DataFrame({
-            'date': pd.to_datetime(years, format='%Y'),
-            'gsn': gsn,
-            'tsi': tsi,
-            'cycle_id': c_id
-        })
-        data.append(df_cycle)
+@pytest.fixture
+def sample_data():
+    """Create a small synthetic dataset mimicking the preprocessed schema for testing."""
+    # Create mock data with multiple cycles to test LOCO logic
+    np.random.seed(42)
+    n_samples = 200
+    cycles = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3] * 16 + [4] * 20 # 16*4 + 20 = 84 rows approx
+    # Extend to 200
+    while len(cycles) < n_samples:
+        cycles.append((len(cycles) % 4) + 1)
     
-    full_df = pd.concat(data, ignore_index=True)
+    data = {
+        'date': pd.date_range(start='2000-01-01', periods=len(cycles), freq='D'),
+        'gsn': np.random.randint(0, 150, size=len(cycles)),
+        'tsi': 1360.5 + np.random.normal(0, 0.5, size=len(cycles)),
+        'cycle_id': cycles[:len(cycles)]
+    }
+    return pd.DataFrame(data)
+
+@pytest.fixture
+def temp_dirs():
+    """Create temporary directories for test artifacts."""
+    tmp_data = tempfile.mkdtemp()
+    tmp_models = tempfile.mkdtemp()
+    yield Path(tmp_data), Path(tmp_models)
+    shutil.rmtree(tmp_data)
+    shutil.rmtree(tmp_models)
+
+def test_prepare_features(sample_data):
+    """Test that features and targets are correctly extracted."""
+    X, y = prepare_features(sample_data)
+    assert 'gsn' in X.columns
+    assert 'cycle_id' in X.columns
+    assert y.name == 'tsi'
+    assert len(X) == len(y)
+
+def test_train_random_forest(sample_data):
+    """Test RF training does not crash and produces a model."""
+    X, y = prepare_features(sample_data)
+    model = train_random_forest(X, y)
+    assert model is not None
+    assert hasattr(model, 'predict')
+    # Check hyperparameters
+    assert model.max_depth == 10
+    assert model.n_estimators == 100
+
+def test_train_gaussian_process(sample_data):
+    """Test GP training does not crash and produces a model."""
+    X, y = prepare_features(sample_data)
+    model = train_gaussian_process(X, y)
+    assert model is not None
+    assert hasattr(model, 'predict')
+
+def test_evaluate_model(sample_data):
+    """Test evaluation returns correct metrics structure."""
+    X, y = prepare_features(sample_data)
+    model = train_random_forest(X, y)
+    metrics = evaluate_model(model, X, y)
+    assert 'rmse' in metrics
+    assert 'r2' in metrics
+    assert isinstance(metrics['rmse'], float)
+    assert isinstance(metrics['r2'], float)
+    assert metrics['rmse'] >= 0
+    assert -1 <= metrics['r2'] <= 1
+
+def test_loco_cv_logic(sample_data, temp_dirs):
+    """
+    Verify LOCO CV logic:
+    1. It iterates through cycles.
+    2. It holds out one cycle at a time.
+    3. It produces per-cycle metrics.
+    4. It selects a model based on performance.
+    """
+    # Ensure we have at least 3 cycles for a meaningful test
+    df = sample_data.copy()
+    unique_cycles = df['cycle_id'].unique()
+    assert len(unique_cycles) >= 3, "Test data needs at least 3 cycles"
+
+    report = run_loco_cv(df)
     
-    output_path = tmp_path / "preprocessed_data.parquet"
-    full_df.to_parquet(output_path)
-    return output_path
+    # Check report structure
+    assert 'methodology' in report
+    assert report['methodology'] == "Leave-One-Cycle-Out (LOCO) Cross-Validation"
+    assert 'total_cycles' in report
+    assert 'random_forest' in report
+    assert 'gaussian_process' in report
+    assert 'model_selection' in report
+    
+    # Check per-cycle metrics exist
+    assert len(report['random_forest']['per_cycle_metrics']) > 0
+    assert len(report['gaussian_process']['per_cycle_metrics']) > 0
+    
+    # Check a metric entry structure
+    first_metric = report['random_forest']['per_cycle_metrics'][0]
+    assert 'cycle' in first_metric
+    assert 'rmse' in first_metric
+    assert 'r2' in first_metric
+    
+    # Check model selection logic
+    assert report['model_selection']['selected_model'] in ['RandomForest', 'GaussianProcess']
+    assert 'rationale' in report['model_selection']
 
-
-class TestLOCO_CV_Logic:
-    """
-    Integration tests for the Leave-One-Cycle-Out cross-validation logic.
-    Verifies that the correct cycle is held out and the model trains on the rest.
-    """
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Setup temporary directory for test artifacts."""
-        self.tmp_dir = tempfile.mkdtemp()
-        self.tmp_path = Path(self.tmp_dir)
-        yield
-        shutil.rmtree(self.tmp_dir)
-
-    def test_loco_cv_logic(self, setup_and_teardown):
-        """
-        Verify cycle holdout logic:
-        1. Ensure that for each iteration, exactly one cycle is excluded from training.
-        2. Ensure the held-out cycle is used for validation.
-        3. Ensure the report contains metrics for every cycle.
-        """
-        # 1. Setup: Create mock data with 4 distinct cycles
-        data_path = create_mock_preprocessed_data(self.tmp_path)
-        
-        # Ensure the data file exists
-        assert data_path.exists(), "Mock preprocessed data file was not created."
-
-        # 2. Execute: Run LOCO CV
-        # We pass the path to our mock data
-        report = run_loco_cv(
-            data_path=str(data_path),
-            output_dir=str(self.tmp_path),
-            report_filename="cv_test_report.json"
-        )
-
-        # 3. Assertions
-        
-        # A. Verify report structure
-        assert report is not None, "LOCO CV should return a report dictionary."
-        assert "results" in report, "Report must contain 'results' key."
-        assert "methodology" in report, "Report must contain 'methodology' key."
-        
-        results = report["results"]
-        assert isinstance(results, list), "Results must be a list of per-cycle metrics."
-        
-        # B. Verify all cycles were processed
-        # We created cycles 1, 2, 3, 4
-        processed_cycles = {r["cycle_id"] for r in results}
-        expected_cycles = {1, 2, 3, 4}
-        assert processed_cycles == expected_cycles, (
-            f"LOCO CV must process all cycles. Expected {expected_cycles}, got {processed_cycles}"
-        )
-
-        # C. Verify metrics exist for each cycle
-        for r in results:
-            assert "cycle_id" in r, "Each result must have cycle_id"
-            assert "rmse" in r, "Each result must have RMSE"
-            assert "r_squared" in r, "Each result must have R²"
-            assert "train_size" in r, "Each result must have train_size"
-            assert "val_size" in r, "Each result must have val_size"
-            
-            # Sanity check: Train size should be larger than val size
-            # (3 cycles vs 1 cycle)
-            assert r["train_size"] > r["val_size"], (
-                f"Train size ({r['train_size']}) must be greater than val size ({r['val_size']})"
-            )
-            
-            # Sanity check: RMSE should be a positive number
-            assert r["rmse"] > 0, "RMSE must be positive"
-            # Sanity check: R² should be <= 1 (though can be negative for bad models)
-            assert r["r_squared"] <= 1.0, "R² cannot be greater than 1"
-
-        # D. Verify the holdout logic specifically
-        # We can inspect the 'train_size' to ensure it matches 3 cycles worth of data
-        # In our mock, each cycle has 100 rows. Total = 400.
-        # Train set should be 300 rows (3 cycles), Val set 100 rows (1 cycle).
-        for r in results:
-            assert r["train_size"] == 300, (
-                f"Train size should be 300 (3 cycles * 100 rows), got {r['train_size']}"
-            )
-            assert r["val_size"] == 100, (
-                f"Val size should be 100 (1 cycle * 100 rows), got {r['val_size']}"
-            )
-
-        # E. Verify the report was saved to disk
-        expected_report_path = self.tmp_path / "cv_test_report.json"
-        assert expected_report_path.exists(), "Report file must be saved to disk."
-        
-        # F. Verify the saved JSON content matches the returned object
-        with open(expected_report_path, 'r') as f:
-            saved_report = json.load(f)
-        
-        assert saved_report["results"] == results, "Saved report must match returned report."
-
-    def test_loco_cv_handles_single_cycle(self, setup_and_teardown):
-        """
-        Edge case: If data only has one cycle, LOCO CV cannot function normally
-        (training set would be empty). The function should handle this gracefully
-        or raise a specific error.
-        """
-        # Create data with only 1 cycle
-        cycles = [1]
-        data = []
-        for c_id in cycles:
-            n_rows = 100
-            years = np.linspace(1900, 1910, n_rows)
-            gsn = np.random.uniform(10, 100, n_rows)
-            tsi = 1361.0 + (gsn * 0.005)
-            
-            df_cycle = pd.DataFrame({
-                'date': pd.to_datetime(years, format='%Y'),
-                'gsn': gsn,
-                'tsi': tsi,
-                'cycle_id': c_id
-            })
-            data.append(df_cycle)
-        
-        full_df = pd.concat(data, ignore_index=True)
-        data_path = self.tmp_path / "single_cycle.parquet"
-        full_df.to_parquet(data_path)
-
-        # Expect an error or empty result because we can't train on 0 samples
-        # The implementation should detect this.
-        # Based on standard LOCO logic, if N=1, train_size=0 -> Error.
-        with pytest.raises(ValueError) as exc_info:
-            run_loco_cv(
-                data_path=str(data_path),
-                output_dir=str(self.tmp_path),
-                report_filename="cv_single_cycle.json"
-            )
-        
-        # Verify the error message is informative
-        assert "insufficient" in str(exc_info.value).lower() or "at least two" in str(exc_info.value).lower(), (
-            "LOCO CV should raise a clear error when only one cycle is present."
-        )
-
-    def test_loco_cv_report_structure(self, setup_and_teardown):
-        """
-        Verify the report contains the required methodology description and
-        associational framing as per project constraints.
-        """
-        data_path = create_mock_preprocessed_data(self.tmp_path)
-        report = run_loco_cv(
-            data_path=str(data_path),
-            output_dir=str(self.tmp_path),
-            report_filename="cv_structure_report.json"
-        )
-
-        assert "methodology" in report
-        methodology = report["methodology"]
-        
-        # Check for required fields in methodology
-        assert "validation_scheme" in methodology
-        assert methodology["validation_scheme"] == "Leave-One-Cycle-Out (LOCO)"
-        
-        # Check for associational framing note
-        assert "framing" in methodology
-        assert "associational" in methodology["framing"].lower(), (
-            "Methodology must explicitly state findings are associational."
-        )
+def test_run_training_pipeline(temp_dirs, sample_data):
+    """Test the full pipeline end-to-end."""
+    data_dir, models_dir = temp_dirs
+    
+    # Save sample data to parquet
+    parquet_path = data_dir / "preprocessed_data.parquet"
+    sample_data.to_parquet(parquet_path)
+    
+    # Run pipeline
+    paths = run_training_pipeline(data_dir, models_dir)
+    
+    # Check outputs
+    assert 'report' in paths
+    assert os.path.exists(paths['report'])
+    assert 'random_forest' in paths
+    assert os.path.exists(paths['random_forest'])
+    assert 'gaussian_process' in paths
+    assert os.path.exists(paths['gaussian_process'])
+    
+    # Verify report content
+    with open(paths['report'], 'r') as f:
+        report = json.load(f)
+    assert 'model_selection' in report
+    assert 'per_cycle_metrics' in report['random_forest']

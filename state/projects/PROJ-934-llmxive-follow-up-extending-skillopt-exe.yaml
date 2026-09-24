@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T08:26:28.478253Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-934-llmxive-follow-up-extending-skillopt-exe
-last_run_id: 2fe39625-dfb5-457d-a800-35349fcb1293
+last_run_id: a71fe241-571b-449f-a99b-49c8e0282669
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "SkillOpt: Executive Strategy for Self-Evolving
   Agent Skills"'
-updated_at: '2026-09-09T18:50:02.739792Z'
+updated_at: '2026-09-24T18:35:33.841367Z'

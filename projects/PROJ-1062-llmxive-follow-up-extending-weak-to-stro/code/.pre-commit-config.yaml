@@ -1,21 +1,24 @@
-# Pre-commit configuration for llmXive
-# T003: Configure linting and formatting
-
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v0.4.0
     hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.3.0
     hooks:
       - id: black
-        language_version: python3
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+        args: [--config, code/py.toml]
+
+  - repo: https://github.com/astral-ruff/ruff
+    rev: 0.1.14
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
+      - id: ruff
+        args: [--config, code/.ruff.toml, --fix]
+
+  - repo: https://github.com/pre-commit/migration
+    rev: v1.0.0
+    hooks:
+      - id: migrate-to-pre-commit-hooks

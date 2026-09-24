@@ -1,3 +1,6 @@
+"""
+Tests for fetch_record_counts.py
+"""
 import json
 import tempfile
 from pathlib import Path
@@ -7,81 +10,96 @@ import pandas as pd
 import sys
 import os
 
-# Ensure code path is available
-_CODE_PATH = Path(__file__).parent.parent
-if str(_CODE_PATH) not in sys.path:
-    sys.path.insert(0, str(_CODE_PATH))
+# Add code directory to path
+code_path = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(code_path))
 
-from data.fetch_record_counts import fetch_world_bank_records, save_outputs, get_wb_stream_url
+from data.fetch_record_counts import get_fao_stream_url, fetch_fao_records_count, save_outputs
 
 @pytest.fixture
 def temp_data_dir():
+    """Create a temporary directory for test outputs."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-@pytest.fixture
-def mock_wb_indicator_response():
-    """Mock response for World Bank API indicating 2 pages of data."""
-    page_1_meta = {"page": 1, "pages": 2, "per_page": 50000, "total": 100}
-    page_1_data = [
-        {"countryiso3code": "USA", "date": "2000", "value": 0.5},
-        {"countryiso3code": "USA", "date": "2001", "value": 0.6},
-        {"countryiso3code": "CAN", "date": "2000", "value": 0.4},
-    ]
-    
-    page_2_meta = {"page": 2, "pages": 2, "per_page": 50000, "total": 100}
-    page_2_data = [
-        {"countryiso3code": "USA", "date": "2020", "value": 0.7},
-    ]
-    
-    return [page_1_meta, page_1_data], [page_2_meta, page_2_data]
+@patch('data.fetch_record_counts.requests.get')
+def test_fetch_fao_records_count_success(mock_get, temp_data_dir):
+    """Test successful counting of FAO records."""
+    # Mock response with CSV content
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.iter_lines = MagicMock(return_value=[
+        b'"Item Code","Item","Area","Year","Value"',  # Header
+        b'"123","Forest Area","USA","2000","100"',
+        b'"123","Forest Area","USA","2001","101"',
+        b'"123","Forest Area","CAN","2000","200"',
+    ])
+    mock_get.return_value = mock_response
 
-def test_get_world_bank_url():
-    url, params = get_wb_stream_url("EG.GOV.POLI.ZS", 2000, 2020)
-    assert "EG.GOV.POLI.ZS" in url
-    assert params['date'] == '2000:2020'
+    count = fetch_fao_records_count('AG.LND.FRST.ZS')
+    
+    assert count == 3  # 3 data rows, header excluded
+    mock_get.assert_called_once()
 
 @patch('data.fetch_record_counts.requests.get')
-def test_fetch_world_bank_records(mock_get, mock_wb_indicator_response):
-    """
-    Verifies that the function correctly iterates pages and counts rows.
-    """
-    page_1, page_2 = mock_wb_indicator_response
-    
-    # Mock the response sequence
-    mock_response_1 = MagicMock()
-    mock_response_1.json.return_value = page_1
-    mock_response_1.raise_for_status = MagicMock()
-    
-    mock_response_2 = MagicMock()
-    mock_response_2.json.return_value = page_2
-    mock_response_2.raise_for_status = MagicMock()
-    
-    mock_get.side_effect = [mock_response_1, mock_response_2]
+def test_fetch_fao_records_count_empty(mock_get, temp_data_dir):
+    """Test handling of empty response."""
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.iter_lines = MagicMock(return_value=[
+        b'"Item Code","Item","Area","Year","Value"'  # Only header
+    ])
+    mock_get.return_value = mock_response
 
-    count = fetch_world_bank_records("EG.GOV.POLI.ZS", 2000, 2020)
+    count = fetch_fao_records_count('AG.LND.FRST.ZS')
     
-    # Page 1 has 3 valid rows, Page 2 has 1 valid row
-    expected_count = 4
-    assert count == expected_count
-    assert mock_get.call_count == 2
+    assert count == 0
 
 @patch('data.fetch_record_counts.requests.get')
-def test_fetch_handles_api_error(mock_get):
-    """Verifies that the function raises an error on persistent API failure."""
-    mock_get.side_effect = Exception("Network Error")
+def test_fetch_fao_records_count_retry_logic(mock_get):
+    """Test retry logic on API failure."""
+    # First two attempts fail, third succeeds
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.iter_lines = MagicMock(return_value=[
+        b'"Item Code","Item","Area","Year","Value"',
+        b'"123","Forest Area","USA","2000","100"',
+    ])
     
-    with pytest.raises(RuntimeError, match="Data fetch failed"):
-        fetch_world_bank_records("EG.GOV.POLI.ZS", 2000, 2020)
+    # Configure side effect: raise on first two calls, return mock on third
+    mock_get.side_effect = [
+        Exception("Connection error"),
+        Exception("Connection error"),
+        mock_response
+    ]
+
+    count = fetch_fao_records_count('AG.LND.FRST.ZS')
+    
+    assert count == 1
+    assert mock_get.call_count == 3
 
 def test_save_outputs(temp_data_dir):
-    """Verifies that outputs are saved correctly to JSON."""
-    output_path = temp_data_dir / "test_counts.json"
-    save_outputs(150, output_path)
+    """Test saving counts to JSON files."""
+    counts = {'fao': 150, 'wb': 200}
+    save_outputs(counts, temp_data_dir)
     
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        data = json.load(f)
+    fao_file = temp_data_dir / "counts_fao.json"
+    wb_file = temp_data_dir / "counts_wb.json"
     
-    assert data["total_wb_available"] == 150
-    assert data["indicator"] == "EG.GOV.POLI.ZS"
+    assert fao_file.exists()
+    assert wb_file.exists()
+    
+    with open(fao_file) as f:
+        fao_data = json.load(f)
+    assert fao_data == {"total_fao_available": 150}
+    
+    with open(wb_file) as f:
+        wb_data = json.load(f)
+    assert wb_data == {"total_wb_available": 200}
+
+def test_get_fao_stream_url():
+    """Test URL construction."""
+    url = get_fao_stream_url('AG.LND.FRST.ZS')
+    assert 'AG.LND.FRST.ZS' in url
+    assert 'CSV' in url
+    assert 'data/export' in url

@@ -1,5 +1,6 @@
 """
 Data module for solar irradiance reconstruction.
 
-Handles ingestion of raw data from SILSO/SORCE and preprocessing pipelines.
+Contains modules for data ingestion, preprocessing, and utility scripts.
+Note: Logging infrastructure is also initialized here as per T007.
 """

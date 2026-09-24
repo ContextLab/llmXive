@@ -43,14 +43,15 @@
   verification_status: verified
   verified_against_url: https://www.worldbank.org/ext/en/topic/environment/forests-and-landscapes
   verified_at: '2026-07-07T06:45:12.409033Z'
-- artifact_hash: b7b18ce8817085803db363831c70bf9d8b6f6423cfa80253be660b76f0def03d
+- artifact_hash: 14cc2ee6a86ad0f7098c90ae20b8d3b059beca6b5ec9b09f0655287b13f87449
   artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: '[1906.01701] On Benjamini-Hochberg procedure applied to mid p-values'
+  fetched_title: '[2602.11610] Improving the adjusted Benjamini--Hochberg method using
+    e-values in knockoff-assisted variable selection'
   kind: url
-  value: https://arxiv.org/abs/1906.01701
+  value: https://arxiv.org/abs/2602.11610
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1906.01701
-  verified_at: '2026-09-23T02:54:38.286938Z'
+  verified_against_url: https://arxiv.org/abs/2602.11610
+  verified_at: '2026-09-24T18:34:38.968688Z'

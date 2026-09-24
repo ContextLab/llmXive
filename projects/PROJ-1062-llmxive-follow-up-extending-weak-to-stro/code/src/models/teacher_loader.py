@@ -2,7 +2,8 @@
 Teacher Loader Module for llmXive.
 
 Implements loading of dense Transformer teacher models (pre-RL and post-RL)
-in int8 precision with CPU offloading to adhere to strict memory constraints.
+using low-precision integer quantization (int8) and CPU offloading to
+satisfy the 7GB RAM constraint.
 """
 import logging
 import gc
@@ -12,201 +13,161 @@ from pathlib import Path
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+# Import local project utilities
+from core.config_validator import load_config
+from core.memory_monitor import MemoryMonitor
+
 logger = logging.getLogger(__name__)
 
 
 class TeacherLoader:
     """
-    Handles the loading of teacher models (dense Transformer architecture)
-    with int8 quantization and CPU offloading.
-
-    Attributes:
-        model_id (str): The HuggingFace model identifier.
-        device_map (str): The device mapping strategy ('cpu' for offloading).
-        quantization_config (BitsAndBytesConfig): Configuration for int8 quantization.
+    Handles the loading of dense Transformer teacher models with strict
+    memory constraints (int8 quantization + CPU offloading).
     """
 
-    def __init__(
-        self,
-        model_id: str,
-        device_map: str = "cpu",
-        load_in_8bit: bool = True
-    ):
+    def __init__(self, config_path: str = "config/hyperparams.yaml"):
         """
-        Initialize the TeacherLoader.
+        Initialize the loader with configuration.
 
         Args:
-            model_id (str): HuggingFace model ID (e.g., 'meta-llama/Llama-2-7b-hf').
-            device_map (str): Device mapping. Defaults to 'cpu' for offloading.
-            load_in_8bit (bool): Whether to load in 8-bit precision. Defaults to True.
+            config_path: Path to the hyperparameters YAML file.
         """
-        self.model_id = model_id
-        self.device_map = device_map
-        self.load_in_8bit = load_in_8bit
-        self.model: Optional[AutoModelForCausalLM] = None
-        self.tokenizer: Optional[AutoTokenizer] = None
+        self.config = load_config(config_path)
+        self.model_cache: Dict[str, torch.nn.Module] = {}
+        self.tokenizer_cache: Dict[str, AutoTokenizer] = {}
 
-        logger.info(f"Initializing TeacherLoader for model: {self.model_id}")
-        logger.info(f"Configuration: 8-bit={self.load_in_8bit}, Device Map={self.device_map}")
-
-    def _create_quantization_config(self) -> BitsAndBytesConfig:
+    def _get_quantization_config(self) -> BitsAndBytesConfig:
         """
-        Create the BitsAndBytes configuration for int8 loading.
-
-        Returns:
-            BitsAndBytesConfig: The quantization configuration.
+        Constructs the BitsAndBytesConfig for int8 quantization.
+        Ensures CPU offloading is enabled to fit within 7GB RAM.
         """
         return BitsAndBytesConfig(
-            load_in_8bit=self.load_in_8bit,
-            llm_int8_skip_modules=["lm_head"], # Skip LM head to preserve logits precision if needed
-            llm_int8_threshold=6.0,
+            load_in_8bit=True,
+            llm_int8_enable_fp32_cpu_offload=True,
             llm_int8_has_fp16_weight=False,
+            llm_int8_skip_modules=["lm_head"], # Keep lm_head in FP32 for stability
+            llm_int8_threshold=6.0,
         )
 
-    def load_model_and_tokenizer(self) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    def load_teacher(
+        self,
+        model_id: str,
+        model_type: str = "pre-rl"
+    ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
         """
-        Load the teacher model and tokenizer.
+        Loads a teacher model and tokenizer from HuggingFace Hub.
 
-        This method performs the actual loading with quantization and offloading.
-        It includes memory management steps (gc) before loading to ensure
-        maximum available RAM.
+        Args:
+            model_id: The HuggingFace model identifier (e.g., "meta-llama/Llama-2-7b").
+            model_type: Type of model, either "pre-rl" or "post-rl". Used for logging.
 
         Returns:
-            Tuple[AutoModelForCausalLM, AutoTokenizer]: The loaded model and tokenizer.
+            Tuple of (model, tokenizer).
 
         Raises:
-            ValueError: If the model fails to load or is not a valid Transformer.
-            RuntimeError: If memory constraints are violated during loading.
+            ValueError: If model_id is invalid or loading fails.
+            RuntimeError: If memory constraints are violated.
         """
-        logger.info(f"Starting load process for {self.model_id}...")
+        cache_key = f"{model_id}_{model_type}"
+        if cache_key in self.model_cache:
+            logger.info(f"Returning cached {model_type} model: {model_id}")
+            return self.model_cache[cache_key], self.tokenizer_cache[cache_key]
 
-        # Force garbage collection before loading
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        logger.info(f"Loading {model_type} teacher model: {model_id} (int8 + CPU offload)...")
 
+        # 1. Load Tokenizer
         try:
-            # Load tokenizer first
-            logger.info("Loading tokenizer...")
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_id,
-                trust_remote_code=True,
-                padding_side="left" # Important for generation/batching
-            )
-            if self.tokenizer.pad_token is None:
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-                logger.info("Pad token set to EOS token.")
-
-            # Prepare quantization config
-            if self.load_in_8bit:
-                quantization_config = self._create_quantization_config()
-            else:
-                quantization_config = None
-
-            # Load model
-            logger.info("Loading model with int8 quantization and CPU offloading...")
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_id,
-                device_map=self.device_map,
-                torch_dtype=torch.float16, # Use FP16 for weights where not quantized
-                quantization_config=quantization_config,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
-
-            logger.info(f"Successfully loaded model: {self.model_id}")
-            logger.info(f"Model device map: {self.model.hf_device_map if hasattr(self.model, 'hf_device_map') else 'N/A'}")
-
-            # Verify model type
-            if not isinstance(self.model, AutoModelForCausalLM):
-                raise ValueError(f"Loaded model is not a CausalLM model. Type: {type(self.model)}")
-
-            return self.model, self.tokenizer
-
+            tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+            logger.info(f"Tokenizer loaded successfully.")
         except Exception as e:
-            logger.error(f"Failed to load model {self.model_id}: {e}")
-            raise RuntimeError(f"Model loading failed: {e}") from e
+            logger.error(f"Failed to load tokenizer for {model_id}: {e}")
+            raise ValueError(f"Tokenizer load failed: {e}")
 
-    def get_model(self) -> AutoModelForCausalLM:
+        # 2. Prepare Quantization Config
+        quant_config = self._get_quantization_config()
+
+        # 3. Load Model
+        try:
+            # Monitor memory before loading
+            mem_monitor = MemoryMonitor()
+            initial_mem = mem_monitor.get_memory_usage_gb()
+            logger.info(f"Initial memory usage: {initial_mem:.2f} GB")
+
+            model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                quantization_config=quant_config,
+                device_map="auto", # Allows automatic distribution (CPU offload)
+                trust_remote_code=True,
+                torch_dtype=torch.float16, # Base dtype for non-quantized parts
+            )
+
+            final_mem = mem_monitor.get_memory_usage_gb()
+            logger.info(f"Model loaded. Memory usage increased by: {final_mem - initial_mem:.2f} GB")
+
+            # Validate model is on correct device map (mixed CPU/GPU)
+            if not model.device_map:
+                logger.warning("Model device_map is empty. Check CPU offload configuration.")
+
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.critical(f"OOM detected during {model_type} model load. "
+                                "This exceeds the 7GB RAM constraint even with offloading.")
+                raise RuntimeError(f"Memory constraint violation: {e}") from e
+            raise
+
+        # Cache results
+        self.model_cache[cache_key] = model
+        self.tokenizer_cache[cache_key] = tokenizer
+
+        logger.info(f"Successfully loaded {model_type} teacher model: {model_id}")
+        return model, tokenizer
+
+    def unload_teacher(self, model_type: str = None):
         """
-        Get the loaded model.
+        Unloads a specific model type or all models to free memory.
 
-        Returns:
-            AutoModelForCausalLM: The loaded model.
-
-        Raises:
-            RuntimeError: If the model has not been loaded yet.
+        Args:
+            model_type: "pre-rl", "post-rl", or None for all.
         """
-        if self.model is None:
-            raise RuntimeError("Model not loaded. Call load_model_and_tokenizer() first.")
-        return self.model
+        keys_to_remove = []
+        for key in self.model_cache:
+            if model_type is None or key.endswith(model_type):
+                keys_to_remove.append(key)
 
-    def get_tokenizer(self) -> AutoTokenizer:
-        """
-        Get the loaded tokenizer.
+        for key in keys_to_remove:
+            logger.info(f"Unloading model: {key}")
+            del self.model_cache[key]
+            del self.tokenizer_cache[key]
 
-        Returns:
-            AutoTokenizer: The loaded tokenizer.
-
-        Raises:
-            RuntimeError: If the tokenizer has not been loaded yet.
-        """
-        if self.tokenizer is None:
-            raise RuntimeError("Tokenizer not loaded. Call load_model_and_tokenizer() first.")
-        return self.tokenizer
-
-    def cleanup(self):
-        """
-        Cleanup resources by deleting model and tokenizer and forcing GC.
-        """
-        logger.info("Cleaning up model resources...")
-        self.model = None
-        self.tokenizer = None
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-        logger.info("Cleanup complete.")
+
+        mem_monitor = MemoryMonitor()
+        logger.info(f"Memory after unload: {mem_monitor.get_memory_usage_gb():.2f} GB")
 
 
 def main():
     """
-    Main entry point for testing the TeacherLoader.
-    Loads a sample teacher model to verify the pipeline works.
+    Entry point for testing the TeacherLoader.
+    Loads a dummy/small config to verify the loader works without crashing.
     """
-    # Example usage with a small model for testing if a large one isn't available
-    # In production, this would be the actual teacher model ID from config
-    test_model_id = "HuggingFaceH4/zephyr-7b-beta" # Example dense transformer
-    # Note: For strict CPU-only 7GB limit, a smaller model like 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'
-    # might be necessary if the full 7B doesn't fit even with int8+offloading on this specific runner.
-    # The loader itself supports the mechanism requested.
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    # Fallback to a smaller model if the large one is too heavy for the test environment
-    # This is a defensive check for the script execution, not the core logic.
-    try:
-        loader = TeacherLoader(
-            model_id=test_model_id,
-            device_map="cpu",
-            load_in_8bit=True
-        )
-        model, tokenizer = loader.load_model_and_tokenizer()
-        logger.info("Model loaded successfully.")
-        logger.info(f"Model type: {type(model).__name__}")
-        logger.info(f"Vocab size: {tokenizer.vocab_size}")
+    loader = TeacherLoader()
 
-        # Test a simple forward pass (dummy input) to ensure it's functional
-        dummy_input = tokenizer("Test", return_tensors="pt")
-        # Note: On CPU with offloading, this might be slow, but it verifies the pipeline.
-        # We won't run a full generation to save time in the script.
-        logger.info("Loader implementation verified.")
+    # Example usage (commented out to prevent accidental large downloads in test envs)
+    # model_id = "HuggingFaceH4/zephyr-7b-beta" # Example small teacher
+    # model, tokenizer = loader.load_teacher(model_id, "pre-rl")
+    # print(f"Model loaded: {model.__class__.__name__}")
 
-    except Exception as e:
-        logger.error(f"Verification failed: {e}")
-        raise
+    logger.info("TeacherLoader module initialized successfully.")
 
 
 if __name__ == "__main__":

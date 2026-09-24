@@ -1,5 +1,6 @@
 """
 Analysis module for solar irradiance reconstruction.
 
-Contains submodules for statistical analysis, comparison, and report generation.
+Contains modules for statistical analysis, comparison, sensitivity analysis,
+and reconstruction generation.
 """

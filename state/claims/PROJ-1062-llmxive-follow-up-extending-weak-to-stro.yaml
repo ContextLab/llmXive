@@ -5513,3 +5513,201 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T11:34:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME 2024 dataset source is HuggingFaceH4/aime_2024
+  claim_id: c_c3b286ab
+  context: Implement src/data/download_aime_verified.py to first fetch HuggingFaceH4/aime_2024
+    from the HuggingFace Hub.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AIME 2024 dataset is fetched from HuggingFaceH4/aime_2024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:38:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model parameter count is approximately 1 billion
+  claim_id: c_1e9cd58a
+  context: Implement src/models/moe_student.py to load a verified ~1B parameter MoE
+    student model from HuggingFace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_parameter_count_is_approximately_1_billion
+  kind: entity_fact
+  raw_text: The MoE student model is a ~1B parameter model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:38:47Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model parameter count is approximately 1.3 billion
+  claim_id: c_6c2904b3
+  context: Implement src/models/ssm_student.py to load the ~1.3B parameter SSM student
+    model (e.g., Mamba variant).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SSM_student_model_parameter_count_is_approximately_1.3_billi
+  kind: entity_fact
+  raw_text: The SSM student model is a ~1.3B parameter model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:39:27Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: RAM usage constraint is 7 gigabytes
+  claim_id: c_a2c2496c
+  context: load a verified ~1B parameter MoE student model... to fit within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experimental constraint limits RAM usage to 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:39:58Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Hard floor batch size is 1
+  claim_id: c_144e9215
+  context: Implement src/core/hard_floor_enforcer.py to enforce the hard limit of
+    batch_size=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training uses a hard floor batch size of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:40:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Statistical sample size is 5 seeds
+  claim_id: c_7344410f
+  context: Use fixed sample size n=5 seeds as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a fixed sample size of n=5 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:41:26Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME split stratification uses hash(problem_id) modulo 2 if difficulty
+    field missing
+  claim_id: c_aae84ed7
+  context: If these fields are missing (as is common in raw AIME datasets), stratify
+    deterministically by hash(problem_id) % 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AIME dataset split uses a deterministic hash-based stratification
+    if difficulty fields are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:41:27Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset split is 50 percent train and 50 percent holdout
+  claim_id: c_fb060eeb
+  context: ensure a balanced 50/50 split of problem IDs between train and holdout
+    sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AIME dataset split aims for a 50/50 balance between train and holdout
+    sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:41:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Required Jaccard index for reasoning overlap is less than 0.01
+  claim_id: c_394c1f85
+  context: 'Output: data/processed/split_validation_report.json with Jaccard index
+    < 0.01.'
+  evidence:
+    entailment_evidence: Required Jaccard index for reasoning overlap is less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Required_Jaccard_index_for_reasoning_overlap_is_less_than_0.
+  kind: magnitude
+  raw_text: The overlap check requires a Jaccard index of less than 0.01 between train
+    and holdout sets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T18:47:06Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Hyperparameter configuration references arXiv 2507.07101
+  claim_id: c_ca59577c
+  context: Create config/hyperparams.yaml with hyperparameters... ( (2507.07101, https://arxiv.org/abs/2507.07101)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter configuration references arXiv ID 2507.07101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:47:19Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version is 0.43.0
+  claim_id: c_b1b905a0
+  context: Initialize Python project with... bitsandbytes==0.43.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses bitsandbytes version 0.43.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:47:39Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Example MoE model ID is mistralai/Mixtral-8x7B-v0.1
+  claim_id: c_93471d96
+  context: Use pinned, verified model ID (e.g., mistralai/Mixtral-8x7B-v0.1...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model variant mentioned as an example is mistralai/Mixtral-8x7B-v0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:48:04Z'

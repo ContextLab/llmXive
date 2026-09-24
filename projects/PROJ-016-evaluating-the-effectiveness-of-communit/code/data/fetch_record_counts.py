@@ -1,169 +1,138 @@
 """
-Module to fetch record counts from FAO STAT and World Bank APIs.
-Implements streaming/counting logic to avoid loading full datasets.
+Fetch record counts from FAO STAT and World Bank APIs.
+Implements streaming/counting logic to avoid loading full datasets into memory.
 """
 import json
 import os
 import sys
 import time
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
 import requests
 
 # Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+if 'code' not in sys.path[0]:
+    code_path = Path(__file__).resolve().parent
+    sys.path.insert(0, str(code_path.parent))
 
-from config import get_config
 from logging_config import get_logger
+from config import get_config
 
 logger = get_logger(__name__)
 
-def get_fao_stream_url(indicator_code: str, year_start: int, year_end: int) -> str:
+def get_fao_stream_url(indicator_code: str) -> str:
     """
-    Construct the FAO STAT API URL for streaming data.
-    FAO FRA (Forest Resources Assessment) data is often accessed via their API.
-    Note: FAO API structure can vary. This uses the standard API endpoint for
-    specific indicators.
+    Construct the FAO STAT API URL for streaming/CSV export.
+    FAO STAT API endpoint for data retrieval.
     """
     config = get_config()
-    base_url = config.get("API_BASE_URL", "https://www.fao.org/faostat/api/v1/en")
-    # FAO STAT API typically uses a specific endpoint for data retrieval.
-    # We will use a direct download approach for counting if streaming isn't directly supported
-    # by a simple URL, or construct a CSV download URL.
-    # For FAO, a common pattern is /DataDownload/Standard/...
-    # However, for programmatic access, we often use the JSON API if available.
-    # Let's try the standard CSV download endpoint for a specific indicator.
-    # FAO API: https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/AG.LND.FRST.ZS
-    # We will append year range if supported, or fetch all and filter.
-    # To be safe and robust for counting, we fetch the CSV for the indicator.
-    
-    # Constructing a URL that requests the data for the specific indicator.
-    # FAO API v1 often requires specific parameters.
-    # Let's try the direct CSV download for the indicator code.
-    # Note: The exact URL structure might need adjustment based on FAO API version.
-    # A reliable method for FAO is often the 'DataDownload' endpoint.
-    
-    # Attempting a direct CSV link structure often used by FAO for specific indicators:
-    # https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/AG.LND.FRST.ZS
-    # We will add a parameter to limit years if possible, or fetch and count in stream.
-    
-    # Using a generic FAO API endpoint that returns CSV for the indicator.
-    # We assume the API allows fetching by indicator code.
-    url = f"https://www.fao.org/faostat/api/v1/en/DataDownload/Standard/{indicator_code}"
-    
-    # Some APIs require a 'download' flag or specific format.
-    # Let's try to get the raw data stream.
-    # If the above doesn't work, we might need to use the JSON API and count.
-    # But for counting rows, a CSV stream is efficient.
-    
+    # FAO STAT API base URL for data extraction
+    base_url = "https://www.fao.org/faostat/api"
+    # Using the CSV export endpoint which supports streaming
+    # Indicator: AG.LND.FRST.ZS (Forest Area Change)
+    url = f"{base_url}/v1/en/data/export/CSV/{indicator_code}"
     return url
 
-def fetch_fao_records_count(indicator_code: str, year_start: int, year_end: int) -> int:
+def fetch_fao_records_count(indicator_code: str, timeout: int = 30) -> int:
     """
     Stream the FAO STAT dataset for the given indicator and count rows.
     Does NOT load the full dataset into memory.
+    
+    Args:
+        indicator_code: The FAO indicator code (e.g., 'AG.LND.FRST.ZS')
+        timeout: Request timeout in seconds
+        
+    Returns:
+        int: Total number of data rows (excluding header)
+        
+    Raises:
+        RuntimeError: If the API fetch fails after retries
     """
-    url = get_fao_stream_url(indicator_code, year_start, year_end)
-    logger.info(f"Fetching FAO data stream from: {url}")
+    url = get_fao_stream_url(indicator_code)
+    logger.info(f"Fetching FAO stream URL for {indicator_code}: {url}")
     
-    session = requests.Session()
-    retry_count = 0
+    # Retry logic with exponential backoff (max 3 attempts)
     max_retries = 3
-    timeout = 30
-    
-    while retry_count < max_retries:
+    for attempt in range(max_retries):
         try:
-            # Use stream=True to download in chunks
-            response = session.get(url, stream=True, timeout=timeout)
+            # Use stream=True to handle large files without loading all into memory
+            response = requests.get(url, stream=True, timeout=timeout)
             response.raise_for_status()
             
-            # Check content type
-            if 'text/csv' not in response.headers.get('Content-Type', '').lower() and \
-               'application/octet-stream' not in response.headers.get('Content-Type', '').lower():
-                # Sometimes FAO returns HTML for errors or login pages
-                content = response.content[:500]
-                if b'<html>' in content.lower() or b'error' in content.lower():
-                    logger.warning(f"Unexpected content type or error response: {content[:200]}")
-                    # If it's an error page, we should fail loud
-                    raise RuntimeError(f"FAO API returned error or non-CSV content: {response.status_code}")
-            
             row_count = 0
-            # Skip header line(s) if necessary, usually first line is header
-            # We iterate line by line
+            # Iterate line by line to count rows
             for line in response.iter_lines(decode_unicode=True):
-                if not line.strip():
-                    continue
-                # Check if it's a header line (e.g., contains "Item Code" or "Year")
-                if "Item Code" in line or "Domain Code" in line:
-                    continue
-                
-                # Simple CSV row check: if it has commas and looks like data
-                if "," in line:
-                    # Optional: filter by year if the URL didn't do it
-                    # Assuming format: ... Year ...
-                    # This is a naive check; a robust parser would be better but we just need count
-                    # For now, we assume the API returns only the requested years or we count all.
-                    # The task says "for a multi-decadal period", so we count what we get.
+                if line and not line.startswith('"Item Code"'):  # Skip header
                     row_count += 1
             
-            logger.info(f"FAO data stream completed. Total rows counted: {row_count}")
+            logger.info(f"Successfully counted {row_count} rows for indicator {indicator_code}")
             return row_count
-
+            
         except requests.exceptions.RequestException as e:
-            retry_count += 1
-            if retry_count < max_retries:
-                wait_time = 2 ** retry_count
-                logger.warning(f"Request failed: {e}. Retrying in {wait_time}s...")
+            attempt_num = attempt + 1
+            if attempt_num < max_retries:
+                wait_time = 2 ** attempt_num
+                logger.warning(f"Attempt {attempt_num}/{max_retries} failed: {e}. Retrying in {wait_time}s...")
                 time.sleep(wait_time)
             else:
-                logger.error(f"FAO data fetch failed after {max_retries} retries: {e}")
-                raise RuntimeError(f"Failed to fetch FAO data after {max_retries} retries: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error while counting FAO rows: {e}")
-            raise
-        finally:
-            session.close()
+                logger.error(f"All {max_retries} attempts failed for {indicator_code}: {e}")
+                raise RuntimeError(f"Failed to fetch FAO data after {max_retries} attempts: {e}")
+    
+    return 0
 
-def save_outputs(count: int, output_path: Path) -> None:
+def save_outputs(counts: Dict[str, int], output_dir: Path) -> None:
     """
-    Save the counted rows to a JSON file.
+    Save the counts to JSON files in the processed data directory.
+    
+    Args:
+        counts: Dictionary mapping source name to count
+        output_dir: Directory to save the JSON files
     """
-    output_dir = output_path.parent
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    data = {
-        "total_fao_available": count,
-        "indicator_code": "AG.LND.FRST.ZS",
-        "source": "FAO STAT",
-        "description": "Count of rows for Forest Area Change indicator"
-    }
+    if 'fao' in counts:
+        fao_path = output_dir / "counts_fao.json"
+        with open(fao_path, 'w') as f:
+            json.dump({"total_fao_available": counts['fao']}, f, indent=2)
+        logger.info(f"Saved FAO count to {fao_path}")
     
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    
-    logger.info(f"Saved FAO row count to {output_path}")
+    if 'wb' in counts:
+        wb_path = output_dir / "counts_wb.json"
+        with open(wb_path, 'w') as f:
+            json.dump({"total_wb_available": counts['wb']}, f, indent=2)
+        logger.info(f"Saved World Bank count to {wb_path}")
 
-def main():
+def main() -> int:
     """
-    Main entry point for T008a: Count FAO Rows.
+    Main entry point for fetching FAO record counts.
+    T008a: Count FAO Rows for 'Forest Area Change' (AG.LND.FRST.ZS)
     """
     config = get_config()
-    indicator_code = config.get("FAO_INDICATOR", "AG.LND.FRST.ZS")
-    year_start = config.get("DATA_YEARS_START", 2000)
-    year_end = config.get("DATA_YEARS_END", 2020)
+    indicator_code = config.get('FAO_INDICATOR', 'AG.LND.FRST.ZS')
     
-    output_path = Path("data/processed/counts_fao.json")
+    # Output directory from config or default
+    output_dir = Path(config.get('DATA_PROCESSED_DIR', 'data/processed'))
+    
+    logger.info(f"Starting T008a: Counting FAO rows for {indicator_code}")
     
     try:
-        count = fetch_fao_records_count(indicator_code, year_start, year_end)
-        save_outputs(count, output_path)
-        logger.info(f"T008a completed successfully. Count: {count}")
+        # Fetch and count FAO rows
+        fao_count = fetch_fao_records_count(indicator_code)
+        
+        if fao_count == 0:
+            logger.error(f"No rows found for indicator {indicator_code} or API failure.")
+            return 1
+        
+        # Save the count
+        save_outputs({'fao': fao_count}, output_dir)
+        
+        logger.info(f"T008a completed successfully. FAO count: {fao_count}")
+        return 0
+        
     except Exception as e:
         logger.error(f"T008a failed: {e}")
-        # Fail loud: exit with non-zero code
-        sys.exit(1)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

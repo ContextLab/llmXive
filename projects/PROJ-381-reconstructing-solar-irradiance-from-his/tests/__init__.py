@@ -1,5 +1,5 @@
 """
-Test suite for the Solar Irradiance Reconstruction project.
+Test package for the solar irradiance reconstruction project.
 
-Includes unit tests, integration tests, and performance benchmarks.
+Contains unit tests, integration tests, and performance tests.
 """

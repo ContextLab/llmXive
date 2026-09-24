@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-24T21:43:11Z",
+  "fetched_at": "2026-09-24T18:35:19Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Agent Skills\"",
       "target_n": 5
     },
-    "duration_seconds": 42.89,
-    "ended_at": "2026-08-24T21:43:11Z",
+    "duration_seconds": 38.511,
+    "ended_at": "2026-09-24T18:35:19Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "self-evolving agent skill optimization"
+          "self-evolving autonomous agent skills"
         ],
         [
           2,
-          "executive strategy for autonomous agents"
+          "executive strategy for LLM agents"
         ],
         [
           3,
-          "LLM-based skill acquisition and refinement"
+          "dynamic skill acquisition in language models"
         ],
         [
           4,
-          "iterative skill improvement in AI agents"
-        ],
-        [
-          5,
-          "meta-learning for agent skill evolution"
-        ],
-        [
-          6,
           "autonomous agent self-improvement frameworks"
         ],
         [
+          5,
+          "iterative skill optimization for AI agents"
+        ],
+        [
+          6,
+          "meta-learning for agent skill adaptation"
+        ],
+        [
           7,
-          "dynamic skill adaptation in large language models"
+          "self-modifying agent policies in LLMs"
         ],
         [
           8,
-          "reinforcement learning for agent skill tuning"
+          "autonomous skill generation in large language models"
         ],
         [
           9,
-          "recursive skill optimization in AI systems"
+          "reinforcement learning for agent skill evolution"
         ],
         [
           10,
-          "agent-centric strategy evolution"
+          "hierarchical skill planning in autonomous agents"
         ],
         [
           11,
-          "LLM self-play for skill enhancement"
+          "adaptive reasoning strategies for LLM agents"
         ],
         [
           12,
-          "automated skill discovery in autonomous agents"
+          "lifelong learning in autonomous AI systems"
         ],
         [
           13,
-          "hierarchical skill management for AI agents"
+          "emergent skill capabilities in language agents"
         ],
         [
           14,
-          "continual learning for agent skill portfolios"
+          "agent-driven skill refinement mechanisms"
         ],
         [
           15,
-          "strategic planning for self-improving agents"
+          "self-correcting agent skill architectures"
         ],
         [
           16,
-          "skill transfer and adaptation in LLM agents"
+          "recursive skill improvement in AI agents"
         ],
         [
           17,
-          "cognitive architecture for evolving agent capabilities"
+          "strategic skill selection for autonomous systems"
         ],
         [
           18,
-          "automated curriculum generation for agent skills"
+          "automated skill synthesis in language models"
         ],
         [
           19,
-          "multi-agent skill collaboration and evolution"
+          "cognitive architecture for self-evolving agents"
         ],
         [
           20,
-          "self-correction mechanisms in autonomous agents"
+          "transfer learning for agent skill generalization"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Agent Skills\" computer science": 0,
-        "self-evolving agent skill optimization": 5
+        "self-evolving autonomous agent skills": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "LLM agent skill acquisition self-improvement",
-      "autonomous agent tool use function calling",
-      "emergent capabilities reinforcement learning from feedback",
-      "benchmark evaluation agent task success rate",
-      "meta-learning policy gradient strategy adaptation"
+      "agent self-improvement recursive refinement",
+      "LLM autonomous skill acquisition meta-learning",
+      "cognitive architecture strategy optimization planning",
+      "agent benchmark evaluation task success rate",
+      "emergent capability training data contamination"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2603.25111"
+        "2607.12790"
       ]
     },
     "per_query_hit_count": {
-      "LLM agent skill acquisition self-improvement": 3,
-      "autonomous agent tool use function calling": 3,
-      "benchmark evaluation agent task success rate": 3,
-      "emergent capabilities reinforcement learning from feedback": 3,
-      "llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Agent Skills\" computer science": 3,
-      "meta-learning policy gradient strategy adaptation": 3
+      "LLM autonomous skill acquisition meta-learning": 3,
+      "agent benchmark evaluation task success rate": 3,
+      "agent self-improvement recursive refinement": 3,
+      "cognitive architecture strategy optimization planning": 3,
+      "emergent capability training data contamination": 3,
+      "llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Agent Skills\" computer science": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-24T21:42:28Z",
+    "started_at": "2026-09-24T18:34:40Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"skillopt: executive strategy for self-evolving agent skills\" computer science",
       "raw": "llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Agent Skills\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,179 +194,179 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Users often interpret and select agent skills through their SKILL markdown specifications. To protect users, existing audits mainly focus on malicious or unsafe skills. We study the complementary question of whether specifications help users form bounded expectations about what a skill consumes, produces, and covers. Across 878 cybersecurity skills, we used rule-based coding to measure textual cues for four comprehension anchors, namely operational basis, output contract, boundary disclosure, and example capability demonstration. Cues for operational basis were common, but only 19.0% of specifications exhibited cues for an example task, sample, or expected outcome, and only 2.3% exhibited cues for all four anchors. We further examined a small DNS/C2 telemetry subset (n$=$6) to illustrate why missing examples may matter. Examples appeared to make first local checks easier to construct, while no-example skills typically required helper code inspection to recover command arguments or output fields. We argue that agent-skill evaluation should treat specifications as user-facing capability disclosures, not merely as containers for executable instructions.",
+          "claimed_abstract": "Recursive self-improvement is moving from theory to practice: modern systems can critique, revise, and evaluate their own outputs, yet iterative self-modification risks subtle alignment drift. We introduce SAHOO, a practical framework to monitor and control drift through three safeguards: (i) the Goal Drift Index (GDI), a learned multi-signal detector combining semantic, lexical, structural, and distributional measures; (ii) constraint preservation checks that enforce safety-critical invariants such as syntactic correctness and non-hallucination; and (iii) regression-risk quantification to flag improvement cycles that undo prior gains. Across 189 tasks in code generation, mathematical reasoning, and truthfulness, SAHOO produces substantial quality gains, including 18.3 percent improvement in code tasks and 16.8 percent in reasoning, while preserving constraints in two domains and maintaining low violations in truthfulness. Thresholds are calibrated on a small validation set of 18 tasks across three cycles. We further map the capability-alignment frontier, showing efficient early improvement cycles but rising alignment costs later and exposing domain-specific tensions such as fluency versus factuality. SAHOO therefore makes alignment preservation during recursive self-improvement measurable, deployable, and systematically validated at scale.",
           "claimed_authors": [
-            "Zikai Alex Wen"
+            "Subramanyam Sahoo",
+            "Aman Chadha",
+            "Vinija Jain",
+            "Divya Chaudhary"
           ],
-          "claimed_title": "Toward User Comprehension Supports for LLM Agent Skill Specifications",
+          "claimed_title": "SAHOO: Safeguarded Alignment for High-Order Optimization Objectives in Recursive Self-Improvement",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2605.19362"
+          "primary_pointer": "2603.06333"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Toward User Comprehension Supports for LLM Agent Skill Specifications')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='SAHOO: Safeguarded Alignment for High-Order Optimization Objectives in Recursive Self-Improvement')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Markdown skill libraries for LLM agents ship as free-form prose, forcing the agent to re-derive both the input schema and the concrete invocation syntax on every retrieval. We observe that this often produces a \"confused -> re-retrieve -> still confused\" loop in which the agent issues a partially-correct action, receives uninformative environment feedback, and re-retrieves the same prose. We propose Skill-as-Pseudocode (SaP), an automatic conversion of markdown skill libraries into typed pseudocode with deterministic quality control. For each cluster of similar procedural passages drawn from one or more skills, SaP extracts a typed contract and filters it through a four-check deterministic verifier (coverage, binding, replacement, risk). Promoted contracts are inlined into a rewritten skill skeleton together with restored concrete action templates, giving the agent two complementary signals: a typed signature for what the skill does and a concrete template for how to invoke it. On the 134-game ALFWorld unseen split with gpt-4o-mini, pooled across three seeds, SaP wins 82/402 paired games versus 47/402 for the Graph-of-Skills (GoS) baseline (pooled McNemar p = 8.2e-5), at -22.8 +/- 6.4% input tokens and -14.5 +/- 4.1% LLM calls per game.",
+          "claimed_abstract": "Self-improving autonomous agents are moving from research prototypes to deployed systems. The primary goal is controllable evolution, or adaptation, from experience with minimal or even no human input. This survey frames modern self-improving agents as adaptive systems that convert experience into accumulated capability gains. We offer a system-level framework that represents a modern agent as a configuration coupling a foundation model with an operational scaffold of prompts, memory, tools, and control logic. Within this framework, self-improvement is formalized as a self-induced update operator that obtains and commits updates to model parameters or scaffold components. We organize prior work by update target and by the signals that drive change, then review applications and discuss evaluation, before closing with open problems and future directions. For convenience, we track technical updates on https://github.com/selfimproving-agent/awesome-Self-Improving-Agents.",
           "claimed_authors": [
-            "Xinze Li",
-            "Yuhang Zang",
-            "Yixin Cao",
-            "Aixin Sun"
+            "Zhe Ren",
+            "Yimeng Chen",
+            "Dandan Guo",
+            "Guowei Rong",
+            "Tonghui Li",
+            "R. B. Xiong",
+            "Qingfeng Lan",
+            "Wenyi Wang",
+            "Li Nanbo",
+            "Yibo Yang",
+            "Mingchen Zhuge",
+            "Jürgen Schmidhuber"
           ],
-          "claimed_title": "Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents",
+          "claimed_title": "Self-Improvements in Modern Agentic Systems: A Survey",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2605.27955"
+          "primary_pointer": "2607.13104"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Self-Improvements in Modern Agentic Systems: A Survey')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "LLM agents increasingly rely on reusable skills (e.g., SKILL markdown files) to execute complex tasks, yet these artifacts lack portability: agent frameworks are highly sensitive to prompt formatting, leading to a large performance variation for the same skill. Nevertheless, most skills are authored once as format-agnostic Markdown, necessitating costly per-framework rewrites and also leaving security largely unaddressed, with widespread vulnerabilities in practice. To address this, we present SkCC, a compiler for LLM agents that introduces classical compilation design into agent skill development. SkCC centers on SkIR, a strongly-typed intermediate representation that decouples skill semantics from framework-specific formatting, thus enabling portable deployment across agent frameworks. Atop of this IR, a static Optimizer enforces security constraints, blocking vulnerabilities before deployment. Implemented as a four-phase pipeline, SkCC effectively reduces adaptation complexity from $O(m \\times n)$ to $O(m + n)$ across $m$ skills and $n$ frameworks. Experiments on SkillsBench demonstrate that SkCC delivers consistent and substantial gains over original counterparts, with pass rate increases from 21.1% to 33.3% on Claude Code and from 35.1% to 48.7% on Kimi CLI. Further, the design achieves sub-10ms compilation latency, 94.8% proactive security trigger rate, and 10-46% runtime token savings across frameworks.",
+          "claimed_abstract": "AI is increasingly used in the R\\&D process that produces future AI systems. We study the conditions under which this feedback becomes self-amplifying. Our model describes how the rate of AI capability growth depends on baseline research productivity, recursive feedback, and the increasing difficulty of research progress. We derive a recursive reproduction number, $\\mathcal{R}_{\\mathrm{AI}}$, that determines whether improvements are amplified or damped across development cycles. This quantity compares the strength of feedback with the rate at which further progress becomes more difficult. When $\\mathcal{R}_{\\mathrm{AI}}>1$, the effects of improvements compound across development cycles, placing the system in a self-amplifying regime. When $\\mathcal{R}_{\\mathrm{AI}}<1$, their effects weaken across cycles. The transition depends on the structure of the AI R\\&D feedback loop and need not occur at any particular level of model capability. A system can therefore enter a self-amplifying regime before acceleration becomes visible, while rapid progress can also occur without self-amplification. Higher baseline research productivity can accelerate progress without changing whether the system is self-amplifying, but the duration of the development cycle becomes a limiting timescale for amplification. Increasing research difficulty can end a period of self-amplification. Extending the model to multiple research actors shows that improvements shared across organizations can make the overall research ecosystem self-amplifying even when no individual actor is. The framework identifies measurable properties of AI R\\&D systems that can help distinguish recursive amplification from rapid progress driven by other sources, including the strength of recursive feedback, how effectively improvements propagate into successor systems, cycle duration, and the increasing difficulty of further progress.",
           "claimed_authors": [
-            "Yipeng Ouyang",
-            "Yi Xiao",
-            "Yuhao Gu",
-            "Xianwei Zhang"
+            "Mikhail Burtsev"
           ],
-          "claimed_title": "SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents",
+          "claimed_title": "Recursive Criticality of AI Self-Improvement",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2605.03353"
+          "primary_pointer": "2609.00137"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Recursive Criticality of AI Self-Improvement')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Complex physical models are the most advanced tools available for producing realistic simulations of the climate system. However, such levels of realism imply high computational cost and restrictions on their use for policymaking and risk assessment. Two central characteristics of climate change are uncertainty and that it is a dynamic problem in which international actions can significantly alter climate projections and information needs, including partial and full compliance of global climate goals. Here we present AIRCC-Clim, a simple climate model emulator that produces regional probabilistic climate change projections of monthly and annual temperature and precipitation, as well as risk measures, based both on standard and user-defined emissions scenarios for six greenhouse gases. AIRCC-Clim emulates 37 atmosphere-ocean coupled general circulation models with low computational and technical requirements for the user. This standalone, user-friendly software is designed for a variety of applications including impact assessments, climate policy evaluation and integrated assessment modelling.",
+          "claimed_abstract": "While deep reinforcement learning (RL) has fueled multiple high-profile successes in machine learning, it is held back from more widespread adoption by its often poor data efficiency and the limited generality of the policies it produces. A promising approach for alleviating these limitations is to cast the development of better RL algorithms as a machine learning problem itself in a process called meta-RL. Meta-RL is most commonly studied in a problem setting where, given a distribution of tasks, the goal is to learn a policy that is capable of adapting to any new task from the task distribution with as little data as possible. In this survey, we describe the meta-RL problem setting in detail as well as its major variations. We discuss how, at a high level, meta-RL research can be clustered based on the presence of a task distribution and the learning budget available for each individual task. Using these clusters, we then survey meta-RL algorithms and applications. We conclude by presenting the open problems on the path to making meta-RL part of the standard toolbox for a deep RL practitioner.",
           "claimed_authors": [
-            "Francisco Estrada",
-            "Oscar Calderón-Bustamante",
-            "Wouter Botzen",
-            "Julián A. Velasco",
-            "Richard S. J. Tol"
+            "Jacob Beck",
+            "Risto Vuorio",
+            "Evan Zheran Liu",
+            "Zheng Xiong",
+            "Luisa Zintgraf",
+            "Chelsea Finn",
+            "Shimon Whiteson"
           ],
-          "claimed_title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+          "claimed_title": "A Tutorial on Meta-Reinforcement Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.01762"
+          "claimed_year": 2023,
+          "primary_pointer": "2301.08028"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='A Tutorial on Meta-Reinforcement Learning')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Every LLM tool call is structurally an RPC -- a function name, JSON arguments, and a serialized result -- yet each protocol (native Python, MCP, OpenAPI, LangChain) is integrated from scratch. We present ToolRegistry, a system that makes this RPC nature explicit: a single Tool object acts as a universal stub regardless of transport, while the registry serves as the RPC client runtime for dispatch, schema generation, and execution. The system ships as three packages -- a core registry, a server exposing tools over MCP and OpenAPI, and a hub of production-ready implementations -- and invokes tools through pluggable thread or process backends. The system now also provides tag-based permission policies, BM25F-powered progressive tool disclosure for large registries, think-augmented function calling, multi-provider schema support (OpenAI, Anthropic, Gemini), declarative JSONC/YAML configuration, and a near-zero-dependency core built on stdlib-only vendored modules. In our benchmarks the library cuts integration code by 60-80%, and choosing the right concurrency mode (thread vs. process) yields up to 3.1x throughput over the alternative for a given workload. ToolRegistry is open-source at https://github.com/Oaklight/ToolRegistry; documentation lives at https://toolregistry.readthedocs.io/.",
+          "claimed_abstract": "Recent years have witnessed an abundance of new publications and approaches on meta-learning. This community-wide enthusiasm has sparked great insights but has also created a plethora of seemingly different frameworks, which can be hard to compare and evaluate. In this paper, we aim to provide a principled, unifying framework by revisiting and strengthening the connection between meta-learning and traditional supervised learning. By treating pairs of task-specific data sets and target models as (feature, label) samples, we can reduce many meta-learning algorithms to instances of supervised learning. This view not only unifies meta-learning into an intuitive and practical framework but also allows us to transfer insights from supervised learning directly to improve meta-learning. For example, we obtain a better understanding of generalization properties, and we can readily transfer well-understood techniques, such as model ensemble, pre-training, joint training, data augmentation, and even nearest neighbor based methods. We provide an intuitive analogy of these methods in the context of meta-learning and show that they give rise to significant improvements in model performance on few-shot learning.",
           "claimed_authors": [
-            "Peng Ding",
-            "Rick Stevens"
+            "Wei-Lun Chao",
+            "Han-Jia Ye",
+            "De-Chuan Zhan",
+            "Mark Campbell",
+            "Kilian Q. Weinberger"
           ],
-          "claimed_title": "ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs",
+          "claimed_title": "Revisiting Meta-Learning as Supervised Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.10593"
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00573"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Revisiting Meta-Learning as Supervised Learning')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "As LLM agents increasingly select tools autonomously, their choices among tools with different privileges become safety-relevant. However, prior tool-selection studies focus on safety-agnostic metadata preferences, leaving privilege-sensitive choices underexplored. To address this gap, we study over-privileged tool selection, in which an agent selects or escalates to a higher-privilege tool despite a sufficient lower-privilege alternative. We introduce ToolPrivBench to evaluate whether agents choose higher-privilege tools despite sufficient lower-privilege alternatives, measuring both initial selection and escalation after transient tool failures. Across eight domains and five recurring risk patterns, we find that over-privileged tool selection is common among mainstream LLM agents and is further amplified by transient failures. We further find that general safety alignment does not reliably transfer to least-privilege tool choice, while prompt-level controls provide only limited mitigation under transient failures. We therefore introduce a privilege-aware post-training defense that teaches agents to prefer sufficient lower-privilege tools and escalate only when necessary. Our mitigation experiments show that this defense substantially reduces unnecessary high-privilege tool use while preserving general capabilities.",
+          "claimed_abstract": "Few-shot Learning aims to learn classifiers for new classes with only a few training examples per class. Existing meta-learning or metric-learning based few-shot learning approaches are limited in handling diverse domains with various number of labels. The meta-learning approaches train a meta learner to predict weights of homogeneous-structured task-specific networks, requiring a uniform number of classes across tasks. The metric-learning approaches learn one task-invariant metric for all the tasks, and they fail if the tasks diverge. We propose to deal with these limitations with meta metric learning. Our meta metric learning approach consists of task-specific learners, that exploit metric learning to handle flexible labels, and a meta learner, that discovers good parameters and gradient decent to specify the metrics in task-specific learners. Thus the proposed model is able to handle unbalanced classes as well as to generate task-specific metrics. We test our approach in the `$k$-shot $N$-way' few-shot learning setting used in previous work and new realistic few-shot setting with diverse multi-domain tasks and flexible label numbers. Experiments show that our approach attains superior performances in both settings.",
           "claimed_authors": [
-            "Kaiyue Yang",
-            "Yuyan Bu",
-            "Jingwei Yi",
-            "Yuchi Wang",
-            "Biyu Zhou",
-            "Juntao Dai",
-            "Songlin Hu",
-            "Yaodong Yang"
+            "Yu Cheng",
+            "Mo Yu",
+            "Xiaoxiao Guo",
+            "Bowen Zhou"
           ],
-          "claimed_title": "When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents",
+          "claimed_title": "Few-shot Learning with Meta Metric Learners",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.20023"
+          "claimed_year": 2019,
+          "primary_pointer": "1901.09890"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Few-shot Learning with Meta Metric Learners')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
           "claimed_authors": [
-            "Elena Sorina Lupu",
-            "Patrick Spieler",
-            "Khurram Javed",
-            "Kris De Asis",
-            "John D. Martin",
-            "Martha Steenstrup",
-            "Joseph Modayil"
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
           ],
-          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
+          "claimed_title": "A New Strategy for the Exploration of Venus",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2607.18488"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_abstract": "Neuroethology has been an active field of study for more than a century now. Out of some of the most interesting species that has been studied so far, weakly electric fish is a fascinating one. It performs communication, echo-location and inter-species detection efficiently with an interesting configuration of sensors, neu-rons and a simple brain. In this paper we propose a cognitive architecture inspired by the way these fishes handle and process information. We believe that it is eas-ier to understand and mimic the neural architectures of a simpler species than that of human. Hence, the proposed architecture is expected to both help research in cognitive robotics and also help understand more complicated brains like that of human beings.",
           "claimed_authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
+            "Amit Kumar Mishra"
           ],
-          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_title": "WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.12375"
+          "claimed_year": 2018,
+          "primary_pointer": "1806.11401"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Dispatch in three-sided marketplaces provides a natural setting for reinforcement learning from world feedback: decisions are evaluated by delayed operational outcomes such as delivery speed, courier utilization, and merchant congestion. We present a deployed reinforcement learning system at DoorDash that adapts dispatch objective weights in a large-scale food-delivery marketplace using delayed signals. Rather than replacing the combinatorial assignment optimizer, a store-level policy learned from logged marketplace data selects a discrete multiplier that shifts the dispatch optimizer's tradeoff between delivery quality and batching efficiency. This interface enables offline policy learning under noisy, delayed, and coupled feedback while preserving production feasibility constraints and operational safeguards. We train a shared value function using centralized offline data and decentralized store-level execution, with Double Q-learning targets and a conservative regularizer to reduce out-of-distribution value overestimation. In a production switchback experiment, the offline-trained policy increases batching and reduces courier-side time costs without degrading customer-facing delivery quality. Results illustrate how world feedback from a live economic and logistics system can be used to safely adapt decision policies online.",
+          "claimed_abstract": "We present an initial set of factors, features, and constraints for developing a Computational Auditory System (CAS, aka less formally an artificial ear, AE) for use by cognitive architectures. We start to define a CAS and what tasks it should be able to perform. We then outline the features of a CAS for use by a cognitive architecture and factors that influence its performance. We conclude with an update on what has been created so far and insights on how to create and use a CAS in a cognitive architecture and include a set of functionalities for an artificial ear.",
           "claimed_authors": [
-            "Haochen Wu",
-            "Yi Hou",
-            "Shiguang Xie"
+            "Frank E. Ritter",
+            "Mathieu Brener"
           ],
-          "claimed_title": "Multi-Agent Reinforcement Learning from Delayed Marketplace Feedback for Objective-Weight Adaptation in Three-Sided Dispatch",
+          "claimed_title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.13604"
+          "claimed_year": 2022,
+          "primary_pointer": "2202.05332"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Multi-Agent Reinforcement Learning from Delayed Marketplace Feedback for Objective-Weight Adaptation in Three-Sided Dispatch')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
@@ -386,7 +386,7 @@
           "primary_pointer": "2311.01767"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
@@ -405,57 +405,59 @@
           "primary_pointer": "2608.05519"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='EcoAgent-Bench: Evaluating Economic Decision-Making in Budget-Constrained LLM Agents')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
           "claimed_authors": [
-            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
           ],
-          "claimed_title": "A New Strategy for the Exploration of Venus",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2412.06830"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='A New Strategy for the Exploration of Venus')",
-        "failed_at": "2026-08-24T21:42:55Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite ample motivation from costly exploration and limited trajectory data, rapidly adapting to new environments with few-shot reinforcement learning (RL) can remain a challenging task, especially with respect to personalized settings. Here, we consider the problem of recommending optimal policies to a set of multiple entities each with potentially different characteristics, such that individual entities may parameterize distinct environments with unique transition dynamics. Inspired by existing literature in meta-learning, we extend previous work by focusing on the notion that certain environments are more similar to each other than others in personalized settings, and propose a model-free meta-learning algorithm that prioritizes past experiences by relevance during gradient-based adaptation. Our algorithm involves characterizing past policy divergence through methods in inverse reinforcement learning, and we illustrate how such metrics are able to effectively distinguish past policy parameters by the environment they were deployed in, leading to more effective fast adaptation during test time. To study personalization more effectively we introduce a navigation testbed to specifically incorporate environment diversity across training episodes, and demonstrate that our approach outperforms meta-learning alternatives with respect to few-shot reinforcement learning in personalized settings.",
-          "claimed_authors": [
-            "Michael Zhang"
-          ],
-          "claimed_title": "Characterizing Policy Divergence for Personalized Meta-Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2010.04816"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Characterizing Policy Divergence for Personalized Meta-Reinforcement Learning')",
-        "failed_at": "2026-08-24T21:42:55Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Model-agnostic meta-learning (MAML) is a meta-learning technique to train a model on a multitude of learning tasks in a way that primes the model for few-shot learning of new tasks. The MAML algorithm performs well on few-shot learning problems in classification, regression, and fine-tuning of policy gradients in reinforcement learning, but comes with the need for costly hyperparameter tuning for training stability. We address this shortcoming by introducing an extension to MAML, called Alpha MAML, to incorporate an online hyperparameter adaptation scheme that eliminates the need to tune meta-learning and learning rates. Our results with the Omniglot database demonstrate a substantial reduction in the need to tune MAML training hyperparameters and improvement to training stability with less sensitivity to hyperparameter choice.",
-          "claimed_authors": [
-            "Harkirat Singh Behl",
-            "Atılım Güneş Baydin",
-            "Philip H. S. Torr"
-          ],
-          "claimed_title": "Alpha MAML: Adaptive Model-Agnostic Meta-Learning",
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1905.07435"
+          "primary_pointer": "1907.02664"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Alpha MAML: Adaptive Model-Agnostic Meta-Learning')",
-        "failed_at": "2026-08-24T21:42:55Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-09-24T18:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-09-24T18:35:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillOpt: Executive Strategy for Self-Evolving Age', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-09-24T18:35:07Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -488,7 +490,59 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T21:42:55Z"
+          "verified_at": "2026-09-24T18:35:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhonghao Zhan",
+            "Hamed Haddadi"
+          ],
+          "title": "Auto-Policy, not Auto-Skill: Compiled Agent Skills for the Physical World",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2608.25091",
+        "summary": "Self-evolving Skill harnesses (AutoSkills, Hermes Agent) generate more advisory orchestration automatically; their reported gains are efficiency, not safety. This misses the actual gap: a Skill describes how an agent should behave; a Policy decides which behavior is allowed to become an action. Today's format covers the first with markdown and scripts; the second is left to the model. Generating more Skills scales the gap, not the safety, especially when a wrong invocation can unlock a door or move money. Two adjacent attacks are documented: malicious skills compromising cloud software, and jailbroken LLM-controlled robots causing physical harm. Their intersection, malicious agent skills causing physical harm, follows directly but has not been reported. We name this class Borrowed Authority: Skills format gives the receiving agent no typed way to reject an inter-agent permission claim, so a malicious or misused Skill can drive actuation by attaching one. We propose Edge Skillguard, a typed authority layer that lives inside the Skill artifact rather than between tools as workflow engines do, with guards over world state and sensor evidence. On a live edge control-plane testbed, the guards reject 60/60 borrowed-authority requests across five attack variants without blocking benign requests, and the result holds at 5x scale and across hosts over a Tailscale mesh. These results suggest that high-risk Skills should co-package typed invocation policy with procedural knowledge, so that physical actions depend on machine-checkable evidence rather than peer-agent claims.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2608.25091",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-24T18:35:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renjun Xu",
+            "Yang Yan"
+          ],
+          "title": "Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12430",
+        "summary": "The transition from monolithic language models to modular, skill-equipped agents marks a defining shift in how large language models (LLMs) are deployed in practice. Rather than encoding all procedural knowledge within model weights, agent skills -- composable packages of instructions, code, and resources that agents load on demand -- enable dynamic capability extension without retraining. It is formalized in a paradigm of progressive disclosure, portable skill definitions, and integration with the Model Context Protocol (MCP). This survey provides a comprehensive treatment of the agent skills landscape, as it has rapidly evolved during the last few months. We organize the field along four axes: (i) architectural foundations, examining the SKILL$.$md specification, progressive context loading, and the complementary roles of skills and MCP; (ii) skill acquisition, covering reinforcement learning with skill libraries, autonomous skill discovery (SEAgent), and compositional skill synthesis; (iii) deployment at scale, including the computer-use agent (CUA) stack, GUI grounding advances, and benchmark progress on OSWorld and SWE-bench; and (iv) security, where recent empirical analyses reveal that 26.1% of community-contributed skills contain vulnerabilities, motivating our proposed Skill Trust and Lifecycle Governance Framework -- a four-tier, gate-based permission model that maps skill provenance to graduated deployment capabilities. We identify seven open challenges -- from cross-platform skill portability to capability-based permission models -- and propose a research agenda for realizing trustworthy, self-improving skill ecosystems. Unlike prior surveys that broadly cover LLM agents or tool use, this work focuses specifically on the emerging skill abstraction layer and its implications for the next generation of agentic systems. Project repo: https://github.com/scienceaix/agentskills",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12430",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-24T18:35:12Z"
         }
       },
       {
@@ -513,13 +567,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2607.12790",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2622,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T21:43:00Z"
+          "verified_at": "2026-09-24T18:35:13Z"
         }
       },
       {
@@ -544,38 +598,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2603.25111",
           "http_status": 200,
-          "pdf_sample_score": 0.3285,
-          "query_relevance_score": 0.8,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-24T21:43:00Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Zikai Alex Wen"
-          ],
-          "title": "Toward User Comprehension Supports for LLM Agent Skill Specifications",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.19362",
-        "summary": "Users often interpret and select agent skills through their SKILL markdown specifications. To protect users, existing audits mainly focus on malicious or unsafe skills. We study the complementary question of whether specifications help users form bounded expectations about what a skill consumes, produces, and covers. Across 878 cybersecurity skills, we used rule-based coding to measure textual cues for four comprehension anchors, namely operational basis, output contract, boundary disclosure, and example capability demonstration. Cues for operational basis were common, but only 19.0% of specifications exhibited cues for an example task, sample, or expected outcome, and only 2.3% exhibited cues for all four anchors. We further examined a small DNS/C2 telemetry subset (n$=$6) to illustrate why missing examples may matter. Examples appeared to make first local checks easier to construct, while no-example skills typically required helper code inspection to recover command arguments or output fields. We argue that agent-skill evaluation should treat specifications as user-facing capability disclosures, not merely as containers for executable instructions.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.19362",
-          "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T21:43:01Z"
+          "verified_at": "2026-09-24T18:35:13Z"
         }
       },
       {
@@ -609,43 +638,12 @@
           "final_url": "https://arxiv.org/abs/2508.07407",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-24T21:43:01Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Xing Zhang",
-            "Yanwei Cui",
-            "Guanghui Wang",
-            "Ziyuan Li",
-            "Wei Qiu",
-            "Bing Zhu",
-            "Peiyang He"
-          ],
-          "title": "Library Drift: Diagnosing and Fixing a Silent Failure Mode in Self-Evolving LLM Skill Libraries",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.19576",
-        "summary": "Self-evolving skill libraries face a silent failure mode we term \\emph{library drift}: unbounded skill accumulation without outcome-driven lifecycle management causes retrieval degradation, false-positive injections, and performance stagnation. Recent evaluation confirms the symptom (LLM-authored skills deliver +0.0pp gain while human-curated ones deliver +16.2pp (SkillsBench)), yet the underlying mechanism has not been isolated. We provide (1) a reproducible trigger: ablations that isolate drift: one disables skill injection (flat floor, +0.002), one imposes premature retirement (active harm, $-$0.019); (2) trace-level diagnostics: an append-only evidence log with per-skill contribution scores, attribution verdicts, and router engagement metrics that make the failure visible before it reaches end-task scores; and (3) a verified fix: a minimal governance recipe (outcome-driven retirement + bounded active-cap + meta-skill authoring prior) that lifts held-out pass@1 from a 0.258 baseline to a late-window mean of 0.584 (rolling gain $+$0.328) on MBPP+ hard-100 over 100 rounds. Eight ablations decompose which governance mechanisms are load-bearing and which are subsumed, providing a concrete playbook for diagnosing library drift in any self-evolving agent.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.19576",
-          "http_status": 200,
-          "pdf_sample_score": null,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T21:43:01Z"
+          "verified_at": "2026-09-24T18:35:13Z"
         }
       }
     ]

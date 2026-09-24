@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis code/tests data/raw data/processed docs/output`
-- [X] T002 Initialize Python 3.11 project: Create `code/requirements.txt` containing: `pandas==2.0.3`, `numpy==1.24.3`, `statsmodels==0.14.0`, `matplotlib==3.7.2`, `requests==2.31.0`, `pyyaml==6.0.1`, `pytest==7.4.0`
+- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_26c7e156 — status=not_enough_info]: Create `code/requirements.txt` containing: `pandas==2.0.3 [UNRESOLVED-CLAIM: c_00adfbc3 — status=not_enough_info]`, `numpy==1.24.3 [UNRESOLVED-CLAIM: c_580d9244 — status=not_enough_info]`, `statsmodels==0.14.0 [UNRESOLVED-CLAIM: c_6868a05c — status=not_enough_info]`, `matplotlib==3.7.2 [UNRESOLVED-CLAIM: c_97fba1b4 — status=not_enough_info]`, `requests==2.31.0 [UNRESOLVED-CLAIM: c_44497478 — status=not_enough_info]`, `pyyaml==6.0.1 [UNRESOLVED-CLAIM: c_848e5152 — status=not_enough_info]`, `pytest==7.4.0 [UNRESOLVED-CLAIM: c_096e188f — status=not_enough_info]`
 - [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools: Create `.ruff.toml` with target-version `py311` and `black` formatter config in `code/`.
 
 ---
@@ -48,14 +48,14 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Harmonization (Priority: P1) 🎯 MVP
 
-**Goal**: Download and merge land-use data from FAO STAT with governance/policy data from World Bank, classifying regime types for years 2000–2020.
+**Goal**: Download and merge land-use data from FAO STAT with governance/policy data from World Bank, classifying regime types for years 2000–2020 [UNRESOLVED-CLAIM: c_a197d269 — status=not_enough_info].
 
 **Independent Test**: Run the ingestion script in isolation. Verify it produces a CSV with ≥50 rows (or all available if <50) containing non-null `land_use_change_rate`, `regime_type`, `gdp_per_capita`, and `population_density`.
 
 ### Implementation for User Story 1
 
 - [ ] T008a [US1] [D: T060] Count FAO Rows: Stream the FAO STAT dataset for 'Forest Area Change' (`AG.LND.FRST.ZS`) for a multi-decadal period. **Count rows as they arrive** to establish the `total_fao_available` count. Save this count to `data/processed/counts_fao.json`. **Do NOT** attempt to load the full dataset.
-- [ ] T008b [US1] [D: T060] Count World Bank Rows: Stream the World Bank dataset for the CBNRM proxy (indicator `EG.GOV.POLI.ZS` per research.md) and GDP/Pop data for years 2000–2020. **Count rows as they arrive** to establish the `total_wb_available` count. Save this count to `data/processed/counts_wb.json`.
+- [ ] T008b [US1] [D: T060] Count World Bank Rows: Stream the World Bank dataset for the CBNRM proxy (indicator `EG.GOV.POLI.ZS` per research.md) and GDP/Pop data for years 2000–2020 [UNRESOLVED-CLAIM: c_a197d269 — status=not_enough_info]. **Count rows as they arrive** to establish the `total_wb_available` count. Save this count to `data/processed/counts_wb.json`.
 - [ ] T008c [US1] [D: T008a, T008b, T060] Merge and Count Merged: Load the FAO and World Bank data (using chunked processing if necessary) and perform the merge on `iso_code` and `year`. Count the resulting rows as `total_merged`. Save `total_merged` to `data/processed/counts_merged.json`.
 - [X] T009 [US1] [D: T060] Fetch CBNRM Proxy: Query the World Bank API for the **specific CBNRM policy indicator** `EG.GOV.POLI.ZS` (Political Stability, used as a validated proxy per research.md) for years covering the early 21st century. **DO NOT** use 'EG.FEC.RNEW.ZS' (Renewable Energy) as a fallback. If the specific indicator is not found, log a 'Data Gap' error and halt. Save the raw data to `data/raw/cbnrm_proxy.csv` and the metadata (indicator code, source URL, validation status) to `data/processed/cbnrm_proxy_metadata.json`. **Note**: This task is a 'Producer' unblocking downstream consumers.
 - [ ] T009b [US1] [D: T009] Validate Proxy: Implement a validation script in `code/data/classify.py` to check the variance of the fetched CBNRM proxy. If a country has zero variance in the proxy over time, **exclude that specific country from the dataset** and log the exclusion to `logs/run.log`. Do NOT halt the entire pipeline. Save validation results (including excluded countries list) to `data/processed/proxy_validation.json`.
@@ -85,7 +85,7 @@
 
 **Goal**: Run fixed-effects panel regression comparing CBNRM vs State-led, controlling for covariates, with robustness checks.
 
-**Independent Test**: Run regression script on synthetic dataset (seed=42, β=0.15, σ=0.1). Verify output coefficient matches synthetic truth within 1% tolerance and output is labeled "associational".
+**Independent Test**: Run regression script on synthetic dataset (seed=42, β=0.15, σ=0.1). Verify output coefficient matches synthetic truth within 1% tolerance [UNRESOLVED-CLAIM: c_79158512 — status=not_enough_info] and output is labeled "associational".
 
 ### Implementation for User Story 2
 
@@ -104,7 +104,7 @@
 - [ ] T028a [US2] [D: T023a] Implement Interaction Term Generation in `code/analysis/regression.py`: Generate interaction terms (`regime_type * gdp_per_capita`, `regime_type * population_density`) and save to `data/processed/interaction_terms.csv`.
 - [ ] T028 [US2] [D: T028a] Implement F-test for Joint Significance in `code/analysis/regression.py`: Perform an F-test specifically for the **joint significance of the governance interaction terms** (generated in T028a) as required by FR-003. Save results to `data/processed/regression_results_interactions.json`.
 - [ ] T050 [US2] [D: T023b, T025, T028] Implement Test Count Logic in `code/analysis/regression.py`: **Count only Primary Hypothesis Tests**. Distinct tests: 1) Primary (CBNRM effect, T023a), 2) Interaction F-test (T028), 3) Non-linearity (T025). **Explicitly EXCLUDE Sensitivity Analysis (T024)** as it is a robustness check, not a distinct hypothesis test. Output the count and test metadata to `data/processed/test_count.json`.
-- [ ] T051 [US2] [D: T050, T023b, T025, T028] Implement Benjamini-Hochberg FDR correction in `code/analysis/regression.py`: Read the test count from `data/processed/test_count.json` (T050). **If count >= 2**, aggregate p-values from Primary (T023a), Interaction (T028), and Non-linearity (T025) tests and apply correction using alpha=0.05 (2602.11610, https://arxiv.org/abs/2602.11610) and the Benjamini-Hochberg step-up method. If count < 2, skip correction.
+- [ ] T051 [US2] [D: T050, T023b, T025, T028] Implement Benjamini-Hochberg FDR correction in `code/analysis/regression.py`: Read the test count from `data/processed/test_count.json` (T050). **If count >= 2**, aggregate p-values from Primary (T023a), Interaction (T028), and Non-linearity (T025) tests and apply correction using alpha=0.05 (2602.11610, https://arxiv.org/abs/2602.11610) [UNRESOLVED-CLAIM: c_68743b82 — status=not_enough_info] and the Benjamini-Hochberg step-up method. If count < 2, skip correction.
 
 ### Tests for User Story 2
 

@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = 'code/'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | artifacts
+)/
+'''
+
+[tool.black.format]
+skip-string-normalization = false
+skip-magic-trailing-comma = false

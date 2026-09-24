@@ -994,3 +994,158 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T13:02:26Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: "TSI proxy value 1360.5 W/m\xB2 used for gaps greater than or equal to\
+    \ 1 year"
+  claim_id: c_83bea98a
+  context: "Part 2: Apply **TSI proxy value 1360.5 W/m\xB2** (per FR-002) for gaps\
+    \ \u2265 1 year. **Do NOT use GSN=0**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TSI_proxy_value_1360.5_W/m%C2%B2_used_for_gaps_greater_than_or_eq
+  kind: magnitude
+  raw_text: "Apply TSI proxy value 1360.5 W/m\xB2 for gaps \u2265 1 year."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:50:08Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses at least 1000 iterations
+  claim_id: c_a20846bf
+  context: Bootstrap resampling with **at least 1000 iterations** for variance comparison
+    across Maunder, Dalton, and Modern minima (FR-005, Constitution Principle VII).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Bootstrap resampling with at least 1000 iterations for variance comparison.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:50:52Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Inconsistency tolerance threshold swept over 0.01, 0.05, and 0.1
+  claim_id: c_6bd2c812
+  context: Sweep **inconsistency tolerance threshold** over absolute differences {0.01,
+    0.05, 0.1}, per FR-009.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inconsistency tolerance threshold swept over values {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:51:18Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7 GB and runtime less than 6 hours
+  claim_id: c_8783ec72
+  context: Verify computational resource usage (RAM < 7 GB, Runtime < 6h) by writing
+    `tests/test_performance.py::test_ram_limit` with explicit pass criteria.
+  evidence:
+    candidates:
+    - - RAM usage less than
+      - 7.0
+    - - GB and runtime less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7_GB_and_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Computational resource usage limited to RAM < 7 GB and Runtime < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T18:51:48Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model with max_depth 10 and n_estimators 100
+  claim_id: c_032f1d61
+  context: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Model uses Random Forest with max_depth=10 and n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:52:16Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Pre-satellite GSN data covers 1610 to 2002
+  claim_id: c_827d230e
+  context: "Ingest and preprocess **both** satellite-era (2003\u2013present) and pre-satellite\
+    \ (1610\u20132002) GSN data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pre-satellite GSN data covers the period 1610\u20132002."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:52:48Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Satellite-era data covers 2003 to present
+  claim_id: c_a10e231b
+  context: "Ingest and preprocess **both** satellite-era (2003\u2013present) and pre-satellite\
+    \ (1610\u20132002) GSN data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Satellite-era data covers the period 2003\u2013present."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:53:11Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: 2007 Baseline and CMIP6 v3.2 data used for comparison
+  claim_id: c_dbbcb53f
+  context: Implement `code/data/ingestion.py` (continued) to fetch 2007 Baseline and
+    CMIP6 v3.2 data to `data/raw/`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2007 Baseline and CMIP6 v3.2 data are used for comparison.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:53:31Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Python 3.11 required for project
+  claim_id: c_d4a72824
+  context: Initialize Python 3.11 project with `requirements.txt` (pin `pandas`, `scikit-learn`,
+    `numpy`, `scipy`, `requests`, `pyyaml`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 is the required project version.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:53:58Z'

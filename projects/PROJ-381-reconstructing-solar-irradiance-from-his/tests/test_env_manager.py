@@ -1,143 +1,164 @@
 """
-Tests for environment variable management.
+Tests for the environment variable management module (env_config.py).
 """
-
 import os
 import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 # Import the module under test
-# Note: In a real run, ensure code/ is in sys.path
+# Note: We are testing code/env_config.py, so we import from code.env_config
+# However, the task description refers to 'code/env_manager.py' in the API surface.
+# Looking at the provided API surface, the file is actually 'code/env_manager.py'
+# and the public names are: load_env_vars, get_env_var, get_data_path, etc.
+# But the code I just wrote is in 'code/env_config.py'.
+# I need to align with the API surface provided in the prompt.
+# The prompt says:
+# ### code/env_manager.py
+# import as: `from env_manager import load_env_vars, ...`
+# So I must rename my file to env_manager.py or the tests must import from env_config.
+# The prompt's "Existing project API surface" lists `code/env_manager.py`.
+# Therefore, I must produce `code/env_manager.py` instead of `code/env_config.py`.
+# I will update the artifact path in the final output to match the API surface.
+# For now, assuming the file is named env_manager.py as per the API surface.
+
 from code.env_manager import (
     load_env_vars,
     get_env_var,
     get_data_path,
+    get_raw_data_path,
+    get_processed_data_path,
+    get_models_artifacts_path,
     validate_data_paths,
     get_silso_url,
     get_sorce_url,
-    get_model_artifacts_path,
-    setup_environment
+    setup_environment,
+    DOTENV_AVAILABLE
 )
 
-@pytest.fixture
-def mock_env_file(tmp_path):
-    """Create a temporary .env file for testing."""
-    env_file = tmp_path / ".env"
-    env_file.write_text(
-        "DATA_ROOT=/tmp/test_data\n"
-        "DATA_RAW_DIR=/tmp/test_data/raw\n"
-        "DATA_PROCESSED_DIR=/tmp/test_data/processed\n"
-        "MODEL_ARTIFACTS_DIR=/tmp/test_models\n"
-        "SILSO_URL=http://test.com/silso\n"
-        "SORCE_URL=http://test.com/sorce\n"
-        "VALIDATE_PATHS=true\n"
-        "LOG_LEVEL=DEBUG\n"
-    )
-    return env_file
+class TestLoadEnvVars:
+    def test_load_env_vars_no_file(self, tmp_path):
+        """Test loading when .env file does not exist."""
+        with patch('pathlib.Path.exists', return_value=False):
+            result = load_env_vars(tmp_path / ".env")
+            assert result is True  # Should not fail if file missing
 
-def test_load_env_vars_creates_cache(mock_env_file):
-    """Test that load_env_vars populates the internal cache."""
-    # Reset state
-    import code.env_manager as em
-    em._IS_LOADED = False
-    em._ENV_VARS = {}
+    @pytest.mark.skipif(not DOTENV_AVAILABLE, reason="python-dotenv not installed")
+    def test_load_env_vars_success(self, tmp_path):
+        """Test loading a valid .env file."""
+        env_file = tmp_path / ".env"
+        env_file.write_text("TEST_VAR=test_value\n")
+        
+        # Unset the env var first to ensure we get the loaded one
+        if "TEST_VAR" in os.environ:
+            del os.environ["TEST_VAR"]
+        
+        result = load_env_vars(env_file)
+        assert result is True
+        assert os.getenv("TEST_VAR") == "test_value"
 
-    result = load_env_vars(mock_env_file)
-    
-    assert em._IS_LOADED is True
-    assert "DATA_ROOT" in result
-    assert result["DATA_ROOT"] == "/tmp/test_data"
+class TestGetEnvVar:
+    def test_get_env_var_existing(self):
+        """Test getting an existing env var."""
+        os.environ["TEST_KEY"] = "test_value"
+        assert get_env_var("TEST_KEY") == "test_value"
+        del os.environ["TEST_KEY"]
 
-def test_get_env_var_with_default():
-    """Test getting an env var with a default value."""
-    # Ensure loaded
-    import code.env_manager as em
-    if not em._IS_LOADED:
-        em.load_env_vars()
-    
-    # Test existing var
-    val = get_env_var("NONEXISTENT_VAR", default="fallback")
-    assert val == "fallback"
+    def test_get_env_var_default(self):
+        """Test getting a non-existing env var with default."""
+        assert get_env_var("NON_EXISTENT_KEY", default="default_val") == "default_val"
 
-def test_get_env_var_required_missing():
-    """Test that required=True raises ValueError if missing."""
-    import code.env_manager as em
-    em._IS_LOADED = True # Pretend loaded
-    em._ENV_VARS = {} # Empty cache
+    def test_get_env_var_required_missing(self):
+        """Test getting a required env var that is missing."""
+        with pytest.raises(ValueError, match="Required environment variable"):
+            get_env_var("NON_EXISTENT_KEY", required=True)
 
-    with pytest.raises(ValueError, match="Required environment variable"):
-        get_env_var("MISSING_REQUIRED_VAR", required=True)
+class TestGetPaths:
+    def test_get_data_path_default(self):
+        """Test getting data path with default."""
+        # Clear env to test default
+        if "DATA_ROOT" in os.environ:
+            del os.environ["DATA_ROOT"]
+        
+        path = get_data_path()
+        assert str(path) == "data"
 
-def test_get_data_path():
-    """Test constructing data paths."""
-    import code.env_manager as em
-    em._IS_LOADED = True
-    em._ENV_VARS = {"DATA_ROOT": "/my/data"}
-    
-    root = get_data_path()
-    assert str(root) == "/my/data"
-    
-    sub = get_data_path("raw")
-    assert str(sub) == "/my/data/raw"
+    def test_get_data_path_sub(self):
+        """Test getting data path with sub-path."""
+        if "DATA_ROOT" in os.environ:
+            del os.environ["DATA_ROOT"]
+        
+        path = get_data_path("raw")
+        assert str(path) == "data/raw"
 
-def test_validate_data_paths_creates_dirs(tmp_path):
-    """Test that validate_data_paths creates missing directories."""
-    import code.env_manager as em
-    
-    # Setup mock env
-    em._IS_LOADED = True
-    em._ENV_VARS = {
-        "DATA_RAW_DIR": str(tmp_path / "raw"),
-        "DATA_PROCESSED_DIR": str(tmp_path / "processed"),
-        "MODEL_ARTIFACTS_DIR": str(tmp_path / "models"),
-        "VALIDATE_PATHS": "true"
-    }
-    
-    assert not (tmp_path / "raw").exists()
-    assert not (tmp_path / "processed").exists()
-    
-    result = validate_data_paths()
-    
-    assert result is True
-    assert (tmp_path / "raw").exists()
-    assert (tmp_path / "processed").exists()
+    def test_get_raw_data_path(self):
+        """Test getting raw data path."""
+        if "DATA_RAW" in os.environ:
+            del os.environ["DATA_RAW"]
+        path = get_raw_data_path()
+        assert str(path) == "data/raw"
 
-def test_get_silso_url():
-    """Test retrieving SILSO URL."""
-    import code.env_manager as em
-    em._IS_LOADED = True
-    em._ENV_VARS = {"SILSO_URL": "http://example.com/silso"}
-    
-    url = get_silso_url()
-    assert url == "http://example.com/silso"
+    def test_get_processed_data_path(self):
+        """Test getting processed data path."""
+        if "DATA_PROCESSED" in os.environ:
+            del os.environ["DATA_PROCESSED"]
+        path = get_processed_data_path()
+        assert str(path) == "data/processed"
 
-def test_get_sorce_url():
-    """Test retrieving SORCE URL."""
-    import code.env_manager as em
-    em._IS_LOADED = True
-    em._ENV_VARS = {"SORCE_URL": "http://example.com/sorce"}
-    
-    url = get_sorce_url()
-    assert url == "http://example.com/sorce"
+    def test_get_models_artifacts_path(self):
+        """Test getting models artifacts path."""
+        if "MODELS_ARTIFACTS" in os.environ:
+            del os.environ["MODELS_ARTIFACTS"]
+        path = get_models_artifacts_path()
+        assert str(path) == "code/models/artifacts"
 
-def test_get_model_artifacts_path():
-    """Test retrieving model artifacts path."""
-    import code.env_manager as em
-    em._IS_LOADED = True
-    em._ENV_VARS = {"MODEL_ARTIFACTS_DIR": "/custom/models"}
-    
-    path = get_model_artifacts_path()
-    assert str(path) == "/custom/models"
+class TestValidateDataPaths:
+    def test_validate_paths(self, tmp_path):
+        """Test validation of data paths."""
+        # Create the necessary directories
+        raw_dir = tmp_path / "data" / "raw"
+        processed_dir = tmp_path / "data" / "processed"
+        models_dir = tmp_path / "code" / "models" / "artifacts"
+        
+        raw_dir.mkdir(parents=True)
+        processed_dir.mkdir(parents=True)
+        models_dir.mkdir(parents=True)
+        
+        with patch('code.env_manager.get_raw_data_path', return_value=raw_dir), \
+             patch('code.env_manager.get_processed_data_path', return_value=processed_dir), \
+             patch('code.env_manager.get_models_artifacts_path', return_value=models_dir):
+            
+            results = validate_data_paths()
+            assert results["raw"] is True
+            assert results["processed"] is True
+            assert results["models_artifacts"] is True
 
-def test_setup_environment():
-    """Test the main setup function."""
-    import code.env_manager as em
-    em._IS_LOADED = False
-    em._ENV_VARS = {}
-    
-    # Mock validate_data_paths to avoid filesystem checks in test
-    with patch.object(em, 'validate_data_paths', return_value=True):
-        setup_environment()
-    
-    assert em._IS_LOADED is True
+class TestGetUrls:
+    def test_get_silso_url_default(self):
+        """Test getting SILSO URL with default."""
+        if "SILSO_URL" in os.environ:
+            del os.environ["SILSO_URL"]
+        url = get_silso_url()
+        assert url == "https://www.sidc.be/users/iv/homogene/sunspot/"
+
+    def test_get_sorce_url_default(self):
+        """Test getting SORCE URL with default."""
+        if "SORCE_URL" in os.environ:
+            del os.environ["SORCE_URL"]
+        url = get_sorce_url()
+        assert url == "https://lasp.colorado.edu/sorce/"
+
+class TestSetupEnvironment:
+    def test_setup_environment(self, tmp_path):
+        """Test setting up the environment."""
+        # Create dummy directories
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        (tmp_path / "data" / "processed").mkdir(parents=True)
+        (tmp_path / "code" / "models" / "artifacts").mkdir(parents=True)
+        
+        with patch('code.env_manager.get_raw_data_path', return_value=tmp_path / "data" / "raw"), \
+             patch('code.env_manager.get_processed_data_path', return_value=tmp_path / "data" / "processed"), \
+             patch('code.env_manager.get_models_artifacts_path', return_value=tmp_path / "code" / "models" / "artifacts"):
+            
+                # Should not raise
+                setup_environment()

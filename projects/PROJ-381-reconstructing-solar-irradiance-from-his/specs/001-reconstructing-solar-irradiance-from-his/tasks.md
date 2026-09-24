@@ -88,14 +88,14 @@
 - [X] T014a [US1] Implement `code/data/preprocessing.py` (Part 1): Linear interpolation for gaps < 1 year in GSN data.
 - [X] T014b [US1] Implement `code/data/preprocessing.py` (Part 2): Apply **TSI proxy value 1360.5 W/m²** (per FR-002) for gaps ≥ 1 year. **Do NOT use GSN=0**. Detect cycle boundaries using SILSO method.
 - [ ] T014c [US1] Implement `code/data/preprocessing.py` (Part 3): Ingest and preprocess **both** satellite-era (2003–present) and pre-satellite (1610–2002) GSN data. Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
-- [ ] T015 [US1] Implement `code/models/train.py`:
+- [X] T015 [US1] Implement `code/models/train.py`:
  - **Spec Compliance**: Use **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003.
  - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
  - Save model artifacts to `code/models/artifacts/`.
  - Generate `data/processed/cv_report.json` containing per-cycle RMSE, R², and model selection rationale.
-- [ ] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
+- [X] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,7 +105,7 @@
 
 **Purpose**: Train the Cycle-Agnostic fallback model, derive cycle-specific offsets for sensitivity analysis, and validate robustness. This phase is a **blocking prerequisite** for Phase 4 (US2).
 
-- [ ] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py` (Part 1):
+- [X] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py` (Part 1):
  - Train a **single Cycle-Agnostic fallback model** (GSN-only, no Cycle ID features) on the full satellite-era dataset (2003–present).
  - Save the fallback model to `code/models/artifacts/fallback_model.joblib`.
 - [ ] T018 [US1/Phase3.5] Implement `code/models/train_fallback.py` (Part 2):

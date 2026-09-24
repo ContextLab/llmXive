@@ -852,3 +852,319 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T03:09:43Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: regression coefficient matches synthetic truth within 1% tolerance
+  claim_id: c_79158512
+  context: "Independent Test: Run regression script on synthetic dataset (seed=42,\
+    \ \u03B2=0.15, \u03C3=0.1). Verify output coefficient matches synthetic truth\
+    \ within 1% tolerance and output is labeled 'associational'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output coefficient matches synthetic truth within 1% tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:27:35Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: synthetic dataset parameters seed 42 beta 0.15 sigma 0.1
+  claim_id: c_1c8ecae9
+  context: "Independent Test: Run regression script on synthetic dataset (seed=42,\
+    \ \u03B2=0.15, \u03C3=0.1). Verify output coefficient matches synthetic truth\
+    \ within 1% tolerance and output is labeled 'associational'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: synthetic dataset seed=42, beta=0.15, sigma=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:28:01Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction alpha 0.05 arXiv 2602.11610
+  claim_id: c_68743b82
+  context: 'Implement Benjamini-Hochberg FDR correction in code/analysis/regression.py:
+    Read the test count from data/processed/test_count.json (T050). If count >= 2,
+    aggregate p-values from Primary (T023a), Interaction (T028), and Non-linearity
+    (T025) tests and apply correction using alpha=0.05 (2602.11610, https://arxiv.org/abs/2602.11610)
+    and the Benjamini-Hochberg step-up method.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: apply correction using alpha=0.05 (2602.11610, https://arxiv.org/abs/2602.11610)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:28:14Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT indicator AG.LND.FRST.ZS Forest Area Change
+  claim_id: c_465f417f
+  context: 'Implement FAO STAT data downloader in code/data/download.py: Fetch ''Forest
+    Area Change'' with indicator code AG.LND.FRST.ZS (exact code, no ''or equivalent'')
+    for the period spanning the early 21st century from the FAO STAT (Statistical
+    Database) API.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_indicator_AG.LND.FRST.ZS_Forest_Area_Change
+  kind: entity_fact
+  raw_text: FAO STAT dataset indicator AG.LND.FRST.ZS
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:28:57Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank indicator EG.GOV.POLI.ZS Political Stability
+  claim_id: c_ab2e6baf
+  context: "Stream the World Bank dataset for the CBNRM proxy (indicator EG.GOV.POLI.ZS\
+    \ per research.md) and GDP/Pop data for years 2000\u20132020."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_EG.GOV.POLI.ZS_Political_Stability
+  kind: entity_fact
+  raw_text: World Bank dataset indicator EG.GOV.POLI.ZS
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:29:21Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: data period years 2000 to 2020
+  claim_id: c_a197d269
+  context: "Stream the World Bank dataset for the CBNRM proxy (indicator EG.GOV.POLI.ZS\
+    \ per research.md) and GDP/Pop data for years 2000\u20132020."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "years 2000\u20132020"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:29:49Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: exclude country if more than 20% years missing for primary variable
+  claim_id: c_ebb899b5
+  context: 'Apply country-level exclusion for Primary Variables (Land-Use, Regime):
+    Calculate missing percentage after T016 has removed the rows. If >20% of a country''s
+    years are missing for a primary variable, exclude the entire country.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_country_if_more_than_20%25_years_missing_for_primary_v
+  kind: magnitude
+  raw_text: exclude the entire country if >20% of a country's years are missing for
+    a primary variable
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:30:32Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: fetch retry 3 times exponential backoff
+  claim_id: c_44af9595
+  context: 'Implement ''Fail Loud'' Data Loader in code/data/download.py: Implement
+    a robust fetch function that retries up to 3 times with exponential backoff.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times with exponential backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:30:59Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pandas chunksize 10000 for large datasets
+  claim_id: c_a9285d27
+  context: Use pandas.read_csv(..., chunksize=10000) or chunked HTTP requests to iterate
+    row-by-row, accumulating statistics (sum, count) without loading the full dataset
+    into RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use pandas.read_csv(..., chunksize=10000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:31:22Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: verify CSV contains at least 50 rows
+  claim_id: c_de52032b
+  context: "Independent Test: Run the ingestion script in isolation. Verify it produces\
+    \ a CSV with \u226550 rows (or all available if <50) containing non-null land_use_change_rate,\
+    \ regime_type, gdp_per_capita, and population_density."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_CSV_contains_at_least_50_rows
+  kind: magnitude
+  raw_text: "verify CSV with \u226550 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:31:53Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_26c7e156
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:32:14Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_00adfbc3
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:32:36Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_580d9244
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:32:57Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_6868a05c
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:33:14Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2
+  claim_id: c_97fba1b4
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.7.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:33:36Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_44497478
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:33:54Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_848e5152
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:34:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_096e188f
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt containing:
+    pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, matplotlib==3.7.2, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T18:34:38Z'
