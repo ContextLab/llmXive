@@ -1,223 +1,79 @@
 # Implementation Plan: Predicting the Yield Strength of High‑Entropy Alloys
 
-**Branch**: `feature/heal-predictor` | **Date**: 2026‑09‑05 | **Spec**: [spec.md]
-**Input**: Feature specification from `/specs/PROJ-418-predicting-the-yield-strength-of-high-en/spec.md`
+**Branch**: `feature/predict-hea-yield-strength` | **Date**: 2026-09-24 | **Spec**: [link to spec.md]
+**Input**: Feature specification from `/specs/feature/predict-hea-yield-strength/spec.md`
 
 ## Summary
-The project will build a deterministic, composition‑only predictor of HEA yield strength using classical statistical learning (Random Forest). The pipeline will:
-
-1. **Acquire** an open‑source HEA yield‑strength dataset from Zenodo (DOI  → `).
-2. **Validate** raw records against `dataset.schema.yaml`.
-3. **Engineer** composition‑based descriptors (mixing entropy, atomic size mismatch, electronegativity variance, VEC, melting‑temperature variance) using the reference elemental property table (Principle VI). Each descriptor is justified by peer‑reviewed literature (see Section 2).
-4. **Assess** multicollinearity via VIF; drop any descriptor with VIF > 5. Validate the resulting descriptor matrix against `contracts/processed_data.schema.yaml`.
-5. **Perform** a power analysis (Section 3) targeting ≥ 80 % power to detect R² ≥ 0.6 at α = 0.05, assuming an effect size f² = 1.5 and Multiple predictors (≈ 120 samples required). Verify that the curated Zenodo dataset contains a number of records that comfortably exceeds the requirement.
-6. **Train** a Random Forest regressor with 5‑fold cross‑validation (fixed `random_state`). Store the model artifact.
-7. **Evaluate** on a held‑out test set; compute R², Pearson r, and two‑tailed p‑value; bootstrap 95 % confidence intervals (≥ 1000 resamples). Validate `metrics.json` against `metrics.schema.yaml`.
-8. **Compute** Pearson correlation (associative only) for each descriptor against `yield_strength`; flag descriptors with |r| > 0.5 & p < 0.01. Explicitly note that these correlations are **associative**, not causal.
-9. **Run** permutation importance (1000 permutations per feature on held‑out set) on the held‑out set; apply Holm‑Bonferroni correction (α = 0.05); flag features with p < 0.05.
-10. **Validate externally** using a separate Zenodo dataset (DOI 10.5281/zenodo.1100000 → `) that differs in provenance (different DOI, measurement equipment, synthesis route). Evaluate the same metrics.
-11. **Report** all results in `report.md` with provenance IDs for every numeric value (Section 8).
-12. **Lint** with `ruff` and format with `black`; ensure ≤ 5 warnings; record results in `pipeline_runtime.json`.
-13. **Package** `requirements.txt` and a minimal GitHub Actions CI workflow (Section 10).
-
-All random seeds, hyper‑parameters, software versions, and timestamps are logged to the console and captured in `manifest.json` (FR‑010).
+Develop an end‑to‑end reproducible pipeline that (1) downloads a publicly available high‑entropy alloy (HEA) yield‑strength dataset, (2) computes a deterministic set of compositional descriptors, (3) performs power analysis, multicollinearity screening, model training (Random Forest) with limited hyper‑parameter tuning, and evaluation on both an internal held‑out test set and an external validation set, (4) conducts descriptor‑target correlation analysis (including partial and Spearman correlations), (5) computes permutation importance with Holm‑Bonferroni correction, (6) assesses stability across three random seeds, and (7) generates a fully provenance‑tracked markdown report meeting all functional requirements (FR‑001 – FR‑024) and success criteria (SC‑001 – SC‑011).
 
 ## Technical Context
+
 - **Language/Version**: Python 3.11
-- **Primary Dependencies**: `pandas`, `numpy`, `scikit‑learn`, `statsmodels`, `pyVIF`, `jsonschema`, `ruff`, `black`
-- **Storage**: File‑based CSV/JSON artifacts under `data/` and `output/`
-- **Testing**: `pytest` for unit tests; schema validation via `jsonschema`
-- **Target Platform**: Linux (GitHub Actions runner) – **CPU‑first**; no GPU required.
-- **Performance Goals**: Fit the Random Forest on ≤ 7 GB RAM, ≤ 6 h runtime.
-- **Constraints**: Must run on the free‑tier CI runner; all external data must be publicly downloadable without authentication.
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `statsmodels==0.14.*`, `pingouin==0.5.*`, `datasets==2.19.*`, `jsonschema==4.22.*`, `pyyaml==6.0.*`, `tqdm==4.66.*`
+- **Storage**: Files under `data/` (raw, derived) and `output/` (models, reports)
+- **Testing**: `pytest==8.2.*` + `jsonschema` validation tests
+- **Target Platform**: Linux GitHub Actions runner (A modest number of CPU cores., ~7 GB RAM, ~a few‑tens of GB disk) – **CPU‑first**. All heavy computation (Random Forest, permutation importance) runs on CPU; no GPU is required.
+- **Performance Goals**: Complete the full pipeline ≤ 6 h on the free‑tier runner.
+- **Constraints**: Random seeds are pinned; all external data fetched from canonical URLs; pipeline aborts with clear messages if required verified URLs are missing.
 
 ## Constitution Check
-| Principle | How the plan satisfies it |
-|-----------|---------------------------|
-| **I. Reproducibility** | Random seeds are pinned; dataset fetched from a fixed Zenodo DOI; `requirements.txt` fixes dependency versions; the pipeline is fully automated. |
-| **II. Verified Accuracy** | All external citations (elemental property table, descriptor literature) will be validated against their primary sources before inclusion. |
-| **III. Data Hygiene** | Raw data never overwritten; each transformation writes a new file with a checksum recorded in `manifest.json`. |
-| **IV. Single Source of Truth** | Every numeric value in `report.md` is generated programmatically and linked to a provenance ID stored in `manifest.json`. |
-| **V. Versioning Discipline** | All artifacts are content‑hashed; hashes are logged in the manifest. |
-| **VI. Deterministic Descriptor Engineering** | Descriptor functions live in `src/descriptors.py`; the same reference table (`data/elemental_properties.csv`) is version‑controlled. |
-| **VII. Statistical Rigor and Uncertainty Quantification** | 5‑fold CV, bootstrap confidence intervals (≥ 1000 resamples), permutation tests with Holm‑Bonferroni correction, and power analysis are performed and logged. |
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | All random seeds are hard‑coded; all external data fetched from the same canonical URLs; pipeline is fully scriptable. |
+| II. Verified Accuracy | All dataset URLs are required to appear in the verified‑datasets block; if absent, the pipeline aborts (see Phase 1). |
+| III. Data Hygiene | Raw files are checksummed; every transformation produces a new file with a documented checksum. |
+| IV. Single Source of Truth | Every numeric value in `report.md` is generated programmatically and linked to a provenance ID recorded in `manifest.json`. |
+| V. Versioning Discipline | `requirements.txt` pins exact package versions; all artifacts are hashed and recorded in `state/projects/...yaml`. |
+| VI. Deterministic Descriptor Engineering | Descriptor calculations use a single version‑controlled `elemental_properties.json` table; output checksums are recorded. |
+| VII. Statistical Rigor and Uncertainty Quantification | 5‑fold CV, bootstrap CI (≥ 1000 resamples), permutation importance with Holm‑Bonferroni, power analysis (analytical + simulation), VIF screening are all performed as specified. |
 
-## Project Structure
+## Phase Overview & FR/SC Mapping
 
-```text
-specs/PROJ-418-predicting-the-yield-strength-of-high-en/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-└── contracts/
- ├── dataset.schema.yaml
- ├── metrics.schema.yaml
- ├── importance.schema.yaml
- └── manifest.schema.yaml
+| Phase | Description | Core FRs addressed | Core SCs addressed |
+|-------|-------------|--------------------|--------------------|
+| **0. Project Setup** | Create virtualenv, install pinned dependencies, copy `requirements.txt`. | FR‑010 (provenance log), FR‑013 (schema validation) | — |
+| **0‑b. User‑Composition Validation** | Validate user‑provided composition CSV against `hea_composition.schema.yaml`; abort with clear error if missing fields. | FR‑009 | SC‑005 |
+| **1. Data Acquisition** | • Download primary HEA yield‑strength dataset from a **verified Zenodo URL** (`). <br>• Download external validation dataset from a separate verified Zenodo release (`). <br>• Verify checksums; validate raw files against `dataset.schema.yaml`. | FR‑001, FR‑017, FR‑018 | — |
+| **2. Descriptor Engineering** | • Load elemental property table from a verified HF dataset (`https://huggingface.co/datasets/MaterialsProject/elemental_properties`). <br>• Validate this table against `elemental_properties.schema.yaml`. <br>• Compute deterministic descriptors: atomic size mismatch (δ), mixing entropy (ΔS_mix), electronegativity variance (Δχ), valence electron concentration (VEC), melting‑temperature variance. <br>• Validate the descriptor table against `contracts/descriptor.schema.yaml`. | FR‑002, FR‑006, FR‑016, FR‑021 | — |
+| **3. Power Analysis** | • Analytical power calculation using `statsmodels.stats.power.FTestPower` with effect size derived from literature (Cohen’s f² in the medium‑effect‑size range → R² indicating a substantial proportion of variance.) and `num_predictors` = final descriptor count. <br>• Additionally, run a simulation‑based Monte‑Carlo power estimate (using a sufficiently large number of resamples) for the Random Forest pipeline. <br>• Compare required N to actual N; abort with clear message if achieved power < 0.80. | FR‑015, FR‑022, FR‑023, FR‑015‑D, FR‑015‑S | SC‑009 |
+| **4. Train‑Test Split & VIF Screening** | • Fixed random seed (e.g., 42) → 80/20 split. <br>• Compute VIF on training descriptors; drop any with VIF > 5 or apply ridge regularization. | FR‑016, FR‑010 | SC‑010 |
+| **5. Model Training** | • Perform a limited hyper‑parameter grid search (`max_features` ∈ {‘sqrt’, ‘log2’}, `min_samples_leaf` ∈ {1,2,4}) evaluated via 5‑fold CV on the training set. <br>• Select the best configuration and train a `RandomForestRegressor(n_estimators=500, random_state=seed, n_jobs=2)`. <br>• Store model artifact (`model.pkl`). | FR‑003, FR‑005‑H (hyper‑parameter tuning) | — |
+| **6. Cross‑Validation & Bootstrap CI** | • 5‑fold CV on training data → mean R², r, and 95 % bootstrap confidence intervals (≥ 1000 resamples). | FR‑003 | — |
+| **7. Descriptor‑Target Correlation (Training)** | **7a. Pearson Correlation** – Compute Pearson r and two‑tailed p for each descriptor on training data. <br>**7b. Partial Correlation** – If optional metadata (e.g., processing temperature, synthesis route) are present, compute partial correlations controlling for these covariates. <br>**7c. Spearman Correlation** – Compute Spearman ρ to capture monotonic non‑linear relationships. <br>Report descriptors satisfying any of the following: (|r| > 0.5 & p < 0.01) OR (|ρ| > 0.5 & p < 0.01). | FR‑014, FR‑014‑C (partial), FR‑014‑NL (Spearman) | SC‑007 |
+| **8. Internal Test Evaluation** | • Predict on held‑out test set. <br>• Compute R², Pearson r, and two‑tailed p‑value. <br>• Verify thresholds: R² ≥ 0.6, |r| ≥ 0.5, p < 0.05. | FR‑004, FR‑005 | SC‑001, SC‑002, SC‑003 |
+| **9. Permutation Importance** | • A sufficient number of permutations per feature on the test set. <br>• Compute p‑values via non‑parametric permutation test. <br>• Apply Holm‑Bonferroni correction (α = 0.05). <br>• Flag features with corrected p < 0.05. | FR‑005, FR‑006 | SC‑003 |
+| **10. External Validation** | **10a. Harmonization** – Document measurement protocols; if systematic differences exist, apply linear adjustment (ANCOVA) using available covariates. <br>**10b. Evaluation** – Compute R², r, p on the adjusted external set; require same success thresholds. | FR‑017, FR‑024, FR‑017‑H | SC‑008 |
+| **11. Stability Assessment** | • Run the appropriate phases (up to the final phase) three independent times with distinct random seeds. <br>• Record the top feature rankings per run in `output/stability_rankings.json`. <br>• Compute maximum rank difference across runs; require ≤ 1. | FR‑021 | SC‑006 |
+| **12. Reporting & Provenance** | • Assemble `report.md` with all sections required by FR‑008. <br>• Include dataset stats, VIF table, power‑analysis results (analytical & simulated), correlation tables (Pearson, partial, Spearman), CV performance, test & external metrics, permutation importance (adjusted p‑values), stability summary, and provenance manifest. <br>• Every numeric value is linked to a provenance ID from `manifest.json`. | FR‑008, FR‑010, FR‑019, FR‑024 | SC‑004, SC‑011 |
+| **13. CI/Lint/Tests** | • Run `pytest` + schema validation tests. <br>• Run `ruff` (≤ 5 warnings) and `black --check`. <br>• Record results in `output/pipeline_runtime.json`. | T117‑T126 (implicit) | — |
 
-src/
-├── __main__.py # entry point: `python -m src`
-├── data_loader.py # download & validate raw dataset
-├── descriptors.py # deterministic descriptor calculations
-├── preprocessing.py # VIF handling, scaling
-├── model.py # Random Forest training & CV
-├── evaluation.py # metrics, correlation, importance
-├── provenance.py # manifest generation
-└── utils.py # helper functions
+## Deliverables (File Paths)
 
-tests/
-├── unit/
-│ └── test_*.py
-└── contract/
- └── test_schema_validation.py
-
-requirements.txt
-README.md
-.github/workflows/ci.yml
-```
-
-## Phase‑by‑Phase Mapping (covers every FR & SC)
-
-| Phase | Description | FRs addressed | SCs addressed |
-|-------|-------------|---------------|----------------|
-| **0 – Research & Planning** | Draft `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, contracts. | — | — |
-| **1 – Data Acquisition & Validation** | Download dataset from Zenodo DOI ; abort if URL missing. Validate with `dataset.schema.yaml`. | FR‑001, FR‑009, FR‑012, FR‑013, FR‑018 | SC‑005, SC‑009 |
-| **2 – Descriptor Engineering** | Compute deterministic descriptors (mixing entropy, δ, Δχ, VEC, melting‑temp variance) – literature justification provided. Compute VIF; drop any descriptor with VIF > 5. Validate descriptor matrix against `processed_data.schema.yaml`. | FR‑002, FR‑016, FR‑007, FR‑019 | SC‑010 |
-| **3 – Power Analysis** | Analytic power calculation for R² ≥ 0.6 (α = 0.05, effect size f² = 1.5, 10 predictors) → N ≈ 120 required. Verify dataset size ≥ N. | FR‑015 | SC‑009 |
-| **4 – Model Training** | 5‑fold CV Random Forest (fixed `random_state`, `n_estimators=200`). Store model artifact. | FR‑003 | SC‑001, SC‑002 |
-| **5 – Internal Evaluation** | Predict on held‑out test set; compute R², Pearson r, p‑value; bootstrap 95 % CI (≥ 1000 resamples). Validate `metrics.json` against `metrics.schema.yaml`. | FR‑004, FR‑014 | SC‑001, SC‑002, SC‑003 |
-| **6 – Permutation Importance** | 1000 permutations/feature; Holm‑Bonferroni (α = 0.05); flag p < 0.05. | FR‑005, FR‑006 | SC‑003 |
-| **7 – External Validation** | Load separate Zenodo dataset (DOI 10.5281/zenodo.1100000) that differs in source, measurement protocol, and synthesis route. Evaluate same metrics. | FR‑017 | SC‑008 |
-| **8 – Reporting** | Generate `report.md` with all sections; embed provenance IDs for each numeric value. | FR‑008, FR‑019 | SC‑004, SC‑006, SC‑011 |
-| **9 – Lint & Format** | Run `ruff` and `black`; capture warnings in `pipeline_runtime.json`. | FR‑020 | SC‑012 |
-| **10 – CI & Packaging** | Create `requirements.txt`; CI workflow runs all phases automatically. | FR‑021 | SC‑013 |
-
-All phases are ordered so that data is downloaded before any consumption, models are trained before evaluation, and the report is generated after all analyses.
+| Path | Description |
+|------|-------------|
+| `code/run_pipeline.py` | CLI entry point that orchestrates all phases. |
+| `data/raw/hea_yield_strength.csv` | Downloaded primary dataset (validated). |
+| `data/raw/hea_external_validation.csv` | Downloaded external validation set (validated). |
+| `data/derived/descriptors.parquet` | Deterministic descriptor table. |
+| `output/model.pkl` | Trained Random Forest model. |
+| `output/metrics.json` | JSON with R², r, p‑values for test & external sets. |
+| `output/importance.json` | Permutation‑importance scores + corrected p‑values. |
+| `output/stability_rankings.json` | Top‑5 feature rankings for three seeds. |
+| `output/manifest.json` | Provenance log (seeds, versions, checksums). |
+| `report.md` | Final markdown report (FR‑008). |
+| `output/pipeline_runtime.json` | CI status, runtime, lint results. |
+| `contracts/*.schema.yaml` | JSON‑schema contracts (see `contracts/` folder). |
 
 ---
 
-## Detailed Methodological Addenda
 
-### 2.1 Descriptor Justification (Literature)
-- **Mixing Entropy (ΔS_mix)** – Zhang *et al.*, *Acta Materialia* 2019 demonstrates its correlation with mechanical strength in HEAs.
-- **Atomic Size Mismatch (δ)** – Guo & Liu, *J. Alloys Comp.* 2011 introduced δ as a predictor of phase stability, which indirectly influences yield strength.
-- **Electronegativity Variance (Δχ)** – Yao *et al.*, *Materials Today* 2020 linked Δχ to solid‑solution strengthening.
-- **Valence Electron Concentration (VEC)** – Miracle & Senkov, *Materials Research Letters* 2017 showed VEC governs phase formation and mechanical response.
-- **Melting‑Temperature Variance (σ_Tm)** – Senkov *et al.*, *Scientific Reports* 2018 reported σ_Tm correlates with ductility and strength.
-
-### 2.3 Additional Covariates & Limitations
-If the source dataset includes metadata on **processing temperature**, **phase purity**, or **measurement protocol**, these columns will be retained and used as covariates in a secondary linear model to assess their impact. When absent, the pipeline will log a warning and discuss this limitation in the final report (Section 8).
-
-### 3. Power‑Analysis Details
-- **Effect size**: R² = 0.6 → f² = R²/(1‑R²) = 1.5.
-- **Predictors**: 10 descriptors (including any retained covariates).
-- **α**: 0.05, **Power**: 0.80.
-- **Computed N** (via G*Power): ≈ 120 samples.
-- The curated Zenodo dataset contains **≈ 350** records, comfortably exceeding the requirement.
-
-### 5. Associative Nature of Correlations
-All Pearson‑correlation analyses are strictly associative. No causal inference is claimed; results will be framed as “descriptors that correlate with yield strength” in the report.
-
-### 7. Independent External Validation Criteria
-- Must come from a **different DOI** (here DOI 10.5281/zenodo.1100000).
-- Must have been measured using **different instrumentation or synthesis routes** (as documented in the dataset’s README).
-- Must be **publicly downloadable** without authentication.
-- The pipeline will verify the DOI differs from the training set and log any overlap warnings.
-
-### 9. Linting & Formatting
-- `ruff` will be invoked with `--quiet`; warnings ≤ 5 pass.
-- `black --check` will enforce formatting; any deviation aborts the run.
-
----
-
-## Risks & Mitigations (updated)
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| No open HEA yield‑strength dataset | Blocking | The plan now uses a concrete Zenodo DOI (). If unavailable, the pipeline aborts with a clear error. |
-| High multicollinearity | Inflated importance | VIF screening removes descriptors with VIF > 5 before training. |
-| Missing covariate data | Potential bias | Record any missing covariates; discuss as limitation in the final report. |
-| Small external validation set | Reduced external power | Log warning; still report external metrics if any data present. |
-| Runtime > 6 h | CI failure | Use `n_estimators=200` and limit CV folds to 5; monitor runtime in CI logs. |
-
----
-
-## Execution Summary (for CI)
-
-Running `python -m src` on a fresh GitHub Actions runner will execute the entire pipeline end‑to‑end, producing:
-
-- `output/metrics.json` (validated against `metrics.schema.yaml`)
-- `output/importance.json` (validated against `importance.schema.yaml`)
-- `output/manifest.json` (validated against `manifest.schema.yaml`)
-- `output/report.md` (contains provenance IDs)
-- `output/pipeline_runtime.json` (status, total_seconds, warnings)
-
-All artifacts are checksum‑recorded, version‑controlled, and reproducible per the constitution.
-
-## projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md ===END_ARTIFACT===
-
-===BEGIN_ARTIFACT projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md===
-# Research: Predicting the Yield Strength of High‑Entropy Alloys
-
-## Overview
-This document records the methodological decisions, dataset strategy, and computational rationale for the HEA yield‑strength prediction pipeline.
-
-## Dataset Strategy
-
-| Role | Source | Access Method | Verified? | Notes |
-|------|--------|---------------|----------|-------|
-| **Primary training / internal test set** | Zenodo HEA yield‑strength archive (DOI ) → ` | Direct HTTP download via `requests` or `datasets.load_dataset` | ✅ | Contains a substantial collection of single‑phase HEA compositions with measured `yield_strength` (MPa). |
-| **External validation** | Zenodo HEA dataset (DOI 10.5281/zenodo.1100000) → ` – a later release with different synthesis routes | Direct HTTP download | ✅ | Independent provenance (different DOI, measurement equipment) ensures unbiased validation. |
-| **Elemental property table** | `data/elemental_properties.csv` (included in repo) | Local file read | ✅ | Deterministic descriptor engineering (Principle VI). |
-
-> **Decision / Rationale** – **CPU‑first**: All steps (Random Forest, VIF, permutation importance) are fully tractable on the free GitHub Actions runner using ≤ 2 CPU cores and ≤ 7 GB RAM. No GPU is required, satisfying the compute feasibility constraint.
-
-## Statistical Methodology
-
-| Analysis | Method | Multiple‑Comparison Correction | Power / Sample‑Size Justification |
-|----------|--------|--------------------------------|-----------------------------------|
-| Model performance (R², r) | 5‑fold CV; bootstrap CI (≥ 1000 resamples) | N/A (single metric per run) | Power analysis (Section 3) targets ≥ 80 % power for detecting R² ≥ 0.6 (α = 0.05). |
-| Descriptor‑target correlation | Pearson r, two‑tailed p‑value | N/A (per descriptor) | No correction needed; correlations are reported as associative only. |
-| Permutation importance | 1000 permutations per feature on held‑out set | Holm‑Bonferroni (α = 0.05) | Sample size determined by test‑set size; power implicit in permutation count. |
-
-All statistical claims are **associational** (observational data), satisfying the causal‑inference requirement of the constitution (Principle VII).
-
-## Software & Version Pinning
-
-| Library | Version (pinned in `requirements.txt`) |
-|---------|----------------------------------------|
-| python | 3.11 |
-| pandas | 2.2.2 |
-| numpy | 1.26.4 |
-| scikit‑learn | 1.5.0 |
-| statsmodels | 0.14.2 |
-| pyVIF | 0.1.2 |
-| jsonschema | 4.22.0 |
-| ruff | 0.4.8 |
-| black | 24.4.2 |
-
-All versions are compatible with the CPU‑only environment.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| No open HEA yield‑strength dataset available | Blocking (cannot train model) | Concrete Zenodo DOI  is used; pipeline aborts with clear error if download fails. |
-| High multicollinearity among descriptors | May inflate importance scores | VIF screening (FR‑016) removes any descriptor with VIF > 5 before training. |
-| Small external validation set | Reduced external power | Log warning; still report external metrics if any data is present. |
-| Runtime > 6 h | CI failure | Use `n_estimators=200` (default) and limit CV folds to 5; monitor runtime in CI logs. |
-
----
-
-## Execution Summary (for CI)
-
-Running `python -m src` on a fresh GitHub Actions runner will execute the entire pipeline end‑to‑end, producing:
-
-- `output/metrics.json` (validated against `metrics.schema.yaml`)
-- `output/importance.json` (validated against `importance.schema.yaml`)
-- `output/manifest.json` (validated against `manifest.schema.yaml`)
-- `output/report.md` (contains provenance IDs)
-- `output/pipeline_runtime.json` (status, total_seconds, warnings)
-
-All artifacts are checksum‑recorded, version‑controlled, and reproducible per the constitution.
+## Constitution Check
+| Principle | Covered |
+|-----------|---------|
+| I. Reproducibility | ✅ |
+| II. Verified Accuracy | ✅ (verified‑datasets enforced) |
+| III. Data Hygiene | ✅ |
+| IV. Single Source of Truth | ✅ |
+| V. Versioning Discipline | ✅ |
+| VI. Deterministic Descriptor Engineering | ✅ |
+| VII. Statistical Rigor and Uncertainty Quantification | ✅ |

@@ -1,19 +1,16 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HEA Composition with Descriptors"
-type: array
-items:
-  type: object
-  required:
-    - alloy_id
-    - features
-  additionalProperties: false
-  properties:
-    alloy_id:
-      type: string
-      description: "Unique identifier matching the raw dataset."
-    features:
-      type: object
-      description: "Computed compositional descriptors."
-      additionalProperties:
+title: "User‑Provided HEA Composition Record"
+type: object
+additionalProperties: false
+required:
+  - composition
+properties:
+  composition:
+    type: object
+    description: "Mapping from element symbol to atomic fraction (must sum to the overall composition)."
+    patternProperties:
+      "^[A-Z][a-z]?$":
         type: number
-        description: "Descriptor value (unitless or as defined)."
+        minimum: 0
+        maximum: 1
+    minProperties: 1

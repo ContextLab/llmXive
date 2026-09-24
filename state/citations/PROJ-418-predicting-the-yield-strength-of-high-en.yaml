@@ -9,102 +9,168 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-418-predicting-the-yield-strength-of-high-en
   verified_at: '2026-08-07T16:26:10.277831Z'
-- artifact_hash: a525d8fb8bcd1ab22c030be1d5f347a187c9ae73c621815de22e62291dff07a2
+- artifact_hash: da37960798609edd1f263dbbf911a4b3996b979c7c7d13c045288dab1ddcb078
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://doi.org/10.5281/zenodo.1234567
+  value: https://zenodo.org/record/1234567**
   verification_status: mismatch
-  verified_against_url: https://doi.org/10.5281/zenodo.1234567
-  verified_at: '2026-09-06T01:48:47.331802Z'
-- artifact_hash: a525d8fb8bcd1ab22c030be1d5f347a187c9ae73c621815de22e62291dff07a2
+  verified_against_url: https://zenodo.org/records/1234567**
+  verified_at: '2026-09-24T22:29:52.646779Z'
+- artifact_hash: da37960798609edd1f263dbbf911a4b3996b979c7c7d13c045288dab1ddcb078
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/spec.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1234567
+  kind: url
+  value: https://zenodo.org/record/7654321**
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-09-06T01:48:47.331802Z'
-- artifact_hash: fd79f7b0e376f0ec5c1f522ad5dc17836fa5d148d1d94f96199e5695ad552d10
+  verified_against_url: https://zenodo.org/records/7654321**
+  verified_at: '2026-09-24T22:29:52.646779Z'
+- artifact_hash: 0938f61bfb956a8e756d50d7334f334ce716316167b59ad855f48d65b84675de
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://zenodo.org/records/1000000`
+  value: https://zenodo.org/record/1234567/files/hea_yield_strength.csv?download=1`
   verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/1000000
-  verified_at: '2026-09-06T01:58:53.192039Z'
-- artifact_hash: fd79f7b0e376f0ec5c1f522ad5dc17836fa5d148d1d94f96199e5695ad552d10
+  verified_against_url: https://zenodo.org/records/1234567/files/hea_yield_strength.csv
+  verified_at: '2026-09-24T22:40:02.001360Z'
+- artifact_hash: 0938f61bfb956a8e756d50d7334f334ce716316167b59ad855f48d65b84675de
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/plan.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: Nuclear Data Evaluation for 217Po | Zenodo
+  fetched_title: null
   kind: url
-  value: https://zenodo.org/records/1100000`
-  verification_status: pending
-  verified_against_url: https://zenodo.org/records/1100000
-  verified_at: '2026-09-06T01:58:53.192039Z'
-- artifact_hash: fd79f7b0e376f0ec5c1f522ad5dc17836fa5d148d1d94f96199e5695ad552d10
+  value: https://zenodo.org/record/7654321/files/hea_external.csv?download=1`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/7654321/files/hea_external.csv
+  verified_at: '2026-09-24T22:40:02.001360Z'
+- artifact_hash: 0938f61bfb956a8e756d50d7334f334ce716316167b59ad855f48d65b84675de
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/plan.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1000000
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1000000
-  verified_at: '2026-09-06T01:58:53.192039Z'
-- artifact_hash: fd79f7b0e376f0ec5c1f522ad5dc17836fa5d148d1d94f96199e5695ad552d10
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/plan.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1100000
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1100000
-  verified_at: '2026-09-06T01:58:53.192039Z'
-- artifact_hash: d3f6b5665f586a032450ca31198924671073f50156f94679dfa2d322750a9c85
+  kind: url
+  value: https://huggingface.co/datasets/MaterialsProject/elemental_properties`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/MaterialsProject/elemental_properties
+  verified_at: '2026-09-24T22:40:02.001360Z'
+- artifact_hash: 219ba3b8246855338a39e594fb91f01c225d8448d499f33ea6d89696b40d7e79
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1000000
+  kind: url
+  value: https://zenodo.org/record/1234567/files/hea_yield_strength.csv?download=1`
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1000000
-  verified_at: '2026-09-06T01:59:16.402812Z'
-- artifact_hash: d3f6b5665f586a032450ca31198924671073f50156f94679dfa2d322750a9c85
+  verified_against_url: https://zenodo.org/records/1234567/files/hea_yield_strength.csv
+  verified_at: '2026-09-24T22:40:43.739936Z'
+- artifact_hash: 219ba3b8246855338a39e594fb91f01c225d8448d499f33ea6d89696b40d7e79
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1100000
+  kind: url
+  value: https://zenodo.org/record/7654321/files/hea_external.csv?download=1`
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1100000
-  verified_at: '2026-09-06T01:59:16.402812Z'
-- artifact_hash: 1e532abe54db1aea370d1577c37b2f6324e93db927f7739c3bcbda23467fd38e
+  verified_against_url: https://zenodo.org/records/7654321/files/hea_external.csv
+  verified_at: '2026-09-24T22:40:43.739936Z'
+- artifact_hash: 219ba3b8246855338a39e594fb91f01c225d8448d499f33ea6d89696b40d7e79
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/MaterialsProject/elemental_properties`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/MaterialsProject/elemental_properties
+  verified_at: '2026-09-24T22:40:43.739936Z'
+- artifact_hash: 219ba3b8246855338a39e594fb91f01c225d8448d499f33ea6d89696b40d7e79
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: dev-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/666687c79b7d75d2ed608051/9c7a32a40bb8c5b3c639bfa4d4cfca52f356c530dba1c3fb3343af47a39457c3?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev-00000-of-00001.parquet%3B+filename%3D%22dev-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1790293245&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY2Njg3Yzc5YjdkNzVkMmVkNjA4MDUxLzljN2EzMmE0MGJiOGM1YjNjNjM5YmZhNGQ0Y2ZjYTUyZjM1NmM1MzBkYmExYzNmYjMzNDNhZjQ3YTM5NDU3YzNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJkZXYtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwMjkzMjQ1fX19XX0_&Signature=MEUCIQD%7EKkzTAQQLS60o0EK9Dw%7Eih1vjVQcQJ-3oe8VLe8MVtAIgYrpllV050FpaTwCqBq8OlPfZuRjXYjSqDreWv30pYSM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-24T22:40:43.739936Z'
+- artifact_hash: 219ba3b8246855338a39e594fb91f01c225d8448d499f33ea6d89696b40d7e79
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-24T22:40:43.739936Z'
+- artifact_hash: 9b3fb6e28ad401374e0fa17c70fa99246530a74d767da8cbb8a94474f9074645
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/your-org/heal-predictor.git
+  value: https://github.com/yourorg/hea-yield-predictor.git
   verification_status: mismatch
-  verified_against_url: https://github.com/your-org/heal-predictor
-  verified_at: '2026-09-06T01:59:46.599433Z'
+  verified_against_url: https://github.com/yourorg/hea-yield-predictor
+  verified_at: '2026-09-24T22:41:15.650578Z'
+- artifact_hash: 9b3fb6e28ad401374e0fa17c70fa99246530a74d767da8cbb8a94474f9074645
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/XXXXXX/files/hea_yield.csv?download=1
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/XXXXXX/files/hea_yield.csv
+  verified_at: '2026-09-24T22:41:15.650578Z'
+- artifact_hash: 9b3fb6e28ad401374e0fa17c70fa99246530a74d767da8cbb8a94474f9074645
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/YYYYYY/files/hea_external.csv?download=1
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/YYYYYY/files/hea_external.csv
+  verified_at: '2026-09-24T22:41:15.650578Z'
+- artifact_hash: f79f5293e15fa69b8c9b9b40f20ea47b88e5aadab42798c0c117d9bbe04c568a
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/MaterialsProject/elemental_properties`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/MaterialsProject/elemental_properties
+  verified_at: '2026-09-24T22:54:43.840966Z'
+- artifact_hash: f79f5293e15fa69b8c9b9b40f20ea47b88e5aadab42798c0c117d9bbe04c568a
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1100000
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1100000
+  verified_at: '2026-09-24T22:54:43.840966Z'

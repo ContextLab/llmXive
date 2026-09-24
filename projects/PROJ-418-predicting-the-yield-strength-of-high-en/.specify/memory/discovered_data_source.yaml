@@ -1,11 +1,18 @@
 status: none
-intent: HEA Yield-Strength open dataset download pip package dataset
+intent: Zenodo high entropy alloy yield strength dataset NIST Chemistry WebBook elemental
+  properties python package dataset
 required_fields:
-- composition
+- X_<element> (composition fraction for each element)
+- yield_strength (target value)
+- temperature (measurement temperature)
+- phase_purity (purity metric)
+- element_symbol (e.g., Fe, Ni)
+- atomic_number
+- atomic_weight
 - atomic_radius
 - electronegativity
 - melting_point
-- yield_strength
-cache_key: f316aa6bb31abaec082efcf385af7f8294acc86cc00e6eba03733246b554bfa6
-searched_at: '2026-09-06T01:51:32.964081+00:00'
+- density
+cache_key: 258d00e63fc9b4179134ff1cc2d3c103c08a97125ef1b37b79f1e796551ab345
+searched_at: '2026-09-24T22:32:10.608253+00:00'
 retry_count: 1

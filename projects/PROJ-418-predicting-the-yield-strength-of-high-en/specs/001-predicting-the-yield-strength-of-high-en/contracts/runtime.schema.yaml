@@ -1,16 +1,22 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Pipeline Runtime Record"
+title: "Runtime Summary"
 type: object
 required:
-  - total_seconds
   - status
-additionalProperties: false
+  - total_seconds
+  - cpu_seconds
+  - memory_mb
 properties:
-  total_seconds:
-    type: number
-    minimum: 0
-    description: "Wall‑clock runtime of the full pipeline."
   status:
     type: string
     enum: ["pass", "fail"]
-    description: "Overall status; 'pass' requires all success criteria met."
+    description: "Overall pipeline status."
+  total_seconds:
+    type: number
+    description: "Wall‑clock time."
+  cpu_seconds:
+    type: number
+    description: "CPU time consumed."
+  memory_mb:
+    type: number
+    description: "Peak RAM usage."

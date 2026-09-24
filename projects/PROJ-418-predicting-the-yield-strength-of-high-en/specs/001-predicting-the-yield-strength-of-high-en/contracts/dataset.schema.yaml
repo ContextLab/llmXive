@@ -1,24 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HEA Yield‑Strength Dataset"
+title: "HEA Yield‑Strength Dataset Record"
 type: object
+additionalProperties: false
 required:
   - composition
   - yield_strength
+  - phase
+  - source_id
 properties:
   composition:
     type: object
-    description: "Mapping from element symbol (e.g., 'Fe') to atomic fraction (0‑1). All fractions must sum to a complete whole."
+    description: "Mapping from element symbol (e.g., \"Fe\") to atomic fraction (sum to 1.0)."
     patternProperties:
       "^[A-Z][a-z]?$":
         type: number
         minimum: 0
         maximum: 1
-    additionalProperties: false
+    minProperties: 1
   yield_strength:
     type: number
-    description: "Experimental yield strength in MPa."
+    description: "Measured yield strength (MPa)."
     minimum: 0
-  sample_id:
+  phase:
     type: string
-    description: "Optional unique identifier for the record."
-additionalProperties: false
+    description: "Phase description; must contain \"single\" for single‑phase alloys."
+    enum:
+      - "single"
+      - "multiphasic"
+      - "unknown"
+  source_id:
+    type: string
+    description: "Identifier of the source record (e.g., DOI or Zenodo record)."

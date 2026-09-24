@@ -1,27 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Provenance Manifest"
 type: object
+additionalProperties: false
 required:
-  - seed
-  - software_versions
-  - checksums
+  - artifact_name
+  - checksum
   - timestamp
 properties:
+  artifact_name:
+    type: string
+    description: "Relative path to the artifact (e.g., \"output/model.pkl\")."
+  checksum:
+    type: string
+    description: "SHA‑256 hex digest of the artifact."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when the artifact was created."
   seed:
     type: integer
-    description: "Global random seed used for all stochastic steps."
+    description: "Random seed used for the step that generated the artifact (if applicable)."
   software_versions:
     type: object
     description: "Mapping from package name to version string."
     additionalProperties:
-      type: string
-  checksums:
-    type: object
-    description: "SHA‑256 checksums for each artifact file."
-    additionalProperties:
-      type: string
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO‑8601 timestamp of pipeline completion."
-additionalProperties: false
+      type: string -->
