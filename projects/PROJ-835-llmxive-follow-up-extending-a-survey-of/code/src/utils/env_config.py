@@ -1,71 +1,65 @@
 """
-Environment configuration module for LlmXive pipeline.
+Environment configuration utilities for LlmXive project.
 
-This module enforces CPU-only execution by setting CUDA_VISIBLE_DEVICES
-to an empty string at import time, preventing any accidental GPU usage.
+This module enforces CPU-only execution by setting the CUDA_VISIBLE_DEVICES
+environment variable to an empty string at module import time.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Enforce CPU-only execution immediately upon import
-# This prevents any accidental GPU allocation by PyTorch or other libraries
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
-# Configure module-level logger
-logger = logging.getLogger(__name__)
+# CRITICAL: Enforce CPU-only execution immediately upon import
+# This must happen before any CUDA-related libraries (torch, etc.) are imported
+if "CUDA_VISIBLE_DEVICES" not in os.environ or os.environ["CUDA_VISIBLE_DEVICES"] != "":
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    logging.getLogger(__name__).info("Enforced CPU-only execution: CUDA_VISIBLE_DEVICES set to ''")
 
 def enforce_cpu_only() -> None:
     """
-    Enforce CPU-only execution by ensuring CUDA_VISIBLE_DEVICES is empty.
+    Explicitly enforce CPU-only execution by setting CUDA_VISIBLE_DEVICES to empty.
     
-    This function checks the current environment and forces the variable
-    to be empty if it's not already set or is set to a non-empty value.
-    
-    Raises:
-        RuntimeError: If the environment cannot be configured for CPU-only mode.
+    This function can be called explicitly to ensure CPU-only mode, though the
+    environment variable is already set at module import time.
     """
-    cuda_var = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-    if cuda_var != "":
-        logger.warning(
-            f"CUDA_VISIBLE_DEVICES was set to '{cuda_var}'. "
-            "Overriding to enforce CPU-only execution."
-        )
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    
-    # Verify the enforcement
-    if os.environ.get("CUDA_VISIBLE_DEVICES", "") != "":
-        raise RuntimeError(
-            "Failed to enforce CPU-only execution. "
-            "CUDA_VISIBLE_DEVICES is not empty."
-        )
-    
-    logger.info("CPU-only execution enforced successfully.")
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    logging.getLogger(__name__).info("Enforced CPU-only execution: CUDA_VISIBLE_DEVICES set to ''")
 
 def is_cpu_only_mode() -> bool:
     """
     Check if the environment is configured for CPU-only execution.
     
     Returns:
-        bool: True if CUDA_VISIBLE_DEVICES is empty, False otherwise.
+        bool: True if CUDA_VISIBLE_DEVICES is empty or not set, False otherwise.
     """
-    return os.environ.get("CUDA_VISIBLE_DEVICES", "") == ""
+    cuda_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    return cuda_devices == ""
 
-def log_environment_config() -> dict:
+def log_environment_config(logger: Optional[logging.Logger] = None) -> None:
     """
-    Log and return the current environment configuration.
+    Log the current environment configuration for debugging and verification.
     
-    Returns:
-        dict: A dictionary containing relevant environment variables.
+    Args:
+        logger: Optional logger instance. If None, uses the module's logger.
     """
-    config = {
-        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
-        "cpu_only_mode": is_cpu_only_mode(),
-    }
+    if logger is None:
+        logger = logging.getLogger(__name__)
     
-    logger.info(f"Environment configuration: {config}")
-    return config
+    logger.info("Environment Configuration:")
+    logger.info(f"  CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES', 'NOT SET')}")
+    logger.info(f"  CPU-only mode: {is_cpu_only_mode()}")
+    
+    # Log additional relevant environment variables
+    relevant_vars = [
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+    ]
+    for var in relevant_vars:
+        if var in os.environ:
+            logger.info(f"  {var}: {os.environ[var]}")
 
-# Execute enforcement immediately when module is imported
-enforce_cpu_only()
+# Auto-log environment config when module is imported in debug mode
+if os.environ.get("LLMXIVE_DEBUG", "").lower() in ("1", "true", "yes"):
+    log_environment_config()

@@ -44,3 +44,25 @@ T027b:
     snippet shows only loading functions and no implementation of Pearson correlation,
     hypothesis testing, threshold verification, or JSON saving. The task therefore
     remains unfinished.
+T029:
+  c: false
+  h: d4037af44c0af4a05c1f940c85fd5e3d2fd38bff6657bdfd2253cf98a38f1f44
+  r: The `results/report.md` file exists and contains the required metrics, but the
+    required `results/resource_log.json` file is missing from the repository. The
+    task is not fully satisfied until the JSON resource log is present.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides only the task description and no code, script, or documentation
+    showing that a CLI argument parser for sampling size and batch size was added.
+    There is no artifact (e.g., a Python file using argparse or click) to verify the
+    required functionality. The missing implementation must be supplied for the claim
+    to be valid.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file or its contents are present in the provided evidence,\
+    \ so the required documentation with step\u2011by\u2011step instructions for running\
+    \ the full pipeline on a free\u2011tier runner is missing. The implementer must\
+    \ add a non\u2011empty `quickstart.md` that covers setup, dependencies, CPU\u2011\
+    only execution, and how to invoke each pipeline stage."

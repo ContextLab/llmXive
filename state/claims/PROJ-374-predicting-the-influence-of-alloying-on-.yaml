@@ -413,3 +413,244 @@
   source_type: external
   status: verified
   updated_at: '2026-08-10T12:33:02Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: data source DOI 10.1038/sdata.2017.85
+  claim_id: c_d2220f6a
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T00:44:24Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: R-squared score of 0.2845
+  claim_id: c_7809a95f
+  context: "Model Performance section listing R\xB2 Score and confidence intervals."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 Score: 0.2845"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:47:38Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: 95 percent confidence interval from 0.2100 to 0.3590
+  claim_id: c_2a94230c
+  context: "Model Performance section listing R\xB2 Score and confidence intervals."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.2100, 0.3590]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:47:38Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Permutation test p-value of 0.0020
+  claim_id: c_1d6a4394
+  context: Model Performance section listing p-value for significance testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value (Permutation Test): 0.0020'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:49:39Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: F-statistic of 4.5678 in model comparison
+  claim_id: c_89406453
+  context: Model Comparison (F-Test) section listing F-statistic and p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'F-statistic: 4.5678'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:51:28Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: F-test p-value of 0.0123
+  claim_id: c_a5ac050a
+  context: Model Comparison (F-Test) section listing F-statistic and p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'F-test P-value: 0.0123'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:51:53Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Correlation coefficient of -0.3892 between electronegativity variance
+    and Seebeck coefficient
+  claim_id: c_54858cbc
+  context: Top Descriptors section listing descriptors with strongest correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'electronegativity_variance: r = -0.3892'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:52:23Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Correlation coefficient of -0.1834 between atomic number variance and
+    Seebeck coefficient
+  claim_id: c_3e440af7
+  context: Top Descriptors section listing descriptors with strongest correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'atomic_number_variance: r = -0.1834'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:05Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Feature importance of 0.3456 for mean atomic radius in Gradient Boosting
+    model
+  claim_id: c_aacfe048
+  context: Feature Importances section listing ranked importances.
+  evidence:
+    asserted: '0.3456'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: 'mean_atomic_radius: 0.3456'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T00:55:06Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Feature importance of 0.2789 for electronegativity variance in Gradient
+    Boosting model
+  claim_id: c_7c83785f
+  context: Feature Importances section listing ranked importances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'electronegativity_variance: 0.2789'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:06Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Feature importance of 0.1823 for vec in Gradient Boosting model
+  claim_id: c_a75cf46e
+  context: Feature Importances section listing ranked importances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'vec: 0.1823'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:16Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Feature importance of 0.1234 for atomic number variance in Gradient Boosting
+    model
+  claim_id: c_0091c279
+  context: Feature Importances section listing ranked importances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'atomic_number_variance: 0.1234'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:16Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Feature importance of 0.0698 for temperature in Gradient Boosting model
+  claim_id: c_15d851ed
+  context: Feature Importances section listing ranked importances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'temperature: 0.0698'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:18Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Dataset sourced from public thermoelectric database with DOI 10.1038/sdata.2017.85
+  claim_id: c_1e00c74a
+  context: Methodology section describing dataset source.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Dataset: Public thermoelectric database (DOI: 10.1038/sdata.2017.85)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T00:55:34Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/docs/report.md
+  attempts: 1
+  canonical: Study includes Bi-Te, Pb-Te, and Skutterudites families
+  claim_id: c_99d4ccb1
+  context: Methodology section listing material families.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_includes_Bi-Te,_Pb-Te,_and_Skutterudites_families
+  kind: entity_fact
+  raw_text: 'Families: Bi-Te, Pb-Te, Skutterudites'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:55:44Z'

@@ -71,7 +71,7 @@
 
 **Goal**: Extract fixed-dimensional latent embeddings from audio samples using a frozen, lightweight encoder on CPU-only environment.
 
-- [ ] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007)
+- [ ] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Label independence verified - safe to proceed with embedding extraction
 
@@ -90,7 +90,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
 - [ ] T014 [US1] Implement `src/data/embed.py` to load `distil-whisper-base` (CPU-only), extract embeddings in batches (size=32), and save to `data/embeddings.parquet` (Parquet format) (FR-001)
 - [ ] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
@@ -152,8 +152,8 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T031 [P] Implement `src/cli/run_pipeline.py` to orchestrate download -> embed -> train -> eval -> state-update
-- [~] T032 [P] Add CLI argument parsing for dataset sampling size and batch size configuration
-- [~] T033 [P] Create `quickstart.md` with instructions to run the full pipeline on a free-tier runner
+- [ ] T032 [P] Add CLI argument parsing for dataset sampling size and batch size configuration
+- [ ] T033 [P] Create `quickstart.md` with instructions to run the full pipeline on a free-tier runner
 
 ---
 

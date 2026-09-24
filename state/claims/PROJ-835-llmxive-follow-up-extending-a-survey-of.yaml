@@ -524,3 +524,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T09:14:42Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 1000 total samples
+  claim_id: c_47e62e0b
+  context: Model Performance Metrics table showing Total Samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Samples | 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:27:24Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 500 benign samples
+  claim_id: c_5de77da3
+  context: Model Performance Metrics table showing Benign Samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benign Samples | 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:27:57Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 500 jailbreak samples
+  claim_id: c_73b53800
+  context: Model Performance Metrics table showing Jailbreak Samples.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: to 500 for all baselines and for JBD ISTILL bench-
+      source_id: '2505.22037'
+      url: https://arxiv.org/abs/2505.22037
+      value: '500'
+    filled: true
+  kind: numeric
+  raw_text: Jailbreak Samples | 500
+  resolved_value: '500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T01:28:42Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 0.8500 precision
+  claim_id: c_e51d9b8d
+  context: Model Performance Metrics table showing Precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Precision | 0.8500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:29:02Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 0.8200 recall for jailbreak
+  claim_id: c_eab306fb
+  context: Model Performance Metrics table showing Recall (Jailbreak).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recall (Jailbreak) | 0.8200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:29:18Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 0.8347 F1 score
+  claim_id: c_b09e5973
+  context: Model Performance Metrics table showing F1 Score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: F1 Score | 0.8347
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:29:52Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 410 true positives
+  claim_id: c_3fc1c9f0
+  context: Model Performance Metrics table showing True Positives.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True Positives | 410
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:30:14Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 425 true negatives
+  claim_id: c_be98a9b1
+  context: Model Performance Metrics table showing True Negatives.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True Negatives | 425
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:30:37Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 75 false positives
+  claim_id: c_8585554b
+  context: Model Performance Metrics table showing False Positives.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: False Positives | 75
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:31:33Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 90 false negatives
+  claim_id: c_66a07826
+  context: Model Performance Metrics table showing False Negatives.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: False Negatives | 90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:32:36Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 0.62 Pearson correlation coefficient
+  claim_id: c_f35c13b9
+  context: Statistical Validation table showing Pearson Correlation (r).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson Correlation (r) | 0.62
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:33:08Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 0.0001 p-value
+  claim_id: c_5af5d80b
+  context: Statistical Validation table showing P-Value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-Value | 0.0001
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:33:40Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 4200 MB peak RAM usage
+  claim_id: c_284e8419
+  context: Resource Utilization table showing Peak RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak RAM | 4200 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:34:11Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/results/report.md
+  attempts: 1
+  canonical: 1800 seconds total runtime
+  claim_id: c_08f74d15
+  context: Resource Utilization table showing Total Runtime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Runtime | 1800 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T01:34:47Z'

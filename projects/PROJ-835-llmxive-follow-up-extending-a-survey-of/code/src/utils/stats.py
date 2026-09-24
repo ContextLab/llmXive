@@ -1,101 +1,160 @@
 """
-Statistical utilities for the LLMXive pipeline.
-Implements Mahalanobis distance calculation using Ledoit-Wolf covariance estimation.
+Statistical utilities for the LlmXive follow-up pipeline.
+
+This module provides functions for computing Mahalanobis distances
+using the Ledoit-Wolf covariance estimator, as required for anomaly
+detection in latent space (FR-006).
 """
+
+import logging
+from typing import Optional, Tuple
+
 import numpy as np
 from numpy.linalg import LinAlgError
 from sklearn.covariance import LedoitWolf
-from typing import Tuple, Optional
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 def compute_benign_statistics(
     benign_embeddings: np.ndarray,
-    regularization: float = 1e-6
+    regularization: float = 1e-4
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the centroid (mean) and regularized covariance matrix for benign samples.
-    
+    Compute the centroid (mean) and covariance matrix for a set of benign embeddings.
+
+    This function uses the Ledoit-Wolf shrinkage estimator to provide a robust
+    covariance estimate, which is critical when the number of samples is close
+    to or smaller than the dimensionality of the embeddings.
+
     Args:
-        benign_embeddings: 2D numpy array of shape (N, D) containing benign embeddings.
-        regularization: Small value added to diagonal for numerical stability.
-        
+        benign_embeddings (np.ndarray): A 2D array of shape (n_samples, n_features)
+            containing only benign (non-jailbreak) embeddings.
+        regularization (float): A small value added to the diagonal of the covariance
+            matrix during inversion to ensure numerical stability. Defaults to 1e-4.
+
     Returns:
-        Tuple of (centroid, covariance)
-        - centroid: 1D array of shape (D,)
-        - covariance: 2D array of shape (D, D)
+        Tuple[np.ndarray, np.ndarray]: A tuple containing:
+            - centroid (np.ndarray): The mean vector of shape (n_features,).
+            - cov_matrix (np.ndarray): The regularized covariance matrix of shape
+              (n_features, n_features).
+
+    Raises:
+        ValueError: If `benign_embeddings` is empty or has incorrect shape.
+        LinAlgError: If the covariance matrix is singular and cannot be regularized.
     """
+    if benign_embeddings.size == 0:
+        raise ValueError("benign_embeddings cannot be empty.")
+
     if benign_embeddings.ndim != 2:
-        raise ValueError(f"Expected 2D array, got {benign_embeddings.ndim}D")
-    if benign_embeddings.shape[0] == 0:
-        raise ValueError("Benign embeddings array is empty")
-        
-    logger.info(f"Computing statistics for {benign_embeddings.shape[0]} benign samples")
-    
+        raise ValueError(
+            f"benign_embeddings must be a 2D array (n_samples, n_features). "
+            f"Got shape: {benign_embeddings.shape}"
+        )
+
+    logger.info(
+        f"Computing benign statistics for {benign_embeddings.shape[0]} samples "
+        f"with dimensionality {benign_embeddings.shape[1]}"
+    )
+
+    # Calculate centroid
     centroid = np.mean(benign_embeddings, axis=0)
-    
-    # Use Ledoit-Wolf estimator for robust covariance
+
+    # Calculate covariance using Ledoit-Wolf estimator
     try:
-        lw = LedoitWolf()
-        lw.fit(benign_embeddings)
-        covariance = lw.covariance_
+        estimator = LedoitWolf()
+        estimator.fit(benign_embeddings)
+        cov_matrix = estimator.covariance_
     except Exception as e:
-        logger.warning(f"Ledoit-Wolf failed: {e}. Falling back to empirical covariance.")
-        covariance = np.cov(benign_embeddings, rowvar=False)
-        
-    # Add regularization for numerical stability
-    covariance += regularization * np.eye(covariance.shape[0])
-    
-    logger.info(f"Computed centroid (norm: {np.linalg.norm(centroid):.4f}) and covariance")
-    return centroid, covariance
+        logger.error(f"Failed to compute Ledoit-Wolf covariance: {e}")
+        raise
+
+    # Add small regularization to diagonal for numerical stability during inversion
+    cov_matrix += regularization * np.eye(cov_matrix.shape[0])
+
+    logger.info("Benign statistics computed successfully (Ledoit-Wolf + regularization).")
+
+    return centroid, cov_matrix
 
 
 def calculate_mahalanobis_distance(
     embeddings: np.ndarray,
     centroid: np.ndarray,
-    covariance: np.ndarray
+    cov_matrix: np.ndarray,
+    regularization: float = 1e-6
 ) -> np.ndarray:
     """
-    Calculate Mahalanobis distance from the centroid for each sample.
-    
+    Calculate the Mahalanobis distance of each sample from a reference centroid.
+
+    The Mahalanobis distance is defined as:
+        D_M(x) = sqrt( (x - μ)ᵀ Σ⁻¹ (x - μ) )
+    where μ is the centroid and Σ is the covariance matrix.
+
+    This metric measures how many standard deviations a sample is from the centroid,
+    accounting for the correlations in the data. It is used here to score anomalies
+    (potential jailbreaks) based on their deviation from the benign cluster.
+
     Args:
-        embeddings: 2D numpy array of shape (N, D) containing samples to score.
-        centroid: 1D array of shape (D,) representing the benign centroid.
-        covariance: 2D array of shape (D, D) representing the benign covariance.
-        
+        embeddings (np.ndarray): A 2D array of shape (n_samples, n_features)
+            for which to calculate distances.
+        centroid (np.ndarray): The reference mean vector of shape (n_features,).
+        cov_matrix (np.ndarray): The reference covariance matrix of shape
+            (n_features, n_features).
+        regularization (float): A small value added to the diagonal of the covariance
+            matrix before inversion to prevent singularity errors. Defaults to 1e-6.
+
     Returns:
-        1D array of shape (N,) containing Mahalanobis distances.
+        np.ndarray: A 1D array of shape (n_samples,) containing the Mahalanobis
+            distance for each input sample.
+
+    Raises:
+        ValueError: If input shapes are inconsistent.
+        LinAlgError: If the covariance matrix is singular even after regularization.
     """
     if embeddings.ndim != 2:
-        raise ValueError(f"Expected 2D embeddings, got {embeddings.ndim}D")
-    if centroid.ndim != 1 or covariance.ndim != 2:
-        raise ValueError("Centroid and covariance must be 1D and 2D respectively")
-    if embeddings.shape[1] != centroid.shape[0]:
-        raise ValueError(f"Embedding dim {embeddings.shape[1]} != centroid dim {centroid.shape[0]}")
-        
-    logger.info(f"Calculating Mahalanobis distance for {embeddings.shape[0]} samples")
-    
-    # Compute (x - mu) * inv(Sigma) * (x - mu)^T
+        raise ValueError(
+            f"embeddings must be a 2D array. Got shape: {embeddings.shape}"
+        )
+
+    if centroid.shape[0] != embeddings.shape[1]:
+        raise ValueError(
+            f"Dimension mismatch: centroid has {centroid.shape[0]} features, "
+            f"but embeddings have {embeddings.shape[1]}."
+        )
+
+    if cov_matrix.shape != (embeddings.shape[1], embeddings.shape[1]):
+        raise ValueError(
+            f"Covariance matrix shape {cov_matrix.shape} does not match "
+            f"embedding dimension {embeddings.shape[1]}."
+        )
+
+    logger.info(f"Calculating Mahalanobis distances for {embeddings.shape[0]} samples.")
+
+    # Center the data
     diff = embeddings - centroid
-    
+
+    # Regularize covariance matrix
+    cov_reg = cov_matrix + regularization * np.eye(cov_matrix.shape[0])
+
     try:
-        # Use cholesky decomposition for numerical stability
-        L = np.linalg.cholesky(covariance)
-        # Solve L * y = diff^T for y, then solve L^T * z = y for z
-        # This gives z = inv(Sigma) * diff^T
-        y = np.linalg.solve(L, diff.T)
-        z = np.linalg.solve(L.T, y)
-        # Mahalanobis distance is sqrt(diff * z)
-        mahal_dist = np.sqrt(np.sum(diff * z.T, axis=1))
+        # Compute inverse of covariance matrix
+        cov_inv = np.linalg.inv(cov_reg)
     except LinAlgError as e:
-        logger.warning(f"Cholesky decomposition failed: {e}. Using pseudo-inverse.")
-        # Fallback to pseudo-inverse
-        inv_cov = np.linalg.pinv(covariance)
-        mahal_dist = np.sqrt(np.sum(diff @ inv_cov * diff, axis=1))
-        
-    logger.info(f"Mahalanobis distance stats: min={np.min(mahal_dist):.4f}, "
-               f"max={np.max(mahal_dist):.4f}, mean={np.mean(mahal_dist):.4f}")
-               
-    return mahal_dist
+        logger.error(f"Failed to invert covariance matrix: {e}")
+        raise
+
+    # Calculate Mahalanobis distance: sqrt( (x-μ) Σ⁻¹ (x-μ)ᵀ )
+    # Using einsum for efficient batch computation: sum over features (i, j)
+    # diff shape: (N, D), cov_inv shape: (D, D)
+    # result: (N, D) @ (D, D) @ (D, N) -> (N, N) diagonal elements
+    # We want vector of length N: sum_k sum_l diff_i_k * cov_inv_kl * diff_i_l
+    mahal_sq = np.einsum('ij,jk,ik->i', diff, cov_inv, diff)
+
+    # Ensure no negative values due to numerical errors
+    mahal_sq = np.maximum(mahal_sq, 0.0)
+    distances = np.sqrt(mahal_sq)
+
+    logger.info(f"Mahalanobis distance calculation complete. "
+                f"Min: {distances.min():.4f}, Max: {distances.max():.4f}, Mean: {distances.mean():.4f}")
+
+    return distances

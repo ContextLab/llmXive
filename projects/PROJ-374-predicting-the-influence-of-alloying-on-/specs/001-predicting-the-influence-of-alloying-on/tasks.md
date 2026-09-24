@@ -77,7 +77,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85 [UNRESOLVED-CLAIM: c_6af5a9d5 — status=verified], parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row count > 0)
+- [X] T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85 [UNRESOLVED-CLAIM: c_16558962 — status=verified], parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row count > 0)
 - [X] T012 [US1] Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition
 - [X] T013 [US1] Implement stoichiometry mapping in `code/01_ingest_and_clean.py`: Use `utils/mapping.json` to assign material families
 - [X] T014 [US1] Implement retention check in `code/01_ingest_and_clean.py`: Calculate retention rate of **filtered input records**; if < 95%, exit with code 1, print "CRITICAL: Retention < 95%" to stderr, and write `state/retention_log.json` with structure: `{"retention_rate": float, "total_input": int, "retained_count": int, "status": "FAIL"}`; otherwise log `{"status": "PASS"}` (verify log contains `status: PASS` for pipeline to continue)
@@ -101,17 +101,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/03_train_and_evaluate.py`: Load `data/processed/final_features.csv` (Depends on T020)
+- [ ] T021 [US2] Implement `code/03_train_and_evaluate.py`: Load `data/processed/final_features.csv` (Depends on T020) <!-- FAILED: unspecified -->
 - [ ] T022 [US2] Implement split logic: If N >= 100, use 80/20 Stratified Split. If N < 100, use Repeated 5-Fold CV (10 repeats) on the full dataset. **Do NOT halt for N < 50**; the Repeated CV fallback is mandatory for small datasets. (Depends on T021)
-- [ ] T023 [US2] Implement Baseline: Linear Regression model and evaluation
-- [ ] T024 [US2] Implement Model: `GradientBoostingRegressor` (n_estimators=100, max_depth=3, random_state=42)
-- [~] T025 [US2] Implement K-Fold Cross-Validation loop (5-fold) to calculate mean R² and **save individual fold R² scores** to `state/cv_fold_scores.json` for traceability (used for CI in T026b)
-- [~] T026a [US2] Implement Permutation Test (A sufficient number of iterations, random_state=42) to calculate p-value for R² significance (null hypothesis: R² = 0). **Note**: Do NOT derive CI from this distribution. (Independent of T026b) <!-- FAILED: unspecified -->
-- [~] T026b [US2] Calculate 95% Confidence Interval for R² score derived strictly from the CV fold scores saved in T025 (T025) as required by FR-008. **Note**: Do NOT use permutation distribution for CI. (Independent of T026a)
-- [~] T027 [US2] Implement F-test comparison between Gradient Boosting and Linear Regression to verify statistically significant improvement (p < 0.05) over baseline (SC-002, SC-003). **Output**: F-statistic and p-value. Requires T023, T024, T025 completion.
-- [~] T028 [US2] Extract and rank top 5 feature importances from the trained model
+- [ ] T023 [US2] Implement Baseline: Linear Regression model and evaluation <!-- ATOMIZE: requested -->
+- [ ] T024 [US2] Implement Model: `GradientBoostingRegressor` (n_estimators=100, max_depth=3, random_state=42) <!-- FAILED: unspecified -->
+- [ ] T025 [US2] Implement K-Fold Cross-Validation loop (5-fold) to calculate mean R² and **save individual fold R² scores** to `state/cv_fold_scores.json` for traceability (used for CI in T026b)
+- [ ] T026a [US2] Implement Permutation Test (A sufficient number of iterations, random_state=42) to calculate p-value for R² significance (null hypothesis: R² = 0). **Note**: Do NOT derive CI from this distribution. (Independent of T026b) <!-- FAILED: unspecified -->
+- [ ] T026b [US2] Calculate 95% Confidence Interval for R² score derived strictly from the CV fold scores saved in T025 (T025) as required by FR-008. **Note**: Do NOT use permutation distribution for CI. (Independent of T026a)
+- [ ] T027 [US2] Implement F-test comparison between Gradient Boosting and Linear Regression to verify statistically significant improvement (p < 0.05) over baseline (SC-002, SC-003). **Output**: F-statistic and p-value. Requires T023, T024, T025 completion.
+- [ ] T028 [US2] Extract and rank top 5 feature importances from the trained model
 - [~] T029 [US2] Calculate individual Pearson correlation coefficients (r) for each descriptor vs. Seebeck
-- [ ] T030 [US2] Save model metrics, feature importances, and correlations to `data/processed/model_output.json` (verify JSON contains keys: r2_score, ci_lower, ci_upper, p_value, f_statistic, f_p_value, feature_importances)
+- [ ] T030 [US2] Save model metrics, feature importances, and correlations to `data/processed/model_output.json` (verify JSON contains keys: r2_score, ci_lower, ci_upper, p_value, f_statistic, f_p_value, feature_importances) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,7 +129,7 @@
 - [~] T032 [US3] Implement VIF calculation and Pearson correlation matrix for collinearity check
 - [~] T033 [US3] Generate scatter plots of Top 3 descriptors vs. Seebeck (with trend lines) to `docs/figures/`
 - [~] T034 [US3] Implement Classification Logic: **Success** if R² > 0.2 (regardless of p-value); **Inconclusive** if 0.2 ≤ R² < 0.4; **Failure** if R² < 0.2. Additionally, report a separate "Significance" flag: "Significant" if p < 0.05, else "Not Significant". (Matches spec.md:US-3)
-- [ ] T035 [US3] Generate `docs/report.md` containing R², CI, p-value, F-test results, classification (Success/Inconclusive/Failure), and top descriptors (verify report contains R² value, classification string, and 95% CI text)
+- [X] T035 [US3] Generate `docs/report.md` containing R², CI, p-value, F-test results, classification (Success/Inconclusive/Failure), and top descriptors (verify report contains R² value, classification string, and 95% CI text)
 - [~] T036 [US3] Update root `README.md` with links to figures and summary of findings
 
 **Checkpoint**: All user stories should now be independently functional

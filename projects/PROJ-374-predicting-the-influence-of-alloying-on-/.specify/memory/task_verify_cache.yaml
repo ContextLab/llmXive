@@ -12,11 +12,12 @@ T009:
     is missing (or empty), so the task of setting up that directory has not been demonstrated.
 T021:
   c: false
-  h: a73e0c9038c41c2f35e76706792b73c131e110f5f3055e33f0da83d38b208863
-  r: The script `code/03_train_and_evaluate.py` is present, but the required data
-    file `data/processed/final_features.csv` does not exist, so the script cannot
-    actually load the dataset as the task demands. Without this CSV the implementation
-    cannot be verified or run.
+  h: a4e7dd69be1b59b2f8e509c88e5162c31aac8511c6c6dceaf8850f6fc2a4bdbb
+  r: "The `code/03_train_and_evaluate.py` file exists but its implementation is incomplete\
+    \ (truncated) and does not explicitly load the required `data/processed/final_features.csv`.\
+    \ Moreover, the required CSV file is missing from the repository, so the script\
+    \ cannot be executed as specified. The task\u2019s core requirement is therefore\
+    \ not met."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +43,38 @@ T024:
     feature importance list) were presented. The required implementation of a `GradientBoostingRegressor`
     with `n_estimators=100`, `max_depth=3`, `random_state=42`, along with the associated
     training/evaluation artifacts, is missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/cv_fold_scores.json` file or corresponding code implementing a 5\u2011\
+    fold cross\u2011validation loop was presented. The required artifact that records\
+    \ individual fold R\xB2 scores is missing, so the task is not satisfied."
+T026a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output implementing the permutation test with\
+    \ a sufficient number of iterations and `random_state=42` is present. The required\
+    \ artifact (e.g., a function or script that computes the p\u2011value for R\xB2\
+    \ significance) is missing, so the task is not satisfied."
+T026b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No confidence\u2011interval output, code, or data file was provided; the claim\
+    \ lacks any artifact (e.g., a script, notebook, or result table) showing the 95\u202F\
+    % CI for the R\xB2 score derived from the T025 cross\u2011validation scores. Consequently\
+    \ the requirement is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the computed F\u2011statistic and p\u2011value (or the\
+    \ code performing the F\u2011test) is present; the claim provides only a description\
+    \ of the required analysis without any actual results or implementation, so the\
+    \ task\u2019s output requirement is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the extracted and ranked top\u20115 feature importances\
+    \ (e.g., a CSV, JSON, or printed list) was provided, nor any evidence (code output,\
+    \ figure, or report) showing that a gradient\u2011boosting model was trained and\
+    \ its feature importances were computed. The required output is missing, so the\
+    \ task is not satisfied."

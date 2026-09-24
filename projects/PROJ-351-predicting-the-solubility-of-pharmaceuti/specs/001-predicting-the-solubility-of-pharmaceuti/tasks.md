@@ -56,10 +56,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T007 Create base data models/entities (`Molecule`, `DatasetSplit`) in `code/models.py` or `code/__init__.py` to support downstream pipeline tasks.
-- [X] T004 [P] Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet repository URL or verified canonical CSV source, validate `logS` column, and save raw CSV to `data/raw/`
+- [X] T004 [P] Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet repository URL (`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`). **Must include:** (1) Fallback logic to the verified HuggingFace mirror URL (`https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv`) if the primary S3 source is unreachable, (2) Validation of `logS` column presence, (3) Save raw CSV to `data/raw/`. **Constraint:** If both sources fail, the script MUST raise an exception. No synthetic fallbacks allowed.
 - [X] T004b [P] Implement checksumming in `code/data/download_esol.py` or `code/utils/checksum.py` to compute SHA-256 of the raw CSV file and record it in `state/` or `data/logs/checksums.log` before processing. **Depends on:** T004.
 - [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save cleaned graphs to `data/processed/`. **Must include:** (1) Error handling for RDKit failures (log count to `data/logs/exclusions.log` and raise warning), (2) Logging of exclusion counts to satisfy FR-001 and Principle VI. **(Note: This task covers the logging/exclusion scope previously assigned to T017).**
-- [X] T006 Implement `code/data/split.py` to compute Bemis-Murcko scaffolds using RDKit and perform a scaffold-based split (superseding FR-005 quantile binning) to ensure structural independence. Split data into multiple folds based on unique scaffolds. Save indices to `data/processed/`. **Depends on:** T005.
+- [X] T006 [P] Implement `code/data/split.py` to perform **Stratified 5-Fold** splitting based on `logS` using **10 quantile bins** to ensure distribution balance in each fold as mandated by Plan P1.3 and Spec FR-005. Save indices to `data/processed/`. **Depends on:** T005. **Note:** This task replaces any previous scaffold-based split logic. The stratification must use 10 bins to ensure sufficient granularity for the 5-fold split.
 - [X] T008 [P] Configure logging infrastructure: Create `code/config/logging_config.py` to set up JSON-formatted logging with timestamps, writing to `data/logs/` to satisfy Constitution Principle III. **(Note: This task covers the logging integration scope previously assigned to T017).**
 - [X] T009 [P] Setup environment configuration management: Implement random seed pinning for numpy, torch, and random modules in `code/` to ensure reproducibility (Constitution Principle I). Do not prescribe specific file formats; ensure seeds are applied globally before data loading.
 
@@ -78,16 +78,20 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Unit test for SMILES validation logic in `tests/unit/test_preprocess.py`
-- [X] T011 [P] [US1] Unit test for Scaffold Split logic in `tests/unit/test_split.py`
+- [X] T011 [P] [US1] Unit test for Stratified Split logic in `tests/unit/test_split.py`
 - [X] T012 [P] [US1] Integration test for full RF baseline pipeline in `tests/integration/test_baseline_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T012a [US1] Implement `code/data/featurize.py` to convert cleaned molecular graphs (from T005) into Morgan fingerprints (radius=2, 2048 bits) and save to `data/processed/fingerprints.npz`. **Depends on:** T005, T012b.
-- [X] T012b [US1] Implement `code/data/augmentation.py` to generate multiple valid SMILES strings per molecule for data augmentation (SMILES enumeration). This must occur during preprocessing/split phase to prevent overfitting. **Depends on:** T005.
+- [X] T012a [US1] Implement `code/data/featurize.py` to convert cleaned molecular graphs (from T005) into Morgan fingerprints (radius=2, 2048 bits) and save to `data/processed/fingerprints.npz`. **Depends on:** T005.
 - [X] T013 [US1] Define Random Forest baseline architecture in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits). **Depends on:** T012a.
-- [X] T016 [US1] Implement a K-fold Cross-Validation loop in `code/training/train_baseline_cv.py` to train RF on K folds, aggregate predictions across all folds into a single set, and output per-fold metrics. **Depends on:** T013, T006. This task replaces the single-split training task to ensure robust performance estimation.
-- [X] T015 [US1] Log R-squared and RMSE metrics to `results/baseline_metrics.json` after the 5-fold CV completes. **Constraint:** Baseline training is a component of the full pipeline which must complete within 6 hours (SC-003).
+- [X] T016 [US1] Implement a **Nested Cross-Validation** loop in `code/training/train_baseline_cv.py`:
+   - **Outer Loop**: 5 folds (Stratified by logS using 10 bins).
+   - **Inner Loop**: 5 folds for hyperparameter tuning (n_estimators, max_depth).
+   - **Execution**: For each Outer Fold, train on Inner Train/Val, select best model, predict on Outer Test.
+   - **Aggregation**: Aggregate predictions from all Outer Test folds into a single set and save to `data/processed/rf_outer_predictions.json`.
+   **Depends on:** T013, T006. This task replaces the single-split training task to ensure robust performance estimation and prevent data leakage.
+- [X] T015 [US1] Log R-squared and RMSE metrics to `results/baseline_metrics.json` after the Nested CV completes. **Constraint:** Baseline training is a component of the full pipeline which must complete within 6 hours (SC-003).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +111,12 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Define Message Passing Neural Network (MPNN) architecture in `code/models/gnn_mpnn.py` using PyTorch Geometric, ensuring NO CUDA/GPU calls. Architecture parameters (layers, hidden dim) MUST be configurable via `code/config.py`.
-- [X] T021 [US2] Implement a k-fold Cross-Validation loop in `code/training/train_gnn_cv.py` to train MPNN on k folds with early stopping, aggregate predictions across all folds into a single set, and output per-fold metrics. **Depends on:** T020, T006. This task replaces the single-split training task.
+- [X] T021 [US2] Implement a **Nested Cross-Validation** loop in `code/training/train_gnn_cv.py`:
+   - **Outer Loop**: 5 folds (Stratified by logS using 10 bins).
+   - **Inner Loop**: 5 folds for hyperparameter tuning (learning_rate, hidden_dim, patience).
+   - **Execution**: For each Outer Fold, train on Inner Train/Val with Early Stopping, select best model, predict on Outer Test.
+   - **Aggregation**: Aggregate predictions from all Outer Test folds into a single set and save to `data/processed/gnn_outer_predictions.json`.
+   **Depends on:** T020, T006. This task replaces the single-split training task.
 - [X] T027 [US2] Implement `code/utils/timeout_handler.py` to enforce a configurable total pipeline limit. This script must wrap the training execution and fail the pipeline if the limit is exceeded. **Depends on:** T016, T021.
 - [X] T023 [US2] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on aggregated test set.
 - [X] T024 [US2] Save GNN predictions to `results/gnn_predictions.csv` and metrics to `results/gnn_metrics.json`.
@@ -130,10 +139,16 @@
 
 ### Implementation for User Story 3
 
-- [X] T033 [US3] Implement `code/evaluation/aggregate_predictions.py` to combine predictions from all 5-fold cross-validation folds (from T016 and T021) into a single set for statistical testing. **Requires:** T016 (RF CV), T021 (GNN CV).
-- [X] T028 [US3] Implement `code/evaluation/statistical_test.py` to perform Shapiro-Wilk normality check on absolute errors. If normal, perform paired t-test; if not, perform Wilcoxon Signed-Rank test. Calculate post-hoc power. **Requires:** T033 (Aggregated predictions).
+- [X] T033 [US3] Implement `code/evaluation/aggregate_predictions.py` to combine predictions from all Outer Loop test folds (from T016 and T021) into a single set for statistical testing. **Requires:** T016 (RF CV), T021 (GNN CV).
+- [X] T028 [US3] Implement `code/evaluation/statistical_test.py` to:
+   1. Perform Shapiro-Wilk normality check on absolute errors.
+   2. Execute **Nadeau's Corrected Resampled t-test** (using k=5 fold ratio correction) on the concatenated absolute error vectors from the Outer Loop.
+   3. Calculate post-hoc statistical power and Cohen's d effect size.
+   4. **Validate Output**: Ensure the resulting JSON object contains `normality_test`, `effect_size_cohens_d`, and `p_value` keys.
+   **Note:** Do NOT implement a Wilcoxon fallback. The spec mandates the paired t-test (Nadeau's correction) regardless of normality test results.
+   **Requires:** T033 (Aggregated predictions).
 - [X] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules using GNNExplainer.
-- [X] T030 [US3] Ensure visualizations are saved as PNG files: Generate `results/feature_importance_*.png` (minimum 5 files, >1KB each) for sample molecules. Verify file size > 1KB.
+- [X] T030 [US3] Ensure visualizations are saved as PNG files: Generate `results/feature_importance_*.png` (minimum 5 files, >1KB each) for sample molecules. **Selection Criteria**: Select molecules via **stratified random sampling from the aggregated Outer Loop predictions** to ensure coverage of low, mid, and high logS ranges as per Plan P3.3. Verify file size > 1KB.
 - [X] T032 [US3] Implement `code/evaluation/write_metrics.py` to write aggregated RMSE, R², p-value, and power to `results/metrics.json` (SSoT). **Requires:** T028, T024.
 - [X] T031 [US3] Implement `code/evaluation/report_generator.py` to compile RMSE, R², p-value, power, and delta into a final summary table reading **only** from `results/metrics.json`. **Requires:** T032.
 - [X] T034 [US3] Add logic to detect and report "ceiling effect" if Baseline R² > 0.9 (as per spec Edge Cases): Append `ceiling_effect` flag to `results/final_report.json`.
@@ -157,7 +172,12 @@
 
 **Purpose**: Address specific research-stage review concerns regarding data integrity, reproducibility, and statistical robustness.
 
-- [ ] T039 [P] **Reproducibility Audit**: Create a `scripts/verify_reproducibility.py` that re-runs the full pipeline with a fixed seed and compares the output checksums of `results/` artifacts against the previous run to ensure bit-for-bit reproducibility. **Depends on:** Successful completion of T038 and all Phase 5 tasks. **Reason**: Addresses Constitution Principle I (Reproducibility) and ensures the "single source of truth" is maintained.
+- [ ] T039 [P] **Reproducibility Audit**: Create a `scripts/verify_reproducibility.py` that re-runs the full pipeline with a fixed seed and compares the output checksums of `results/` artifacts against the previous run to ensure bit-for-bit reproducibility. **Depends on:** Successful completion of Phase 5 tasks (T032). **Reason**: Addresses Constitution Principle I (Reproducibility) and ensures the "single source of truth" is maintained.
+- [ ] T040 [P] **Nested Cross-Validation Implementation**: Refactor `code/training/train_baseline_cv.py` and `code/training/train_gnn_cv.py` to implement the full **Nested Cross-Validation** protocol (Outer 5-fold, Inner 5-fold) as mandated by the plan. The Outer loop provides the test set; the Inner loop handles hyperparameter tuning. **Reason**: Addresses previous panel concerns regarding data leakage and statistical validity.
+- [ ] T041 [P] **Nadeau's Corrected t-test**: Update `code/evaluation/statistical_test.py` to implement **Nadeau's Corrected Resampled t-test** instead of a standard paired t-test, using the k=5 fold ratio correction factor on the concatenated error vectors from the Outer Loop. **Reason**: Required because models are trained on overlapping data (Inner Loop) but evaluated on disjoint Outer Loop folds; standard t-test assumptions are violated.
+- [ ] T042 [P] **Stratification Logic Update**: Modify `code/data/split.py` to perform **Stratified 5-Fold** splitting based on `logS` using **10 quantile bins** for the Outer Loop, ensuring distribution balance in each fold as per the plan's "Key Clarifications". **Reason**: Ensures the statistical test has sufficient power and the folds are representative.
+- [ ] T043 [P] **Aggregated Predictions Schema**: Ensure `data/processed/rf_outer_predictions.json` and `data/processed/gnn_outer_predictions.json` strictly follow the `contracts/model_output.schema.yaml` structure, containing the `fold_metrics` array (5 objects) and aggregated predictions. **Reason**: Ensures the statistical test input matches the expected contract.
+- [ ] T044 [P] **Power Analysis Reporting**: Update `code/evaluation/statistical_test.py` and `results/metrics.json` to explicitly include the calculated **post-hoc statistical power** and **Cohen's d effect size** alongside the p-value. **Reason**: Addresses the requirement to report achieved power and interpret results if power < 0.8.
 
 ---
 
@@ -195,7 +215,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Phase O tasks (T039) can run in parallel as they are distinct validation/audit scripts.
+- Phase O tasks (T039-T044) can run in parallel as they are distinct validation/audit scripts.
 
 ---
 
@@ -204,7 +224,7 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for SMILES validation logic in tests/unit/test_preprocess.py"
-Task: "Unit test for Scaffold Split logic in tests/unit/test_split.py"
+Task: "Unit test for Stratified Split logic in tests/unit/test_split.py"
 
 # Launch all models for User Story 1 together:
 Task: "Define Random Forest baseline architecture in code/models/baseline_rf.py"
@@ -258,5 +278,7 @@ With multiple developers:
 - **Constraint**: All tasks must complete within 6 hours on 2 vCPU.
 - **Constraint**: No synthetic data; use real ESOL dataset from MoleculeNet repository or verified canonical source.
 - **Critical Rule**: If a real data fetch fails, the script MUST raise an exception. No synthetic fallbacks allowed.
-- **Critical Update**: Scaffold Split (T006) is now a mandatory prerequisite in Phase 2, replacing the quantile binning logic.
-- **Critical Update**: All training tasks (T016, T021) now implement 5-fold Cross-Validation as per plan, replacing single-split training.
+- **Critical Update**: Stratified 5-Fold split (T006) is now a mandatory prerequisite in Phase 2, replacing the scaffold-based split logic.
+- **Critical Update**: All training tasks (T016, T021) now implement Nested Cross-Validation as per plan, replacing standard K-fold CV.
+- **Critical Update**: Phase O tasks (T040-T044) address the mandatory Nested Cross-Validation and Nadeau's t-test requirements to prevent data leakage and ensure statistical validity.
+- **Critical Update**: Task T012b (SMILES enumeration) has been removed as it violates the "No synthetic data" constraint.

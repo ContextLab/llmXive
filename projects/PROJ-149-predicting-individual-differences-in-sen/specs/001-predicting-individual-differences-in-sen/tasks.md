@@ -45,7 +45,7 @@ description: "Task list template for feature implementation"
 - [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni correction, permutation utilities, and MDES calculations. **Depends on** T004a & T004b.
 - [X] Ta [P] Create `code/download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery Dataset.
  - **URL**: `
- - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against `checksums.txt` fetched from `. **Do not use placeholder checksums**. The script MUST fetch the `checksums.txt` from the dataset root to verify file integrity. If checksum verification fails, exit with code 1.
+ - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against `checksums.txt` fetched from `. **Do not use placeholder checksums**. The script MUST fetch the `checksums.txt` from the dataset root to verify file integrity. If checksum verification fails, exit with code 1. [UNRESOLVED-CLAIM: c_57638194 — status=not_enough_info]
  - **Output**: `data/raw/eegmmidb/` and `data/interim/data_source_manifest.json` (containing file paths and verified hashes).
  - **Dependencies**: T001a, T001b, T003.
 - [X] T007b [P] Create `code/01_download_rt_data.py` to fetch the Simple Reaction Time dataset (Dataset ID: **ds000224**, Source: OpenNeuro).
@@ -62,7 +62,7 @@ description: "Task list template for feature implementation"
  - `data/interim/feasibility_exclusion_log.csv` (columns: `participant_id` (str), `reason` (enum: missing_rt, missing_eeg), `segment_count` (int)).
  3. **Note**: This task ONLY joins and identifies segments. It does NOT filter based on duration or quality. That is handled by T008b and T008d.
  - **Dependencies**: T007a, T007b.
-- [ ] T008b [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_filter_segments.py` to enforce the "continuous 5-minute epoch" constraint.
+- [X] T008b [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_filter_segments.py` to enforce the "continuous 5-minute epoch" constraint.
  - **Inputs**: `data/interim/joined_metadata.csv` (from T008a).
  - **Logic**:
  1. **Filter**: Retain ONLY participants who have at least ONE single continuous segment >= 5 minutes. **Do NOT sum segments**.
@@ -76,7 +76,7 @@ description: "Task list template for feature implementation"
  - **Inputs**: `data/interim/feasibility_exclusion_log.csv` (from T008a/b).
  - **Logic**: If no participants remain after joining or if task mismatch is detected, write `data/processed/feasibility_report.md` with JSON schema `{ "status": "failed", "reason": "<string>", "matched_count": int, "task_mismatch": bool }` and **exit with code 1** (hard HALT).
  - **Dependencies**: T008a, T008b.
-- [ ] T008d [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_check_channels.py` to perform the channel rejection check *after* preprocessing.
+- [X] T008d [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_check_channels.py` to perform the channel rejection check *after* preprocessing.
  - **Inputs**: `data/interim/feasibility_filtered.csv` (from T008b) AND `data/interim/preprocessed_eeg/` (from T010).
  - **Logic**:
  1. **Read**: Load exclusion logs from T010 (preprocessing) which contain `channels_rejected_ratio`.
