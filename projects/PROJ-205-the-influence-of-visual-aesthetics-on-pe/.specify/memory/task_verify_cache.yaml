@@ -36,6 +36,13 @@ T022h:
     \ The task\u2019s core requirement\u2014reading the submissions file, flagging\
     \ duplicate `hashed_ip`s, and generating `duplicate_audit.csv`\u2014is therefore\
     \ not satisfied."
+T024a:
+  c: false
+  h: 81e0a7e27f2da8305ce1d3e45ea66a59b75dee7fe8775de43a3e4bbb9a628a05
+  r: The repository contains `code/analysis/00_preprocess.py`, but the required input
+    file `data/raw/submissions.csv` does not exist, and the script has not produced
+    the expected output `data/processed/cleaned_data.csv`. Without the raw data and
+    the generated cleaned CSV, the preprocessing task is not fulfilled.
 T043a:
   c: false
   h: 7afa11a16dae3ead75bb614996d99ec1421d80c25252cae298e45915fba27993
@@ -44,22 +51,26 @@ T043a:
     \ file is absent, and there is no evidence that the script computes and records\
     \ the CSV\u2019s SHA\u2011256 checksum in the specified YAML state file. These\
     \ missing/incorrect artifacts mean the task\u2019s requirements are not satisfied."
-T051:
+T043c:
   c: false
-  h: 9ff01fe3701a5891089bb8b5b6e44450fe2fa2c8791f83a1d934568c2129d80e
-  r: "The provided `02_pairwise.py` and `03_mixed_effects.py` snippets do not show\
-    \ any bootstrapping or confidence\u2011interval calculation for Cohen\u2019s\u202F\
-    d or \u03B7\xB2, nor do they write results to JSON files. Moreover, the required\
-    \ output files `data/processed/analysis_results.json` and `data/processed/mixed_effects_results.json`\
-    \ are absent. The task\u2019s core deliverables are therefore missing."
-T052:
+  h: e89b741df82c106b0ea39edaae28796ebcdc0405d51f8bd3f05582715079220a
+  r: "The test `tests/benchmark/test_runtime.py` contains the required size assertion,\
+    \ but the dependent file `data/raw/submissions.csv` is absent, so the assertion\
+    \ cannot be evaluated and the task\u2019s prerequisite is unmet. The missing CSV\
+    \ file must be provided for the task to be considered complete."
+T048:
   c: false
-  h: 32de6e97861d749c8e46aa54a1d9e3f9333e8e8d1febe9382ee13da128dc0e31
-  r: "The repository contains `code/analysis/03_mixed_effects.py`, but the shown portion\
-    \ stops before any convergence\u2011checking logic, optimizer switching, or JSON\
-    \ writing; the required `data/processed/mixed_effects_results.json` file is absent.\
-    \ Consequently the task\u2019s requirements (retry with different optimizers,\
-    \ log attempts, and output a results JSON with UNCONVERGED flag) are not fulfilled."
+  h: 381779a028dc39c16e351188778a40c3d9cd301f401eea0a049c887370081b2b
+  r: "The required `data/processed/analysis_results.json` file does not exist, and\
+    \ the provided excerpt of `code/analysis/02_pairwise.py` does not show the new\
+    \ `--correction-method` command\u2011line argument (its parser is missing from\
+    \ the visible code). Both artifacts needed to satisfy the task are absent or incomplete."
+T051c:
+  c: false
+  h: a08c667e528404290ac2ec21a883508c6ad3b641512ef366d7ee221fb1f010bf
+  r: Both required files `data/processed/analysis_results.json` and `data/processed/mixed_effects_results.json`
+    are missing, so the schema updates cannot be verified. The task needs these JSON
+    files present and containing the new `ci_lower` and `ci_upper` keys.
 T053:
   c: false
   h: 2e5859b1b245b81232d1a30bb2b37ec401e9bee52c9acbb010a343eebe621515
