@@ -7,173 +7,185 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Add parent directory to path for imports if running as script
+# Ensure parent directory is in path for imports if running as script
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from config import Config
 
 def load_jsonl(file_path: str) -> List[Dict[str, Any]]:
-    """Load a JSONL file and return a list of dictionaries."""
+    """Load a JSONL file into a list of dictionaries."""
     data = []
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
-            if line.strip():
+            line = line.strip()
+            if line:
                 data.append(json.loads(line))
     return data
 
-def load_csv_as_dict(file_path: str, key_field: str = 'scene_id') -> Dict[str, Dict[str, Any]]:
-    """Load a CSV file and return a dictionary keyed by a specific field."""
+def load_csv_as_dict(file_path: str, key_col: str = 'scene_id') -> Dict[str, Dict[str, Any]]:
+    """Load a CSV file into a dictionary keyed by a specific column."""
     data = {}
-    with open(file_path, 'r', newline='') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if key_field in row:
-                data[row[key_field]] = row
+            key = row[key_col]
+            data[key] = row
     return data
 
-def load_predictions(file_path: str) -> Dict[str, Dict[str, Any]]:
+def load_predictions(file_path: str) -> Dict[str, Any]:
     """Load solver predictions from JSONL."""
     rows = load_jsonl(file_path)
     return {row['scene_id']: row for row in rows}
 
-def load_ground_truth(file_path: str) -> Dict[str, Dict[str, Any]]:
+def load_ground_truth(file_path: str) -> Dict[str, Any]:
     """Load ground truth from CSV."""
-    return load_csv_as_dict(file_path, key_field='scene_id')
+    return load_csv_as_dict(file_path)
 
-def load_latency_log(file_path: str) -> Dict[str, Dict[str, Any]]:
+def load_latency_log(file_path: str) -> Dict[str, Any]:
     """Load latency log from JSONL."""
     rows = load_jsonl(file_path)
     return {row['scene_id']: row for row in rows}
 
-def load_vlm_baseline(file_path: str) -> Dict[str, Dict[str, Any]]:
+def load_vlm_baseline(file_path: str) -> Dict[str, Any]:
     """Load VLM baseline predictions from CSV."""
-    return load_csv_as_dict(file_path, key_field='scene_id')
+    return load_csv_as_dict(file_path)
 
-def calculate_exact_match(pred: Any, truth: Any) -> float:
-    """Calculate exact match (0 or 1)."""
-    return 1.0 if str(pred) == str(truth) else 0.0
+def calculate_exact_match(pred: Any, truth: Any) -> bool:
+    """Calculate exact match between prediction and ground truth."""
+    if pred is None or truth is None:
+        return False
+    # Handle potential string/numeric mismatches
+    try:
+        return int(pred) == int(truth)
+    except (ValueError, TypeError):
+        return str(pred) == str(truth)
 
 def calculate_f1_score(pred: Any, truth: Any) -> float:
     """
-    Calculate F1 score for a single prediction.
-    For counting tasks (discrete classes), F1 is equivalent to Exact Match.
-    If prediction is correct: Precision=1, Recall=1, F1=1.
-    If prediction is wrong: Precision=0, Recall=0, F1=0.
+    Calculate F1 score.
+    For this specific task (counting/position), we treat it as a classification problem.
+    If exact match -> Precision=1, Recall=1, F1=1.
+    If mismatch -> Precision=0, Recall=0, F1=0.
     """
-    if str(pred) == str(truth):
+    if calculate_exact_match(pred, truth):
         return 1.0
     return 0.0
 
-def compute_row_metrics(symbolic_pred: Any, vlm_pred: Any, ground_truth: Any, latency_ms: float, status: str) -> Dict[str, Any]:
-    """Compute all metrics for a single row of the benchmark results."""
-    exact_match = calculate_exact_match(symbolic_pred, ground_truth)
-    f1 = calculate_f1_score(symbolic_pred, ground_truth)
+def compute_row_metrics(scene_id: str, symbolic_pred: Optional[str], vlm_pred: Optional[str],
+                        ground_truth: Optional[str], status: str) -> Dict[str, Any]:
+    """Compute metrics for a single row in the benchmark results."""
+    exact_match = False
+    f1 = 0.0
+    latency_ms = 0.0
 
-    # For McNemar's test, we need boolean correctness
-    symbolic_correct = 1 if exact_match == 1.0 else 0
-    vlm_correct = 1 if calculate_exact_match(vlm_pred, ground_truth) == 1.0 else 0
+    if symbolic_pred is not None and ground_truth is not None:
+        exact_match = calculate_exact_match(symbolic_pred, ground_truth)
+        f1 = calculate_f1_score(symbolic_pred, ground_truth)
+
+    # Latency is taken from the latency log
+    # Note: In a real run, this would be populated from the latency log file
+    # For now, we assume the latency log has the entry or we set to 0 if missing
+    # The caller should ensure latency_log is loaded and passed or accessed via global/config
 
     return {
+        'scene_id': scene_id,
         'symbolic_pred': symbolic_pred,
         'vlm_pred': vlm_pred,
         'ground_truth': ground_truth,
         'exact_match': exact_match,
         'f1': f1,
-        'latency_ms': latency_ms,
-        'status': status,
-        'symbolic_correct': symbolic_correct,
-        'vlm_correct': vlm_correct
+        'latency_ms': latency_ms, # Will be updated by caller if available
+        'status': status
     }
 
 def main():
-    """
-    Generate data/results/benchmark_results.csv by joining:
-    - Solver predictions (data/derived/predictions.jsonl)
-    - VLM baseline (data/derived/vlm_baseline.csv)
-    - Ground truth (data/derived/ground_truth.csv)
-    - Latency (data/derived/latency_log.jsonl)
-    
-    And calculating metrics (Exact Match, F1).
-    The p_value column is added later by T017 (McNemar's test), 
-    but we initialize it as 0.0 or None here to match schema.
-    """
-    # Define paths based on Config or defaults
-    # T012 outputs
-    predictions_path = Config.DATA_DERIVED / 'predictions.jsonl'
-    latency_path = Config.DATA_DERIVED / 'latency_log.jsonl'
-    
-    # T006 outputs
-    vlm_baseline_path = Config.DATA_DERIVED / 'vlm_baseline.csv'
-    ground_truth_path = Config.DATA_DERIVED / 'ground_truth.csv'
-    
-    # Output
-    output_path = Config.DATA_RESULTS / 'benchmark_results.csv'
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description='Generate benchmark results CSV.')
+    parser.add_argument('--predictions', type=str, required=True, help='Path to predictions.jsonl')
+    parser.add_argument('--vlm-baseline', type=str, required=True, help='Path to vlm_baseline.csv')
+    parser.add_argument('--ground-truth', type=str, required=True, help='Path to ground_truth.csv')
+    parser.add_argument('--latency-log', type=str, required=True, help='Path to latency_log.jsonl')
+    parser.add_argument('--exclusion-log', type=str, required=True, help='Path to exclusion_log.json')
+    parser.add_argument('--output', type=str, required=True, help='Path to output benchmark_results.csv')
+    args = parser.parse_args()
 
     # Load data
-    print(f"Loading predictions from {predictions_path}...")
-    predictions = load_predictions(str(predictions_path))
-    
-    print(f"Loading VLM baseline from {vlm_baseline_path}...")
-    vlm_baseline = load_vlm_baseline(str(vlm_baseline_path))
-    
-    print(f"Loading ground truth from {ground_truth_path}...")
-    ground_truth = load_ground_truth(str(ground_truth_path))
-    
-    print(f"Loading latency log from {latency_path}...")
-    latency_log = load_latency_log(str(latency_path))
-
-    # Identify common scene IDs (intersection)
-    all_ids = set(predictions.keys()) & set(vlm_baseline.keys()) & set(ground_truth.keys())
-    
-    if not all_ids:
-        print("ERROR: No common scene IDs found between datasets.")
+    try:
+        predictions = load_predictions(args.predictions)
+        vlm_baseline = load_vlm_baseline(args.vlm_baseline)
+        ground_truth = load_ground_truth(args.ground_truth)
+        latency_log = load_latency_log(args.latency_log)
+        
+        with open(args.exclusion_log, 'r') as f:
+            exclusion_data = json.load(f)
+    except FileNotFoundError as e:
+        print(f"ERROR: Required input file not found: {e}")
         sys.exit(1)
 
-    print(f"Processing {len(all_ids)} matched scenes...")
+    # Determine valid scene IDs based on exclusion log
+    # The exclusion log contains 'valid_scenes' or we calculate total - excluded
+    # Based on the provided sample: "valid_scenes": 5
+    # We assume the exclusion log lists the IDs that were processed successfully.
+    # If the log structure is different, we adapt.
+    # The task description says: "Must explicitly read data/results/exclusion_log.json ... to perform filtering"
+    # and "n_valid matches the processed count".
+    
+    # Strategy: We iterate through the ground truth (or predictions) and check if the scene_id
+    # is considered valid based on the exclusion log.
+    # If the exclusion log has a list of excluded IDs, we filter those out.
+    # If it has a count, we assume the intersection of all sources is the valid set.
+    
+    # Let's assume the exclusion_log has 'excluded_ids' if available, otherwise we rely on the intersection
+    # of keys present in all input files. The task says "ensure n_valid matches the processed count".
+    # The provided sample exclusion_log has: "total_scenes_processed": 5, "valid_scenes": 5, "excluded_scenes": 0.
+    # It does NOT list excluded IDs explicitly in the sample, but the task description says "plus a list of excluded_ids".
+    # We will check for 'excluded_ids' key. If missing, we assume all scenes in the input files (that are common) are valid.
+    
+    excluded_ids = set(exclusion_data.get('excluded_ids', []))
+    
+    # Get all scene IDs from ground truth as the master list (assuming GT covers the sample)
+    all_scene_ids = set(ground_truth.keys())
+    
+    # Filter out excluded
+    valid_scene_ids = [sid for sid in all_scene_ids if sid not in excluded_ids]
+    
+    # Further filter to only those present in all other sources (predictions, vlm, latency)
+    # This ensures we don't have rows with missing data
+    valid_scene_ids = [
+        sid for sid in valid_scene_ids 
+        if sid in predictions and sid in vlm_baseline and sid in latency_log
+    ]
 
-    # Prepare rows
+    if len(valid_scene_ids) == 0:
+        print("WARNING: No valid scenes found to generate benchmark results.")
+        # Write empty CSV with headers
+        with open(args.output, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 'exact_match', 'f1', 'latency_ms', 'status'])
+            writer.writeheader()
+        return
+
+    # Generate rows
     rows = []
-    for scene_id in sorted(all_ids):
-        pred_row = predictions[scene_id]
-        vlm_row = vlm_baseline[scene_id]
-        gt_row = ground_truth[scene_id]
-        lat_row = latency_log.get(scene_id, {'latency_ms': 0.0, 'status': 'unknown'})
+    for scene_id in valid_scene_ids:
+        sym_pred = predictions[scene_id].get('prediction')
+        vlm_pred = vlm_baseline[scene_id].get('prediction')
+        gt = ground_truth[scene_id].get('label')
+        status = predictions[scene_id].get('status', 'unknown')
+        latency = latency_log[scene_id].get('latency_ms', 0.0)
 
-        symbolic_pred = pred_row.get('prediction', None)
-        vlm_pred = vlm_row.get('vlm_prediction', vlm_row.get('prediction', None))
-        gt = gt_row.get('label', gt_row.get('ground_truth', None))
-        latency = float(lat_row.get('latency_ms', 0.0))
-        status = pred_row.get('status', 'unknown')
-
-        metrics = compute_row_metrics(symbolic_pred, vlm_pred, gt, latency, status)
-
-        row = {
-            'scene_id': scene_id,
-            'symbolic_pred': symbolic_pred,
-            'vlm_pred': vlm_pred,
-            'ground_truth': gt,
-            'exact_match': metrics['exact_match'],
-            'f1': metrics['f1'],
-            'latency_ms': metrics['latency_ms'],
-            'status': metrics['status'],
-            'p_value': None # Will be filled by T017
-        }
+        row = compute_row_metrics(scene_id, sym_pred, vlm_pred, gt, status)
+        row['latency_ms'] = latency
         rows.append(row)
 
-    # Write CSV
-    fieldnames = ['scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 
-                  'exact_match', 'f1', 'latency_ms', 'status', 'p_value']
-    
-    with open(output_path, 'w', newline='') as f:
+    # Write to CSV
+    fieldnames = ['scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 'exact_match', 'f1', 'latency_ms', 'status']
+    with open(args.output, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        for row in rows:
+            # Convert booleans to strings for CSV consistency if needed, but csv module handles bools as True/False
+            # The schema expects exact_match (bool) and f1 (float)
+            writer.writerow(row)
 
-    print(f"Benchmark results written to {output_path}")
-    print(f"Total rows: {len(rows)}")
+    print(f"Generated benchmark results: {args.output} with {len(rows)} rows.")
 
 if __name__ == '__main__':
     main()

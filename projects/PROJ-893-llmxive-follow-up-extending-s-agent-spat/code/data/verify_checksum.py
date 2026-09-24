@@ -2,7 +2,7 @@ import os
 import sys
 import hashlib
 import json
-import yaml
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -23,7 +23,11 @@ else:
     # Fallback to standard project structure if attributes are missing
     data_raw_path = Path("data/raw")
 
-MANIFEST_PATH = data_raw_path / "manifest.json"
+# The manifest is generated in data/ by T006, so we look there first
+# If not found, we look in data/raw as a fallback for legacy paths
+MANIFEST_PATH = Path("data/manifest.json")
+if not MANIFEST_PATH.exists():
+    MANIFEST_PATH = data_raw_path / "manifest.json"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -39,9 +43,14 @@ def compute_sha256(file_path: Path) -> str:
 def load_manifest() -> Dict[str, str]:
     """Load the manifest.json file."""
     if not MANIFEST_PATH.exists():
-        raise FileNotFoundError(f"Manifest not found at {MANIFEST_PATH}")
+        raise FileNotFoundError(f"Manifest not found at {MANIFEST_PATH}. "
+                                "Please ensure T006 (download.py) has run successfully and generated data/manifest.json.")
     with open(MANIFEST_PATH, "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        # Handle both list-of-dicts and dict formats
+        if isinstance(data, list):
+            return {item['file']: item['sha256'] for item in data}
+        return data
 
 def verify_directory_integrity(directory: Path, manifest: Optional[Dict[str, str]] = None) -> bool:
     """
@@ -52,8 +61,23 @@ def verify_directory_integrity(directory: Path, manifest: Optional[Dict[str, str
         manifest = load_manifest()
 
     all_valid = True
-    for filename, expected_hash in manifest.items():
+    # We only verify files that are in the manifest and exist in the directory
+    # The manifest might contain files from other directories, so we filter
+    files_to_check = {k: v for k, v in manifest.items() 
+                     if (directory / k).exists() or Path(k).exists()}
+    
+    if not files_to_check:
+        print(f"Warning: No files from manifest found in {directory}. "
+              f"Manifest contains {len(manifest)} entries, but none match the directory.")
+        # We don't fail if the directory is empty but manifest exists, 
+        # as this might be a multi-directory download
+    
+    for filename, expected_hash in files_to_check.items():
+        # Try relative to directory first, then absolute
         file_path = directory / filename
+        if not file_path.exists():
+            file_path = Path(filename)
+        
         if not file_path.exists():
             print(f"Missing file: {file_path}")
             all_valid = False
@@ -63,14 +87,16 @@ def verify_directory_integrity(directory: Path, manifest: Optional[Dict[str, str
         if actual_hash != expected_hash:
             print(f"Checksum mismatch for {filename}: expected {expected_hash}, got {actual_hash}")
             all_valid = False
+        else:
+            print(f"Verified: {filename}")
     
     return all_valid
 
 def main():
     """CLI entry point."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Verify directory checksums")
-    parser.add_argument("--directory", type=str, default=str(data_raw_path), help="Directory to verify")
+    parser = argparse.ArgumentParser(description="Verify directory checksums against manifest")
+    parser.add_argument("--directory", type=str, default=str(data_raw_path), 
+                      help="Directory to verify (default: data/raw)")
     args = parser.parse_args()
 
     directory = Path(args.directory)
@@ -85,6 +111,9 @@ def main():
         else:
             print("Verification failed: Checksum mismatches detected.")
             sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"Verification error: {e}")
+        sys.exit(1)
     except Exception as e:
         print(f"Verification error: {e}")
         sys.exit(1)

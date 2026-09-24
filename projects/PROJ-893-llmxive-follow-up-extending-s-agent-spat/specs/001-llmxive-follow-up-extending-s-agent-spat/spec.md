@@ -90,7 +90,7 @@
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The accuracy of the symbolic agent (Exact Match score) is measured against the original S-Agent (VLM) baseline accuracy on the same n=1,000 scenes to determine the percentage of neural performance retained (See US-2).
-- **SC-002**: The inference latency of the symbolic agent is measured against the VLM baseline latency on a standard multi-core CPU (symbolic) vs. single NVIDIA A100 GPU (VLM) to quantify the computational efficiency gain (See US-2).
+- **SC-002**: The inference latency of the symbolic agent is measured against the VLM baseline latency on a standard multi-core CPU (symbolic) vs. single NVIDIA A GPU (VLM) to quantify the computational efficiency gain (See US-2).
 - **SC-003**: The statistical significance of the accuracy difference is measured using McNemar's test p-value to determine if the observed performance gap is non-random (See US-2).
 - **SC-004**: The proportion of failure cases attributable to "semantic disambiguation" is measured against the total number of symbolic failures to assess the necessity of neural understanding (See US-3).
 - **SC-005**: The project is considered successful if the symbolic agent achieves an Exact Match score ≥ 85% of the VLM baseline accuracy on the n=1,000 scene sample (See US-2).
