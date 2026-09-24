@@ -1,19 +1,38 @@
+T011:
+  c: false
+  h: bacc719c749df84750a4ef35b1af82fa9d185c4b7f7e5d4fa0d59c6aee093cf1
+  r: "The `data/raw/synthetic_baseline.csv.sha256` file exists, but the required state\
+    \ file `state/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml`\
+    \ is missing, so the checksum cannot be recorded as specified. Additionally, the\
+    \ provided script and CSV do not demonstrably guarantee exactly 10\u202F000 rows\
+    \ (row count not shown) nor a hard\u2011coded seed=42, so the core data\u2011\
+    generation requirement is unverified. The next implementer must create the missing\
+    \ state YAML with the correct checksum entry and ensure the generator produces\
+    \ precisely 10\u202F000 rows using the fixed seed."
 T019:
   c: false
-  h: 6211ee41533ed1e205c2139a902f9d55176abd511a237171df8c94bd3f449c6b
-  r: "The repository lacks the required `data/processed/cleaned.csv` file, so the\
-    \ cleaning step\u2019s output was never saved. Moreover, the provided `ingest.py`\
-    \ snippet only imports `impute_missing_composition` from `utils` and does not\
-    \ show any implementation that imputes missing values column\u2011wise within\
-    \ this script. Without evidence of the imputation logic and the saved CSV, the\
-    \ task is not fulfilled."
-T024:
+  h: 8807bc63010d7d1f68e7677b670820df714f05ae1c67ddbe98d4f8bb9cf5080a
+  r: "The provided `code/ingest.py` contains logic for validating a different dataset\
+    \ (`clipped.csv`) and does not load `synthetic_baseline.csv`, compute column\u2011\
+    wise means, or impute missing composition values. Moreover, the required output\
+    \ file `data/processed/cleaned.csv` is absent, so the verification step cannot\
+    \ be performed. The task\u2019s core functionality and resulting artifact are\
+    \ missing."
+T021:
   c: false
-  h: 56ed9c4b1b97a1e2e78366c1b884836200ccdd76df6783ccb600385d393d5fab
-  r: "The repository contains `code/engineer.py` with functions that compute the required\
-    \ interaction columns, but the pipeline\u2019s final step that writes `data/processed/engineered_features.csv`\
-    \ is not present (the file is missing). Without the generated CSV, the task\u2019\
-    s output artifact is absent, so the requirement is not satisfied."
+  h: ca645856e21367fbe9f5746b30c0bb48b17351ea2179515552323ac5de7c1b7e
+  r: "The repository lacks `data/processed/cleaned.csv`, the clipping logic in `code/ingest.py`,\
+    \ and the required output files (`data/processed/clipped.csv`, its SHA\u2011256\
+    \ file, and `artifacts/reports/validation_log.json`). Consequently the task\u2019\
+    s core requirements are not satisfied."
+T022:
+  c: false
+  h: 078659fd16e3cfd4248cd3be28cbf54e848cf2a19244514c1361af5e980501d4
+  r: The repository lacks the required data files (`data/processed/clipped.csv` and
+    the produced `validated_clipped.csv`). The `ingest.py` script is truncated and
+    never actually loads the CSV, performs the size/column checks, or writes the validated
+    file, nor does it modify downstream tasks (T037, T039) to use the new path. These
+    essential artifacts and logic are missing.
 T026:
   c: false
   h: 7e31c490e711755d1f9329434e877a39d2ea1bf28c9c6620b3557d3c3f2f5547
@@ -22,6 +41,16 @@ T026:
     \ or compare the test MAE to a threshold. Moreover, the required `reports/baseline_stats.json`\
     \ file is absent from the repository. Both the implementation and the dependent\
     \ artifact are missing, so the task is not satisfied."
+T029:
+  c: false
+  h: e992b71e5f11b624ca17d2527eef41e47be12f10fea1d163c3577e8e17a64c6c
+  r: "The repository lacks the required data and output artifacts: `data/processed/final_dataset.csv`,\
+    \ `artifacts/reports/baseline_stats.json`, `artifacts/reports/training_metrics.json`,\
+    \ and `artifacts/models/kinetic_model.pkl` are all missing. Moreover, the provided\
+    \ `code/train.py` is truncated and does not show the implementation of loading\
+    \ the baseline stats, writing the pure\u2011aluminum flag, saving the model, or\
+    \ enforcing the memory\u2011usage check, so the task\u2019s functional requirements\
+    \ are not satisfied."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

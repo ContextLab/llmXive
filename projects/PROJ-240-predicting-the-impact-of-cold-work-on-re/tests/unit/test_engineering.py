@@ -1,5 +1,5 @@
 """
-TDD Unit Test for Interaction Feature Engineering (Task T012).
+TDD Unit Test for Interaction Feature Engineering (Task T016).
 
 This test verifies that interaction features (cold_work * composition) are 
 correctly calculated in the engineer.py module.
@@ -24,7 +24,7 @@ except ImportError:
     # recognizes the test, but the test itself will fail as expected for TDD.
     # In a real TDD flow, we run this, see the failure, then implement.
     def calculate_interaction_features(df):
-        raise NotImplementedError("T012 Implementation Pending: engineer.py not yet created.")
+        raise NotImplementedError("T016 Implementation Pending: engineer.py not yet created.")
 
 class TestInteractionFeatureEngineering:
     """Tests for interaction feature calculation logic."""
@@ -32,16 +32,16 @@ class TestInteractionFeatureEngineering:
     def test_interaction_features_exist(self):
         """
         Test that the output DataFrame contains the expected interaction columns.
-        Expected columns based on T019 spec:
-          - cold_work_pct * Mn_wt
-          - cold_work_pct * Mg_wt
-          - cold_work_pct * Si_wt
-          - cold_work_pct * Cu_wt
+        Expected columns based on T024 spec:
+          - cold_work_Mn_content
+          - cold_work_Mg_content
+          - cold_work_Si_content
+          - cold_work_Cu_content
         
         Note: The test adapts to the actual column names in the synthetic data 
-        (cold_work_pct, Mn_wt, etc.) as defined in T006.
+        (cold_work_pct, Mn_wt, etc.) as defined in T011.
         """
-        # Arrange: Create a minimal valid DataFrame matching T006 schema
+        # Arrange: Create a minimal valid DataFrame matching T011 schema
         data = {
             "cold_work_pct": [50.0, 60.0, 70.0],
             "Mn_wt": [1.0, 2.0, 3.0],
@@ -56,12 +56,12 @@ class TestInteractionFeatureEngineering:
         # Act
         result = calculate_interaction_features(df)
 
-        # Assert
+        # Assert - Using snake_case column names as per T024 spec
         expected_interactions = [
-            "cold_work_pct * Mn_wt",
-            "cold_work_pct * Mg_wt",
-            "cold_work_pct * Si_wt",
-            "cold_work_pct * Cu_wt"
+            "cold_work_Mn_content",
+            "cold_work_Mg_content",
+            "cold_work_Si_content",
+            "cold_work_Cu_content"
         ]
 
         for col in expected_interactions:
@@ -70,7 +70,7 @@ class TestInteractionFeatureEngineering:
     def test_interaction_values_correctness(self):
         """
         Test that the calculated interaction values are mathematically correct.
-        Verifies: cold_work_pct * Mn_wt == result['cold_work_pct * Mn_wt']
+        Verifies: cold_work_pct * Mn_wt == result['cold_work_Mn_content']
         """
         # Arrange
         data = {
@@ -89,12 +89,12 @@ class TestInteractionFeatureEngineering:
 
         # Assert
         # Check first row: 10.0 * 2.0 = 20.0
-        assert result.iloc[0]["cold_work_pct * Mn_wt"] == pytest.approx(20.0)
+        assert result.iloc[0]["cold_work_Mn_content"] == pytest.approx(20.0)
         # Check second row: 20.0 * 4.0 = 80.0
-        assert result.iloc[1]["cold_work_pct * Mn_wt"] == pytest.approx(80.0)
+        assert result.iloc[1]["cold_work_Mn_content"] == pytest.approx(80.0)
         
         # Verify Mg interaction: 10.0 * 1.0 = 10.0
-        assert result.iloc[0]["cold_work_pct * Mg_wt"] == pytest.approx(10.0)
+        assert result.iloc[0]["cold_work_Mg_content"] == pytest.approx(10.0)
 
     def test_original_columns_preserved(self):
         """
@@ -135,10 +135,10 @@ class TestInteractionFeatureEngineering:
         result = calculate_interaction_features(df)
 
         interaction_cols = [
-            "cold_work_pct * Mn_wt",
-            "cold_work_pct * Mg_wt",
-            "cold_work_pct * Si_wt",
-            "cold_work_pct * Cu_wt"
+            "cold_work_Mn_content",
+            "cold_work_Mg_content",
+            "cold_work_Si_content",
+            "cold_work_Cu_content"
         ]
 
         for col in interaction_cols:

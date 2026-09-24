@@ -1,6 +1,9 @@
 """
 T011: Generate deterministic synthetic baseline data.
 Generates data with seed=42, enforces row cap, and saves CSV + SHA256.
+
+CRITICAL: This script generates the PRIMARY data source for the project.
+It must fail loudly (raise RuntimeError) if generation fails.
 """
 import hashlib
 import os
@@ -9,6 +12,7 @@ from pathlib import Path
 from typing import Tuple, List, Dict, Any
 import pandas as pd
 import numpy as np
+import yaml
 
 from config import get_project_root, get_max_rows, get_random_seed
 
@@ -68,10 +72,6 @@ def calculate_time_to_peak(df: pd.DataFrame, seed: int) -> pd.Series:
     
     return pd.Series(time_peak, name='time_to_peak_min')
 
-def add_noise(df: pd.DataFrame, seed: int) -> pd.DataFrame:
-    """Add small noise to features if needed, but we generate them directly."""
-    return df
-
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
@@ -81,9 +81,37 @@ def compute_sha256(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def update_state_yaml(checksum: str, file_path: Path):
-    """Update a state file with the checksum (placeholder for state management)."""
-    # This is a simple implementation; in a real system, this might update a YAML state file.
-    print(f"Checksum for {file_path.name}: {checksum}")
+    """Update the state YAML file with the artifact checksum."""
+    project_root = get_project_root()
+    state_dir = project_root / "state" / "projects"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    state_file = state_dir / "PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml"
+    
+    # Load existing state or create new
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            try:
+                state = yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                state = {}
+    else:
+        state = {
+            "project_id": "PROJ-240-predicting-the-impact-of-cold-work-on-re",
+            "artifact_hashes": {}
+        }
+    
+    # Update checksum
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {}
+    
+    state["artifact_hashes"]["synthetic_baseline.csv"] = checksum
+    
+    # Write back
+    with open(state_file, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
+    
+    print(f"Updated state file: {state_file}")
 
 def main():
     """Main entry point for T011."""
@@ -97,36 +125,44 @@ def main():
     
     print(f"Generating synthetic dataset with seed={seed}, max_rows={max_rows}...")
     
-    # Enforce hard cap: T011 requires exactly 10000 rows if config allows,
-    # but the execution failure noted a cap. We respect the config's max_rows
-    # but ensure we generate the requested amount if within limits.
-    # The task spec says "Generate exactly 10000 rows".
-    # We will use min(max_rows, 10000) to be safe, but default config is 10000.
+    # Enforce hard cap: T011 requires exactly 10000 rows if config allows.
+    # We use min(max_rows, 10000) to respect config but ensure we hit the target if possible.
     n_samples = min(max_rows, 10000)
     
-    # Generate data
-    compositions = generate_compositions(n_samples, seed)
-    cold_work = generate_cold_work(n_samples, seed)
-    temperature = generate_temperature(n_samples, seed)
-    time_peak = calculate_time_to_peak(
-        pd.concat([compositions, cold_work, temperature], axis=1), seed
-    )
-    
-    # Combine
-    df = pd.concat([cold_work, compositions, temperature, time_peak], axis=1)
-    
-    # Save
-    df.to_csv(output_path, index=False)
-    print(f"Generated synthetic dataset with {len(df)} rows at {output_path}")
-    
-    # Compute checksum
-    checksum = compute_sha256(output_path)
-    checksum_path = output_path.with_suffix('.csv.sha256')
-    with open(checksum_path, 'w') as f:
-        f.write(checksum)
-    print(f"Checksum saved to {checksum_path}")
-    
-    update_state_yaml(checksum, output_path)
+    try:
+        # Generate data
+        compositions = generate_compositions(n_samples, seed)
+        cold_work = generate_cold_work(n_samples, seed)
+        temperature = generate_temperature(n_samples, seed)
+        
+        # Combine for time calculation
+        df_features = pd.concat([cold_work, compositions, temperature], axis=1)
+        time_peak = calculate_time_to_peak(df_features, seed)
+        
+        # Final combine
+        df = pd.concat([cold_work, compositions, temperature, time_peak], axis=1)
+        
+        # Save
+        df.to_csv(output_path, index=False)
+        print(f"Generated synthetic dataset with {len(df)} rows at {output_path}")
+        
+        # Verify row count
+        if len(df) != 10000:
+            raise RuntimeError(f"Expected 10000 rows, got {len(df)}. Generation failed.")
+        
+        # Compute checksum
+        checksum = compute_sha256(output_path)
+        checksum_path = output_path.with_suffix('.csv.sha256')
+        with open(checksum_path, 'w') as f:
+            f.write(checksum)
+        print(f"Checksum saved to {checksum_path}")
+        
+        # Update state
+        update_state_yaml(checksum, output_path)
+        
+    except Exception as e:
+        # Fail loudly: do not fallback to mock data
+        raise RuntimeError(f"Synthetic data generation failed: {str(e)}") from e
 
 if __name__ == "__main__":
     main()

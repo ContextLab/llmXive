@@ -1,9 +1,8 @@
 """
 T025: Generate final dataset artifact.
 
-Loads the engineered dataset, enforces the row cap (if necessary),
-and saves the final dataset ready for modeling to:
-data/processed/final_dataset.csv
+Loads the engineered features dataset, selects and orders the required columns,
+and saves the final dataset ready for modeling.
 """
 import os
 import sys
@@ -12,110 +11,94 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 
-# Import local config utilities
-from config import get_project_root, get_config_value
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def load_engineered_data() -> pd.DataFrame:
-    """
-    Load the engineered features dataset from T024.
-    Path: data/processed/engineered_features.csv
-    """
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "engineered_features.csv"
+from config import get_project_root
+
+
+def load_engineered_data(input_path: str) -> pd.DataFrame:
+    """Load the engineered features dataset."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file {input_path} not found. Run T024 first.")
     
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Engineered dataset not found at {input_path}. "
-            "Please ensure T024 (engineer.py) has completed successfully."
-        )
-    
-    # Read with explicit dtype enforcement and na_filter for sanitization
-    df = pd.read_csv(
-        input_path,
-        dtype={
-            'cold_work_pct': float,
-            'Mn_wt': float,
-            'Mg_wt': float,
-            'Si_wt': float,
-            'Cu_wt': float,
-            'annealing_temp_K': float,
-            'time_to_peak_min': float,
-            'cold_work_Mn_content': float,
-            'cold_work_Mg_content': float,
-            'cold_work_Si_content': float,
-            'cold_work_Cu_content': float
-        },
-        na_filter=True
-    )
-    
+    print(f"Loading engineered data from {input_path}...")
+    df = pd.read_csv(input_path)
+    print(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns.")
     return df
 
-def enforce_row_cap(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Enforce the maximum row count constraint if the dataset is too large.
-    If rows > N_ROWS_TARGET, sample deterministically.
-    """
-    n_rows_target = get_config_value("N_ROWS_TARGET", default=10000)
-    
-    if len(df) > n_rows_target:
-        # Deterministic sampling to ensure reproducibility
-        seed = get_config_value("SEED", default=42)
-        np.random.seed(seed)
-        indices = np.random.choice(df.index, size=n_rows_target, replace=False)
-        df_sampled = df.loc[indices].reset_index(drop=True)
-        print(f"Dataset size {len(df)} exceeds cap {n_rows_target}. "
-              f"Sampled {n_rows_target} rows deterministically.")
-        return df_sampled
-    
-    print(f"Dataset size {len(df)} is within cap {n_rows_target}.")
-    return df
 
-def save_final_dataset(df: pd.DataFrame) -> Path:
-    """
-    Save the final processed dataset to the declared output path.
-    Path: data/processed/final_dataset.csv
-    """
-    project_root = get_project_root()
-    output_dir = project_root / "data" / "processed"
-    output_path = output_dir / "final_dataset.csv"
+def enforce_column_selection(df: pd.DataFrame) -> pd.DataFrame:
+    """Select and order the required columns for the final dataset."""
+    required_columns = [
+        'cold_work_pct',
+        'Mn_wt',
+        'Mg_wt',
+        'Si_wt',
+        'Cu_wt',
+        'annealing_temp_K',
+        'time_to_peak_min',
+        'cold_work_Mn_content',
+        'cold_work_Mg_content',
+        'cold_work_Si_content',
+        'cold_work_Cu_content'
+    ]
     
-    # Ensure directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Verify all required columns exist
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in input: {missing_cols}")
     
-    # Write to disk
+    # Select and order columns
+    final_df = df[required_columns].copy()
+    
+    # Verify no extra columns
+    if len(final_df.columns) != len(required_columns):
+        raise ValueError(f"Unexpected column count: expected {len(required_columns)}, got {len(final_df.columns)}")
+    
+    print(f"Selected and ordered {len(required_columns)} columns.")
+    return final_df
+
+
+def save_final_dataset(df: pd.DataFrame, output_path: str) -> None:
+    """Save the final dataset to CSV."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    
     df.to_csv(output_path, index=False)
-    
-    print(f"Final dataset saved to: {output_path}")
-    print(f"Shape: {df.shape}")
-    print(f"Columns: {list(df.columns)}")
-    
-    return output_path
+    print(f"Saved final dataset to {output_path} with {len(df)} rows.")
+
 
 def main():
-    """
-    Main entry point for T025.
-    """
-    try:
-        # 1. Load engineered data
-        print("Loading engineered dataset...")
-        df = load_engineered_data()
-        
-        # 2. Enforce row cap if necessary
-        print("Checking dataset size...")
-        df_final = enforce_row_cap(df)
-        
-        # 3. Save final dataset
-        print("Saving final dataset...")
-        output_path = save_final_dataset(df_final)
-        
-        print(f"Task T025 completed successfully. Output: {output_path}")
-        
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error during finalization: {e}", file=sys.stderr)
-        sys.exit(1)
+    """Main entry point for T025."""
+    project_root = get_project_root()
+    input_path = os.path.join(project_root, "data", "processed", "engineered_features.csv")
+    output_path = os.path.join(project_root, "data", "processed", "final_dataset.csv")
+    
+    print("Starting T025: Generate final dataset artifact...")
+    
+    # Load engineered data
+    df = load_engineered_data(input_path)
+    
+    # Enforce column selection and ordering
+    final_df = enforce_column_selection(df)
+    
+    # Save final dataset
+    save_final_dataset(final_df, output_path)
+    
+    # Verification
+    assert os.path.exists(output_path), f"Output file {output_path} was not created."
+    final_df_check = pd.read_csv(output_path)
+    assert list(final_df_check.columns) == [
+        'cold_work_pct', 'Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt', 
+        'annealing_temp_K', 'time_to_peak_min', 
+        'cold_work_Mn_content', 'cold_work_Mg_content', 
+        'cold_work_Si_content', 'cold_work_Cu_content'
+    ], "Column verification failed."
+    
+    print("T025 completed successfully.")
+
 
 if __name__ == "__main__":
     main()

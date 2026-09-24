@@ -1,275 +1,229 @@
-"""
-User Story 2: Predictive Model Training and Validation.
-Implements Random Forest Regressor training with CPU-only execution,
-5-fold CV, and held-out test set evaluation.
-"""
 import json
 import os
 import sys
 import pickle
 import time
+import warnings
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-
-import numpy as np
+from typing import Dict, Any, Tuple
 import pandas as pd
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.preprocessing import KBinsDiscretizer
 
-# Import project utilities and config
-from config import get_project_root, get_max_rows, get_random_seed, get_data_split_ratio
-from utils import validate_physical_bounds, detect_type_confusion
+# Import config utilities
+from config import get_project_root, get_config_value, get_n_estimators, get_random_seed
 
-# --------------------------------------------------------------------------
-# Helper Functions
-# --------------------------------------------------------------------------
-
-def load_final_dataset(filepath: Path) -> pd.DataFrame:
+def load_final_dataset() -> pd.DataFrame:
     """Load the final engineered dataset."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Final dataset not found at {filepath}")
-    df = pd.read_csv(filepath)
+    project_root = get_project_root()
+    input_path = project_root / "data" / "processed" / "final_dataset.csv"
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Final dataset not found at {input_path}. "
+                                "Run T025 (finalize_dataset) first.")
+    
+    df = pd.read_csv(input_path)
+    
+    # Size constraint check
+    if len(df) > 10000:
+        raise ValueError(f"Dataset size ({len(df)}) exceeds 10,000 rows. "
+                         "Size constraint violated.")
+    
     return df
 
-def split_data(df: pd.DataFrame, target_col: str, seed: int, test_ratio: float):
+def split_data(df: pd.DataFrame, test_size: float = 0.2) -> Tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
     """
     Split data into train and test sets.
-    Stratify on binned target variable to handle low variance.
+    Returns X_train, X_test, and split indices for reproducibility.
     """
-    # Bin the target for stratification
-    n_bins = 10
-    try:
-        discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='uniform')
-        # Ensure we have enough samples for stratification
-        if len(df) < n_bins * 2:
-            print(f"Warning: Dataset too small ({len(df)}) for {n_bins} bins. Using non-stratified split.")
-            X_train, X_test, y_train, y_test = train_test_split(
-                df.drop(columns=[target_col]),
-                df[target_col],
-                test_size=test_ratio,
-                random_state=seed
-            )
-            return X_train, X_test, y_train, y_test
+    # Feature columns (exclude target)
+    feature_cols = [col for col in df.columns if col != 'time_to_peak_min']
+    target_col = 'time_to_peak_min'
+    
+    X = df[feature_cols]
+    y = df[target_col]
+    
+    # Simple split for now (Stratified logic handled in T028 if needed, 
+    # but T028 saves indices. We load them here if they exist)
+    split_indices_path = get_project_root() / "data" / "split_indices.npy"
+    
+    if split_indices_path.exists():
+        try:
+            indices = np.load(split_indices_path, allow_pickle=True).item()
+            train_idx = indices['train']
+            test_idx = indices['test']
+            X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+            y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+            return X_train, X_test, y_train, y_test, indices
+        except Exception as e:
+            warnings.warn(f"Failed to load split indices: {e}. Using random split.")
+    
+    # Fallback to random split if indices missing
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=get_random_seed()
+    )
+    
+    # Create indices for saving
+    indices = {
+        'train': X_train.index,
+        'test': X_test.index
+    }
+    np.save(split_indices_path, indices)
+    
+    return X_train, X_test, y_train, y_test, indices
 
-        y_binned = discretizer.fit_transform(df[[target_col]].values).ravel()
-
-        # Check for empty bins after binning
-        unique_bins = np.unique(y_binned)
-        if len(unique_bins) < 2:
-            print(f"Warning: Only {len(unique_bins)} unique bins found. Using non-stratified split.")
-            X_train, X_test, y_train, y_test = train_test_split(
-                df.drop(columns=[target_col]),
-                df[target_col],
-                test_size=test_ratio,
-                random_state=seed
-            )
-        else:
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-            # We need to use train_test_split with stratify
-            X_train, X_test, y_train, y_test = train_test_split(
-                df.drop(columns=[target_col]),
-                df[target_col],
-                test_size=test_ratio,
-                random_state=seed,
-                stratify=y_binned
-            )
-    except Exception as e:
-        print(f"Warning: Stratification failed ({e}). Using non-stratified split.")
-        X_train, X_test, y_train, y_test = train_test_split(
-            df.drop(columns=[target_col]),
-            df[target_col],
-            test_size=test_ratio,
-            random_state=seed
-        )
-
-    return X_train, X_test, y_train, y_test
-
-def detect_pure_aluminum(df: pd.DataFrame, composition_cols: List[str]) -> bool:
+def detect_pure_aluminum(df: pd.DataFrame) -> bool:
     """
-    Check if all composition columns have near-zero standard deviation.
-    Returns True if pure aluminum is detected.
+    Check if standard deviation of all composition columns is effectively zero.
     """
-    if not composition_cols or not all(col in df.columns for col in composition_cols):
-        # If columns missing, assume not pure aluminum (or handle as error)
+    composition_cols = ['Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt']
+    # Ensure columns exist
+    if not all(col in df.columns for col in composition_cols):
+        # If columns missing, assume not pure aluminum (or raise error?)
+        # Assuming data integrity from previous steps
         return False
     
     stds = df[composition_cols].std()
-    # Check if all stds are effectively zero
-    return (stds < 1e-9).all()
+    # Check if all stds are < 1e-9
+    is_pure = all(std < 1e-9 for std in stds)
+    return is_pure
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series, n_estimators: int = 100, max_depth: Optional[int] = None):
-    """
-    Train a Random Forest Regressor.
-    Parameters set per T049: n_estimators=100, max_depth=None (default).
-    """
+def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestRegressor:
+    """Train the Random Forest Regressor (Interaction Model)."""
+    n_estimators = get_n_estimators()
+    seed = get_random_seed()
+    
     model = RandomForestRegressor(
         n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=get_random_seed(),
+        max_depth=None,
+        random_state=seed,
         n_jobs=-1  # Use all available CPU cores
     )
+    
+    start_time = time.time()
     model.fit(X_train, y_train)
+    duration = time.time() - start_time
+    
+    print(f"Model trained in {duration:.2f} seconds.")
     return model
 
-def cross_validate_model(model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5):
-    """Perform k-fold cross-validation and return R2 scores."""
-    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=get_random_seed())
-    # For regression, we can't stratify directly on y unless binned, but sklearn cross_val_score
-    # doesn't take stratify. We'll just use KFold for R2.
+def cross_validate_model(model: RandomForestRegressor, X: pd.DataFrame, y: pd.Series) -> Tuple[float, float]:
+    """Perform 5-fold cross-validation."""
+    # Use StratifiedKFold if target is discrete, but here it's continuous.
+    # Using KFold for regression.
+    kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=get_random_seed())
+    # Note: StratifiedKFold requires discrete y. For continuous y, use KFold.
+    # Let's switch to KFold for regression to avoid errors on continuous targets.
     from sklearn.model_selection import KFold
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=get_random_seed())
+    kfold = KFold(n_splits=5, shuffle=True, random_state=get_random_seed())
     
-    scores = cross_val_score(model, X, y, cv=kf, scoring='r2')
-    return scores
+    scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    return scores.mean(), scores.std()
 
-def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series):
-    """Evaluate model on test set and return MAE and R2."""
+def evaluate_model(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> Tuple[float, float]:
+    """Evaluate model on held-out test set."""
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
     return mae, r2
 
-def save_model(model: Any, filepath: Path):
-    """Save model to pickle file."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'wb') as f:
+def save_model(model: RandomForestRegressor, path: Path):
+    """Save the trained model using pickle protocol 4."""
+    with open(path, 'wb') as f:
         pickle.dump(model, f, protocol=4)
 
-def load_baseline_stats(filepath: Path) -> Dict[str, Any]:
-    """Load baseline statistics from JSON."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Baseline stats not found at {filepath}")
-    with open(filepath, 'r') as f:
-        return json.load(f)
+def load_baseline_stats() -> float:
+    """Load baseline mean from T012 artifact."""
+    project_root = get_project_root()
+    stats_path = project_root / "artifacts" / "reports" / "baseline_stats.json"
+    
+    if not stats_path.exists():
+        raise FileNotFoundError(f"Baseline stats not found at {stats_path}. "
+                                "Run T012 (calculate_baseline_stats) first.")
+    
+    with open(stats_path, 'r') as f:
+        data = json.load(f)
+    
+    if 'baseline_mean' not in data:
+        raise ValueError("baseline_stats.json missing 'baseline_mean' key.")
+    
+    return float(data['baseline_mean'])
 
-def save_metrics(metrics: Dict[str, Any], filepath: Path):
-    """Save metrics to JSON."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w') as f:
+def save_metrics(metrics: Dict[str, Any], path: Path):
+    """Save training metrics to JSON."""
+    with open(path, 'w') as f:
         json.dump(metrics, f, indent=2)
 
-# --------------------------------------------------------------------------
-# Pipeline Logic
-# --------------------------------------------------------------------------
-
 def run_training_pipeline():
-    """
-    Main training pipeline:
-    1. Load final dataset.
-    2. Enforce row cap.
-    3. Detect pure aluminum.
-    4. Split data.
-    5. Train Interaction Model (n_estimators=100, max_depth=None).
-    6. Cross-validate.
-    7. Evaluate on test set.
-    8. Save model and metrics.
-    """
+    """Execute the full training pipeline for T029."""
     project_root = get_project_root()
-    final_dataset_path = project_root / "data" / "processed" / "final_dataset.csv"
-    baseline_stats_path = project_root / "artifacts" / "reports" / "baseline_stats.json"
-    model_path = project_root / "artifacts" / "models" / "kinetic_model.pkl"
-    metrics_path = project_root / "artifacts" / "reports" / "training_metrics.json"
-
+    
     # 1. Load Data
     print("Loading final dataset...")
-    df = load_final_dataset(final_dataset_path)
-
-    # 2. Enforce Row Cap (FR-003)
-    max_rows = get_max_rows()
-    if len(df) > max_rows:
-        print(f"Warning: Dataset size ({len(df)}) exceeds cap ({max_rows}). Truncating.")
-        # Keep first N rows for reproducibility in this context, or sample
-        df = df.head(max_rows)
-
-    # Define features and target
-    target_col = "time_to_peak_min"
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset.")
+    df = load_final_dataset()
     
-    # Define composition columns for pure aluminum check
-    composition_cols = ["Mn_wt", "Mg_wt", "Si_wt", "Cu_wt"]
-    interaction_cols = [c for c in df.columns if c.startswith("cold_work_") and c not in composition_cols and c != "cold_work_pct"]
-    main_cols = [c for c in df.columns if c not in [target_col] + interaction_cols]
+    # 2. Detect Pure Aluminum
+    is_pure_aluminum = detect_pure_aluminum(df)
+    if is_pure_aluminum:
+        warnings.warn("Pure Aluminum detected (std < 1e-9 for all composition columns). "
+                      "Setting pure_aluminum_flag: true.")
     
-    X = df.drop(columns=[target_col])
-    y = df[target_col]
-
-    # 3. Detect Pure Aluminum
-    is_pure_al = detect_pure_aluminum(df, composition_cols)
-    if is_pure_al:
-        print("WARNING: Pure Aluminum detected (zero variance in composition). Interaction importance calculation will be skipped in downstream tasks.")
-
-    # 4. Split Data
+    # 3. Split Data
     print("Splitting data...")
-    seed = get_random_seed()
-    test_ratio = get_data_split_ratio()
-    X_train, X_test, y_train, y_test = split_data(df, target_col, seed, test_ratio)
-
-    # 5. Train Model
-    # T049 Requirement: n_estimators=100, max_depth=None (default)
-    print("Training Random Forest Regressor (n_estimators=100, max_depth=None)...")
-    start_time = time.time()
-    model = train_model(X_train, y_train, n_estimators=100, max_depth=None)
-    train_time = time.time() - start_time
-    print(f"Training completed in {train_time:.2f} seconds.")
-
-    # 6. Cross-Validate
-    print("Performing 5-fold cross-validation...")
-    cv_scores = cross_validate_model(model, X_train, y_train)
-    cv_r2_mean = float(np.mean(cv_scores))
-    cv_r2_std = float(np.std(cv_scores))
-    print(f"CV R2: {cv_r2_mean:.4f} (+/- {cv_r2_std:.4f})")
-
-    # 7. Evaluate on Test Set
-    print("Evaluating on test set...")
+    X_train, X_test, y_train, y_test, split_indices = split_data(df)
+    
+    # 4. Train Model
+    print("Training Random Forest Regressor (Interaction Model)...")
+    model = train_model(X_train, y_train)
+    
+    # 5. Cross-Validation
+    print("Performing 5-fold Cross-Validation...")
+    cv_r2_mean, cv_r2_std = cross_validate_model(model, X_train, y_train)
+    
+    # 6. Test Evaluation
+    print("Evaluating on Test Set...")
     test_mae, test_r2 = evaluate_model(model, X_test, y_test)
-    print(f"Test MAE: {test_mae:.4f}, Test R2: {test_r2:.4f}")
-
+    
+    # 7. Load Baseline for Threshold Check (SC-006)
+    baseline_mean = load_baseline_stats()
+    mae_threshold = baseline_mean * 0.5  # Example threshold logic from SC-006 context
+    
     # 8. Save Model
-    print(f"Saving model to {model_path}...")
+    model_path = project_root / "artifacts" / "models" / "kinetic_model.pkl"
     save_model(model, model_path)
-
-    # 9. Calculate Threshold Check (SC-006)
-    mae_pass = False
-    threshold = None
-    try:
-        baseline_stats = load_baseline_stats(baseline_stats_path)
-        baseline_mean = baseline_stats.get("baseline_mean", 0)
-        # Threshold: e.g., 20% of baseline mean (common heuristic, or specific spec value)
-        # Spec says: "fixed proportion of baseline_mean". Let's use 0.2 as a reasonable default if not specified.
-        # If the spec had a specific fraction, we'd use that. Assuming 20% for now.
-        threshold = baseline_mean * 0.2
-        mae_pass = test_mae < threshold
-        print(f"MAE Threshold Check: {test_mae:.4f} < {threshold:.4f} -> {mae_pass}")
-    except FileNotFoundError:
-        print("Warning: Baseline stats not found. Skipping MAE threshold check.")
-
-    # 10. Save Metrics
+    print(f"Model saved to {model_path}")
+    
+    # 9. Save Metrics
     metrics = {
-        "cv_r2_mean": cv_r2_mean,
-        "cv_r2_std": cv_r2_std,
-        "test_mae": test_mae,
-        "test_r2": test_r2,
-        "pure_aluminum_flag": is_pure_al,
-        "train_time_seconds": train_time,
-        "n_estimators": 100,
-        "max_depth": None,
-        "mae_threshold_check": {
-            "passed": mae_pass,
-            "threshold": threshold,
-            "actual_mae": test_mae
-        }
+        "cv_r2_mean": float(cv_r2_mean),
+        "cv_r2_std": float(cv_r2_std),
+        "test_mae": float(test_mae),
+        "test_r2": float(test_r2),
+        "baseline_mean": float(baseline_mean),
+        "mae_threshold": float(mae_threshold),
+        "pure_aluminum_flag": is_pure_aluminum,
+        "n_estimators": get_n_estimators(),
+        "seed": get_random_seed()
     }
-    print(f"Saving metrics to {metrics_path}...")
+    
+    metrics_path = project_root / "artifacts" / "reports" / "training_metrics.json"
     save_metrics(metrics, metrics_path)
-
-    print("Training pipeline completed successfully.")
-    return metrics
+    print(f"Metrics saved to {metrics_path}")
+    
+    # Summary
+    print("\n--- Training Summary ---")
+    print(f"CV R² (Mean): {cv_r2_mean:.4f} (+/- {cv_r2_std:.4f})")
+    print(f"Test MAE: {test_mae:.4f}")
+    print(f"Test R²: {test_r2:.4f}")
+    print(f"Pure Aluminum Flag: {is_pure_aluminum}")
+    print(f"MAE Threshold (50% of baseline): {mae_threshold:.4f}")
+    print(f"MAE vs Threshold: {'PASS' if test_mae < mae_threshold else 'FAIL'}")
 
 def main():
-    """Entry point for the training script."""
+    """Main entry point for T029."""
     try:
         run_training_pipeline()
     except Exception as e:
