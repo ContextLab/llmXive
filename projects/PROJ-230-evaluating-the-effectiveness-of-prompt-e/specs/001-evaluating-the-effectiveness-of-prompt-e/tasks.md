@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create directory structure: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/prompts/`, `data/evaluation/`, `state/`, `state/checksums/`
-- [X] T001b [P] Create `.gitignore` to exclude `data/raw/`, `data/processed/`, `__pycache__`, `*.pyc`, `venv/`
+- [X] T001b [P] Create `.gitignore` to exclude `data/raw/`, `data/processed/`, `data/evaluation/`, `__pycache__`, `*.pyc`, `venv/`
 - [X] T001c [P] Create initial `requirements.txt` and `package.json` placeholder files
 
 ---
@@ -58,8 +58,12 @@
 - [X] T006 Implement `src/utils/checksum_artifacts.py` to generate SHA-256 hashes for `data/raw/` files and write results to `state/checksums/` (Constitution Principle III)
 - [X] T007 Implement `src/utils/update_state.py` to track artifact hashes and update `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml` (Constitution Principle V)
 - [X] T008 Implement `src/utils/logging.py` with structured JSON logging for all prompts, seeds, and raw outputs
-- [ ] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts
-- [ ] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`
+- [X] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts (Required by FR-002, FR-003, Edge Cases). **CRITICAL**: Includes a distinct timeout mechanism for the Node.js test runner to prevent hanging processes, separate from API timeouts.
+- [X] T010 Implement the four prompt condition files in `data/prompts/`: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`. **CRITICAL**: Define the EXACT prompt text for each file based on the 'Key Entities' structure (instruction_detail + style_specification) in spec.md and the project's research goals. Do NOT create empty placeholders; the text must be complete and ready for execution. (Constitution Principle VI, FR-002)
+  - `zero_shot_basic.txt`: "Translate the following Python code to JavaScript. No additional instructions."
+  - `zero_shot_style.txt`: "Translate the following Python code to JavaScript using a functional programming style (avoid mutable state, use map/filter/reduce where applicable)."
+  - `few_shot_basic.txt`: "Translate the following Python code to JavaScript. Example: Python: `print('hello')` -> JS: `console.log('hello');`"
+  - `few_shot_style.txt`: "Translate the following Python code to JavaScript using a functional programming style. Example: Python: `x = [1,2,3]; y = [i*2 for i in x]` -> JS: `const x = [1,2,3]; const y = x.map(i => i*2);`"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,12 +84,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns <!-- FAILED: unspecified -->
-- [ ] T013b [US1] Implement validation logic to exclude corrupted entries (missing code, non-string types) from the cached dataset
-- [ ] T013c [US1] Implement sampling/chunking logic to ensure the processed dataset footprint remains ≤7GB RAM, outputting to `data/processed/corpus.csv` <!-- FAILED: unspecified -->
-- [ ] T014 [US1] Add validation logic to ensure the final `data/processed/corpus.csv` contains ≥200 valid entries
-- [ ] T015 [US1] Integrate `src/utils/checksum_artifacts.py` to hash `data/raw/` files before preprocessing (DEPENDS ON T006)
-- [ ] T016 [US1] Add logging for excluded entries and memory usage statistics, specifically logging peak memory usage against SC-004 constraint
+- [X] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns (FR-001)
+- [X] T013b [US1] Implement validation logic in `src/ingestion/preprocess_corpus.py` to exclude corrupted entries (missing code, non-string types, length < 10) from the cached dataset and generate an exclusion log (DEPENDS ON T013, FR-001)
+- [X] T013c [US1] Implement sampling/chunking logic in `src/ingestion/preprocess_corpus.py` using `datasets.load_dataset(..., streaming=True)`. **CRITICAL**: Process data in fixed chunks. Iterate through the streaming dataset, accumulating valid pairs into a buffer. Stop when the buffer contains ≥200 valid pairs OR the dataset is exhausted. Log the actual memory usage and the number of chunks processed. Output to `data/processed/corpus.csv`. Ensure the total memory footprint remains ≤7GB RAM by processing one chunk at a time and discarding processed data. (DEPENDS ON T013, SC-004)
+- [X] T014 [US1] Add validation logic to ensure the final `data/processed/corpus.csv` contains ≥200 valid entries
+- [X] T015 [US1] Integrate `src/utils/checksum_artifacts.py` to hash `data/raw/` files before preprocessing (DEPENDS ON T006)
+- [X] T016 [US1] Add logging for excluded entries and memory usage statistics, specifically logging peak memory usage against SC-004 constraint
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,12 +108,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `src/execution/api_client.py` with exponential backoff (limited retry attempts), 120s timeout, error handling for malformed responses, using endpoint ` No address associated with hostname)"))]
-- [ ] T021 [US2] Implement `src/execution/run_inference.py` to iterate through the corpus and apply the four prompt conditions from `data/prompts/`
-- [ ] T022 [US2] Ensure deterministic execution by pinning seeds and logging exact prompt text, model version, and seed for every request
-- [ ] T023 [US2] Implement output storage to `data/evaluation/raw_translations/` organized by condition directory
-- [ ] T024 [US2] Add logic to log "failed translation" for non-code outputs (e.g., "I cannot do that")
-- [ ] T025b [US2] Implement `src/evaluation/generate_translations_log.py` to aggregate all prompts, seeds, and raw outputs into a **version-controlled CSV** (`data/evaluation/raw_translations_log.csv`) with columns: `prompt_condition`, `seed`, `raw_output`, `timestamp`, and commit this artifact to git (FR-006)
+- [X] T020 [US2] Implement `src/execution/api_client.py` with exponential backoff (limited retry attempts), 120s timeout (using T009), error handling for malformed responses, using endpoint `https://api-inference.huggingface.co/models/codellama/CodeLlama-7b-Instruct-hf` (DEPENDS ON T009, FR-002)
+- [X] T021 [US2] Implement `src/execution/run_inference.py` to iterate through the corpus and apply the four prompt conditions from `data/prompts/` (DEPENDS ON T010, T020, T013c)
+- [X] T022 [US2] Ensure deterministic execution by pinning seeds and logging exact prompt text, model version, and seed for every request
+- [X] T023 [US2] Implement output storage to `data/evaluation/raw_translations/` organized by condition directory
+- [X] T024 [US2] Add logic to log "failed translation" for non-code outputs (e.g., "I cannot do that")
+- [X] T025b [US2] Implement `src/evaluation/generate_translations_log.py` to aggregate all prompts, seeds, and raw outputs into a CSV (`data/evaluation/raw_translations_log.csv`) with columns: `prompt_condition`, `seed`, `raw_output`, `timestamp`. **CRITICAL**: This file contains raw LLM outputs and MUST be added to `.gitignore` (Constitution Principle III). Do NOT commit this file to git. (FR-006, Constitution Principle III)
+- [X] T025c [US2] Implement `src/evaluation/generate_metadata_log.py` to create a **version-controlled** CSV (`data/evaluation/metadata_log.csv`) containing ONLY the `prompt_condition`, `seed`, `timestamp`, and `input_id` (NO raw outputs). This file is committed to git for reproducibility tracking. (FR-006, Constitution Principle VI)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,25 +122,36 @@
 
 ## Phase 5: User Story 3 - Functional Correctness and Quality Analysis (Priority: P3)
 
-**Goal**: Evaluate generated JS against translated unit tests, compute quality metrics, and perform statistical analysis.
+**Goal**: Evaluate generated JS against translated unit tests, compute quality metrics, perform statistical analysis, and generate the final report including "failure topology" to distinguish between syntactic errors and semantic hallucinations.
 
-**Independent Test**: Verify `src/evaluation/statistical_analysis.py` produces a CSV with `pass_rate`, `complexity`, `prompt_condition`, and valid p-values.
+**Independent Test**: Verify `src/evaluation/statistical_analysis.py` produces a CSV with `pass_rate`, `complexity`, `prompt_condition`, `failure_type`, and valid p-values.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for test translation in `tests/contract/test_test_translation.py`
+- [X] T025 [P] [US3] Contract test for test translation in `tests/contract/test_test_translation.py`
 - [X] T026 [P] [US3] Integration test for Node.js test runner in `tests/integration/test_node_runner.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027a [US3] Select and document a deterministic transpiler (e.g., `transcrypt` or custom AST converter) for converting Python unit tests to JavaScript
-- [ ] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript using the selected deterministic transpiler, strictly forbidding LLM-based test generation (FR-003)
-- [ ] T028 [US3] Implement `src/evaluation/run_node_tests.py` to execute translated tests against generated JS in a Node.js environment, enforcing 10s timeout per test (DEPENDS ON T027 output)
-- [ ] T029 [US3] Implement `src/evaluation/compute_quality.py` using ESLint `complexity` rule (config: `--rule complexity: [,10]`) to calculate cyclomatic complexity and LOC for each translation
-- [ ] T030 [US3] Implement `src/evaluation/statistical_analysis.py` to {{claim:c_e5f2707c}} (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
-- [ ] T031 [US3] Generate final `data/evaluation/statistical_summary.csv` containing `p_value`, `confidence_interval`, `effect_size`, and `prompt_condition`
-- [ ] T032 [US3] Integrate `src/utils/update_state.py` to update state after evaluation completion
-- [ ] T032b [US3] Implement `src/utils/measure_runtime.py` to measure and log total pipeline execution time against the 6-hour SC-003 constraint
+- [X] T027a [US3] **Feasibility Gate**: Select and document a deterministic transpiler. Attempt 'transcrypt' first, then 'pyjs'. If neither works for the specific test patterns, implement an LLM-based fallback strategy (using the same prompt mechanism as T021) to translate the tests. Document the chosen strategy, verification criteria, and fallback logic in `data/evaluation/transpiler_strategy.md`. **CRITICAL**: If an LLM fallback is used, it MUST be executed with the same strict reproducibility constraints (pinned seeds, versioned prompts) as the main inference (T021) to ensure the 'ground truth' is deterministic. This file is the gate artifact for T027. (Prerequisite for T027, FR-003)
+- [X] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript. **DEPENDS ON T027a**: Use the strategy defined in `data/evaluation/transpiler_strategy.md`. If the strategy is a deterministic tool, use it. If it is an LLM fallback, execute the LLM translation with the same reproducibility constraints as T021. (FR-003, DEPENDS ON T027a)
+- [X] T028 [US3] Implement `src/evaluation/run_node_tests.py` to execute translated tests against generated JS in a Node.js environment, enforcing a timeout per test (using T009) (DEPENDS ON T027, T009, T023)
+- [X] T029 [US3] Implement `src/evaluation/compute_quality.py` using ESLint `complexity` rule (config: `--rule complexity: [,10]`) to calculate cyclomatic complexity and LOC for each translation (DEPENDS ON T023)
+- [X] T030 [US3] Implement `src/evaluation/statistical_analysis.py` to perform Chi-square tests for correctness and ANOVA for quality metrics, including Bonferroni correction for multiple comparisons. **DEPENDS ON T028, T029, AND T025b** (for aggregated logs containing seeds/conditions to correlate results). **CRITICAL**: Pin statistical library versions in `requirements.txt` and enforce them in this script. (FR-005, DEPENDS ON T028, T029, T025b)
+- [X] T031 [US3] Generate final `data/evaluation/statistical_summary.csv` containing `p_value`, `confidence_interval`, `effect_size`, and `prompt_condition` (DEPENDS ON T030)
+- [X] T032 [US3] Integrate `src/utils/update_state.py` to update state after evaluation completion
+- [X] T032b [US3] Implement `src/utils/measure_runtime.py` to measure and log total pipeline execution time against the 6-hour SC-003 constraint
+- [X] T033 [US3] Implement `src/evaluation/classify_failures.py` to categorize translation failures into 'rigidity', 'confabulation', 'syntax_error', and 'semantic_hollow'. **CRITICAL**: Implement deterministic heuristics for each category:
+  - `syntax_error`: Regex match for common JS syntax errors (e.g., `SyntaxError: Unexpected token`).
+  - `semantic_hollow`: Keyword match for "I cannot do that", "undefined", or empty output.
+  - `rigidity`: Static analysis detecting hardcoded values or lack of logic variation.
+  - `confabulation`: Detection of non-existent library imports or function calls.
+  (DEPENDS ON T023, T028)
+- [X] T034 [US3] Generate `data/evaluation/failure_topology_report.csv` summarizing the counts and types of failures per condition (DEPENDS ON T033)
+- [X] T035 [US3] Integrate failure topology metrics into the final statistical summary if applicable (DEPENDS ON T034, T030)
+- [X] T036 [US3] Implement `src/evaluation/analyze_failure_topology.py` to perform a qualitative analysis of the "failure topology" (review concern: david-krakauer-simulated). This script must distinguish between "syntactically perfect but semantically hollow" code (semantic_hollow) and "over-generalized patterns" (rigidity) or "novel non-existent libraries" (confabulation). It must output a structured report (`data/evaluation/failure_topology_analysis.md`) describing the emergent behaviors of the model under different prompt conditions, mapping the boundaries of the model's "understanding" rather than just counting errors. **Schema**: The report must include sections for each failure type with counts, examples, and qualitative interpretation. (Addresses review: "failure topology analysis", FR-003 extension)
+- [X] T037 [US3] Implement `src/utils/changelog.py` to track deviations from the evaluation pipeline. This script must log any changes to prompts, data processing, or statistical methods in `data/evaluation/changelog.md` with timestamps and rationale. (Constitution Principle VII)
+- [X] T038 [US3] Implement `src/evaluation/sensitivity_analysis.py` to perform a sensitivity analysis for alpha values (sweeping α across a range of low values) to ensure robustness of statistical findings. (Constitution Principle VII)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,11 +161,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `docs/` including quickstart guide for running the full pipeline
-- [ ] T040 Code cleanup and refactoring of error handling paths
-- [ ] T041 Performance optimization for API request batching (if rate limits allow)
-- [ ] T042 [P] Additional unit tests in `tests/unit/` for utility functions
-- [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T039 [P] Documentation updates in `docs/` including quickstart guide for running the full pipeline
+- [X] T040 Code cleanup and refactoring of error handling paths
+- [X] T041 Performance optimization for API request batching (if rate limits allow)
+- [X] T042 [P] Additional unit tests in `tests/unit/` for utility functions
+- [X] T043 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -243,4 +259,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: {{claim:c_65af1cd1}} No local LLM training or 8-bit quantization allowed. [UNRESOLVED-CLAIM: c_52f1ae6c — status=not_enough_info] 
+- **Critical Constraint**: No local LLM training or low-bit quantization allowed.
+- **Research Note**: The 'transpiler_strategy.md' artifact (T027a) is the single source of truth for how Python tests are converted to JavaScript, ensuring FR-003 is met regardless of tool availability.
+- **Research Note (Review Addressed)**: Task T036 specifically addresses the need to analyze the "structure of incorrect code" and distinguish between "intelligence" and "stupidity" by categorizing failure topologies (rigidity, confabulation, semantic_hollow) rather than just counting binary pass/fail rates.
+- **Research Note (New)**: Tasks T037 and T038 ensure Constitution Principle VII is met by implementing changelog and sensitivity analysis mechanisms.

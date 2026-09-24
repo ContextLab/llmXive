@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project evaluates four prompt engineering strategies (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) for translating Python code to JavaScript using the CodeLlama-7B model via the HuggingFace Inference API. The implementation involves downloading and preprocessing a corpus of ≥200 code pairs, executing translations, validating functional correctness via unit tests (using deterministic transpilation for ground truth), measuring code quality (cyclomatic complexity, lines of code), and performing statistical analysis (GLMM, Repeated Measures ANOVA) to determine significant differences between conditions. The entire pipeline is designed to run within the constraints of a GitHub Actions free-tier runner (limited CPU, 7GB RAM, 6h limit) using CPU-tractable methods and API-based inference.
+This project evaluates four prompt engineering strategies (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) for translating Python code to JavaScript using the CodeLlama model via the HuggingFace Inference API. The implementation involves downloading and preprocessing a corpus of ≥200 code pairs, executing translations, validating functional correctness via unit tests (using deterministic transpilation for ground truth), measuring code quality (cyclomatic complexity, lines of code), and performing statistical analysis (GLMM, Repeated Measures ANOVA) to determine significant differences between conditions. The entire pipeline is designed to run within the constraints of a GitHub Actions free-tier runner (limited CPU, constrained RAM, 6h limit) using CPU-tractable methods and API-based inference.
 
 ## Technical Context
 

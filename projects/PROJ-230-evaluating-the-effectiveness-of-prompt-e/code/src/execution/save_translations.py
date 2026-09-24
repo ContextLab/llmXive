@@ -1,108 +1,82 @@
-"""
-Implementation of T023: Output storage for translation results.
-
-This module handles the storage of generated JavaScript translations into
-`data/evaluation/raw_translations/`, organized by prompt condition directory.
-It ensures deterministic file naming and logs the storage operation.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
 
-# Import logging utility from the project's existing API surface
 from src.utils.logging import get_logger, log_raw_output
 
-# Ensure the logger is configured
 logger = get_logger(__name__)
 
 def ensure_output_dirs(base_path: Path) -> None:
     """
-    Ensure the base output directory and condition subdirectories exist.
+    Ensures that the base output directory and subdirectories for each
+    prompt condition exist.
     
     Args:
-        base_path: The base path for evaluation outputs (e.g., data/evaluation/raw_translations)
+        base_path: The root directory for saving translations 
+                   (e.g., data/evaluation/raw_translations)
     """
     base_path.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {base_path}")
+    logger.info(f"Ensured output directories exist at {base_path}")
 
 def save_translation(
-    condition: str,
-    entry_id: str,
-    translated_code: str,
     base_path: Path,
-    prompt_text: str,
+    condition_name: str,
+  entry_id: str,
+    python_code: str,
+    javascript_output: str,
     seed: int,
+    prompt_text: str,
+    model_version: str,
     timestamp: str
-) -> Path:
+) -> None:
     """
-    Save a single translation result to disk.
+    Saves a single translation result to a JSON file organized by condition.
     
-    The file is saved as a JSON object containing the metadata and the raw output.
-    The file path is: {base_path}/{condition}/{entry_id}.json
+    This implements the storage requirement for T023:
+    "Implement output storage to `data/evaluation/raw_translations/` 
+    organized by condition directory".
     
     Args:
-        condition: The prompt condition string (e.g., 'zero_shot_basic')
-        entry_id: Unique identifier for the source code entry
-        translated_code: The generated JavaScript code string
-        base_path: The root directory for evaluation outputs
-        prompt_text: The exact prompt text used for generation
-        seed: The random seed used for generation
-        timestamp: The timestamp of the generation
-        
-    Returns:
-        Path: The absolute path to the saved JSON file
-        
-    Raises:
-        IOError: If writing the file fails
+        base_path: Root directory for raw translations (data/evaluation/raw_translations)
+        condition_name: The prompt condition identifier (e.g., 'zero_shot_basic')
+        entry_id: Unique identifier for the source code pair
+        python_code: The original Python code
+        javascript_output: The generated JavaScript translation
+        seed: The random seed used for this generation
+        prompt_text: The exact prompt sent to the LLM
+        model_version: The model version used
+        timestamp: ISO timestamp of the generation
     """
-    condition_dir = base_path / condition
+    # Create condition-specific directory
+    condition_dir = base_path / condition_name
     condition_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create a structured output file
-    output_data = {
-        "entry_id": entry_id,
-        "condition": condition,
-        "seed": seed,
-        "timestamp": timestamp,
-        "prompt": prompt_text,
-        "raw_output": translated_code,
-        "status": "success"
+    # Sanitize entry_id for filename safety (basic replacement)
+    safe_id = entry_id.replace("/", "_").replace("\\", "_")
+    filename = f"{safe_id}.json"
+    file_path = condition_dir / filename
+    
+    # Construct the record
+    record = {
+        "input_id": entry_id,
+        "condition": condition_name,
+        "python_code": python_code,
+        "javascript_output": javascript_output,
+        "metadata": {
+            "seed": seed,
+            "model_version": model_version,
+            "timestamp": timestamp,
+            "prompt_text": prompt_text
+        }
     }
     
-    output_file = condition_dir / f"{entry_id}.json"
-    
+    # Write to disk
     try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Saved translation for {entry_id} ({condition}) to {output_file}")
-        
-        # Log the raw output using the project's logging utility
-        log_raw_output(
-            artifact_type="translation",
-            entry_id=entry_id,
-            condition=condition,
-            content=translated_code,
-            logger=logger
-        )
-        
-        return output_file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(record, f, indent=2, ensure_ascii=False)
+        logger.debug(f"Saved translation to {file_path}")
     except IOError as e:
-        logger.error(f"Failed to save translation for {entry_id}: {e}")
+        logger.error(f"Failed to save translation to {file_path}: {e}")
         raise
-
-def main():
-    """
-    Entry point for the module.
-    This script is typically called by run_inference.py after generation,
-    but can be run standalone to verify directory structure.
-    """
-    logger.info("T023: Output storage module loaded successfully.")
-    base_path = Path("data/evaluation/raw_translations")
-    ensure_output_dirs(base_path)
-    logger.info(f"Ready to store translations in: {base_path}")
-
-if __name__ == "__main__":
-    main()

@@ -1,7 +1,8 @@
-You are an expert code translator. Translate the following Python code into equivalent JavaScript code.
-Do not add any explanations, comments, or extra text. Only output the JavaScript code.
+Translate the following Python code into equivalent JavaScript code.
+Maintain the original logic, variable names, and structure as closely as possible.
+Do not include any explanation or comments outside the code block.
 
 Python Code:
-{{python_code}}
+{python_code}
 
 JavaScript Code:

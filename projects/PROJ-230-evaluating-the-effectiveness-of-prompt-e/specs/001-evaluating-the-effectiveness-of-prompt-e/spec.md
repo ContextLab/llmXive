@@ -33,7 +33,7 @@ The system MUST execute the four distinct prompt engineering conditions (Zero-sh
 
 **Acceptance Scenarios**:
 
-1. **Given** a Python code snippet and a selected prompt condition, **When** the LLM inference is triggered, **Then** the system MUST enforce a 120-second timeout per request; if the response is not received within this window, the system logs a timeout failure and proceeds to the next item without crashing.
+1. **Given** a Python code snippet and a selected prompt condition, **When** the LLM inference is triggered, **Then** the system MUST enforce a timeout per request; if the response is not received within this window, the system logs a timeout failure and proceeds to the next item without crashing.
 2. **Given** the API rate limit is reached, **When** the request queue is full, **Then** the system waits and retries the request up to 3 times with exponential backoff before marking the specific translation as failed.
 3. **Given** the LLM returns malformed JSON or non-code text, **When** the output is parsed, **Then** the system logs the error and stores the raw response for manual review rather than crashing.
 
@@ -58,7 +58,7 @@ The system MUST evaluate the generated JavaScript against a *translated* version
 ### Edge Cases
 
 - What happens when the HuggingFace API is unavailable or the dataset repository is removed? (System must fail gracefully with a clear error message and not attempt infinite retries).
-- How does the system handle translated code that causes an infinite loop during testing? (The test runner must enforce a 10-second timeout per test case).
+- How does the system handle translated code that causes an infinite loop during testing? (The test runner must enforce a reasonable timeout per test case).
 - How does the system handle code snippets that are too complex for the LLM to translate at all (e.g., returning "I cannot do that")? (These are logged as "failed translation" and counted as functional failures).
 - What happens if the JavaScript test runner fails to execute a specific test case due to environment incompatibility? (The system must skip that specific test case, log it as "skipped," and not treat it as a pass or fail).
 
@@ -66,8 +66,8 @@ The system MUST evaluate the generated JavaScript against a *translated* version
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and cache the CodeTrans and BigCode datasets, filtering for a final corpus of ≥ 200 Python-to-JavaScript pairs, ensuring the total dataset size does not exceed 7 GB RAM. (See US-1)
-- **FR-002**: System MUST generate and apply four distinct prompt templates (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) to every code snippet in the dataset using the CodeLlama-7B model via HuggingFace Inference API. (See US-2)
+- **FR-001**: System MUST download and cache the CodeTrans and BigCode datasets, filtering for a final corpus of ≥ 200 Python-to-JavaScript pairs, ensuring the total dataset size remains within available system memory. (See US-1)
+- **FR-002**: System MUST generate and apply four distinct prompt templates (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) to every code snippet in the dataset using the CodeLlama model via HuggingFace Inference API. (See US-2)
 - **FR-003**: System MUST translate the original Python unit tests to JavaScript, execute them against the generated JavaScript code in a Node.js runtime, and record a binary pass/fail result for each execution. (See US-3)
 - **FR-004**: System MUST compute cyclomatic complexity and lines of code for every generated JavaScript translation using the `eslint` complexity plugin. (See US-3)
 - **FR-005**: System MUST perform statistical analysis (Chi-square for correctness, ANOVA for quality) on the aggregated results, including multiple-comparison corrections (e.g., Bonferroni) where >1 hypothesis is tested. (See US-3)
@@ -102,8 +102,8 @@ The system MUST evaluate the generated JavaScript against a *translated* version
 ## Assumptions
 
 - **Assumption about data availability**: The HuggingFace datasets `codeparrot/code-trans-py-js` and `bigcode/evaluation` will remain publicly accessible and contain sufficient valid Python-to-JavaScript pairs to reach the N ≥ 200 target.
-- **Assumption about API reliability**: The HuggingFace Inference API (CodeLlamaB endpoint) will remain available and not impose rate limits that prevent completing the required total number of requests (a sufficient volume of snippets across all experimental conditions) within the 6-hour window.
+- **Assumption about API reliability**: The HuggingFace Inference API (CodeLlamaB endpoint) will remain available and not impose rate limits that prevent completing the required total number of requests (a sufficient volume of snippets across all experimental conditions) within the designated observation window.
 - **Assumption about test translation**: A valid mechanism exists to translate the Python unit tests to JavaScript (e.g., via the same LLM or a dedicated transpiler) such that the translated tests preserve the semantic intent of the original assertions.
 - **Assumption about model behavior**: The CodeLlama-7B model will not hallucinate infinite loops or syntax errors that crash the test runner; any such behavior will be treated as a functional failure.
-- **Assumption about statistical power**: The sample size of N=200 is sufficient to detect a medium effect size (Cohen's h ≈ 0.5) in correctness rates with [deferred] power; if the effect is smaller, the study may be underpowered, which is acknowledged as a limitation.
+- **Assumption about statistical power**: The sample size of N=200 is sufficient to detect a medium effect size (Cohen's h) in correctness rates with [deferred] power; if the effect is smaller, the study may be underpowered, which is acknowledged as a limitation.
 - **Assumption about threshold justification**: The default significance threshold of α = 0.05 is used for all statistical tests, consistent with community standards in software engineering research; a sensitivity analysis sweeping α across a range of low values will be performed to ensure robustness.

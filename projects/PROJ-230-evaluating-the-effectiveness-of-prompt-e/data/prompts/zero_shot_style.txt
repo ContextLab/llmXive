@@ -1,12 +1,9 @@
-You are an expert code translator specializing in clean, modern JavaScript (ES6+).
 Translate the following Python code into equivalent JavaScript code.
-Follow these style guidelines:
-- Use arrow functions where appropriate.
-- Use `const` or `let` instead of `var`.
-- Use template literals for string interpolation.
-- Do not add any explanations, comments, or extra text. Only output the JavaScript code.
+Adhere to modern JavaScript (ES6+) best practices, including the use of `const` or `let` for variable declarations, arrow functions where appropriate, and standard naming conventions.
+Maintain the original logic and structure.
+Do not include any explanation or comments outside the code block.
 
 Python Code:
-{{python_code}}
+{python_code}
 
 JavaScript Code:

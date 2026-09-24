@@ -1,58 +1,23 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the four required prompt files (`zero_shot_basic.txt`, `zero_shot_style.txt`,\
+    \ `few_shot_basic.txt`, `few_shot_style.txt`) was provided; the claim lacks the\
+    \ actual files or their contents, so the task is not satisfied. The implementer\
+    \ must add these files in `data/prompts/` with complete, non\u2011placeholder\
+    \ prompt text as specified."
 T011:
   c: false
   h: 57f27f36a709bc1394616354a37541cf29ba5018689f3035fe8eac88435bc197
   r: The required artifact `tests/contract/test_dataset_fetch.py` does not exist in
     the repository, so the contract test for dataset fetch is missing. The task cannot
     be considered completed until this file is created with appropriate test code.
-T015:
-  c: false
-  h: 52f65c256e90df0ba9d55d4e34eee9547d9efeccb42d5f6689b52ef9f4c089d8
-  r: The required artifact `src/utils/checksum_artifacts.py` is missing entirely,
-    so no hashing functionality is present to integrate with the preprocessing pipeline.
-    The task cannot be considered done until this file is created with the appropriate
-    code.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log files, or documentation were provided showing that excluded entries\
-    \ are now logged or that peak memory usage is recorded and compared against the\
-    \ SC\u2011004 constraint. Without these artifacts, we cannot confirm the required\
-    \ logging functionality was added."
 T018:
   c: false
   h: 81e84048ae210a339f880f7a468014d3997345efc94d7b23edeb155a35460e2b
   r: "The required artifact `tests/contract/test_api_client.py` does not exist in\
     \ the repository, so the contract test for the API client is missing entirely.\
     \ Without this file, the task\u2019s deliverable is not provided."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, configuration, or log files were provided that demonstrate seeds\
-    \ being pinned or the required logging of prompt text, model version, and seed\
-    \ for each request. Without concrete artifacts showing this deterministic\u2011\
-    execution functionality, the task\u2019s requirement is not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or directory structure was provided showing that translation\
-    \ outputs are being saved under `data/evaluation/raw_translations/` with sub\u2011\
-    folders for each prompt condition. Without such artifacts, we cannot confirm the\
-    \ required storage implementation exists."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log modifications were provided to demonstrate that the\
-    \ system now records a \u201Cfailed translation\u201D entry when the LLM returns\
-    \ non\u2011code text. Without an artifact showing the added logging logic (e.g.,\
-    \ updated inference or post\u2011processing module and example log output), the\
-    \ requirement cannot be confirmed."
-T025:
-  c: false
-  h: 4137220051f97acda59a0d80b64d8c5d89dc1dbcfe5546cb6e393b13a8b32579
-  r: The required artifact `tests/contract/test_test_translation.py` does not exist
-    in the repository, so the contract test for test translation is missing. The task
-    cannot be considered completed until this file is created with appropriate test
-    content.
 T027a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -60,3 +25,9 @@ T027a:
     is no artifact that selects a deterministic transpiler nor any documentation describing
     its usage, configuration, or determinism guarantees. A concrete selection (e.g.,
     `transcrypt` version) and accompanying documentation are required to satisfy T027a.
+T032:
+  c: false
+  h: 278187dac194703ef250bf1d6d5c2e90e4c021e8b5ea6a333019347429213d93
+  r: The required artifact `src/utils/update_state.py` does not exist in the repository,
+    so the integration cannot be verified. The missing file must be added with the
+    appropriate logic to update the system state after evaluation completes.

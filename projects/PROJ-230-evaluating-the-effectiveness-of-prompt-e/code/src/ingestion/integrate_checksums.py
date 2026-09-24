@@ -1,78 +1,74 @@
 """
-Integrate checksum artifacts into the preprocessing pipeline.
+T015: Integrate checksum_artifacts to hash data/raw files before preprocessing.
 
-This module scans the data/raw/ directory for downloaded dataset files,
-computes their SHA-256 hashes using the checksum_artifacts utility,
-and writes the results to state/checksums/ for provenance tracking.
+This script ensures that all files in data/raw/ are hashed using the 
+checksum_artifacts utility BEFORE any preprocessing occurs. This satisfies
+Constitution Principle III (Traceability) and provides a verified baseline
+for the raw dataset.
 
-This implements the requirement to hash data/raw/ files before preprocessing
-(Task T015).
+Usage:
+    python src/ingestion/integrate_checksums.py
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Import from existing API surface
+# Add project root to path for imports if running as script
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 from src.utils.checksum_artifacts import scan_directory, write_checksums
 from src.utils.logging import get_logger
 
 def main():
     """
-    Main entry point for integrating checksums into the preprocessing pipeline.
-    
-    This function:
-    1. Scans data/raw/ for all files
-    2. Computes SHA-256 hashes for each file
-    3. Writes the results to state/checksums/raw_checksums.json
-    4. Logs the operation for auditability
-    
-    Returns:
-        bool: True if successful, False otherwise
+    Main entry point for T015.
+    1. Locate data/raw/ directory.
+    2. Scan for all files.
+    3. Compute SHA-256 hashes.
+    4. Write results to state/checksums/ (specifically for raw files).
     """
-    logger = get_logger(__name__)
-    logger.info("Starting checksum integration for data/raw/ files")
+    logger = get_logger("integrate_checksums")
     
     # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    raw_data_dir = project_root / "data" / "raw"
-    state_dir = project_root / "state" / "checksums"
+    raw_dir = project_root / "data" / "raw"
+    checksum_dir = project_root / "state" / "checksums"
     
-    # Ensure state directory exists
-    state_dir.mkdir(parents=True, exist_ok=True)
+    if not raw_dir.exists():
+        logger.warning(f"Raw data directory {raw_dir} does not exist. "
+                       "Skipping checksum generation. Ensure T013 has run.")
+        return
+
+    # Ensure checksum directory exists
+    checksum_dir.mkdir(parents=True, exist_ok=True)
     
-    # Check if raw data directory exists
-    if not raw_data_dir.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
-        logger.info("Skipping checksum integration - no raw data to hash")
-        return True
+    logger.info(f"Scanning raw data directory: {raw_dir}")
+    files_to_hash = list(raw_dir.glob("*"))
     
-    # Scan directory for files
-    logger.info(f"Scanning directory: {raw_data_dir}")
-    files_info = scan_directory(raw_data_dir)
+    if not files_to_hash:
+        logger.warning("No files found in data/raw/ to hash.")
+        return
+
+    logger.info(f"Found {len(files_to_hash)} files to hash.")
     
-    if not files_info:
-        logger.warning(f"No files found in {raw_data_dir}")
-        return True
+    # Compute hashes
+    # The scan_directory function returns a list of (path, hash) tuples
+    checksums = scan_directory(raw_dir)
     
-    logger.info(f"Found {len(files_info)} files to hash")
+    if not checksums:
+        logger.error("Failed to compute checksums for any files.")
+        return
+
+    # Write checksums to the state directory
+    # We name the file specifically for the raw dataset to distinguish it
+    # from processed data checksums if they are added later.
+    checksum_file = checksum_dir / "raw_data_checksums.json"
     
-    # Write checksums to state directory
-    output_path = state_dir / "raw_checksums.json"
-    write_checksums(files_info, output_path)
+    write_checksums(checksums, checksum_file)
     
-    logger.info(f"Checksums written to: {output_path}")
-    logger.info(f"Total files hashed: {len(files_info)}")
-    
-    # Log summary
-    for file_info in files_info:
-        logger.info(
-            f"Hashed: {file_info['relative_path']} -> {file_info['sha256'][:16]}..."
-        )
-    
-    logger.info("Checksum integration completed successfully")
-    return True
+    logger.info(f"Successfully wrote checksums to {checksum_file}")
+    logger.info(f"Total files hashed: {len(checksums)}")
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

@@ -5,91 +5,118 @@ import logging
 import resource
 import pandas as pd
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-# Import existing logging utilities
-try:
-    from src.utils.logging import get_logger
-except ImportError:
-    # Fallback for execution context where src might not be in path
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-    from src.utils.logging import get_logger
-
-SC_004_MEMORY_LIMIT_GB = 7.0
-SC_004_MEMORY_LIMIT_BYTES = SC_004_MEMORY_LIMIT_GB * (1024 ** 3)
+from src.utils.logging import get_logger
 
 def get_peak_memory_usage_bytes() -> int:
     """
-    Returns the peak memory usage of the current process in bytes.
-    Uses resource.getrusage for Unix-like systems.
-    Falls back to a rough estimation for Windows if resource module is unavailable.
+    Get the peak memory usage of the current process in bytes.
+    Uses resource.getrusage which is POSIX compliant.
     """
-    if sys.platform != 'win32':
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in kilobytes on Linux/macOS
-        return usage.ru_maxrss * 1024
-    else:
-        # Fallback for Windows (approximate)
-        try:
-            import psutil
-            process = psutil.Process(os.getpid())
-            return process.memory_info().peak_wset
-        except ImportError:
-            logging.warning("psutil not available on Windows. Returning current RSS.")
-            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024 if hasattr(resource, 'getrusage') else 0
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    # maxrss is in kilobytes on Linux/macOS
+    return usage.ru_maxrss * 1024
 
 def get_peak_memory_usage_gb() -> float:
-    """Returns peak memory usage in GB."""
+    """
+    Get the peak memory usage of the current process in gigabytes.
+    """
     return get_peak_memory_usage_bytes() / (1024 ** 3)
 
-def log_memory_usage(logger: logging.Logger, stage: str = "Processing") -> None:
+def log_memory_usage(logger: logging.Logger, constraint_gb: float = 7.0) -> Dict[str, Any]:
     """
-    Logs the current peak memory usage for a given stage.
+    Log the current and peak memory usage statistics.
+    Returns a dictionary with the stats for potential programmatic use.
     """
-    peak_gb = get_peak_memory_usage_gb()
-    logger.info(f"[Memory Stats] {stage}: Peak memory usage: {peak_gb:.2f} GB")
-    return peak_gb
-
-def log_excluded_entries(logger: logging.Logger, excluded_entries: List[Dict[str, Any]], reason: str = "Validation Failure") -> None:
-    """
-    Logs details about excluded entries to satisfy the requirement for
-    logging excluded entries during dataset validation.
-    """
-    count = len(excluded_entries)
-    if count > 0:
-        logger.warning(f"Excluded {count} entries due to {reason}.")
-        # Log a sample of the first few excluded entries for debugging
-        sample_size = min(5, count)
-        for i, entry in enumerate(excluded_entries[:sample_size]):
-            # Sanitize log to avoid printing massive code blocks
-            safe_entry = {k: str(v)[:100] + "..." if len(str(v)) > 100 else str(v) for k, v in entry.items()}
-            logger.debug(f"Excluded entry sample {i+1}/{sample_size}: {safe_entry}")
+    peak_bytes = get_peak_memory_usage_bytes()
+    peak_gb = peak_bytes / (1024 ** 3)
+    current_bytes = get_peak_memory_usage_bytes() # resource doesn't give current distinct from peak easily in this call, but we log peak
+    
+    logger.info(f"Memory Statistics: Peak Usage = {peak_gb:.2f} GB ({peak_bytes} bytes)")
+    
+    stats = {
+        "peak_memory_bytes": peak_bytes,
+        "peak_memory_gb": peak_gb,
+        "constraint_gb": constraint_gb,
+        "within_limit": peak_gb <= constraint_gb
+    }
+    
+    if not stats["within_limit"]:
+        logger.warning(f"SC-004 Constraint Violation: Peak memory ({peak_gb:.2f} GB) exceeds limit ({constraint_gb} GB)")
+    else:
+        logger.info(f"SC-004 Constraint Satisfied: Peak memory ({peak_gb:.2f} GB) is within limit ({constraint_gb} GB)")
         
-        if count > sample_size:
-            logger.warning(f"... and {count - sample_size} more excluded entries.")
-    else:
-        logger.info("No entries excluded due to validation.")
+    return stats
 
-def validate_and_log_memory_constraint(logger: logging.Logger, current_peak_gb: float) -> bool:
+def log_excluded_entries(logger: logging.Logger, excluded_entries: List[Dict[str, Any]], log_path: Optional[Path] = None) -> None:
     """
-    Validates current memory usage against SC-004 constraint (7GB).
-    Returns True if within limits, False otherwise.
-    Logs the result.
+    Log details of excluded entries to the logger and optionally write them to a CSV file.
+    
+    Args:
+        logger: The logger instance to use.
+        excluded_entries: List of dictionaries containing details of excluded entries.
+        log_path: Optional path to write the exclusion log CSV.
     """
-    if current_peak_gb > SC_004_MEMORY_LIMIT_GB:
-        logger.error(f"[SC-004 Violation] Peak memory {current_peak_gb:.2f} GB exceeds limit {SC_004_MEMORY_LIMIT_GB} GB.")
-        return False
-    else:
-        logger.info(f"[SC-004 Compliant] Peak memory {current_peak_gb:.2f} GB is within limit {SC_004_MEMORY_LIMIT_GB} GB.")
-        return True
+    if not excluded_entries:
+        logger.info("No entries were excluded during preprocessing.")
+        return
+
+    logger.info(f"Logging {len(excluded_entries)} excluded entries.")
+    
+    # Log summary to stdout
+    reasons = [entry.get('reason', 'unknown') for entry in excluded_entries]
+    reason_counts = {}
+    for r in reasons:
+        reason_counts[r] = reason_counts.get(r, 0) + 1
+    
+    logger.info("Exclusion Summary:")
+    for reason, count in reason_counts.items():
+        logger.info(f"  - {reason}: {count}")
+
+    # Write to CSV if path provided
+    if log_path:
+        try:
+            # Ensure directory exists
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            df = pd.DataFrame(excluded_entries)
+            df.to_csv(log_path, index=False)
+            logger.info(f"Exclusion log written to: {log_path}")
+        except Exception as e:
+            logger.error(f"Failed to write exclusion log to {log_path}: {e}")
+            raise
+
+def validate_and_log_memory_constraint(logger: logging.Logger, constraint_gb: float = 7.0) -> bool:
+    """
+    Validates the current peak memory usage against the SC-004 constraint.
+    Logs the result and returns True if the constraint is satisfied, False otherwise.
+    """
+    stats = log_memory_usage(logger, constraint_gb)
+    return stats["within_limit"]
 
 def main():
     """
-    Entry point for testing/logging utilities independently.
+    Main entry point for testing logging utilities.
     """
-    logger = get_logger(__name__)
-    logger.info("Enhance Logging Module loaded.")
-    log_memory_usage(logger, "Module Load Check")
+    logger = get_logger("test_enhance_logging")
+    
+    # Simulate some memory usage
+    data = [i for i in range(1000000)]
+    gc.collect()
+    
+    log_memory_usage(logger)
+    
+    # Simulate excluded entries
+    fake_excluded = [
+        {"id": "1", "reason": "missing_code", "entry_preview": "..."},
+        {"id": "2", "reason": "non_string_type", "entry_preview": "..."},
+        {"id": "3", "reason": "missing_code", "entry_preview": "..."}
+    ]
+    
+    log_excluded_entries(logger, fake_excluded, log_path=Path("data/processed/exclusion_log.csv"))
+    
+    validate_and_log_memory_constraint(logger)
 
 if __name__ == "__main__":
     main()

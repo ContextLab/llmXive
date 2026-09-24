@@ -1,17 +1,8 @@
-You are an expert code translator. Translate the following Python code into equivalent JavaScript code.
-Here are some examples of correct translations:
+Translate the following Python code into equivalent JavaScript code.
+Maintain the original logic, variable names, and structure as closely as possible.
+Do not include any explanation or comments outside the code block.
 
 Example 1:
-Python:
-def greet(name):
-    print("Hello, " + name)
-
-JavaScript:
-function greet(name) {
-    console.log("Hello, " + name);
-}
-
-Example 2:
 Python:
 def add(a, b):
     return a + b
@@ -21,9 +12,20 @@ function add(a, b) {
     return a + b;
 }
 
-Now translate the following:
+Example 2:
+Python:
+x = [1, 2, 3]
+for i in x:
+    print(i)
 
+JavaScript:
+var x = [1, 2, 3];
+for (var i = 0; i < x.length; i++) {
+    console.log(x[i]);
+}
+
+Now translate this:
 Python Code:
-{{python_code}}
+{python_code}
 
 JavaScript Code:

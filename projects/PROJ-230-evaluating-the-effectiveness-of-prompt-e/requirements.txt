@@ -1,12 +1,10 @@
 # Core dependencies
 datasets>=2.14.0
 pandas>=2.0.0
+numpy>=1.24.0
 requests>=2.31.0
 pyyaml>=6.0
 pytest>=7.4.0
-# Evaluation tools
-eslint>=8.0.0
-transcrypt>=3.9.0
-nodejs>=18.0.0
-# Logging and utilities
-rich>=13.0.0
+python-dotenv>=1.0.0
+# Additional dependencies for evaluation
+# Note: Node.js must be installed separately on the system

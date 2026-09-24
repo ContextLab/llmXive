@@ -1,0 +1,32 @@
+# Raw LLM outputs - contain potentially sensitive or large data
+raw_translations_log.csv
+metadata_log.csv
+# All generated evaluation data
+evaluation/
+# Raw downloaded datasets
+raw/
+# Processed data
+processed/
+# Checksums and state (optional to ignore, but often large)
+state/
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+# Virtual environments
+venv/
+.venv/
+env/
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+# OS files
+.DS_Store
+Thumbs.db
+# Logs
+*.log
