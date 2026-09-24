@@ -101,7 +101,7 @@ projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **GPU Escape Hatch** | Fine-tuning a medium-scale LLM on CPU may exceed 4h. | A purely CPU run risks timeout; the spec allows a scaled-down GPU run if CPU fails, ensuring feasibility without sacrificing the "seeing-to-doing" hypothesis test. |
+| **GPU Escape Hatch** | Fine-tuning a medium-scale LLM on CPU may require several hours.. | A purely CPU run risks timeout; the spec allows a scaled-down GPU run if CPU fails, ensuring feasibility without sacrificing the "seeing-to-doing" hypothesis test. |
 | **Permutation Test** | Non-parametric comparison needed for small sample (N=50). | Standard t-tests assume normality which may not hold for binary success rates; Permutation Test is robust and explicitly required by FR-005. |
 | **Oracle-Symbolic Baseline** | Comparing to a visual baseline conflates perception and reasoning. | A visual baseline (Baseline-Guava) would make the test tautological (visual > symbolic by definition). The Oracle-Symbolic baseline isolates the reasoning gap. |
 

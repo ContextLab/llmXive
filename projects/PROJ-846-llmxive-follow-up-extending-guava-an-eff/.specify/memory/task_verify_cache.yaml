@@ -1,40 +1,28 @@
-T001d:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No repository, commit hash, log output, or any other artifact proving that `git
-    commit -m "Initial commit"` was executed is present; the claim lacks concrete
-    evidence of an initial commit.
-T004a:
+  r: "No evidence of a `.gitignore` file, a `.git` directory, or any commit history\
+    \ is provided; the implementer\u2019s claim cannot be verified against actual\
+    \ artifacts. The required repository initialization steps are not demonstrated."
+T002a:
+  c: false
+  h: e5fb440ea4dcd39ca895d63e0016fded1a0cff1d681b0680e4d9aaee9e9b34bb
+  r: The required file `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt`
+    does not exist, even though a similarly named `code/requirements.txt` with the
+    correct contents is present elsewhere. The task specifically demanded the file
+    at the given project path, which is missing.
+T002b:
+  c: false
+  h: 0c96433a48a645a6f6c5f96998bc3ce2bd5d92ee074d13d0512e8c65e738039f
+  r: The required `requirements.txt` file is missing, so there is no evidence that
+    `pip install -r requirements.txt` was run, nor any verification of a clean virtualenv
+    installation. Without the file and installation logs, the task is not satisfied.
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/`
-    or a `.gitkeep` file within it was provided; without these artifacts the task
-    requirement is not satisfied.
-T004b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/`
-    directory or a `.gitkeep` file within it was provided; the required artifact is
-    missing.
-T004c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/`
-    actually exists or contains a `.gitkeep` file; the claim cannot be verified.
-T005:
-  c: false
-  h: c2ff2f76ddcfdb33f5aa05adb0ac4cf62baef0edca530604b8384cc4e2abe47f
-  r: The `state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml` file is absent,
-    so the required state update cannot be verified. Additionally, the provided `state_manager.py`
-    snippet does not show the atomic write logic or the creation of an `artifact_hashes`
-    map with an `updated_at` timestamp. The missing YAML file and incomplete implementation
-    need to be added.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration files, or exception definition for `DatasetUnavailableError`\
-    \ were provided; the claim lacks any tangible artifact demonstrating that error\u2011\
-    handling infrastructure was set up. The required implementation is missing."
+  r: The implementer did not provide any evidence (e.g., a directory listing, screenshot,
+    or command output) showing that a `state/` directory exists in the repository
+    root. Without such proof, we cannot confirm the required artifact is present.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,25 +32,20 @@ T009:
     150\u202Fms per\u2011frame and \u22644\u2011hour full\u2011dataset processing\
     \ constraints. Consequently the core requirement of creating a \u201CSymbolic\u2011\
     Guava\u201D dataset is unverified."
-T013a:
-  c: false
-  h: 3f3641ceb6c4055f4e7c4f9f6561f4f0dc3c943ec970845ab3bd149f97de446d
-  r: "The repository contains `download_guava.py`, but the required output file `data/raw/guava/checksums.json`\
-    \ is missing, and the provided script is truncated before showing the actual download\u2011\
-    to\u2011`data/raw/guava/` and checksum\u2011generation logic. Without the generated\
-    \ checksums file (and a complete implementation that saves the dataset), the task\
-    \ is not satisfied."
 T013c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script, log file, or output showing that `data/raw/guava/` was checked against
-    `checksums.json` was provided; the required artifact (verification result) is
-    missing.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the specification text; there are no actual code\
-    \ files, scripts, transformed Symbolic\u2011Guava dataset, fine\u2011tuning implementation,\
-    \ or evaluation results provided. Consequently, the required artifacts to demonstrate\
-    \ LoRA fine\u2011tuning logic using the original Guava prompt templates and action\
-    \ abstraction schemas are missing."
+  h: 8e0d16af92478498836daf8f10f648cc79aee8be364f6227dcc03b5c38a31e39
+  r: "The repository contains a non\u2011empty `copy_ground_truth.py` script, but\
+    \ the shown code stops at verification utilities and does not include the part\
+    \ that actually copies the first valid candidate to `data/raw/guava/ground_truth_annotations.json`.\
+    \ Moreover, the required target file is missing, indicating the script\u2019s\
+    \ core functionality has not been demonstrated. The implementation needs the copy\
+    \ operation (and optionally a runnable entry point) to satisfy the task."
+T013d:
+  c: true
+  h: ff5a0801b498160d35dbd61641edacf87fdefe410adcaf6dc15a3f58e990562d
+  r: "The provided `code/data/set_gt_flag.py` script exists, is non\u2011empty, and\
+    \ implements the required logic: it checks for `data/raw/guava/ground_truth_annotations.json`\
+    \ and sets the global `PERCEPTION_GT_AVAILABLE` flag (via `set_hyperparameter`)\
+    \ to `True` if the file exists and `False` otherwise. No placeholder or stub code\
+    \ is present."

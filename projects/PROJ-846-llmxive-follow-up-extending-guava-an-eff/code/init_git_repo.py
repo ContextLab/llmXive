@@ -2,60 +2,41 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from code.git_operations import init_repository, stage_all_files, commit_changes
 
-def initialize_git_repository(root_path: Path) -> bool:
+def initialize_git_repository(project_root: Path) -> bool:
     """
-    Initialize a git repository in the specified root path.
-    
-    Args:
-        root_path: The directory where the git repository should be initialized.
-        
-    Returns:
-        True if initialization was successful, False otherwise.
+    Initialize the git repository, stage all files, and make the initial commit.
     """
-    if not root_path.exists():
-        print(f"Error: Path does not exist: {root_path}")
+    print(f"Initializing git repository at: {project_root}")
+
+    # Initialize
+    stdout, stderr, code = init_repository(project_root)
+    if code != 0:
+        print(f"Error initializing git: {stderr}")
         return False
-        
-    try:
-        # Change to the root directory
-        os.chdir(root_path)
-        
-        # Run git init
-        result = subprocess.run(
-            ["git", "init"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
-        print(f"Git initialized successfully in {root_path}")
-        print(f"Output: {result.stdout.strip()}")
-        return True
-        
-    except subprocess.CalledProcessError as e:
-        print(f"Error initializing git repository: {e.stderr}")
+    print("Git repository initialized.")
+
+    # Stage all files
+    stdout, stderr, code = stage_all_files(project_root)
+    if code != 0:
+        print(f"Error staging files: {stderr}")
         return False
-    except FileNotFoundError:
-        print("Error: git command not found. Please install git and try again.")
+    print("Files staged.")
+
+    # Commit
+    stdout, stderr, code = commit_changes(project_root, "Initial commit")
+    if code != 0:
+        print(f"Error committing: {stderr}")
         return False
+    print("Initial commit created.")
+
+    return True
 
 def main():
-    """Main entry point for git initialization."""
-    # Determine the project root path
-    # The project root is the parent of the 'code' directory
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent.parent.parent.parent.parent.parent.parent
-    
-    print(f"Initializing git repository in: {project_root}")
-    
-    if initialize_git_repository(project_root):
-        print("Git initialization completed successfully.")
-        sys.exit(0)
-    else:
-        print("Git initialization failed.")
-        sys.exit(1)
+    project_root = Path(__file__).resolve().parent.parent
+    success = initialize_git_repository(project_root)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

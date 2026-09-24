@@ -1,307 +1,263 @@
 """
 State Manager for llmXive Project.
 
-This module handles the management of project state by:
-1. Calculating content hashes for all tracked artifacts.
-2. Generating a state hash for the entire project.
-3. Updating a central YAML state file atomically.
-4. Verifying state integrity.
-
-The state file is located at: state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml
+Handles atomic updates of the project state YAML file, calculating content hashes
+for artifacts and recording timestamps.
 """
-
 import hashlib
 import os
 import tempfile
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, List, Optional
 
+# Project root relative to this file (utils/state_manager.py is in code/utils/)
+# We assume the project root is 4 levels up: code/utils/ -> code/ -> projects/.../ -> root
+# However, to be robust, we will calculate the project root based on the existence
+# of the 'state' directory or by traversing up until we find a known marker.
+# For this implementation, we assume the standard structure:
+# Root/
+#   state/
+#   projects/PROJ-846-.../code/utils/state_manager.py
 
-# Project root relative to this file's location
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-PROJECT_ID = "PROJ-846-llmxive-follow-up-extending-guava-an-eff"
-STATE_FILE_NAME = f"{PROJECT_ID}.yaml"
-STATE_FILE_PATH = STATE_DIR / STATE_FILE_NAME
-
-# Directories to track for state hashing
-TRACKED_DIRS = [
-    "code",
-    "data",
-    "tests",
-    "specs",
-    "docs"
-]
-
-# File extensions to include in hashing
-TRACKED_EXTENSIONS = {".py", ".yaml", ".yml", ".json", ".txt", ".md", ".toml", ".cfg", ".ini", ".gitignore", ".ruff.toml", ".gitkeep"}
-
-# Directories to exclude from hashing
-EXCLUDED_DIRS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache", "venv", ".venv", "node_modules", "build", "dist"}
-
+def get_project_root() -> Path:
+    """
+    Traverses up from the current file location to find the project root.
+    The project root is defined as the directory containing the 'state' folder.
+    """
+    current = Path(__file__).resolve()
+    # Traverse up
+    for _ in range(10): # Limit traversal to avoid infinite loops
+        parent = current.parent
+        if (parent / "state").is_dir():
+            return parent
+        current = parent
+    # Fallback: if not found, assume current working directory or a standard relative path
+    # Given the task context, we assume the root is the parent of the 'projects' directory
+    # which is likely 3 levels up from code/utils
+    return Path(__file__).resolve().parent.parent.parent.parent
 
 def calculate_file_hash(file_path: Path) -> str:
     """
-    Calculate the SHA-256 hash of a file's contents.
-
+    Calculates the SHA-256 hash of a file's contents.
+    
     Args:
-        file_path: Path to the file to hash.
-
+        file_path: Path to the file.
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hex digest string of the file hash.
     """
+    if not file_path.exists():
+        return ""
+    
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
-    except (IOError, OSError) as e:
-        raise RuntimeError(f"Failed to read file {file_path} for hashing: {e}")
+    except (IOError, OSError):
+        return ""
 
-
-def get_all_files(base_dir: Path, tracked_dirs: List[str], extensions: set, excluded_dirs: set) -> List[Path]:
+def get_all_files(directory: Path, extensions: Optional[List[str]] = None) -> List[Path]:
     """
-    Recursively find all tracked files in the specified directories.
-
+    Recursively gets all files in a directory.
+    
     Args:
-        base_dir: Root directory to start scanning from.
-        tracked_dirs: List of directory names to include.
-        extensions: Set of file extensions to include.
-        excluded_dirs: Set of directory names to exclude.
-
+        directory: Path to the directory.
+        extensions: Optional list of extensions to filter by (e.g., ['.json', '.csv']).
+                    
     Returns:
-        List of Path objects for all matching files.
+        List of Path objects.
     """
+    if not directory.exists():
+        return []
+    
     files = []
-    base_dir = base_dir.resolve()
-
-    for dir_name in tracked_dirs:
-        target_dir = base_dir / dir_name
-        if not target_dir.exists():
-            continue
-
-        for root, dirs, filenames in os.walk(target_dir):
-            # Modify dirs in-place to skip excluded directories
-            dirs[:] = [d for d in dirs if d not in excluded_dirs]
-
-            for filename in filenames:
-                file_path = Path(root) / filename
-                if file_path.suffix in extensions:
+    for root, _, filenames in os.walk(directory):
+        for filename in filenames:
+            file_path = Path(root) / filename
+            if extensions:
+                if any(file_path.suffix == ext for ext in extensions):
                     files.append(file_path)
-
+            else:
+                # Skip hidden files and .gitkeep
+                if not filename.startswith('.') and filename != '.gitkeep':
+                    files.append(file_path)
     return files
 
-
-def generate_state_hash(file_hashes: Dict[str, str]) -> str:
+def generate_state_hash(artifacts: Dict[str, str]) -> str:
     """
-    Generate a single hash representing the state of all files.
-
+    Generates a hash of the entire state dictionary to verify integrity.
+    
     Args:
-        file_hashes: Dictionary mapping relative paths to their content hashes.
-
+        artifacts: The dictionary of artifact hashes.
+                    
     Returns:
-        Hexadecimal string of the combined state hash.
+        Hex digest string of the state hash.
     """
-    combined = "".join(f"{k}:{v}" for k, v in sorted(file_hashes.items()))
-    return hashlib.sha256(combined.encode("utf-8")).hexdigest()
+    # Sort keys to ensure deterministic hashing
+    sorted_items = sorted(artifacts.items())
+    content = yaml.dump(sorted_items, sort_keys=True)
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-
-def update_state_file(artifact_hashes: Optional[Dict[str, str]] = None, state_file_path: Optional[Path] = None) -> Dict[str, Any]:
+def update_state_file(state_path: Path, artifact_dirs: Optional[List[Path]] = None) -> Dict[str, Any]:
     """
-    Update the central state YAML file with current file hashes and timestamp.
-
-    Uses atomic write (write to temp, rename) to ensure consistency.
-
+    Updates the state YAML file with current artifact hashes and timestamp.
+    Uses atomic write (temp file + rename) to prevent corruption.
+    
     Args:
-        artifact_hashes: Optional pre-computed map of relative paths to hashes.
-        state_file_path: Optional override for the state file location.
-
+        state_path: Path to the state YAML file.
+        artifact_dirs: List of directories to scan for artifacts. If None, defaults to standard data/artifacts.
+                    
     Returns:
         The updated state dictionary.
     """
-    if state_file_path is None:
-        state_file_path = STATE_FILE_PATH
-
-    # Ensure state directory exists
-    state_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # If no hashes provided, calculate them
-    if artifact_hashes is None:
-        files = get_all_files(PROJECT_ROOT, TRACKED_DIRS, TRACKED_EXTENSIONS, EXCLUDED_DIRS)
-        artifact_hashes = {}
-        for f in files:
+    if artifact_dirs is None:
+        # Default to data/artifacts relative to project root
+        project_root = get_project_root()
+        artifact_dirs = [project_root / "data" / "artifacts"]
+    
+    artifact_hashes = {}
+    
+    # Scan provided directories
+    for dir_path in artifact_dirs:
+        if not dir_path.exists():
+            continue
+        
+        # Get relative path for the key
+        try:
+            rel_base = dir_path.relative_to(get_project_root())
+        except ValueError:
+            rel_base = dir_path.name
+        
+        files = get_all_files(dir_path)
+        for file_path in files:
             try:
-                rel_path = f.relative_to(PROJECT_ROOT)
-                artifact_hashes[str(rel_path)] = calculate_file_hash(f)
+                # Key is relative path from project root
+                rel_path = file_path.relative_to(get_project_root())
+                file_hash = calculate_file_hash(file_path)
+                if file_hash:
+                    artifact_hashes[str(rel_path)] = file_hash
             except ValueError:
-                # File is not relative to PROJECT_ROOT (shouldn't happen given logic)
+                # File is outside project root, skip or handle differently
                 continue
-
-    # Construct the state data
-    state_data = {
-        "project_id": PROJECT_ID,
-        "updated_at": datetime.utcnow().isoformat() + "Z",
+    
+    # Prepare state content
+    current_time = datetime.utcnow().isoformat()
+    state_content = {
         "artifact_hashes": artifact_hashes,
-        "state_hash": generate_state_hash(artifact_hashes),
-        "tracked_directories": TRACKED_DIRS,
-        "excluded_directories": list(EXCLUDED_DIRS)
+        "updated_at": current_time
     }
-
-    # Atomic write: Write to a temp file in the same directory, then rename
+    
+    # Atomic write
+    # Create temp file in the same directory to ensure same filesystem for rename
+    if not state_path.parent.exists():
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fd, temp_path = tempfile.mkstemp(dir=state_path.parent, suffix='.tmp')
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            dir=state_file_path.parent,
-            prefix=f".{state_file_path.name}.tmp_",
-            suffix=".yaml",
-            delete=False
-        ) as tmp_file:
-            yaml.dump(state_data, tmp_file, default_flow_style=False, sort_keys=False)
-            tmp_path = Path(tmp_file.name)
-
+        with os.fdopen(fd, 'w') as f:
+            yaml.dump(state_content, f, default_flow_style=False, sort_keys=False)
+        
         # Atomic rename
-        os.replace(tmp_path, state_file_path)
-
-    except Exception as e:
-        # Clean up temp file if rename fails
-        if 'tmp_path' in locals() and tmp_path.exists():
-            tmp_path.unlink()
-        raise RuntimeError(f"Failed to update state file atomically: {e}")
-
-    return state_data
-
-
-def verify_state_integrity(state_file_path: Optional[Path] = None) -> bool:
-    """
-    Verify the integrity of the state file by recalculating hashes and comparing.
-
-    Args:
-        state_file_path: Optional override for the state file location.
-
-    Returns:
-        True if the state is consistent, False otherwise.
-    """
-    if state_file_path is None:
-        state_file_path = STATE_FILE_PATH
-
-    if not state_file_path.exists():
-        return False
-
-    try:
-        with open(state_file_path, "r") as f:
-            current_state = yaml.safe_load(f)
-
-        stored_hashes = current_state.get("artifact_hashes", {})
-        stored_state_hash = current_state.get("state_hash")
-
-        # Recalculate hashes for the files listed in the state
-        recalc_hashes = {}
-        for rel_path_str, stored_hash in stored_hashes.items():
-            file_path = PROJECT_ROOT / rel_path_str
-            if file_path.exists():
-                try:
-                    recalc_hashes[rel_path_str] = calculate_file_hash(file_path)
-                except RuntimeError:
-                    # File exists but cannot be read
-                    return False
-            else:
-                # File missing but recorded in state
-                return False
-
-        # Check if all current tracked files are in the state (optional strictness)
-        # For now, we just verify the stored files haven't changed.
-
-        recalc_state_hash = generate_state_hash(recalc_hashes)
-
-        return recalc_state_hash == stored_state_hash
-
-    except (yaml.YAMLError, KeyError, TypeError) as e:
-        return False
-
-
-def get_state_summary(state_file_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Get a summary of the current project state.
-
-    Args:
-        state_file_path: Optional override for the state file location.
-
-    Returns:
-        Dictionary with summary information.
-    """
-    if state_file_path is None:
-        state_file_path = STATE_FILE_PATH
-
-    if not state_file_path.exists():
-        return {"exists": False}
-
-    try:
-        with open(state_file_path, "r") as f:
-            state = yaml.safe_load(f)
-        return {
-            "exists": True,
-            "project_id": state.get("project_id"),
-            "updated_at": state.get("updated_at"),
-            "state_hash": state.get("state_hash"),
-            "artifact_count": len(state.get("artifact_hashes", {}))
-        }
+        os.replace(temp_path, state_path)
+        
     except Exception:
-        return {"exists": False, "error": "Could not parse state file"}
+        # Clean up temp file if something goes wrong
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise
+    
+    return state_content
 
+def verify_state_integrity(state_path: Path) -> bool:
+    """
+    Verifies the integrity of the state file by recalculating hashes.
+    
+    Args:
+        state_path: Path to the state YAML file.
+                    
+    Returns:
+        True if state is valid, False otherwise.
+    """
+    if not state_path.exists():
+        return False
+    
+    try:
+        with open(state_path, 'r') as f:
+            state_data = yaml.safe_load(f)
+        
+        if not isinstance(state_data, dict) or 'artifact_hashes' not in state_data:
+            return False
+        
+        # Recalculate hashes for the recorded artifacts
+        project_root = get_project_root()
+        for rel_path_str, recorded_hash in state_data['artifact_hashes'].items():
+            file_path = project_root / rel_path_str
+            if not file_path.exists():
+                # Artifact missing
+                return False
+            
+            current_hash = calculate_file_hash(file_path)
+            if current_hash != recorded_hash:
+                # Artifact modified
+                return False
+        
+        return True
+    except Exception:
+        return False
+
+def get_state_summary(state_path: Path) -> Optional[Dict[str, Any]]:
+    """
+    Retrieves a summary of the state file.
+    
+    Args:
+        state_path: Path to the state YAML file.
+                    
+    Returns:
+        Dictionary with summary info or None if file invalid.
+    """
+    if not state_path.exists():
+        return None
+    
+    try:
+        with open(state_path, 'r') as f:
+            return yaml.safe_load(f)
+    except Exception:
+        return None
 
 def main():
     """
-    CLI entry point to update and verify the project state.
+    Main entry point for state management CLI.
+    Updates the state file for the current project.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Manage llmXive project state")
-    parser.add_argument("--update", action="store_true", help="Update the state file")
-    parser.add_argument("--verify", action="store_true", help="Verify state integrity")
-    parser.add_argument("--summary", action="store_true", help="Show state summary")
-    parser.add_argument("--file", type=str, help="Override state file path")
-
-    args = parser.parse_args()
-
-    state_path = Path(args.file) if args.file else STATE_FILE_PATH
-
-    if args.update:
-        print(f"Updating state file: {state_path}")
-        try:
-            state = update_state_file(state_file_path=state_path)
-            print(f"Success. State hash: {state['state_hash']}")
-            print(f"Tracked {len(state['artifact_hashes'])} artifacts.")
-        except Exception as e:
-            print(f"Error updating state: {e}")
-            return 1
-
-    if args.verify:
-        print(f"Verifying state file: {state_path}")
-        if verify_state_integrity(state_file_path=state_path):
-            print("State integrity verified.")
+    project_root = get_project_root()
+    state_dir = project_root / "state"
+    state_file = state_dir / "PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml"
+    
+    print(f"Updating state file: {state_file}")
+    
+    # Define directories to scan (standard data artifacts)
+    artifact_dirs = [project_root / "data" / "artifacts"]
+    
+    try:
+        state = update_state_file(state_file, artifact_dirs)
+        print(f"State updated successfully.")
+        print(f"  Timestamp: {state['updated_at']}")
+        print(f"  Artifacts tracked: {len(state['artifact_hashes'])}")
+        
+        # Verify integrity immediately after write
+        if verify_state_integrity(state_file):
+            print("  Integrity check: PASSED")
         else:
-            print("State integrity check FAILED.")
-            return 1
-
-    if args.summary:
-        summary = get_state_summary(state_file_path=state_path)
-        if summary["exists"]:
-            print(f"Project: {summary['project_id']}")
-            print(f"Updated: {summary['updated_at']}")
-            print(f"State Hash: {summary['state_hash']}")
-            print(f"Artifacts: {summary['artifact_count']}")
-        else:
-            print("State file does not exist or is invalid.")
-
-    if not (args.update or args.verify or args.summary):
-        parser.print_help()
-        return 0
-
-    return 0
-
+            print("  Integrity check: FAILED")
+            
+    except Exception as e:
+        print(f"Error updating state: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -1,3 +1,2 @@
-# This directory stores research artifacts: evaluation results, statistical test outputs, and final reports.
-# Created for project PROJ-846-llmxive-follow-up-extending-guava-an-eff.
-# Do not remove this file; it ensures the directory is tracked by git.
+# This directory holds generated research artifacts (JSON logs, evaluation results, etc.)
+# It is tracked in git to preserve the directory structure.

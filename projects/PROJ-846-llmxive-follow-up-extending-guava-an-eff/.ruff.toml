@@ -1,38 +1,30 @@
+# Ruff configuration for llmXive project
+# Linting rules with max-line-length=100
+
 [lint]
-# Enable a set of common rules for the llmXive project
+# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 
-# Ignore specific rules that are too strict or conflict with project style
+# Ignore specific rules that conflict with project style
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses/pydantic)
+    "E501",  # Line too long (handled by formatter, not linter)
+    "B008",  # Do not perform function call in argument defaults (common in Pydantic/typing)
 ]
-
-# Allow unused variables to start with underscore (common pattern)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.isort]
-known-first-party = ["analysis", "data", "models", "utils", "git_operations", "check_python_version", "init_git_repo", "run_initial_commit", "setup_directories", "setup_remote"]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
-"code/data/download_guava.py" = ["S310"] # URL check (safe in this context)
+known-first-party = ["code"]
+force-sort-within-sections = true
 
 [format]
-# Conform to Black formatting
+# Use black-compatible formatting
 quote-style = "double"
 indent-style = "space"
-line-ending = "auto"
-skip-magic-trailing-comma = false
-preview = false
-
-[lint.flake8-bugbear]
-extend-immutable-calls = ["pydantic.Field", "pydantic.config.ConfigDict"]
+line-length = 100

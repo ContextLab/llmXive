@@ -1,38 +1,43 @@
 import os
+import sys
 from pathlib import Path
 
-def setup_data_directories(base_path: Path = None) -> None:
+def setup_data_directories():
     """
-    Creates the required directory structure for data storage.
+    Creates the required data directory structure for the llmXive project.
+    This includes raw, processed, and artifacts directories under the project's data root.
     
-    Args:
-        base_path: Base path for data directories. Defaults to project root.
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    if base_path is None:
-        base_path = Path.cwd()
+    # Define the project root based on the task context
+    project_root = Path(__file__).resolve().parent.parent.parent
+    project_name = "PROJ-846-llmxive-follow-up-extending-guava-an-eff"
+    base_data_path = project_root / project_name / "data"
     
-    # Define directory structure
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "artifacts",
-        base_path / "projects" / "PROJ-846-llmxive-follow-up-extending-guava-an-eff" / "data" / "raw",
-        base_path / "projects" / "PROJ-846-llmxive-follow-up-extending-guava-an-eff" / "data" / "processed",
-        base_path / "projects" / "PROJ-846-llmxive-follow-up-extending-guava-an-eff" / "data" / "artifacts",
+        base_data_path / "raw",
+        base_data_path / "processed",
+        base_data_path / "artifacts"
     ]
     
+    created_count = 0
     for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        # Create .gitkeep file to ensure directory is tracked by git
-        gitkeep_path = directory / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-        print(f"Created directory: {directory}")
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {directory}")
+        except Exception as e:
+            print(f"Error creating directory {directory}: {e}")
+            return False
+    
+    print(f"Successfully created {created_count} data directories.")
+    return True
 
 def main():
     """Main entry point for directory setup."""
-    setup_data_directories()
-    print("Data directories setup complete.")
+    success = setup_data_directories()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

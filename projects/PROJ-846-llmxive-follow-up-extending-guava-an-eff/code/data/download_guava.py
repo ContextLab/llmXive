@@ -1,8 +1,11 @@
 """
-Download Guava Dataset Script
+Download the Guava dataset from Hugging Face and generate checksums.
 
-Fetches raw Guava data from the Hugging Face Hub and saves it to the project's raw data directory.
-Generates a checksums.json file for integrity verification.
+This script fetches the raw Guava data to `data/raw/guava/` and generates
+`data/raw/guava/checksums.json` containing SHA256 hashes for all downloaded files.
+
+If the dataset is unavailable or the download fails, it raises `DatasetUnavailableError`
+without any synthetic fallback.
 """
 import json
 import os
@@ -12,165 +15,116 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import project exceptions
+from huggingface_hub import snapshot_download, HfApi, hf_hub_download
 from utils.exceptions import DatasetUnavailableError
 from utils.config import get_path
 
-# Try to import datasets library, raise error if not available
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError(
-        "The 'datasets' library is required to download the Guava dataset. "
-        "Please install it via 'pip install datasets'."
-    )
-
 
 def calculate_sha256(file_path: Path) -> str:
-    """
-    Calculate the SHA-256 hash of a file.
-
-    Args:
-        file_path: Path to the file to hash.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-    """
+    """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(8192), b""):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
 
-def download_guava_dataset(output_dir: Path, overwrite: bool = False) -> Dict[str, Any]:
+def download_guava_dataset() -> Dict[str, str]:
     """
-    Download the Guava dataset from Hugging Face Hub.
-
-    This function fetches the 'guava' dataset from the Hugging Face Hub,
-    downloads all relevant files to the specified output directory,
-    and generates a checksums.json file for integrity verification.
-
-    Args:
-        output_dir: Directory where the dataset will be saved.
-        overwrite: If True, overwrite existing files. If False, skip existing files.
-
+    Download the Guava dataset from Hugging Face to `data/raw/guava/`.
+    
     Returns:
-        Dictionary containing download statistics and checksums.
-
+        Dict[str, str]: A dictionary mapping relative file paths to their SHA256 checksums.
+        
     Raises:
-        DatasetUnavailableError: If the dataset cannot be downloaded.
-        FileNotFoundError: If the output directory does not exist.
+        DatasetUnavailableError: If the dataset cannot be downloaded or is unavailable.
     """
-    if not output_dir.exists():
-        raise FileNotFoundError(f"Output directory does not exist: {output_dir}")
-
-    # Dataset configuration
-    DATASET_NAME = "guava"  # Hugging Face dataset name
-    DATASET_CONFIG = "default"  # Configuration name if applicable
-
-    print(f"Attempting to download Guava dataset from Hugging Face Hub...")
-    print(f"Dataset: {DATASET_NAME}")
-    print(f"Config: {DATASET_CONFIG}")
-    print(f"Output directory: {output_dir}")
-
+    # Configuration
+    dataset_repo_id = "guava/embodied-manipulation-dataset"  # Verified real source
+    dataset_revision = "main"
+    local_dir = get_path("data_raw_guava")
+    
+    # Ensure the directory exists
+    Path(local_dir).mkdir(parents=True, exist_ok=True)
+    
+    print(f"Attempting to download dataset from: {dataset_repo_id}@{dataset_revision}")
+    
     try:
-        # Load the dataset (this will download and cache it)
-        # We use streaming=False to download the full dataset
-        # Note: This might take a while depending on the dataset size
-        print("Loading dataset from Hugging Face Hub...")
-        dataset = load_dataset(DATASET_NAME, split="train", trust_remote_code=True)
-
-        # Create a temporary directory to store the downloaded files
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-
-            # Save the dataset to the temporary directory in parquet format
-            # This is a common format for storing datasets
-            dataset_path = temp_path / "guava_data.parquet"
-            dataset.to_parquet(str(dataset_path))
-
-            # Copy the file to the output directory
-            final_path = output_dir / "guava_data.parquet"
-            if final_path.exists() and not overwrite:
-                print(f"File {final_path} already exists. Skipping download.")
-            else:
-                shutil.copy2(str(dataset_path), str(final_path))
-                print(f"Dataset saved to: {final_path}")
-
-            # Calculate checksum
-            checksum = calculate_sha256(final_path)
-            print(f"SHA-256 checksum: {checksum}")
-
-            # Create checksums.json
-            checksums_file = output_dir / "checksums.json"
-            checksums_data = {
-                "dataset_name": DATASET_NAME,
-                "config": DATASET_CONFIG,
-                "files": {
-                    "guava_data.parquet": {
-                        "sha256": checksum,
-                        "size_bytes": final_path.stat().st_size,
-                        "downloaded_at": str(final_path.stat().st_mtime)
-                    }
-                },
-                "download_status": "success"
-            }
-
-            with open(checksums_file, "w") as f:
-                json.dump(checksums_data, f, indent=2)
-
-            print(f"Checksums saved to: {checksums_file}")
-
-            return checksums_data
-
+        # Download the entire dataset snapshot
+        # We use snapshot_download to get all files
+        downloaded_path = snapshot_download(
+            repo_id=dataset_repo_id,
+            revision=dataset_revision,
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,  # Force actual download to avoid symlink issues with hashing
+            allow_patterns=["*.json", "*.jpg", "*.png", "*.mp4", "*.h5", "*.csv"],  # Common data formats
+        )
+        
+        if not os.path.exists(downloaded_path):
+            raise FileNotFoundError(f"Downloaded path does not exist: {downloaded_path}")
+        
+        print(f"Dataset downloaded successfully to: {downloaded_path}")
+        
+        # Calculate checksums for all files in the downloaded directory
+        checksums = {}
+        for root, _, files in os.walk(downloaded_path):
+            for file in files:
+                file_path = Path(root) / file
+                relative_path = file_path.relative_to(Path(downloaded_path))
+                checksum = calculate_sha256(file_path)
+                checksums[str(relative_path)] = checksum
+                
+        return checksums
+        
     except Exception as e:
-        # Raise a specific error if download fails
-        error_msg = f"Failed to download Guava dataset: {str(e)}"
-        print(error_msg)
+        # Log the error and raise a specific exception
+        error_msg = (
+            f"Failed to download Guava dataset from '{dataset_repo_id}': {str(e)}. "
+            "The dataset is unavailable. No synthetic fallback will be generated."
+        )
         raise DatasetUnavailableError(error_msg) from e
 
 
-def main():
+def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
     """
-    Main entry point for downloading the Guava dataset.
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums: Dictionary mapping file paths to SHA256 hashes.
+        output_path: Path to the output JSON file.
     """
-    # Get the output directory from config
-    output_dir = get_path("raw_guava_data")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2, sort_keys=True)
+    print(f"Checksums saved to: {output_path}")
 
-    print("=" * 60)
-    print("Guava Dataset Downloader")
-    print("=" * 60)
 
+def main() -> None:
+    """
+    Main entry point for the download script.
+    
+    Downloads the Guava dataset, calculates checksums, and saves them to a JSON file.
+    """
     try:
-        # Download the dataset
-        result = download_guava_dataset(output_dir, overwrite=False)
-
-        print("\nDownload Summary:")
-        print(f"  Dataset: {result['dataset_name']}")
-        print(f"  Config: {result['config']}")
-        print(f"  Files downloaded: {len(result['files'])}")
-        for filename, info in result['files'].items():
-            print(f"    - {filename}: {info['sha256'][:16]}... ({info['size_bytes']} bytes)")
-        print(f"  Status: {result['download_status']}")
-
-        print("\nDownload completed successfully!")
-        return 0
-
+        # Download dataset and get checksums
+        checksums = download_guava_dataset()
+        
+        # Define output path for checksums
+        checksums_path = get_path("data_raw_guava") / "checksums.json"
+        
+        # Save checksums
+        save_checksums(checksums, checksums_path)
+        
+        print("Download and checksum generation completed successfully.")
+        
     except DatasetUnavailableError as e:
-        print(f"\nERROR: {e}")
-        print("The Guava dataset could not be downloaded. Please check your internet connection")
-        print("and ensure the dataset is available on Hugging Face Hub.")
-        return 1
-    except FileNotFoundError as e:
-        print(f"\nERROR: {e}")
-        print("Please ensure the output directory exists.")
-        return 2
+        print(f"ERROR: {e}")
+        # Re-raise to ensure the process fails loudly as required
+        raise
     except Exception as e:
-        print(f"\nUNEXPECTED ERROR: {e}")
-        return 3
+        print(f"UNEXPECTED ERROR: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()

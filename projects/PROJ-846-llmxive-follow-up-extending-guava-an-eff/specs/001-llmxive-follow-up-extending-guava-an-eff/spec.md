@@ -49,7 +49,7 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 
 **Acceptance Scenarios**:
 
-1. **Given** the fine-tuned Symbolic-Guava model and 50 held-out tasks from the original Guava dataset, **When** the evaluation loop runs, **Then** it produces a success rate (float) and a step count for each task, completing within 6 hours.
+1. **Given** the fine-tuned Symbolic-Guava model and A subset of held-out tasks from the original Guava dataset, **When** the evaluation loop runs, **Then** it produces a success rate (float) and a step count for each task, completing within 6 hours.
 2. **Given** the success rates of the Symbolic-Guava agent and the Baseline-Guava agent, **When** the statistical analysis module runs, **Then** it outputs a p-value and a conclusion (e.g., "Significant drop" or "No significant difference") with p < 0.05 as the threshold.
 3. **Given** a failed task, **When** the failure analysis module runs, **Then** it categorizes the failure as either "geometric" (misalignment), "semantic" (wrong object/texture), or "perception failure" (object missed) based on the Perception Ground-Truth Log.
 
