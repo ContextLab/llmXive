@@ -1,62 +1,97 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Merged Plant Root Phenotype Dataset Schema
-description: >
-  Schema for the merged dataset containing root phenotype and soil nutrient data.
-  Validated after ingestion and filtering (T015).
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Merged Plant Phenotype and Nutrient Dataset
+description: >-
+  Schema for the merged dataset containing root phenotype measurements
+  and soil nutrient availability (Phosphorus and Nitrogen).
+  This dataset is the result of the ingestion and preprocessing pipeline (US1).
 type: object
 required:
-  - species
-  - root_length
-  - branching_density
-  - surface_area
-  - phosphorus
-  - nitrogen
+  - properties
+  - required
+  - type
 properties:
-  species:
+  type:
     type: string
-    description: Scientific name of the plant species
-    minLength: 1
-  root_length:
-    type: number
-    description: Total root length (mm)
-    minimum: 0
-  branching_density:
-    type: number
-    description: Number of branch points per unit length (1/mm)
-    minimum: 0
-  surface_area:
-    type: number
-    description: Total root surface area (mm²)
-    minimum: 0
-  phosphorus:
-    type: number
-    description: Soil phosphorus concentration (mg/kg)
-    minimum: 0
-  nitrogen:
-    type: number
-    description: Soil nitrogen concentration (mg/kg)
-    minimum: 0
-  data_source:
-    type: string
-    description: Source of the data (e.g., 'PlantPheno', 'RootReader')
-    enum:
-      - PlantPheno
-      - RootReader
-  data_source_type:
-    type: string
-    description: Type of data collection (e.g., 'observational', 'manipulated')
-  observation_id:
-    type: string
-    description: Unique identifier for the observation
-  experiment_id:
-    type: string
-    description: Identifier for the experiment
-  location:
-    type: string
-    description: Geographic location of the sample
-  year:
-    type: integer
-    description: Year of data collection
-    minimum: 1900
-    maximum: 2100
-additionalProperties: true
+    const: object
+  required:
+    type: array
+    items:
+      type: string
+    minItems: 6
+    contains:
+      - "species"
+      - "root_length"
+      - "branching_density"
+      - "surface_area"
+      - "phosphorus"
+      - "nitrogen"
+  properties:
+    type: object
+    properties:
+      species:
+        type: object
+        description: Scientific name of the plant species
+        properties:
+          type:
+            type: string
+            const: string
+          description:
+            type: string
+        required:
+          - type
+      root_length:
+        type: object
+        description: Total root length (cm)
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+        required:
+          - type
+      branching_density:
+        type: object
+        description: Number of root branches per unit length
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+        required:
+          - type
+      surface_area:
+        type: object
+        description: Total root surface area (cm²)
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+        required:
+          - type
+      phosphorus:
+        type: object
+        description: Soil Phosphorus availability (mg/kg)
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+        required:
+          - type
+      nitrogen:
+        type: object
+        description: Soil Nitrogen availability (mg/kg)
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+        required:
+          - type
+additionalProperties: false

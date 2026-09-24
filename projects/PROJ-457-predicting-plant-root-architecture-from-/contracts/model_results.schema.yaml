@@ -1,104 +1,156 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Results Schema
-description: Schema for validating the output of the modeling pipeline (LMM and Random Forest).
+description: Schema for LMM and Random Forest model evaluation metrics and coefficients.
 type: object
 required:
   - lmm
   - random_forest
   - cross_validation
-  - success_criteria
-
+  - f_test
+  - sensitivity_analysis
 properties:
   lmm:
     type: object
-    description: Linear Mixed-Effects Model results
+    description: Linear Mixed-Effects Model results.
     required:
       - adjusted_r_squared
       - p_values
       - coefficients
-      - f_statistic
-      - f_test_p_value
+      - random_effect_variance
     properties:
       adjusted_r_squared:
         type: number
-        description: Adjusted R-squared value for the LMM
+        description: Adjusted R-squared value for the LMM.
       p_values:
         type: object
-        description: Dictionary of p-values for fixed effects coefficients
-        additionalProperties:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
+        description: P-values for fixed effects coefficients.
+        properties:
+          phosphorus:
+            type: number
+            minimum: 0
+            maximum: 1
+          nitrogen:
+            type: number
+            minimum: 0
+            maximum: 1
+          intercept:
+            type: number
+            minimum: 0
+            maximum: 1
       coefficients:
         type: object
-        description: Dictionary of fixed effects coefficients
-        additionalProperties:
-          type: number
-      f_statistic:
+        description: Fixed effects coefficients.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          intercept:
+            type: number
+      random_effect_variance:
         type: number
-        description: F-statistic for overall model significance
-      f_test_p_value:
-        type: number
-        description: P-value for the F-test
-        minimum: 0.0
-        maximum: 1.0
+        description: Variance of the random intercept (species).
+      std_errors:
+        type: object
+        description: Standard errors for fixed effects.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          intercept:
+            type: number
 
   random_forest:
     type: object
-    description: Random Forest baseline results
+    description: Random Forest baseline results.
     required:
       - r_squared
       - rmse
-      - feature_importances
+      - feature_importance
     properties:
       r_squared:
         type: number
-        description: R-squared value for the Random Forest model
       rmse:
         type: number
-        description: Root Mean Squared Error
-        minimum: 0.0
-      feature_importances:
+      feature_importance:
         type: object
-        description: Dictionary of feature importances
-        additionalProperties:
-          type: number
-          minimum: 0.0
+        description: Importance of features in the RF model.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          other_features:
+            type: number
 
   cross_validation:
     type: object
-    description: Cross-validation results (species-level stratified)
+    description: Cross-validation metrics.
     required:
-      - lmm_mean_r2
-      - lmm_std_r2
-      - rf_mean_r2
-      - rf_std_r2
+      - mean_r_squared
+      - std_r_squared
+      - folds
     properties:
-      lmm_mean_r2:
+      mean_r_squared:
         type: number
-        description: Mean R-squared across folds for LMM
-      lmm_std_r2:
+      std_r_squared:
         type: number
-        description: Standard deviation of R-squared across folds for LMM
-      rf_mean_r2:
-        type: number
-        description: Mean R-squared across folds for Random Forest
-      rf_std_r2:
-        type: number
-        description: Standard deviation of R-squared across folds for Random Forest
+      folds:
+        type: integer
+        minimum: 2
 
-  success_criteria:
+  f_test:
     type: object
-    description: Success criteria evaluation
+    description: F-test results for overall model significance.
     required:
-      - sc002_met
-      - r2_difference
+      - f_statistic
+      - p_value
     properties:
-      sc002_met:
-        type: boolean
-        description: True if |LMM R2 - RF R2| <= 0.05
-      r2_difference:
+      f_statistic:
         type: number
-        description: Absolute difference between LMM and RF R-squared
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
 
-additionalProperties: false
+  sensitivity_analysis:
+    type: object
+    description: Sensitivity analysis results against literature ranges.
+    required:
+      - percent_deviation
+      - literature_mean
+      - observed_coefficient
+      - confidence_interval
+      - literature_overlap
+    properties:
+      percent_deviation:
+        type: number
+      literature_mean:
+        type: number
+      observed_coefficient:
+        type: number
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      literature_overlap:
+        type: boolean
+
+  metadata:
+    type: object
+    description: Metadata about the run.
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      version:
+        type: string
+      model_type:
+        type: string
+        enum:
+          - lmm
+          - random_forest
+          - combined
