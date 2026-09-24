@@ -1,260 +1,292 @@
+"""
+Module to compute Variance Inflation Factor (VIF) on clustering descriptors.
+Implements FR-007: Report collinearity (VIF >= 10) without removing features.
+"""
 import os
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from config import get_project_root, get_data_paths
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def load_descriptors() -> pd.DataFrame:
+def load_descriptors(data_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load the computed descriptors from the processed data directory.
+    Load the computed descriptors from the processed data file.
     
+    Args:
+        data_path: Optional path to the descriptors CSV. If None, uses default path.
+        
     Returns:
-        pd.DataFrame: DataFrame containing the descriptors.
+        DataFrame containing descriptor columns.
         
     Raises:
         FileNotFoundError: If the descriptors file does not exist.
+        ValueError: If required columns are missing.
     """
-    project_root = get_project_root()
-    descriptors_path = project_root / "data" / "processed" / "descriptors.csv"
+    if data_path is None:
+        data_paths = get_data_paths()
+        data_path = data_paths.get("processed_descriptors")
     
-    if not descriptors_path.exists():
-        raise FileNotFoundError(f"Descriptors file not found at {descriptors_path}")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Descriptors file not found at {data_path}")
     
-    logger.info(f"Loading descriptors from {descriptors_path}")
-    df = pd.read_csv(descriptors_path)
+    df = pd.read_csv(data_path)
     
-    # Ensure numeric columns are numeric
-    numeric_cols = ['rdf_peak', 'pair_corr', 'voronoi_count']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+    required_cols = ["rdf_peak", "pair_corr", "voronoi_count"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required descriptor columns: {missing_cols}")
     
+    logger.info(f"Loaded {len(df)} samples with columns: {list(df.columns)}")
     return df
 
-def compute_vif(df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
+def compute_vif(df: pd.DataFrame, feature_cols: Optional[List[str]] = None) -> Dict[str, float]:
     """
-    Compute Variance Inflation Factor (VIF) for each feature.
+    Compute Variance Inflation Factor (VIF) for each descriptor feature.
     
     VIF measures how much the variance of an estimated regression coefficient 
-    increases if your predictors are correlated. A VIF >= 10 indicates 
-    significant multicollinearity (Harrell, 2005; https://arxiv.org/abs/2005.02245).
+    increases if your predictors are correlated. A VIF >= 10 indicates high 
+    collinearity.
     
     Args:
-        df: DataFrame containing the features.
-        features: List of feature column names to compute VIF for.
+        df: DataFrame containing the feature columns.
+        feature_cols: List of column names to compute VIF for. Defaults to 
+                      ['rdf_peak', 'pair_corr', 'voronoi_count'].
+                      
+    Returns:
+        Dictionary mapping feature names to their VIF scores.
+        
+    Raises:
+        ValueError: If input data has constant columns or insufficient samples.
+    """
+    if feature_cols is None:
+        feature_cols = ["rdf_peak", "pair_corr", "voronoi_count"]
+    
+    # Ensure all requested columns exist
+    available_cols = [col for col in feature_cols if col in df.columns]
+    if len(available_cols) != len(feature_cols):
+        missing = set(feature_cols) - set(available_cols)
+        raise ValueError(f"Missing columns for VIF computation: {missing}")
+    
+    X = df[available_cols].values
+    
+    # Check for constant columns (variance = 0)
+    for i, col in enumerate(available_cols):
+        if np.var(X[:, i]) < 1e-10:
+            raise ValueError(f"Column '{col}' has near-zero variance, cannot compute VIF")
+    
+    # Check for sufficient samples
+    if X.shape[0] < X.shape[1] + 1:
+        raise ValueError(
+            f"Insufficient samples ({X.shape[0]}) for VIF computation with "
+            f"{X.shape[1]} features"
+        )
+    
+    vif_scores = {}
+    for i, col in enumerate(available_cols):
+        try:
+            vif = variance_inflation_factor(X, i)
+            vif_scores[col] = float(vif)
+        except Exception as e:
+            logger.warning(f"Could not compute VIF for {col}: {e}")
+            vif_scores[col] = float('inf')
+    
+    return vif_scores
+
+def generate_report(
+    vif_scores: Dict[str, float], 
+    output_path: Optional[Path] = None,
+    threshold: float = 10.0
+) -> str:
+    """
+    Generate a markdown collinearity report based on VIF scores.
+    
+    Args:
+        vif_scores: Dictionary of feature -> VIF score.
+        output_path: Optional path to save the report. If None, uses default path.
+        threshold: VIF threshold for flagging collinearity (default: 10.0).
         
     Returns:
-        pd.DataFrame: DataFrame with feature names and their VIF scores.
+        The markdown content of the report.
     """
-    if not features:
-        raise ValueError("Feature list cannot be empty")
-        
-    # Filter to only the requested features that exist in the dataframe
-    valid_features = [f for f in features if f in df.columns]
-    if not valid_features:
-        raise ValueError(f"No valid features found. Available: {list(df.columns)}")
+    if output_path is None:
+        data_paths = get_data_paths()
+        output_path = data_paths.get("collinearity_report")
     
-    # Remove rows with any NaN values in the selected features
-    clean_df = df[valid_features].dropna()
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if len(clean_df) < len(valid_features) + 1:
-        logger.warning(f"Insufficient samples for VIF calculation: {len(clean_df)} samples, {len(valid_features)} features")
-        # Return NaN for VIF if we can't compute
-        return pd.DataFrame({
-            'feature': valid_features,
-            'vif': [float('nan')] * len(valid_features)
-        })
+    # Analyze results
+    high_vif_features = {k: v for k, v in vif_scores.items() if v >= threshold}
+    low_vif_features = {k: v for k, v in vif_scores.items() if v < threshold}
     
-    vif_results = []
-    
-    for i, feature in enumerate(valid_features):
-        # Create a DataFrame for the current feature as target and others as predictors
-        X = clean_df[[f for f in valid_features if f != feature]]
-        y = clean_df[feature]
-        
-        # If only one predictor left, VIF is 1 (no collinearity)
-        if X.shape[1] == 0:
-            vif_results.append({'feature': feature, 'vif': 1.0})
-            continue
-        
-        # Add constant for intercept
-        X_with_const = sm.add_constant(X)
-        
-        try:
-            # Fit OLS regression
-            model = sm.OLS(y, X_with_const).fit()
-            # VIF = 1 / (1 - R^2)
-            r_squared = model.rsquared
-            if r_squared >= 1.0:
-                vif = float('inf')
-            else:
-                vif = 1.0 / (1.0 - r_squared)
-            
-            vif_results.append({'feature': feature, 'vif': vif})
-        except Exception as e:
-            logger.warning(f"Could not compute VIF for {feature}: {e}")
-            vif_results.append({'feature': feature, 'vif': float('nan')})
-    
-    return pd.DataFrame(vif_results)
-
-def generate_report(vif_df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Generate a descriptive markdown report explaining collinearity.
-    
-    Args:
-        vif_df: DataFrame with feature names and VIF scores.
-        output_path: Path to save the markdown report.
-    """
-    threshold = 10.0
-    
-    # Categorize features
-    high_collinear = vif_df[vif_df['vif'] >= threshold]
-    moderate_collinear = vif_df[(vif_df['vif'] >= 5.0) & (vif_df['vif'] < threshold)]
-    low_collinear = vif_df[vif_df['vif'] < 5.0]
-    
-    report_lines = [
+    lines = [
         "# Collinearity Analysis Report",
         "",
-        "## Overview",
-        "This report analyzes the Variance Inflation Factor (VIF) for the computed descriptors",
-        "to detect multicollinearity among features. A VIF >= 10 indicates significant",
-        "multicollinearity (Harrell, 2005).",
+        f"**Analysis Date**: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"**VIF Threshold**: {threshold}",
         "",
-        "## Methodology",
-        "- **Metric**: Variance Inflation Factor (VIF)",
-        "- **Threshold**: VIF ≥ 10 indicates significant collinearity",
-        "- **Action**: Report only. No features are removed (per FR-007).",
-        "",
-        "## VIF Scores",
+        "## Summary",
         ""
     ]
     
-    # Add table of VIF scores
-    report_lines.append("| Feature | VIF Score | Severity |")
-    report_lines.append("|---------|-----------|----------|")
+    if high_vif_features:
+        lines.append(f"**Collinearity Detected**: {len(high_vif_features)} feature(s) have VIF >= {threshold}")
+        lines.append("")
+        lines.append("## Features with High Collinearity (VIF >= 10)")
+        lines.append("")
+        lines.append("| Feature | VIF Score | Interpretation |")
+        lines.append("|---------|-----------|----------------|")
+        for feat, score in sorted(high_vif_features.items(), key=lambda x: x[1], reverse=True):
+            interpretation = "High collinearity - joint relationship with other features"
+            if score >= 30:
+                interpretation = "Severe collinearity - strong joint relationship"
+            lines.append(f"| {feat} | {score:.2f} | {interpretation} |")
+        lines.append("")
+        lines.append("## Joint Relationship Analysis")
+        lines.append("")
+        lines.append("The following features exhibit significant joint relationships:")
+        lines.append("")
+        for feat in high_vif_features.keys():
+            lines.append(f"- **{feat}**: This feature is highly correlated with one or more other descriptors, "
+                        "indicating that it provides redundant information in a linear model context. "
+                        "Per FR-007, this feature is retained for transparency, but users should be aware "
+                        "that coefficient estimates may be unstable.")
+        lines.append("")
+        lines.append("## Recommendation")
+        lines.append("")
+        lines.append("While these features are retained as per project specifications (FR-007), "
+                    "consider the following when interpreting model coefficients:")
+        lines.append("1. Standard errors for these coefficients will be inflated.")
+        lines.append("2. P-values may not be reliable for these features.")
+        lines.append("3. Model predictions may still be accurate even with collinear features.")
+    else:
+        lines.append(f"**No Collinearity Detected**: All features have VIF < {threshold}")
+        lines.append("")
+        lines.append("## Feature Independence Analysis")
+        lines.append("")
+        lines.append("All descriptor features appear to be linearly independent within the "
+                    "computed dataset:")
+        lines.append("")
+        lines.append("| Feature | VIF Score | Status |")
+        lines.append("|---------|-----------|--------|")
+        for feat, score in sorted(low_vif_features.items(), key=lambda x: x[1]):
+            status = "Independent"
+            lines.append(f"| {feat} | {score:.2f} | {status} |")
+        lines.append("")
+        lines.append("## Conclusion")
+        lines.append("")
+        lines.append("No significant collinearity was detected among the clustering descriptors. "
+                    "Statistical inference (p-values, confidence intervals) should be reliable "
+                    "for all features in downstream regression models.")
     
-    for _, row in vif_df.iterrows():
-        feature = row['feature']
-        vif = row['vif']
-        
-        if pd.isna(vif):
-            severity = "Unknown (computation failed)"
-        elif vif >= threshold:
-            severity = "High (≥ 10)"
-        elif vif >= 5.0:
-            severity = "Moderate (5-10)"
-        else:
-            severity = "Low (< 5)"
-        
-        vif_str = f"{vif:.2f}" if not pd.isna(vif) else "N/A"
-        report_lines.append(f"| {feature} | {vif_str} | {severity} |")
+    report_content = "\n".join(lines)
     
-    report_lines.extend([
-        "",
-        "## Interpretation",
-        ""
-    ])
-    
-    if len(high_collinear) > 0:
-        report_lines.append("### High Collinearity Detected (VIF ≥ 10)")
-        report_lines.append("")
-        report_lines.append("The following features exhibit high multicollinearity, which may destabilize")
-        report_lines.append("regression coefficient estimates and p-values:")
-        report_lines.append("")
-        for _, row in high_collinear.iterrows():
-            report_lines.append(f"- **{row['feature']}**: VIF = {row['vif']:.2f}")
-        report_lines.append("")
-        report_lines.append("Joint relationships suggest these features capture overlapping physical")
-        report_lines.append("information about the interface region. For example, `rdf_peak` and")
-        report_lines.append("`pair_corr` may both reflect atomic density variations near the grain boundary.")
-        report_lines.append("")
-    
-    if len(moderate_collinear) > 0:
-        report_lines.append("### Moderate Collinearity (5 ≤ VIF < 10)")
-        report_lines.append("")
-        for _, row in moderate_collinear.iterrows():
-            report_lines.append(f"- **{row['feature']}**: VIF = {row['vif']:.2f}")
-        report_lines.append("")
-    
-    if len(low_collinear) == len(vif_df):
-        report_lines.append("### Low Collinearity")
-        report_lines.append("")
-        report_lines.append("All features exhibit low multicollinearity (VIF < 5). This suggests the")
-        report_lines.append("descriptors capture distinct aspects of the impurity clustering behavior.")
-        report_lines.append("")
-    
-    report_lines.extend([
-        "## Recommendations",
-        "",
-        "Per FR-007, features are retained in their raw form. The model training phase",
-        "should be aware of potential instability in p-values for highly collinear features.",
-        "Consider using regularization techniques or reporting confidence intervals",
-        "widely to account for this uncertainty.",
-        ""
-    ])
-    
-    # Write report
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(report_lines))
+    # Save to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(report_content)
     
     logger.info(f"Collinearity report saved to {output_path}")
+    return report_content
 
-def run_vif_analysis() -> None:
+def run_vif_analysis(
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    threshold: float = 10.0
+) -> Dict[str, Any]:
     """
-    Main function to run the full VIF analysis pipeline.
+    Run the full VIF analysis pipeline: load data, compute VIF, generate report.
+    
+    Args:
+        input_path: Path to the descriptors CSV file.
+        output_path: Path to save the collinearity report.
+        threshold: VIF threshold for flagging collinearity.
+        
+    Returns:
+        Dictionary containing analysis results (VIF scores, summary).
     """
-    logger.info("Starting VIF collinearity analysis...")
+    logger.info("Starting VIF analysis...")
+    
+    # Load descriptors
+    df = load_descriptors(input_path)
+    
+    # Compute VIF
+    vif_scores = compute_vif(df)
+    
+    # Generate report
+    generate_report(vif_scores, output_path, threshold)
+    
+    # Prepare results
+    high_vif_count = sum(1 for v in vif_scores.values() if v >= threshold)
+    results = {
+        "vif_scores": vif_scores,
+        "high_vif_count": high_vif_count,
+        "threshold": threshold,
+        "total_features": len(vif_scores),
+        "status": "collinearity_detected" if high_vif_count > 0 else "no_collinearity"
+    }
+    
+    # Save JSON summary
+    data_paths = get_data_paths()
+    json_path = data_paths.get("collinearity_metrics", 
+                               data_paths.get("processed_dir") / "vif_metrics.json")
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"VIF analysis complete. Status: {results['status']}")
+    return results
+
+def main():
+    """Main entry point for VIF analysis from command line."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
     try:
-        # Load descriptors
-        df = load_descriptors()
-        logger.info(f"Loaded {len(df)} samples with {len(df.columns)} columns")
+        data_paths = get_data_paths()
+        input_path = data_paths.get("processed_descriptors")
+        output_path = data_paths.get("collinearity_report")
         
-        # Identify numeric descriptor columns
-        descriptor_cols = ['rdf_peak', 'pair_corr', 'voronoi_count']
-        available_cols = [col for col in descriptor_cols if col in df.columns]
+        if not input_path.exists():
+            logger.error(f"Input descriptors file not found: {input_path}")
+            logger.error("Please ensure T015 (descriptor computation) has been run first.")
+            return 1
         
-        if not available_cols:
-            logger.error("No descriptor columns found. Expected: rdf_peak, pair_corr, voronoi_count")
-            raise ValueError("Missing required descriptor columns")
+        results = run_vif_analysis(input_path, output_path)
         
-        logger.info(f"Computing VIF for features: {available_cols}")
+        print("\n" + "="*50)
+        print("VIF Analysis Results")
+        print("="*50)
+        print(f"Status: {results['status']}")
+        print(f"Features analyzed: {results['total_features']}")
+        print(f"High VIF features (>=10): {results['high_vif_count']}")
+        print("\nVIF Scores:")
+        for feat, score in sorted(results['vif_scores'].items(), key=lambda x: x[1], reverse=True):
+            marker = " ⚠️" if score >= 10 else ""
+            print(f"  {feat}: {score:.2f}{marker}")
+        print(f"\nReport saved to: {output_path}")
+        print("="*50)
         
-        # Compute VIF
-        vif_df = compute_vif(df, available_cols)
-        
-        # Generate report
-        project_root = get_project_root()
-        output_path = project_root / "data" / "processed" / "collinearity_report.md"
-        
-        generate_report(vif_df, output_path)
-        
-        logger.info("VIF analysis completed successfully.")
+        return 0
         
     except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        raise
+        logger.error(f"File not found: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"VIF analysis failed: {e}")
-        raise
+        logger.exception(f"Unexpected error during VIF analysis: {e}")
+        return 1
 
-def main() -> None:
-    """
-    Entry point for the descriptor filter script.
-    """
-    run_vif_analysis()
-
-# Import statsmodels here to avoid circular imports if run as script
-import statsmodels.api as sm
+if __name__ == "__main__":
+    exit(main())

@@ -1,124 +1,137 @@
-"""
-Unit tests for T013b: Verify the [DATA_UNAVAILABLE] log format and 3-attempt limit behavior.
-
-This test verifies that the download_bulk_configs function:
-1. Attempts to fetch data exactly 3 times before failing.
-2. Logs the error message in the exact format: "[DATA_UNAVAILABLE] URL=<url> attempts=3"
-3. Raises a ValueError with the correct message structure.
-"""
-import logging
-import io
-import sys
 import pytest
+import yaml
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from requests import RequestException
+import tempfile
+import os
+import sys
 
-# Ensure the code directory is in the path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data.download import download_bulk_configs
-from validators import validate_citations
+from code.data.download import validate_dataset, load_schema
+from jsonschema import ValidationError
 
+@pytest.fixture
+def temp_schema():
+    """Create a temporary schema file for testing."""
+    schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "required": ["bulk_config_id", "impurity_species"],
+        "properties": {
+            "bulk_config_id": {"type": "string"},
+            "impurity_species": {"type": "string"},
+            "alloy_system_id": {"type": "string"},
+            "clustering_descriptors": {
+                "type": "object",
+                "required": ["rdf_peak", "pair_corr", "voronoi_count"],
+                "properties": {
+                    "rdf_peak": {"type": "number"},
+                    "pair_corr": {"type": "number"},
+                    "voronoi_count": {"type": "number"}
+                }
+            },
+            "segregation_energy": {"type": "number", "nullable": True}
+        }
+    }
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(schema, f)
+        return Path(f.name)
 
-class TestDownloadValidation:
-    """Tests for download validation logic (T013b)."""
+@pytest.fixture
+def valid_data():
+    """Create valid test data."""
+    return {
+        "bulk_config_id": "mp-12345",
+        "impurity_species": "Cr",
+        "alloy_system_id": "BCC_Cr",
+        "clustering_descriptors": {
+            "rdf_peak": 2.5,
+            "pair_corr": 0.8,
+            "voronoi_count": 12
+        },
+        "segregation_energy": -0.5
+    }
 
-    def test_max_retries_and_log_format(self, caplog):
-        """
-        Verify that the function attempts exactly 3 times and logs the specific format.
-        """
-        # Setup logging capture
-        caplog.set_level(logging.INFO)
-        
-        # Mock the validate_citations to pass (simulate valid metadata)
-        with patch('data.download.validate_citations', return_value=True):
-            # Mock the requests.get to always fail
-            with patch('data.download.requests.get') as mock_get:
-                mock_get.side_effect = RequestException("Connection refused")
-                
-                # Call the function
-                url = "https://materialsproject.org/test"
-                
-                # We expect a ValueError because the data is unavailable after retries
-                with pytest.raises(ValueError) as excinfo:
-                    download_bulk_configs(url, max_retries=3)
-                
-                # Verify the error message contains the URL
-                assert "URL=" in str(excinfo.value)
-                
-                # Check the logs for the specific format
-                # We expect the log to appear on the final attempt (attempt 3)
-                # The format must be: "[DATA_UNAVAILABLE] URL=<url> attempts=3"
-                
-                # Filter logs for the specific pattern
-                data_unavailable_logs = [
-                    record.message 
-                    for record in caplog.records 
-                    if "DATA_UNAVAILABLE" in record.message
-                ]
-                
-                # Verify at least one log entry exists
-                assert len(data_unavailable_logs) > 0, "Expected DATA_UNAVAILABLE log entry not found"
-                
-                # Verify the format of the last log entry (the final attempt)
-                final_log = data_unavailable_logs[-1]
-                expected_format = f"[DATA_UNAVAILABLE] URL={url} attempts=3"
-                
-                # The log might have additional context, so we check for the core pattern
-                assert expected_format in final_log, (
-                    f"Log format mismatch.\nExpected substring: {expected_format}\nActual log: {final_log}"
-                )
+@pytest.fixture
+def invalid_data():
+    """Create invalid test data (missing required field)."""
+    return {
+        "bulk_config_id": "mp-12345",
+        # Missing impurity_species
+        "alloy_system_id": "BCC_Cr"
+    }
 
-    def test_retry_count_is_exactly_three(self, caplog):
-        """
-        Verify that the function makes exactly 3 attempts before raising an error.
-        """
-        caplog.set_level(logging.INFO)
-        
-        with patch('data.download.validate_citations', return_value=True):
-            with patch('data.download.requests.get') as mock_get:
-                mock_get.side_effect = RequestException("Connection refused")
-                
-                url = "https://materialsproject.org/test"
-                
-                with pytest.raises(ValueError):
-                    download_bulk_configs(url, max_retries=3)
-                
-                # Verify that get was called exactly 3 times
-                assert mock_get.call_count == 3, (
-                    f"Expected 3 attempts, but requests.get was called {mock_get.call_count} times"
-                )
+def test_validate_valid_data(temp_schema, valid_data):
+    """Test that valid data passes validation."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(valid_data, f)
+        data_path = Path(f.name)
+    
+    try:
+        result = validate_dataset(data_path, temp_schema)
+        assert result is True
+    finally:
+        os.unlink(data_path)
 
-    def test_valid_data_does_not_retry(self, caplog):
-        """
-        Verify that if data is available, no retries occur and no error is logged.
-        """
-        caplog.set_level(logging.INFO)
-        
-        # Create a mock response that succeeds on the first try
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"structures": []}
-        
-        with patch('data.download.validate_citations', return_value=True):
-            with patch('data.download.requests.get', return_value=mock_response) as mock_get:
-                url = "https://materialsproject.org/test"
-                
-                # This should succeed without raising an error
-                result = download_bulk_configs(url, max_retries=3)
-                
-                # Verify only one attempt was made
-                assert mock_get.call_count == 1, (
-                    f"Expected 1 attempt for valid data, but got {mock_get.call_count}"
-                )
-                
-                # Verify no DATA_UNAVAILABLE logs were generated
-                data_unavailable_logs = [
-                    record.message 
-                    for record in caplog.records 
-                    if "DATA_UNAVAILABLE" in record.message
-                ]
-                assert len(data_unavailable_logs) == 0, (
-                    "Unexpected DATA_UNAVAILABLE log found for valid data"
-                )
+def test_validate_invalid_data(temp_schema, invalid_data):
+    """Test that invalid data raises ValidationError."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(invalid_data, f)
+        data_path = Path(f.name)
+    
+    try:
+        with pytest.raises(ValidationError):
+            validate_dataset(data_path, temp_schema)
+    finally:
+        os.unlink(data_path)
+
+def test_validate_missing_data_file(temp_schema):
+    """Test that missing data file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        validate_dataset(Path('/nonexistent/file.yaml'), temp_schema)
+
+def test_validate_missing_schema_file(valid_data):
+    """Test that missing schema file raises FileNotFoundError."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(valid_data, f)
+        data_path = Path(f.name)
+    
+    try:
+        with pytest.raises(FileNotFoundError):
+            validate_dataset(data_path, Path('/nonexistent/schema.yaml'))
+    finally:
+        os.unlink(data_path)
+
+def test_load_schema(temp_schema):
+    """Test schema loading."""
+    schema = load_schema(temp_schema)
+    assert "$schema" in schema
+    assert schema["type"] == "object"
+    assert "required" in schema
+
+def test_validate_json_format(temp_schema, valid_data):
+    """Test validation with JSON format data."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(valid_data, f)
+        data_path = Path(f.name)
+    
+    try:
+        result = validate_dataset(data_path, temp_schema)
+        assert result is True
+    finally:
+        os.unlink(data_path)
+
+def test_validate_unsupported_format(temp_schema, valid_data):
+    """Test that unsupported file format raises ValueError."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        f.write(str(valid_data))
+        data_path = Path(f.name)
+    
+    try:
+        with pytest.raises(ValueError):
+            validate_dataset(data_path, temp_schema)
+    finally:
+        os.unlink(data_path)

@@ -1,0 +1,35 @@
+# Project: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
+# Ignore generated data, results, and Python artifacts
+
+# Data and Results (Generated)
+data/
+results/
+
+# Python Cache
+*.pyc
+__pycache__/
+*.pyp
+*.pyi
+.python-version
+.pytest_cache/
+.mypy_cache/
+
+# IDE and Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/

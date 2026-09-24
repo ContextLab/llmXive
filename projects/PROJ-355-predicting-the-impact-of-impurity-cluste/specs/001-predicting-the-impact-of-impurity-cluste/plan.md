@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to quantify the relationship between impurity clustering descriptors (RDF peaks, pair correlations, Voronoi counts) at grain boundary (GB) interfaces and segregation energies. The approach involves downloading bulk configurations from OQMD (verified source) and Materials Project (fallback), constructing GB supercells, computing interface-specific descriptors, generating segregation energies via CPU-tractable atomistic simulations (using a specific NIST EAM potential for Fe-Cr), and training a Linear Regression model (selected over RandomForest to satisfy the requirement for coefficient p-values, with a fallback to permutation importance for RF). The pipeline includes rigorous collinearity diagnostics (VIF), multiple-comparison correction (Bonferroni or FDR based on test count), and threshold sensitivity analysis (quantile-based), all executable on a GitHub Actions free-tier runner (2 CPU, 7GB RAM). A dynamic power analysis determines the sample size, capped at a predetermined threshold.
+This project implements a computational pipeline to quantify the relationship between impurity clustering descriptors (RDF peaks, pair correlations, Voronoi counts) at grain boundary (GB) interfaces and segregation energies. The approach involves downloading bulk configurations from OQMD (verified source) and Materials Project (fallback), constructing GB supercells, computing interface-specific descriptors, generating segregation energies via CPU-tractable atomistic simulations (using a specific NIST EAM potential for Fe-Cr), and training a Linear Regression model (selected over RandomForest to satisfy the requirement for coefficient p-values, with a fallback to permutation importance for RF). The pipeline includes rigorous collinearity diagnostics (VIF), multiple-comparison correction (Bonferroni or FDR based on test count), and threshold sensitivity analysis (quantile-based), all executable on a GitHub Actions free-tier runner (multi-core CPU, several GB RAM). A dynamic power analysis determines the sample size, capped at a predetermined threshold.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ This project implements a computational pipeline to quantify the relationship be
 **Primary Dependencies**: `pymatgen` (structure manipulation), `scikit-learn` (regression, metrics, VIF), `statsmodels` (p-values, robust SE), `numpy`, `pandas`, `ase` (atomistic simulations), `requests` (data fetching), `pyyaml` (contracts).  
 **Storage**: Local file system (`data/`, `results/`); no external database.  
 **Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7 GB RAM, ~Sufficient disk capacity, NO GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, sufficient RAM for model execution., ~Sufficient disk capacity, NO GPU).  
 **Project Type**: Computational science pipeline / CLI tool.  
 **Performance Goals**: Full pipeline (download + simulate + train) ≤ 6 hours on sampled dataset (≤ 500 configurations); Memory ≤ 6 GB.  
 **Constraints**: No GPU; no heavy DFT calculations (use empirical potentials or pre-computed subsets); strict adherence to Spec FR-007 (detect but do not remove collinear features); strict dataset fit (OQMD/MP for bulk, simulated GBs for energies).  
@@ -78,7 +78,7 @@ projects/PROJ-355-predicting-the-impact-of-impurity-cluste/
 └── README.md
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `results/`) selected to minimize overhead and ensure tight coupling between data generation and analysis, fitting the 14GB disk limit. The `validators.py` module is explicitly created to resolve the consumer-before-producer gap identified in the unresolved concerns.
+**Structure Decision**: Single-project structure (`code/`, `data/`, `results/`) selected to minimize overhead and ensure tight coupling between data generation and analysis, fitting the disk limit. The `validators.py` module is explicitly created to resolve the consumer-before-producer gap identified in the unresolved concerns.
 
 ## Complexity Tracking
 

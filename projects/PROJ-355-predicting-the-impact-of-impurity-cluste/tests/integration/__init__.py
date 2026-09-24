@@ -1,1 +1,3 @@
-"""Integration tests for the impurity clustering segregation pipeline."""
+"""
+Integration tests for the impurity clustering segregation project.
+"""

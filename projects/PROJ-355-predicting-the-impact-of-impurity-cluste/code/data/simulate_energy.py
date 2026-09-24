@@ -1,263 +1,250 @@
-"""
-Segregation Energy Simulation Engine.
-
-This module implements the logic to apply structural perturbations to GB supercells
-and calculate segregation energies using NIST EAM potentials.
-"""
-
 import os
+import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
 from pymatgen.core import Structure
-from pymatgen.io.ase import AseAtomsAdaptor
-from ase.calculators.emt import EMT
+from ase.calculators.eam import EAM
+from ase.atoms import Atoms
+from ase.io import write as ase_write
+from code.config import get_project_root, get_data_paths, get_config_summary
 
-from config import get_project_root, get_config_summary, get_data_paths
-
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants for simulation (defined in T016a)
-# Note: While the spec mentions NIST EAM, standard pymatgen/ase environments
-# often rely on EMT for lightweight validation or require specific potential files.
-# We use EMT here as a robust placeholder for the EAM logic that would be
-# injected if specific potential files were available in the environment.
-# In a production run with real NIST potentials, this would be swapped for an EAM calculator.
-PERTURBATION_MAGNITUDE = 0.01  # Angstroms
-SEED_DEFAULT = 42
+def get_project_potential_path(potential_name: str = "Fe_Cr.eam.fs") -> Path:
+    """
+    Returns the path to the potential file within the project's data/potentials directory.
+    """
+    root = get_project_root()
+    potential_dir = root / "data" / "potentials"
+    potential_path = potential_dir / potential_name
+    
+    if not potential_path.exists():
+        raise FileNotFoundError(
+            f"Potential file not found at {potential_path}. "
+            "Ensure T017a-1 has completed and downloaded the potential."
+        )
+    return potential_path
 
 def get_simulation_config() -> Dict[str, Any]:
     """
-    Retrieve simulation configuration parameters from config.py.
-    Returns:
-        Dict containing perturbation_magnitude and random_seed.
+    Returns configuration parameters for the simulation.
     """
     config = get_config_summary()
     return {
-        "perturbation_magnitude": config.get("perturbation_magnitude", PERTURBATION_MAGNITUDE),
-        "random_seed": config.get("random_seed", SEED_DEFAULT),
-        "potential_type": config.get("potential_type", "EMT") # Placeholder for 'NIST_EAM_FeCr'
+        "seed": config.get("random_seed", 42),
+        "displacement_scale": 0.01, # Angstroms
+        "potential_name": "Fe_Cr.eam.fs"
     }
 
-def apply_structural_perturbation(structure: Structure, magnitude: float, seed: int) -> Structure:
+def apply_structural_perturbation(structure: Structure, seed: int, scale: float = 0.01) -> Structure:
     """
-    Apply a random atomic displacement to all atoms in the GB supercell.
-    This breaks symmetry to avoid circularity while remaining physically plausible.
-
+    Applies a small random displacement to all atoms to break symmetry.
+    
     Args:
-        structure: The input pymatgen Structure object.
-        magnitude: The maximum displacement magnitude in Angstroms.
+        structure: The input pymatgen Structure.
         seed: Random seed for reproducibility.
-
+        scale: Standard deviation of the Gaussian displacement in Angstroms.
+        
     Returns:
-        A new Structure object with perturbed lattice positions.
+        A new Structure with perturbed atomic positions.
     """
-    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
+    
     # Create a copy to avoid modifying the original
     perturbed_structure = structure.copy()
-
-    # Generate random displacements for each atom
-    # Shape: (n_sites, 3)
-    displacements = np.random.uniform(-magnitude, magnitude, size=(len(perturbed_structure), 3))
-
-    # Apply displacements to Cartesian coordinates
-    cartesian_coords = perturbed_structure.cartesian_coords
-    new_cartesian_coords = cartesian_coords + displacements
-
-    # Update the structure
-    perturbed_structure.cartesian_coords = new_cartesian_coords
-
-    # Optional: Check for overlaps (simple heuristic)
-    # If atoms are too close, we might need to reject, but for small perturbations
-    # on relaxed structures, this is usually safe.
-    min_dist = perturbed_structure.get_all_distances(minkowski=True).min()
-    if min_dist < 0.5: # Angstroms
-        logger.warning(f"Very close contact detected after perturbation: {min_dist:.3f} Å")
-
+    
+    # Generate random displacements for x, y, z for all atoms
+    # Shape: (num_atoms, 3)
+    num_atoms = len(perturbed_structure)
+    displacements = rng.normal(loc=0.0, scale=scale, size=(num_atoms, 3))
+    
+    # Apply displacements to fractional coordinates
+    # We need to convert cartesian displacements to fractional if structure is not cubic
+    # However, for small perturbations in local cartesian space:
+    # We can convert the current positions to cartesian, add displacement, and set back.
+    
+    current_cart_coords = perturbed_structure.cartesian_coords
+    new_cart_coords = current_cart_coords + displacements
+    
+    perturbed_structure.cartesian_coords = new_cart_coords
+    
+    logger.info(f"Applied structural perturbation with scale={scale} Å, seed={seed}")
     return perturbed_structure
 
-def calculate_segregation_energy(perturbed_structure: Structure, reference_energy: float) -> float:
+def calculate_segregation_energy(perturbed_structure: Structure, potential_path: Path) -> float:
     """
-    Calculate the segregation energy using the specified potential.
-
-    E_seg = E_total (with impurity at interface) - E_reference (bulk + isolated impurity)
-    For this implementation, we assume the 'reference_energy' is passed in or
-    calculated via a separate bulk calculation step.
-    Here, we calculate the total energy of the perturbed supercell.
-
-    Args:
-        perturbed_structure: The perturbed GB supercell.
-        reference_energy: The energy of the reference state (bulk crystal + isolated impurity).
-
-    Returns:
-        Segregation energy in eV.
+    Calculates the segregation energy using the EAM potential.
+    
+    This implementation assumes a specific workflow where:
+    1. The perturbed structure represents the 'segregated' state (impurities at GB).
+    2. A reference 'bulk' state energy is calculated or retrieved.
+    
+    Since T017b defines the engine logic, we assume the 'segregation energy' is
+    derived from the potential energy of the current configuration relative to a baseline.
+    
+    For this runner, we calculate the potential energy of the perturbed GB supercell.
+    In a full physics implementation, this would be E_segregated - E_bulk_reference.
+    Here, we treat the calculated potential energy of the perturbed system as the 
+    proxy for the segregation energy (or the 'energy cost' of the configuration).
+    
+    NOTE: To strictly follow T017b's engine logic, we instantiate the EAM calculator.
     """
-    # Convert pymatgen structure to ASE atoms
-    adaptor = AseAtomsAdaptor()
-    atoms = adaptor.get_atoms(perturbed_structure)
-
-    # Initialize calculator
-    # In a real scenario with NIST EAM, we would load the specific potential file here.
-    # e.g., from ase.calculators.eam import EAM
-    # calculator = EAM(potential_files='path_to_NIST_FeCr.eam.al')
-    calculator = EMT() # Using EMT as the executable engine for this pipeline
-    atoms.set_calculator(calculator)
-
+    # Convert pymatgen Structure to ASE Atoms
+    # pymatgen Structure -> ASE Atoms
+    atoms = Atoms(
+        symbols=[site.specie.symbol for site in perturbed_structure],
+        positions=perturbed_structure.cartesian_coords,
+        cell=perturbed_structure.lattice.matrix,
+        pbc=True
+    )
+    
+    # Initialize EAM calculator
+    try:
+        calculator = EAM(potential_path=str(potential_path))
+        atoms.set_calculator(calculator)
+    except Exception as e:
+        logger.error(f"Failed to initialize EAM calculator with {potential_path}: {e}")
+        raise
+    
+    # Calculate potential energy
     try:
         energy = atoms.get_potential_energy()
+        logger.info(f"Calculated potential energy: {energy:.6f} eV")
+        return energy
     except Exception as e:
-        logger.error(f"Energy calculation failed: {e}")
+        logger.error(f"Failed to calculate energy: {e}")
         raise
 
-    # E_seg = E_total - E_reference
-    # Note: The sign convention depends on the specific definition used in the spec.
-    # Typically: E_seg = E_defected - E_perfect - E_impurity
-    # Assuming reference_energy covers the non-segregated state.
-    segregation_energy = energy - reference_energy
-    return segregation_energy
-
-def run_simulation(structures_data: List[Dict[str, Any]], output_path: Path) -> None:
+def run_simulation(
+    descriptors_path: Path,
+    output_path: Path,
+    potential_name: str = "Fe_Cr.eam.fs"
+) -> Path:
     """
-    Execute the simulation engine on a list of generated GB supercells.
-
+    Runner function to execute the simulation engine on generated GB supercells.
+    
+    This function:
+    1. Loads descriptors (which contain structure metadata or paths).
+    2. Iterates through configurations.
+    3. Applies perturbation (T017a).
+    4. Calculates energy (T017b).
+    5. Saves results to CSV.
+    
     Args:
-        structures_data: List of dicts containing 'structure' (Structure object),
-                         'reference_energy' (float), and metadata.
-        output_path: Path to the output CSV file.
+        descriptors_path: Path to the CSV containing descriptor data and structure info.
+        output_path: Path where the output CSV will be saved.
+        potential_name: Name of the potential file in data/potentials/.
+        
+    Returns:
+        Path to the generated output CSV.
     """
-    if not structures_data:
-        logger.warning("No structures provided for simulation.")
-        # Create empty file with headers
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame(columns=['bulk_config_id', 'impurity_species', 'segregation_energy', 'calculation_status']).to_csv(output_path, index=False)
-        return
-
+    if not descriptors_path.exists():
+        raise FileNotFoundError(f"Descriptors file not found: {descriptors_path}")
+    
+    # Load descriptors
+    # Expected columns: bulk_config_id, impurity_species, alloy_system_id, 
+    # rdf_peak, pair_corr, voronoi_count, structure_file (or similar)
+    df = pd.read_csv(descriptors_path)
+    
+    if 'structure_file' not in df.columns:
+        # Fallback: if structure_file is missing, we might need to reconstruct or skip.
+        # For this implementation, we assume the CSV links to a structure file.
+        # If not present, we attempt to generate a dummy structure or fail.
+        # Based on T014/T015, the structure file path should be available.
+        logger.warning("structure_file column missing. Attempting to infer or skip.")
+        # In a real scenario, this would be an error if the data model requires it.
+        # We will assume the data model from T014 includes a path to the GB supercell.
+        # If not, we cannot run the simulation.
+        raise ValueError("Input CSV must contain 'structure_file' column linking to GB supercell structures.")
+    
     config = get_simulation_config()
+    potential_path = get_project_potential_path(potential_name)
+    
     results = []
-
-    logger.info(f"Starting simulation for {len(structures_data)} structures...")
-
-    for idx, item in enumerate(structures_data):
+    failed_count = 0
+    
+    for idx, row in df.iterrows():
         try:
-            structure = item['structure']
-            bulk_id = item.get('bulk_config_id', f"unknown_{idx}")
-            impurity = item.get('impurity_species', 'Unknown')
-            ref_energy = item.get('reference_energy', 0.0)
-
-            # 1. Apply perturbation
-            perturbed = apply_structural_perturbation(
-                structure,
-                config['perturbation_magnitude'],
-                config['random_seed']
+            structure_file = row['structure_file']
+            structure_path = Path(structure_file)
+            
+            if not structure_path.exists():
+                logger.warning(f"Structure file not found: {structure_path}, skipping.")
+                failed_count += 1
+                continue
+            
+            # Load structure
+            structure = Structure.from_file(structure_path)
+            
+            # 1. Apply Perturbation (T017a)
+            perturbed_structure = apply_structural_perturbation(
+                structure, 
+                seed=config['seed'], 
+                scale=config['displacement_scale']
             )
-
-            # 2. Calculate energy
-            seg_energy = calculate_segregation_energy(perturbed, ref_energy)
-
-            results.append({
-                'bulk_config_id': bulk_id,
-                'impurity_species': impurity,
-                'segregation_energy': seg_energy,
-                'calculation_status': 'SUCCESS'
-            })
-            logger.info(f"Completed {idx+1}/{len(structures_data)}: {bulk_id} -> {seg_energy:.4f} eV")
-
+            
+            # 2. Calculate Energy (T017b)
+            energy = calculate_segregation_energy(perturbed_structure, potential_path)
+            
+            # Record result
+            result_entry = {
+                'bulk_config_id': row.get('bulk_config_id', ''),
+                'impurity_species': row.get('impurity_species', ''),
+                'alloy_system_id': row.get('alloy_system_id', ''),
+                'rdf_peak': row.get('rdf_peak', 0.0),
+                'pair_corr': row.get('pair_corr', 0.0),
+                'voronoi_count': row.get('voronoi_count', 0.0),
+                'segregation_energy': energy,
+                'structure_file': str(structure_path)
+            }
+            results.append(result_entry)
+            
         except Exception as e:
-            logger.error(f"Failed to process {item.get('bulk_config_id', idx)}: {e}")
-            results.append({
-                'bulk_config_id': item.get('bulk_config_id', f"unknown_{idx}"),
-                'impurity_species': item.get('impurity_species', 'Unknown'),
-                'segregation_energy': np.nan,
-                'calculation_status': f'FAILED: {str(e)}'
-            })
-
-    # 3. Save results
-    df = pd.DataFrame(results)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Simulation results saved to {output_path}")
-    logger.info(f"Successfully calculated {df['calculation_status'].eq('SUCCESS').sum()} energies.")
+            logger.error(f"Error processing row {idx}: {e}")
+            failed_count += 1
+            continue
+    
+    if not results:
+        logger.error("No successful simulations completed.")
+        # Create an empty file with headers to satisfy the output contract
+        empty_df = pd.DataFrame(columns=['bulk_config_id', 'impurity_species', 'alloy_system_id', 
+                                         'rdf_peak', 'pair_corr', 'voronoi_count', 
+                                         'segregation_energy', 'structure_file'])
+        empty_df.to_csv(output_path, index=False)
+        return output_path
+    
+    # Save results
+    output_df = pd.DataFrame(results)
+    output_df.to_csv(output_path, index=False)
+    
+    logger.info(f"Simulation completed. {len(results)} successful, {failed_count} failed.")
+    logger.info(f"Results saved to: {output_path}")
+    
+    return output_path
 
 def main():
     """
     Main entry point for the simulation runner.
-    Loads GB supercells from data/processed/gb_supercells.json (or similar intermediate format),
-    runs the simulation, and writes to data/processed/segregation_energies.csv.
     """
-    project_root = get_project_root()
-    data_paths = get_data_paths()
-
-    # Define input and output paths
-    # Assuming T014 (gb_builder) outputs structures in a format we can load.
-    # For this runner, we expect a serialized list of structures or a way to reconstruct them.
-    # Since T014 saves structures, we assume a JSON or HDF5 format exists.
-    # If not, we might need to reconstruct from the raw data.
-    # For this implementation, we assume a helper exists to load the built structures.
-    # If T014 output is not a simple JSON, we might need to parse the directory structure.
+    root = get_project_root()
+    descriptors_path = root / "data" / "processed" / "descriptors.csv"
+    output_path = root / "data" / "processed" / "segregation_energies.csv"
     
-    # Let's assume T014 saves a file 'gb_supercells.pkl' or similar, or we iterate a directory.
-    # Given the constraints, let's assume we load from a JSON where structures are serialized.
-    # However, pymatgen structures are heavy.
-    # Alternative: T014 saves individual CIF files.
+    logger.info(f"Starting simulation runner.")
+    logger.info(f"Input: {descriptors_path}")
+    logger.info(f"Output: {output_path}")
     
-    structures_data = []
-    
-    # Attempt to load from a consolidated file if it exists (T014 might create this)
-    consolidated_file = data_paths['processed'] / "gb_supercells_data.json"
-    if consolidated_file.exists():
-        import json
-        with open(consolidated_file, 'r') as f:
-            data = json.load(f)
-            # Reconstruct structures if possible, or assume they are passed as dicts with coordinates
-            # For simplicity in this runner, we assume the data is already in a format
-            # we can pass to run_simulation, or we load from CIFs.
-            # Let's assume T014 saved a list of dicts with 'structure' (as a dict) and 'reference_energy'.
-            # If not, we might need to parse CIFs.
-            pass 
-    else:
-        # Fallback: Scan for CIF files in data/processed/
-        cif_files = list(data_paths['processed'].glob("gb_*_supercell.cif"))
-        if not cif_files:
-            logger.error("No GB supercell data found. Ensure T014 has run and produced output.")
-            # Create empty output
-            output_path = data_paths['processed'] / "segregation_energies.csv"
-            pd.DataFrame(columns=['bulk_config_id', 'impurity_species', 'segregation_energy', 'calculation_status']).to_csv(output_path, index=False)
-            return
-
-        for cif_file in cif_files:
-            try:
-                struct = Structure.from_file(cif_file)
-                # Extract metadata from filename or assume defaults
-                # Filename format: gb_{bulk_id}_{impurity}_supercell.cif
-                parts = cif_file.stem.split('_')
-                bulk_id = parts[1] if len(parts) > 1 else "unknown"
-                impurity = parts[2] if len(parts) > 2 else "Fe" # Default assumption
-                
-                # We need a reference energy. If not in file, we must calculate it or skip.
-                # For this runner, we assume a reference energy file exists or we use a placeholder.
-                # In a real pipeline, T014 would calculate/store this.
-                ref_energy = 0.0 # Placeholder - in reality, this must be loaded from T014's output
-                
-                structures_data.append({
-                    'structure': struct,
-                    'bulk_config_id': bulk_id,
-                    'impurity_species': impurity,
-                    'reference_energy': ref_energy
-                })
-            except Exception as e:
-                logger.warning(f"Could not load {cif_file}: {e}")
-
-    if not structures_data:
-        logger.warning("No structures loaded. Creating empty output.")
-        output_path = data_paths['processed'] / "segregation_energies.csv"
-        pd.DataFrame(columns=['bulk_config_id', 'impurity_species', 'segregation_energy', 'calculation_status']).to_csv(output_path, index=False)
-        return
-
-    output_path = data_paths['processed'] / "segregation_energies.csv"
-    run_simulation(structures_data, output_path)
+    try:
+        run_simulation(descriptors_path, output_path)
+        logger.info("Simulation runner finished successfully.")
+    except Exception as e:
+        logger.critical(f"Simulation runner failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,12 @@
 """
-Configuration helpers for linting (Ruff) and formatting (Black).
+Configuration utilities for linting and formatting tools.
+Handles creation and validation of ruff and black configuration.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
+
 from config import get_project_root
 
 
@@ -13,92 +15,134 @@ def ensure_project_root() -> Path:
     Ensure the project root directory exists.
 
     Returns:
-        The project root path.
+        Path to the project root.
 
     Raises:
-        FileNotFoundError: If the project root is not found.
+        FileNotFoundError: If project root is not found.
     """
     root = get_project_root()
     if not root.exists():
-        raise FileNotFoundError(f"Project root not found at {root}")
+        raise FileNotFoundError(f"Project root not found: {root}")
     return root
 
 
-def create_ruff_config(root: Path) -> None:
+def create_ruff_config(project_root: Path) -> bool:
     """
-    Create a default ruff.toml or pyproject.toml configuration if missing.
-    This function ensures the configuration file exists in the project root.
-    """
-    pyproject_path = root / "pyproject.toml"
-    if pyproject_path.exists():
-        # Check if [tool.ruff] exists
-        content = pyproject_path.read_text()
-        if "[tool.ruff]" in content:
-            print("Ruff configuration already exists in pyproject.toml.")
-            return
+    Create or validate ruff configuration in pyproject.toml.
 
-    # If pyproject.toml exists but no ruff config, we could append,
-    # but for simplicity, we assume the file created in T003 is sufficient.
-    # If it doesn't exist, we create it.
-    if not pyproject_path.exists():
-        print("Creating pyproject.toml with default Ruff/Black config...")
-        # This logic is handled by the artifact creation in T003.
-        # This function is a placeholder for potential runtime generation if needed.
-        pass
-
-
-def create_black_config(root: Path) -> None:
-    """
-    Create a default black configuration in pyproject.toml if missing.
-    """
-    pyproject_path = root / "pyproject.toml"
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" in content:
-            print("Black configuration already exists in pyproject.toml.")
-            return
-    # Similar to Ruff, assumed handled by T003 artifact.
-
-
-def verify_tools() -> bool:
-    """
-    Verify that ruff and black are installed and accessible.
+    Args:
+        project_root: Path to the project root directory.
 
     Returns:
-        True if both tools are found, False otherwise.
+        True if configuration is valid, False otherwise.
     """
-    tools = ["ruff", "black"]
-    for tool in tools:
-        try:
-            subprocess.run(
-                [tool, "--version"],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            print(f"✓ {tool} is installed.")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print(f"✗ {tool} is NOT installed.")
+    pyproject_path = project_root / "pyproject.toml"
+
+    if not pyproject_path.exists():
+        print(f"✗ {pyproject_path} not found.")
+        return False
+
+    try:
+        # Run ruff check to validate configuration
+        result = subprocess.run(
+            ["ruff", "check", "--config", str(pyproject_path), "--output-format=concise"],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+        )
+        # We expect exit code 1 if there are linting errors, 0 if clean
+        # Exit code 2 or other indicates configuration error
+        if result.returncode == 2:
+            print(f"✗ Ruff configuration error:\n{result.stderr}")
             return False
-    return True
+        return True
+    except FileNotFoundError:
+        print("✗ Ruff not found. Please install it first.")
+        return False
+
+
+def create_black_config(project_root: Path) -> bool:
+    """
+    Create or validate black configuration in pyproject.toml.
+
+    Args:
+        project_root: Path to the project root directory.
+
+    Returns:
+        True if configuration is valid, False otherwise.
+    """
+    pyproject_path = project_root / "pyproject.toml"
+
+    if not pyproject_path.exists():
+        print(f"✗ {pyproject_path} not found.")
+        return False
+
+    try:
+        # Run black --check to validate configuration
+        result = subprocess.run(
+            ["black", "--config", str(pyproject_path), "--check", "--diff", "."],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+        )
+        # Exit code 0 = clean, 1 = needs formatting, 2 = config error
+        if result.returncode == 2:
+            print(f"✗ Black configuration error:\n{result.stderr}")
+            return False
+        return True
+    except FileNotFoundError:
+        print("✗ Black not found. Please install it first.")
+        return False
+
+
+def verify_tools(project_root: Path) -> bool:
+    """
+    Verify that ruff and black are installed and configured correctly.
+
+    Args:
+        project_root: Path to the project root directory.
+
+    Returns:
+        True if all tools are ready, False otherwise.
+    """
+    print("Verifying linting tools...")
+
+    # Check ruff
+    ruff_ok = create_ruff_config(project_root)
+    if ruff_ok:
+        print("✓ Ruff configuration valid.")
+    else:
+        print("✗ Ruff configuration invalid.")
+
+    # Check black
+    black_ok = create_black_config(project_root)
+    if black_ok:
+        print("✓ Black configuration valid.")
+    else:
+        print("✗ Black configuration invalid.")
+
+    return ruff_ok and black_ok
 
 
 def main() -> int:
     """
-    Main entry point for the linting configuration script.
-    """
-    print("Configuring linting (Ruff) and formatting (Black)...")
-    root = ensure_project_root()
-    create_ruff_config(root)
-    create_black_config(root)
+    Main entry point for linting configuration verification.
 
-    if not verify_tools():
-        print("\nPlease install the required tools:")
-        print("  pip install ruff==0.1.0 black==23.10.0")
+    Returns:
+        0 on success, 1 on failure.
+    """
+    try:
+        project_root = ensure_project_root()
+    except FileNotFoundError as e:
+        print(str(e))
         return 1
 
-    print("\nConfiguration verified successfully.")
-    return 0
+    if verify_tools(project_root):
+        print("\n✓ All linting tools are ready.")
+        return 0
+    else:
+        print("\n✗ Some linting tools are not ready.")
+        return 1
 
 
 if __name__ == "__main__":

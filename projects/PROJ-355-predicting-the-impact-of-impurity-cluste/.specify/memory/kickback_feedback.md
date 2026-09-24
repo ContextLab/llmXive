@@ -4,9 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or file list was provided showing the `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` root with the required subfolders (`code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/`). Without concrete evidence of these directories being created, the task requirement is not satisfied.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.ruff]` or `[tool.black]`, `.ruff.toml`, or similar) are present in the provided evidence, nor any documentation showing that `ruff` and `black` have been set up for the `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` directory. The required artifact is missing.
-- `T004a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T004b` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T008` (rejected 1x): No directory structure or `.gitkeep` files were presented; without visible evidence of `data/raw/`, `data/processed/`, and `results/` containing `.gitkeep`, the requirement cannot be confirmed. The implementer must provide the actual folder hierarchy and placeholder files.
+- `T009` (rejected 1x): No evidence of the required `tests/unit/` and `tests/integration/` directories (or any test files within them) was provided; without these scaffolding artifacts the task is not satisfied.
+- `T018` (rejected 1x): The repository contains `code/data/descriptor_filter.py`, which implements loading descriptors and computing VIF, but it does not include any code that writes `data/processed/collinearity_report.md`. The required report file is absent, so the task of generating the VIF report (whether high collinearity or none) is not fulfilled. The next implementer must add logic to create the markdown report and ensure the file exists.
 
 ## Required change
 

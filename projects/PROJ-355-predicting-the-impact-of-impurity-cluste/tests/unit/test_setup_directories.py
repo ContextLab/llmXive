@@ -1,90 +1,72 @@
 import os
-import sys
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
-# Add the code directory to the path to allow imports
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent.parent / "code"
 sys.path.insert(0, str(code_dir))
 
-from setup_directories import setup_directories, main
 from setup_project import ensure_directory, create_gitkeep
+from setup_directories import setup_data_and_results_directories
 
-class TestSetupDirectories:
-    """
-    Unit tests for T008: Setup data/raw, data/processed, and results directories.
-    """
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Create a temporary project root for testing."""
+    return tmp_path
 
-    @pytest.fixture
-    def temp_project_root(self):
-        """Create a temporary directory to simulate a project root."""
-        temp_dir = tempfile.mkdtemp()
-        yield Path(temp_dir)
-        shutil.rmtree(temp_dir)
+def test_setup_data_directories_creates_folders(temp_project_root):
+    """Test that setup_data_and_results_directories creates the required folders."""
+    results = setup_data_and_results_directories(temp_project_root)
+    
+    # Check that we got results for all 3 directories
+    assert len(results) == 3
+    
+    # Check specific paths exist
+    paths = [r[0] for r in results]
+    assert temp_project_root / "data" / "raw" in paths
+    assert temp_project_root / "data" / "processed" in paths
+    assert temp_project_root / "results" in paths
+    
+    # Check status is not failed
+    for path, status in results:
+        assert status != "failed", f"Failed to create {path}"
 
-    def test_setup_directories_creates_folders(self, temp_project_root):
-        """Verify that setup_directories creates the required folders."""
-        # Mock the project root by changing the working directory context or passing it
-        # Since setup_directories uses __file__ to determine root, we need to be careful.
-        # Instead, we will test the helper functions directly or mock the path logic.
-        
-        # Let's test the logic by creating the dirs manually in the temp root
-        dirs_to_create = ["data/raw", "data/processed", "results"]
-        
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            assert not full_path.exists()
-        
-        # Simulate the logic of setup_directories but with a known root
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            ensure_directory(full_path)
-            create_gitkeep(full_path)
-        
-        # Verify existence
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            assert full_path.exists(), f"Directory {full_path} was not created"
-            gitkeep_path = full_path / ".gitkeep"
-            assert gitkeep_path.exists(), f".gitkeep file not created in {full_path}"
+def test_gitkeep_files_created(temp_project_root):
+    """Test that .gitkeep files are created in the new directories."""
+    setup_data_and_results_directories(temp_project_root)
+    
+    gitkeep_paths = [
+        temp_project_root / "data" / "raw" / ".gitkeep",
+        temp_project_root / "data" / "processed" / ".gitkeep",
+        temp_project_root / "results" / ".gitkeep",
+    ]
+    
+    for gitkeep_path in gitkeep_paths:
+        assert gitkeep_path.exists(), f".gitkeep missing at {gitkeep_path}"
+        assert gitkeep_path.is_file(), f"{gitkeep_path} is not a file"
 
-    def test_setup_directories_idempotent(self, temp_project_root):
-        """Verify that running setup multiple times doesn't error or duplicate content."""
-        dirs_to_create = ["data/raw", "data/processed", "results"]
-        
-        # Run once
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            ensure_directory(full_path)
-            create_gitkeep(full_path)
-        
-        # Run again
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            ensure_directory(full_path)
-            create_gitkeep(full_path)
-        
-        # Verify still exists and .gitkeep is present
-        for d in dirs_to_create:
-            full_path = temp_project_root / d
-            assert full_path.exists()
-            assert (full_path / ".gitkeep").exists()
+def test_ensure_directory_creates_parent_directories(temp_project_root):
+    """Test that ensure_directory creates parent directories if they don't exist."""
+    deep_path = temp_project_root / "data" / "raw" / "subdir"
+    success = ensure_directory(deep_path)
+    
+    assert success
+    assert deep_path.exists()
+    assert deep_path.is_dir()
 
-    def test_setup_directories_nested_structure(self, temp_project_root):
-        """Verify that nested directories (e.g., data/raw) are created correctly."""
-        nested_dir = "data/raw"
-        full_path = temp_project_root / nested_dir
-        
-        ensure_directory(full_path)
-        create_gitkeep(full_path)
-        
-        assert full_path.exists()
-        assert (full_path / ".gitkeep").exists()
-        
-        # Check parent 'data' also exists
-        assert (temp_project_root / "data").exists()
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_create_gitkeep_on_existing_directory(temp_project_root):
+    """Test that create_gitkeep works when directory already exists."""
+    # Create directory first
+    test_dir = temp_project_root / "test_dir"
+    test_dir.mkdir()
+    
+    gitkeep_path = test_dir / ".gitkeep"
+    created = create_gitkeep(gitkeep_path)
+    
+    assert created
+    assert gitkeep_path.exists()
+    
+    # Create again (idempotent)
+    created_again = create_gitkeep(gitkeep_path)
+    assert created_again  # Should return True even if file exists (idempotent behavior)

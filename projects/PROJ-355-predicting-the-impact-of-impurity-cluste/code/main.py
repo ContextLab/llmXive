@@ -27,26 +27,28 @@ logger = logging.getLogger(__name__)
 
 # Import pipeline stages
 # Note: These modules are expected to exist as per the project structure
-from data.download import download_bulk_configs, main as download_main
-from data.gb_builder import build_gb_supercell, main as gb_builder_main
-from data.descriptors import run_descriptor_computation, main as descriptors_main
-from data.simulate_energy import run_simulation, main as simulate_main
+# We import the specific functions required by the orchestration logic.
+# The 'main' functions in those modules handle the full execution of their respective stages.
+from data.download import main as download_main
+from data.gb_builder import main as gb_builder_main
+from data.descriptors import main as descriptors_main
+from data.simulate_energy import main as simulate_main
 from config import get_project_root, get_data_paths
 
 def run_pipeline():
     """
     Execute the full research pipeline with error handling.
-    
+
     Logical Sequence:
-    1. download_bulk_configs -> 2. build_gb_supercells -> 
+    1. download_bulk_configs -> 2. build_gb_supercells ->
     3. compute_descriptors -> 4. run_simulation
     """
     project_root = get_project_root()
     data_paths = get_data_paths()
-    
+
     logger.info("Starting Impurity Clustering Segregation Pipeline")
     logger.info(f"Project Root: {project_root}")
-    
+
     try:
         # Step 1: Download Bulk Configurations
         logger.info("Step 1: Downloading bulk configurations...")

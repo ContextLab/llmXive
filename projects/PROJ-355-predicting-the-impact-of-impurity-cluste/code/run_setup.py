@@ -2,12 +2,11 @@ import sys
 from pathlib import Path
 from setup_project import main as setup_main
 
-def main() -> int:
+def main():
     """
-    Entry point for running the project setup script.
-    Delegates to setup_project.main().
+    Wrapper to run the project setup.
     """
-    return setup_main()
+    setup_main()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

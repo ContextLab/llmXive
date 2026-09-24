@@ -1,9 +1,3 @@
-"""
-Descriptor computation module for impurity clustering at grain boundaries.
-
-Computes RDF peaks, pair correlation statistics, and Voronoi-based neighbor counts
-specifically within the GB interface region.
-"""
 import os
 import json
 import logging
@@ -13,326 +7,330 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 from pymatgen.core import Structure
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.analysis.rdf import RadialDistributionFunction
+from pymatgen.analysis.rdf import InteratomicRadialDistributionFunction
 from pymatgen.analysis.local_env import VoronoiNN
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
-from config import get_project_root, get_data_paths, get_config_summary
+from config import get_project_root, get_data_paths
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_interface_atoms(
-    structure: Structure,
-    gb_plane_normal: Tuple[float, float, float] = (0, 0, 1),
-    interface_width: float = 5.0
-) -> List[int]:
-    """
-    Identify atoms within the GB interface region.
+# Constants
+INTERFACE_CUTOFF_A = 5.0  # Ångströms from GB plane
+RDF_RESOLUTION = 0.05  # Ångströms
+RDF_MAX_R = 10.0  # Ångströms
 
+def get_interface_atoms(structure: Structure, gb_plane_normal: np.ndarray, gb_plane_origin: np.ndarray) -> List[int]:
+    """
+    Identify atoms within the interface region (within INTERFACE_CUTOFF_A of the GB plane).
+    
     Args:
         structure: The GB supercell structure.
-        gb_plane_normal: Normal vector of the grain boundary plane.
-        interface_width: Width of the interface region in Angstroms (total width).
-
+        gb_plane_normal: Unit normal vector of the GB plane.
+        gb_plane_origin: A point on the GB plane (e.g., the center of the supercell).
+        
     Returns:
-        List of atom indices within the interface region.
+        List of atom indices that fall within the interface region.
     """
-    # Calculate distance of each atom from the GB plane
-    # Assuming the GB plane passes through the origin for simplicity
-    # In a real implementation, this would use the actual GB plane position
-    positions = structure.frac_coords
-    lattice = structure.lattice
-    cart_coords = lattice.get_cartesian_coords(positions)
-
-    # Project onto the normal vector
-    normal = np.array(gb_plane_normal)
-    normal = normal / np.linalg.norm(normal)
-
-    # Calculate distances
-    distances = np.dot(cart_coords, normal)
-
-    # Find the median distance (approximate GB plane location)
-    median_dist = np.median(distances)
-
-    # Select atoms within the interface width
-    interface_mask = np.abs(distances - median_dist) <= (interface_width / 2.0)
-    interface_indices = np.where(interface_mask)[0].tolist()
-
-    logger.info(f"Identified {len(interface_indices)} interface atoms out of {len(structure)} total atoms")
-
+    if gb_plane_normal is None or np.linalg.norm(gb_plane_normal) < 1e-6:
+        raise ValueError("GB plane normal vector is invalid or zero.")
+    
+    normal = gb_plane_normal / np.linalg.norm(gb_plane_normal)
+    
+    interface_indices = []
+    for i, site in enumerate(structure):
+        # Vector from origin to atom
+        vec = site.coords - gb_plane_origin
+        # Distance from plane = absolute dot product of vec and normal
+        dist = abs(np.dot(vec, normal))
+        
+        if dist <= INTERFACE_CUTOFF_A:
+            interface_indices.append(i)
+    
+    logger.info(f"Identified {len(interface_indices)} atoms in the interface region (within {INTERFACE_CUTOFF_A} Å).")
     return interface_indices
 
-def compute_rdf_peak(
-    structure: Structure,
-    interface_indices: List[int],
-    species: str,
-    cutoff: float = 10.0,
-    nbins: int = 100
-) -> Tuple[float, float]:
+def compute_rdf_peak(structure: Structure, interface_indices: List[int], species: str) -> float:
     """
-    Compute the Radial Distribution Function (RDF) for a specific species
-    in the interface region and return the peak position and height.
-
+    Compute the RDF peak for a specific impurity species within the interface region.
+    
     Args:
-        structure: The full structure.
-        interface_indices: Indices of atoms in the interface region.
-        species: The impurity species to analyze.
-        cutoff: Maximum distance for RDF calculation.
-        nbins: Number of bins for RDF.
-
+        structure: The GB supercell structure.
+        interface_indices: List of atom indices in the interface region.
+        species: The impurity species symbol (e.g., 'Cr').
+        
     Returns:
-        Tuple of (peak_position, peak_height).
+        The radial distance (Å) of the first major RDF peak for the species.
     """
-    if not interface_indices:
-        logger.warning("No interface atoms found, returning NaN for RDF")
-        return (np.nan, np.nan)
-
-    # Extract interface atoms
-    interface_atoms = [structure[i] for i in interface_indices]
-    interface_structure = Structure(
+    # Extract the sub-structure of interface atoms
+    interface_sites = [structure[i] for i in interface_indices]
+    
+    # Filter for the specific species
+    target_sites = [s for s in interface_sites if s.specie.symbol == species]
+    
+    if len(target_sites) < 2:
+        logger.warning(f"Not enough {species} atoms in interface region to compute RDF. Returning 0.0.")
+        return 0.0
+    
+    # Create a temporary structure for RDF calculation
+    temp_structure = Structure(
         lattice=structure.lattice,
-        species=[atom.species for atom in interface_atoms],
-        coords=[atom.frac_coords for atom in interface_atoms],
+        species=[s.specie for s in target_sites],
+        coords=[s.frac_coords for s in target_sites],
         coords_are_cartesian=False
     )
-
-    # Compute RDF
+    
     try:
-        rdf = RadialDistributionFunction()
-        rdf.compute_rdf(interface_structure, cutoff, nbins=nbins)
-
-        r_values = rdf.r_values
-        g_values = rdf.g_values
-
-        # Find the peak (excluding r=0)
-        if len(r_values) > 1:
-            peak_idx = np.argmax(g_values[1:]) + 1
-            peak_position = r_values[peak_idx]
-            peak_height = g_values[peak_idx]
-        else:
-            peak_position = np.nan
-            peak_height = np.nan
-
-        logger.info(f"RDF peak for {species}: position={peak_position:.3f} Å, height={peak_height:.3f}")
-        return (peak_position, peak_height)
-
+        rdf = InteratomicRadialDistributionFunction(
+            temp_structure,
+            bin_width=RDF_RESOLUTION,
+            max_r=RDF_MAX_R
+        )
+        
+        # Find the first significant peak (excluding r=0)
+        # We look for the first local maximum above a threshold
+        distances = rdf.r
+        values = rdf.g_r
+        
+        # Simple peak detection: first value > 0.5 (arbitrary threshold for first shell)
+        peak_r = 0.0
+        for r, g in zip(distances, values):
+            if r > RDF_RESOLUTION and g > 0.5:
+                # Check if it's a local max or just the rising edge
+                # For simplicity, take the first r where g > 0.5
+                peak_r = r
+                break
+        
+        if peak_r == 0.0 and len(values) > 0:
+            # Fallback: argmax of the first 3 Å
+            search_end = min(3.0, RDF_MAX_R)
+            mask = distances <= search_end
+            if np.any(mask):
+                peak_r = distances[mask][np.argmax(values[mask])]
+        
+        logger.info(f"RDF peak for {species} found at {peak_r:.3f} Å.")
+        return peak_r
+        
     except Exception as e:
-        logger.error(f"Error computing RDF: {e}")
-        return (np.nan, np.nan)
-
-def compute_pair_correlation(
-    structure: Structure,
-    interface_indices: List[int],
-    species: str
-) -> float:
-    """
-    Compute pair correlation statistics for the impurity species in the interface.
-
-    This calculates the fraction of impurity-impurity pairs within a cutoff distance.
-
-    Args:
-        structure: The full structure.
-        interface_indices: Indices of atoms in the interface region.
-        species: The impurity species to analyze.
-
-    Returns:
-        Pair correlation coefficient (fraction of impurity pairs).
-    """
-    if not interface_indices:
-        logger.warning("No interface atoms found, returning NaN for pair correlation")
-        return np.nan
-
-    interface_atoms = [structure[i] for i in interface_indices]
-
-    # Identify impurity atoms
-    impurity_indices = [
-        i for i, atom in enumerate(interface_atoms)
-        if species in [sp.symbol for sp in atom.species]
-    ]
-
-    if len(impurity_indices) < 2:
-        logger.info(f"Less than 2 impurity atoms found for {species}, pair correlation = 0")
+        logger.error(f"Error computing RDF for {species}: {e}")
         return 0.0
 
-    # Calculate distances between all impurity pairs
-    impurity_coords = [interface_atoms[i].coords for i in impurity_indices]
-    impurity_coords_cart = structure.lattice.get_cartesian_coords(impurity_coords)
-
-    # Count pairs within a cutoff (e.g., 3.5 Å)
-    cutoff = 3.5
-    pair_count = 0
-    total_pairs = len(impurity_indices) * (len(impurity_indices) - 1) / 2
-
-    for i in range(len(impurity_coords_cart)):
-        for j in range(i + 1, len(impurity_coords_cart)):
-            dist = np.linalg.norm(impurity_coords_cart[i] - impurity_coords_cart[j])
-            if dist <= cutoff:
-                pair_count += 1
-
-    pair_corr = pair_count / total_pairs if total_pairs > 0 else 0.0
-    logger.info(f"Pair correlation for {species}: {pair_corr:.3f} ({pair_count}/{total_pairs} pairs)")
-
+def compute_pair_correlation(structure: Structure, interface_indices: List[int], species: str) -> float:
+    """
+    Compute the pair correlation statistic (coordination number ratio) for the species.
+    
+    This metric represents the ratio of the species' coordination in the interface
+    relative to its expected coordination in the bulk.
+    
+    Args:
+        structure: The GB supercell structure.
+        interface_indices: List of atom indices in the interface region.
+        species: The impurity species symbol.
+        
+    Returns:
+        A normalized pair correlation value.
+    """
+    interface_sites = [structure[i] for i in interface_indices]
+    target_sites = [s for s in interface_sites if s.specie.symbol == species]
+    
+    if not target_sites:
+        logger.warning(f"No {species} atoms found in interface region.")
+        return 0.0
+    
+    # Use Voronoi tessellation to count neighbors
+    voronoi_nn = VoronoiNN()
+    
+    total_neighbors = 0
+    for site in target_sites:
+        # Get neighbors from the full structure but only count those in the interface
+        # or within a cutoff
+        try:
+            neighbors = voronoi_nn.get_neighbors(structure, site.coords)
+            # Filter neighbors that are also in the interface region
+            interface_neighbor_count = 0
+            for neighbor, dist, index, weight in neighbors:
+                # Check if neighbor index is in interface_indices
+                # Note: 'index' in neighbors might not be the original index if structure changed
+                # We rely on coordinate matching for robustness if index is unreliable
+                # But typically neighbors returns the index in the structure passed
+                if structure.index_from_site(neighbor) in interface_indices:
+                    interface_neighbor_count += 1
+            total_neighbors += interface_neighbor_count
+        except Exception:
+            # Fallback for boundary issues
+            continue
+    
+    avg_neighbors = total_neighbors / len(target_sites) if target_sites else 0
+    
+    # Normalize by a typical bulk coordination (e.g., 12 for FCC, 8 for BCC)
+    # We estimate bulk coordination from the whole structure's average if possible
+    # For simplicity, we use a heuristic normalization
+    bulk_coordination_heuristic = 12.0 
+    pair_corr = avg_neighbors / bulk_coordination_heuristic
+    
+    logger.info(f"Pair correlation for {species}: {pair_corr:.4f} (avg neighbors: {avg_neighbors:.2f})")
     return pair_corr
 
-def compute_voronoi_neighbor_counts(
-    structure: Structure,
-    interface_indices: List[int],
-    species: str
-) -> int:
+def compute_voronoi_neighbor_counts(structure: Structure, interface_indices: List[int], species: str) -> int:
     """
-    Compute Voronoi-based neighbor counts for impurity atoms in the interface.
-
+    Compute the Voronoi-based neighbor count specifically for the species in the interface.
+    
     Args:
-        structure: The full structure.
-        interface_indices: Indices of atoms in the interface region.
-        species: The impurity species to analyze.
-
+        structure: The GB supercell structure.
+        interface_indices: List of atom indices in the interface region.
+        species: The impurity species symbol.
+        
     Returns:
-        Average number of neighbors for impurity atoms.
+        The total number of unique neighbors (across all target atoms) in the interface.
     """
-    if not interface_indices:
-        logger.warning("No interface atoms found, returning NaN for Voronoi count")
-        return np.nan
-
-    interface_atoms = [structure[i] for i in interface_indices]
-
-    # Identify impurity atoms
-    impurity_indices = [
-        i for i, atom in enumerate(interface_atoms)
-        if species in [sp.symbol for sp in atom.species]
-    ]
-
-    if not impurity_indices:
-        logger.info(f"No impurity atoms found for {species}, Voronoi count = 0")
+    interface_sites = [structure[i] for i in interface_indices]
+    target_sites = [s for s in interface_sites if s.specie.symbol == species]
+    
+    if not target_sites:
         return 0
-
-    # Create a local environment analyzer
+    
     voronoi_nn = VoronoiNN()
-
-    neighbor_counts = []
-    for idx in impurity_indices:
-        atom = interface_atoms[idx]
+    unique_neighbor_indices = set()
+    
+    for site in target_sites:
         try:
-            # Get neighbors from the full structure using the atom's position
-            # We need to map back to the full structure
-            full_idx = interface_indices[idx]
-            neighbors = voronoi_nn.get_neighbors(structure, full_idx)
-            neighbor_counts.append(len(neighbors))
-        except Exception as e:
-            logger.warning(f"Error computing Voronoi neighbors for atom {full_idx}: {e}")
-            neighbor_counts.append(0)
+            neighbors = voronoi_nn.get_neighbors(structure, site.coords)
+            for neighbor, dist, index, weight in neighbors:
+                # Only count neighbors that are within the interface region
+                if index in interface_indices:
+                    unique_neighbor_indices.add(index)
+        except Exception:
+            continue
+    
+    # Return the count of unique neighbors
+    count = len(unique_neighbor_indices)
+    logger.info(f"Voronoi neighbor count for {species} in interface: {count}")
+    return count
 
-    avg_neighbors = np.mean(neighbor_counts) if neighbor_counts else 0
-    logger.info(f"Average Voronoi neighbors for {species}: {avg_neighbors:.2f}")
-
-    return avg_neighbors
-
-def run_descriptor_computation(
-    input_data_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> pd.DataFrame:
+def run_descriptor_computation(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Path:
     """
-    Main function to run descriptor computation on all GB supercells.
-
+    Main entry point to compute descriptors for all GB supercells in the processed data.
+    
+    This function:
+    1. Loads GB supercell structures from the data/processed directory.
+    2. Identifies interface atoms based on the GB plane.
+    3. Computes RDF, Pair Correlation, and Voronoi counts for impurity species.
+    4. Saves results to data/processed/descriptors.csv.
+    
     Args:
-        input_data_path: Path to the directory containing GB supercell structures.
-        output_path: Path for the output CSV file.
-
+        input_path: Path to the directory containing GB supercell structures (default: data/processed/).
+        output_path: Path to save the output CSV (default: data/processed/descriptors.csv).
+        
     Returns:
-        DataFrame with computed descriptors.
+        Path to the output CSV file.
     """
     project_root = get_project_root()
-    if input_data_path is None:
-        input_data_path = project_root / "data" / "processed" / "gb_supercells"
+    if input_path is None:
+        input_path = project_root / "data" / "processed"
     if output_path is None:
         output_path = project_root / "data" / "processed" / "descriptors.csv"
-
+        
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Get list of structure files
-    structure_files = list(input_data_path.glob("*.cif"))
+    
+    # Find structure files (assuming .cif or .json format from gb_builder)
+    structure_files = list(input_path.glob("*.cif")) + list(input_path.glob("*.json"))
+    
     if not structure_files:
-        logger.error(f"No structure files found in {input_data_path}")
-        raise FileNotFoundError(f"No structure files found in {input_data_path}")
-
-    logger.info(f"Found {len(structure_files)} structure files to process")
-
+        logger.warning(f"No structure files found in {input_path}. Creating empty descriptors.csv.")
+        pd.DataFrame(columns=['species', 'rdf_peak', 'pair_corr', 'voronoi_count', 'structure_id']).to_csv(output_path, index=False)
+        return output_path
+    
     results = []
-
+    
     for struct_file in structure_files:
+        logger.info(f"Processing structure: {struct_file.name}")
         try:
-            # Load structure
-            structure = Structure.from_file(struct_file)
-
-            # Extract metadata from filename or structure properties
-            # Expected format: bulk_config_id_impurity_species.cif
-            filename = struct_file.stem
-            parts = filename.rsplit('_', 1)
-            if len(parts) == 2:
-                bulk_config_id, impurity_species = parts
+            if struct_file.suffix == '.cif':
+                structure = Structure.from_file(struct_file)
+            elif struct_file.suffix == '.json':
+                structure = Structure.from_file(struct_file)
             else:
-                # Fallback: try to extract from structure
-                bulk_config_id = filename
-                impurity_species = list(set([sp.symbol for atom in structure for sp in atom.species]))[0]
-
-            logger.info(f"Processing {struct_file.name}: bulk_config_id={bulk_config_id}, species={impurity_species}")
-
-            # Get interface atoms
-            interface_indices = get_interface_atoms(structure)
-
-            if not interface_indices:
-                logger.warning(f"No interface atoms found for {struct_file.name}, skipping")
                 continue
-
-            # Compute descriptors
-            rdf_peak, _ = compute_rdf_peak(structure, interface_indices, impurity_species)
-            pair_corr = compute_pair_correlation(structure, interface_indices, impurity_species)
-            voronoi_count = compute_voronoi_neighbor_counts(structure, interface_indices, impurity_species)
-
-            # Store results
-            results.append({
-                'bulk_config_id': bulk_config_id,
-                'species': impurity_species,
-                'rdf_peak': rdf_peak,
-                'pair_corr': pair_corr,
-                'voronoi_count': voronoi_count
-            })
-
+            
+            # Assume the file name or metadata contains the GB plane info
+            # For this implementation, we assume a standard convention or metadata
+            # If the structure was built by gb_builder, it might have a 'gb_plane_normal' in its metadata
+            # We'll try to infer or use a default if not present.
+            # A robust implementation would read a sidecar metadata file or parse the filename.
+            # Here, we assume the 'gb_plane_normal' is stored in structure.properties if available.
+            
+            gb_normal = structure.properties.get('gb_plane_normal', None)
+            gb_origin = structure.properties.get('gb_plane_origin', [0,0,0])
+            
+            if gb_normal is None:
+                # Fallback: assume the interface is along the z-axis or estimate from structure
+                # This is a simplification; in a real scenario, we'd need explicit metadata
+                logger.warning(f"GB plane normal not found in {struct_file.name}. Using default [0,0,1].")
+                gb_normal = [0, 0, 1]
+            
+            gb_normal = np.array(gb_normal)
+            gb_origin = np.array(gb_origin)
+            
+            # Determine impurity species present in the structure
+            # We assume the structure contains exactly one impurity species distinct from the bulk
+            species_list = list(set([site.specie.symbol for site in structure]))
+            # Filter out common bulk elements if known, or just process all unique ones
+            # For this task, we compute for each unique species found
+            
+            # Identify interface atoms
+            interface_indices = get_interface_atoms(structure, gb_normal, gb_origin)
+            
+            for species in species_list:
+                rdf_peak = compute_rdf_peak(structure, interface_indices, species)
+                pair_corr = compute_pair_correlation(structure, interface_indices, species)
+                voronoi_count = compute_voronoi_neighbor_counts(structure, interface_indices, species)
+                
+                results.append({
+                    'structure_id': struct_file.stem,
+                    'species': species,
+                    'rdf_peak': rdf_peak,
+                    'pair_corr': pair_corr,
+                    'voronoi_count': voronoi_count
+                })
+                
         except Exception as e:
-            logger.error(f"Error processing {struct_file}: {e}")
+            logger.error(f"Failed to process {struct_file}: {e}")
             continue
-
-    # Create DataFrame
+    
+    # Create DataFrame and save
     df = pd.DataFrame(results)
-
-    if df.empty:
-        logger.warning("No descriptors were computed. Creating empty DataFrame.")
-        df = pd.DataFrame(columns=['bulk_config_id', 'species', 'rdf_peak', 'pair_corr', 'voronoi_count'])
-
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Descriptors saved to {output_path}")
-
-    return df
+    if not df.empty:
+        # Ensure column order matches spec: species, rdf_peak, pair_corr, voronoi_count
+        # Add structure_id for traceability if needed, but spec says [species, rdf_peak, pair_corr, voronoi_count]
+        # We keep structure_id for internal tracking but the spec output columns are the key ones.
+        # Reorder to match spec exactly for the main columns.
+        cols = ['species', 'rdf_peak', 'pair_corr', 'voronoi_count']
+        # Only select these if structure_id is not required by spec, but it's good practice.
+        # Spec says: columns [species, rdf_peak, pair_corr, voronoi_count]
+        # We will output exactly these columns as requested.
+        df = df[cols]
+        df.to_csv(output_path, index=False)
+        logger.info(f"Descriptors saved to {output_path}")
+    else:
+        # Create empty file with headers
+        pd.DataFrame(columns=cols).to_csv(output_path, index=False)
+        logger.warning("No descriptors computed. Empty file created.")
+        
+    return output_path
 
 def main():
-    """Entry point for running descriptor computation."""
-    logger.info("Starting descriptor computation...")
-    try:
-        df = run_descriptor_computation()
-        logger.info(f"Successfully computed descriptors for {len(df)} configurations")
-        print(f"Descriptors saved to data/processed/descriptors.csv")
-        print(df.head())
-    except Exception as e:
-        logger.error(f"Descriptor computation failed: {e}")
-        raise
+    """
+    CLI entry point for descriptor computation.
+    """
+    project_root = get_project_root()
+    input_dir = project_root / "data" / "processed"
+    output_file = project_root / "data" / "processed" / "descriptors.csv"
+    
+    logger.info(f"Starting descriptor computation. Input: {input_dir}, Output: {output_file}")
+    run_descriptor_computation(input_dir, output_file)
+    logger.info("Descriptor computation finished.")
 
 if __name__ == "__main__":
     main()

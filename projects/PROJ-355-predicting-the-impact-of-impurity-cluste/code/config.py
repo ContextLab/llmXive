@@ -12,7 +12,6 @@ MAX_RETRIES = 3
 PERTURBATION_MAGNITUDE = 0.01  # Angstroms
 
 # Whitelist for data sources (MP/OQMD)
-# Renamed to match task requirement: VALIDATED_SOURCE_WHITELIST
 VALIDATED_SOURCE_WHITELIST = [
     'https://materialsproject.org',
     'https://oqmd.org'

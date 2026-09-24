@@ -1,30 +1,50 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented; without visible evidence
-    of `data/raw/`, `data/processed/`, and `results/` containing `.gitkeep`, the requirement
-    cannot be confirmed. The implementer must provide the actual folder hierarchy
-    and placeholder files.
-T009:
+  r: No directory tree or file list was provided showing the `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`
+    root with the required subfolders (`code/`, `data/raw/`, `data/processed/`, `results/`,
+    `tests/unit/`, `tests/integration/`). Without concrete evidence of these directories
+    being created, the task is not satisfied.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
-    (or any test files within them) was provided; without these scaffolding artifacts
-    the task is not satisfied.
+  r: No `.gitignore` or `README.md` files were presented for `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`;
+    without these artifacts the claim of initializing project metadata cannot be confirmed.
+    The implementer must add the two files with the required ignore patterns and placeholder
+    README content.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or similar) were presented, nor any description that they
+    were added to `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`. Without
+    such artifacts, the task of configuring ruff and black is not demonstrated.
 T012:
   c: false
   h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
   r: "The required integration test file `tests/integration/test_data_pipeline.py`\
     \ is missing from the repository, so the artifact does not exist and the task\u2019\
     s requirement is not satisfied."
-T018:
+T013b:
   c: false
-  h: 2217459be35e415a8158fcace86a29d32015073449ba374948e6127ef6acae27
-  r: "The repository contains a partially\u2011implemented `code/data/descriptor_filter.py`\
-    \ (the VIF loop is truncated and no function writes a markdown report), and the\
-    \ required `data/processed/collinearity_report.md` file does not exist. Consequently\
-    \ the task\u2019s core deliverable\u2014a generated VIF report\u2014has not been\
-    \ produced."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log files, test scripts, or `inaccessible_manifest.json` updates were provided;\
+    \ the claim lacks any concrete artifact demonstrating the `[DATA_UNAVAILABLE]`\
+    \ log format, the 3\u2011attempt retry behavior, or the manifest modification.\
+    \ The required evidence is missing."
+T017:
+  c: false
+  h: 3a421016b9edaeae5321262bb2d5f6163894bb14fc552c06fbdb33908a2d66f5
+  r: "The repository contains a `validate_dataset` function, but the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing, and there is no evidence that\
+    \ the validation is invoked before GB construction. Without the schema and the\
+    \ integration step, the task\u2019s requirement is not satisfied."
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No NIST EAM potential file for Fe\u2011Cr was provided, nor any script or log\
+    \ showing it was downloaded and its integrity verified. The required artifact\
+    \ is missing, so the task is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,11 +62,12 @@ T026:
     \ a function or script that generates prediction intervals and stores them)."
 T027:
   c: false
-  h: 28b8fb9c959acee214ba3f747bd617e753f6be9b68ec23723110f934e8ca9c8b
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
-    \ `code/modeling/train.py` does not perform validation against that schema (it\
-    \ only does a custom column check and never calls `validate_schema`). Consequently\
-    \ the contract\u2011validation step before training is not implemented."
+  h: 9f9c48cf439af398f066717ec3f464c66d9cbaf5cedaf6ee692d15431f6643a0
+  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
+    validation cannot actually be performed. Moreover, the provided `train.py` only
+    defines validation helpers but does not show them being invoked before model training.
+    Both the missing schema and the absent call to validation mean the task is not
+    fulfilled.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

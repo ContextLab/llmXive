@@ -4,48 +4,69 @@ from pathlib import Path
 from typing import List, Tuple
 from setup_project import ensure_directory, create_gitkeep, setup_directories, main
 
-def setup_directories() -> None:
+def setup_data_and_results_directories(project_root: Path) -> Tuple[bool, List[str]]:
     """
-    Setup the specific directory structure for T008:
-    data/raw/, data/processed/, and results/ with .gitkeep files.
-    This function is called by the main entry point in this file.
-    """
-    # Define the project root based on the project structure
-    # Assuming the script runs from the project root or code/ directory
-    project_root = Path(__file__).resolve().parent.parent
+    Setup the specific data and results directory structure required for T008.
     
-    # Define the relative paths to create
+    Creates:
+    - data/raw/
+    - data/processed/
+    - results/
+    
+    Each directory will contain a .gitkeep file to ensure they are tracked by git.
+    
+    Args:
+        project_root: The root path of the project.
+        
+    Returns:
+        A tuple of (success: bool, created_paths: List[str])
+    """
     directories_to_create = [
-        "data/raw",
-        "data/processed",
-        "results"
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
     ]
     
-    created_paths: List[Path] = []
+    created_paths = []
+    success = True
     
-    for dir_name in directories_to_create:
-        full_path = project_root / dir_name
-        if ensure_directory(full_path):
-            created_paths.append(full_path)
-            create_gitkeep(full_path)
-            print(f"Created directory with .gitkeep: {full_path}")
+    for dir_path in directories_to_create:
+        if ensure_directory(dir_path):
+            gitkeep_path = dir_path / ".gitkeep"
+            if create_gitkeep(gitkeep_path):
+                created_paths.append(str(dir_path))
+            else:
+                success = False
+                print(f"Failed to create .gitkeep in {dir_path}")
         else:
-            print(f"Directory already exists or could not be created: {full_path}")
+            success = False
+            print(f"Failed to create directory {dir_path}")
     
-    return created_paths
+    return success, created_paths
 
-def main() -> None:
+def main() -> int:
     """
-    Main entry point for T008 implementation.
-    Sets up the required directory structure.
+    Main entry point for T008 execution.
+    
+    Returns:
+        0 on success, 1 on failure.
     """
-    print("Starting T008: Setup data and results directories...")
-    try:
-        paths = setup_directories()
-        print(f"Successfully created {len(paths)} directories.")
-    except Exception as e:
-        print(f"Error during directory setup: {e}")
-        sys.exit(1)
+    from config import get_project_root
+    
+    project_root = get_project_root()
+    print(f"Setting up data and results directories in: {project_root}")
+    
+    success, created_paths = setup_data_and_results_directories(project_root)
+    
+    if success:
+        print("Successfully created directories:")
+        for path in created_paths:
+            print(f"  - {path}")
+        print("All directories contain .gitkeep files.")
+        return 0
+    else:
+        print("Failed to create one or more directories.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
