@@ -1,130 +1,156 @@
-# Quickstart Guide: llmXive Follow-up Study
+# Quickstart Guide: llmXive Follow-up - Extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
 
-This guide provides a step-by-step procedure to run the full pipeline for the study
-"Masking Stale Observations Helps Search Agents -- Until It Doesn't".
+This guide provides step-by-step instructions to run the full research pipeline end-to-end. The pipeline generates synthetic search trajectories, simulates agent behavior with varying retention horizons, performs statistical analysis, and generates visualizations.
 
 ## Prerequisites
 
-- Python 3.9 or higher
+- Python 3.9+
 - pip (Python package manager)
-- A Unix-like environment (Linux/macOS) or WSL on Windows
+- Git (for cloning the repository)
 
-## 1. Environment Setup
+## Installation
 
-Navigate to the project root directory:
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repository-url>
+ cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
+ ```
 
-```bash
-cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
-```
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-Create a virtual environment and activate it:
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+4. **Verify installation**:
+ ```bash
+ python -c "import statsmodels; import matplotlib; print('Dependencies installed successfully')"
+ ```
 
-Install the required dependencies:
+## Pipeline Overview
 
-```bash
-pip install -r requirements.txt
-```
+The pipeline consists of four main stages:
 
-## 2. Directory Structure Initialization
+1. **Trajectory Generation**: Creates 500 synthetic search trajectories with controlled semantic density. [UNRESOLVED-CLAIM: c_f9a4d973 — status=not_enough_info]
+2. **Agent Simulation**: Simulates a rule-based agent processing trajectories with varying retention horizons.
+3. **Statistical Analysis**: Performs logistic regression to analyze the interaction between density and horizon.
+4. **Visualization**: Generates a 3D surface plot of the regime map.
 
-Ensure all necessary directories exist. Run the setup script:
+## Running the Full Pipeline
 
-```bash
-python code/setup_directories.py
-python code/setup_utils_directory.py
-python code/setup_processed_directory.py
-python code/setup_plots_directory.py
-python code/setup_test_directories.py
-```
-
-*Expected Output*: Confirmation that directories `data/raw/`, `data/processed/`, `output/plots/`, `code/`, `code/utils/`, `tests/`, etc., are created.
-
-## 3. Phase 1: Generate Synthetic Trajectories
-
-Generate 500 synthetic search trajectories with controlled semantic density and injected critical evidence.
+The easiest way to run the entire pipeline is using the provided shell script:
 
 ```bash
-python code/generate_trajectories.py --output data/raw/trajectories.json --count 500 --seed 42
+bash run_pipeline.sh
 ```
 
-*Verification*:
-- Check that `data/raw/trajectories.json` exists.
-- Ensure the file contains 500 entries with metadata fields `density` and `critical_evidence_turn_index`.
+This script will:
+- Execute `generate_trajectories.py` to create synthetic data
+- Run `simulate_agent.py` to simulate agent behavior
+- Execute `analyze_results.py` to perform statistical analysis
+- Run `visualize_results.py` to generate the regime map plot
+- Stop on any error and log exit codes
 
-## 4. Phase 2: Agent Simulation
+### Expected Execution Time
 
-Run the rule-based agent simulation with varying retention horizons to observe success rates.
+- {{claim:c_b147ccff}}
+- Memory usage: < 7 GB (as optimized in T034)
+
+## Manual Execution (Step-by-Step)
+
+If you prefer to run each step individually:
+
+### Step 1: Generate Trajectories
 
 ```bash
-python code/simulate_agent.py \
- --input data/raw/trajectories.json \
- --output data/processed/simulation_results.jsonl \
- --horizons 1 2 3 4 5 6 7 8 9 10 \
- --alpha 2.0 \
- --threshold 0.5 \
- --seed 42
+python code/generate_trajectories.py
 ```
 
-*Parameters*:
-- `--horizons`: Space-separated list of retention horizons to test.
-- `--alpha`: Scaling factor for the logistic function (default: 2.0).
-- `--threshold`: Critical density threshold for the logistic function (default: 0.5).
+**Output**: `data/raw/trajectories.json` (500 synthetic trajectories)
 
-*Verification*:
-- Check that `data/processed/simulation_results.jsonl` exists.
-- The file should contain one JSON object per line with fields `trajectory_id`, `horizon`, `success`, and `density`.
-
-## 5. Phase 3: Statistical Analysis
-
-Perform logistic regression with natural splines to quantify the interaction effect between density and horizon.
+### Step 2: Simulate Agent
 
 ```bash
-python code/analyze_results.py \
- --input data/processed/simulation_results.jsonl \
- --output output/regression_summary.json \
- --hypothesis-output output/hypothesis_summary.md \
- --splines-df 3
+python code/simulate_agent.py
 ```
 
-*Verification*:
-- Check that `output/regression_summary.json` exists and contains regression coefficients and p-values.
-- Check that `output/hypothesis_summary.md` exists and states whether the hypothesis was supported.
+**Output**: `data/processed/simulation_results.csv` (agent success rates per horizon/density)
 
-## 6. Phase 4: Visualization
-
-Generate a 3D surface plot visualizing the relationship between Masking Horizon, Semantic Density, and Success Rate.
+### Step 3: Analyze Results
 
 ```bash
-python code/visualize_results.py \
- --input output/regression_summary.json \
- --output output/plots/surface_plot.png
+python code/analyze_results.py
 ```
 
-*Verification*:
-- Check that `output/plots/surface_plot.png` exists and is under 5 MB.
-- The plot should display a 3D surface with axes: Horizon (X), Density (Y), and Success Rate (Z).
+**Outputs**:
+- `output/regression_summary.json` (regression coefficients and p-values)
+- `output/hypothesis_summary.md` (hypothesis validation summary)
 
-## 7. Validation (Optional)
+### Step 4: Visualize Results
 
-Run the validation script to ensure all steps completed successfully.
+```bash
+python code/visualize_results.py
+```
+
+**Output**: `output/plots/regime_map.png` ({{claim:c_81743a41}})
+
+## Expected Output Locations
+
+After successful execution, the following files should exist:
+
+| File Path | Description |
+|-----------|-------------|
+| `data/raw/trajectories.json` | 500 synthetic search trajectories with density metadata |
+| `data/processed/simulation_results.csv` | Agent simulation results (success rates) |
+| `output/regression_summary.json` | Logistic regression coefficients and p-values |
+| `output/hypothesis_summary.md` | Hypothesis validation summary (boolean outcome) |
+| `output/plots/regime_map.png` | 3D surface plot of Success Rate vs. Horizon & Density |
+
+## Validation
+
+To validate the pipeline outputs:
 
 ```bash
 python code/validate_quickstart.py
 ```
 
+This script checks:
+- All required output files exist
+- JSON structures are valid
+- Trajectory schema matches expectations
+- Simulation output format is correct
+
 ## Troubleshooting
 
-- **Memory Issues**: If the simulation step fails due to memory constraints, ensure you are using the streaming version of the script (default) and that your system has at least 7 GB of RAM available.
-- **Missing Dependencies**: If import errors occur, re-run `pip install -r requirements.txt`.
-- **Path Errors**: Ensure you are running commands from the project root directory.
+### Common Issues
+
+1. **Missing dependencies**:
+ ```bash
+ pip install -r requirements.txt --force-reinstall
+ ```
+
+2. **Permission errors on output files**:
+ Ensure you have write permissions to the `data/` and `output/` directories.
+
+3. **Memory errors**:
+ The pipeline is optimized for < 7 GB RAM. [UNRESOLVED-CLAIM: c_2a85a072 — status=not_enough_info] If issues persist, reduce the number of trajectories in `generate_trajectories.py`.
+
+### Getting Help
+
+- Check the logs generated by `run_pipeline.sh`
+- Review the `docs/api.md` for detailed function documentation
+- Examine the `README.md` for project overview and architecture
 
 ## Next Steps
 
-- Review the generated hypothesis summary in `output/hypothesis_summary.md`.
-- Analyze the 3D surface plot for regime shifts.
-- Proceed to code cleanup tasks (T028-T033) if needed.
+After running the pipeline:
+1. Review `output/hypothesis_summary.md` to see if the hypothesis is supported
+2. Examine `output/plots/regime_map.png` for the optimal retention window regime
+3. Analyze `output/regression_summary.json` for statistical significance details
+
+For further analysis, you can modify parameters in the individual scripts (e.g., `--alpha` and `--threshold` in `simulate_agent.py`) and re-run specific stages.

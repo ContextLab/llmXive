@@ -1,139 +1,129 @@
-# llmXive Follow-up: Extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
+# llmXive: Extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
 
-This project implements an automated science pipeline to investigate the relationship between **semantic density** of search trajectories and the optimal **retention horizon** for search agents.
+**Project ID**: PROJ-920
+**Status**: Active Research Pipeline
 
-The core hypothesis is that while masking stale observations generally improves agent performance, the optimal retention window depends heavily on the density of critical evidence within the context. This project simulates search agents, generates synthetic trajectories with controlled density, and performs statistical analysis to map the "regime" where masking helps versus where it hurts.
+## Overview
 
-## Project Structure
+This project implements an automated science pipeline to investigate the hypothesis that masking stale observations in search agents improves performance up to a critical threshold, after which performance degrades due to loss of necessary context.
 
-```text
-.
-├── code/ # Core implementation scripts
-│ ├── utils/ # Utility modules (entropy, heuristics)
-│ │ ├── entropy.py # Shannon entropy calculations
-│ │ └── heuristics.py # Composite density formulas
-│ ├── generate_trajectories.py # Synthetic data generation
-│ ├── simulate_agent.py # Agent simulation with variable horizons
-│ ├── analyze_results.py # Statistical analysis (GLM, splines)
-│ └── visualize_results.py # 3D surface plotting
-├── data/
-│ ├── raw/ # Generated trajectory JSON files
-│ └── processed/ # Simulation results (CSV/JSON)
-├── output/
-│ ├── plots/ # Generated figures (PNG)
-│ └── regression_summary.json
-├── tests/ # Unit, integration, and contract tests
-│ ├── unit/
-│ ├── integration/
-│ └── contract/
-├── README.md
-└── requirements.txt
-```
-
-## Prerequisites
-
-- Python 3.9+
-- pip
-- Virtual environment (recommended)
+The pipeline consists of four main stages:
+1. **Trajectory Generation**: Creates synthetic search trajectories with controlled semantic density and ground-truth critical evidence injection.
+2. **Agent Simulation**: Simulates rule-based agents with varying retention horizons to measure success rates.
+3. **Statistical Analysis**: Performs logistic regression with natural splines to quantify the interaction between density and horizon.
+4. **Visualization**: Generates a 3D regime map surface plot.
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root):
- ```bash
- cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
- ```
+### Prerequisites
+- Python 3.9+
+- pip
 
-2. **Create and activate a virtual environment**:
+### Setup
+1. Clone the repository.
+2. Create a virtual environment (optional but recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
 ## Usage
 
-The pipeline consists of three main stages: Generation, Simulation, and Analysis.
-
-### Step 1: Generate Synthetic Trajectories
-
-Generates 500 search trajectories with controlled semantic density (low, medium, high) and injected critical evidence.
+### Running the Full Pipeline
+The easiest way to run the entire research pipeline is via the provided shell script:
 
 ```bash
-python code/generate_trajectories.py --output data/raw/trajectories.json --count 500 --seed 42
+bash run_pipeline.sh
 ```
 
-**Output**: `data/raw/trajectories.json` containing metadata, density values, and evidence turn indices.
+This script orchestrates the following steps in order:
+1. `code/generate_trajectories.py`
+2. `code/simulate_agent.py`
+3. `code/analyze_results.py`
+4. `code/visualize_results.py`
 
-### Step 2: Simulate Agent Behavior
+**Output**: All outputs will be written to the `output/` and `data/` directories.
 
-Runs the rule-based agent simulation across varying retention horizons (1 to T) using the generated trajectories.
+### Individual Script Execution
 
+If you wish to run specific stages independently:
+
+#### 1. Generate Trajectories
+Generates 500 synthetic trajectories with varying density levels.
 ```bash
-python code/simulate_agent.py \
- --input data/raw/trajectories.json \
- --output data/processed/simulation_results.csv \
- --alpha 2.5 \
- --threshold 0.5 \
- --batch-size 50
+python code/generate_trajectories.py
 ```
+*Output*: `data/raw/trajectories.json`
 
-**Parameters**:
-- `--alpha`: Scaling factor for the logistic retrieval probability.
-- `--threshold`: Critical density threshold for the logistic function.
-- `--batch-size`: Number of trajectories to process before writing to disk (streaming).
-
-**Output**: `data/processed/simulation_results.csv` with success/failure logs per horizon.
-
-### Step 3: Analyze Results & Visualize
-
-Performs logistic regression with natural splines to identify the interaction effect and generates a 3D surface plot.
-
+#### 2. Simulate Agent
+Runs the simulation with configurable retention horizons and heuristic parameters.
 ```bash
-python code/analyze_results.py \
- --input data/processed/simulation_results.csv \
- --output output/ \
- --df 3
+python code/simulate_agent.py --alpha 1.0 --threshold 0.5
 ```
+*Output*: `data/processed/simulation_results.csv`
 
+#### 3. Analyze Results
+Performs logistic regression and generates hypothesis summaries.
 ```bash
-python code/visualize_results.py \
- --summary output/regression_summary.json \
- --output output/plots/regime_map.png
+python code/analyze_results.py
 ```
+*Output*: `output/regression_summary.json`, `output/hypothesis_summary.md`
 
-**Outputs**:
-- `output/regression_summary.json`: Regression coefficients, p-values, and hypothesis test results.
-- `output/hypothesis_summary.md`: Human-readable summary of findings.
-- `output/plots/regime_map.png`: 3D surface plot (Masking Horizon vs. Density vs. Success Rate).
-
-## Testing
-
-Run the full test suite:
-
+#### 4. Visualize Results
+Generates the 3D regime map surface plot.
 ```bash
-pytest tests/ -v
+python code/visualize_results.py
+```
+*Output*: `output/plots/regime_map.png`
+
+## Project Structure
+
+```text
+.
+ ├── code/
+ │ ├── utils/
+ │ │ ├── entropy.py # Shannon entropy calculations
+ │ │ └── heuristics.py # Composite density heuristics
+ │ ├── generate_trajectories.py
+ │ ├── simulate_agent.py
+ │ ├── analyze_results.py
+ │ ├── visualize_results.py
+ │ └──... (setup scripts)
+ ├── data/
+ │ ├── raw/ # Generated trajectories
+ │ └── processed/ # Simulation logs
+ ├── output/
+ │ ├── plots/ # Regime map visualization
+ │ └──... (regression data)
+ ├── tests/
+ │ ├── unit/
+ │ ├── integration/
+ │ └── contract/
+ ├── docs/
+ │ ├── api.md
+ │ └── quickstart.md
+ ├── requirements.txt
+ ├── run_pipeline.sh
+ └── README.md
 ```
 
-Run specific test categories:
-- **Unit Tests**: `pytest tests/unit/ -v`
-- **Integration Tests**: `pytest tests/integration/ -v`
-- **Contract Tests**: `pytest tests/contract/ -v`
+## Key Configuration
 
-## Configuration & Reproducibility
-
-To ensure reproducibility and avoid bias:
-- All random seeds are explicitly set via CLI arguments.
-- Logistic function parameters (`alpha`, `threshold`) are **not** hardcoded defaults; they must be provided or set via environment variables.
-- The streaming implementation in `simulate_agent.py` ensures memory usage stays below 7GB even for large trajectory sets.
-
-## License
-
-This project is part of the llmXive research initiative.
+- **Density Terms**: The list of technical terms used for density calculation is defined in `code/config/density_terms.json`.
+- **Heuristic Parameters**: The logistic function scaling (`alpha`) and threshold can be adjusted via CLI arguments in `simulate_agent.py`.
+- **Splines**: The regression analysis uses natural splines with a fixed degrees of freedom (`df=3`) for the horizon variable.
 
 ## Contributing
 
-Please refer to the `specs/` directory for detailed design documents and user stories.
+Ensure all unit tests pass before submitting changes:
+```bash
+python -m pytest tests/unit/
+```
+
+## License
+
+Research use only.

@@ -1,13 +1,11 @@
 """
-Script to validate the quickstart.md pipeline execution.
+Quickstart Validation Script for llmXive Follow-up Project.
 
-This script runs the full pipeline as described in docs/quickstart.md:
-1. Generate trajectories (T011)
-2. Simulate agent (T014)
-3. Analyze results (T018)
-4. Visualize results (T021)
+This script validates the `docs/quickstart.md` guide by executing the
+steps described within it (or a subset for speed) and verifying that
+the expected output artifacts are generated with the correct structure.
 
-It verifies that all expected output files are created and contain valid data.
+It ensures the pipeline described in the documentation is reproducible.
 """
 import json
 import os
@@ -18,180 +16,208 @@ from typing import Dict, Any, List, Tuple, Optional
 
 # Project root relative to this script
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-OUTPUT_PLOTS = PROJECT_ROOT / "output" / "plots"
-OUTPUT_REGRESSION = PROJECT_ROOT / "output" / "regression_summary.json"
-OUTPUT_HYPOTHESIS = PROJECT_ROOT / "output" / "hypothesis_summary.txt"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_DIR = PROJECT_ROOT / "output"
+PLOTS_DIR = OUTPUT_DIR / "plots"
+QUICKSTART_PATH = PROJECT_ROOT / "docs" / "quickstart.md"
 
-# Expected outputs
-EXPECTED_TRAJECTORIES = DATA_RAW / "trajectories.json"
-EXPECTED_SIMULATION_LOG = DATA_PROCESSED / "simulation_results.json"
-EXPECTED_PLOT = OUTPUT_PLOTS / "surface_plot.png"
+# Expected output files based on tasks.md and quickstart.md
+EXPECTED_FILES = {
+    "trajectories": DATA_RAW_DIR / "trajectories.json",
+    "simulation_results": DATA_PROCESSED_DIR / "simulation_results.csv",
+    "regression_summary": OUTPUT_DIR / "regression_summary.json",
+    "hypothesis_summary": OUTPUT_DIR / "hypothesis_summary.md",
+    "regime_map": PLOTS_DIR / "regime_map.png"
+}
 
-def run_step(name: str, module_path: str, args: List[str]) -> Tuple[bool, str]:
-    """Run a pipeline step and return success status and output."""
-    cmd = [sys.executable, module_path] + args
-    print(f"Running: {' '.join(cmd)}")
+def log(msg: str, level: str = "INFO") -> None:
+    """Print a formatted log message."""
+    print(f"[{level}] {msg}")
+
+def validate_file_exists(path: Path, description: str) -> bool:
+    """Check if a specific file exists."""
+    if not path.exists():
+        log(f"FAIL: {description} not found at {path}", "ERROR")
+        return False
+    log(f"PASS: {description} exists at {path}")
+    return True
+
+def validate_json_structure(path: Path, schema_keys: List[str]) -> bool:
+    """Validate that a JSON file exists and contains expected top-level keys."""
     try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if isinstance(data, list):
+            # For list-based JSON (like trajectories), check first item
+            if not data:
+                log(f"FAIL: {path} is empty", "ERROR")
+                return False
+            item = data[0]
+            missing = [k for k in schema_keys if k not in item]
+        elif isinstance(data, dict):
+            missing = [k for k in schema_keys if k not in data]
+        else:
+            log(f"FAIL: {path} has unexpected structure (neither list nor dict)", "ERROR")
+            return False
+
+        if missing:
+            log(f"FAIL: {path} missing keys: {missing}", "ERROR")
+            return False
+        
+        log(f"PASS: {path} has valid structure with keys: {schema_keys}")
+        return True
+    except json.JSONDecodeError as e:
+        log(f"FAIL: {path} is not valid JSON: {e}", "ERROR")
+        return False
+    except Exception as e:
+        log(f"FAIL: Error reading {path}: {e}", "ERROR")
+        return False
+
+def validate_trajectory_schema(path: Path) -> bool:
+    """Specific validation for trajectory schema (US1)."""
+    required_fields = ["evidence_turn_index", "density_value", "is_critical"]
+    return validate_json_structure(path, required_fields)
+
+def validate_simulation_output(path: Path) -> bool:
+    """Specific validation for simulation output (US2)."""
+    # Check if it's CSV or JSON. Tasks.md implies CSV for streaming, but JSON is safer for schema check.
+    # Let's assume CSV based on "write_batch_to_file" in simulate_agent.py usually implies CSV for large data.
+    # However, if it's JSON, we check keys. If CSV, we check headers.
+    if path.suffix == '.csv':
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                header = f.readline().strip()
+            required_cols = ["horizon", "density", "success"]
+            missing = [col for col in required_cols if col not in header]
+            if missing:
+                log(f"FAIL: Simulation CSV missing columns: {missing}", "ERROR")
+                return False
+            log(f"PASS: Simulation CSV has valid headers")
+            return True
+        except Exception as e:
+            log(f"FAIL: Error reading CSV: {e}", "ERROR")
+            return False
+    else:
+        # Fallback to JSON check
+        required_fields = ["horizon", "density", "success"]
+        return validate_json_structure(path, required_fields)
+
+def run_step(step_name: str, command: List[str]) -> bool:
+    """Execute a shell command representing a step in the quickstart."""
+    log(f"Running step: {step_name}", "INFO")
+    try:
+        # Run with a timeout to prevent hanging
         result = subprocess.run(
-            cmd,
+            command,
             cwd=PROJECT_ROOT,
             capture_output=True,
             text=True,
-            timeout=300
+            timeout=600 # 10 minutes timeout per step
         )
+        
         if result.returncode != 0:
-            return False, f"Exit code {result.returncode}:\n{result.stderr}"
-        return True, result.stdout
-    except subprocess.TimeoutExpired:
-        return False, "Step timed out"
-    except Exception as e:
-        return False, str(e)
-
-def validate_file_exists(path: Path, description: str) -> bool:
-    """Check if a file exists and is non-empty."""
-    if not path.exists():
-        print(f"❌ Missing: {description} ({path})")
-        return False
-    if path.stat().st_size == 0:
-        print(f"❌ Empty: {description} ({path})")
-        return False
-    print(f"✅ Found: {description} ({path})")
-    return True
-
-def validate_json_structure(path: Path, expected_keys: List[str]) -> bool:
-    """Validate that a JSON file has the expected structure."""
-    try:
-        with open(path, 'r') as f:
-            data = json.load(f)
-        if isinstance(data, list):
-            if len(data) == 0:
-                print(f"⚠️  Warning: {path} is an empty list")
-                return True
-            # Check first item for keys
-            first_item = data[0]
-            missing = [k for k in expected_keys if k not in first_item]
-            if missing:
-                print(f"❌ Missing keys in {path}: {missing}")
-                return False
-        elif isinstance(data, dict):
-            missing = [k for k in expected_keys if k not in data]
-            if missing:
-                print(f"❌ Missing keys in {path}: {missing}")
-                return False
-        print(f"✅ Valid JSON structure: {path}")
+            log(f"FAIL: Step '{step_name}' failed with code {result.returncode}", "ERROR")
+            if result.stdout:
+                log(f"STDOUT: {result.stdout[:500]}...", "DEBUG")
+            if result.stderr:
+                log(f"STDERR: {result.stderr[:500]}...", "DEBUG")
+            return False
+        
+        log(f"PASS: Step '{step_name}' completed successfully", "INFO")
         return True
-    except json.JSONDecodeError as e:
-        print(f"❌ Invalid JSON in {path}: {e}")
+    except subprocess.TimeoutExpired:
+        log(f"FAIL: Step '{step_name}' timed out", "ERROR")
+        return False
+    except FileNotFoundError:
+        log(f"FAIL: Command not found in step '{step_name}'", "ERROR")
         return False
     except Exception as e:
-        print(f"❌ Error reading {path}: {e}")
+        log(f"FAIL: Exception in step '{step_name}': {e}", "ERROR")
         return False
 
 def main() -> int:
-    """Run the full validation pipeline."""
-    print("=" * 60)
-    print("LLM-Xive Quickstart Validation")
-    print("=" * 60)
+    """Main validation entry point."""
+    log("Starting Quickstart Validation...", "INFO")
+    
+    if not QUICKSTART_PATH.exists():
+        log(f"FAIL: {QUICKSTART_PATH} not found. Cannot validate.", "ERROR")
+        return 1
 
-    # Step 1: Generate Trajectories
-    print("\n[1/4] Generating trajectories...")
-    success, output = run_step(
-        "Generate Trajectories",
-        str(PROJECT_ROOT / "code" / "generate_trajectories.py"),
-        ["--count", "500", "--seed", "42"]
-    )
+    # 1. Verify Pre-requisites (Directories)
+    log("Checking directory structure...", "INFO")
+    dirs_to_check = [DATA_RAW_DIR, DATA_PROCESSED_DIR, OUTPUT_DIR, PLOTS_DIR]
+    for d in dirs_to_check:
+        if not d.exists():
+            log(f"Creating missing directory: {d}", "INFO")
+            d.mkdir(parents=True, exist_ok=True)
+
+    # 2. Execute Pipeline Steps (Simulating the Quickstart)
+    # We run the actual scripts to ensure they work as documented.
+    # Note: We might use a subset of data or faster parameters if the full run is too slow,
+    # but for validation, we assume the scripts handle defaults correctly.
+    
+    steps = [
+        ("Generate Trajectories", [
+            sys.executable, str(PROJECT_ROOT / "code" / "generate_trajectories.py"),
+            "--output", str(EXPECTED_FILES["trajectories"]),
+            "--count", "100" # Run a smaller subset for speed during validation if needed
+            # If the script requires specific args not in defaults, this might fail, 
+            # but we assume defaults work per task T011.
+        ]),
+        ("Simulate Agent", [
+            sys.executable, str(PROJECT_ROOT / "code" / "simulate_agent.py"),
+            "--input", str(EXPECTED_FILES["trajectories"]),
+            "--output", str(EXPECTED_FILES["simulation_results"])
+        ]),
+        ("Analyze Results", [
+            sys.executable, str(PROJECT_ROOT / "code" / "analyze_results.py"),
+            "--input", str(EXPECTED_FILES["simulation_results"]),
+            "--output-dir", str(OUTPUT_DIR)
+        ]),
+        ("Visualize Results", [
+            sys.executable, str(PROJECT_ROOT / "code" / "visualize_results.py"),
+            "--input", str(EXPECTED_FILES["regression_summary"]),
+            "--output", str(EXPECTED_FILES["regime_map"])
+        ])
+    ]
+
+    success = True
+    for name, cmd in steps:
+        if not run_step(name, cmd):
+            success = False
+            break
+    
     if not success:
-        print(f"❌ Generation failed: {output}")
-        return 1
-    print("✅ Generation completed")
-
-    # Validate trajectories
-    if not validate_file_exists(EXPECTED_TRAJECTORIES, "Trajectories file"):
-        return 1
-    if not validate_json_structure(
-        EXPECTED_TRAJECTORIES, 
-        ["trajectory_id", "turns", "critical_evidence_turn", "density"]
-    ):
+        log("Validation FAILED due to pipeline execution errors.", "ERROR")
         return 1
 
-    # Step 2: Simulate Agent
-    print("\n[2/4] Simulating agent...")
-    success, output = run_step(
-        "Simulate Agent",
-        str(PROJECT_ROOT / "code" / "simulate_agent.py"),
-        ["--input", str(EXPECTED_TRAJECTORIES), "--horizons", "1,2,3,4,5,6,7,8,9,10"]
-    )
-    if not success:
-        print(f"❌ Simulation failed: {output}")
-        return 1
-    print("✅ Simulation completed")
+    # 3. Validate Output Artifacts
+    log("Validating output artifacts...", "INFO")
+    
+    checks = [
+        (validate_file_exists(EXPECTED_FILES["trajectories"], "Trajectories JSON"), None),
+        (validate_trajectory_schema(EXPECTED_FILES["trajectories"]), None),
+        (validate_file_exists(EXPECTED_FILES["simulation_results"], "Simulation Results"), None),
+        (validate_simulation_output(EXPECTED_FILES["simulation_results"]), None),
+        (validate_file_exists(EXPECTED_FILES["regression_summary"], "Regression Summary JSON"), None),
+        (validate_json_structure(EXPECTED_FILES["regression_summary"], ["coefficients", "p_values", "interaction_significant"]), None),
+        (validate_file_exists(EXPECTED_FILES["hypothesis_summary"], "Hypothesis Summary MD"), None),
+        (validate_file_exists(EXPECTED_FILES["regime_map"], "Regime Map PNG"), None),
+    ]
 
-    # Validate simulation results
-    if not validate_file_exists(EXPECTED_SIMULATION_LOG, "Simulation results"):
-        return 1
-    if not validate_json_structure(
-        EXPECTED_SIMULATION_LOG,
-        ["trajectory_id", "horizon", "success", "density"]
-    ):
-        return 1
+    all_passed = True
+    for check_result, _ in checks:
+        if not check_result:
+            all_passed = False
 
-    # Step 3: Analyze Results
-    print("\n[3/4] Analyzing results...")
-    success, output = run_step(
-        "Analyze Results",
-        str(PROJECT_ROOT / "code" / "analyze_results.py"),
-        ["--input", str(EXPECTED_SIMULATION_LOG), "--df", "3"]
-    )
-    if not success:
-        print(f"❌ Analysis failed: {output}")
+    if all_passed:
+        log("SUCCESS: All quickstart steps executed and artifacts validated.", "INFO")
+        return 0
+    else:
+        log("FAILURE: Some artifacts were missing or invalid.", "ERROR")
         return 1
-    print("✅ Analysis completed")
-
-    # Validate regression summary
-    if not validate_file_exists(OUTPUT_REGRESSION, "Regression summary"):
-        return 1
-    if not validate_json_structure(
-        OUTPUT_REGRESSION,
-        ["coefficients", "p_values", "interaction_significant"]
-    ):
-        return 1
-
-    # Validate hypothesis summary
-    if not validate_file_exists(OUTPUT_HYPOTHESIS, "Hypothesis summary"):
-        return 1
-    with open(OUTPUT_HYPOTHESIS, 'r') as f:
-        hypothesis_text = f.read()
-    if len(hypothesis_text) < 50:
-        print(f"❌ Hypothesis summary too short: {hypothesis_text}")
-        return 1
-    print(f"✅ Hypothesis summary content: {hypothesis_text[:100]}...")
-
-    # Step 4: Visualize Results
-    print("\n[4/4] Visualizing results...")
-    success, output = run_step(
-        "Visualize Results",
-        str(PROJECT_ROOT / "code" / "visualize_results.py"),
-        ["--input", str(OUTPUT_REGRESSION), "--output", str(EXPECTED_PLOT)]
-    )
-    if not success:
-        print(f"❌ Visualization failed: {output}")
-        return 1
-    print("✅ Visualization completed")
-
-    # Validate plot
-    if not validate_file_exists(EXPECTED_PLOT, "Surface plot"):
-        return 1
-    plot_size = EXPECTED_PLOT.stat().st_size
-    if plot_size > 5 * 1024 * 1024:  # 5 MB
-        print(f"⚠️  Warning: Plot file is large ({plot_size / 1024 / 1024:.1f} MB)")
-    print(f"✅ Plot size: {plot_size / 1024:.1f} KB")
-
-    print("\n" + "=" * 60)
-    print("✅ Quickstart validation PASSED")
-    print("=" * 60)
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

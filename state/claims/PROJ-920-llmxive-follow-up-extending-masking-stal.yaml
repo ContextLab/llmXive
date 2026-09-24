@@ -500,30 +500,6 @@
   updated_at: '2026-09-14T04:48:09Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
   attempts: 1
-  canonical: "Entropy per token for injected evidence blocks matches requested density\
-    \ levels within \xB10.01 bits/token"
-  claim_id: c_dacf7717
-  context: "Independent Test: The system can be tested by running the generator with\
-    \ fixed seeds and verifying that the output JSON file contains a sufficient number\
-    \ of trajectories where the calculated entropy per token for injected evidence\
-    \ blocks matches the requested density levels (low, medium, high) within a tolerance\
-    \ of \xB10.01 bits/token."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The system can be tested by running the generator with fixed seeds and\
-    \ verifying that the output JSON file contains a sufficient number of trajectories\
-    \ where the calculated entropy per token for injected evidence blocks matches\
-    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
-    0.01 bits/token."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-20T16:37:31Z'
-- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
-  attempts: 1
   canonical: "System reports failure for retention horizon < 5 turns and success for\
     \ \u2265 5 turns on high-density evidence"
   claim_id: c_40a853b0
@@ -698,3 +674,352 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T16:51:07Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage remains under 7 GB during full run
+  claim_id: c_215eaa56
+  context: 'Phase 4: User Story 2 - Agent Simulation with Variable Retention Horizons
+    (Priority: P2) - Verification requirements'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm peak RAM usage remains < 7 GB during full run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:35:27Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: generate 500 synthetic trajectories
+  claim_id: c_d13d7cf5
+  context: Implement `generate_trajectories.py` ... to create exactly 500 synthetic
+    trajectories (aligned with Spec SC-005 and Plan Summary) with controlled density
+    (low/med/high) and critical evidence injection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create exactly 500 synthetic trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:40:19Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: entropy per token matches density levels within tolerance of 0.01 bits
+    per token
+  claim_id: c_106f1867
+  context: "The system can be tested by running the generator with fixed seeds and\
+    \ verifying that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:40:56Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: system reports failure for retention horizon less than 5 turns and success
+    for 5 or more turns
+  claim_id: c_aabd390a
+  context: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_reports_failure_for_retention_horizon_less_than_5_tur
+  kind: magnitude
+  raw_text: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:42:11Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: peak RAM usage remains less than 7 GB
+  claim_id: c_d1c9ab2f
+  context: "Verify: Ensure the system correctly reports 'failure' for horizon < 5\
+    \ and 'success' for horizon \u2265 5 given ground truth (US-2 Acceptance 1 & 2).\
+    \ Confirm peak RAM usage remains < 7 GB during full run."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_remains_less_than_7_GB
+  kind: magnitude
+  raw_text: Confirm peak RAM usage remains < 7 GB during full run
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:43:01Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours and RAM less than 7 GB
+  claim_id: c_dacc0507
+  context: 'Performance optimization: Optimize loops in `simulate_agent.py` and `analyze_results.py`
+    to ensure runtime < 6h and RAM < 7 GB (FR-005, SC-003, SC-004).'
+  evidence:
+    candidates:
+    - - RAM less than
+      - 7.0
+    - - Runtime less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours_and_RAM_less_than_7_GB
+  kind: magnitude
+  raw_text: ensure runtime < 6h and RAM < 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T05:43:24Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: assert maximum memory usage is less than 7 GB
+  claim_id: c_a1e9604f
+  context: Use vectorization (NumPy/Pandas) and profile memory usage using `memory-profiler`
+    and assert max < 7GB to verify constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_maximum_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: assert max < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:44:11Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: output file size limit is 5 MB
+  claim_id: c_c3470b9d
+  context: "Enforce output file size limit of \u2264 5 MB (US-3 Acceptance 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce output file size limit of \u2264 5 MB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:44:11Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates 500 synthetic search trajectories
+  claim_id: c_f9a4d973
+  context: 'The pipeline consists of four main stages: 1. Trajectory Generation: Creates
+    500 synthetic search trajectories with controlled semantic density.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Creates 500 synthetic search trajectories with controlled semantic density.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:45:45Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
+  attempts: 1
+  canonical: full pipeline execution time is 5 to 15 minutes
+  claim_id: c_b147ccff
+  context: 'Expected Execution Time - Full pipeline: ~5-15 minutes (depending on hardware)'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Full pipeline: ~5-15 minutes (depending on hardware)'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T05:45:45Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
+  attempts: 1
+  canonical: generate_trajectories.py outputs 500 synthetic trajectories to data/raw/trajectories.json
+  claim_id: c_9c621b3a
+  context: 'Step 1: Generate Trajectories - Output: data/raw/trajectories.json (500
+    synthetic trajectories)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: data/raw/trajectories.json (500 synthetic trajectories)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:46:11Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
+  attempts: 1
+  canonical: regime_map.png file size is less than or equal to 5 MB
+  claim_id: c_81743a41
+  context: "Step 4: Visualize Results - Output: output/plots/regime_map.png (3D surface\
+    \ plot, \u2264 5 MB)"
+  evidence:
+    entailment_evidence: Regime map.png file size is less than or equal to 5 MB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Regime_map.png_file_size_is_less_than_or_equal_to_5_MB
+  kind: magnitude
+  raw_text: "3D surface plot, \u2264 5 MB"
+  resolved_value: regime_map.png file size is less than or equal to 5 MB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T05:46:13Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline optimized for less than 7 GB RAM
+  claim_id: c_2a85a072
+  context: 'Memory errors: The pipeline is optimized for < 7 GB RAM. If issues persist,
+    reduce the number of trajectories in generate_trajectories.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_optimized_for_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: The pipeline is optimized for < 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:46:57Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 2
+  canonical: "Entropy per token for injected evidence blocks matches requested density\
+    \ levels within \xB10.01 bits/token"
+  claim_id: c_dacf7717
+  context: "Independent Test: The system can be tested by running the generator with\
+    \ fixed seeds and verifying that the output JSON file contains a sufficient number\
+    \ of trajectories where the calculated entropy per token for injected evidence\
+    \ blocks matches the requested density levels (low, medium, high) within a tolerance\
+    \ of \xB10.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by running the generator with fixed seeds and\
+    \ verifying that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:47:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "System reports failure for retention horizon < 5 turns on high-density\
+    \ evidence and success for \u2265 5 turns"
+  claim_id: c_3c194e39
+  context: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:47:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage remains below 7 GB during full run
+  claim_id: c_591f8fb2
+  context: "Verification: Ensure the system correctly reports 'failure' for horizon\
+    \ < 5 and 'success' for horizon \u2265 5 given ground truth (US-2 Acceptance 1\
+    \ & 2). Confirm peak RAM usage remains < 7 GB during full run."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm peak RAM usage remains < 7 GB during full run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:47:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Natural splines with fixed degrees of freedom (df=3) for horizon variable
+  claim_id: c_73ce2bb7
+  context: Include natural splines with a fixed number of degrees of freedom (e.g.,
+    df=3) for the 'horizon' variable. Do NOT perform runtime power analysis to select
+    df; use a deterministic rule or fixed value to ensure reproducibility (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include natural splines with a fixed number of degrees of freedom (e.g.,
+    df=3) for the 'horizon' variable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:48:55Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime under 6 hours and RAM under 7 GB
+  claim_id: c_b0aea58f
+  context: 'Performance optimization: Optimize loops in simulate_agent.py and analyze_results.py
+    to ensure runtime < 6h and RAM < 7 GB (FR-005, SC-003, SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize loops in simulate_agent.py and analyze_results.py to ensure runtime
+    < 6h and RAM < 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:48:56Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Output file size limit of 5 MB for 3D surface plot
+  claim_id: c_c4ab78dd
+  context: "Enforce output file size limit of \u2264 5 MB (US-3 Acceptance 2). Save\
+    \ output to output/plots/regime_map.png."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce output file size limit of \u2264 5 MB for the 3D surface plot."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:48:56Z'

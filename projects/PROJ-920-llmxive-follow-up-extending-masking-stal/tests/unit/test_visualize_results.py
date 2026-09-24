@@ -1,106 +1,96 @@
 """
-Unit tests for code/visualize_results.py
-Verifies data loading, grid generation, and plot creation logic.
+Unit tests for visualize_results.py functions.
+Verifies data loading and grid generation for visualization.
 """
-import pytest
 import json
-import sys
+import tempfile
+import os
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-import numpy as np
+import sys
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from code.visualize_results import load_regression_summary, generate_surface_grid, plot_3d_surface
+from visualize_results import load_regression_summary, generate_surface_grid
 
 
 class TestLoadRegressionSummary:
-    """Tests for loading regression summary JSON."""
+    """Tests for the load_regression_summary function."""
 
-    def test_valid_json(self):
-        """Test loading a valid JSON file."""
-        mock_data = {
-            "coefficients": {"density": 0.5, "horizon": 0.3},
-            "interaction_p_value": 0.01
+    def test_load_valid_json(self):
+        """Should load valid JSON regression summary."""
+        summary = {
+            "coefficients": {"density": 0.5, "horizon": 0.3, "interaction": 0.2},
+            "p_values": {"density": 0.01, "horizon": 0.02, "interaction": 0.03},
+            "hypothesis_supported": True
         }
-        with patch("builtins.open", mock_open_read_data(json.dumps(mock_data))):
-            result = load_regression_summary("dummy_path.json")
-            assert result["coefficients"]["density"] == 0.5
-            assert result["interaction_p_value"] == 0.01
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(summary, f)
+            temp_path = f.name
 
-    def test_missing_file(self):
-        """Test handling of missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_regression_summary("non_existent.json")
+        try:
+            result = load_regression_summary(temp_path)
+            assert result == summary
+        finally:
+            os.unlink(temp_path)
+
+    def test_load_missing_file(self):
+        """Should raise FileNotFoundError for missing file."""
+        with self.assertRaises(FileNotFoundError):
+            load_regression_summary("/nonexistent/path/file.json")
+
+    def test_load_invalid_json(self):
+        """Should raise JSONDecodeError for invalid JSON."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write("not valid json")
+            temp_path = f.name
+
+        try:
+            with self.assertRaises(json.JSONDecodeError):
+                load_regression_summary(temp_path)
+        finally:
+            os.unlink(temp_path)
 
 
 class TestGenerateSurfaceGrid:
-    """Tests for generating the 3D surface grid."""
+    """Tests for the generate_surface_grid function."""
 
     def test_grid_dimensions(self):
-        """Verify grid has correct dimensions."""
-        density_vals = [0.1, 0.5, 0.9]
-        horizon_vals = [1, 5, 10]
-        # Mock success rates
-        success_rates = np.random.rand(len(density_vals), len(horizon_vals))
+        """Grid should have correct dimensions."""
+        horizon_range = (1, 10)
+        density_range = (0.0, 1.0)
+        n_horizon = 5
+        n_density = 3
+
+        grid = generate_surface_grid(horizon_range, density_range, n_horizon, n_density)
         
-        grid = generate_surface_grid(density_vals, horizon_vals, success_rates)
+        assert len(grid) == n_horizon
+        assert all(len(row) == n_density for row in grid)
+
+    def test_grid_values_in_range(self):
+        """Grid values should be within specified ranges."""
+        horizon_range = (1, 10)
+        density_range = (0.0, 1.0)
+        n_horizon = 10
+        n_density = 10
+
+        grid = generate_surface_grid(horizon_range, density_range, n_horizon, n_density)
         
-        assert "X" in grid
-        assert "Y" in grid
-        assert "Z" in grid
-        assert grid["X"].shape == (len(density_vals), len(horizon_vals))
-        assert grid["Y"].shape == (len(density_vals), len(horizon_vals))
-        assert grid["Z"].shape == (len(density_vals), len(horizon_vals))
+        for row in grid:
+            for (h, d, _) in row:
+                assert horizon_range[0] <= h <= horizon_range[1]
+                assert density_range[0] <= d <= density_range[1]
 
-    def test_grid_values(self):
-        """Verify grid values match input arrays."""
-        density_vals = [0.2, 0.8]
-        horizon_vals = [2, 8]
-        success_rates = np.array([[0.1, 0.9], [0.3, 0.7]])
+    def test_grid_structure(self):
+        """Grid should contain tuples of (horizon, density, success_rate)."""
+        grid = generate_surface_grid((1, 5), (0.0, 1.0), 3, 3)
         
-        grid = generate_surface_grid(density_vals, horizon_vals, success_rates)
-        
-        # X should be broadcasted density values
-        # Y should be broadcasted horizon values
-        # Z should be the success rates
-        assert np.allclose(grid["Z"], success_rates)
-
-
-class TestPlot3DSurface:
-    """Tests for 3D surface plot generation."""
-
-    def test_plot_creation(self):
-        """Verify that the plot function creates a figure without error."""
-        # Mock the matplotlib functions to avoid actual rendering
-        with patch("code.visualize_results.plt.figure") as mock_fig, \
-             patch("code.visualize_results.plt.savefig") as mock_save:
-            
-            mock_fig.return_value = MagicMock()
-            mock_fig.return_value.add_subplot.return_value.plot_surface = MagicMock()
-            
-            # Mock grid data
-            grid = {
-                "X": np.array([[0.1, 0.5], [0.1, 0.5]]),
-                "Y": np.array([[1, 1], [5, 5]]),
-                "Z": np.array([[0.2, 0.8], [0.3, 0.7]])
-            }
-            
-            plot_3d_surface(grid, "dummy_output.png")
-            
-            assert mock_save.called
-            mock_save.assert_called_with("dummy_output.png")
-
-    def test_file_size_limit(self):
-        """Verify that the plot function respects the 5MB size limit (conceptually)."""
-        # This is harder to unit test without actual file I/O, but we can check the logic
-        # if it exists. For now, we trust the implementation handles this in `main`.
-        pass
-
-
-def mock_open_read_data(data):
-    """Helper to mock open() for reading."""
-    from unittest.mock import mock_open
-    return mock_open(read_data=data)
+        for row in grid:
+            for item in row:
+                assert isinstance(item, tuple)
+                assert len(item) == 3
+                horizon, density, success_rate = item
+                assert isinstance(horizon, (int, float))
+                assert isinstance(density, (int, float))
+                assert isinstance(success_rate, (int, float))

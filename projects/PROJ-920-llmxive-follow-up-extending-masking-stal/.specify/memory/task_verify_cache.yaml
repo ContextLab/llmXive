@@ -13,19 +13,6 @@ T017:
     does not exist in the repository, so the claimed implementation is missing the
     essential artifact. The task cannot be considered completed until this test file
     is added with appropriate test code.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `analyze_results.py` file or code snippet was provided, and there is no evidence\
-    \ that validation for minimum sample size or interaction\u2011term significance\
-    \ (p\u202F<\u202F0.05) was added. The required implementation is missing."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/regression_summary.json` file was presented, and no regression results\
-    \ (coefficients, p\u2011values, or significance test) are visible in the provided\
-    \ evidence. The required JSON summary with the interaction term\u2019s p\u2011\
-    value is missing."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,32 +20,18 @@ T022:
     \ was run to produce it. Consequently the required automatically\u2011generated\
     \ summary does not exist. The implementer must add the script execution and the\
     \ resulting text file to satisfy US\u20113."
-T025:
+T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` file is present in the specified `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
-    directory, nor any content showing a project overview, installation instructions,
-    or usage examples. The required documentation artifact is missing.
-T034:
+  r: "No `run_pipeline.sh` script is present in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`;\
+    \ thus the required artifact does not exist, and the task\u2019s requirements\
+    \ (sequencing the four Python scripts with error handling and exit\u2011code logging)\
+    \ are not satisfied."
+T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and user story specifications;\
-    \ there is no `simulate_agent.py` file, no modified code, and no benchmark logs\
-    \ or memory\u2011usage reports demonstrating that the loops were optimized to\
-    \ meet the <\u202F6\u202Fhour runtime and <\u202F7\u202FGB RAM limits. To satisfy\
-    \ the task, the implementer must provide the updated script and empirical evidence\
-    \ (e.g., timing and memory profiling output) confirming the required performance\
-    \ thresholds."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any new unit test files in a `tests/unit/` directory was provided;
-    the claim lacks the required artifact, so the task of adding additional unit tests
-    is not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification and user stories; there
-    is no evidence of a quickstart.md validation run (e.g., execution logs, validation
-    report, or updated documentation). Consequently, the required artifact for task
-    T036 is missing.
+  r: No output files listed in the task (e.g., `data/raw/*.json`, `data/processed/*.csv`,
+    `output/regression_summary.json`, `output/hypothesis_summary.md`, `output/plots/regime_map.png`)
+    are present or shown, and no evidence that `run_pipeline.sh` was executed on any
+    subset of trajectories. The required artifacts are missing, so the pipeline execution
+    has not been verified.

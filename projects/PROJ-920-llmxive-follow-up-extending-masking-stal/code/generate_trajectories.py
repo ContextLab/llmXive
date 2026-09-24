@@ -3,211 +3,293 @@ import math
 import random
 import string
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
-import sys
+# Standard library imports sorted alphabetically
+import hashlib
+import logging
 import os
+import sys
+import time
+import uuid
 
-# Add parent directory to path to allow imports from utils if needed
-# though this task focuses on generation logic
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Third-party imports sorted alphabetically
+import numpy as np
 
-from code.utils.entropy import calculate_shannon_entropy, clamp_entropy, entropy_per_token
-from code.utils.heuristics import calculate_technical_token_ratio, calculate_composite_density
+# Local imports sorted alphabetically
+from utils.entropy import calculate_shannon_entropy, clamp_entropy, entropy_per_token
+from utils.heuristics import calculate_composite_density, calculate_technical_token_ratio
 
-# Constants for trajectory generation
-NUM_TRAJECTORIES = 500
-DENSITY_LEVELS = ['low', 'medium', 'high']
-MIN_TURNS = 10
-MAX_TURNS = 50
-EVIDENCE_TURNS_PERCENTAGE = 0.2  # 20% of turns will contain critical evidence
+# Constants
+DEFAULT_SEED = 42
+MIN_DENSITY = 0.0
+MAX_DENSITY = 1.0
+DENSITY_TOLERANCE = 0.01
+EVIDENCE_BLOCK_PREFIX = "[CRITICAL_EVIDENCE]"
+EVIDENCE_BLOCK_SUFFIX = "[/CRITICAL_EVIDENCE]"
 
-# Technical token list as defined in heuristics.py requirements
-TECHNICAL_TOKENS = [
-    'search_context', 'retrieval_window', 'semantic_density', 'agent_state',
-    'trajectory_log', 'masking_policy', 'evidence_turn', 'focus_decay',
-    'stale_observation', 'retention_limit', 'critical_evidence',
-    'heuristic_solver', 'logistic_function', 'regime_map'
-]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
-def generate_text_block(target_density: float, length: int, include_technical: bool = False) -> str:
+
+def generate_text_block(density_target: float, length: int = 1000, seed: int = DEFAULT_SEED) -> str:
     """
-    Generate a text block with a target Shannon entropy per token.
-    This is a simulation approach: we generate text and adjust complexity.
-    Since exact entropy control is hard, we generate text with specific
-    character distributions to approximate the target density.
-    """
-    if length <= 0:
-        return ""
-
-    # Base alphabet
-    base_chars = string.ascii_lowercase + string.digits
-    # High entropy chars (more variety)
-    high_entropy_chars = base_chars + string.ascii_uppercase + string.punctuation + ' '
-
-    # Adjust character selection probability based on target density
-    # Lower density -> more repetitive (lower entropy)
-    # Higher density -> more varied (higher entropy)
-    # Normalize target_density to a probability factor (assuming max entropy ~ 6 bits for our char set)
-    if target_density <= 0:
-        target_density = 0.01 # Clamp to avoid zero issues
-
-    # Simple heuristic: use a weighted selection
-    # If target is low, use mostly base_chars. If high, use high_entropy_chars.
-    # We map target_density (approx 0-5 bits) to a weight.
-    weight_high = min(1.0, target_density / 4.0)
+    Generate a text block with approximate semantic density.
     
-    text_chars = []
-    for _ in range(length):
-        if include_technical and random.random() < 0.05: # 5% chance of technical token
-            token = random.choice(TECHNICAL_TOKENS)
-            text_chars.append(token)
+    Args:
+        density_target: Target density value (0.0 to 1.0)
+        length: Approximate length of the text block in characters
+        seed: Random seed for reproducibility
+        
+    Returns:
+        Generated text block string
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    # Simple heuristic: higher density -> more technical terms
+    # This is a simplified model for synthetic data generation
+    technical_terms = [
+        "search_context", "retrieval_window", "semantic_density", "agent_state",
+        "trajectory_log", "masking_policy", "evidence_turn", "focus_decay",
+        "stale_observation", "retention_limit", "critical_evidence",
+        "heuristic_solver", "logistic_function", "regime_map"
+    ]
+    
+    common_words = [
+        "the", "a", "is", "was", "are", "were", "be", "been", "being",
+        "have", "has", "had", "do", "does", "did", "will", "would", "could",
+        "should", "may", "might", "must", "shall", "can", "need", "dare",
+        "ought", "used", "to", "of", "in", "for", "on", "with", "at", "by",
+        "from", "up", "about", "into", "over", "after", "and", "but", "or",
+        "not", "nor", "yet", "so", "as", "if", "when", "than", "because",
+        "while", "although", "though", "since", "unless", "until", "where",
+        "whereas", "whether", "which", "who", "whom", "whose", "why"
+    ]
+    
+    text_parts = []
+    current_density = 0.0
+    
+    # Generate words until we reach approximate length
+    while sum(len(p) for p in text_parts) < length:
+        # Decide whether to use a technical term based on target density
+        if random.random() < density_target and technical_terms:
+            word = random.choice(technical_terms)
         else:
-            if random.random() < weight_high:
-                char = random.choice(high_entropy_chars)
-            else:
-                char = random.choice(base_chars)
-            text_chars.append(char)
+            word = random.choice(common_words)
+        
+        # Add punctuation occasionally
+        if random.random() < 0.1:
+            word += random.choice(['.', ',', ';', ':', '?', '!'])
+        
+        text_parts.append(word)
     
-    # Join and ensure we have a string
-    text = "".join(text_chars)
-    return text
+    return ' '.join(text_parts)[:length]
 
-def inject_critical_evidence(text: str, evidence_turn_index: int, total_turns: int) -> str:
-    """
-    Inject a specific critical evidence marker into the text.
-    This simulates the 'critical evidence' turn in the trajectory.
-    """
-    marker = f"[CRITICAL_EVIDENCE_TURN_{evidence_turn_index}]"
-    # Insert marker at a specific position relative to the text length
-    insert_pos = int(len(text) * (evidence_turn_index / total_turns))
-    return text[:insert_pos] + marker + text[insert_pos:]
 
-def clamp_density(value: float) -> float:
+def inject_critical_evidence(text: str, evidence_index: int, density_boost: float = 0.5) -> str:
     """
-    Clamp density values to a valid range to prevent zero or negative density.
-    Implements the edge case requirement for FR-008.
+    Inject critical evidence block into the text at a specific turn index.
+    
+    Args:
+        text: Original text
+        evidence_index: Index of the turn where evidence should be injected
+        density_boost: Additional density to apply to the evidence block
+        
+    Returns:
+        Text with injected evidence
     """
-    if value <= 0:
-        return 0.01 # Minimum non-zero density
+    evidence_marker = f"{EVIDENCE_BLOCK_PREFIX}turn_{evidence_index}{EVIDENCE_BLOCK_SUFFIX}"
+    return f"{text} {evidence_marker}"
+
+
+def clamp_density(value: float, min_val: float = MIN_DENSITY, max_val: float = MAX_DENSITY) -> float:
+    """
+    Clamp density value to valid range.
+    
+    Args:
+        value: Density value to clamp
+        min_val: Minimum allowed value
+        max_val: Maximum allowed value
+        
+    Returns:
+        Clamped density value
+    """
+    if value < min_val:
+        logger.warning(f"Density value {value} below minimum {min_val}, clamping to {min_val}")
+        return min_val
+    if value > max_val:
+        logger.warning(f"Density value {value} above maximum {max_val}, clamping to {max_val}")
+        return max_val
     return value
 
-def validate_density_computation(text: str, expected_density: float, tolerance: float = 0.01) -> bool:
+
+def validate_density_computation(text: str, expected_density: float, tolerance: float = DENSITY_TOLERANCE) -> bool:
     """
-    Validate that the computed density of the generated text matches the expected density.
-    Returns True if within tolerance, False otherwise.
+    Validate that computed density matches expected density within tolerance.
+    
+    Args:
+        text: Text to analyze
+        expected_density: Expected density value
+        tolerance: Acceptable tolerance for density difference
+        
+    Returns:
+        True if density is within tolerance, False otherwise
     """
-    if not text:
+    computed_density = entropy_per_token(text)
+    diff = abs(computed_density - expected_density)
+    
+    if diff > tolerance:
+        logger.warning(
+            f"Density mismatch: expected {expected_density:.4f}, "
+            f"computed {computed_density:.4f}, diff {diff:.4f}"
+        )
         return False
     
-    # Calculate entropy per token (bytes)
-    computed_density = entropy_per_token(text)
-    
-    # Check if within tolerance
-    return abs(computed_density - expected_density) <= tolerance
+    return True
 
-def generate_trajectory(trajectory_id: int, density_level: str, total_turns: int) -> Dict[str, Any]:
+
+def generate_trajectory(
+    trajectory_id: str,
+    density_level: str,
+    evidence_turn_index: int,
+    total_turns: int,
+    seed: int = DEFAULT_SEED
+) -> Dict[str, Any]:
     """
-    Generate a single trajectory with controlled density and critical evidence.
-    """
-    # Map density level to target entropy
-    if density_level == 'low':
-        target_density = 1.5
-    elif density_level == 'medium':
-        target_density = 3.0
-    elif density_level == 'high':
-        target_density = 4.5
-    else:
-        target_density = 3.0 # Default
-
-    # Ensure we have a reasonable number of turns
-    if total_turns < MIN_TURNS:
-        total_turns = MIN_TURNS
-
-    turns = []
-    evidence_turn_index = -1
-
-    # Determine if this trajectory has critical evidence
-    has_evidence = random.random() < EVIDENCE_TURNS_PERCENTAGE
+    Generate a single synthetic trajectory with controlled density.
     
-    if has_evidence:
-        evidence_turn_index = random.randint(0, total_turns - 1)
-
-    for turn_idx in range(total_turns):
-        # Generate text for this turn
-        # Adjust length to vary entropy slightly per turn but keep average near target
-        turn_length = random.randint(50, 200)
-        turn_text = generate_text_block(target_density, turn_length, include_technical=(turn_idx % 3 == 0))
-
-        # Inject evidence if this is the designated turn
-        if turn_idx == evidence_turn_index:
-            turn_text = inject_critical_evidence(turn_text, evidence_turn_index, total_turns)
-            # Recalculate density for this specific turn to ensure it's recorded correctly
-            # Note: Injecting text changes entropy, so we re-calc
-            pass
-
-        # Calculate actual density for this turn
-        actual_density = entropy_per_token(turn_text)
-        actual_density = clamp_density(actual_density)
-
-        turns.append({
-            "turn_index": turn_idx,
-            "text": turn_text,
-            "density": actual_density,
-            "is_critical_evidence": (turn_idx == evidence_turn_index)
-        })
-
-    # Calculate overall trajectory density (average of turn densities)
-    trajectory_density = sum(t["density"] for t in turns) / len(turns) if turns else 0.0
-    trajectory_density = clamp_density(trajectory_density)
-
-    return {
-        "trajectory_id": trajectory_id,
-        "density_level": density_level,
-        "target_density": target_density,
-        "actual_trajectory_density": trajectory_density,
-        "total_turns": total_turns,
-        "evidence_turn_index": evidence_turn_index if has_evidence else -1,
-        "has_critical_evidence": has_evidence,
-        "turns": turns
+    Args:
+        trajectory_id: Unique identifier for the trajectory
+        density_level: 'low', 'medium', or 'high'
+        evidence_turn_index: Index of the turn containing critical evidence
+        total_turns: Total number of turns in the trajectory
+        seed: Random seed for reproducibility
+        
+    Returns:
+        Dictionary containing trajectory data
+    """
+    # Map density levels to target values
+    density_map = {
+        'low': 0.2,
+        'medium': 0.5,
+        'high': 0.8
     }
+    
+    if density_level not in density_map:
+        raise ValueError(f"Invalid density level: {density_level}. Must be one of {list(density_map.keys())}")
+    
+    target_density = density_map[density_level]
+    
+    # Generate text for each turn
+    turns = []
+    for turn_idx in range(total_turns):
+        # Adjust density for evidence turn
+        if turn_idx == evidence_turn_index:
+            turn_density = min(target_density + 0.3, 1.0)
+        else:
+            turn_density = target_density
+        
+        turn_text = generate_text_block(
+            density_target=turn_density,
+            length=500 + random.randint(0, 200),
+            seed=seed + turn_idx
+        )
+        
+        # Inject evidence if this is the evidence turn
+        if turn_idx == evidence_turn_index:
+            turn_text = inject_critical_evidence(turn_text, evidence_turn_index)
+        
+        turns.append({
+            'turn_index': turn_idx,
+            'text': turn_text,
+            'density': entropy_per_token(turn_text)
+        })
+    
+    # Calculate overall trajectory density
+    all_text = ' '.join([t['text'] for t in turns])
+    overall_density = entropy_per_token(all_text)
+    
+    return {
+        'trajectory_id': trajectory_id,
+        'density_level': density_level,
+        'target_density': target_density,
+        'actual_density': overall_density,
+        'evidence_turn_index': evidence_turn_index,
+        'total_turns': total_turns,
+        'is_critical': True,
+        'turns': turns,
+        'metadata': {
+            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'seed': seed,
+            'version': '1.0'
+        }
+    }
+
 
 def main():
     """
-    Main entry point to generate 500 trajectories and save to data/raw/.
+    Main function to generate synthetic trajectories.
     """
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting synthetic trajectory generation...")
     
-    output_file = output_dir / "trajectories.json"
+    # Configuration
+    num_trajectories = 500
+    output_path = Path("data/raw/synthetic_trajectories.json")
+    total_turns = 20
+    seeds = [DEFAULT_SEED + i for i in range(num_trajectories)]
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Density distribution: 30% low, 40% medium, 30% high
+    density_levels = ['low'] * 150 + ['medium'] * 200 + ['high'] * 150
+    random.shuffle(density_levels)
     
     trajectories = []
     
-    print(f"Generating {NUM_TRAJECTORIES} trajectories...")
-    
-    for i in range(NUM_TRAJECTORIES):
-        # Distribute density levels roughly evenly
-        density_level = DENSITY_LEVELS[i % len(DENSITY_LEVELS)]
-        total_turns = random.randint(MIN_TURNS, MAX_TURNS)
+    for i in range(num_trajectories):
+        seed = seeds[i]
+        density_level = density_levels[i]
+        evidence_turn = random.randint(5, 15)  # Evidence somewhere in the middle
         
-        trajectory = generate_trajectory(i, density_level, total_turns)
+        trajectory = generate_trajectory(
+            trajectory_id=f"traj_{i:04d}",
+            density_level=density_level,
+            evidence_turn_index=evidence_turn,
+            total_turns=total_turns,
+            seed=seed
+        )
+        
         trajectories.append(trajectory)
         
-        # Optional: Progress indicator
         if (i + 1) % 100 == 0:
-            print(f"Generated {i + 1}/{NUM_TRAJECTORIES} trajectories.")
-
+            logger.info(f"Generated {i + 1}/{num_trajectories} trajectories")
+    
     # Write to JSON
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(trajectories, f, indent=2)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(trajectories, f, indent=2, ensure_ascii=False)
     
-    print(f"Successfully generated {len(trajectories)} trajectories.")
-    print(f"Output saved to: {output_file.absolute()}")
+    logger.info(f"Successfully generated {num_trajectories} trajectories")
+    logger.info(f"Output saved to: {output_path}")
     
-    # Verification: Check a sample
-    if trajectories:
-        sample = trajectories[0]
-        print(f"Sample trajectory ID: {sample['trajectory_id']}, Density: {sample['actual_trajectory_density']:.4f}")
+    # Validation summary
+    density_counts = {}
+    for traj in trajectories:
+        level = traj['density_level']
+        density_counts[level] = density_counts.get(level, 0) + 1
+    
+    logger.info("Density distribution:")
+    for level, count in sorted(density_counts.items()):
+        logger.info(f"  {level}: {count} trajectories")
+    
+    return trajectories
+
 
 if __name__ == "__main__":
     main()

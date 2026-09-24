@@ -4,9 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): No `simulate_agent.py` file or code snippet was provided showing a heuristic solver that uses the logistic function `P(retrieval) = sigmoid(α * (density - threshold))`. Likewise, there is no evidence that `α` and `threshold` are defined as configurable constants with defaults. The required implementation and configuration are missing.
-- `T013` (rejected 1x): No code changes to `simulate_agent.py` are present, and there is no implementation that samples from the logistic function to set `agent_heuristic_success` nor logic handling the edge case where critical evidence occurs on the final turn. The required artifact (updated script with the specified success logic) is missing.
-- `T015` (rejected 1x): No evidence of a modified `simulate_agent.py` that streams results to `data/processed/` after each batch is provided; the required artifact is missing, so the task is not satisfied.
+- `T025` (rejected 1x): No updated `README.md` file is present in the specified `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/` directory, nor any content showing a project overview, installation instructions, or usage examples. The required documentation artifact is missing.
+- `T034` (rejected 1x): The submission contains only the task description and user story specifications; there is no `simulate_agent.py` file, no modified code, and no benchmark logs or memory‑usage reports demonstrating that the loops were optimized to meet the < 6 hour runtime and < 7 GB RAM limits. To satisfy the task, the implementer must provide the updated script and empirical evidence (e.g., timing and memory profiling output) confirming the required performance thresholds.
+- `T035` (rejected 1x): No evidence of any new unit test files in a `tests/unit/` directory was provided; the claim lacks the required artifact, so the task of adding additional unit tests is not satisfied.
+- `T036` (rejected 1x): The implementer supplied only a feature specification and user stories; there is no evidence of a quickstart.md validation run (e.g., execution logs, validation report, or updated documentation). Consequently, the required artifact for task T036 is missing.
 
 ## Required change
 
