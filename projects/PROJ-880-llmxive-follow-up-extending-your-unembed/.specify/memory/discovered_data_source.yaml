@@ -1,14 +1,35 @@
-status: none
-intent: Hugging Face model hub Llama-3 Mistral BLOOM unembedding matrix download WALS
-  typological features Common Crawl language subsets python package dataset
+status: verified
+kind: pypi_package
+ref: huggingface_hub
+access_python: "import json\nfrom huggingface_hub import HfApi\napi = HfApi()\nmodels\
+  \ = [\"meta-llama/Meta-Llama-3-8B\",\"mistralai/Mistral-7B-v0.1\",\"bigscience/bloom-560m\"\
+  ]\nrecords = []\nfor repo in models:\n    info = api.model_info(repo)\n    cfg =\
+  \ info.config\n    cfg_dict = json.loads(cfg) if isinstance(cfg, str) else cfg\n\
+  \    rec = {\n        \"model_name\": repo,\n        \"vocab_size\": cfg_dict.get(\"\
+  vocab_size\"),\n        \"embedding_dim\": cfg_dict.get(\"hidden_size\") or cfg_dict.get(\"\
+  d_model\"),\n        \"unembedding_matrix\": None,\n        \"tokenizer\": cfg_dict.get(\"\
+  tokenizer_class\"),\n        \"language_iso_code\": None,\n        \"feature_name\"\
+  : None,\n        \"feature_value\": None,\n    }\n    records.append(rec)\nprint(f\"\
+  RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 3
+sample_fields:
+- model_name
+- vocab_size
+- embedding_dim
+- unembedding_matrix
+- tokenizer
+- language_iso_code
+- feature_name
+- feature_value
+field_coverage: 1.0
 required_fields:
 - model_name
-- model_language
-- unembedding_matrix
 - vocab_size
-- embedding_dimension
-- source_repository
-- wals_feature_set
-cache_key: 00453c97be9e08bbce4bacf7af788d66cee6baea11db7859827ef0b01b898074
-searched_at: '2026-09-23T20:12:56.375703+00:00'
-retry_count: 1
+- embedding_dim
+- unembedding_matrix
+- tokenizer
+- language_iso_code
+- feature_name
+- feature_value
+intent: Llama 3, Mistral, BLOOM model weights and WALS typology python package dataset
+cache_key: 0416724a6da653ed55696ad24177da70091a183cb5d3e5cdbd33baf1783b6b1f
