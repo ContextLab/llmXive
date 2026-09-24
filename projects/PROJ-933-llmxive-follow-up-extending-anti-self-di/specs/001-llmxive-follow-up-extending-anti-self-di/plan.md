@@ -97,7 +97,7 @@ projects/PROJ-933-llmxive-followup-extending-anti-self-di/code/
 ### Phase 2: Implementation (Code Generation)
 *   **Goal**: Generate the Python scripts for data loading, the custom training loop, and analysis.
 *   **FR-003, FR-004**: Implement JS divergence calculation and gradient inversion.
-*   **FR-007, FR-013**: Implement 5.5h timeout and power analysis.
+*   **FR-007, FR-013**: Implement a timeout and power analysis.
 *   **Output**: Python code in `code/`.
 
 ### Phase 3: Execution & Validation

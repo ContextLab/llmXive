@@ -1,11 +1,12 @@
-T020:
+T017:
   c: false
-  h: e3e33f6908a7f62c33af110f2c9ab5ab00eaeaa9536e01cf88afff0ff0a3a81e
-  r: The repository contains `code/models/inference_only.py`, but the file is truncated
-    and does not show logic for loading `data/context_splits.json` or computing the
-    average logit distribution over unselected rationales with streaming/chunked inference.
-    Moreover, the required `data/context_splits.json` file is missing entirely, so
-    the implementation cannot be exercised as specified.
+  h: c278c77b90e9c451e85c331d3bdc25e6852dbd05bc8d74bc78a39127a362dd28
+  r: "The repository contains a partially\u2011implemented `simulate_context_split`\
+    \ function, but the code is truncated and never writes `data/context_splits.json`\
+    \ or `data/excluded_prompts.log`. Both required output files are missing, so the\
+    \ task\u2019s verification criteria are not satisfied. The next implementer must\
+    \ complete the function and ensure the two files are generated with the correct\
+    \ structure."
 T048:
   c: false
   h: 04807add72de795863cf4b696f0f755338aecf8bca6bbfc020c6fca66cd2f9ef

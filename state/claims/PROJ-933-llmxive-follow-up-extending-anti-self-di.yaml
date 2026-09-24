@@ -102,3 +102,165 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T18:02:01Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: literature-based effect size estimates d=0.5
+  claim_id: c_f96e7d86
+  context: 'Phase 0: Research, Feasibility & Project Setup - T001.2A Research & Setup
+    (Feasibility)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate research.md confirming dataset feasibility using literature-based
+    effect size estimates (d=0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:23:39Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: sample size N >= 30 for power >= 0.8 with effect size d=0.5
+  claim_id: c_6edd27a2
+  context: 'Phase 0: Research, Feasibility & Project Setup - T006 Pre-Study Power
+    Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform power analysis to confirm N \u2265 30 for power \u2265 0.8 using\
+    \ literature-based effect size (d=0.5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:24:09Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: filter prompts with at least 4 distinct annotated reasoning traces
+  claim_id: c_7da1654b
+  context: 'Phase 1: Data Acquisition and Context Simulation - T016 Implement code/data/preprocess.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_prompts_with_at_least_4_distinct_annotated_reasoning
+  kind: magnitude
+  raw_text: "Filter prompts with \u22654 distinct annotated reasoning traces."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:24:32Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: filtered prompts count >= 30
+  claim_id: c_cbd3f25c
+  context: 'Phase 1: Data Acquisition and Context Simulation - T016 Verification'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Script outputs data/filtered_prompts.jsonl with count >= 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:25:45Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: re-sample up to 10 times for identical rationales
+  claim_id: c_d2fd172f
+  context: 'Phase 1: Data Acquisition and Context Simulation - T017 Context Simulator
+    (Sampling)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-sample up to N=10 times if sampled context is identical to unselected
+    rationales.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:26:38Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 6.5 GB
+  claim_id: c_2fa99742
+  context: 'Phase 2: Pre-Training Infrastructure - T049 Verify model architecture/size'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_6.5_GB
+  kind: magnitude
+  raw_text: Script outputs results/model_feasibility.json confirming RAM < 6.5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:28:36Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: hard timeout limit of 5.5 hours
+  claim_id: c_8f57e2ae
+  context: 'Phase 3: User Story 2 - T028-ENFORCE Hard Timeout Enforcer'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement signal handler with a specific 'timeout' status on 5.5h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:29:42Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: peak RAM usage less than 6.5 GB during training
+  claim_id: c_4ff581be
+  context: 'Phase 3: User Story 2 - T030 Implement memory monitoring'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_6.5_GB_during_training
+  kind: magnitude
+  raw_text: Assert peak RAM < 6.5 GB during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:30:11Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: 3 human raters score 100 trajectories
+  claim_id: c_2277ada5
+  context: 'Phase 4: User Story 3 - T035-HUMAN-INT Human Score Ingestion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit 3 independent human raters to score 100 generated trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:30:31Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di/tasks.md
+  attempts: 1
+  canonical: scoring on 1-5 Likert scale
+  claim_id: c_006e330e
+  context: 'Phase 4: User Story 3 - T035-HUMAN-INT Human Score Ingestion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raters score trajectories on a 1-5 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T00:31:04Z'

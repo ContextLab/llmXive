@@ -1,6 +1,6 @@
-# Quickstart Guide: llmXive Follow-up (PROJ-933)
+# Quickstart Guide: llmXive Follow-up
 
-This guide describes how to run the full research pipeline end-to-end.
+This guide outlines the steps to execute the full research pipeline.
 
 ## Prerequisites
 
@@ -9,82 +9,64 @@ This guide describes how to run the full research pipeline end-to-end.
 
 ## Execution Order
 
-The pipeline is designed to be run sequentially. Each step produces artifacts required by the next.
+The pipeline consists of sequential stages. Run them in order.
 
-### 1. Data Acquisition & Context Simulation (Phase 1)
-
+### 1. Project Setup & Data Fetch
 ```bash
-# Download datasets (T015)
+python code/setup_project.py
+python code/setup_linting.py
 python code/data/download.py
-
-# Preprocess and filter (T016)
-python code/data/preprocess.py --mode filter
-
-# Simulate context splits (T017)
-python code/data/preprocess.py --mode split
 ```
 
-**Output**: `data/context_splits.json`
-
-### 2. Inference-Only Pass (Phase 2)
-
+### 2. Data Preprocessing & Context Simulation
 ```bash
-# Compute raw teacher logits (T021)
-python code/models/inference_only.py --mode raw_logits
+python code/data/preprocess.py
 ```
+*Outputs: `data/context_splits.json`, `data/excluded_prompts.log`, `data/context_stats.json`*
 
-**Output**: `data/teacher_logits_raw.jsonl`
-
-### 3. Teacher Distribution Averaging (Phase 2 - T048)
-
+### 3. Inference-Only Pass (Teacher Distribution)
 ```bash
-# Aggregate raw logits into average distribution (T048)
-python code/models/inference_only.py --mode aggregate
+python code/models/inference_only.py --mode inference
 ```
+*Outputs: `data/teacher_logits_raw.jsonl`, `data/teacher_distribution.json`*
 
-**Output**: `data/teacher_distribution.json`
-
-### 4. Training Loop (Phase 3)
-
+### 4. Validation of Artifacts (T022)
 ```bash
-# Run AntiSD training (T025)
-python code/models/anti_sd_loop.py
+python code/data/validate_logits.py
 ```
+*Verifies `data/teacher_logits_raw.jsonl` completeness.*
 
-**Output**: `results/training_metrics.json`, `results/memory_log.json`
-
-### 5. Analysis & Reporting (Phase 4)
-
+### 5. Training Loop (AntiSD)
 ```bash
-# Generate human proxy scores (T035-SIM)
-python code/analysis/human_proxy_sim.py
+# The main entry point wraps the timeout enforcer and training loop
+python main.py --mode train --timeout 19800
+```
+*Note: `--timeout` expects an integer in seconds (e.g., 19800 for 5.5h).*
+*Outputs: `results/training_trajectory.json`, `results/training_metrics.json`, `results/trajectories.jsonl`*
 
-# Compute metrics and statistical tests (T033-T037)
+### 6. Analysis & Reporting
+```bash
+python code/models/metrics.py
 python code/analysis/statistical_test.py
-
-# Final report (T038)
+python code/analysis/human_score_ingest.py
 python code/analysis/visualize.py
+python code/analysis/report_generator.py
 ```
+*Outputs: `results/final_report.md`, `results/plots/*`*
 
-## Full Run Command
-
-To run the entire pipeline (excluding optional human eval recruitment which is simulated):
-
+## Full Pipeline Run
+To run the entire pipeline (excluding manual human scoring step):
 ```bash
+python code/setup_project.py && \
 python code/data/download.py && \
-python code/data/preprocess.py --mode all && \
-python code/models/inference_only.py --mode raw_logits && \
-python code/models/inference_only.py --mode aggregate && \
-python code/models/anti_sd_loop.py && \
-python code/analysis/human_proxy_sim.py && \
-python code/analysis/statistical_test.py && \
-python code/analysis/visualize.py
+python code/data/preprocess.py && \
+python code/models/inference_only.py --mode inference && \
+python code/data/validate_logits.py && \
+python main.py --mode train --timeout 19800 && \
+python code/analysis/report_generator.py
 ```
 
-## Validation
-
-Run the validation script to ensure all artifacts are present:
-
-```bash
-python code/data/validate_artifacts.py
-```
+## Troubleshooting
+- **Timeout Errors**: Ensure `--timeout` is an integer. The default is 5.5 hours (19800s).
+- **Missing Data Files**: Ensure previous stages completed successfully before running the next.
+- **OOM Errors**: The inference pass uses streaming; if issues persist, reduce batch size in `config/settings.yaml`.

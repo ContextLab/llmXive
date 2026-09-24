@@ -1,31 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets, sys
-
-  ds = datasets.load_dataset("databricks/databricks-dolly-15k", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  fields = ds.column_names
-
-  col_map = {"instruction": "prompt_text", "response": "rationale_text", "rating":
-  "rationale_quality_score"}
-
-  present = [col_map[k] for k in col_map if k in fields]
-
-  print("FIELDS=" + ",".join(present))'
-record_count: 15011
-sample_fields:
-- prompt_text
-- rationale_text
-field_coverage: 1.0
+status: none
+intent: download UltraFeedback dataset and Dolly 15k dataset Python package Hugging
+  Face
 required_fields:
 - prompt_id
 - prompt_text
 - rationale_id
 - rationale_text
-- rationale_quality_score
-intent: download UltraFeedback and Dolly datasets from Hugging Face python package
-  dataset
-cache_key: d1689c43c2b1579abf084efcb842824fa1717763f8673e698ad56fd253111164
+cache_key: 732acbacfd0201c9f7e2b5ea95fdfc5061fcc3e6e58b29930f16cf1922ba4005
+searched_at: '2026-09-24T00:21:46.335139+00:00'
+retry_count: 1
