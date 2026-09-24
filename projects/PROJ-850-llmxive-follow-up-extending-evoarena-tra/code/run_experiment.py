@@ -1,40 +1,34 @@
 """
-Main entry point for running the full EvoMem experiment.
-Executes the runner script with the 'full' configuration.
+Main experiment runner script.
+
+This script orchestrates the execution of tasks on different agent variants
+and logs the results.
 """
 import sys
 import os
 import argparse
 from pathlib import Path
-
-# Add project root to path to allow imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from src.analysis.runner import main as run_experiment_main
+from src.utils.seeding import set_deterministic_seed
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the full EvoMem experiment.")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="full",
-        choices=["full", "quick"],
-        help="Configuration mode: 'full' for complete run, 'quick' for subset."
-    )
+    """Main entry point for the experiment runner."""
+    parser = argparse.ArgumentParser(description='Run EvoMem experiments')
+    parser.add_argument('--config', type=str, default='full',
+                      choices=['quick', 'full'],
+                      help='Configuration to use for the experiment')
+    parser.add_argument('--seed', type=int, default=42,
+                      help='Random seed for reproducibility')
+    
     args = parser.parse_args()
+    
+    # Set deterministic seed
+    set_deterministic_seed(args.seed)
+    
+    # Run the experiment
+    run_experiment_main(args.config)
 
-    # Set environment variable for the runner to pick up the config mode
-    os.environ["EXPERIMENT_CONFIG"] = args.config
 
-    print(f"Starting experiment with config: {args.config}")
-    try:
-        run_experiment_main()
-        print("Experiment completed successfully.")
-    except Exception as e:
-        print(f"Experiment failed with error: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

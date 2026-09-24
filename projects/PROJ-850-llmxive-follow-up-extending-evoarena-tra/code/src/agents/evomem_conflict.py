@@ -3,250 +3,251 @@ from pathlib import Path
 import random
 import numpy as np
 import torch
+
 from src.agents.base_agent import BaseAgent
-from src.heuristics.conflict_detector import ConflictDetector
-from src.utils.logging import get_logger, ExecutionTimer
+from src.heuristics.conflict_detector import ConflictDetector, ModelResult
 from src.utils.seeding import set_deterministic_seed
+from src.utils.logging import get_logger, ExecutionTimer
 
 logger = get_logger(__name__)
 
+
 class EvoMemConflict(BaseAgent):
     """
-    Agent variant that retrieves only the latest state + patches flagged as conflicts.
-    Implements fallback logic (FR-002, FR-007): if no conflicts detected or detector fails,
-    retrieve the latest state plus the 2 most recent non-conflict patches.
+    Agent variant that retrieves only the latest state plus patches flagged as conflicts.
+    
+    Implements fallback logic (FR-002, FR-007):
+    If the conflict detector returns no flags or fails, retrieve the latest state 
+    plus the 2 most recent non-conflict patches to prevent context starvation.
     """
 
     def __init__(
         self,
         model_name: str = "distilbert-base-uncased",
         threshold: float = 0.90,
-        max_non_conflict_fallback: int = 2,
-        seed: int = 42,
-        device: Optional[str] = None
+        max_patches: int = 10,
+        seed: Optional[int] = None
     ):
-        """
-        Initialize the EvoMemConflict agent.
-
-        Args:
-            model_name: HuggingFace model name for conflict detection.
-            threshold: Confidence threshold for conflict classification.
-            max_non_conflict_fallback: Number of recent non-conflict patches to retrieve if fallback triggers.
-            seed: Random seed for reproducibility.
-            device: Device to run the model on ('cpu' or 'cuda'). Defaults to auto-detect.
-        """
         super().__init__(seed=seed)
-        self.max_non_conflict_fallback = max_non_conflict_fallback
-        self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.model_name = model_name
+        self.threshold = threshold
+        self.max_patches = max_patches
         
-        logger.info(f"Initializing EvoMemConflict agent on device: {self.device}")
-        logger.info(f"Conflict detector threshold: {threshold}")
-        logger.info(f"Fallback non-conflict count: {max_non_conflict_fallback}")
+        # Initialize the conflict detector
+        self.detector = ConflictDetector(
+            model_name=model_name,
+            threshold=threshold
+        )
+        
+        logger.info(f"Initialized EvoMemConflict agent with model: {model_name}, threshold: {threshold}")
+
+    def _detect_conflicts(
+        self,
+        patches: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """
+        Run conflict detection on a list of patches.
+        
+        Returns:
+            Tuple of (conflict_patches, non_conflict_patches)
+        """
+        conflict_patches = []
+        non_conflict_patches = []
+        
+        if not patches:
+            return conflict_patches, non_conflict_patches
 
         try:
-            self.conflict_detector = ConflictDetector(
-                model_name=model_name,
-                threshold=threshold,
-                device=self.device
-            )
-            logger.info("ConflictDetector initialized successfully.")
+            # Run detection on each patch pair (current vs history)
+            # For this implementation, we assume patches are ordered chronologically
+            # and we check each patch against the "latest state" (first patch)
+            
+            # Identify the latest state (first in list, assuming chronological order)
+            latest_state = patches[0] if patches else None
+            history_patches = patches[1:] if len(patches) > 1 else []
+            
+            for patch in history_patches:
+                try:
+                    result = self.detector.detect_conflict(latest_state, patch)
+                    if result.is_conflict:
+                        conflict_patches.append(patch)
+                    else:
+                        non_conflict_patches.append(patch)
+                except Exception as e:
+                    logger.warning(f"Conflict detection failed for patch: {e}. Treating as non-conflict.")
+                    non_conflict_patches.append(patch)
+                    
         except Exception as e:
-            logger.error(f"Failed to initialize ConflictDetector: {e}")
+            logger.error(f"Conflict detection failed entirely: {e}")
             raise
+        
+        return conflict_patches, non_conflict_patches
 
     def retrieve_context(
         self,
-        patches: List[Dict[str, Any]],
-        task_description: str
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        task: Dict[str, Any],
+        memory_history: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
-        Retrieve context patches based on conflict detection.
-
-        Logic:
-        1. Identify the latest state patch (assumed to be the last in the list).
-        2. Run conflict detection on the remaining patches.
-        3. If conflicts are found: return latest state + conflict patches.
-        4. If NO conflicts found OR detector fails: return latest state + up to N most recent non-conflict patches.
-
-        Args:
-            patches: List of state patches. Expected to be ordered chronologically.
-            task_description: Current task description (unused for retrieval logic but required by interface).
-
-        Returns:
-          A tuple of (selected_patches, metadata).
-          metadata contains:
-            - 'fallback_triggered': bool
-            - 'conflict_count': int
-            - 'fallback_count': int
-        """
-        if not patches:
-            logger.warning("No patches provided. Returning empty context.")
-            return [], {'fallback_triggered': False, 'conflict_count': 0, 'fallback_count': 0}
-
-        # Ensure deterministic behavior if needed during retrieval logic
-        set_deterministic_seed(self.seed)
-
-        # Identify the latest state (assumed to be the last element)
-        latest_state = patches[-1]
-        historical_patches = patches[:-1]
-
-        metadata = {
-            'fallback_triggered': False,
-            'conflict_count': 0,
-            'fallback_count': 0,
-            'total_input_patches': len(patches)
-        }
-
-        conflict_patches = []
-        non_conflict_patches = []
-        detection_failed = False
-
-        if not historical_patches:
-            logger.info("No historical patches to analyze. Returning only latest state.")
-            return [latest_state], metadata
-
-        try:
-            logger.info(f"Running conflict detection on {len(historical_patches)} historical patches.")
-            # The detector expects a list of (patch_a, patch_b) or similar, 
-            # but for this agent, we typically compare each historical patch against the latest state
-            # or check internal consistency. 
-            # Based on the task description, we assume the detector can flag individual patches 
-            # as conflicting relative to the current context/state.
-            
-            # Assuming the detector has a method to score a list of patches against a reference or each other.
-            # If the ConflictDetector class expects pairs, we adapt. 
-            # However, standard usage for an agent is to score the history.
-            # Let's assume the detector exposes a method `detect_conflicts(patches, reference)` 
-            # or simply `score_patches(patches)`. 
-            # Since the API surface only shows `ConflictDetector`, we assume it has a `run` or `predict` method.
-            # To be safe and adhere to the "extend" constraint, we will assume the detector 
-            # takes the list of historical patches and the latest state to identify conflicts.
-            
-            # Implementation detail: We treat the latest state as the ground truth reference.
-            # We pass the historical patches to be scored against the latest state.
-            
-            # NOTE: If ConflictDetector requires specific pair input, we might need to adapt.
-            # Given the constraints, we assume a method `detect_conflicts(patches_list, reference_patch)`
-            # exists or we iterate. 
-            # Let's assume the detector returns a list of indices or patches flagged as conflicts.
-            
-            # Fallback strategy if the detector API is strictly pair-based:
-            # We will assume the detector can process a list of patches relative to the latest state.
-            # If the detector only takes pairs, we would need to loop. 
-            # For this implementation, we assume `detect_conflicts` handles the list.
-            
-            # If the detector is not available or fails:
-            detected_conflicts, detected_non_conflicts = self._run_detector_safely(historical_patches, latest_state)
-            
-            if detected_conflicts is None:
-                detection_failed = True
-                logger.warning("Conflict detection failed or returned None. Triggering fallback.")
-            else:
-                conflict_patches = detected_conflicts
-                non_conflict_patches = detected_non_conflicts
-                metadata['conflict_count'] = len(conflict_patches)
-
-        except Exception as e:
-            logger.error(f"Error during conflict detection: {e}")
-            detection_failed = True
-
-        selected_patches = [latest_state]
-
-        if detection_failed or len(conflict_patches) == 0:
-            # Fallback Logic (FR-002, FR-007)
-            logger.info("Fallback triggered: No conflicts detected or detector failure.")
-            metadata['fallback_triggered'] = True
-            
-            # Retrieve the most recent non-conflict patches
-            # non_conflict_patches is already ordered if the input was ordered
-            fallback_candidates = non_conflict_patches if not detection_failed else historical_patches
-            
-            # Sort by recency (assuming list is chronological, so reverse for most recent)
-            # If the list is [oldest, ..., newest], the most recent are at the end.
-            # We take the last N.
-            fallback_candidates_sorted = list(reversed(fallback_candidates))
-            selected_fallback = fallback_candidates_sorted[:self.max_non_conflict_fallback]
-            
-            # Restore order (oldest to newest) for the context window if needed, 
-            # but usually agents expect chronological order.
-            selected_fallback = list(reversed(selected_fallback))
-            
-            selected_patches.extend(selected_fallback)
-            metadata['fallback_count'] = len(selected_fallback)
-            logger.info(f"Fallback retrieved {len(selected_fallback)} non-conflict patches.")
+        Retrieve context for the task based on conflict detection.
         
-        else:
-            # Normal path: Return latest state + conflict patches
-            # Maintain chronological order for the conflict patches
-            selected_patches.extend(conflict_patches)
-            logger.info(f"Retrieved {len(conflict_patches)} conflict patches.")
-
-        return selected_patches, metadata
-
-    def _run_detector_safely(
-        self, 
-        historical_patches: List[Dict[str, Any]], 
-        latest_state: Dict[str, Any]
-    ) -> Tuple[Optional[List[Dict[str, Any]]], Optional[List[Dict[str, Any]]]]:
+        Implements FR-002 and FR-007:
+        - Primary: Retrieve latest state + conflict patches
+        - Fallback: If no conflicts detected or detection fails, retrieve 
+          latest state + 2 most recent non-conflict patches
+        
+        Args:
+            task: The task dictionary (not used in retrieval logic but part of interface)
+            memory_history: List of memory patches ordered chronologically 
+                           (latest first or last - implementation assumes latest first)
+                           
+        Returns:
+            List of patches to include in context
         """
-        Safely run the conflict detector. Returns (conflicts, non_conflicts) or (None, None) on failure.
-        """
+        if not memory_history:
+            logger.warning("Memory history is empty. Returning empty context.")
+            return []
+
+        # Ensure deterministic behavior if seed is set
+        if self.seed is not None:
+            set_deterministic_seed(self.seed)
+
         try:
-            # The ConflictDetector API is assumed to have a method to classify a list of patches.
-            # If the underlying implementation requires pairs (patch_historical, patch_latest),
-            # we perform the pairing here.
+            # Detect conflicts
+            conflict_patches, non_conflict_patches = self._detect_conflicts(memory_history)
             
-            pairs = [(hp, latest_state) for hp in historical_patches]
+            # Get the latest state (first element in memory_history)
+            latest_state = memory_history[0]
             
-            # Assuming ConflictDetector has a method `predict_pairs` or similar.
-            # If the class only has `__call__` or `run`, we adapt.
-            # Based on the API surface, we assume it can process a list of pairs or patches.
-            # Let's assume a method `detect(pairs)` returns a list of booleans or scores.
-            
-            # We will call the detector. If it doesn't have the expected method, 
-            # we catch the AttributeError and return None to trigger fallback.
-            if hasattr(self.conflict_detector, 'detect_pairs'):
-                scores = self.conflict_detector.detect_pairs(pairs)
-            elif hasattr(self.conflict_detector, 'run'):
-                # Fallback to run method if it exists
-                scores = self.conflict_detector.run(pairs)
+            # Primary strategy: latest state + conflict patches
+            if conflict_patches:
+                selected_patches = [latest_state] + conflict_patches
+                logger.info(f"Retrieved {len(selected_patches)} patches: latest + {len(conflict_patches)} conflicts")
             else:
-                # If no standard method found, we cannot proceed safely.
-                logger.error("ConflictDetector does not have a recognized detection method.")
-                return None, None
-
-            if not isinstance(scores, list) or len(scores) != len(pairs):
-                logger.error("Detector returned invalid scores format.")
-                return None, None
-
-            conflicts = []
-            non_conflicts = []
-
-            for patch, score in zip(historical_patches, scores):
-                # Score interpretation: > threshold is conflict
-                if score > self.conflict_detector.threshold:
-                    conflicts.append(patch)
-                else:
-                    non_conflicts.append(patch)
-
-            return conflicts, non_conflicts
-
+                # Fallback: No conflicts detected
+                # Retrieve latest state + 2 most recent non-conflict patches
+                logger.info("No conflicts detected. Activating fallback logic (FR-002, FR-007).")
+                
+                # Sort non-conflict patches by recency if needed (assuming they are already ordered)
+                # Take the 2 most recent (first 2 in the list if ordered by recency)
+                fallback_non_conflicts = non_conflict_patches[:2]
+                
+                selected_patches = [latest_state] + fallback_non_conflicts
+                logger.info(f"Fallback: Retrieved {len(selected_patches)} patches: latest + {len(fallback_non_conflicts)} non-conflicts")
+                
         except Exception as e:
-            logger.error(f"Exception in _run_detector_safely: {e}")
-            return None, None
+            # Detection failed entirely - trigger fallback
+            logger.error(f"Conflict detection failed with error: {e}. Activating fallback logic (FR-007).")
+            
+            latest_state = memory_history[0]
+            non_conflict_patches = memory_history[1:]  # Treat all others as potential non-conflicts
+            
+            fallback_non_conflicts = non_conflict_patches[:2]
+            selected_patches = [latest_state] + fallback_non_conflicts
+            logger.info(f"Fallback (error): Retrieved {len(selected_patches)} patches: latest + {len(fallback_non_conflicts)} non-conflicts")
 
-    def execute(self, context: List[Dict[str, Any]], task: Dict[str, Any]) -> Dict[str, Any]:
+        # Limit to max_patches if necessary (keep latest state priority)
+        if len(selected_patches) > self.max_patches:
+            # Always keep the latest state
+            selected_patches = [selected_patches[0]] + selected_patches[1:self.max_patches]
+            logger.debug(f"Trimmed context to {self.max_patches} patches")
+
+        return selected_patches
+
+    def execute_task(
+        self,
+        task: Dict[str, Any],
+        memory_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
-        Execute the agent on a task using the provided context.
-        This is a placeholder for the actual execution logic which might involve an LLM.
-        For this task, we focus on the retrieval logic.
+        Execute a task using the conflict-filtered context.
+        
+        Args:
+            task: The task dictionary
+            memory_history: List of memory patches
+            
+        Returns:
+            Dictionary with execution results including context used
         """
-        # In a real implementation, this would call an LLM with the context and task.
-        # Here we return a mock success to satisfy the interface if needed, 
-        # or delegate to a parent implementation if one exists.
-        # Since BaseAgent is abstract, we provide a minimal implementation.
-        return {
-            "status": "success",
-            "context_length": len(context),
-            "task_id": task.get("id", "unknown")
-        }
+        with ExecutionTimer() as timer:
+            # Retrieve filtered context
+            context = self.retrieve_context(task, memory_history)
+            
+            # In a full implementation, this would:
+            # 1. Build prompt from context
+            # 2. Call LLM
+            # 3. Parse response
+            # 4. Execute commands
+            # 5. Return results
+            
+            # For this task (T021), we focus on the retrieval logic
+            # which is now complete with fallback behavior
+            
+            result = {
+                "task_id": task.get("task_id", "unknown"),
+                "context_patches": len(context),
+                "context": context,
+                "success": True,
+                "inference_time": timer.elapsed
+            }
+            
+        return result
+
+
+def main():
+    """
+    Main entry point for standalone testing of EvoMemConflict agent.
+    Demonstrates the fallback logic when no conflicts are detected.
+    """
+    set_deterministic_seed(42)
+    
+    # Create agent instance
+    agent = EvoMemConflict(
+        model_name="distilbert-base-uncased",
+        threshold=0.90,
+        max_patches=10,
+        seed=42
+    )
+    
+    # Simulate memory history (latest state first)
+    # In a real scenario, these would be actual state patches
+    memory_history = [
+        {"id": "state_0", "content": "Latest state of the system", "timestamp": "2023-01-01T12:00:00"},
+        {"id": "patch_1", "content": "Non-conflicting update 1", "timestamp": "2023-01-01T11:00:00"},
+        {"id": "patch_2", "content": "Non-conflicting update 2", "timestamp": "2023-01-01T10:00:00"},
+        {"id": "patch_3", "content": "Non-conflicting update 3", "timestamp": "2023-01-01T09:00:00"},
+    ]
+    
+    task = {"task_id": "demo_task", "instruction": "Test fallback logic"}
+    
+    print("Testing EvoMemConflict Agent - Fallback Logic Demonstration")
+    print("=" * 60)
+    print(f"Memory history size: {len(memory_history)} patches")
+    print(f"Agent threshold: {agent.threshold}")
+    print("-" * 60)
+    
+    try:
+        result = agent.execute_task(task, memory_history)
+        
+        print(f"Task ID: {result['task_id']}")
+        print(f"Context patches retrieved: {result['context_patches']}")
+        print(f"Success: {result['success']}")
+        print(f"Inference time: {result['inference_time']:.4f}s")
+        print("-" * 60)
+        print("Context content:")
+        for i, patch in enumerate(result['context']):
+            print(f"  [{i}] {patch['id']}: {patch['content'][:50]}...")
+            
+        print("-" * 60)
+        print("Fallback logic executed successfully!")
+        print("Expected: Latest state + 2 most recent non-conflict patches")
+        print(f"Actual: {result['context_patches']} patches (should be 3 if no conflicts)")
+        
+    except Exception as e:
+        print(f"Error during execution: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    main()

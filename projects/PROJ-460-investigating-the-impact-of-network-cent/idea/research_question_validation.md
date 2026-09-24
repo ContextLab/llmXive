@@ -1,31 +1,21 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
-
-The question asks about a specific causal pathway (mediation) involving structural topology, functional dynamics, and behavioral phenotypes in ASD, which is a substantive scientific relationship. The framing is entirely independent of any specific machine learning algorithm or computational budget, focusing instead on the biological mechanism of how structural hubs constrain functional deficits.
+The question asks about a specific neurobiological mechanism (the extent to which structural hub integrity mediates the link between functional connectivity and behavioral deficits) rather than the performance of a specific algorithm. The methodology (mediation analysis) is a standard statistical tool to test the phenomenon, not the subject of the inquiry itself.
 
 ### Circularity check
-
 **Verdict**: pass
-
-The predictor (structural centrality) is derived from diffusion MRI tractography (streamline counts), while the functional variable (connectivity strength) is derived from BOLD fMRI time-series correlations; these are distinct biological modalities with different acquisition physics and processing pipelines. The outcome variable (ADOS-2 scores) is a clinical behavioral assessment completely independent of the imaging data, ensuring no mechanical guarantee of the relationship.
+The predictor (structural centrality) is derived from diffusion MRI tractography, while the functional connectivity strength is derived from resting-state fMRI time series correlations. These are distinct imaging modalities measuring different physical properties (white matter fiber density vs. hemodynamic synchronization), ensuring the variables are not mechanically guaranteed to correlate by construction.
 
 ### Triviality check
-
 **Verdict**: pass
-
-Both outcomes are scientifically informative: a positive result would identify structural hub integrity as a primary bottleneck for functional disruption in ASD, suggesting specific structural targets for therapy; a null result would imply that functional deficits arise from distributed mechanisms or dynamic reorganization independent of static structural hub topology. Neither outcome is predetermined by current domain knowledge, as the specific mediation role of DMN hubs remains an open empirical question.
+Both outcomes are scientifically informative: a significant mediation effect would identify structural hubs as the primary bottleneck for functional-behavioral coupling in ASD, suggesting structural repair strategies; a null result would imply that functional-behavioral links are driven by dynamic, non-hub-specific mechanisms or compensatory reorganization independent of static structural topology. Neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
-
 **Verdict**: pass
-
-The question explicitly names a domain relationship (the mediation of functional-behavioral links by structural topology) rather than constraining the inquiry to a specific implementation detail like "can method X run in time Y." It investigates *how* the brain works, not *how* a specific tool performs under arbitrary constraints.
+The question explicitly names a relationship between biological variables (structural topology, functional dynamics, and clinical severity) within a specific population (ASD). It does not frame the inquiry around computational constraints, model architectures, or resource budgets.
 
 ### Overall verdict
-
 **Verdict**: validated
-
-All four checks pass; the research question targets a genuine, non-circular, and non-trivial gap in understanding the structure-function-behavior axis in ASD. The multimodal approach using independent data sources (dMRI, fMRI, clinical scores) ensures the validity of the proposed mediation analysis.
+The research question is well-formed, targeting a genuine mechanistic gap in understanding ASD pathophysiology without falling into implementation-method narrowing or circular construction traps. The proposed mediation analysis using independent multimodal data sources (dMRI and fMRI) is a valid approach to test the hypothesis that structural hubs constrain functional-behavioral relationships.

@@ -1,5 +1,5 @@
-'|bootstrap coefficient compute confidence correlation implement interval iteration least resampling':
-  quote: 1000 independent time series of length n = 500 and 1000. Construction of
-  source_id: '0804.4361'
-  url: https://arxiv.org/abs/0804.4361
-  value: '1000'
+'|alpha analysi power use':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.05'

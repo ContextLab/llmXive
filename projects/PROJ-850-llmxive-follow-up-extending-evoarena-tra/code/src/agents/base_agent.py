@@ -1,99 +1,107 @@
+"""
+Base Agent implementation for EvoMem agents.
+
+This module defines the abstract base class for all agent variants,
+providing a common interface and retrieval strategy hooks.
+"""
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 import random
 import numpy as np
 import torch
+from src.utils.seeding import set_deterministic_seed
 
-# Import seeding utility
-try:
-    from src.utils.seeding import set_deterministic_seed
-except ImportError:
-    import sys
-    sys.path.append(str(Path(__file__).parent.parent))
-    from utils.seeding import set_deterministic_seed
-
-# Set seed at module load time
-set_deterministic_seed(42)
-
-from src.utils.logging import get_logger, ExecutionTimer
 
 class BaseAgent(ABC):
-    """Abstract base class for all agents in the EvoArena system."""
-
-    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
+    """
+    Abstract base class for all agent variants.
+    
+    Defines the common interface and retrieval strategy hooks that all
+    agent implementations must follow.
+    """
+    
+    def __init__(self, name: str, seed: int = 42):
         """
         Initialize the base agent.
         
         Args:
-            name: The name of the agent variant
-            config: Optional configuration dictionary
+            name (str): Name of the agent variant.
+            seed (int): Random seed for reproducibility.
         """
         self.name = name
-        self.config = config or {}
-        self.logger = get_logger(name)
-        self.logger.info(f"Initialized {name} agent")
-
+        self.seed = seed
+        set_deterministic_seed(seed)
+        
+        # Initialize logging and metrics
+        self.metrics = {
+            'context_tokens': 0,
+            'inference_time': 0.0,
+            'success_status': False
+        }
+    
     @abstractmethod
-    def retrieve_patches(self, task_id: str, history: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def retrieve_patches(self, task_context: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant patches for the given task and history.
+        Retrieve relevant patches based on the task context.
+        
+        This method must be implemented by subclasses to define their
+        specific retrieval strategy.
         
         Args:
-            task_id: The ID of the current task
-            history: List of previous state patches
+            task_context (Dict[str, Any]): The current task context.
         
         Returns:
-            List of patches to include in the context
+            List[Dict[str, Any]]: List of retrieved patches.
         """
         pass
-
+    
     @abstractmethod
-    def build_context(self, task: Dict[str, Any], patches: List[Dict[str, Any]]) -> str:
+    def execute_task(self, task: Dict[str, Any], patches: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Build the context string for the LLM.
+        Execute a task using the retrieved patches.
         
         Args:
-            task: The current task description
-            patches: List of retrieved patches
+            task (Dict[str, Any]): The task to execute.
+            patches (List[Dict[str, Any]]): Retrieved patches to use.
         
         Returns:
-            Formatted context string
+            Dict[str, Any]: Execution results including success status and output.
         """
         pass
-
-    @abstractmethod
-    def execute(self, task: Dict[str, Any], history: List[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
+    
+    def build_context(self, patches: List[Dict[str, Any]]) -> str:
         """
-        Execute the agent on a task.
+        Build a context string from retrieved patches.
         
         Args:
-            task: The task to execute
-            history: Previous execution history
+            patches (List[Dict[str, Any]]): List of patches to include.
         
         Returns:
-            Tuple of (result, metrics)
+            str: Formatted context string.
         """
-        pass
-
-    def _count_tokens(self, text: str) -> int:
+        context_parts = []
+        for i, patch in enumerate(patches):
+            context_parts.append(f"Patch {i+1}:\n{patch.get('content', '')}")
+        return "\n\n".join(context_parts)
+    
+    def count_tokens(self, text: str) -> int:
         """
-        Estimate the number of tokens in a text.
+        Estimate the number of tokens in a text string.
         
         Args:
-            text: The text to count tokens for
+            text (str): The text to count tokens for.
         
         Returns:
-            Estimated token count
+            int: Estimated token count.
         """
-        # Simple approximation: 1 token ≈ 4 characters
+        # Simple approximation: 1 token ~ 4 characters
         return len(text) // 4
-
-    def log_metrics(self, metrics: Dict[str, Any]) -> None:
-        """
-        Log execution metrics.
-        
-        Args:
-            metrics: Dictionary of metrics to log
-        """
-        self.logger.info(f"Metrics: {metrics}")
+    
+    def reset_metrics(self) -> None:
+        """Reset the agent's metrics to initial state."""
+        self.metrics = {
+            'context_tokens': 0,
+            'inference_time': 0.0,
+            'success_status': False
+        }

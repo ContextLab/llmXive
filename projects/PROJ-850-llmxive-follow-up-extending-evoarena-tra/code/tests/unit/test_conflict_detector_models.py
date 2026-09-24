@@ -4,105 +4,138 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-import csv
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Ensure src is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.heuristics.conflict_detector import ConflictDetector
 
+@pytest.fixture
+def synthetic_data(tmp_path):
+    """Creates a temporary synthetic dataset for testing."""
+    data = [
+        {
+            "patch_a": "The system is running on port 8080.",
+            "patch_b": "The system is running on port 8080.",
+            "is_contradiction": False
+        },
+        {
+            "patch_a": "The system is running on port 8080.",
+            "patch_b": "The system has been shut down.",
+            "is_contradiction": True
+        },
+        {
+            "patch_a": "User 'admin' has root access.",
+            "patch_b": "User 'admin' has root access.",
+            "is_contradiction": False
+        },
+        {
+            "patch_a": "User 'admin' has root access.",
+            "patch_b": "User 'admin' has been revoked.",
+            "is_contradiction": True
+        }
+    ]
+    file_path = tmp_path / "synthetic_pairs.json"
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+    return str(file_path)
+
+@pytest.fixture
+def output_dir(tmp_path):
+    return str(tmp_path / "output")
+
 class TestConflictDetectorModelSensitivity:
-    @pytest.fixture
-    def sample_data(self, tmp_path):
-        """Create a temporary synthetic pairs file for testing."""
-        data = [
-            {"patch_a": "System is running.", "patch_b": "System is stopped.", "is_contradiction": True},
-            {"patch_a": "File A exists.", "patch_b": "File A exists and is modified.", "is_contradiction": False},
-            {"patch_a": "User is admin.", "patch_b": "User is admin.", "is_contradiction": False},
-            {"patch_a": "Port 80 is open.", "patch_b": "Port 80 is closed.", "is_contradiction": True},
-            {"patch_a": "DB is connected.", "patch_b": "DB is disconnected.", "is_contradiction": True},
-        ]
-        file_path = tmp_path / "test_pairs.json"
-        with open(file_path, 'w') as f:
-            json.dump(data, f)
-        return file_path
+    """
+    Tests for T014b: Model size sensitivity analysis execution logic.
+    """
 
-    @pytest.fixture
-    def output_csv_path(self, tmp_path):
-        return str(tmp_path / "sensitivity_analysis_models.csv")
+    def test_detector_initialization(self):
+        """Test that the detector initializes correctly with a small model."""
+        detector = ConflictDetector(model_name="distilbert-base-uncased", seed=42)
+        assert detector.model_name == "distilbert-base-uncased"
+        assert detector.threshold == 0.90
 
-    def test_model_initialization(self):
-        """Test that models can be initialized (skip actual download in CI if needed, but logic must exist)."""
-        # We don't actually load the heavy model in this unit test to save time/resources,
-        # but we verify the class structure exists.
-        assert ConflictDetector is not None
-
-    def test_sensitivity_analysis_execution(self, sample_data, output_csv_path):
+    def test_run_sensitivity_analysis_models_creates_file(self, synthetic_data, output_dir):
         """
-        Test the run_sensitivity_analysis_models method.
-        Verifies that the method runs, processes data, and writes a CSV with correct columns.
-        Note: In a real CI environment without GPU/Internet, this might fail to download models.
-        We assert the logic flow and output format.
+        Verify that run_sensitivity_analysis_models creates the output CSV
+        and contains the expected columns for the specified models.
         """
-        detector = ConflictDetector.__new__(ConflictDetector) # Avoid init for this test logic check if needed
-        
-        # We will attempt to run it, but catch if model download fails (expected in isolated envs)
-        # The task requires the CODE to be correct.
-        try:
-            # Using a dummy model list that might not exist to test error handling or just skip
-            # For the purpose of the task implementation, we assume the code path is correct.
-            # We will test with the logic that if a model is provided, it runs.
-            # Since we can't guarantee internet in all test environments, we check the file writing logic.
-            pass
-        except Exception:
-            pass
+        detector = ConflictDetector(seed=42)
+        output_path = os.path.join(output_dir, "sensitivity_analysis_models.csv")
 
-        # Instead, let's test the function signature and logic by mocking or checking the file generation
-        # Since we cannot easily mock transformers in this snippet without complex setup,
-        # we assert that the function exists and the output path handling is correct.
-        assert os.path.exists(os.path.dirname(output_csv_path)) or True # Path exists
+        # Run the analysis with a small subset of models and thresholds
+        # Using only 'distilbert-base-uncased' to keep test execution time low
+        # but verifying the logic works for the list input
+        detector.run_sensitivity_analysis_models(
+            model_names=["distilbert-base-uncased"],
+            data_path=synthetic_data,
+            thresholds=[0.9, 0.95],
+            output_path=output_path
+        )
 
-        # We will verify the code logic by ensuring the method is defined correctly in the class
-        assert hasattr(ConflictDetector, 'run_sensitivity_analysis_models')
+        assert os.path.exists(output_path), "Output CSV file was not created."
 
-    def test_csv_output_format(self, sample_data, output_csv_path):
-        """Verify the CSV output schema matches requirements."""
-        # This test assumes the method ran successfully.
-        # In a real run, we would check the content.
-        # Here we check that if the file exists, it has the right headers.
-        # We will create a mock CSV to verify the reader logic, or just assert the expected keys.
-        expected_headers = [
-            'model_name', 'threshold_used', 'precision', 'recall', 'f1_score', 
-            'accuracy', 'tp', 'fp', 'tn', 'fn', 'total_samples'
-        ]
-        
-        # Since we can't run the full model load in a unit test reliably without network,
-        # we assert the code produces this structure by checking the source or mocking.
-        # For the purpose of this task, we verify the code in conflict_detector.py writes these keys.
-        # We will simulate a successful run result for testing the writer.
-        
-        mock_results = [{
-            'model_name': 'test-model',
-            'threshold_used': 0.9,
-            'precision': 0.5,
-            'recall': 0.5,
-            'f1_score': 0.5,
-            'accuracy': 0.5,
-            'tp': 1, 'fp': 1, 'tn': 1, 'fn': 1,
-            'total_samples': 4
-        }]
-        
-        with open(output_csv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=expected_headers)
-            writer.writeheader()
-            writer.writerows(mock_results)
-
-        with open(output_csv_path, 'r') as f:
+        with open(output_path, 'r') as f:
+            import csv
             reader = csv.DictReader(f)
-            row = next(reader)
-            assert 'model_name' in row
-            assert 'precision' in row
-            assert 'f1_score' in row
-            assert row['model_name'] == 'test-model'
+            rows = list(reader)
+
+        assert len(rows) > 0, "CSV file is empty."
+        assert "model_name" in reader.fieldnames
+        assert "threshold" in reader.fieldnames
+        assert "precision" in reader.fieldnames
+        assert "recall" in reader.fieldnames
+        assert "f1" in reader.fieldnames
+
+    def test_multiple_models_execution(self, synthetic_data, output_dir):
+        """
+        Test execution logic with multiple models (simulated by running twice).
+        Ensures the function handles the list of models correctly.
+        """
+        detector = ConflictDetector(seed=42)
+        output_path = os.path.join(output_dir, "multi_model_analysis.csv")
+
+        # We use the same model twice here to simulate the list processing
+        # without actually downloading a second large model in the test environment
+        # In production, this would be ["distilbert-base-uncased", "bert-base-uncased"]
+        detector.run_sensitivity_analysis_models(
+            model_names=["distilbert-base-uncased", "distilbert-base-uncased"],
+            data_path=synthetic_data,
+            thresholds=[0.9],
+            output_path=output_path
+        )
+
+        with open(output_path, 'r') as f:
+            import csv
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        # Should have 2 rows (one for each model entry in the list)
+        assert len(rows) == 2, "Expected 2 rows for 2 model entries."
+
+    def test_error_handling_graceful_continue(self, synthetic_data, output_dir):
+        """
+        Test that if a model fails to load, the function logs the error
+        and continues to the next model instead of crashing the whole run.
+        """
+        detector = ConflictDetector(seed=42)
+        output_path = os.path.join(output_dir, "error_handling.csv")
+
+        # Include a non-existent model to trigger an error
+        detector.run_sensitivity_analysis_models(
+            model_names=["non-existent-model-xyz", "distilbert-base-uncased"],
+            data_path=synthetic_data,
+            thresholds=[0.9],
+            output_path=output_path
+        )
+
+        # The file should still be created and contain results for the valid model
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            import csv
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        # Should contain 1 row (for the valid model)
+        assert len(rows) == 1
+        assert rows[0]['model_name'] == 'distilbert-base-uncased'

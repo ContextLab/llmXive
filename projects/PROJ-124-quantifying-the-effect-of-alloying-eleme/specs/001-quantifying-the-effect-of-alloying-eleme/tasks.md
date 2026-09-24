@@ -62,7 +62,7 @@
 - [X] T006b [P] Configure log rotation and file size limits in `code/utils/logger.py` to prevent disk exhaustion.
 - [X] T007a [P] Create `code/config/env.py` to manage environment variables (random seeds, paths) with a function `load_config()` that validates required keys and returns a `dict`. (Spec Assumptions)
 - [X] T007b [P] Create `code/utils/novelty.py` (stub) and `code/utils/shap_utils.py` (stub) with placeholder functions to ensure importability.
-- [X] T008a [P] Configure environment configuration management for random seeds in `code/config/env.py`. **Note**: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D/pilot_flags`) and is NOT stored in this config file. [UNRESOLVED-CLAIM: c_07c7e0d0 — status=not_enough_info] (Spec Assumptions)
+- [X] T008a [P] Configure environment configuration management for random seeds in `code/config/env.py`. **Note**: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D/pilot_flags`) and is NOT stored in this config file. (Spec Assumptions)
 - [X] T008b [P] Define and save the list of the most abundant metallic elements to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc). **Verification**: Add a comment in the file noting that Si, Na, and K are included per spec assumption (for combinatorial completeness) but may not form stable metallic glasses in all ternary systems. (FR-005)
 - [X] T008c [P] Implement `code/utils/novelty.py` to query external databases for the Known Alloys List. **Primary Logic**: Attempt to query the Materials Project API or a verified literature database source for known alloy compositions. **Fallback**: If external queries fail or the source is unavailable, create an empty file `data/known_alloys.csv` with a header row only (`composition,novelty_status`) and log a warning. **Requirement**: Ensure the file path exists before T036 runs. (FR-013, Plan)
 - [X] T009a [P] Create `contracts/candidates_csv.schema.yaml` defining the schema for `output/candidates.csv` (columns: composition, predicted_log10_Rc, ci_lower, ci_upper, risk_score, final_score, novelty_status) (Plan, FR-006, FR-007)
@@ -117,8 +117,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/models/train.py` to train RandomForestRegressor and GradientBoostingRegressor with hyperparameter grids ≤30; output: `best_model.pkl` and `best_model_weighted.pkl` (if applicable) and print LOCO-MAE scores (FR-003). **Deliverable**: `best_model.pkl`. **Verification**: Confirm file exists and can be loaded. (FR-003)
-- [ ] T021 [US2] **Depends on: T017** Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families. **Logic**:
+- [X] T020 [US2] Implement `code/models/train.py` to train RandomForestRegressor and GradientBoostingRegressor with hyperparameter grids ≤30; output: `best_model.pkl` and `best_model_weighted.pkl` (if applicable) and print LOCO-MAE scores (FR-003). **Deliverable**: `best_model.pkl`. **Verification**: Confirm file exists and can be loaded. (FR-003)
+- [X] T021 [US2] **Depends on: T017** Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families. **Logic**:
  1. Assign each composition to a cluster based on the element with the **highest atomic fraction**. If tied, choose the element with the **higher atomic number**.
  2. **Iterate**: For each unique cluster, hold it out as the test set, train on the remaining data.
  3. **Aggregate**: Calculate Mean Absolute Error (MAE) across all folds.

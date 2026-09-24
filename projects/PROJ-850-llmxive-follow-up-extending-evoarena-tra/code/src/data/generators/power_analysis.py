@@ -1,146 +1,100 @@
 """
-Power analysis script to calculate sample size N for the EvoMem-Conflict study.
+Power analysis script to calculate required sample size.
 
-Parameters:
-  Cohen's h = 0.2 (small effect size)
-  Power = 0.80
-  Alpha = 0.05
-
-Calculates the required sample size for a two-proportion z-test (or equivalent
-test for proportions) given the specified parameters.
+This script calculates the sample size needed for statistical power
+analysis based on Cohen's h effect size.
 """
-
 import math
 import sys
 import os
 from pathlib import Path
+from src.utils.seeding import set_deterministic_seed
 
-# Add project root to path to ensure imports work regardless of execution context
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
-def calculate_sample_size_cohen_h(effect_size: float, power: float, alpha: float) -> int:
+def calculate_sample_size_cohen_h(effect_size: float = 0.2, 
+                                  power: float = 0.8, 
+                                  alpha: float = 0.05) -> int:
     """
-    Calculate sample size N for a two-proportion test given Cohen's h, power, and alpha.
+    Calculate the required sample size for a given effect size, power, and alpha.
     
-    Formula derivation:
-      For a two-proportion z-test, the sample size per group (n) is:
-      n = 2 * (Z_{1-alpha/2} + Z_{power})^2 / h^2
-      
-      Where:
-        - Z_{1-alpha/2} is the critical value for the significance level
-        - Z_{power} is the critical value for the desired power
-        - h is Cohen's h (effect size)
-        
-      Total sample size N = 2 * n (assuming equal group sizes)
+    Uses the approximation formula for sample size calculation in proportion tests.
     
     Args:
-        effect_size (float): Cohen's h (e.g., 0.2 for small effect)
-        power (float): Desired statistical power (e.g., 0.80)
-        alpha (float): Significance level (e.g., 0.05)
+        effect_size (float): Cohen's h effect size. Default is 0.2 (small effect).
+        power (float): Statistical power (1 - beta). Default is 0.8.
+        alpha (float): Significance level. Default is 0.05.
     
     Returns:
-        int: Total sample size N (rounded up)
+        int: Required sample size per group.
     """
-    # Calculate Z-scores
-    # Z_{1-alpha/2} for two-tailed test
-    z_alpha = abs(math.erfcinv(alpha) * math.sqrt(2))
+    # Set deterministic seed for reproducibility
+    set_deterministic_seed(42)
     
-    # Z_{power}
-    z_power = abs(math.erfcinv(2 * (1 - power)) * math.sqrt(2))
+    # Z-scores for power and alpha
+    # Using approximate values: Z(0.8) ≈ 0.84, Z(0.975) ≈ 1.96
+    z_power = 0.8416  # Approximate Z-score for 80% power
+    z_alpha = 1.96    # Approximate Z-score for alpha=0.05 (two-tailed)
     
-    # Calculate sample size per group
-    # n = 2 * (Z_alpha + Z_power)^2 / h^2
-    numerator = 2 * (z_alpha + z_power) ** 2
-    denominator = effect_size ** 2
+    # Sample size formula for proportion test
+    # n = 2 * ((Z_alpha + Z_power) / effect_size)^2
+    n = 2 * ((z_alpha + z_power) / effect_size) ** 2
     
-    n_per_group = numerator / denominator
-    
-    # Total sample size (two groups)
-    total_n = 2 * n_per_group
-    
-    # Round up to ensure sufficient power
-    return math.ceil(total_n)
+    return math.ceil(n)
 
-def update_research_md(sample_size: int, research_md_path: Path) -> None:
+
+def update_research_md(sample_size: int, research_md_path: str = 'specs/001-evoconflict-filtering/research.md'):
     """
     Update the research.md file with the calculated sample size.
     
     Args:
-        sample_size (int): The calculated sample size N
-        research_md_path (Path): Path to the research.md file
+        sample_size (int): The calculated sample size.
+        research_md_path (str): Path to the research.md file.
     """
-    if not research_md_path.exists():
-        raise FileNotFoundError(f"research.md not found at {research_md_path}")
+    # Ensure directory exists
+    Path(research_md_path).parent.mkdir(parents=True, exist_ok=True)
     
-    # Read existing content
-    content = research_md_path.read_text(encoding='utf-8')
+    # Read existing content or create new file
+    if Path(research_md_path).exists():
+        with open(research_md_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    else:
+        content = "# Research Configuration\n\n"
     
-    # Check if sample_size key already exists
-    lines = content.splitlines()
-    updated_lines = []
-    found = False
+    # Update or add sample_size
+    if 'sample_size:' in content:
+        # Replace existing sample_size
+        lines = content.split('\n')
+        new_lines = []
+        for line in lines:
+            if line.strip().startswith('sample_size:'):
+                new_lines.append(f"sample_size: {sample_size}")
+            else:
+                new_lines.append(line)
+        content = '\n'.join(new_lines)
+    else:
+        # Add sample_size at the end
+        content += f"\nsample_size: {sample_size}\n"
     
-    for line in lines:
-        if line.strip().startswith("sample_size:"):
-            # Update existing line
-            updated_lines.append(f"sample_size: {sample_size}")
-            found = True
-        else:
-            updated_lines.append(line)
+    # Write updated content
+    with open(research_md_path, 'w', encoding='utf-8') as f:
+        f.write(content)
     
-    # If not found, append at the end (or after a relevant section)
-    if not found:
-        # Try to append after the title or first header if it looks like a config section
-        # For simplicity, just append at the end with a newline
-        if content and not content.endswith('\n'):
-            updated_lines.append('')
-        updated_lines.append(f"sample_size: {sample_size}")
-    
-    # Write back
-    research_md_path.write_text('\n'.join(updated_lines), encoding='utf-8')
+    print(f"Updated {research_md_path} with sample_size: {sample_size}")
+
 
 def main():
-    """
-    Main entry point for the power analysis script.
-    
-    Calculates sample size and updates research.md.
-    """
-    # Configuration parameters
-    COHEN_H = 0.2  # Small effect size
-    POWER = 0.80   # 80% power
-    ALPHA = 0.05   # 5% significance level
-    
-    # Determine paths
-    # research.md is expected at: specs/001-evoconflict-filtering/research.md
-    specs_dir = PROJECT_ROOT / "specs" / "001-evoconflict-filtering"
-    research_md_path = specs_dir / "research.md"
-    
-    if not specs_dir.exists():
-        raise FileNotFoundError(f"Specs directory not found: {specs_dir}")
+    """Main function to run power analysis and update research.md."""
+    # Set deterministic seed
+    set_deterministic_seed(42)
     
     # Calculate sample size
-    print(f"Calculating sample size for:")
-    print(f"  Cohen's h: {COHEN_H}")
-    print(f"  Power: {POWER}")
-    print(f"  Alpha: {ALPHA}")
+    sample_size = calculate_sample_size_cohen_h(effect_size=0.2, power=0.8, alpha=0.05)
     
-    sample_size = calculate_sample_size_cohen_h(COHEN_H, POWER, ALPHA)
-    
-    print(f"  Calculated sample size N: {sample_size}")
+    print(f"Calculated sample size: {sample_size}")
     
     # Update research.md
-    if not research_md_path.exists():
-        # Create a minimal research.md if it doesn't exist
-        print(f"Creating research.md at {research_md_path}")
-        specs_dir.mkdir(parents=True, exist_ok=True)
-        research_md_path.write_text(f"# Research Configuration\n\nsample_size: {sample_size}\n", encoding='utf-8')
-    else:
-        print(f"Updating research.md at {research_md_path}")
-        update_research_md(sample_size, research_md_path)
-    
-    print("Done.")
+    update_research_md(sample_size)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

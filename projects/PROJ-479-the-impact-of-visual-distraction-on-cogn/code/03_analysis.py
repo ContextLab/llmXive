@@ -1,188 +1,229 @@
 import os
+import sys
 import json
 import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import stats
+import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.regression.linear_model import OLS
-from statsmodels.tools import add_constant
 from sklearn.decomposition import PCA
-from typing import Dict, List, Tuple
-import warnings
+from sklearn.preprocessing import StandardScaler
 
-# Import from utils
-try:
-    from utils import get_logger, set_random_seed
-except ImportError:
-    def get_logger(name):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        return logging.getLogger(name)
-    def set_random_seed(seed):
-        pass
+from utils import get_logger, set_random_seed, get_global_seed
 
 logger = get_logger(__name__)
-warnings.filterwarnings('ignore')
 
-def load_analysis_data() -> pd.DataFrame:
-    path = "data/processed/final_analysis_data.csv"
+def load_analysis_data():
+    """Load the final analysis data from the processed directory."""
+    path = "data/processed/final_analysis_data_all.csv"
     if not os.path.exists(path):
         raise FileNotFoundError(f"Analysis data file not found: {path}")
     return pd.read_csv(path)
 
 def sm_add_constant(df, columns):
-    return add_constant(df[columns])
+    """Add a constant column to the dataframe for regression intercept."""
+    return sm.add_constant(df[columns])
 
-def calculate_correlations(df: pd.DataFrame) -> Dict:
-    """Calculate Pearson correlations for all pairs."""
-    results = {}
+def calculate_correlations(df):
+    """Calculate Pearson correlations between predictors and outcomes."""
     predictors = ['edge_density', 'color_entropy', 'object_count']
     outcomes = ['reaction_time', 'accuracy']
-    
+    correlations = {}
+
     for pred in predictors:
         for out in outcomes:
-            # Filter NaNs for this pair
-            mask = df[[pred, out]].notna().all(axis=1)
-            if mask.sum() < 2:
-                continue
-            r, p = stats.pearsonr(df.loc[mask, pred], df.loc[mask, out])
-            results[f"{pred}_{out}"] = {'r': r, 'p': p}
-    return results
+            if pred in df.columns and out in df.columns:
+                # Drop NaNs for correlation calculation
+                valid_data = df[[pred, out]].dropna()
+                if len(valid_data) > 2:
+                    r, p = valid_data[pred].corr(valid_data[out], method='pearson')
+                    correlations[f"{pred}_vs_{out}"] = {'r': r, 'p': p}
+                else:
+                    logger.warning(f"Not enough data for correlation: {pred} vs {out}")
+            else:
+                logger.warning(f"Missing columns for correlation: {pred} or {out}")
+    return correlations
 
-def run_regression_standard(df: pd.DataFrame, predictor: str, outcome: str) -> Dict:
-    """Run linear regression for a specific pair."""
-    mask = df[[predictor, outcome]].notna().all(axis=1)
-    if mask.sum() < 2:
-        return {'beta': np.nan, 'ci_lower': np.nan, 'ci_upper': np.nan}
+def run_regression_standard(df, predictor, outcome):
+    """Run a standard linear regression."""
+    if predictor not in df.columns or outcome not in df.columns:
+        raise ValueError(f"Missing columns for regression: {predictor} or {outcome}")
     
-    X = add_constant(df.loc[mask, predictor])
-    y = df.loc[mask, outcome]
-    model = OLS(y, X).fit()
-    
-    beta = model.params[predictor]
-    se = model.bse[predictor]
-    ci = model.conf_int(alpha=0.05)
-    ci_lower = ci.loc[predictor, 0]
-    ci_upper = ci.loc[predictor, 1]
-    
-    return {'beta': beta, 'ci_lower': ci_lower, 'ci_upper': ci_upper}
+    valid_data = df[[predictor, outcome]].dropna()
+    if len(valid_data) < 3:
+        raise ValueError("Not enough data for regression")
 
-def calculate_vif(df: pd.DataFrame) -> Dict:
-    """Calculate VIF for visual complexity metrics."""
+    X = sm.add_constant(valid_data[predictor])
+    y = valid_data[outcome]
+    model = sm.OLS(y, X).fit()
+    return {
+        'r_squared': model.rsquared,
+        'adj_r_squared': model.rsquared_adj,
+        'beta': model.params[predictor],
+        'p_value': model.pvalues[predictor],
+        'std_err': model.bse[predictor]
+    }
+
+def calculate_vif(df):
+    """Calculate Variance Inflation Factor for predictors."""
     predictors = ['edge_density', 'color_entropy', 'object_count']
-    # Filter rows where all predictors are present
-    mask = df[predictors].notna().all(axis=1)
-    if mask.sum() < 10:
-        return {p: np.nan for p in predictors}
+    vif_results = {}
     
-    X = df.loc[mask, predictors]
-    vif_data = {}
-    for i, col in enumerate(X.columns):
-        vif = variance_inflation_factor(X.values, i)
-        vif_data[col] = vif
-    return vif_data
+    # Handle NaNs in object_count by excluding it from VIF matrix if necessary
+    # Or impute 0 for calculation purposes as per task instructions
+    # We will drop rows with NaN in object_count for VIF calculation to be strict
+    # but if object_count is all NaN, we skip it.
+    
+    # Check for NaN in object_count
+    if df['object_count'].isna().all():
+        logger.warning("object_count is entirely NaN. Excluding from VIF.")
+        predictors = ['edge_density', 'color_entropy']
+    elif df['object_count'].isna().any():
+        logger.warning("object_count has NaN values. Dropping rows with NaN for VIF calculation.")
+        df_vif = df.dropna(subset=predictors)
+    else:
+        df_vif = df
 
-def save_vif_report(vif_data: Dict, path: str):
-    with open(path, 'w') as f:
-        json.dump(vif_data, f, indent=2)
+    if len(df_vif) < len(predictors) + 1:
+        logger.error("Not enough valid rows to calculate VIF.")
+        return vif_results
 
-def run_pca(df: pd.DataFrame) -> pd.DataFrame:
-    """Run PCA and add component to df."""
-    predictors = ['edge_density', 'color_entropy', 'object_count']
-    mask = df[predictors].notna().all(axis=1)
-    if mask.sum() < 10:
-        return df
+    X = df_vif[predictors]
+    
+    # Check for zero variance
+    for col in X.columns:
+        if X[col].var() == 0:
+            logger.warning(f"Zero variance detected in {col}. Excluding from VIF.")
+            X = X.drop(columns=[col])
+            predictors = X.columns.tolist()
+
+    if len(predictors) == 0:
+        return vif_results
+
+    try:
+        X_with_const = sm.add_constant(X)
+        for col in X.columns:
+            vif = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
+            vif_results[col] = vif
+    except Exception as e:
+        logger.error(f"VIF calculation failed: {e}")
+    
+    return vif_results
+
+def save_vif_report(vif_results, output_path="results/statistics/vif_report.json"):
+    """Save VIF report to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(vif_results, f, indent=2)
+    logger.info(f"VIF report saved to {output_path}")
+
+def run_pca(df, predictors=['edge_density', 'color_entropy', 'object_count']):
+    """Perform PCA on predictors and return component scores."""
+    # Drop NaNs for PCA
+    df_pca = df.dropna(subset=predictors)
+    
+    if len(df_pca) < 2:
+        logger.error("Not enough data for PCA.")
+        return None, None
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df_pca[predictors])
     
     pca = PCA(n_components=1)
-    df.loc[mask, 'pca_component_1'] = pca.fit_transform(df.loc[mask, predictors])
-    return df
+    component = pca.fit_transform(X_scaled)
+    
+    # Map back to original index
+    pca_df = pd.DataFrame({'pca_component_1': component.flatten()}, index=df_pca.index)
+    
+    logger.info(f"PCA explained variance ratio: {pca.explained_variance_ratio_}")
+    return pca_df, scaler
 
-def apply_holm_bonferroni(p_values: Dict[str, float]) -> Dict[str, float]:
-    """Apply Holm-Bonferroni correction."""
-    tests = list(p_values.keys())
-    p_vals = list(p_values.values())
-    adjusted = stats.multitest.multipletests(p_vals, method='holm')[1]
-    return dict(zip(tests, adjusted))
-
-def save_multiplicity_table(correlations: Dict, adjusted: Dict, path: str):
-    rows = []
-    for key, val in correlations.items():
-        pred, out = key.split('_')
-        rows.append({
-            'test_name': f"{pred}_vs_{out}",
-            'raw_p': val['p'],
-            'adjusted_p': adjusted.get(key, np.nan),
-            'metric_pair': key
-        })
-    df = pd.DataFrame(rows)
-    df.to_csv(path, index=False)
-    # Save text snippet
-    snippet = " (Wikipedia: Holm–Bonferroni method, https://en.wikipedia.org/wiki/Holm–Bonferroni_method)"
-    with open(path.replace('.csv', '_snippet.txt'), 'w') as f:
-        f.write(snippet)
-
-def save_statistics(stats_data: Dict, path: str):
-    with open(path, 'w') as f:
-        json.dump(stats_data, f, indent=2)
-
-def main():
-    """Main analysis pipeline."""
-    logger.info("Starting statistical analysis pipeline...")
+def compute_vif_and_pca():
+    """
+    Main logic for T031a: Compute VIF, decide on PCA, run regression if needed.
+    """
+    logger.info("Starting VIF and PCA computation (Task T031a)...")
     
     # Load data
-    df = load_analysis_data()
+    try:
+        df = load_analysis_data()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load analysis data: {e}")
+        raise
+
+    # 1. Calculate VIF
+    vif_results = calculate_vif(df)
+    save_vif_report(vif_results)
     
-    # 1. VIF Calculation
-    vif_data = calculate_vif(df)
-    save_vif_report(vif_data, "results/statistics/vif_report.json")
-    logger.info(f"VIF Report: {vif_data}")
-    
-    # 2. Decision
-    use_pca = max(vif_data.values()) >= 5 if any(v is not None and not np.isnan(v) for v in vif_data.values()) else False
-    logger.info(f"VIF >= 5? {use_pca}")
-    
-    # 3. PCA if needed
-    if use_pca:
-        df = run_pca(df)
-        logger.info("PCA component added.")
-    
-    # 4. Correlations and Regressions
-    correlations = calculate_correlations(df)
-    
-    final_stats = {}
-    for key, corr_val in correlations.items():
-        pred, out = key.split('_')
-        predictor_col = 'pca_component_1' if use_pca else pred
+    if not vif_results:
+        logger.warning("VIF calculation yielded no results. Skipping PCA logic.")
+        return None, None, df
+
+    max_vif = max(vif_results.values()) if vif_results else 0
+    logger.info(f"Max VIF: {max_vif}")
+
+    pca_component = None
+    regression_pca_results = None
+
+    # 2. PCA Decision
+    if max_vif >= 5:
+        logger.info("Max VIF >= 5. Performing PCA.")
+        pca_df, scaler = run_pca(df)
         
-        # Regression
-        if use_pca:
-            reg_res = run_regression_standard(df, 'pca_component_1', out)
-            pred_name = 'pca_component_1'
+        if pca_df is not None:
+            # Merge PCA component back to main df
+            df = df.merge(pca_df, left_index=True, right_index=True, how='left')
+            pca_component = 'pca_component_1'
+            
+            # 3. Linear Regression using PCA component
+            logger.info("Running Linear Regression with PCA component.")
+            try:
+                # Regression against reaction_time
+                reg_rt = run_regression_standard(df, 'pca_component_1', 'reaction_time')
+                # Regression against accuracy
+                reg_acc = run_regression_standard(df, 'pca_component_1', 'accuracy')
+                
+                regression_pca_results = {
+                    'reaction_time': reg_rt,
+                    'accuracy': reg_acc
+                }
+                
+                # Save regression results
+                output_path = "results/statistics/regression_pca.json"
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                with open(output_path, 'w') as f:
+                    json.dump(regression_pca_results, f, indent=2)
+                logger.info(f"PCA Regression results saved to {output_path}")
+                
+            except Exception as e:
+                logger.error(f"Regression with PCA component failed: {e}")
         else:
-            reg_res = run_regression_standard(df, pred, out)
-            pred_name = pred
-        
-        final_stats[key] = {
-            'r': corr_val['r'],
-            'p': corr_val['p'],
-            'beta': reg_res['beta'],
-            'ci_lower': reg_res['ci_lower'],
-            'ci_upper': reg_res['ci_upper'],
-            'predictor': pred_name
-        }
+            logger.error("PCA failed to produce components.")
+    else:
+        logger.info(f"Max VIF ({max_vif}) < 5. No PCA required. Using raw metrics.")
+
+    return vif_results, regression_pca_results, df
+
+def apply_holm_bonferroni(p_values_dict):
+    """Apply Holm-Bonferroni correction to a dictionary of p-values."""
+    from statsmodels.stats.multitest import multipletests
     
-    # 5. Holm-Bonferroni
-    p_vals = {k: v['p'] for k, v in final_stats.items()}
-    adjusted = apply_holm_bonferroni(p_vals)
-    for k, adj_p in adjusted.items():
-        final_stats[k]['adjusted_p'] = adj_p
+    names = list(p_values_dict.keys())
+    p_vals = list(p_values_dict.values())
     
-    # 6. Save outputs
-    save_multiplicity_table(correlations, adjusted, "results/statistics/multiplicity_table.csv")
-    save_statistics(final_stats, "results/statistics/statistics.json")
+    if len(p_vals) == 0:
+        return {}
+
+    # multipletests returns (reject, p_corrected, p_sidak, p_bonferroni)
+    _, p_corrected, _, _ = multipletests(p_vals, method='holm')
     
-    logger.info("Analysis pipeline completed.")
+    return dict(zip(names, p_corrected.tolist()))
+
+def main():
+    """Main entry point for T031a."""
+    set_random_seed(get_global_seed())
+    compute_vif_and_pca()
 
 if __name__ == "__main__":
     main()

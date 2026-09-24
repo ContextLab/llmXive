@@ -110,7 +110,7 @@ description: "Task list template for feature implementation"
  4. **Output**: Save to `data/processed/merged_data.csv` (overwriting if necessary to meet N≥100).
  **DEPENDS ON: T015a, T015b, T015c**. **FR Tags**: [FR-001].
 
-- [ ] T015e [US1] **VALIDATION & MARKER**: Implement `code/01_data_acquisition.py` function `validate_and_mark`:
+- [X] T015e [US1] **VALIDATION & MARKER**: Implement `code/01_data_acquisition.py` function `validate_and_mark`:
  1. **Check**: Verify N ≥ 100. Verify no missing values > 5%.
  2. **Error Logging**: If validation fails, raise `ValueError` with message: `ERROR: Data validation failed. Missing: {count}%, N: {n}`.
  3. **Edge Case Logging**: Log 'zero_variance_warning' if visual complexity variance is near-zero. Log 'unmatched_participant_ids' if any.
@@ -160,7 +160,7 @@ description: "Task list template for feature implementation"
  5. Save to `data/processed/visual_metrics_intermediate.csv`.
  **DEPENDS ON: T026a, T026b, T026c**.
 
-- [ ] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to:
+- [X] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to:
  1. Join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) using `inner join on participant_id`.
  2. **CRITICAL**: Generate TWO output files:
  a. `data/processed/final_analysis_data_all.csv`: Contains all records, preserving NaNs for `object_count`.
@@ -186,7 +186,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T031a [US3] **IMPLEMENT VIF/PCA LOGIC**: Implement `code/03_analysis.py` function `compute_vif_and_pca`.
+- [X] T031a [US3] **IMPLEMENT VIF/PCA LOGIC**: Implement `code/03_analysis.py` function `compute_vif_and_pca`.
  1. **Input**: Use `data/processed/final_analysis_data_all.csv`.
  2. **VIF Calculation**: Compute VIF for edge_density, color_entropy, object_count. Handle NaNs in `object_count` by excluding that specific predictor from the VIF matrix if necessary, or impute 0 for calculation purposes (document choice). Save to `results/statistics/vif_report.json`.
  3. **PCA Decision**: If max(VIF) >= 5, perform PCA and extract `pca_component_1`. Add to dataframe.
@@ -194,7 +194,7 @@ description: "Task list template for feature implementation"
  5. **CRITICAL**: Explicitly state that if VIF >= 5, `pca_component_1` **REPLACES** the raw metrics as the primary predictor in all subsequent regression/correlation models.
  **DEPENDS ON: T028**. **FR Tags**: [FR-011], [FR-012], [SC-007], [FR-007].
 
-- [ ] T031b [US3] **IMPLEMENT CORRELATION/REGRESSION/BOOTSTRAP**: Implement `code/03_analysis.py` function `run_correlation_regression`.
+- [X] T031b [US3] **IMPLEMENT CORRELATION/REGRESSION/BOOTSTRAP**: Implement `code/03_analysis.py` function `run_correlation_regression`. <!-- FAILED: unspecified -->
  1. **Correlation & Regression**: Perform Pearson correlation and linear regression for each predictor-outcome pair. Use `pca_component_1` if VIF >= 5, else use raw metrics.
  2. **Holm-Bonferroni**: Apply correction to all p-values using `scipy.stats.multitest.multipletests(method=holm)`.
  3. **Bootstrap**: Implement bootstrap resampling (≥1000 iterations) for CIs using `scipy.stats.bootstrap`.
@@ -228,7 +228,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T019b [US3] **POWER ANALYSIS (POST-HOC)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate achieved power based on the observed effect size from `final_analysis_data.csv`. **Output**: Save `results/statistics/power_analysis_post_hoc.md`. **DEPENDS ON: T031b**.
 
-- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 threshold justification content.
+- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)) threshold justification content.
  1. Frame all findings as associational (no causal claims).
  2. Load citation content for ASA Statement from `citations.yaml`.
  3. **Template**: The justification must include:

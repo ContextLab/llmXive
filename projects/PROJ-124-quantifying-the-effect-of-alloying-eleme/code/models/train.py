@@ -1,320 +1,415 @@
-"""
-Model Training Module for Metallic Glass GFA Prediction.
-
-Implements:
-- LOCO (Leave-One-Group-Out) Cross-Validation based on primary metallic element families.
-- StandardScaler fitting and persistence.
-- Model training (RandomForest, GradientBoosting).
-- Saving of transformed training data (X_train, y_train) and scaler.
-"""
 import os
 import sys
 import logging
 import json
+import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-
+from typing import Dict, Any, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
-import pickle
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import LeaveOneGroupOut, GroupKFold
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.metrics import mean_absolute_error
+from sklearn.pipeline import Pipeline
+from sklearn.base import clone
 import joblib
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.logger import get_logger, log_info, log_error, log_warning, log_critical
-from config.env import load_config
+# Import project utilities
+# Assuming the code is run from the project root or code/ is in sys.path
+# The prompt implies running as a module or script where imports are resolved relative to code/
+try:
+    from data.features import compute_features, parse_composition_string
+    from utils.logger import get_logger, log_info, log_warning, log_error, log_critical
+    from config.env import load_config, initialize_random_seeds
+except ImportError:
+    # Fallback for direct script execution if path setup differs
+    # In a real pipeline, sys.path is usually set up correctly
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from data.features import compute_features, parse_composition_string
+    from utils.logger import get_logger, log_info, log_warning, log_error, log_critical
+    from config.env import load_config, initialize_random_seeds
 
 logger = get_logger(__name__)
 
-# Constants
-FEATURE_COLUMNS = [
-    'atomic_radius_mean', 'electronegativity_mean', 'VEC_avg', 
-    'size_mismatch', 'valence_electron_concentration', 'mixing_entropy',
-    'mixing_enthalpy', 'atomic_size_diff_std'
-]
-# Fallback if specific columns are missing, we will select numeric columns dynamically
-TARGET_COLUMN = 'log10_Rc'
-COMPOSITION_COLUMN = 'composition'
-
-def load_features_data() -> pd.DataFrame:
+def load_features_data(data_path: str) -> pd.DataFrame:
     """Load the processed features dataset."""
-    data_path = PROJECT_ROOT / 'data' / 'processed' / 'features.csv'
-    if not data_path.exists():
-        raise FileNotFoundError(f"Features file not found at {data_path}. Run data pipeline first.")
+    path = Path(data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Feature file not found: {data_path}")
     logger.info(f"Loading features from {data_path}")
     df = pd.read_csv(data_path)
+    # Ensure composition column is string
+    if 'composition' in df.columns:
+        df['composition'] = df['composition'].astype(str)
     return df
 
-def extract_primary_element(composition: str) -> str:
+def extract_primary_element(composition_str: str) -> str:
     """
-    Extract the primary (most abundant) element from a composition string like 'Cu40Zr40Al20'.
-    Returns the element symbol of the component with the highest percentage.
+    Extract the primary element from a composition string.
+    Logic: Parse composition, find element with highest atomic fraction.
+    If tied, choose the element with the higher atomic number.
     """
-    # Simple parser: assumes format ElementPercentage (e.g., Cu40, Zr40)
-    # Handles cases where percentage might be float or int
+    # Re-implement parsing logic to match features.py or import if available
+    # Assuming format like "Al50Cu50" or "Al_50_Cu_50" or similar
+    # The features.py likely has parse_composition_string which returns a dict/list of (elem, frac)
+    # We need to replicate the parsing to get the primary element without recomputing all features.
+    
+    # Simple regex-based parser for common formats (ElementFraction)
+    # e.g., "Al50Cu50", "Al_50_Cu_50", "Fe40Ni40Cr20"
     import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, composition)
+    
+    # Normalize: replace underscores with nothing if present, handle potential spaces
+    comp_clean = composition_str.replace("_", "").replace(" ", "")
+    
+    # Regex to find element symbols and optional numbers
+    # Element symbols are 1 or 2 letters, first uppercase, second lowercase
+    pattern = r'([A-Z][a-z]?)(\d+(?:\.\d+)?)'
+    matches = re.findall(pattern, comp_clean)
+    
     if not matches:
+        # Fallback: try to parse as "Element%Element%" or similar if regex fails
+        # This is a heuristic; proper parsing depends on exact input format from T013
+        log_warning(f"Could not parse composition for primary element: {composition_str}")
         return "Unknown"
     
-    # Find max percentage
-    max_val = -1
-    primary = "Unknown"
-    for elem, val in matches:
-        try:
-            val_f = float(val)
-            if val_f > max_val:
-                max_val = val_f
-                primary = elem
-        except ValueError:
-            continue
-    return primary
+    elements = []
+    for elem, frac_str in matches:
+        frac = float(frac_str) if frac_str else 1.0 # Default if no number? Unlikely in this dataset
+        elements.append((elem, frac))
+    
+    if not elements:
+        return "Unknown"
+    
+    # Find max fraction
+    max_frac = max(e[1] for e in elements)
+    
+    # Filter elements with max fraction
+    candidates = [e for e in elements if e[1] == max_frac]
+    
+    if len(candidates) == 1:
+        return candidates[0][0]
+    
+    # Tie-breaking: higher atomic number
+    # We need atomic numbers. Use a simple dict or import from pymatgen if available
+    # Since features.py uses pymatgen, we should use it here too for consistency
+    try:
+        from pymatgen.core import Element
+        # Sort by atomic number descending
+        candidates.sort(key=lambda x: Element(x[0]).number, reverse=True)
+        return candidates[0][0]
+    except ImportError:
+        # Fallback: alphabetical or arbitrary if pymatgen not available (should not happen)
+        log_warning("pymatgen not available for tie-breaking, using alphabetical order")
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        return candidates[0][0]
 
-def assign_element_families(df: pd.DataFrame) -> pd.DataFrame:
+def assign_element_families(df: pd.DataFrame, primary_col: str = 'primary_element') -> pd.DataFrame:
     """
     Assign a 'family' group to each row based on the primary element.
-    This is used for Leave-One-Group-Out CV.
+    For LOCO, we group by the primary element.
     """
+    # Simple mapping: Primary Element -> Group ID
+    # We can just use the element symbol as the group ID directly for LeaveOneGroupOut
+    # or map to integer IDs if required by specific sklearn version.
+    # LeaveOneGroupOut accepts any hashable labels for groups.
     df = df.copy()
-    # Extract primary element for each row
-    df['primary_element'] = df[COMPOSITION_COLUMN].apply(extract_primary_element)
+    if primary_col not in df.columns:
+        df[primary_col] = df['composition'].apply(extract_primary_element)
     
-    # Group by primary element to create a numeric group ID for sklearn
-    unique_elements = df['primary_element'].unique()
-    element_to_group = {elem: i for i, elem in enumerate(unique_elements)}
-    df['group_id'] = df['primary_element'].map(element_to_group)
-    
-    logger.info(f"Assigned {len(unique_elements)} element families for LOCO CV.")
+    # The group is simply the primary element string
     return df
 
-def perform_loco_cv(X: np.ndarray, y: np.ndarray, groups: np.ndarray, model_class, params: Dict) -> Tuple[float, Dict]:
+def perform_loco_cv(
+    X: np.ndarray, 
+    y: np.ndarray, 
+    groups: np.ndarray, 
+    model_type: str = 'random_forest',
+    n_jobs: int = -1,
+    random_state: int = 42
+) -> Tuple[float, Dict[str, Any]]:
     """
     Perform Leave-One-Group-Out Cross-Validation.
     
-    Args:
-        X: Feature matrix
-        y: Target vector
-        groups: Group labels (primary element families)
-        model_class: Sklearn model class
-        params: Hyperparameters for the model
-        
+    Logic:
+    1. Iterate through each unique group (primary element family).
+    2. Hold out that group as test, train on the rest.
+    3. Scale features within the training fold.
+    4. Evaluate MAE on the held-out group.
+    5. Aggregate MAE across all folds.
+    
     Returns:
-        mean_mae: Average MAE across folds
-        fold_scores: Dict of group_name -> mae
+    - Overall MAE (mean of fold MAEs)
+    - Detailed results per fold
     """
     logo = LeaveOneGroupOut()
-    mae_scores = []
-    fold_scores = {}
+    fold_results = []
+    fold_mae_scores = []
     
-    # Map group IDs back to element names for reporting
-    # We need to infer the mapping from the groups array and the original data context
-    # Since we don't have the original df here, we assume groups are integer IDs 0..N
-    # and we will just report by index or try to map if we had the mapping.
-    # For now, we report by the unique group ID excluded in that fold.
+    # Define model
+    if model_type == 'random_forest':
+        base_model = RandomForestRegressor(
+            n_estimators=100, 
+            max_depth=None, 
+            random_state=random_state, 
+            n_jobs=n_jobs
+        )
+    elif model_type == 'gradient_boosting':
+        base_model = GradientBoostingRegressor(
+            n_estimators=100, 
+            random_state=random_state
+        )
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+    
+    logger.info(f"Starting LOCO CV with {model_type} ({len(np.unique(groups))} groups)")
     
     unique_groups = np.unique(groups)
-    group_name_map = {i: f"Group_{i}" for i in unique_groups} # Fallback names
-    
-    logger.info(f"Starting LOCO CV with {len(unique_groups)} groups using {model_class.__name__}.")
     
     for train_idx, test_idx in logo.split(X, y, groups):
-        X_train_fold, X_test_fold = X[train_idx], X[test_idx]
-        y_train_fold, y_test_fold = y[train_idx], y[test_idx]
-        groups_fold = groups[test_idx]
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+        group_train = groups[train_idx]
+        group_test = groups[test_idx] # Should be uniform
         
-        # Identify the excluded group (should be all same in test set for LOCO)
-        excluded_group = groups_fold[0]
+        # Fit Scaler on training fold ONLY
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
         
-        # Scale data within the fold? 
-        # STRICT LOCO: Fit scaler on train, transform test. 
-        # However, for the final model we need a global scaler. 
-        # Here we just evaluate performance.
-        scaler_fold = StandardScaler()
-        X_train_scaled = scaler_fold.fit_transform(X_train_fold)
-        X_test_scaled = scaler_fold.transform(X_test_fold)
+        # Train model
+        model = clone(base_model)
+        model.fit(X_train_scaled, y_train)
         
-        model = model_class(**params)
-        model.fit(X_train_scaled, y_train_fold)
-        preds = model.predict(X_test_scaled)
-        mae = mean_absolute_error(y_test_fold, preds)
-        mae_scores.append(mae)
-        fold_scores[group_name_map[excluded_group]] = mae
+        # Predict
+        y_pred = model.predict(X_test_scaled)
         
-    mean_mae = np.mean(mae_scores)
-    logger.info(f"LOCO CV Mean MAE: {mean_mae:.4f}")
-    return mean_mae, fold_scores
+        # Calculate MAE
+        mae = mean_absolute_error(y_test, y_pred)
+        fold_mae_scores.append(mae)
+        
+        fold_results.append({
+            "held_out_group": group_test[0] if len(group_test) > 0 else "Unknown",
+            "train_size": len(train_idx),
+            "test_size": len(test_idx),
+            "mae": mae
+        })
+        
+        logger.debug(f"Fold: {group_test[0]}, Train: {len(train_idx)}, Test: {len(test_idx)}, MAE: {mae:.4f}")
+    
+    overall_mae = np.mean(fold_mae_scores)
+    
+    return overall_mae, {
+        "overall_mae": overall_mae,
+        "fold_results": fold_results,
+        "num_folds": len(fold_results)
+    }
 
-def train_models(df: pd.DataFrame) -> Dict[str, Any]:
+def train_models(
+    df: pd.DataFrame, 
+    feature_cols: List[str], 
+    target_col: str = 'log10_Rc',
+    model_type: str = 'random_forest',
+    save_dir: str = 'data/processed',
+    state_dir: str = 'state',
+    random_state: int = 42
+) -> Tuple[Any, float, Dict[str, Any]]:
     """
-    Main training logic.
-    1. Prepare features and target.
-    2. Assign groups for LOCO.
-    3. Run LOCO CV for RF and GB.
-    4. Select best model based on LOCO MAE.
-    5. Fit StandardScaler on FULL training data (as per T021 requirement).
-    6. Save scaler, X_train, y_train, and best model.
+    Main training function that handles LOCO CV, model selection, and artifact saving.
+    
+    Returns:
+    - Best trained model (fitted on full data)
+    - LOCO MAE score
+    - Training metadata
     """
-    # 1. Prepare Data
-    if not all(col in df.columns for col in FEATURE_COLUMNS):
-        # Fallback: Select all numeric columns except composition and target
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        feature_cols = [c for c in numeric_cols if c != TARGET_COLUMN]
-        logger.warning(f"Specific feature columns not found. Using dynamic numeric columns: {feature_cols}")
-    else:
-        feature_cols = FEATURE_COLUMNS
-
+    logger.info("Preparing data for training...")
+    
+    # Extract features and target
     X = df[feature_cols].values
-    y = df[TARGET_COLUMN].values
+    y = df[target_col].values
     
-    # 2. Assign Groups
+    # Assign groups based on primary element
     df_with_groups = assign_element_families(df)
-    groups = df_with_groups['group_id'].values
+    groups = df_with_groups['primary_element'].values
     
-    # 3. Hyperparameter Grids (Small as per spec)
-    rf_params = {
-        'n_estimators': [50, 100],
-        'max_depth': [5, 10, None],
-        'min_samples_split': [2, 5]
-    }
-    gb_params = {
-        'n_estimators': [50, 100],
-        'max_depth': [3, 5],
-        'learning_rate': [0.05, 0.1]
-    }
-
-    # 4. Run LOCO CV
-    results = {}
+    logger.info(f"Dataset shape: {X.shape}, Target shape: {y.shape}")
+    logger.info(f"Number of unique groups (families): {len(np.unique(groups))}")
     
-    # Try RF
-    try:
-        # Simple grid search for LOCO performance (picking one config for speed in demo)
-        # In a full implementation, we'd loop all params. Here we pick a reasonable default for the CV step
-        # to determine which model type is better, then we might re-tune.
-        # Per task T021, we need to compare and select.
-        best_rf_mae = float('inf')
-        best_rf_cfg = None
-        
-        # Run a small subset of configs for speed
-        for n_est in [50, 100]:
-            for depth in [5, 10]:
-                cfg = {'n_estimators': n_est, 'max_depth': depth, 'min_samples_split': 2}
-                mae, scores = perform_loco_cv(X, y, groups, RandomForestRegressor, cfg)
-                if mae < best_rf_mae:
-                    best_rf_mae = mae
-                    best_rf_cfg = cfg
-        
-        results['RandomForest'] = {'mae': best_rf_mae, 'params': best_rf_cfg}
-        log_info(f"RandomForest Best LOCO MAE: {best_rf_mae:.4f} with {best_rf_cfg}")
-    except Exception as e:
-        log_error(f"RF Training failed: {e}")
-        results['RandomForest'] = {'mae': float('inf'), 'params': None}
-
-    # Try GB
-    try:
-        best_gb_mae = float('inf')
-        best_gb_cfg = None
-        
-        for n_est in [50, 100]:
-            for depth in [3, 5]:
-                cfg = {'n_estimators': n_est, 'max_depth': depth, 'learning_rate': 0.1}
-                mae, scores = perform_loco_cv(X, y, groups, GradientBoostingRegressor, cfg)
-                if mae < best_gb_mae:
-                    best_gb_mae = mae
-                    best_gb_cfg = cfg
-        
-        results['GradientBoosting'] = {'mae': best_gb_mae, 'params': best_gb_cfg}
-        log_info(f"GradientBoosting Best LOCO MAE: {best_gb_mae:.4f} with {best_gb_cfg}")
-    except Exception as e:
-        log_error(f"GB Training failed: {e}")
-        results['GradientBoosting'] = {'mae': float('inf'), 'params': None}
-
-    # 5. Select Best Model
-    best_model_name = None
-    best_mae = float('inf')
-    best_params = None
-    best_model_class = None
-
-    for name, res in results.items():
-        if res['mae'] < best_mae:
-            best_mae = res['mae']
-            best_model_name = name
-            best_params = res['params']
-            best_model_class = RandomForestRegressor if name == 'RandomForest' else GradientBoostingRegressor
-
-    if best_model_name is None:
-        raise RuntimeError("No model could be trained successfully.")
-
-    log_info(f"Selected model: {best_model_name} with LOCO MAE: {best_mae:.4f}")
-
-    # 6. Fit Final Model and Scaler on FULL Data
-    # CRITICAL: Fit StandardScaler on the full training features
+    # Perform LOCO CV
+    loco_mae, loco_details = perform_loco_cv(X, y, groups, model_type=model_type, random_state=random_state)
+    
+    logger.info(f"LOCO CV MAE for {model_type}: {loco_mae:.4f}")
+    
+    # Save LOCO results to state
+    state_path = Path(state_dir)
+    state_path.mkdir(parents=True, exist_ok=True)
+    loco_output_path = state_path / 'loco_mae.json'
+    
+    with open(loco_output_path, 'w') as f:
+        json.dump(loco_details, f, indent=2)
+    logger.info(f"Saved LOCO MAE results to {loco_output_path}")
+    
+    # Train final model on FULL dataset
+    logger.info("Training final model on full dataset...")
+    
+    # Fit scaler on full data
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # Save transformed data and scaler
-    output_dir = PROJECT_ROOT / 'data' / 'processed'
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Train model
+    if model_type == 'random_forest':
+        final_model = RandomForestRegressor(
+            n_estimators=100, 
+            max_depth=None, 
+            random_state=random_state, 
+            n_jobs=-1
+        )
+    elif model_type == 'gradient_boosting':
+        final_model = GradientBoostingRegressor(
+            n_estimators=100, 
+            random_state=random_state
+        )
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
     
-    scaler_path = output_dir / 'scaler.pkl'
-    x_train_path = output_dir / 'X_train.pkl'
-    y_train_path = output_dir / 'y_train.pkl'
+    final_model.fit(X_scaled, y)
     
+    # Save artifacts
+    save_path = Path(save_dir)
+    save_path.mkdir(parents=True, exist_ok=True)
+    
+    # Save Scaler
+    scaler_path = save_path / 'scaler.pkl'
     with open(scaler_path, 'wb') as f:
         pickle.dump(scaler, f)
-    with open(x_train_path, 'wb') as f:
+    logger.info(f"Saved scaler to {scaler_path}")
+    
+    # Save Transformed Training Data (X_train_raw in the context of the scaler, but actually scaled)
+    # Task T021 says: "save the transformed training data as data/processed/X_train_raw.pkl and data/processed/y_train.pkl"
+    # Note: The name X_train_raw is slightly confusing if it's scaled, but we follow the spec.
+    # The spec says "fit a StandardScaler on the training features of each fold, save the fitted scaler... After model selection, fit the scaler on the *entire* training set and save the transformed training data"
+    X_train_scaled_path = save_path / 'X_train_raw.pkl'
+    y_train_path = save_path / 'y_train.pkl'
+    
+    with open(X_train_scaled_path, 'wb') as f:
         pickle.dump(X_scaled, f)
     with open(y_train_path, 'wb') as f:
         pickle.dump(y, f)
-        
-    log_info(f"Saved scaler to {scaler_path}")
-    log_info(f"Saved X_train to {x_train_path}")
-    log_info(f"Saved y_train to {y_train_path}")
-
-    # Train final model
-    final_model = best_model_class(**best_params)
-    final_model.fit(X_scaled, y)
     
-    # Save model
-    model_path = PROJECT_ROOT / 'output' / 'best_model.pkl'
-    model_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Saved transformed training data to {X_train_scaled_path} and {y_train_path}")
+    
+    # Save Model
+    model_path = save_path / 'best_model.pkl'
     with open(model_path, 'wb') as f:
         pickle.dump(final_model, f)
+    logger.info(f"Saved best model to {model_path}")
     
-    log_info(f"Saved best model to {model_path}")
-    
-    # Save training metadata
-    metadata = {
-        'selected_model': best_model_name,
-        'loco_mae': best_mae,
-        'hyperparameters': best_params,
-        'feature_columns': feature_cols,
-        'num_samples': len(y),
-        'num_features': X_scaled.shape[1]
-    }
-    metadata_path = PROJECT_ROOT / 'state' / 'training_metadata.json'
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-        
-    return metadata
+    return final_model, loco_mae, loco_details
 
 def main():
-    """Entry point for the training script."""
-    log_info("Starting Model Training (T021)")
+    """
+    Entry point for the training script.
+    Loads features, performs LOCO CV, trains models, and saves artifacts.
+    """
+    # Initialize config and seeds
     try:
-        df = load_features_data()
-        metadata = train_models(df)
-        log_info(f"Training complete. Metadata: {metadata}")
+        config = load_config()
+        random_state = config.get('random_state', 42)
+        initialize_random_seeds(random_state)
     except Exception as e:
-        log_critical(f"Training pipeline failed: {e}")
-        raise
+        log_warning(f"Could not load config or initialize seeds: {e}. Using default seed 42.")
+        random_state = 42
+        initialize_random_seeds(random_state)
+    
+    # Paths
+    # Assuming data/processed/features.csv is the output of T017
+    features_path = 'data/processed/features.csv'
+    
+    if not Path(features_path).exists():
+        log_critical(f"Feature file not found at {features_path}. Please run data pipeline first.")
+        sys.exit(1)
+    
+    # Load data
+    df = load_features_data(features_path)
+    
+    # Identify feature columns (exclude composition, target, source_row_id, etc.)
+    exclude_cols = ['composition', 'log10_Rc', 'source_row_id', 'primary_element']
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
+    
+    if not feature_cols:
+        log_critical("No feature columns found. Check feature engineering output.")
+        sys.exit(1)
+    
+    logger.info(f"Using {len(feature_cols)} features: {feature_cols[:5]}...")
+    
+    # Train Random Forest
+    logger.info("=" * 50)
+    logger.info("Training Random Forest Model")
+    logger.info("=" * 50)
+    rf_model, rf_mae, rf_details = train_models(
+        df, 
+        feature_cols, 
+        model_type='random_forest',
+        random_state=random_state
+    )
+    
+    # Train Gradient Boosting
+    logger.info("=" * 50)
+    logger.info("Training Gradient Boosting Model")
+    logger.info("=" * 50)
+    gb_model, gb_mae, gb_details = train_models(
+        df, 
+        feature_cols, 
+        model_type='gradient_boosting',
+        random_state=random_state
+    )
+    
+    # Model Selection (Lowest LOCO-MAE)
+    logger.info("=" * 50)
+    logger.info("Model Selection")
+    logger.info("=" * 50)
+    
+    if rf_mae < gb_mae:
+        best_model = rf_model
+        best_mae = rf_mae
+        best_type = 'random_forest'
+        best_details = rf_details
+        logger.info(f"Winner: Random Forest (MAE: {rf_mae:.4f} vs GB: {gb_mae:.4f})")
+    else:
+        best_model = gb_model
+        best_mae = gb_mae
+        best_type = 'gradient_boosting'
+        best_details = gb_details
+        logger.info(f"Winner: Gradient Boosting (MAE: {gb_mae:.4f} vs RF: {rf_mae:.4f})")
+    
+    # Overwrite best_model.pkl with the winner if we want a single artifact
+    # The task says "output: best_model.pkl and best_model_weighted.pkl (if applicable)"
+    # We already saved one per type. Let's ensure the 'best' one is clearly identified or copied.
+    # Since we saved to data/processed/best_model.pkl in each train_models call, the last one runs overwrites.
+    # We should explicitly save the winner to avoid ambiguity if the script is re-run partially.
+    
+    save_dir = Path('data/processed')
+    final_model_path = save_dir / 'best_model.pkl'
+    with open(final_model_path, 'wb') as f:
+        pickle.dump(best_model, f)
+    
+    logger.info(f"Final Best Model ({best_type}) saved to {final_model_path}")
+    logger.info(f"Final LOCO MAE: {best_mae:.4f}")
+    
+    # Save summary
+    summary = {
+        "best_model_type": best_type,
+        "best_loco_mae": best_mae,
+        "rf_mae": rf_mae,
+        "gb_mae": gb_mae,
+        "random_state": random_state
+    }
+    
+    summary_path = save_dir / 'training_summary.json'
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    
+    logger.info(f"Training summary saved to {summary_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

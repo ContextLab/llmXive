@@ -61,7 +61,7 @@
 - [ ] T006 [P] Create `src/data/benchmarks/terminal_bench_evo.py` to **verify availability** of the `Terminal-Bench-Evo` dataset. **Logic**: Attempt to download from verified canonical sources first. **Only if** download fails or dataset is unavailable, generate a synthetic subset with explicit state patches and version updates. **Output**: Write dataset to `data/raw/terminal_bench_evo.jsonl`. **Fallback**: If `research.md` missing, default to 50 tasks.
 - [ ] T007 [P] Create `src/agents/base_agent.py` abstract base class defining the agent interface and retrieval strategy hooks
 - [ ] T008 [P] Configure deterministic random seeds in all scripts to ensure reproducible execution
-- [ ] T009 [P] Implement `tests/unit/test_synthetic_generator.py` to verify the synthetic dataset generation logic and checksum integrity
+- [X] T009 [P] Implement `tests/unit/test_synthetic_generator.py` to verify the synthetic dataset generation logic and checksum integrity
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -82,7 +82,7 @@
 - [ ] T015 [US1] Add error handling in `src/heuristics/conflict_detector.py` to default to safe retrieval mode on timeout or failure (FR-007). **Safe Mode Definition**: Retrieve latest state plus a small number of the most recent non-conflict patches.
 - [X] T010 [US1] Unit test `tests/unit/test_conflict_detector.py` for conflict detection logic on static synthetic pairs. **(Depends on T012)**
 - [X] T011 [US1] Test fallback behavior in `tests/unit/test_conflict_detector.py::test_fallback_no_conflicts` when no conflicts are detected. **Expectation**: Function must return the latest state plus the 2 most recent non-conflict patches. **(Depends on T012)**
-- [~] T016 [US1] Run validation script on synthetic dataset to confirm ≥80% precision/recall baseline before integration
+- [ ] T016 [US1] Run validation script on synthetic dataset to confirm ≥80% precision/recall baseline before integration
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,16 +97,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T017 [P] [US2] Integration test `tests/integration/test_agent_pipeline.py::test_context_token_diff` verifying context token counts differ between variants
-- [~] T018 [US2] Test that `EvoMem-Conflict` correctly filters non-conflict patches using the heuristic from US1 (Requires T012, T020). **(Depends on T012, T020)**
+- [ ] T018 [US2] Test that `EvoMem-Conflict` correctly filters non-conflict patches using the heuristic from US1 (Requires T012, T020). **(Depends on T012, T020)**
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `src/agents/evomem_all.py` to retrieve the last N patches (baseline)
+- [X] T019 [P] [US2] Implement `src/agents/evomem_all.py` to retrieve the last N patches (baseline)
 - [ ] T020 [US2] Implement `src/agents/evomem_conflict.py` to retrieve only the latest state + patches flagged as conflicts by US1 heuristic. **Fallback Logic**: If no conflicts are detected, retrieve the latest state plus the 2 most recent non-conflict patches to prevent context starvation (Spec Edge Cases).
 - [ ] T021 [US2] Implement `src/agents/evomem_conflict.py` fallback logic to retrieve the latest state plus the 2 most recent non-conflict patches if the conflict detector returns no flags or fails (FR-002, FR-007).
 - [ ] T022 [US2] Implement `src/analysis/runner.py` to execute tasks from `Terminal-Bench-Evo` on both agent variants sequentially
-- [~] T023 [US2] Ensure `src/analysis/runner.py` logs `task_id`, `agent_variant`, `context_tokens`, `inference_time`, `success_status` to CSV
-- [~] T024a [P] [US2] Verify/Retrieve standard GitHub Actions runner time limit from `plan.md` constraints and store in `config.json`.
+- [ ] T023 [US2] Ensure `src/analysis/runner.py` logs `task_id`, `agent_variant`, `context_tokens`, `inference_time`, `success_status` to CSV
+- [ ] T024a [P] [US2] Verify/Retrieve standard GitHub Actions runner time limit from `plan.md` constraints and store in `config.json`.
 - [~] T024 [US2] Run the full experiment and verify execution completes within the **retrieved time limit** on CPU (SC-005). **Command**: `python run_experiment.py --config full`. **Verify**: `data/logs/full_run.csv` exists, is non-empty, has correct columns, and `total_time` < [retrieved_limit].
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

@@ -1,60 +1,56 @@
+"""
+Project setup and directory structure creation.
+
+This script initializes the project directory structure required for the
+EvoMem-Conflict filtering project.
+"""
 import os
 from pathlib import Path
+from src.utils.seeding import set_deterministic_seed
 
-def create_directories():
+
+def create_directories(seed: int = 42):
     """
-    Initialize the project directory structure for EvoMem-Conflict Filtering.
-    Creates src/, tests/, specs/, data/, docs/ and their required subdirectories.
-    """
-    base_path = Path(__file__).parent
+    Create the required project directory structure.
     
-    # Define all directories to create
+    Args:
+        seed (int): Random seed for reproducibility (used for logging).
+    """
+    # Set deterministic seed
+    set_deterministic_seed(seed)
+    
+    # Define directory structure
     directories = [
-        # Main directories
-        "src",
-        "tests",
-        "specs",
-        "data",
-        "docs",
-        
-        # src subdirectories
-        "src/agents",
-        "src/heuristics",
-        "src/data/generators",
-        "src/data/benchmarks",
-        "src/analysis",
-        "src/utils",
-        "src/cli",
-        
-        # tests subdirectories
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        
-        # specs subdirectories
-        "specs/001-evoconflict-filtering",
-        "specs/001-evoconflict-filtering/contracts",
-        
-        # data subdirectories (needed for outputs)
-        "data/raw",
-        "data/processed",
-        "data/logs",
-        "figures"
+        'src',
+        'src/agents',
+        'src/heuristics',
+        'src/data/generators',
+        'src/data/benchmarks',
+        'src/analysis',
+        'src/utils',
+        'src/cli',
+        'tests',
+        'tests/unit',
+        'tests/integration',
+        'tests/contract',
+        'specs',
+        'specs/001-evoconflict-filtering',
+        'specs/001-evoconflict-filtering/contracts',
+        'data',
+        'data/raw',
+        'data/processed',
+        'data/logs',
+        'docs',
+        'figures'
     ]
     
-    created_count = 0
+    # Create directories
     for dir_path in directories:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-        else:
-            # Ensure it's actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
     
-    print(f"Created {created_count} directories.")
-    return True
+    print("Project directory structure created successfully.")
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     create_directories()
