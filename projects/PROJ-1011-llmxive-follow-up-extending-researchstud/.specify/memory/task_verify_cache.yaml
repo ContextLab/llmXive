@@ -37,6 +37,14 @@ T017:
     repository, so the contract test for data download validation is missing. The
     task cannot be considered complete until this test file is added with appropriate
     test code.
+T019:
+  c: false
+  h: 728f966b00026a4ae40f09a7f48aeca8197747de02e463c3343e1f7f59f59593
+  r: The provided `tests/unit/test_preprocessing_validation.py` is truncated (the
+    last test function is incomplete) and does not reference the required `data/raw/corpus_raw.jsonl`
+    fixture nor assert that the `preprocessing_pipeline` raises a `ValueError` or
+    filters out empty entries as specified. The fixture file itself is missing. The
+    task therefore remains unfinished.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

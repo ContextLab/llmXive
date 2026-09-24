@@ -13,7 +13,7 @@ The system must successfully ingest and prepare abstracts from both ML and non-M
 
 **Why this priority**: This is the foundational data layer. If the system cannot retrieve or process a sufficient quantity of ML and non-ML abstracts, the entire research question regarding pattern universality cannot be tested.
 
-**Independent Test**: The system can be tested by verifying that the dataset directory contains a representative set of processed JSON files (including accepted and rejected cases) with valid metadata fields (title, abstract, venue, acceptance_status) and that the data fits within the 7 GB RAM constraint.
+**Independent Test**: The system can be tested by verifying that the dataset directory contains a representative set of processed JSON files (including accepted and rejected cases) with valid metadata fields (title, abstract, venue, acceptance_status) and that the data fits within the available RAM constraint.
 
 **Acceptance Scenarios**:
 
