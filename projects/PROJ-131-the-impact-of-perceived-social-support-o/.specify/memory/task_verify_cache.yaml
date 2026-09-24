@@ -48,3 +48,11 @@ T041:
     request diff is provided; the claim that the spec has been amended to deprecate\
     \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
     \ required amendment is missing."
+T073:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided `spec.md` excerpt contains a populated Data Dictionary table where\
+    \ every variable\u2019s \u201CSource\u201D entry explicitly states \u201CCyberbullying\
+    \ Survey 2021 (Sole Source)\u201D. This satisfies the task\u2019s requirement\
+    \ that the Data Dictionary list the Cyberbullying Survey 2021 as the sole source\
+    \ for all variables."

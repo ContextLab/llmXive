@@ -1,106 +1,47 @@
 # Specification: The Impact of Perceived Social Support on Resilience to Online Harassment
 
-## Overview
-This project investigates the buffering effect of perceived social support on mental health outcomes (depression, anxiety, PTSD) following exposure to online harassment. The analysis strictly adheres to the **Revised Approach** (Single-Dataset Analysis) using the Cyberbullying Survey 2021, as mandated by the project Plan to ensure methodological validity.
-
-## 1. Functional Requirements
-
-### FR-001: Data Sources (DEPRECATED)
-> **Status**: DEPRECATED per Plan's 'Critical Methodological Pivot'.
-> **Original**: The system shall ingest two datasets: Cyberbullying Survey 2021 and GSS 2022.
-> **Resolution**: The dual-dataset matching approach was found to introduce confounding. Only the Cyberbullying Survey 2021 is used.
-
-### FR-002: Synthetic Cohort Construction (DEPRECATED)
-> **Status**: DEPRECATED per Plan's 'Critical Methodological Pivot'.
-> **Original**: The system shall construct a synthetic cohort by matching individuals across datasets.
-> **Resolution**: Synthetic cohort construction is methodologically invalid for estimating genuine psychological buffering effects.
-
-### FR-003: Variable Harmonization
-The system shall harmonize variables for social support, harassment exposure, and mental health outcomes across the single dataset (Cyberbullying Survey 2021).
-
-### FR-004: Missing Data Handling
-The system shall handle missing data using Multiple Imputation by Chained Equations (MICE) for predictor variables, with listwise deletion for critical outcome variables.
-
-### FR-005: Sensitivity Analysis and Stratification
-The system shall perform sensitivity analyses to test the robustness of the interaction effect.
-1. **Continuous Severity**: Re-fit models using continuous harassment severity instead of binary exposure.
-2. **Platform Stratification**: Stratify the analysis by **all available platforms** present in the dataset.
- - **Constraint**: If a platform group has fewer than 2 distinct categories or N < 30, that group must be excluded from stratification and logged as `E-SMALL-N-001`.
- - **Constraint**: The system shall **NOT** arbitrarily truncate the list of platforms to the "top three". All valid platforms meeting the N >= 30 threshold must be included in the stratified analysis.
-3. **Comparison**: Compare interaction coefficients from sensitivity runs against the baseline model to assess stability.
-
-### FR-006: Interaction Modeling
-The system shall fit OLS regression models with heteroskedasticity-consistent (HC3) standard errors, including an interaction term between Social Support and Harassment Exposure for each mental health outcome.
-
-### FR-007: Uncertainty Quantification
-The system shall compute bias-corrected accelerated (BCa) bootstrap confidence intervals (1,000 resamples) for all interaction coefficients.
-
-### FR-008: Multiple Comparison Correction
-The system shall apply Benjamini-Hochberg FDR correction across the set of outcome tests (Depression, Anxiety, PTSD).
+## 1. Introduction
+This project investigates the relationship between perceived social support and resilience to online harassment, specifically examining whether social support buffers the negative mental health impacts of harassment.
 
 ## 2. User Stories
+- **US1**: As a researcher, I want to ingest and prepare the Cyberbullying Survey 2021 dataset so that I can analyze the relationship between social support and mental health outcomes.
+- **US2**: As a researcher, I want to fit regression models with interaction terms and bootstrap confidence intervals to test the buffering hypothesis.
+- **US3**: As a researcher, I want to perform sensitivity analyses (continuous severity, platform stratification) to ensure robustness of findings.
 
-### US-1: Data Ingestion & Cohort Preparation (DEPRECATED Synthetic Cohort)
-> **Status**: MODIFIED. The "Synthetic Cohort" requirement has been removed.
-> **Goal**: Ingest the Cyberbullying Survey 2021, harmonize variables, handle missingness, and prepare a clean analysis cohort.
-> **Acceptance Criteria**:
-> - Dataset ingested from `data/raw/cyberbullying_2021.csv` (or verified source).
-> - MICE imputation applied with `m=5`, `max_iter=10`.
-> - Output: `data/results/analysis_cohort.csv` with validated schema.
-
-### US-2: Interaction Analysis & Hypothesis Testing
-> **Goal**: Fit robust OLS models with interaction terms and compute bootstrapped CIs.
-> **Acceptance Criteria**:
-> - Models fitted with HC3 SEs.
-> - BCa bootstrap CIs computed (1,000 resamples).
-> - FDR correction applied.
-> - Output: `data/results/regression_results.csv` and `data/results/regression_summary.md`.
-
-### US-3: Sensitivity Analysis & Robustness Checks
-> **Goal**: Re-run models with alternative definitions and stratification.
-> **Acceptance Criteria**:
-> - Continuous severity model fitted.
-> - Stratification performed by **all** valid platforms (N >= 30).
-> - Output: `data/results/sensitivity_analysis.csv` and coefficient comparison table.
-
-## 3. Success Criteria
-
-### SC-001: Cohort Validity (REVISED)
-> **Status**: REVISED for Single-Dataset Approach.
-> **Original**: Standardized Mean Difference (SMD) < 0.1 between synthetic cohorts.
-> **New Criterion**:
-> 1. **Variance Check**: Harassment Exposure must have SD > 0.5 and N > 30 in the analysis cohort.
-> 2. **Collinearity Check**: Variance Inflation Factor (VIF) for the model matrix (including interaction) must be < 5.
-> 3. **Note**: The SMD check is **inapplicable** to the single-dataset approach and is removed from success criteria.
-
-### SC-002: Model Convergence
-All primary and sensitivity models must converge. If convergence fails, the system must fall back to standard OLS (no HCSE) and log `E-NONCONV-001`.
-
-### SC-003: Reproducibility
-The pipeline must produce identical results (hash match) when run with the same seed defined in `config/seeds.yaml`.
+## 3. Functional Requirements
+- **FR-001**: [REMOVED per Plan's Critical Methodological Pivot] The dual-dataset matching approach was found to introduce confounding and is methodologically invalid for interaction analysis.
+- **FR-002**: [REMOVED per Plan's Critical Methodological Pivot] The synthetic cohort construction is excluded.
+- **FR-003**: Ingest the Cyberbullying Survey 2021 dataset.
+- **FR-004**: Apply MICE imputation for predictor variables and handle outcome missingness via listwise deletion.
+- **FR-005**: Stratify analyses by platform for groups with N >= 30.
+- **FR-006**: Score standard psychological scales (CES-D, GAD-7, PCL-5).
+- **FR-007**: Use BCa bootstrap with 1,000 resamples.
+- **FR-008**: Apply Benjamini-Hochberg FDR correction.
 
 ## 4. Data Dictionary
-
 | Variable | Description | Source |
 |:--- |:--- |:--- |
-| `social_support` | Perceived Social Support Scale score | Cyberbullying Survey 2021 |
-| `harassment_severity` | Continuous severity score of online harassment | Cyberbullying Survey 2021 |
-| `harassment_exposure` | Binary indicator of any harassment exposure | Derived from `harassment_severity` |
-| `depression` | CES-D total score | Cyberbullying Survey 2021 |
-| `anxiety` | GAD-7 total score | Cyberbullying Survey 2021 |
-| `ptsd` | PCL-5 total score | Cyberbullying Survey 2021 |
-| `age` | Age in years | Cyberbullying Survey 2021 |
-| `gender` | Gender identity | Cyberbullying Survey 2021 |
-| `education` | Education level | Cyberbullying Survey 2021 |
-| `income` | Income bracket | Cyberbullying Survey 2021 |
-| `platform` | Primary platform of harassment (if available) | Cyberbullying Survey 2021 |
+| `social_support` | Perceived social support score | Cyberbullying Survey 2021 (Sole Source) |
+| `harassment_severity` | Continuous harassment severity score | Cyberbullying Survey 2021 (Sole Source) |
+| `harassment_exposure` | Binary indicator (severity > 0) | Derived from Cyberbullying Survey 2021 |
+| `depression` | CES-D total score | Cyberbullying Survey 2021 (Sole Source) |
+| `anxiety` | GAD-7 total score | Cyberbullying Survey 2021 (Sole Source) |
+| `ptsd` | PCL-5 total score (if available) | Cyberbullying Survey 2021 (Sole Source) |
+| `platform` | Social media platform used | Cyberbullying Survey 2021 (Sole Source) |
+| `age`, `gender`, `education`, `income` | Demographic covariates | Cyberbullying Survey 2021 (Sole Source) |
 
 ## 5. Methodological Notes
 
 ### The Revised Approach (Single-Dataset)
-The initial plan to create a "Synthetic Cohort" by matching the Cyberbullying Survey 2021 with the GSS 2022 was identified as methodologically invalid. Matching across distinct surveys with different sampling frames and question phrasings introduces unmeasured confounding that would invalidate the interaction term (the buffering effect).
+The project strictly uses the **Cyberbullying Survey 2021** alone as the data source for all analyses.
 
-The project now strictly uses the **Cyberbullying Survey 2021** alone. This ensures that the interaction between social support and harassment is estimated within a single, consistent population, providing a valid test of the psychological buffering hypothesis without confounding by dataset source.
+**Rejection of Dual-Dataset Matching**: The dual-dataset matching approach (previously proposed to construct a "Synthetic Cohort" by matching Cyberbullying Survey respondents with GSS 2022 participants) was **rejected as methodologically invalid**.
 
-### Platform Stratification Logic
-To avoid selection bias, the analysis includes **all** platforms present in the dataset that meet the minimum sample size requirement (N >= 30). Arbitrary truncation to the "top three" platforms is explicitly prohibited to ensure the robustness of the findings across the full spectrum of user experiences.
+**Reasoning**: Matching on observed covariates while leaving unobserved confounders (such as dataset-specific survey administration effects, sampling frames, and temporal context) creates a situation where **Harassment Exposure is perfectly confounded with Dataset Source**. In such a design, any observed interaction effect between social support and harassment could be driven by unmeasured differences between the two datasets rather than a genuine psychological buffering mechanism.
+
+**Implementation**: Consequently, the analysis pipeline ingests only the Cyberbullying Survey 2021. All statistical models (OLS with interaction terms, bootstrap CIs, FDR correction) are fit on this single, internally consistent dataset. This ensures that the interaction term estimates a genuine psychological buffering effect within the population sampled by the Cyberbullying Survey, free from confounding by dataset source.
+
+### Validation Criteria (Revised SC-001)
+- **Variance Check**: The analysis cohort must exhibit sufficient variance in Harassment Exposure (SD > 0.5, N > 30).
+- **Collinearity Check**: Variance Inflation Factor (VIF) for model predictors must be < 5.
+- **Note**: The Standardized Mean Difference (SMD) check for synthetic cohort balance is **inapplicable** and removed from the validation criteria.

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final model results and statistics."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'Depression_Model')."
+  outcome:
+    type: "string"
+    description: "The dependent variable (e.g., 'depression')."
+  interaction_term:
+    type: "string"
+    description: "Name of the interaction term (e.g., 'harassment_severity:social_support')."
+  interaction_coefficient:
+    type: "number"
+    description: "Beta coefficient for the interaction term."
+  interaction_pvalue:
+    type: "number"
+    description: "Raw p-value for the interaction term."
+  interaction_ci_lower:
+    type: "number"
+    description: "Lower bound of the BCa 95% CI."
+  interaction_ci_upper:
+    type: "number"
+    description: "Upper bound of the BCa 95% CI."
+  fdr_adjusted_pvalue:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value."
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factors for all predictors."
+    additionalProperties:
+      type: "number"
+  sample_size:
+    type: "integer"
+    description: "Number of observations used in the model."
+  bootstrap_resamples:
+    type: "integer"
+    description: "Number of bootstrap resamples (should be 1000)."
+required:
+  - model_name
+  - outcome
+  - interaction_term
+  - interaction_coefficient
+  - interaction_pvalue
+  - interaction_ci_lower
+  - interaction_ci_upper
+  - fdr_adjusted_pvalue
+  - vif_scores
+  - sample_size
+  - bootstrap_resamples
+additionalProperties: false

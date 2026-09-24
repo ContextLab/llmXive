@@ -1,52 +1,55 @@
 # Implementation Plan: The Impact of Perceived Social Support on Resilience to Online Harassment
 
-**Branch**: `001-social-support-resilience` | **Date**: 2023-10-27 | **Spec**: `specs/001-social-support-resilience/spec.md`
+**Branch**: `131-social-support-resilience` | **Date**: 2026-06-28 | **Spec**: `specs/001-social-support-resilience/spec.md`
 **Input**: Feature specification from `/specs/001-social-support-resilience/spec.md`
 
 ## Summary
+This project implements a rigorous statistical analysis of the **Cyberbullying Survey 2021** dataset to test the buffering hypothesis: that perceived social support mitigates the negative mental health impacts (depression, anxiety, PTSD) of online harassment severity. The plan strictly adheres to a **single-dataset approach**, rejecting previous dual-dataset matching proposals as methodologically invalid due to confounding. The implementation focuses on ingesting the verified dataset, applying MICE imputation for predictors, fitting OLS regression models with interaction terms, and validating results via BCa bootstrap and FDR correction.
 
-This feature implements a computational pipeline to analyze the buffering effect of perceived social support on mental health outcomes (Depression, Anxiety, PTSD) among victims of online harassment. 
-
-**Critical Methodological Pivot**: The original specification (User Story 1, FR-001, FR-002) proposed merging two independent datasets (GSS 2022 and a Cyberbullying Survey) via Propensity Score Matching (PSM) to create a "synthetic cohort." This approach was identified as methodologically invalid for testing interaction effects because it confounds the "Harassment" variable with the "Dataset Source." 
-
-**Revised Approach**: The pipeline now ingests a **single, internally consistent dataset** (the Cyberbullying Survey) where both Harassment Exposure and Social Support vary naturally within the same population. This ensures the interaction term ($\beta_3$) estimates a genuine psychological buffering effect rather than an artifact of merging disparate sampling frames. The GSS dataset is excluded from the primary analysis due to the inability to validly estimate the interaction term across independent surveys and the lack of verified PCL-5 items in the corresponding module.
-
-The analysis involves:
-1.  Ingesting and validating the Cyberbullying Survey data.
-2.  Calculating standardized scores for Social Support, Harassment Severity, and Mental Health Outcomes (CES-D, GAD-7, PCL-5).
-3.  Fitting robust linear regression models (OLS with heteroskedasticity-consistent standard errors) including an interaction term.
-4.  Computing bias-corrected bootstrapped confidence intervals.
-5.  Executing sensitivity analyses on harassment operationalization.
-
-**Note on Specification Inconsistency**: The source `spec.md` mandates the "Synthetic Cohort" approach. This plan explicitly deviates from those requirements due to the methodological invalidity described above. The implementation will follow the *revised* single-dataset methodology. The `spec.md` must be updated (kickback required) to remove FR-001/FR-002 and the "Synthetic Cohort" user stories to align with the implemented plan.
+**Critical Blocking Note**: The "Cyberbullying Survey 2021" dataset is **not** present in the verified datasets block provided to the planner. Consequently, this plan **cannot execute** until a valid, public, programmatic URL for this dataset is supplied by the user or discovered via external search. All subsequent phases are conditional on this data availability.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `pyyaml`  
-**Storage**: Local CSV files (intermediate analysis cohort), in-memory DataFrames.  
-**Testing**: `pytest` (contract tests for data schemas, unit tests for scoring logic).  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7GB RAM, no GPU).  
-**Project Type**: Data analysis pipeline / Research script suite.  
-**Performance Goals**: Complete entire pipeline (ingestion → scoring → modeling → sensitivity) within 6 hours on 2 cores.  
-**Constraints**: No GPU usage; no large-LLM inference; memory usage < 7GB; strict adherence to validated scale scoring (CES-D, GAD-7, PCL-5) without ad-hoc modifications.  
-**Scale/Scope**: Analysis cohort size depends on the Cyberbullying Survey (expected N > 300); primary models + sensitivity variations.
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `pyyaml`, `datasets` (Hugging Face)  
+**Storage**: Local file system (CSV/Parquet) within the CI runner's ephemeral storage; no external DB.  
+**Testing**: `pytest` (unit tests for scoring logic, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions Free Runner: multiple CPUs, ~7 GB RAM).  
+**Project Type**: Data Science Pipeline / Statistical Analysis.  
+**Performance Goals**: Complete full pipeline (ingest → impute → model → bootstrap → report) within 6 hours.  
+**Constraints**:  
+- **Memory**: Must fit within ~7 GB RAM (streaming or chunked processing if dataset > 500MB).  
+- **Compute**: CPU-first; no GPU acceleration required for OLS/Bootstrap.  
+- **Data**: Must use *only* the verified Cyberbullying Survey 2021 source; no synthetic data generation.  
+- **Reproducibility**: All random seeds pinned; exact dependency versions in `requirements.txt`.  
+- **Data Availability**: **BLOCKED**. No verified URL exists in the provided context. Implementation requires a user-provided URL.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Scale/Scope**: Dataset size unknown; estimate depends on user-provided metadata.
+
+## Blocking Dependency: Specification Consistency
+
+**Status**: ⚠️ **Required Update to `spec.md`**  
+The current `spec.md` contains references to "Synthetic Cohort" and "Dual-Dataset Matching" in Sections 3 (FR-001/FR-002) and 5. These are methodologically invalid and must be removed.  
+**Action Required**: Before execution, `spec.md` must be updated to:
+1.  Remove FR-001 and FR-002 entirely or mark them as "REMOVED - Methodologically Invalid".
+2.  Rewrite Section 5 to explicitly state the rejection of the dual-dataset approach without referencing the "Synthetic Cohort" as a "previously proposed" step that needs justification. The section must state the single-dataset approach is the *only* valid approach.
+3.  Update the Data Dictionary to confirm all variables are from the single source.
+
+**Consequence**: If `spec.md` is not updated, the plan's "Single Source of Truth" (Constitution Principle IV) is violated. The implementation will proceed based on the *intent* of the revised spec, but the artifact stream remains inconsistent until the spec is updated.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | Plan mandates pinned `requirements.txt`, random seed setting in all scripts, and deterministic data fetching. |
-| **II. Verified Accuracy** | **Compliant** | Plan requires citations to be validated against primary sources before inclusion in `research.md`. |
-| **III. Data Hygiene** | **Compliant** | Plan mandates checksumming of raw data, read-only raw data, and new filenames for all derivatives. |
-| **IV. Single Source of Truth** | **Compliant** | All results will be generated programmatically; no hand-typed statistics allowed in final reports. |
-| **V. Versioning Discipline** | **Compliant** | Artifact hashes will be tracked in the project state file; code changes trigger state updates. |
-| **VI. Psychological Measurement Integrity** | **Compliant** | **Critical**: Plan explicitly forbids ad-hoc scoring modifications. Scripts will implement standard CES-D, GAD, and PCL algorithms exactly as defined in source documentation. |
-| **VII. Contextual Sensitivity to Online Dynamics** | **Compliant** | Interpretation logic in `research.md` will explicitly frame results as associational and account for platform affordances. |
+| Principle | Status | Notes |
+|:---|:---|:---|
+| **I. Reproducibility** | ✅ Pass | Plan mandates pinned seeds, `requirements.txt`, and end-to-end re-runs. |
+| **II. Verified Accuracy** | ⚠️ Conditional Pass | Plan restricts citations to verified URLs, but the primary dataset lacks one. **Pass contingent on user providing verified URL.** |
+| **III. Data Hygiene** | ✅ Pass | Raw data preserved; derivations written to new files; checksums recorded. |
+| **IV. Single Source of Truth** | ✅ Pass | Plan uses single dataset; all stats trace to `data/` and `code/`. (Contingent on spec update). |
+| **V. Versioning Discipline** | ✅ Pass | Artifacts will carry content hashes; state file updated on changes. |
+| **VI. Psychological Measurement Integrity** | ✅ Pass | Scoring for CES-D, GAD-7, PCL-5 will strictly follow standard algorithms; no ad-hoc weighting. |
+| **VII. Contextual Sensitivity** | ✅ Pass | Interpretation will explicitly link findings to online platform dynamics (anonymity, visibility). |
 
 ## Project Structure
 
@@ -59,53 +62,44 @@ specs/001-social-support-resilience/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── analysis_cohort.schema.yaml
-│   └── regression_results.schema.yaml
-└── tasks.md             # Phase 2 output (created by /speckit-tasks)
+│   ├── dataset.schema.yaml
+│   ├── output.schema.yaml
+│   ├── regression_results.schema.yaml
+│   └── synthetic_cohort.schema.yaml (Deprecated, retained for audit)
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-131-the-impact-of-perceived-social-support-o/
 ├── data/
-│   ├── ingestion.py          # Validates and loads Cyberbullying Survey data
-│   ├── preprocessing.py      # Handles missing values, scoring, and cleaning
-│   └── cohort.py             # Constructs the analysis cohort (single source)
-├── analysis/
-│   ├── models.py             # OLS regression with robust SEs and bootstrapping
-│   ├── sensitivity.py        # Sensitivity analysis runner
-│   └── results.py            # Aggregation and reporting logic
-├── config/
-│   └── scales.yaml           # Standardized scoring weights for CES-D, GAD-7, PCL-5
+│   ├── raw/               # Downloaded raw dataset (checksummed)
+│   └── processed/         # Cleaned, imputed, derived datasets
+├── code/
+│   ├── requirements.txt   # Pinned dependencies
+│   ├── config/
+│   │   └── scales.yaml    # Scoring definitions for CES-D, GAD-7, PCL-5
+│   ├── ingestion.py       # Download and verify raw data
+│   ├── preprocessing.py   # MICE imputation, scaling, feature engineering
+│   ├── models.py          # OLS with interaction, BCa bootstrap
+│   ├── validation.py      # VIF checks, FDR correction, sensitivity analysis
+│   └── report.py          # Generate figures and summary stats
 ├── tests/
-│   ├── test_ingestion.py
-│   ├── test_scales.py
-│   └── test_cohort.py
-├── main_pipeline.py          # Entry point for the full analysis
-└── requirements.txt          # Pinned dependencies
+│   ├── unit/              # Test scoring logic, imputation convergence
+│   └── integration/       # End-to-end pipeline test
+└── docs/                  # Quickstart and API docs
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `analysis`, `config`) to ensure a linear execution flow suitable for CI/CD. This structure isolates data transformation from statistical modeling, facilitating easier debugging and unit testing of the scoring logic. The `main_pipeline.py` entry point orchestrates the modular steps.
+**Structure Decision**: Single-project structure chosen to minimize overhead. The pipeline is linear (Ingest → Preprocess → Model → Validate), making a monolithic `code/` directory with modular scripts the most maintainable approach for a statistical analysis project.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Single-Dataset Analysis** | Required to avoid the fundamental design flaw of merging independent datasets for interaction analysis. The 'Synthetic Cohort' approach was rejected as it confounds 'Harassment' with 'Dataset Source'. | Merging GSS and Cyberbullying datasets via PSM would create a sample where the interaction term is unidentifiable due to perfect collinearity between the predictor and the data source. |
-| **Bootstrapped CIs** | Required by Spec (FR-004) for robust inference on interaction effects with non-normal error distributions. | Standard asymptotic CIs may be inaccurate for interaction terms in observational data; bootstrapping provides better coverage. |
-| **Sensitivity Analysis** | Required by Spec (FR-005) to validate robustness against operationalization choices (binary vs. continuous harassment). | Relying on a single definition risks false positives if the result is an artifact of the specific threshold chosen. |
+|:---|:---|:---|
+| **BCa Bootstrap (a sufficient number of resamples)** | Required by FR-007 for robust CI estimation on interaction terms. | Standard normal approximation is insufficient for skewed interaction effects in small-to-moderate samples. |
+| **MICE Imputation** | Required by FR-004 to handle predictor missingness without bias. | Listwise deletion would discard too much data, reducing power and potentially introducing bias if missingness is not MCAR. |
+| **Single-Dataset Constraint** | Required by Section 5 (Methodological Notes) of the spec to avoid confounding. | Dual-dataset matching was rejected as it confounds harassment exposure with dataset source. |
+| **Predictor Centering** | Required to reduce multicollinearity in interaction models. | Uncentered interaction terms lead to inflated VIF and uninterpretable main effects. |
+| **Clustered Bootstrap** | Required if platform clustering exists. | Simple random resampling violates independence if respondents are nested within platforms. |
 
-## Methodological Rationale
-
-**Why Single-Dataset?**
-The original spec proposed creating a "synthetic cohort" by matching GSS 2022 (general population) with a Cyberbullying Survey (harassment victims). This design is invalid for testing a buffering (moderation) effect because:
-1.  **Confounding**: In a merged sample, "Harassment Exposure" is perfectly correlated with "Dataset Source."
-2.  **Interaction Validity**: An interaction term ($\beta_3$) estimates how the effect of $X$ on $Y$ changes with $Z$. If $X$ (Harassment) is only present in Dataset B, the interaction term essentially measures "How does the relationship between Support and Mental Health differ between Dataset A and Dataset B?" This is a measure of dataset artifact, not a psychological buffering effect.
-3.  **Solution**: The analysis is restricted to the Cyberbullying Survey, where both Harassment and Social Support vary naturally within the same population. This allows for a valid estimation of the moderation effect.
-
-**Data Availability Note**:
-The GSS 2022 dataset is excluded because it lacks the necessary co-occurring variables (Harassment, Support, Mental Health) in a single sampling frame suitable for this specific interaction analysis. The pipeline will proceed with the Cyberbullying Survey data only.
-
-**Spec Artifact Inconsistency Note**:
-The source `spec.md` (Functional Requirements FR-001, FR-002, User Story 1) mandates the "Synthetic Cohort" approach. This plan explicitly deviates from those requirements due to the methodological invalidity described above. The implementation will follow the *revised* single-dataset methodology. The `spec.md` must be updated (kickback required) to remove FR-001/FR-002 and the "Synthetic Cohort" user stories to align with the implemented plan.
