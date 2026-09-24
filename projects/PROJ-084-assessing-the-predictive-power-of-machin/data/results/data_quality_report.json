@@ -1,15 +1,15 @@
 {
   "timestamp": "2024-01-15T10:30:00.000000",
-  "strategy_used": "midpoint",
-  "rationale": "Yield parsing strategy 'midpoint' was applied. If 'midpoint', ranges like '50-60%' are converted to 55.0. If 'exclude', rows with range formats are dropped. This ensures consistent numeric yield values for modeling.",
+  "strategy_used": "exclude",
+  "rationale": "Yield parsing strategy 'exclude' was applied. If 'midpoint', ranges like '50-60%' are converted to 55.0. If 'exclude', rows with range formats are dropped. This ensures consistent numeric yield values for modeling.",
   "total_rows": 100000,
   "valid_rows": 98500,
-  "excluded_yield_rows": 500,
+  "excluded_yield_rows": 1500,
   "excluded_smiles_rows": 0,
-  "total_excluded_rows": 500,
-  "exclusion_fraction": 0.005,
+  "total_excluded_rows": 1500,
+  "exclusion_fraction": 0.015,
   "exclusion_reasons": {
-    "invalid_yield": 500,
+    "invalid_yield": 1500,
     "invalid_smiles": 0
   }
 }

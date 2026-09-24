@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No directory listings or screenshots were provided to demonstrate that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/` actually exist; the claim is unsupported. The implementer must supply concrete evidence (e.g., a `tree` output, `ls -R` listing, or a script showing the directories were created) to verify the task is completed.
+- **T007a** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008a** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008b** — The repository lacks the required `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml` file, and the provided `validators.py` does not load or enforce that external schema (it defines its own Pydantic models and the validation function is truncated). Consequently the task’s core requirement is not met.
+- **T019** — The provided `download.py` defines verification and utility functions but the code for actually streaming the dataset, writing it to `data/raw/uspto_raw.parquet`, computing the SHA256 checksum, and logging it to `data/results/download_checksum.txt` is absent (truncated) and the expected output files are missing. Implement the download, parquet write, checksum calculation, and logging steps so the script fulfills the full task specification.
+- **T014** — The repository lacks the required `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt` files, so the script cannot perform the checksum verification or load the data. Moreover, `sanitize.py` is truncated (ends abruptly in `verify_checksum`) and does not show the implementation of the RDKit cleaning steps or the output of sanitized SMILES. Both the necessary inputs and the full processing logic are missing.

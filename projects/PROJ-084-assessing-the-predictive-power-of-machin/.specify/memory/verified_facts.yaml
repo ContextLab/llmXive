@@ -1,5 +1,5 @@
-'|calculation importance permutation repeat use':
-  quote: 10 453600
-  source_id: A061122
-  url: https://oeis.org/A061122
-  value: '453600'
+-100.0|float yield:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

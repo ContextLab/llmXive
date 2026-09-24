@@ -27,7 +27,7 @@ A researcher needs to ingest the raw USPTO reaction yield dataset, sanitize the 
 
 A researcher needs to train Random Forest and Support Vector Machine (SVM) regressors on the extracted fingerprints, automatically tuning hyperparameters via grid search with cross-validation to identify the best-performing model configuration for yield prediction.
 
-**Why this priority**: This step establishes the baseline predictive performance. It determines whether classical ML methods can achieve the expected R² range (0.4–0.6) before investing effort in detailed analysis or feature importance extraction.
+**Why this priority**: This step establishes the baseline predictive performance. It determines whether classical ML methods can achieve the expected R² range before investing effort in detailed analysis or feature importance extraction.
 
 **Independent Test**: The training module can be tested by running the grid search on a small, fixed validation subset and verifying that the best hyperparameters are selected and the model achieves a measurable R² score on the validation set.
 

@@ -2,25 +2,37 @@ type: object
 properties:
   model_type:
     type: string
+    description: "Type of model (e.g., 'RandomForest', 'SVM')"
   hyperparameters:
     type: object
-    additionalProperties: true
+    description: "Dictionary of hyperparameters used for training"
   metrics:
     type: object
     properties:
       R2:
         type: number
+        description: "Coefficient of determination"
       RMSE:
         type: number
+        description: "Root Mean Squared Error"
       MAE:
         type: number
+        description: "Mean Absolute Error"
     required:
       - R2
       - RMSE
       - MAE
+    description: "Performance metrics of the model"
   split_ratios:
     type: object
-    additionalProperties: true
+    properties:
+      train:
+        type: number
+      val:
+        type: number
+      test:
+        type: number
+    description: "Ratios of data used for train/val/test splits"
 required:
   - model_type
   - hyperparameters

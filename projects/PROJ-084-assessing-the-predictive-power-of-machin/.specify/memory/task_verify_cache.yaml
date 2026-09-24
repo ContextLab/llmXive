@@ -1,3 +1,18 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided to demonstrate that `code/`,
+    `data/raw/`, `data/processed/`, `data/results/`, and `tests/` actually exist;
+    the claim is unsupported. The implementer must supply concrete evidence (e.g.,
+    a `tree` output, `ls -R` listing, or a script showing the directories were created)
+    to verify the task is completed.
+T008b:
+  c: false
+  h: cbeb1affafccfa75318f48fae2ef51b2d6cb91d58a981bd5f61908b84758afa5
+  r: "The repository lacks the required `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml`\
+    \ file, and the provided `validators.py` does not load or enforce that external\
+    \ schema (it defines its own Pydantic models and the validation function is truncated).\
+    \ Consequently the task\u2019s core requirement is not met."
 T010:
   c: false
   h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
@@ -6,6 +21,15 @@ T010:
     Moreover, the required output column should be named `scaffold_id`, while the
     script creates a column called `murcko_scaffold`. The input parquet file and the
     expected output file are both missing.
+T014:
+  c: false
+  h: b3213c2a4ee78c0e4213cec2cce20ff40d897e0465d3d7f0949e03d43b9c4c30
+  r: The repository lacks the required `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`
+    files, so the script cannot perform the checksum verification or load the data.
+    Moreover, `sanitize.py` is truncated (ends abruptly in `verify_checksum`) and
+    does not show the implementation of the RDKit cleaning steps or the output of
+    sanitized SMILES. Both the necessary inputs and the full processing logic are
+    missing.
 T015:
   c: false
   h: aac6c9aceaec1a160f3fd2327763aa1fb9be9f77bae7c35b9e46d1b2aad1d301
@@ -14,30 +38,6 @@ T015:
     \ reading `YIELD_RANGE_STRATEGY` from `config.py` or implementing the midpoint\
     \ vs. exclude logic and logging it to the report. Consequently the task\u2019\
     s core requirements are not satisfied."
-T016:
-  c: false
-  h: fa9857ae4cd3a5b9a01a33744b88c1db0809d2c370218c15326a5b435fdf0dd8
-  r: "The `fingerprints.py` script is present, but it never writes the required bit\u2011\
-    length information to `data/results/fingerprint_dimensions.log` (the file is missing),\
-    \ and the shown code does not contain the logging implementation. Consequently\
-    \ the task\u2019s logging requirement is not fulfilled, and the chunked processing\
-    \ may be incomplete as the function body is truncated. The missing log file must\
-    \ be created and populated with the ECFP and MACCS dimensions."
-T017:
-  c: false
-  h: f99108385a50126b6335bc693dfb097c7cf43bcccae0d7a3d3bb24e561607521
-  r: The `ingest.py` script exists, but the required output file `data/processed/cleaned_reactions.parquet`
-    is missing, and the schema file `dataset.schema.yaml` (needed for validation)
-    is also absent. Without these artifacts the pipeline cannot be verified as producing
-    and validating the cleaned dataset.
-T019:
-  c: false
-  h: 294846d70e160dfddda1121c027faa727ef722986bf4d8036e796fda7f5d886b
-  r: "The provided `download.py` script exists but includes fallback logic (e.g.,\
-    \ trying alternative splits if the \u201Ctrain\u201D split fails), which violates\
-    \ the \u201Cno fallback mechanisms\u201D rule, and the required output files `data/raw/uspto_raw.parquet`\
-    \ and `data/results/download_checksum.txt` are absent, indicating the download\
-    \ step has not been completed."
 T027b:
   c: false
   h: ef01497be22832321c9b419fe468426dced4ee9702445cdbee55a4f7af5dea33
@@ -60,14 +60,6 @@ T032a:
     \ of permutation importance (no use of `sklearn.inspection.permutation_importance`\
     \ or the required parameters), and the expected output file `data/results/permutation_importance.json`\
     \ is absent. Consequently the task\u2019s core requirement is not satisfied."
-T033:
-  c: false
-  h: 07e49f21e42e2c9fb940f2bc9819ccf52f2c7bf819082068979f3d05ec44f494
-  r: "The provided `code/modeling/evaluate.py` contains only model loading and evaluation\
-    \ code; it does not implement the unified feature\u2011importance mapping, bit\u2011\
-    to\u2011substructure/reaction\u2011center extraction, collision handling, or generation\
-    \ of the required JSON report. Moreover, the expected output file `data/results/feature_importance_report.json`\
-    \ is absent. The task\u2019s core requirements are therefore unmet."
 T035a:
   c: false
   h: 7242cf9155fe7124eddba3394c601718ccd1fdad95c1a773a0372141a032ec76

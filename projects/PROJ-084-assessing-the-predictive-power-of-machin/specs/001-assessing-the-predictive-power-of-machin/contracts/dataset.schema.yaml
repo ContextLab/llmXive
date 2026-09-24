@@ -3,25 +3,30 @@ properties:
   smiles:
     type: string
     minLength: 1
+    description: "SMILES string of the reaction"
   yield:
     type: number
     minimum: 0.0
     maximum: 100.0
+    description: "Reaction yield percentage"
   reaction_class:
     type: string
     minLength: 1
+    description: "Classification of the reaction type"
   fingerprint_ecfp:
     type: array
     items:
       type: integer
     minItems: 2048
     maxItems: 2048
+    description: "ECFP4 fingerprint vector (fixed length 2048)"
   fingerprint_maccs:
     type: array
     items:
       type: integer
     minItems: 167
     maxItems: 167
+    description: "MACCS key fingerprint (fixed length 167)"
 required:
   - smiles
   - yield
