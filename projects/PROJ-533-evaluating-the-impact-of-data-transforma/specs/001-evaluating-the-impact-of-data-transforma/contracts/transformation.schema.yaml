@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Transformation Schema"
+description: "Schema for transformation records."
+type: object
+properties:
+  transformation_id:
+    type: string
+    description: "Unique ID."
+  dataset_id:
+    type: string
+    description: "Reference to Dataset."
+  variable_name:
+    type: string
+    description: "Name of the continuous variable."
+  method:
+    type: string
+    enum:
+      - "box_cox"
+      - "yeo_johnson"
+      - "rank_based"
+    description: "Transformation method."
+  lambda_param:
+    type: number
+    nullable: true
+    description: "Optimized λ parameter."
+  intervention_log:
+    type: string
+    nullable: true
+    description: "Log of interventions (e.g., 'log-shift applied for negative values')."
+  status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Transformation status."
+required:
+  - transformation_id
+  - dataset_id
+  - variable_name
+  - method
+  - status
+additionalProperties: false

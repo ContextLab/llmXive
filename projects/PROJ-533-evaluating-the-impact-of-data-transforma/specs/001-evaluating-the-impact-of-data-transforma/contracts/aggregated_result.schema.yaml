@@ -1,52 +1,73 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Result Schema"
+description: "Schema for aggregated statistical results."
 type: object
 properties:
-  method:
+  agg_id:
+    type: string
+    description: "Unique ID."
+  transformation:
     type: string
     enum:
-      - "Box-Cox"
-      - "Yeo-Johnson"
-      - "rank-based"
-    description: "Transformation method"
+      - "box_cox"
+      - "yeo_johnson"
+      - "rank_based"
+    description: "Method used."
   test_type:
     type: string
     enum:
-      - "t-test"
-      - "ANOVA"
-    description: "Statistical test type"
+      - "t_test"
+      - "anova"
+    description: "Test used."
   metric:
     type: string
     enum:
       - "type1_error"
       - "power"
-    description: "Metric being aggregated"
-  mean:
+    description: "Metric type."
+  mean_value:
     type: number
-    description: "Mean estimate across datasets"
+    minimum: 0
+    maximum: 1
+    description: "Mean error/power rate."
   ci_lower:
     type: number
-    description: "95% bootstrap CI lower bound"
+    minimum: 0
+    maximum: 1
+    description: "Lower bound of bootstrap CI."
   ci_upper:
     type: number
-    description: "95% bootstrap CI upper bound"
+    minimum: 0
+    maximum: 1
+    description: "Upper bound of bootstrap CI."
+  ci_half_width:
+    type: number
+    minimum: 0
+    description: "Half-width of bootstrap CI."
+  validation_status:
+    type: string
+    enum:
+      - "pass"
+      - "fail"
+    description: "Pass if half-width <= 0.02."
   n_datasets:
     type: integer
-    minimum: 50
-    description: "Number of datasets aggregated"
-  alpha:
-    type: number
-    enum:
-      - 0.01
-      - 0.05
-      - 0.1
-    description: "Significance threshold used"
+    minimum: 1
+    description: "Number of datasets contributing."
+  n_iterations:
+    type: integer
+    minimum: 1
+    description: "Total iterations."
 required:
-  - method
+  - agg_id
+  - transformation
   - test_type
   - metric
-  - mean
+  - mean_value
   - ci_lower
   - ci_upper
+  - ci_half_width
+  - validation_status
   - n_datasets
-  - alpha
+  - n_iterations
 additionalProperties: false

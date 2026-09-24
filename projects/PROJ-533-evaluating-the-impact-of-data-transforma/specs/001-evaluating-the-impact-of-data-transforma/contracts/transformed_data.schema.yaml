@@ -10,9 +10,9 @@ properties:
   method:
     type: string
     enum:
-      - "Box-Cox"
-      - "Yeo-Johnson"
-      - "rank-based"
+      - "box_cox"
+      - "yeo_johnson"
+      - "rank_based"
     description: "Transformation method applied"
   lambda_param:
     type: number

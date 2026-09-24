@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Functional Representation (Priority: P1)
 
-The system must successfully ingest raw CMIP6 ensemble data for temperature and precipitation, preprocess missing values, and transform discrete time-series grid points into smooth continuous functions using B-spline basis expansion.
+The system must successfully ingest raw CMIP6 ensemble data for temperature and precipitation, preprocess missing values, and transform discrete time-series grid points into smooth continuous functions using B-spline basis expansion with adaptive basis selection.
 
 **Why this priority**: This is the foundational step. Without a valid functional representation of the data, no subsequent statistical analysis (fPCA) can occur. It delivers the primary value of converting raw, high-dimensional climate output into a statistically tractable format.
 
@@ -17,7 +17,7 @@ The system must successfully ingest raw CMIP6 ensemble data for temperature and 
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of CMIP6 model output files for global land temperature, **When** the ingestion script processes them, **Then** missing values are linearly interpolated, and a B-spline basis expansion (10-20 basis functions) is generated for each ensemble member.
+1. **Given** a set of CMIP6 model output files for global land temperature, **When** the ingestion script processes them, **Then** missing values are linearly interpolated, and a B-spline basis expansion (adaptive selection via GCV/AIC) is generated for each ensemble member.
 2. **Given** the generated B-spline coefficients, **When** the data is reconstructed, **Then** the mean squared error between the original data points and the reconstructed function is ≤ 0.01 (normalized).
 3. **Given** a dataset with >10% missing time steps, **When** the preprocessing runs, **Then** the system flags the specific time steps and models affected in a log file without crashing.
 
@@ -34,7 +34,7 @@ The system must perform Functional Principal Component Analysis (fPCA) on the sm
 **Acceptance Scenarios**:
 
 1. **Given** the functional data representation, **When** fPCA is executed, **Then** the system outputs at least 3 dominant functional principal components.
-2. **Given** the eigenvalues from fPCA, **When** cumulative variance is calculated, **Then** the first 3-5 components explain ≥ 80% of the total ensemble variance.
+2. **Given** the eigenvalues from fPCA, **When** cumulative variance is calculated, **Then** the system calculates and reports the cumulative variance explained by the first 3-5 components.
 3. **Given** the eigenfunctions, **When** visualized, **Then** they represent distinct spatiotemporal patterns (e.g., global warming trends, ENSO-like oscillations) that differ from simple scalar averages.
 
 ---
@@ -50,7 +50,7 @@ The system must assess the stability of the identified dominant modes and trend 
 **Acceptance Scenarios**:
 
 1. **Given** the full ensemble fPCA results, **When** 100 bootstrap subsamples are generated and analyzed, **Then** the system calculates a stability metric (e.g., correlation of loadings) for each dominant component.
-2. **Given** the stability metrics, **When** a histogram is generated, **Then** the distribution shows a clear peak indicating consistent mode identification across subsamples.
+2. **Given** the stability metrics, **When** a histogram is generated, **Then** the system calculates the standard deviation of the loading correlations across iterations and reports it.
 3. **Given** a specific mode that shows low stability (high variance in loadings), **When** the system flags it, **Then** the output includes a list of the specific ensemble members whose removal caused the instability.
 
 ---
@@ -66,12 +66,11 @@ The system must assess the stability of the identified dominant modes and trend 
 ### Functional Requirements
 
 - **FR-001**: System MUST ingest CMIP6 data for near-surface temperature and precipitation, handle missing values via linear interpolation, and standardize across ensemble members. (See US-1)
-- **FR-002**: System MUST represent each ensemble member as a smooth function using B-spline basis expansion with 10-20 basis functions to capture spatiotemporal continuity. (See US-1)
+- **FR-002**: System MUST represent each ensemble member as a smooth function using B-spline basis expansion with adaptive selection via Generalized Cross-Validation (GCV) or AIC, using a default range of 10-20 basis functions if GCV/AIC fails, to capture spatiotemporal continuity. (See US-1)
 - **FR-003**: System MUST execute Functional Principal Component Analysis (fPCA) to extract dominant modes of variability and compute the cumulative variance explained by each component. (See US-2)
 - **FR-004**: System MUST perform bootstrap resampling of ensemble members (≥ 100 iterations) to generate subsamples for robustness testing. (See US-3)
 - **FR-005**: System MUST calculate and report stability metrics (e.g., loading correlations) comparing fPCA results from subsamples against the full ensemble results. (See US-3)
-- **FR-006**: System MUST perform a permutation test (≥ 1000 permutations) to determine the statistical significance of the extracted eigenvalues. (See US-2)
-- **FR-007**: System MUST output visualizations of the dominant modes as spatiotemporal patterns with uncertainty bands derived from the bootstrap resampling. (See US-3)
+- **FR-006**: System MUST output visualizations of the dominant modes as spatiotemporal patterns with uncertainty bands derived from the bootstrap resampling. (See US-3)
 
 ### Key Entities
 
@@ -84,13 +83,13 @@ The system must assess the stability of the identified dominant modes and trend 
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The cumulative variance explained by the first 3-5 functional principal components is measured against the total ensemble variance to confirm ≥ 80% retention. (See FR-003)
-- **SC-002**: The stability of dominant modes is measured by the correlation of eigenfunction loadings across 100 bootstrap iterations, with a target mean correlation ≥ 0.90 for robust modes. (See FR-005)
-- **SC-003**: The statistical significance of eigenvalues is measured against a null distribution generated by 1000 permutation tests, requiring a p-value < 0.05 for retained components. (See FR-006)
-- **SC-004**: The computational runtime and memory usage are measured against the GitHub Actions free-tier limits (2 CPU, 7 GB RAM, 6 hours) to ensure feasibility. (See FR-001, FR-004)
-- **SC-005**: The information gain of fPCA over traditional scalar summaries is measured by comparing the variance captured by the functional approach versus the variance captured by simple mean/variance statistics. (See US-2)
+- **SC-001**: The cumulative variance explained by the first 3-5 functional principal components is measured against the total ensemble variance and reported to determine the retention percentage. (See FR-003)
+- **SC-002**: The stability of dominant modes is measured by the correlation of eigenfunction loadings across 100 bootstrap iterations, and the mean correlation and standard deviation are reported for assessment. (See FR-005)
+- **SC-003**: The computational runtime and memory usage are measured against the GitHub Actions free-tier limits (2 CPU, 7 GB RAM, 6 hours) to ensure feasibility. (See FR-001, FR-004)
 
 ## Assumptions
 
@@ -98,5 +97,6 @@ The system must assess the stability of the identified dominant modes and trend 
 - **Methodological Framing**: Since the analysis is observational (no random assignment of models), all findings regarding "dominant modes" and "robustness" are framed as associational patterns within the ensemble, not causal claims about the climate system.
 - **Computational Constraints**: The analysis will use a CPU-tractable approximation of fPCA (e.g., using `scikit-fda` or `refund` on sampled data) and will not require GPU acceleration or 8-bit quantization, ensuring it fits within the 2 CPU / 7 GB RAM / 6-hour GitHub Actions free-tier limits.
 - **Model Similarity**: The ensemble members selected are assumed to be distinct enough that bootstrap resampling effectively simulates the removal of specific model families; if model similarity is too high, the robustness test may be conservative.
-- **Threshold Justification**: The decision to retain 3-5 components is based on the community standard of capturing ≥ 80% of variance; a sensitivity analysis will sweep the retention threshold (e.g., 70%, 80%, 90%) to verify stability.
+- **Threshold Justification**: The decision to retain 3-5 components is based on the community standard of capturing ≥ 80% of variance; a sensitivity analysis will sweep the retention threshold (e.g., 70%, 80%, 90%) to verify stability. The basis function count is determined adaptively via GCV/AIC to prevent overfitting, with a sensitivity analysis on the effective degrees of freedom.
 - **Variable Fit**: The CMIP6 variables (temperature, precipitation) are assumed to contain all necessary information to represent the dominant modes of variability; no external covariates (e.g., aerosol forcing data) are required for this specific analysis.
+- **Robustness Metric**: Bootstrap stability metrics (loading correlations) are sufficient to assess robustness; formal permutation tests for eigenvalue significance are omitted as they are methodologically unsound for fPCA of spatiotemporal fields due to temporal autocorrelation violations.

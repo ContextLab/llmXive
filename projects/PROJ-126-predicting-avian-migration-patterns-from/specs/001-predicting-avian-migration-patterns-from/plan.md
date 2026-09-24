@@ -34,8 +34,8 @@ This project implements a spatiotemporal data pipeline to predict the "first arr
 | **III. Data Hygiene** | **Pass** | Raw data stored in `data/raw` with checksums; derived data in `data/processed` with new filenames; no in-place modifications; PII scan passed (eBird data is aggregated). |
 | **IV. Single Source of Truth** | **Pass** | All metrics (RMSE, p-values) written to `data/outputs/metrics.json` and referenced directly in the report generation; no manual entry. |
 | **V. Versioning Discipline** | **Pass** | Artifacts tracked via content hashes in `state.yaml`; `plan.md` versioned as 1.0.0. |
-| **VI. Citizen Science Data Bias** | **Pass** | Pipeline strictly filters for "complete checklists" (duration ≥ 1 min, observers ≥ 1, distance ≤ 10 km) as per spec; aggregation fixed at 0.5°. Effort correction (rarefaction) is noted as a limitation/optional step. |
-| **VII. Temporal Integrity** | **Pass** | Feature engineering enforces lagged predictors (several weeks prior); model split strictly temporal (2015-2020 train, 2021 val, 2022 test); evaluation uses temporal residuals. |
+| **VI. Citizen Science Data Bias** | **Pass** | Pipeline strictly filters for "complete checklists" (duration ≥ 1 min, observers ≥ 1, distance ≤ 10 km) as per spec; aggregation fixed at a moderate spatial resolution. Effort correction (rarefaction) is noted as a limitation/optional step. |
+| **VII. Temporal Integrity** | **Pass** | Feature engineering enforces lagged predictors (several weeks prior); model split strictly temporal (train, val, test); evaluation uses temporal residuals. |
 
 ## Project Structure
 
@@ -121,7 +121,7 @@ projects/PROJ-126-predicting-avian-migration-patterns-from/
 5.  **Output**: `data/processed/grid_cell_data.parquet`, `data/processed/first_arrival_sweep.csv`.
 
 ### Phase 2: Modeling & Statistical Testing
-1.  **Split**: Temporal split (Train: 2015-2020, Val: 2021, Test: 2022).
+1.  **Split**: Temporal split (Train: 2015-2020, Val: 2021, Test:).
 2.  **Training**: Train XGBoost models (Temp-only, NDVI-only, Combined) (FR-004).
 3.  **Evaluation**: Calculate RMSE and Pearson R on **temporal residuals** (SC-001).
 4.  **Interpretability**: Compute SHAP values and Permutation Importance (FR-005, SC-005).

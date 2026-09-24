@@ -64,7 +64,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 
 **Acceptance Scenarios**:
 
-1. **Given** specified effect sizes (Cohen's d ∈ {small, 0.5, 0.8}), **When** simulated datasets are generated with known group differences, **Then** at least 1000 simulated datasets per effect size are produced with ground truth labels.
+1. **Given** specified effect sizes (Cohen's d ∈ {small, medium, large}), **When** simulated datasets are generated with known group differences, **Then** at least 1000 simulated datasets per effect size are produced with ground truth labels.
 2. **Given** simulated datasets with transformations applied, **When** t-test/ANOVA is run, **Then** the proportion of significant results (p < 0.05) is recorded as the power estimate for each transformation-test-effect combination.
 3. **Given** power estimates, **When** bootstrap confidence intervals are computed, **Then** the intervals are validated against the ±0.02 half-width target.
 

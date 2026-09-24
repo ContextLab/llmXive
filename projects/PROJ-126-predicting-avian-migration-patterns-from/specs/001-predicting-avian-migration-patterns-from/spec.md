@@ -103,4 +103,4 @@ The system must perform statistical testing (Diebold-Mariano test) to compare mo
 - The Gradient Boosting Regressor (XGBoost) can be trained and evaluated on the sampled dataset within the 6-hour compute limit and 7 GB RAM constraint of the GitHub Actions free tier without requiring GPU acceleration.
 - The relationship between temperature/NDVI and migration timing is primarily associational (observational study), and the model will not claim causal inference without randomization or specific identification strategies.
 - The sample size of available checklists provides sufficient statistical power for the Diebold-Mariano test and SHAP analysis; if power is low, this will be explicitly acknowledged as a limitation rather than a failure.
-- The temporal split (2015–2020 train, 2021 validate, 2022 test) is required to avoid circularity and ensure the model predicts future phenology, not just spatial patterns.
+- The temporal split (early years for training, a subsequent period for validation, and the most recent period for testing) is required to avoid circularity and ensure the model predicts future phenology, not just spatial patterns.

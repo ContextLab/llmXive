@@ -2,112 +2,114 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
-- Git
-- Sufficient disk space for data storage and processing requirements will be allocated.
-- Internet access (for dataset downloads)
+-   Python 3.11 or higher
+-   `pip` package manager
+-   Access to the internet (for downloading datasets)
+-   ~14 GB disk space (for raw data and intermediate files)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-533-evaluating-the-impact-of-data-transforma
-   ```
+1.  **Clone the Repository** (or navigate to the project root).
+2.  **Create a Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` includes `scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `datasets`, `pyyaml`, `statsmodels`.*
 
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Project Structure
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+```text
+.
+├── code/                 # Source code
+│   ├── main.py           # Entry point
+│   ├── .flake8           # Linter config
+│   └── ...
+├── data/                 # Data directory (created on first run)
+├── results/              # Output directory (created on first run)
+└── tests/                # Test suite
+```
 
 ## Running the Pipeline
 
-### Full Pipeline (End-to-End)
+### 1. Full Pipeline Execution
+
+Run the entire pipeline from download to aggregation:
 
 ```bash
-python code/main_pipeline.py
+python code/main.py --config code/config.yaml
 ```
 
-This executes:
-1. Dataset download (FR-001)
-2. Filtering (FR-002)
-3. Transformation (FR-003)
-4. Type I error simulation (FR-004)
-5. Power simulation (FR-005, FR-006)
-6. Aggregation & reporting (FR-007–FR-009)
+**What this does**:
+-   Downloads datasets from verified URLs.
+-   Computes checksums.
+-   Filters datasets (normality, sample size, skew/kurtosis).
+-   Generates simulated data (null & alternative).
+-   Applies transformations.
+-   Runs Type I error simulations (null) and Power simulations (alternative).
+-   Aggregates results, runs GLMM, and sweeps alpha.
+-   Generates plots.
+-   Saves logs and state.
 
-### Individual Steps
+### 2. Step-by-Step Execution
 
-- **Download datasets**:
-  ```bash
-  python code/download_datasets.py
-  ```
-- **Filter datasets**:
-  ```bash
-  python code/filter_datasets.py
-  ```
-- **Apply transformations**:
-  ```bash
-  python code/apply_transformations.py
-  ```
-- **Run Type I error simulation**:
-  ```bash
-  python code/simulate_null.py
-  ```
-- **Run power simulation**:
-  ```bash
-  python code/simulate_power.py
-  ```
-- **Aggregate results**:
-  ```bash
-  python code/aggregate_results.py
-  ```
+#### Download and Filter
+```bash
+python code/data/downloaders.py
+python code/data/filters.py
+```
 
-## Output Locations
+#### Transform and Test
+```bash
+python code/data/transformations.py
+python code/utils/statistical_tests.py
+```
 
-- **Raw data**: `data/raw/`
-- **Filtered data**: `data/processed/filtered/`
-- **Transformed data**: `data/processed/transformations/`
-- **Type I error results**: `results/type1_error/`
-- **Power results**: `results/power/`
-- **Aggregated tables**: `results/aggregated/summary.csv`
-- **Plots**: `results/aggregated/` (matplotlib/seaborn bar plots)
-- **Logs**: `logs/` (exclusions, transformation failures, checkpoints)
+#### Simulate and Aggregate
+```bash
+python code/data/simulations.py
+python code/analysis/aggregation.py
+```
 
-## Verification
+### 3. Running Tests
 
-1. **Check dataset count**:
-   ```bash
-   python -c "import pandas as pd; df = pd.read_csv('data/datasets.csv'); print(f'Included datasets: {df[df.included].shape[0]}')"
-   ```
-   Expected: ≥50 datasets with `included=True`.
+Run the unit and integration tests to verify correctness:
 
-2. **Verify checksums**:
-   ```bash
-   python code/utils/checksums.py --verify
-   ```
+```bash
+pytest tests/ -v
+```
 
-3. **Reproduce a single dataset**:
-   ```bash
-   python code/main_pipeline.py --dataset-id uci_har --skip-download
-   ```
+### 4. Checkpointing
+
+If the pipeline is interrupted, resume from the last checkpoint:
+
+```bash
+python code/main.py --resume
+```
+
+The checkpoint file is located at `results/checkpoint.json` (schema: `current_dataset_id`, `last_seed`, `processed_count`).
+
+## Verifying Results
+
+1.  **Check Logs**:
+    ```bash
+    cat results/pipeline.log
+    ```
+2.  **Inspect Aggregated Results**:
+    ```bash
+    cat results/aggregated_results.csv
+    ```
+3.  **View Plots**:
+    Open `results/figures/error_rates.png` and `results/figures/power_curves.png`.
 
 ## Troubleshooting
 
-- **Transformation fails**: Check `logs/transformation_errors.log` for variable-specific interventions.
-- **Runtime exceeds 6 hours**: Ensure checkpointing is enabled; reduce iterations if necessary.
-- **Memory error**: Stream data; process one dataset at a time.
-- **Missing datasets**: Verify internet connectivity; check `data/datasets.csv` for excluded entries.
-
-## Next Steps
-
-- Review `results/aggregated/summary.csv` for mean Type I error and power.
-- Inspect bar plots in `results/aggregated/` for visual comparison.
-- Read `paper/` draft for interpretation of results.
+-   **Missing Datasets**: Ensure network access and verify URLs in `data/datasets.csv`.
+-   **Transformation Failures**: Check `data/imputation_log.csv` for skipped variables.
+-   **Runtime Errors**: Ensure you have enough disk space and memory (streaming is enabled by default via `pandas.read_csv(chunksize=...)` and `datasets.load_dataset(streaming=True)`).
+-   **Checksum Mismatch**: Verify the SHA-256 hash in `data/checksums.csv` matches the downloaded file.
+-   **GLMM Convergence**: If GLMM fails to converge, check for extreme class imbalance in the simulated data.
