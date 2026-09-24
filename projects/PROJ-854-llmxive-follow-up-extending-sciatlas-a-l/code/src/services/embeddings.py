@@ -1,13 +1,3 @@
-"""
-Embedding service for generating sentence embeddings and computing novelty scores.
-
-This module handles:
-1. Loading the sentence-transformers model
-2. Filtering invalid nodes (empty/null titles)
-3. Batched embedding generation
-4. Computing cluster centroids
-5. Calculating novelty scores based on centroid distance
-"""
 import logging
 import os
 import time
@@ -15,446 +5,223 @@ import gc
 from typing import List, Dict, Any, Optional, Tuple, Set
 import numpy as np
 import pandas as pd
-from pathlib import Path
-
 from sentence_transformers import SentenceTransformer
 
-from src.lib.config import get_data_path, get_logs_path, ensure_directories
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants
-MODEL_NAME = "all-MiniLM-L6-v2"
-DEFAULT_BATCH_SIZE = 64
-EMBEDDING_DIMENSION = 384  # all-MiniLM-L6-v2 output dimension
-
-# Global model cache
-_model_cache: Optional[SentenceTransformer] = None
-
-
-def load_embedding_model(device: str = "cpu") -> SentenceTransformer:
+def load_embedding_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
     """
     Load the sentence-transformers model.
-    
-    Uses a global cache to avoid reloading the model multiple times.
-    
-    Args:
-        device: Device to load the model on ('cpu' or 'cuda')
-        
-    Returns:
-        Loaded SentenceTransformer model
     """
-    global _model_cache
-    
-    if _model_cache is not None:
-        logger.info("Using cached embedding model")
-        return _model_cache
-    
-    logger.info(f"Loading embedding model: {MODEL_NAME} on {device}")
-    start_time = time.perf_counter()
-    
+    logger.info(f"Loading embedding model: {model_name}")
     try:
-        model = SentenceTransformer(MODEL_NAME, device=device)
-        _model_cache = model
-        
-        elapsed = time.perf_counter() - start_time
-        logger.info(f"Model loaded successfully in {elapsed:.2f}s")
+        model = SentenceTransformer(model_name)
+        logger.info("Model loaded successfully.")
         return model
-        
     except Exception as e:
-        logger.error(f"Failed to load embedding model: {e}")
+        logger.error(f"Failed to load model {model_name}: {e}")
         raise
 
-
-def filter_valid_nodes(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def filter_valid_nodes(df: pd.DataFrame, title_col: str = 'title') -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Filter nodes with valid titles for embedding generation.
-    
-    Separates nodes into:
-    - Valid: non-empty, non-null titles
-    - Invalid: empty string or null titles
-    
-    Args:
-        df: DataFrame containing node data with 'title' column
-        
-    Returns:
-        Tuple of (valid_nodes_df, invalid_nodes_df)
+    Filter out nodes with empty or null titles.
+    Returns cleaned dataframe and list of excluded records with reasons.
     """
-    if 'title' not in df.columns:
-        raise ValueError("DataFrame must contain 'title' column")
+    excluded = []
+    valid_mask = df[title_col].notna() & (df[title_col].str.strip() != '')
     
-    # Create boolean masks
-    is_not_null = df['title'].notna()
-    is_not_empty = df['title'].astype(str).str.strip() != ''
-    
-    valid_mask = is_not_null & is_not_empty
-    invalid_mask = ~valid_mask
-    
-    valid_df = df[valid_mask].copy()
-    invalid_df = df[invalid_mask].copy()
-    
-    logger.info(f"Filtered nodes: {len(valid_df)} valid, {len(invalid_df)} invalid")
-    
-    return valid_df, invalid_df
-
-
-def save_excluded_nodes(invalid_df: pd.DataFrame, reason: str) -> None:
-    """
-    Save excluded nodes to a CSV log file.
-    
-    Args:
-        invalid_df: DataFrame of excluded nodes
-        reason: Reason for exclusion (e.g., 'empty_title', 'null_title')
-    """
-    if invalid_df.empty:
-        logger.debug("No invalid nodes to save")
-        return
-    
-    logs_path = get_logs_path()
-    ensure_directories()
-    
-    excluded_file = Path(logs_path) / "excluded_nodes.csv"
-    
-    # Prepare data for saving
-    if 'id' in invalid_df.columns:
-        log_data = invalid_df[['id']].copy()
-        log_data['reason'] = reason
-    else:
-        # If no ID column, create a generic log
-        log_data = pd.DataFrame({
-            'node_id': range(len(invalid_df)),
+    for idx in df[~valid_mask].index:
+        reason = "null_title" if pd.isna(df.loc[idx, title_col]) else "empty_title"
+        excluded.append({
+            'id': df.loc[idx, 'id'],
+            'title': str(df.loc[idx, title_col]) if not pd.isna(df.loc[idx, title_col]) else None,
             'reason': reason
         })
     
-    # Append to existing file if it exists
-    if excluded_file.exists():
-        existing = pd.read_csv(excluded_file)
-        combined = pd.concat([existing, log_data], ignore_index=True)
-        combined.to_csv(excluded_file, index=False)
-    else:
-        log_data.to_csv(excluded_file, index=False)
-    
-    logger.info(f"Saved {len(log_data)} excluded nodes to {excluded_file}")
+    return df[valid_mask].copy(), excluded
 
+def save_excluded_nodes(excluded: List[Dict[str, Any]], output_path: str):
+    """
+    Save excluded nodes to a JSON file for audit.
+    """
+    import json
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(excluded, f, indent=2)
+    logger.info(f"Saved {len(excluded)} excluded nodes to {output_path}")
 
-def generate_embeddings_batched(
-    model: SentenceTransformer,
-    texts: List[str],
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    device: str = "cpu"
-) -> np.ndarray:
+def generate_embeddings_batched(model: SentenceTransformer, texts: List[str], batch_size: int = 32) -> np.ndarray:
     """
-    Generate embeddings for a list of texts in batches.
-    
-    Args:
-        model: Loaded SentenceTransformer model
-        texts: List of text strings to embed
-        batch_size: Number of texts to process per batch
-        device: Device to use for encoding
-        
-    Returns:
-        numpy array of embeddings with shape (len(texts), embedding_dimension)
+    Generate embeddings in batches to manage memory.
     """
-    if not texts:
-        logger.warning("Empty text list provided for embedding")
-        return np.array([]).reshape(0, EMBEDDING_DIMENSION)
-    
-    logger.info(f"Generating embeddings for {len(texts)} texts in batches of {batch_size}")
-    
     all_embeddings = []
-    total_start = time.perf_counter()
-    
     for i in range(0, len(texts), batch_size):
-        batch_texts = texts[i:i + batch_size]
-        batch_start = time.perf_counter()
-        
-        # Generate embeddings for the batch
-        batch_embeddings = model.encode(
-            batch_texts,
-            device=device,
-            show_progress_bar=False,
-            convert_to_numpy=True
-        )
-        
-        batch_time = time.perf_counter() - batch_start
-        logger.debug(f"Batch {i//batch_size + 1}: {len(batch_texts)} texts in {batch_time:.3f}s")
-        
-        all_embeddings.append(batch_embeddings)
-        
-        # Force garbage collection periodically
+        batch = texts[i:i + batch_size]
+        start_time = time.time()
+        embeddings = model.encode(batch, show_progress_bar=False, convert_to_numpy=True)
+        elapsed = time.time() - start_time
+        logger.debug(f"Batch {i//batch_size + 1}: {len(batch)} texts processed in {elapsed:.2f}s")
+        all_embeddings.append(embeddings)
+        # Explicit garbage collection for large batches
         if i % (batch_size * 10) == 0:
             gc.collect()
     
-    total_time = time.perf_counter() - total_start
-    avg_time_per_text = (total_time / len(texts)) * 1000  # ms
-    
-    logger.info(f"Generated all embeddings in {total_time:.2f}s "
-               f"(avg {avg_time_per_text:.2f}ms per text)")
-    
-    return np.vstack(all_embeddings)
+    return np.vstack(all_embeddings) if all_embeddings else np.array([])
 
-def process_nodes_for_embeddings(
-    df: pd.DataFrame,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    device: str = "cpu"
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def process_nodes_for_embeddings(df: pd.DataFrame, title_col: str = 'title') -> List[str]:
     """
-    Process a DataFrame of nodes: filter valid ones, generate embeddings,
-    and save excluded nodes.
-    
-    Args:
-        df: DataFrame with node data including 'title' column
-        batch_size: Batch size for embedding generation
-        device: Device for model inference
-        
-    Returns:
-        Tuple of (processed_df_with_embeddings, excluded_df)
+    Prepare titles for embedding generation.
     """
-    # Filter valid and invalid nodes
-    valid_df, invalid_df = filter_valid_nodes(df)
-    
-    # Save excluded nodes
-    if not invalid_df.empty:
-        # Determine reasons for exclusion
-        null_mask = invalid_df['title'].isna()
-        empty_mask = ~null_mask & (invalid_df['title'].astype(str).str.strip() == '')
-        
-        if null_mask.any():
-            null_df = invalid_df[null_mask]
-            save_excluded_nodes(null_df, 'null_title')
-        
-        if empty_mask.any():
-            empty_df = invalid_df[empty_mask]
-            save_excluded_nodes(empty_df, 'empty_title')
-    
-    # Return early if no valid nodes
-    if valid_df.empty:
-        logger.warning("No valid nodes to process")
-        return df, invalid_df
-    
-    # Extract texts
-    texts = valid_df['title'].tolist()
-    
-    # Load model if not already loaded
-    model = load_embedding_model(device=device)
-    
-    # Generate embeddings
-    embeddings = generate_embeddings_batched(
-        model=model,
-        texts=texts,
-        batch_size=batch_size,
-        device=device
-    )
-    
-    # Assign embeddings to the valid DataFrame
-    valid_df = valid_df.copy()
-    valid_df['embedding_vector'] = list(embeddings)
-    
-    # Initialize invalid_df with null embeddings
-    invalid_df = invalid_df.copy()
-    invalid_df['embedding_vector'] = [None] * len(invalid_df)
-    
-    # Combine back
-    result_df = pd.concat([valid_df, invalid_df], ignore_index=True)
-    
-    # Sort by original index to maintain order
-    if 'original_index' in result_df.columns:
-        result_df = result_df.sort_values('original_index').drop('original_index', axis=1)
-    
-    return result_df, invalid_df
+    return df[title_col].astype(str).tolist()
 
-
-def compute_cluster_centroids(
-    embeddings: np.ndarray,
-    cluster_labels: np.ndarray
-) -> np.ndarray:
+def compute_cluster_centroids(embeddings: np.ndarray, cluster_ids: np.ndarray) -> np.ndarray:
     """
-    Compute centroids for each cluster.
-    
-    Args:
-        embeddings: Array of embeddings with shape (n_samples, n_features)
-        cluster_labels: Array of cluster assignments with shape (n_samples,)
-        
-    Returns:
-        Array of centroids with shape (n_clusters, n_features)
+    Compute the centroid (mean) embedding for each cluster.
     """
-    if embeddings.shape[0] == 0:
-        return np.array([])
-    
-    unique_clusters = np.unique(cluster_labels)
-    n_clusters = len(unique_clusters)
-    n_features = embeddings.shape[1]
-    
-    centroids = np.zeros((n_clusters, n_features))
+    unique_clusters = np.unique(cluster_ids)
+    centroids = np.zeros((len(unique_clusters), embeddings.shape[1]))
     
     for i, cluster_id in enumerate(unique_clusters):
-        cluster_mask = cluster_labels == cluster_id
-        cluster_embeddings = embeddings[cluster_mask]
-        centroids[i] = np.mean(cluster_embeddings, axis=0)
+        mask = cluster_ids == cluster_id
+        if np.any(mask):
+            centroids[i] = embeddings[mask].mean(axis=0)
+        else:
+            centroids[i] = np.zeros(embeddings.shape[1])
     
     return centroids
 
-
-def compute_novelty_scores(
-    embeddings: np.ndarray,
-    cluster_labels: np.ndarray,
-    centroids: np.ndarray
-) -> np.ndarray:
+def compute_novelty_scores(embeddings: np.ndarray, cluster_ids: np.ndarray, centroids: np.ndarray) -> np.ndarray:
     """
-    Compute novelty scores as cosine distance to cluster centroid.
+    Compute cosine distance between each node's embedding and its OWN cluster centroid.
+    
+    Logic:
+    1. Calculate cosine similarity between node embedding and its cluster centroid.
+    2. Convert to distance: 1 - similarity.
+    3. Handle singletons: If a node is the only member of its cluster, assign 0.0.
     
     Args:
-        embeddings: Array of embeddings with shape (n_samples, n_features)
-        cluster_labels: Array of cluster assignments with shape (n_samples,)
-        centroids: Array of centroids with shape (n_clusters, n_features)
-        
+        embeddings: (N, D) array of node embeddings.
+        cluster_ids: (N,) array of cluster IDs for each node.
+        centroids: (K, D) array of cluster centroids, where K is number of clusters.
+    
     Returns:
-        Array of novelty scores with shape (n_samples,)
+        (N,) array of novelty scores.
     """
-    if embeddings.shape[0] == 0:
+    if len(embeddings) == 0:
         return np.array([])
+    
+    # Map cluster_id to centroid index
+    unique_clusters = np.unique(cluster_ids)
+    cluster_to_idx = {cid: i for i, cid in enumerate(unique_clusters)}
     
     novelty_scores = np.zeros(len(embeddings))
     
-    for i, (emb, cluster_id) in enumerate(zip(embeddings, cluster_labels)):
-        # Find centroid for this cluster
-        centroid_idx = np.where(np.arange(len(centroids)) == cluster_id)[0]
-        if len(centroid_idx) == 0:
-            novelty_scores[i] = 0.0
-            continue
-        
-        centroid = centroids[centroid_idx[0]]
-        
-        # Compute cosine similarity
-        norm_emb = np.linalg.norm(emb)
-        norm_cent = np.linalg.norm(centroid)
-        
-        if norm_emb == 0 or norm_cent == 0:
+    # Normalize embeddings and centroids for cosine similarity
+    # Handle potential zero-norm vectors (though unlikely with sentence transformers)
+    norm_embeddings = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-10)
+    norm_centroids = centroids / (np.linalg.norm(centroids, axis=1, keepdims=True) + 1e-10)
+    
+    # Count cluster sizes to identify singletons
+    unique, counts = np.unique(cluster_ids, return_counts=True)
+    singleton_mask = np.isin(cluster_ids, unique[counts == 1])
+    
+    for i, (emb, cid) in enumerate(zip(norm_embeddings, cluster_ids)):
+        if singleton_mask[i]:
+            # Singleton cluster: assign 0.0 as per spec
             novelty_scores[i] = 0.0
         else:
-            similarity = np.dot(emb, centroid) / (norm_emb * norm_cent)
-            # Convert similarity to distance
-            novelty_scores[i] = 1.0 - similarity
+            # Get centroid for this node's cluster
+            c_idx = cluster_to_idx[cid]
+            centroid = norm_centroids[c_idx]
+            
+            # Cosine similarity
+            sim = np.dot(emb, centroid)
+            # Clamp to [-1, 1] to avoid numerical errors
+            sim = np.clip(sim, -1.0, 1.0)
+            
+            # Cosine distance
+            dist = 1.0 - sim
+            novelty_scores[i] = max(0.0, dist) # Ensure non-negative
     
     return novelty_scores
 
-
-def assign_topic_clusters_to_dataframe(
-    df: pd.DataFrame,
-    embeddings: np.ndarray,
-    cluster_labels: np.ndarray,
-    novelty_scores: np.ndarray
-) -> pd.DataFrame:
+def assign_topic_clusters_to_dataframe(df: pd.DataFrame, embeddings: np.ndarray, k: int = 100) -> pd.DataFrame:
     """
-    Assign topic cluster and novelty score columns to a DataFrame.
-    
-    Args:
-        df: Original DataFrame
-        embeddings: Embeddings array (used for validation)
-        cluster_labels: Cluster assignments
-        novelty_scores: Novelty scores
-        
-    Returns:
-        DataFrame with added 'topic_cluster' and 'novelty_score' columns
+    Perform K-Means clustering on embeddings and assign topic_cluster IDs to the dataframe.
     """
-    result_df = df.copy()
-    result_df['topic_cluster'] = cluster_labels
-    result_df['novelty_score'] = novelty_scores
-    
-    return result_df
-
-
-def generate_embeddings_for_dataset(
-    df: pd.DataFrame,
-    output_path: Optional[str] = None,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    device: str = "cpu"
-) -> pd.DataFrame:
-    """
-    Main entry point for generating embeddings for a dataset.
-    
-    Args:
-        df: Input DataFrame with 'title' column
-        output_path: Optional path to save excluded nodes log
-        batch_size: Batch size for processing
-        device: Device for model inference
-        
-    Returns:
-        DataFrame with embeddings, topic clusters, and novelty scores
-    """
-    logger.info("Starting embedding generation for dataset")
-    
-    # Process nodes and generate embeddings
-    processed_df, invalid_df = process_nodes_for_embeddings(
-        df=df,
-        batch_size=batch_size,
-        device=device
-    )
-    
-    # Filter valid nodes for clustering
-    valid_df = processed_df[processed_df['embedding_vector'].notna()].copy()
-    
-    if valid_df.empty:
-        logger.warning("No valid embeddings for clustering")
-        return processed_df
-    
-    # Extract embeddings
-    embeddings = np.vstack(valid_df['embedding_vector'].tolist())
-    
-    # Perform k-means clustering (k=100 as per spec)
     from sklearn.cluster import KMeans
     
-    logger.info(f"Performing k-means clustering with k=100")
-    kmeans = KMeans(n_clusters=100, random_state=42, n_init=10)
-    cluster_labels = kmeans.fit_predict(embeddings)
+    logger.info(f"Performing K-Means clustering with k={k}...")
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    cluster_ids = kmeans.fit_predict(embeddings)
     
-    # Compute centroids
-    centroids = compute_cluster_centroids(embeddings, cluster_labels)
-    
-    # Compute novelty scores
-    novelty_scores = compute_novelty_scores(embeddings, cluster_labels, centroids)
-    
-    # Map back to full dataframe
-    valid_indices = valid_df.index
-    full_cluster_labels = np.full(len(processed_df), -1, dtype=int)
-    full_novelty_scores = np.full(len(processed_df), np.nan, dtype=float)
-    
-    full_cluster_labels[valid_indices] = cluster_labels
-    full_novelty_scores[valid_indices] = novelty_scores
-    
-    processed_df['topic_cluster'] = full_cluster_labels
-    processed_df['novelty_score'] = full_novelty_scores
-    
-    logger.info(f"Generated embeddings and novelty scores for {len(valid_df)} nodes")
-    
-    return processed_df
+    df = df.copy()
+    df['topic_cluster'] = cluster_ids
+    logger.info("Topic clusters assigned.")
+    return df
 
+def compute_cluster_centroids_from_dataframe(df: pd.DataFrame, embeddings: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Helper to compute centroids given a dataframe with topic_cluster and embeddings.
+    """
+    cluster_ids = df['topic_cluster'].values
+    centroids = compute_cluster_centroids(embeddings, cluster_ids)
+    return centroids, cluster_ids
 
-def log_memory_profile(df: pd.DataFrame) -> Dict[str, Any]:
+def get_cluster_statistics(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Log memory usage profile for the embedding process.
+    Return basic statistics about the clusters.
+    """
+    unique, counts = np.unique(df['topic_cluster'], return_counts=True)
+    stats = {
+        'num_clusters': len(unique),
+        'min_cluster_size': int(counts.min()),
+        'max_cluster_size': int(counts.max()),
+        'avg_cluster_size': float(counts.mean()),
+        'singleton_count': int(np.sum(counts == 1))
+    }
+    return stats
+
+def log_memory_profile(step: str, memory_gb: float):
+    """
+    Log memory usage for a specific step.
+    """
+    logger.info(f"Memory profile for {step}: {memory_gb:.2f} GB")
+
+def generate_embeddings_for_dataset(df: pd.DataFrame, model: SentenceTransformer, title_col: str = 'title', batch_size: int = 32) -> np.ndarray:
+    """
+    End-to-end function to generate embeddings for a dataset.
+    """
+    valid_df, excluded = filter_valid_nodes(df, title_col)
+    if excluded:
+        save_excluded_nodes(excluded, 'data/processed/excluded_nodes.json')
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Dictionary with memory profile metrics
+    if valid_df.empty:
+        logger.warning("No valid nodes found for embedding generation.")
+        return np.array([])
+    
+    texts = process_nodes_for_embeddings(valid_df, title_col)
+    embeddings = generate_embeddings_batched(model, texts, batch_size)
+    
+    # Re-attach embeddings to valid_df if needed, or return aligned
+    return embeddings
+
+def main():
     """
-    try:
-        import resource
-        
-        # Get current memory usage
-        mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert to MB
-        
-        profile = {
-            'input_rows': len(df),
-            'peak_memory_mb': mem_usage,
-            'peak_memory_gb': mem_usage / 1024
-        }
-        
-        logger.info(f"Memory profile: {profile}")
-        return profile
-        
-    except ImportError:
-        logger.warning("resource module not available, skipping memory profiling")
-        return {}
+    Main entry point for novelty calculation script.
+    This function is intended to be called by run_novelty_calculation.py
+    """
+    logger.info("Starting novelty calculation pipeline...")
+    
+    # Load data (placeholder for actual loading logic)
+    # In a real scenario, this would load from data/processed/subgraph_with_clusters.parquet
+    # For now, we assume the calling script passes the dataframe and embeddings
+    pass
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-854-llmxive-follow-up-extending-sciatlas-a-l",
+  "tasks": [
+    {
+      "task_key": "T012c",
+      "reject_count": 1,
+      "last_reason": "No spec.md or plan.md files were provided, and there is no evidence that any occurrences of \u201cPubGraph\u201d were replaced with \u201cOpenAlex-derived Subgraph\u201d or \u201cOpenAlex\u201d. Without the actual edited documents, the requirement cannot be confirmed.",
+      "first_seen": "2026-09-24T06:01:02.118706+00:00",
+      "last_seen": "2026-09-24T06:01:02.118706+00:00"
+    },
+    {
+      "task_key": "T040",
+      "reject_count": 1,
+      "last_reason": "The provided `src/services/ingest.py` still uses `pyalex` and a custom sampling routine; it never calls `datasets.load_dataset(..., streaming=True)` nor specifies the required `fields` and `filters`, nor streams nodes directly into the graph with a memory buffer limit. Additionally, the required fallback cache file `data/raw/cache.parquet` is missing, and there is no RuntimeError handling as specified.",
+      "first_seen": "2026-09-24T06:01:02.120084+00:00",
+      "last_seen": "2026-09-24T06:01:02.120084+00:00"
+    }
+  ],
+  "updated_at": "2026-09-24T06:01:02.120084+00:00"
+}

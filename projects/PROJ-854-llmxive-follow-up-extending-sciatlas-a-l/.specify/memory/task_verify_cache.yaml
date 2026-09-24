@@ -1,9 +1,18 @@
 T012b:
   c: false
-  h: a8b90aab3b5f6a6cf969a570b087ffd6fb42acbc58fa7776f01e9f2ea7471dd4
-  r: "The `src/services/ingest.py` file shown does not contain a `validate_sampled_graph`\
-    \ function, and the required output file `artifacts/results/sampling_validation.json`\
-    \ is absent, so the task\u2019s deliverables are not present."
+  h: 9d4b233079c4135d5df07f85e4542b8c36dc0bb996277705a2aa8ef05ff28f29
+  r: The `src/services/ingest.py` file does not contain the required `validate_sampled_graph`
+    implementation (the shown excerpt only includes imports and `fetch_sample_ids`).
+    Moreover, the expected output files `artifacts/results/sampling_validation.json`
+    and `artifacts/results/topology_equivalence.json` are absent. Both the core function
+    and its result artifacts are missing, so the task is not fulfilled.
+T016:
+  c: false
+  h: 28e7c502df867fa7ddb9742b672fc3f479c6231d6e5a037bcf66048d9dde3b28
+  r: "The required Parquet file `data/processed/subgraph_with_clusters.parquet` does\
+    \ not exist, and the YAML state file still contains a placeholder hash instead\
+    \ of a real SHA\u2011256 hash and updated timestamp. Consequently the task\u2019\
+    s core output and integrity update are missing."
 T020:
   c: false
   h: 028e8c495abe7320119a401e850fb55fbf7f3151557b84ee5c3d5dbcd38fb427
@@ -13,19 +22,26 @@ T020:
     \ (a different name and batch size) from that missing module, indicating the expected\
     \ functionality is not implemented. The task\u2019s core requirement is therefore\
     \ unmet."
-T022:
+T025:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or computed results were supplied; there is no implementation\
-    \ that computes title embeddings, derives topic\u2011cluster centroids, or calculates\
-    \ cosine\u2011distance novelty scores as required. Consequently the task\u2019\
-    s deliverable (a functional novelty\u2011score calculation) is missing."
+  h: 274b68b40cb90a070859f5b3e85c35b3d4cdaac76d89533ab302a6a372000dd3
+  r: The repository lacks the required schema file (`specs/001-bridging-coefficient-analysis/contracts/final_dataset_schema.schema.yaml`)
+    and the `src/services/ingest.py` file does not contain an implementation of `validate_final_dataset_schema(df)`.
+    Both the artifact and the validation logic are missing, so the task is not satisfied.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No code, script, or documentation was provided that implements a multiple\u2011\
     comparison correction (Bonferroni or Benjamini\u2011Hochberg) nor a CLI flag to\
     \ select the method. Without such artifacts, the requirement is not satisfied."
+T037:
+  c: false
+  h: a3dbc591e9d3b869188f56ef7357ecb06b1c39492728e147fd50bfb35d6a6c30
+  r: The required input dataset `data/processed/final_analysis_dataset.parquet` does
+    not exist, and the expected output artifacts `artifacts/results/analysis_report.md`
+    and `artifacts/results/corrected_pvalues.json` are also missing. Moreover, the
+    provided test file is truncated and does not contain the full implementation needed
+    to generate those artifacts.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,11 +56,3 @@ T039:
     \ and does not log peak RAM usage per batch. Additionally, the required `src/services/embeddings.py`\
     \ file is completely missing. Both files need the memory\u2011profiling integration\
     \ and the embeddings module must exist."
-T040:
-  c: false
-  h: 9432b5396c8f39274b236499880eb062295df1343af13f44f67fb0fdcf5fd88f
-  r: The provided `src/services/ingest.py` still uses `pyalex` and a custom sampling
-    routine; it never calls `datasets.load_dataset(..., streaming=True)` nor specifies
-    the required `fields` and `filters`, nor streams nodes directly into the graph
-    with a memory buffer limit. Additionally, the required fallback cache file `data/raw/cache.parquet`
-    is missing, and there is no RuntimeError handling as specified.

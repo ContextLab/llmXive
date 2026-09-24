@@ -1310,3 +1310,460 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T14:45:09Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: local clustering coefficient distribution matches Barabasi-Albert mock
+    graph n=1000 m=3 seed=42 with KS p-value > 0.05 and D < 0.1
+  claim_id: c_fbdd1b41
+  context: "Add unit test tests/unit/test_ingest.py::test_snowball_sampling_preserves_local_topology\
+    \ that asserts the local clustering coefficient distribution of the sample matches\
+    \ a Barab\xE1si-Albert mock graph (n=1000, m=3, seed=42) with KS p-value > 0.05\
+    \ AND D < 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The test asserts the local clustering coefficient distribution of the\
+    \ sample matches a Barab\xE1si-Albert mock graph (n=1000, m=3, seed=42) with KS\
+    \ p-value > 0.05 AND D < 0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:48:56Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: max latency per node <= 50ms
+  claim_id: c_c0c350cc
+  context: 'Verification: Assert max latency per node <= 50ms in unit test tests/bench/test_embedding_speed.py
+    (See plan.md Complexity Tracking: Batched Embedding).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/max_latency_per_node_%3C=_50ms
+  kind: entity_fact
+  raw_text: Assert max latency per node <= 50ms in unit test tests/bench/test_embedding_speed.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:49:20Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: optimal number of clusters k determined by silhouette score method search
+    range 50 to 200
+  claim_id: c_435e80a1
+  context: 'Logic: Determine the optimal number of clusters k using the silhouette
+    score method (search range k=50 to k=200). Select the k with the highest silhouette
+    score.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Determine the optimal number of clusters k using the silhouette score
+    method (search range k=50 to k=200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:49:44Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: selected k yields stable silhouette score within 5% variance across 3
+    random seeds
+  claim_id: c_47e9d78a
+  context: Implement a validation step after T021 to ensure the selected k yields
+    a stable silhouette score (within 5% variance across 3 random seeds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate the selected k yields a stable silhouette score (within 5% variance
+    across 3 random seeds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:49:44Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: peak RAM usage <= 7.0 GB
+  claim_id: c_80a3906f
+  context: 'Verification: Assert file exists and contains peak_ram_gb <= 7.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists and contains peak_ram_gb <= 7.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:50:06Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: max embedding latency <= 50 ms
+  claim_id: c_ba14445a
+  context: 'Verification: Assert file exists and contains max_latency_ms <= 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists and contains max_latency_ms <= 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:50:30Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime <= 21600 seconds
+  claim_id: c_b9b0dc12
+  context: 'Verification: Assert file exists and contains total_runtime_seconds <=
+    21600 (6 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists and contains total_runtime_seconds <= 21600 (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:50:53Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: verify pip check passes with specified dependency versions
+  claim_id: c_22bce26a
+  context: 'Verification: Assert pyproject.toml contains string ''networkx>=3.0''
+    in [project.dependencies] and run pip check to verify no conflicts.'
+  evidence:
+    asserted: '3.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify no conflicts using pip check with dependencies including networkx>=3.0,
+    scikit-learn>=1.3, sentence-transformers>=2.2, pandas>=2.0, numpy>=1.24, scipy>=1.10,
+    pyarrow>=12.0, datasets>=2.14, memory-profiler>=0.61, pytest>=7.4, ruff>=0.0.290,
+    black>=23.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T05:50:53Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: synthetic dataset constructed with exactly one node forming a cluster
+    of size 1
+  claim_id: c_26c6fdc6
+  context: Add a unit test tests/unit/test_metrics.py::test_singleton_novelty_calculation
+    that constructs a synthetic dataset where exactly one node forms a cluster of
+    size 1, and verifies the novelty score calculation handles the 'distance to own
+    cluster centroid' logic without crashing or returning NaN.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test constructs a synthetic dataset where exactly one node forms a
+    cluster of size 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:51:15Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Snowball sample local clustering coefficient matches Barabasi-Albert
+    graph (n=1000, m=3) with KS p-value > 0.05 and D < 0.1
+  claim_id: c_ab9d9a1b
+  context: "Verification: Add unit test tests/unit/test_ingest.py::test_snowball_sampling_preserves_local_topology\
+    \ that asserts the local clustering coefficient distribution of the sample matches\
+    \ a Barab\xE1si-Albert mock graph (n=1000, m=3, seed=42) with KS p-value > 0.05\
+    \ AND D < 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sample's local clustering coefficient distribution matches a Barab\xE1\
+    si-Albert mock graph (n=1000, m=3, seed=42) with KS p-value > 0.05 AND D < 0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:56:02Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Maximum embedding latency per node is <= 50ms
+  claim_id: c_e84935df
+  context: 'Verification: Assert max latency per node <= 50ms in unit test tests/bench/test_embedding_speed.py
+    (See plan.md Complexity Tracking: Batched Embedding).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_embedding_latency_per_node_is_%3C=_50ms
+  kind: entity_fact
+  raw_text: The maximum latency per node is <= 50ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:56:18Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Optimal cluster count k selected from range 50 to 200 using silhouette
+    score
+  claim_id: c_efbdb4b0
+  context: 'Logic: Determine the optimal number of clusters k using the silhouette
+    score method (search range k=50 to k=200). Select the k with the highest silhouette
+    score.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimal number of clusters k is selected from the range 50 to 200
+    using the silhouette score method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:57:35Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Selected cluster count k has stable silhouette score within 5% variance
+    across 3 seeds
+  claim_id: c_1fd364b3
+  context: Implement a validation step after T021 to ensure the selected k yields
+    a stable silhouette score (within 5% variance across 3 random seeds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The selected cluster count k yields a stable silhouette score within 5%
+    variance across 3 random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:57:35Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime is <= 21600 seconds
+  claim_id: c_d4b68d4f
+  context: 'Verification: Assert file exists and contains total_runtime_seconds <=
+    21600 (6 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pipeline runtime is <= 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:57:56Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage is <= 7.0 GB
+  claim_id: c_50def813
+  context: 'Verification: Assert file exists and contains peak_ram_gb <= 7.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak RAM usage is <= 7.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:58:15Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Maximum embedding inference time per node is <= 50ms
+  claim_id: c_7fccbccd
+  context: 'Verification: Assert file exists and contains max_latency_ms <= 50.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_embedding_inference_time_per_node_is_%3C=_50ms
+  kind: entity_fact
+  raw_text: The maximum embedding latency per node is <= 50ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:58:35Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Streaming ingestion chunk size is explicitly defined and logged
+  claim_id: c_2244b605
+  context: Implement src/services/ingest.py logic to explicitly define and log the
+    chunk size used during streaming ingestion (e.g., chunksize=10000) to ensure deterministic
+    memory behavior.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_ingestion_chunk_size_is_explicitly_defined_and_log
+  kind: entity_fact
+  raw_text: The chunk size used during streaming ingestion is explicitly defined and
+    logged.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:58:56Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Sentence-transformers model version pinned to all-MiniLM-L6-v2@2.2.2
+  claim_id: c_26008fd0
+  context: Update pyproject.toml and src/services/embeddings.py to explicitly pin
+    the sentence-transformers model version (e.g., all-MiniLM-L-v2@2.2.2) and verify
+    the loaded model matches this version at runtime.
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The sentence-transformers model version is pinned to all-MiniLM-L6-v2@2.2.2.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T05:58:57Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Variance inflation factor threshold for covariate collinearity is > 5
+  claim_id: c_3f92efda
+  context: Implement a check in src/services/analysis.py (within the linear regression
+    task) to detect and warn if the covariates (publication year, cluster size) exhibit
+    high variance inflation factors (VIF > 5) before running the regression.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance inflation factor (VIF) threshold for covariate collinearity
+    is > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:58:57Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Data fetcher enforces memory buffer limit of MAX_BUFFER_ROWS
+  claim_id: c_36fddcb4
+  context: The logic MUST consume the stream incrementally, adding nodes/edges to
+    the graph object immediately without buffering the full dataset, enforcing a memory
+    buffer limit of MAX_BUFFER_ROWS (a sufficiently large row count) using itertools.islice.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetcher_enforces_memory_buffer_limit_of_MAX_BUFFER_ROWS
+  kind: entity_fact
+  raw_text: The data fetcher enforces a memory buffer limit of MAX_BUFFER_ROWS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:59:30Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Maximum seed attempts in snowball sampling is 5
+  claim_id: c_ccf242ef
+  context: 'Limit: Max 5 attempts to find a new seed. If a maximum number of attempts
+    fails, log a warning ''Max seed attempts reached; proceeding with available sample''
+    and return the current sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of attempts to find a new seed node in snowball sampling
+    is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T05:59:47Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Data fetcher retries up to 3 times with reduced target size on buffer
+    limit
+  claim_id: c_bb23a1f0
+  context: 'If the stream exceeds MAX_BUFFER_ROWS, the script MUST retry with target_size
+    reduced by [deferred] (up to 3 attempts) before raising a RuntimeError with message
+    ''Buffer limit exceeded: <current_count> > <MAX_BUFFER_ROWS>''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data fetcher retries with a reduced target size up to 3 times if the
+    stream exceeds MAX_BUFFER_ROWS.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T06:00:02Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Maximum buffer rows limit is 10000
+  claim_id: c_036ab47c
+  context: Create file with variables SEED=42, DATA_PATH='data/', ARTIFACT_PATH='artifacts/',
+    MAX_BUFFER_ROWS=10000 (assuming ~1KB/row, 10k rows ~10MB, well under 7GB RAM limit),
+    and MAX_RAM_GB=7.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum buffer rows limit is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T06:00:24Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Maximum RAM limit is 7.0 GB
+  claim_id: c_225055c3
+  context: Create file with variables SEED=42, DATA_PATH='data/', ARTIFACT_PATH='artifacts/',
+    MAX_BUFFER_ROWS=10000 (assuming ~1KB/row, 10k rows ~10MB, well under 7GB RAM limit),
+    and MAX_RAM_GB=7.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum RAM limit is 7.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T06:00:44Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Snowball sampling maximum depth is 3
+  claim_id: c_54647fad
+  context: Create function sample_subgraph_stream(G_stream, target_size, seed_node_id,
+    max_depth=3) in src/services/ingest.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The snowball sampling uses a maximum depth of 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T06:01:01Z'

@@ -1,0 +1,21 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  id:
+    type: string
+  citation_count:
+    type: integer
+    minimum: 0
+  novelty_score:
+    type: number
+    minimum: 0.0
+  primary_cluster:
+    type: integer
+  topic_cluster:
+    type: integer
+required:
+  - id
+  - citation_count
+  - novelty_score
+  - primary_cluster
+  - topic_cluster
