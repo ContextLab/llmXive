@@ -1,37 +1,21 @@
-"""
-Train a Random Forest classifier to predict avian foraging guilds from land cover proportions.
-
-This script loads species-level profiles aggregated from merged eBird and NLCD data,
-prepares features (normalization, encoding), trains a Random Forest model with k-fold CV,
-and saves the trained model and training metrics.
-
-Dependencies:
-  - data/processed/species_profiles.csv (from T040)
-
-Outputs:
-  - data/models/random_forest.pkl: Trained Random Forest model
-  - data/models/training_metrics.json: Training metrics log
-"""
 import os
 import sys
 import json
 import logging
 import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple
+
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import balanced_accuracy_score, f1_score
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
-from utils.config import get_data_dir, get_models_dir, get_seed, get_model_params
+# Import project utilities
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from utils.config import get_models_dir, get_data_dir, get_seed, set_seed
 from utils.provenance import record_artifact_provenance, load_metadata_config, save_metadata_config
 
 # Configure logging
@@ -41,63 +25,52 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_species_profiles(input_path: Optional[str] = None) -> pd.DataFrame:
+def load_species_profiles(input_path: str) -> pd.DataFrame:
     """
-    Load the species profiles CSV containing land cover proportions and foraging guilds.
+    Load the species profiles CSV.
     
     Args:
-        input_path: Optional path to the input CSV. If None, uses default path.
+        input_path: Path to species_profiles.csv
         
     Returns:
         DataFrame with species profiles
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist
-        ValueError: If required columns are missing
     """
-    if input_path is None:
-        input_path = str(get_data_dir() / "processed" / "species_profiles.csv")
-    
-    input_path = Path(input_path)
-    if not input_path.exists():
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    logger.info(f"Loading species profiles from {input_path}")
     df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} species profiles from {input_path}")
     
-    # Validate required columns
+    # Verify required columns exist
     required_cols = ['species_id', 'foraging_guild']
-    land_cover_cols = [col for col in df.columns if col.endswith('_prop_100m')]
+    land_cover_cols = [col for col in df.columns if 'prop_100m' in col]
     
     if not all(col in df.columns for col in required_cols):
         missing = [col for col in required_cols if col not in df.columns]
         raise ValueError(f"Missing required columns: {missing}")
     
     if len(land_cover_cols) == 0:
-        raise ValueError("No land cover proportion columns found in input")
+        raise ValueError("No land cover proportion columns found (expected columns with 'prop_100m')")
     
-    logger.info(f"Loaded {len(df)} species profiles with {len(land_cover_cols)} land cover features")
+    logger.info(f"Found {len(land_cover_cols)} land cover predictor columns")
     return df
 
-def prepare_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, LabelEncoder, Pipeline]:
+def prepare_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str], LabelEncoder]:
     """
-    Prepare features and target for model training.
-    
-    Handles:
-      - Missing values (imputation)
-      - Normalization (StandardScaler)
-      - Label encoding for foraging guilds
-      - Train/test split logic (handled via CV)
+    Prepare features and labels for training.
     
     Args:
         df: DataFrame with species profiles
         
     Returns:
-        Tuple of (X, y, label_encoder, pipeline)
+        Tuple of (X_scaled, y_encoded, feature_names, label_encoder)
     """
-    # Extract features and target
-    land_cover_cols = [col for col in df.columns if col.endswith('_prop_100m')]
-    X = df[land_cover_cols].values
+    # Identify predictor columns (land cover proportions)
+    feature_cols = [col for col in df.columns if 'prop_100m' in col]
+    feature_names = feature_cols.copy()
+    
+    # Extract features and labels
+    X = df[feature_cols].values
     y = df['foraging_guild'].values
     
     # Encode labels
@@ -105,177 +78,179 @@ def prepare_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, LabelEnc
     y_encoded = label_encoder.fit_transform(y)
     
     logger.info(f"Feature matrix shape: {X.shape}")
-    logger.info(f"Number of classes: {len(label_encoder.classes_)}")
-    logger.info(f"Classes: {list(label_encoder.classes_)}")
+    logger.info(f"Label classes: {label_encoder.classes_}")
     
-    # Create preprocessing pipeline
-    pipeline = Pipeline([
-        ('imputer', SimpleImputer(strategy='mean')),
-        ('scaler', StandardScaler())
-    ])
+    # Check for sufficient samples
+    if len(np.unique(y_encoded)) < 2:
+        raise ValueError("Need at least 2 classes for classification")
     
-    # Fit and transform features
-    X_processed = pipeline.fit_transform(X)
+    # Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
     
-    return X_processed, y_encoded, label_encoder, pipeline
+    return X_scaled, y_encoded, feature_names, label_encoder, scaler
 
-def train_random_forest(
-    X: np.ndarray, 
-    y: np.ndarray, 
-    cv_folds: int = 5,
-    random_state: Optional[int] = None
-) -> Tuple[RandomForestClassifier, Dict[str, Any]]:
+def train_random_forest(X: np.ndarray, y: np.ndarray, feature_names: List[str], n_splits: int = 5) -> Tuple[RandomForestClassifier, Dict[str, Any], np.ndarray, np.ndarray]:
     """
     Train a Random Forest classifier with k-fold cross-validation.
     
     Args:
-        X: Feature matrix (processed)
-        y: Target labels (encoded)
-        cv_folds: Number of CV folds
-        random_state: Random seed for reproducibility
+        X: Scaled feature matrix
+        y: Encoded labels
+        feature_names: List of feature names
+        n_splits: Number of CV folds
         
     Returns:
-        Tuple of (trained model, metrics dict)
+        Tuple of (model, metrics, oof_predictions, true_labels)
     """
-    if random_state is None:
-        random_state = get_seed()
+    seed = get_seed()
+    set_seed(seed)
     
-    logger.info(f"Training Random Forest with {cv_folds}-fold CV (random_state={random_state})")
+    # Define cross-validation strategy
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     
-    # Get model parameters from config
-    model_params = get_model_params()
-    model_params['random_state'] = random_state
+    # Initialize model with fixed hyperparameters
+    model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        random_state=seed,
+        n_jobs=-1
+    )
     
-    # Initialize model
-    rf_model = RandomForestClassifier(**model_params)
+    # Get out-of-fold predictions
+    logger.info(f"Running {n_splits}-fold cross-validation...")
+    oof_predictions = cross_val_predict(model, X, y, cv=cv, method='predict')
     
-    # Setup cross-validation
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-    
-    # Perform cross-validation
-    cv_scores = cross_val_score(rf_model, X, y, cv=cv, scoring='accuracy')
-    
-    logger.info(f"CV Accuracy scores: {cv_scores}")
-    logger.info(f"Mean CV Accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
-    
-    # Train final model on full data
-    rf_model.fit(X, y)
-    
-    # Compute feature importances
-    feature_importances = dict(zip(
-        [f"feature_{i}" for i in range(X.shape[1])],
-        rf_model.feature_importances_.tolist()
-    ))
+    # Calculate metrics
+    balanced_acc = balanced_accuracy_score(y, oof_predictions)
+    f1_macro = f1_score(y, oof_predictions, average='macro')
+    f1_weighted = f1_score(y, oof_predictions, average='weighted')
+    f1_per_class = f1_score(y, oof_predictions, average=None)
     
     metrics = {
-        'cv_folds': cv_folds,
-        'cv_scores': cv_scores.tolist(),
-        'mean_cv_accuracy': float(cv_scores.mean()),
-        'std_cv_accuracy': float(cv_scores.std()),
-        'n_estimators': model_params.get('n_estimators', 100),
-        'max_depth': model_params.get('max_depth', None),
-        'random_state': random_state,
-        'feature_importances': feature_importances,
-        'n_samples': X.shape[0],
-        'n_classes': len(np.unique(y)),
-        'training_status': 'completed'
+        'balanced_accuracy': float(balanced_acc),
+        'f1_macro': float(f1_macro),
+        'f1_weighted': float(f1_weighted),
+        'f1_per_class': [float(f) for f in f1_per_class],
+        'n_splits': n_splits,
+        'random_seed': seed,
+        'n_samples': len(y),
+        'n_classes': len(np.unique(y))
     }
     
-    return rf_model, metrics
+    logger.info(f"Cross-validated Balanced Accuracy: {balanced_acc:.4f}")
+    logger.info(f"Cross-validated F1 Macro: {f1_macro:.4f}")
+    
+    # Train final model on full dataset for feature importance and saving
+    model.fit(X, y)
+    
+    return model, metrics, oof_predictions, y
 
-def save_artifacts(
-    model: RandomForestClassifier,
-    metrics: Dict[str, Any],
-    label_encoder: LabelEncoder,
-    pipeline: Pipeline,
-    model_path: Optional[str] = None,
-    metrics_path: Optional[str] = None
-) -> None:
+def save_artifacts(model: RandomForestClassifier, metrics: Dict[str, Any], 
+                 oof_predictions: np.ndarray, true_labels: np.ndarray,
+                 label_encoder: LabelEncoder, scaler: StandardScaler,
+                 feature_names: List[str]) -> Dict[str, str]:
     """
-    Save the trained model and metrics to disk.
+    Save all model artifacts and training results.
     
     Args:
-        model: Trained Random Forest model
+        model: Trained RandomForestClassifier
         metrics: Training metrics dictionary
-        label_encoder: Fitted label encoder
-        pipeline: Fitted preprocessing pipeline
-        model_path: Optional path for model pickle
-        metrics_path: Optional path for metrics JSON
+        oof_predictions: Out-of-fold predictions
+        true_labels: True labels
+        label_encoder: Fitted LabelEncoder
+        scaler: Fitted StandardScaler
+        feature_names: List of feature names
+        
+    Returns:
+        Dictionary of saved file paths
     """
-    if model_path is None:
-        model_path = str(get_models_dir() / "random_forest.pkl")
-    if metrics_path is None:
-        metrics_path = str(get_models_dir() / "training_metrics.json")
+    models_dir = get_models_dir()
+    models_dir.mkdir(parents=True, exist_ok=True)
     
-    model_path = Path(model_path)
-    metrics_path = Path(metrics_path)
-    
-    # Ensure directory exists
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Saving model to {model_path}")
-    logger.info(f"Saving metrics to {metrics_path}")
-    
-    # Save model and pipeline together
-    artifact_bundle = {
-        'model': model,
-        'label_encoder': label_encoder,
-        'pipeline': pipeline,
-        'metrics': metrics
-    }
-    
+    # Save model
+    model_path = models_dir / 'random_forest.pkl'
     with open(model_path, 'wb') as f:
-        pickle.dump(artifact_bundle, f)
+        pickle.dump({
+            'model': model,
+            'scaler': scaler,
+            'label_encoder': label_encoder,
+            'feature_names': feature_names
+        }, f)
+    logger.info(f"Saved model to {model_path}")
     
-    # Save metrics separately for easy access
+    # Save training metrics
+    metrics_path = models_dir / 'training_metrics.json'
     with open(metrics_path, 'w') as f:
         json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics to {metrics_path}")
+    
+    # Save cross-validation predictions
+    cv_preds_path = models_dir / 'cv_predictions.json'
+    cv_data = {
+        'out_of_fold_predictions': oof_predictions.tolist(),
+        'true_labels': true_labels.tolist(),
+        'label_classes': label_encoder.classes_.tolist(),
+        'feature_names': feature_names,
+        'n_folds': 5
+    }
+    with open(cv_preds_path, 'w') as f:
+        json.dump(cv_data, f, indent=2)
+    logger.info(f"Saved CV predictions to {cv_preds_path}")
     
     # Record provenance
-    try:
-        metadata = load_metadata_config()
-        record_artifact_provenance(
-            metadata,
-            artifact_name='random_forest_model',
-            artifact_path=str(model_path),
-            source_file='code/models/train.py',
-            input_files=['data/processed/species_profiles.csv'],
-            parameters=metrics
-        )
-        save_metadata_config(metadata)
-    except Exception as e:
-        logger.warning(f"Could not record provenance: {e}")
+    provenance = {
+        'step': 'train_model',
+        'artifacts': [
+            str(model_path),
+            str(metrics_path),
+            str(cv_preds_path)
+        ],
+        'input': 'species_profiles.csv',
+        'parameters': {
+            'n_estimators': 100,
+            'random_state': get_seed(),
+            'cv_splits': 5
+        }
+    }
+    record_artifact_provenance(provenance)
     
-    logger.info("Artifacts saved successfully")
+    return {
+        'model': str(model_path),
+        'metrics': str(metrics_path),
+        'cv_predictions': str(cv_preds_path)
+    }
 
-def main() -> None:
-    """Main entry point for training script."""
-    logger.info("Starting model training pipeline")
+def main():
+    """Main entry point for training pipeline."""
+    logger.info("Starting model training...")
     
-    try:
-        # Load data
-        df = load_species_profiles()
-        
-        # Prepare features
-        X, y, label_encoder, pipeline = prepare_features(df)
-        
-        # Train model
-        model, metrics = train_random_forest(X, y)
-        
-        # Save artifacts
-        save_artifacts(model, metrics, label_encoder, pipeline)
-        
-        logger.info("Training pipeline completed successfully")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during training: {e}")
-        sys.exit(1)
+    # Load data
+    input_path = os.path.join(get_data_dir(), 'processed', 'species_profiles.csv')
+    df = load_species_profiles(input_path)
+    
+    # Check minimum sample size
+    if len(df) < 25:
+        raise ValueError(f"Insufficient data: {len(df)} species profiles. Need at least 25 for statistical power.")
+    
+    # Prepare features
+    X, y, feature_names, label_encoder, scaler = prepare_features(df)
+    
+    # Train model
+    model, metrics, oof_predictions, true_labels = train_random_forest(X, y, feature_names)
+    
+    # Save artifacts
+    saved_paths = save_artifacts(model, metrics, oof_predictions, true_labels, 
+                                label_encoder, scaler, feature_names)
+    
+    logger.info("Training complete!")
+    logger.info(f"Model saved to: {saved_paths['model']}")
+    logger.info(f"Metrics saved to: {saved_paths['metrics']}")
+    logger.info(f"CV predictions saved to: {saved_paths['cv_predictions']}")
+    
+    return saved_paths
 
 if __name__ == '__main__':
     main()

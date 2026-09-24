@@ -1,42 +1,119 @@
-# Schema for merged_observations.csv
-# Generated for PROJ-397: Predicting Avian Foraging Behavior
+# Dataset Schema for Avian Foraging Behavior Pipeline
+# This schema defines the required structure for input data artifacts.
+# Used by T039a (load_and_validate_inputs.py) to validate inputs.
+
 version: "1.0"
-description: "Schema for the merged observations dataset after joining EBD records with NLCD land cover data and guild labels."
+description: "Schema for EBD, Guild Mapping, and Merged Observation datasets"
 
-required_columns:
-  - species_id
-  - foraging_guild
-  - forest_prop_100m
-  - grassland_prop_100m
-  - wetland_prop_100m
-  - urban_prop_100m
-  - other_prop_100m
+ebd:
+  description: "Schema for the filtered eBird Observation Data (filtered_ebd.csv)"
+  required_columns:
+    - species_id
+    - latitude
+    - longitude
+    - observation_date
+    - protocol
+    - effort_distance_km
+    - checklist_id
+  column_types:
+    species_id: "string"
+    latitude: "float"
+    longitude: "float"
+    observation_date: "string"
+    protocol: "string"
+    effort_distance_km: "float"
+    checklist_id: "string"
+  constraints:
+    latitude:
+      min: -90.0
+      max: 90.0
+    longitude:
+      min: -180.0
+      max: 180.0
+    species_id:
+      min_length: 1
 
-column_types:
-  species_id: string
-  foraging_guild: string
-  forest_prop_100m: float
-  grassland_prop_100m: float
-  wetland_prop_100m: float
-  urban_prop_100m: float
-  other_prop_100m: float
+guild_mapping:
+  description: "Schema for the Foraging Guild Mapping (guild_mapping.csv)"
+  required_columns:
+    - species_id
+    - foraging_guild
+    - source_citation
+  column_types:
+    species_id: "string"
+    foraging_guild: "string"
+    source_citation: "string"
+  constraints:
+    foraging_guild:
+      allowed_values:
+        - "Ground"
+        - "Canopy"
+        - "Aerial"
+        - "Water"
+        - "Mixed"
+        - "Unknown"
 
-constraints:
-  - column: species_id
-    rule: "non-empty string"
-  - column: foraging_guild
-    rule: "non-empty string"
-  - columns:
-      - forest_prop_100m
-      - grassland_prop_100m
-      - wetland_prop_100m
-      - urban_prop_100m
-      - other_prop_100m
-    rule: "float values between 0.0 and 1.0"
-  - rule: "Sum of all land-cover proportion columns must be <= 1.0 (allowing for minor floating point errors)"
+merged_observations:
+  description: "Schema for the final merged dataset (merged_observations.csv)"
+  required_columns:
+    - species_id
+    - foraging_guild
+    - latitude
+    - longitude
+    - forest_prop_100m
+    - grassland_prop_100m
+    - wetland_prop_100m
+    - urban_prop_100m
+    - other_prop_100m
+    - observation_date
+    - checklist_id
+  column_types:
+    species_id: "string"
+    foraging_guild: "string"
+    latitude: "float"
+    longitude: "float"
+    forest_prop_100m: "float"
+    grassland_prop_100m: "float"
+    wetland_prop_100m: "float"
+    urban_prop_100m: "float"
+    other_prop_100m: "float"
+    observation_date: "string"
+    checklist_id: "string"
+  constraints:
+    forest_prop_100m:
+      min: 0.0
+      max: 1.0
+    grassland_prop_100m:
+      min: 0.0
+      max: 1.0
+    wetland_prop_100m:
+      min: 0.0
+      max: 1.0
+    urban_prop_100m:
+      min: 0.0
+      max: 1.0
+    other_prop_100m:
+      min: 0.0
+      max: 1.0
+    # Sum of proportions should be ~1.0 (checked in T039b/T039d)
 
-file_format:
-  format: csv
-  delimiter: ","
-  encoding: "utf-8"
-  header: true
+species_profiles:
+  description: "Schema for the aggregated species profiles (species_profiles.csv)"
+  required_columns:
+    - species_id
+    - foraging_guild
+    - mean_forest_prop_100m
+    - mean_grassland_prop_100m
+    - mean_wetland_prop_100m
+    - mean_urban_prop_100m
+    - mean_other_prop_100m
+    - n_observations
+  column_types:
+    species_id: "string"
+    foraging_guild: "string"
+    mean_forest_prop_100m: "float"
+    mean_grassland_prop_100m: "float"
+    mean_wetland_prop_100m: "float"
+    mean_urban_prop_100m: "float"
+    mean_other_prop_100m: "float"
+    n_observations: "integer"

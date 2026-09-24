@@ -3850,3 +3850,451 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T13:54:07Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: config defines BUFFER_SIZE as 100 and N_PERMUTATIONS as 1000
+  claim_id: c_fafccb1f
+  context: 'T004: Implement utils/config.py to define paths, random seeds, and constants.
+    The file MUST define the following keys...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST define the following keys: RANDOM_SEED (int, e.g., a fixed
+    seed for reproducibility), EBD_URL (string, S3 path), NLCD_URL (string, USGS path),
+    BUFFER_SIZE (int, 100), N_PERMUTATIONS (int, 1000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:26:52Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: RANDOM_SEED is set to 42
+  claim_id: c_93943de3
+  context: 'T004: Implement utils/config.py... Verification: import config; assert
+    config.RANDOM_SEED == 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verification: import config; assert config.RANDOM_SEED == 42.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:27:48Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: null distribution array length is 1000
+  claim_id: c_f63809ec
+  context: 'T059: Implement models/stratified_permutation.py... Output: Save the null
+    distribution array to data/models/null_distribution.npy. Verification: Assert
+    len(null_distribution) == 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: Save the null distribution array to data/models/null_distribution.npy.
+    Verification: Assert len(null_distribution) == 1000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:28:13Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Enforce minimum 50 observations per species rule
+  claim_id: c_bf1d0562
+  context: "T012.5c: Implement data/preprocess.py... enforce the \u2265 50\u2011observation\
+    \ rule..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement data/preprocess.py to load top_25_species_ids.json... enforce\
+    \ the \u2265 50\u2011observation rule..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:28:39Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select top-ranked species by record count
+  claim_id: c_f3d2796d
+  context: 'T012.5b: Implement data/select_top_species.py... select a subset of top-ranked
+    species by record count...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_top-ranked_species_by_record_count
+  kind: entity_fact
+  raw_text: Implement data/select_top_species.py to read species_counts.json, sort
+    descending, select a subset of top-ranked species by record count...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:29:09Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Write per-species record counts to species_counts.json
+  claim_id: c_5d5f1c4b
+  context: 'T012.5a: Implement data/load_and_count.py...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_per-species_record_counts_to_species_counts.json
+  kind: entity_fact
+  raw_text: "Implement data/load_and_count.py to read data/raw/ebd_train.parquet and\
+    \ write per\u2011species record counts to data/processed/species_counts.json."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:29:29Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Compute land-cover proportions for 100m buffer
+  claim_id: c_f5e4b683
+  context: "T039b: Implement data/calculate_100m_buffers.py to compute land\u2011\
+    cover proportions for a fixed buffer of 100m..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement data/calculate_100m_buffers.py to compute land\u2011cover proportions\
+    \ for a fixed buffer of 100m around each observation point..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:29:51Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Create land cover proportion columns for 100m buffer
+  claim_id: c_dc813489
+  context: 'T039b: Create columns explicitly named forest_prop_100m, grassland_prop_100m,
+    wetland_prop_100m, urban_prop_100m, and other_prop_100m.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create columns explicitly named forest_prop_100m, grassland_prop_100m,
+    wetland_prop_100m, urban_prop_100m, and other_prop_100m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:30:05Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Require minimum 25 species for training
+  claim_id: c_b393798b
+  context: "T058: Add a check in models/train.py to verify that the number of species\
+    \ in species_profiles.csv is sufficient (\u2265 25)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the number of species in species_profiles.csv is sufficient\
+    \ (\u2265 25) before training..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:30:06Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Map habitat for top 25 species by observation count
+  claim_id: c_deeb3c40
+  context: 'T045: Implement viz/map_habitat.py... for the top species by observation
+    count (identified in top_25_species_ids.json)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement viz/map_habitat.py to... for the top species by observation
+    count (identified in top_25_species_ids.json)...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:30:30Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Verify total runtime is less than 6 hours
+  claim_id: c_f5a34327
+  context: 'T032: Profile merge_and_buffer.py... verify total runtime < 6 h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Profile merge_and_buffer.py and optimise buffer calculations via vectorisation;
+    verify total runtime < 6 h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:32:20Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Use alpha threshold of 0.05
+  claim_id: c_4aa20fbc
+  context: "T042c: Implement models/calculate_pvalue_and_save.py to calculate the\
+    \ p\u2011value... the \u03B1 = 0.05 threshold..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the p\u2011value from the null distribution, log seeds, the\
+    \ \u03B1 = 0.05 threshold..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:32:47Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Test expects p-value below 0.05 on synthetic dataset
+  claim_id: c_fa640c4c
+  context: "T054: Implement a test to verify that the Stratified Permutation Test...\
+    \ produces a p\u2011value below 0.05..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a test to verify that the Stratified Permutation Test in models/evaluate.py\
+    \ produces a p\u2011value below 0.05 on a known synthetic dataset where the signal\
+    \ is injected."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:34:41Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Verify 100m buffer proportions sum to 1 or less
+  claim_id: c_f298aec0
+  context: "T052: Implement a unit test... verify that the land\u2011cover proportions\
+    \ for the 100m buffer sum to \u2264 1..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a unit test for the merge_and_buffer.py script... to verify\
+    \ that the land\u2011cover proportions for the 100m buffer sum to \u2264 1..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:34:57Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fetch NLCD 2019 land-cover data
+  claim_id: c_daaa1ce0
+  context: "T037: Implement data/download_nlcd.py to fetch NLCD 2019 land\u2011cover\
+    \ data..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement data/download_nlcd.py to fetch NLCD 2019 land\u2011cover data..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:35:15Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: buffer size set to 100 meters
+  claim_id: c_41a3f54a
+  context: 'The file MUST define the following keys: ... BUFFER_SIZE (int, 100)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST define a BUFFER_SIZE of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:46:20Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: number of permutations set to 1000
+  claim_id: c_9d0544d8
+  context: 'The file MUST define the following keys: ... N_PERMUTATIONS (int, 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST define N_PERMUTATIONS as 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:47:23Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: random seed set to 42
+  claim_id: c_7fcf0a26
+  context: 'Verification: import config; assert config.RANDOM_SEED == 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verification test asserts config.RANDOM_SEED equals 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:47:36Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: minimum 50 observations per species
+  claim_id: c_9e2e7c22
+  context: "keep only selected species, enforce the \u2265 50\u2011observation rule..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_50_observations_per_species
+  kind: magnitude
+  raw_text: The script must enforce a rule of at least 50 observations per species.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:48:42Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: select top 25 species by observation count
+  claim_id: c_322e703b
+  context: Implement data/preprocess.py to load top_25_species_ids.json...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task selects the top 25 species by observation count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:49:25Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: null distribution length is 1000
+  claim_id: c_1938ab75
+  context: 'Verification: Assert len(null_distribution) == 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null distribution array must contain exactly 1000 elements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:49:50Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: permutation test runs 1000 iterations
+  claim_id: c_877c99fa
+  context: permute guild labels within species strata on the raw data, repeat for
+    1000 iterations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test repeats for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:50:09Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: compare top 3 predictors against hardcoded dictionary
+  claim_id: c_029f3ff3
+  context: "compare the top\u20113 model\u2011identified predictors for each guild\
+    \ against the hardcoded dictionary..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation compares the top 3 model-identified predictors against
+    the hardcoded dictionary.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:50:21Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: total runtime less than 6 hours
+  claim_id: c_f52492ec
+  context: Profile merge_and_buffer.py and optimise buffer calculations via vectorisation;
+    verify total runtime < 6 h.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film received an A certificate from the CBFC along with a finalised
+        runtime of 145 minutes.  Except muting two words, the film got no visual cut
+        by the censor board.
+      source_id: Vibe (film)
+      url: https://en.wikipedia.org/wiki/Vibe_(film)
+      value: 145 minutes
+    filled: true
+  kind: magnitude
+  raw_text: The total runtime must be less than 6 hours.
+  resolved_value: 145 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T20:50:30Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: cyclomatic complexity less than 10
+  claim_id: c_8f292cbf
+  context: Refactor merge_and_buffer.py to keep cyclomatic complexity < 10...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: number should be in the range of 1 -10 and range specifies that
+      source_id: '1412.6216'
+      url: https://arxiv.org/abs/1412.6216
+      value: '10'
+    filled: true
+  kind: magnitude
+  raw_text: The cyclomatic complexity must be kept below 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T20:50:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: minimum 25 species required for training
+  claim_id: c_61fbf9f5
+  context: "verify that the number of species in species_profiles.csv is sufficient\
+    \ (\u2265 25) before training..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of species required for training is 25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T20:51:21Z'

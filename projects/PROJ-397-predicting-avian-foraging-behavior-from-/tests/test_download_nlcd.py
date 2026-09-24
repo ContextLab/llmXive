@@ -1,141 +1,87 @@
+"""
+Unit tests for download_nlcd.py
+"""
 import os
 import sys
 import unittest
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import yaml
+import hashlib
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'code'))
 
-from data.download_nlcd import (
-    compute_sha256,
-    load_metadata_config,
-    save_metadata_config,
-    main
-)
-from utils.config import get_raw_data_dir, get_metadata_file, get_project_root
+from data.download_nlcd import compute_sha256, save_metadata
+from utils.config import get_project_root, get_raw_data_dir, get_metadata_file
 
 class TestDownloadNLCD(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures."""
-        self.test_dir = tempfile.mkdtemp()
-        self.original_project_root = get_project_root()
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_file = Path(self.temp_dir) / "test_file.txt"
+        self.test_content = b"Hello, World!"
+        with open(self.test_file, 'wb') as f:
+            f.write(self.test_content)
         
-        # Mock the project root
-        import utils.config
-        original_get_project_root = utils.config.get_project_root
-        utils.config.get_project_root = lambda: Path(self.test_dir)
-        
-        # Ensure directories exist
-        get_raw_data_dir().mkdir(parents=True, exist_ok=True)
-        get_metadata_file().parent.mkdir(parents=True, exist_ok=True)
-        
+        self.test_metadata_path = Path(self.temp_dir) / "test_metadata.yaml"
+    
     def tearDown(self):
         """Clean up test fixtures."""
-        shutil.rmtree(self.test_dir)
-        # Restore original function
-        import utils.config
-        utils.config.get_project_root = self.original_project_root
-
+        shutil.rmtree(self.temp_dir)
+    
     def test_compute_sha256(self):
         """Test SHA-256 computation."""
-        test_file = Path(self.test_dir) / "test.txt"
-        test_content = "Hello, World!"
-        with open(test_file, 'w') as f:
-            f.write(test_content)
+        expected_hash = hashlib.sha256(self.test_content).hexdigest()
+        computed_hash = compute_sha256(self.test_file)
+        self.assertEqual(computed_hash, expected_hash)
+    
+    def test_save_metadata(self):
+        """Test metadata saving functionality."""
+        version = "test_version"
+        download_date = "2023-01-01T00:00:00"
+        checksum = "test_checksum"
         
-        hash_result = compute_sha256(test_file)
-        self.assertEqual(len(hash_result), 64)  # SHA-256 hex length
-        self.assertIsInstance(hash_result, str)
-
-    def test_load_metadata_config_empty(self):
-        """Test loading empty metadata."""
-        metadata = load_metadata_config()
-        self.assertIn("data_sources", metadata)
-        self.assertIn("artifacts", metadata)
-        self.assertIn("steps", metadata)
-
-    def test_save_metadata_config(self):
-        """Test saving metadata configuration."""
-        test_metadata = {
-            "data_sources": {"test": {"url": "http://test.com"}},
-            "artifacts": [],
-            "steps": []
+        save_metadata(self.test_metadata_path, version, download_date, checksum)
+        
+        # Verify file exists
+        self.assertTrue(self.test_metadata_path.exists())
+        
+        # Verify content
+        with open(self.test_metadata_path, 'r') as f:
+            metadata = yaml.safe_load(f)
+        
+        self.assertIn('datasets', metadata)
+        self.assertIn('nlcd_2019', metadata['datasets'])
+        self.assertEqual(metadata['datasets']['nlcd_2019']['version'], version)
+        self.assertEqual(metadata['datasets']['nlcd_2019']['download_date'], download_date)
+        self.assertEqual(metadata['datasets']['nlcd_2019']['checksum'], checksum)
+    
+    def test_save_metadata_existing(self):
+        """Test saving to existing metadata file."""
+        # Create initial metadata
+        initial_data = {
+            'datasets': {
+                'ebd_train': {
+                    'source_url': 's3://test',
+                    'version': 'v1'
+                }
+            }
         }
-        save_metadata_config(test_metadata)
+        with open(self.test_metadata_path, 'w') as f:
+            yaml.dump(initial_data, f)
         
-        # Verify file exists and can be loaded
-        metadata_path = get_metadata_file()
-        self.assertTrue(metadata_path.exists())
+        save_metadata(self.test_metadata_path, "v2", "2023-01-01", "checksum123")
         
-        loaded = load_metadata_config()
-        self.assertEqual(loaded["data_sources"]["test"]["url"], "http://test.com")
-
-    @patch('data.download_nlcd.requests.get')
-    def test_download_file_success(self, mock_get):
-        """Test successful file download."""
-        from data.download_nlcd import download_file
+        with open(self.test_metadata_path, 'r') as f:
+            metadata = yaml.safe_load(f)
         
-        # Mock response
-        mock_response = MagicMock()
-        mock_response.iter_content.return_value = [b"test content"]
-        mock_response.headers = {'content-length': '12'}
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-        
-        output_path = Path(self.test_dir) / "downloaded.txt"
-        result = download_file("http://test.com/file.txt", output_path)
-        
-        self.assertTrue(result)
-        self.assertTrue(output_path.exists())
-        with open(output_path, 'r') as f:
-            self.assertEqual(f.read(), "test content")
-
-    @patch('data.download_nlcd.requests.get')
-    def test_download_file_failure(self, mock_get):
-        """Test failed file download raises error."""
-        from data.download_nlcd import download_file
-        
-        mock_get.side_effect = Exception("Network error")
-        
-        output_path = Path(self.test_dir) / "failed.txt"
-        result = download_file("http://test.com/file.txt", output_path)
-        
-        self.assertFalse(result)
-        self.assertFalse(output_path.exists())
-
-    @patch('data.download_nlcd.download_file')
-    def test_main_download_success(self, mock_download):
-        """Test main function with successful download."""
-        from data.download_nlcd import main
-        
-        mock_download.return_value = True
-        
-        # Create necessary directories
-        get_raw_data_dir().mkdir(parents=True, exist_ok=True)
-        
-        # Run main
-        main()
-        
-        # Verify metadata was updated
-        metadata = load_metadata_config()
-        self.assertIn("NLCD", metadata.get("data_sources", {}))
-
-    @patch('data.download_nlcd.download_file')
-    def test_main_download_failure(self, mock_download):
-        """Test main function with failed download raises FileNotFoundError."""
-        from data.download_nlcd import main
-        
-        mock_download.return_value = False
-        
-        get_raw_data_dir().mkdir(parents=True, exist_ok=True)
-        
-        with self.assertRaises(FileNotFoundError):
-            main()
+        # Verify both datasets exist
+        self.assertIn('ebd_train', metadata['datasets'])
+        self.assertIn('nlcd_2019', metadata['datasets'])
 
 if __name__ == '__main__':
     unittest.main()

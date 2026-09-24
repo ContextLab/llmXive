@@ -1,176 +1,210 @@
 """
-T039c: Join guild labels to buffered land cover data.
+T039c: Join buffered land cover data with guild mapping to assign foraging guilds.
 
-This script reads the filtered EBD data (which now contains land cover proportions
-from T039b) and joins it with the guild mapping to assign a 'foraging_guild' to
-each observation.
-
-Input:
-    - data/processed/filtered_ebd.csv (from T012.5c/T039b)
-    - data/processed/guild_mapping.csv (from T008b)
-
-Output:
-    - data/processed/joined_observations.csv (Intermediate artifact for T039d)
+This script reads the buffered land cover data (produced by calculate_100m_buffers.py)
+and joins it with the guild mapping (produced by generate_guild_mapping.py) to assign
+a foraging guild to each observation. It ensures all required columns are present
+and validates the join operation.
 """
-
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Set, Dict, Any
-
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
 
 from utils.config import get_processed_dir, get_project_root
-from utils.provenance import compute_file_hash, save_provenance_record, load_metadata_config, save_metadata_config
+from utils.provenance import record_artifact_provenance, compute_file_hash
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_filtered_ebd(filepath: Path) -> Any:
-    """Load the filtered EBD CSV."""
-    try:
-        import pandas as pd
-        df = pd.read_csv(filepath)
-        logger.info(f"Loaded filtered EBD: {len(df)} rows, columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load filtered EBD from {filepath}: {e}")
-        raise
+# Define paths
+PROJECT_ROOT = get_project_root()
+PROCESSED_DIR = get_processed_dir()
 
-def load_guild_mapping(filepath: Path) -> Any:
+INPUT_FILE = PROCESSED_DIR / "buffered_observations.csv"
+GUILD_MAPPING_FILE = PROCESSED_DIR / "guild_mapping.csv"
+OUTPUT_FILE = PROCESSED_DIR / "joined_observations.csv"
+LOG_FILE = PROCESSED_DIR / "guild_join_log.txt"
+
+# Required columns for the buffered data
+REQUIRED_BUFFERED_COLUMNS = [
+    "species_id",
+    "latitude",
+    "longitude",
+    "forest_prop_100m",
+    "grassland_prop_100m",
+    "wetland_prop_100m",
+    "urban_prop_100m",
+    "other_prop_100m"
+]
+
+# Required columns for the guild mapping
+REQUIRED_GUILD_COLUMNS = [
+    "species_id",
+    "foraging_guild",
+    "source_citation",
+    "extraction_date"
+]
+
+
+def load_filtered_ebd() -> pd.DataFrame:
+    """Load the buffered observations CSV."""
+    if not INPUT_FILE.exists():
+        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}")
+    
+    logger.info(f"Loading buffered observations from {INPUT_FILE}")
+    df = pd.read_csv(INPUT_FILE)
+    
+    if df.empty:
+        raise ValueError(f"Input file {INPUT_FILE} is empty")
+    
+    return df
+
+
+def load_guild_mapping() -> pd.DataFrame:
     """Load the guild mapping CSV."""
-    try:
-        import pandas as pd
-        df = pd.read_csv(filepath)
-        logger.info(f"Loaded guild mapping: {len(df)} rows, columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load guild mapping from {filepath}: {e}")
-        raise
-
-def validate_inputs(ebd_df: Any, mapping_df: Any) -> None:
-    """Validate that required columns exist in both dataframes."""
-    required_ebd_cols = {'species_id', 'latitude', 'longitude'}
-    # T039b added land cover columns, but we just need species_id for the join
+    if not GUILD_MAPPING_FILE.exists():
+        raise FileNotFoundError(f"Guild mapping file not found: {GUILD_MAPPING_FILE}")
     
-    required_mapping_cols = {'species_id', 'foraging_guild'}
-
-    ebd_cols = set(ebd_df.columns)
-    mapping_cols = set(mapping_df.columns)
-
-    missing_ebd = required_ebd_cols - ebd_cols
-    if missing_ebd:
-        raise ValueError(f"Filtered EBD missing required columns: {missing_ebd}")
-
-    missing_mapping = required_mapping_cols - mapping_cols
-    if missing_mapping:
-        raise ValueError(f"Guild mapping missing required columns: {missing_mapping}")
-
-    logger.info("Input validation passed.")
-
-def join_guild_labels(ebd_df: Any, mapping_df: Any) -> Any:
-    """
-    Perform a left join of EBD data with guild mapping on species_id.
-    Ensures all required columns are present in the result.
-    """
-    # Ensure species_id is string for consistent joining
-    ebd_df = ebd_df.copy()
-    mapping_df = mapping_df.copy()
+    logger.info(f"Loading guild mapping from {GUILD_MAPPING_FILE}")
+    df = pd.read_csv(GUILD_MAPPING_FILE)
     
-    ebd_df['species_id'] = ebd_df['species_id'].astype(str)
-    mapping_df['species_id'] = mapping_df['species_id'].astype(str)
+    if df.empty:
+        raise ValueError(f"Guild mapping file {GUILD_MAPPING_FILE} is empty")
+    
+    return df
 
-    # Merge
-    joined_df = ebd_df.merge(
-        mapping_df[['species_id', 'foraging_guild']],
-        on='species_id',
-        how='left'
+
+def validate_inputs(buffered_df: pd.DataFrame, guild_df: pd.DataFrame) -> None:
+    """Validate that required columns are present in both DataFrames."""
+    # Check buffered data columns
+    missing_buffered = set(REQUIRED_BUFFERED_COLUMNS) - set(buffered_df.columns)
+    if missing_buffered:
+        raise ValueError(f"Missing required columns in buffered data: {missing_buffered}")
+    
+    # Check guild mapping columns
+    missing_guild = set(REQUIRED_GUILD_COLUMNS) - set(guild_df.columns)
+    if missing_guild:
+        raise ValueError(f"Missing required columns in guild mapping: {missing_guild}")
+    
+    # Check for duplicate species_id in guild mapping (should be unique)
+    if guild_df['species_id'].duplicated().any():
+        raise ValueError("Duplicate species_id found in guild mapping. Each species should have exactly one guild.")
+    
+    logger.info("Input validation passed")
+
+
+def join_guild_labels(buffered_df: pd.DataFrame, guild_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Join buffered land cover data with guild mapping on species_id.
+    
+    This performs a left join to keep all buffered observations and assign
+    the corresponding foraging guild. Observations for species without a
+    guild mapping will be dropped and logged.
+    """
+    logger.info(f"Performing join on {len(buffered_df)} buffered observations with {len(guild_df)} guild mappings")
+    
+    # Select relevant columns from guild mapping for the join
+    guild_select = guild_df[["species_id", "foraging_guild", "source_citation", "extraction_date"]]
+    
+    # Perform left join
+    joined_df = buffered_df.merge(
+        guild_select,
+        on="species_id",
+        how="left"
     )
-
-    # Validate join result
-    null_guilds = joined_df['foraging_guild'].isna().sum()
-    if null_guilds > 0:
-        logger.warning(f"Found {null_guilds} observations with missing guild labels. "
-                     "These will be included but flagged in downstream steps if necessary.")
     
-    required_result_cols = {'species_id', 'foraging_guild', 'latitude', 'longitude'}
-    result_cols = set(joined_df.columns)
-    missing_result = required_result_cols - result_cols
-    if missing_result:
-        raise ValueError(f"Result dataframe missing required columns after join: {missing_result}")
-
-    logger.info(f"Joined data successfully. Result shape: {joined_df.shape}")
+    # Identify observations without a guild mapping
+    null_guild_mask = joined_df["foraging_guild"].isna()
+    missing_count = null_guild_mask.sum()
+    
+    if missing_count > 0:
+        missing_species = joined_df.loc[null_guild_mask, "species_id"].unique()
+        logger.warning(f"Found {missing_count} observations for {len(missing_species)} species without guild mapping")
+        
+        # Log missing species
+        with open(LOG_FILE, 'w') as f:
+            f.write(f"Species without guild mapping (dropped from output):\n")
+            for sp in sorted(missing_species):
+                count = (joined_df["species_id"] == sp).sum()
+                f.write(f"  {sp}: {count} observations\n")
+        
+        # Drop rows without guild
+        joined_df = joined_df.dropna(subset=["foraging_guild"])
+        logger.info(f"Dropped {missing_count} observations. Remaining: {len(joined_df)}")
+    else:
+        with open(LOG_FILE, 'w') as f:
+            f.write("All observations successfully joined with guild mapping.\n")
+    
+    # Verify no nulls remain in foraging_guild
+    if joined_df["foraging_guild"].isna().any():
+        raise ValueError("After dropping, there are still observations without foraging_guild")
+    
     return joined_df
 
-def save_joined_data(df: Any, filepath: Path) -> str:
-    """Save the joined dataframe to CSV and return the file hash."""
-    df.to_csv(filepath, index=False)
-    file_hash = compute_file_hash(filepath)
-    logger.info(f"Saved joined observations to {filepath} (hash: {file_hash})")
-    return file_hash
 
-def record_provenance(input_files: List[Path], output_file: Path, file_hash: str) -> None:
-    """Record provenance in metadata.yaml."""
-    metadata_path = get_project_root() / "data" / "metadata.yaml"
-    metadata = load_metadata_config(metadata_path)
+def save_joined_data(joined_df: pd.DataFrame) -> None:
+    """Save the joined DataFrame to CSV."""
+    if not PROCESSED_DIR.exists():
+        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     
-    if 'steps' not in metadata:
-        metadata['steps'] = []
+    logger.info(f"Saving joined observations to {OUTPUT_FILE}")
+    joined_df.to_csv(OUTPUT_FILE, index=False)
     
-    step_record = {
-        "step_id": "T039c",
-        "step_name": "join_guild_labels",
-        "input_files": [str(f) for f in input_files],
-        "output_file": str(output_file),
-        "output_hash": file_hash,
-        "timestamp": str(Path(__file__).stat().st_mtime) # Simplified timestamp
-    }
-    
-    metadata['steps'].append(step_record)
-    save_metadata_config(metadata, metadata_path)
-    logger.info("Provenance recorded in metadata.yaml")
+    # Compute and record hash
+    file_hash = compute_file_hash(OUTPUT_FILE)
+    logger.info(f"Output file hash: {file_hash}")
 
-def main():
-    """Main entry point for T039c."""
-    processed_dir = get_processed_dir()
-    
-    input_ebd = processed_dir / "filtered_ebd.csv"
-    input_mapping = processed_dir / "guild_mapping.csv"
-    output_file = processed_dir / "joined_observations.csv"
 
-    if not input_ebd.exists():
-        raise FileNotFoundError(f"Input file not found: {input_ebd}. "
-                              "Ensure T012.5c/T039b has completed.")
-    if not input_mapping.exists():
-        raise FileNotFoundError(f"Input file not found: {input_mapping}. "
-                              "Ensure T008b has completed.")
+def record_provenance() -> None:
+    """Record provenance information for this step."""
+    record_artifact_provenance(
+        step_name="join_guild_labels",
+        input_files=[str(INPUT_FILE), str(GUILD_MAPPING_FILE)],
+        output_files=[str(OUTPUT_FILE), str(LOG_FILE)],
+        script_path=__file__
+    )
 
-    logger.info(f"Starting T039c: Joining guild labels for {input_ebd}")
 
-    # Load
-    ebd_df = load_filtered_ebd(input_ebd)
-    mapping_df = load_guild_mapping(input_mapping)
+def main() -> None:
+    """Main entry point for the script."""
+    try:
+        # Load data
+        buffered_df = load_filtered_ebd()
+        guild_df = load_guild_mapping()
+        
+        # Validate inputs
+        validate_inputs(buffered_df, guild_df)
+        
+        # Perform join
+        joined_df = join_guild_labels(buffered_df, guild_df)
+        
+        # Save output
+        save_joined_data(joined_df)
+        
+        # Record provenance
+        record_provenance()
+        
+        logger.info(f"Successfully joined {len(joined_df)} observations with guild labels")
+        logger.info(f"Unique species: {joined_df['species_id'].nunique()}")
+        logger.info(f"Unique guilds: {joined_df['foraging_guild'].nunique()}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
-    # Validate
-    validate_inputs(ebd_df, mapping_df)
-
-    # Join
-    joined_df = join_guild_labels(ebd_df, mapping_df)
-
-    # Save
-    file_hash = save_joined_data(joined_df, output_file)
-
-    # Record Provenance
-    record_provenance([input_ebd, input_mapping], output_file, file_hash)
-
-    logger.info("T039c completed successfully.")
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
