@@ -1,174 +1,222 @@
 """
-Power Analysis for Music-Personality Correlation Study.
+power_analysis.py
+-----------------
+Computes the required sample size for detecting a Pearson correlation
+coefficient of r = 0.10 with a Bonferroni‑adjusted significance level
+α = 0.001 and a target statistical power of 0.80.
 
-Computes the required sample size to detect a Pearson correlation (r) of 0.10
-with a Bonferroni-adjusted alpha of 0.001 (target power 0.80).
+The script performs three actions:
 
-Logic:
-1. Define parameters: r=0.10, alpha=0.001, power=0.80.
-2. Use scipy.stats to calculate the required N.
-3. Write the integer N to results/power_analysis.txt.
-4. Parse the file to ensure consistency.
-5. Update research.md (Methodological Rationale section) with the value.
-6. Update state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml
-   with the recorded required sample size.
+1. Calculates the sample size using statsmodels' FTestPower (which is
+   equivalent to a correlation test via the relationship
+   f² = r² / (1‑r²)).
+2. Writes the integer sample size to ``results/power_analysis.txt``.
+3. Immediately reads back the written file and updates two project‑wide
+   artefacts:
+      * ``research.md`` – inserts a line in the *Methodological Rationale*
+        section reporting the required sample size.
+      * ``state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml``
+        – stores the value under the key ``required_sample_size``.
+The script is deliberately self‑contained and can be executed directly:
+
+    python code/power_analysis.py
+
+It will create any missing parent directories, and it uses the shared
+``setup_logging`` utility for consistent log handling.
 """
-import os
-import sys
+
 import math
 import logging
 from pathlib import Path
 
-# Add parent directory to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+import yaml
+from statsmodels.stats.power import FTestPower
 
 from utils import setup_logging
 
-logger = setup_logging()
 
-# Parameters
-EFFECT_SIZE_R = 0.10
-ALPHA_ADJUSTED = 0.001
-POWER = 0.80
-OUTPUT_FILE = project_root / "results" / "power_analysis.txt"
-RESEARCH_FILE = project_root / "research.md"
-STATE_FILE = project_root / "state" / "projects" / "PROJ-049-exploring-the-correlation-between-musica.yaml"
+# ----------------------------------------------------------------------
+# Configuration constants (these are part of the scientific specification)
+# ----------------------------------------------------------------------
+TARGET_R = 0.10                 # effect size we wish to detect
+BONFERRONI_ALPHA = 0.001        # family‑wise error rate after correction
+TARGET_POWER = 0.80             # conventional statistical power
 
-def calculate_sample_size(r, alpha, power):
+# Paths – relative to the repository root
+RESULTS_DIR = Path("results")
+POWER_ANALYSIS_TXT = RESULTS_DIR / "power_analysis.txt"
+
+RESEARCH_MD_PATH = Path("research.md")
+STATE_FILE_PATH = Path(
+    "state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml"
+)
+
+
+def calculate_sample_size(
+    r: float = TARGET_R,
+    alpha: float = BONFERRONI_ALPHA,
+    power: float = TARGET_POWER,
+) -> int:
     """
-    Calculate required sample size for Pearson correlation test.
-    Uses Fisher's z-transformation approximation.
+    Compute the required total sample size (N) for a two‑tailed Pearson
+    correlation test using the F‑test power approximation.
+
+    Parameters
+    ----------
+    r: float
+        Target correlation coefficient.
+    alpha: float
+        Desired significance level (already Bonferroni‑adjusted).
+    power: float
+        Desired statistical power.
+
+    Returns
+    -------
+    int
+        The smallest integer N that satisfies the power requirement.
     """
-    # Fisher's z transformation
-    z_r = 0.5 * math.log((1 + r) / (1 - r))
-    
-    # Critical z-values
-    # Two-tailed test: alpha/2
-    # We need the inverse CDF (percent point function) of the standard normal
-    # Since we can't rely on scipy.stats in this isolated calculation block without import,
-    # we approximate or import it here. The API surface allows standard libs.
+    # Convert correlation to Cohen's f² for a simple linear regression with
+    # one predictor (the equivalence holds for testing a single correlation).
+    f_squared = r ** 2 / (1 - r ** 2)
+
+    # statsmodels expects the *effect size* f (square‑root of f²)
+    effect_size_f = math.sqrt(f_squared)
+
+    # df_num = number of numerator degrees of freedom = 1 for a single
+    # predictor; df_denom is solved internally.
+    power_analysis = FTestPower()
+    nobs = power_analysis.solve_power(
+        effect_size=effect_size_f,
+        df_num=1,
+        alpha=alpha,
+        power=power,
+        alternative="two-sided",
+    )
+
+    # ``solve_power`` returns a float; we need the ceiling to guarantee
+    # sufficient observations.
+    required_n = math.ceil(nobs)
+    return required_n
+
+
+def write_power_analysis_file(sample_size: int, path: Path = POWER_ANALYSIS_TXT) -> None:
+    """
+    Persist the required sample size to ``results/power_analysis.txt``.
+    The file contains a single integer on the first line.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"{sample_size}\\n")
+    logging.info("Required sample size (%d) written to %s", sample_size, path)
+
+
+def read_power_analysis_file(path: Path = POWER_ANALYSIS_TXT) -> int:
+    """
+    Read back the sample size from the file written by ``write_power_analysis_file``.
+    """
+    content = path.read_text().strip()
     try:
-        from scipy.stats import norm
-    except ImportError:
-        logger.error("scipy is required for power analysis. Please install it.")
-        raise
+        value = int(content.splitlines()[0])
+    except Exception as exc:
+        raise ValueError(f"Unable to parse integer from {path}") from exc
+    logging.debug("Read sample size %d from %s", value, path)
+    return value
 
-    z_alpha = norm.ppf(1 - alpha / 2)
-    z_beta = norm.ppf(power)
 
-    # Formula for N:
-    # N = ((z_alpha + z_beta) / z_r)^2 + 3
-    # (The +3 is a common continuity correction for Fisher's z)
-    
-    if z_r == 0:
-        raise ValueError("Effect size r cannot be 0.")
-
-    n = ((z_alpha + z_beta) / z_r) ** 2 + 3
-    return math.ceil(n)
-
-def update_research_md(required_n):
+def update_research_md(sample_size: int, md_path: Path = RESEARCH_MD_PATH) -> None:
     """
-    Updates research.md in the 'Methodological Rationale' section.
-    """
-    if not RESEARCH_FILE.exists():
-        logger.warning(f"{RESEARCH_FILE} does not exist. Creating it.")
-        RESEARCH_FILE.parent.mkdir(parents=True, exist_ok=True)
-        content = "# Research Methodology\n\n"
-        content += "## Methodological Rationale\n\n"
-        content += f"The required sample size was calculated to detect a correlation of r={EFFECT_SIZE_R} "
-        content += f"with alpha={ALPHA_ADJUSTED} and power={POWER}. "
-        content += f"Calculated N: **{required_n}**.\n"
-        RESEARCH_FILE.write_text(content)
-        return
+    Insert (or replace) a line reporting the required sample size in the
+    *Methodological Rationale* section of ``research.md``.
 
-    content = RESEARCH_FILE.read_text()
-    
-    # Check if section exists
-    if "## Methodological Rationale" not in content:
-        content += "\n## Methodological Rationale\n\n"
-    
-    # Update or insert the specific line
-    # We look for a pattern like "Calculated N: **XXX**" or "Required N: XXX"
-    import re
-    
-    # Pattern to find the existing N record
-    pattern = r"Calculated N: \*\*(\d+)\*\*|Required sample size: (\d+)"
-    
-    if re.search(pattern, content):
-        # Replace existing
-        new_line = f"Calculated N: **{required_n}**"
-        content = re.sub(pattern, new_line, content)
-    else:
-        # Append if no existing record found
-        content += f"Calculated N: **{required_n}**\n"
-    
-    RESEARCH_FILE.write_text(content)
-    logger.info(f"Updated {RESEARCH_FILE} with required N: {required_n}")
-
-def update_state_file(required_n):
+    The function is tolerant of missing headings – if the heading cannot be
+    found it appends a new section at the end of the file.
     """
-    Updates the project state YAML file with the required sample size.
-    """
-    if not STATE_FILE.exists():
-        logger.warning(f"{STATE_FILE} does not exist. Creating it.")
-        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        content = f"project_id: PROJ-049-exploring-the-correlation-between-musica\n"
-        content += f"required_sample_size: {required_n}\n"
-        content += "updated_at: null\n"
-        content += "artifact_hashes: {}\n"
-        STATE_FILE.write_text(content)
-        return
+    if not md_path.is_file():
+        raise FileNotFoundError(f"{md_path} does not exist")
 
-    content = STATE_FILE.read_text()
-    
-    # Simple YAML update (assuming basic structure)
-    import re
-    
-    # Check if key exists
-    if "required_sample_size:" in content:
-        content = re.sub(r"required_sample_size: \d+", f"required_sample_size: {required_n}", content)
-    else:
-        # Insert after project_id
-        content = re.sub(
-            r"(project_id: .*\n)",
-            f"\\1required_sample_size: {required_n}\n",
-            content
+    lines = md_path.read_text().splitlines()
+    new_lines = []
+    inserted = False
+
+    for idx, line in enumerate(lines):
+        new_lines.append(line)
+        # Detect the start of the methodological rationale section.
+        if line.strip().lower().startswith("## methodological rationale"):
+            # Insert a blank line then the required‑size line.
+            insertion = (
+                f"Required sample size (detect r={TARGET_R:.2f}, "
+                f"α={BONFERRONI_ALPHA:.3f}, power={TARGET_POWER:.2f}): {sample_size}"
+            )
+            new_lines.append("")
+            new_lines.append(insertion)
+            inserted = True
+            # Continue copying the rest of the file unchanged.
+
+    if not inserted:
+        # Fallback – add a new section at the end.
+        new_lines.append("")
+        new_lines.append("## Methodological Rationale")
+        new_lines.append(
+            f"Required sample size (detect r={TARGET_R:.2f}, "
+            f"α={BONFERRONI_ALPHA:.3f}, power={TARGET_POWER:.2f}): {sample_size}"
         )
-    
-    STATE_FILE.write_text(content)
-    logger.info(f"Updated {STATE_FILE} with required N: {required_n}")
 
-def main():
-    logger.info("Starting Power Analysis...")
-    logger.info(f"Target r: {EFFECT_SIZE_R}, Alpha: {ALPHA_ADJUSTED}, Power: {POWER}")
+    md_path.write_text("\\n".join(new_lines) + "\\n")
+    logging.info("research.md updated with required sample size %d", sample_size)
 
-    try:
-        required_n = calculate_sample_size(EFFECT_SIZE_R, ALPHA_ADJUSTED, POWER)
-        logger.info(f"Calculated required sample size: {required_n}")
-    except Exception as e:
-        logger.error(f"Power analysis calculation failed: {e}")
-        raise
 
-    # Ensure output directory exists
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+def update_state_file(sample_size: int, state_path: Path = STATE_FILE_PATH) -> None:
+    """
+    Store the required sample size in the project's state YAML file.
+    If the file already exists, the key ``required_sample_size`` is added
+    or overwritten; all other keys are preserved.
+    """
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    if state_path.is_file():
+        with state_path.open("r") as f:
+            try:
+                data = yaml.safe_load(f) or {}
+            except yaml.YAMLError as exc:
+                raise ValueError(f"Malformed YAML in {state_path}") from exc
+    else:
+        data = {}
 
-    # Write to file
-    with open(OUTPUT_FILE, 'w') as f:
-        f.write(str(required_n))
-    logger.info(f"Written required N ({required_n}) to {OUTPUT_FILE}")
+    data["required_sample_size"] = sample_size
+    with state_path.open("w") as f:
+        yaml.safe_dump(data, f, sort_keys=False)
+    logging.info("State file %s updated with required_sample_size=%d", state_path, sample_size)
 
-    # Parse immediately to verify
-    parsed_n = int(OUTPUT_FILE.read_text().strip())
+
+def main() -> None:
+    """
+    Orchestrates the full power‑analysis workflow.
+    """
+    # Initialise a consistent logger (writes to ``logs/app.log`` via utils).
+    logger = setup_logging()
+    logger.info("Starting power analysis computation")
+
+    # 1️⃣  Compute the required N.
+    required_n = calculate_sample_size()
+    logger.debug("Calculated required sample size: %d", required_n)
+
+    # 2️⃣  Persist the result.
+    write_power_analysis_file(required_n)
+
+    # 3️⃣  Immediately read it back (as required by the spec).
+    parsed_n = read_power_analysis_file()
     if parsed_n != required_n:
-        raise RuntimeError(f"Verification failed: File contains {parsed_n}, expected {required_n}")
-    logger.info(f"Verification passed: {parsed_n}")
+        logger.error(
+            "Mismatch between written (%d) and parsed (%d) sample size",
+            required_n,
+            parsed_n,
+        )
+        raise RuntimeError("Inconsistent sample size after write/read")
 
-    # Update documentation files
+    # 4️⃣  Update ancillary artefacts.
     update_research_md(parsed_n)
     update_state_file(parsed_n)
 
-    logger.info("Power analysis complete.")
+    logger.info("Power analysis completed successfully")
+
 
 if __name__ == "__main__":
     main()

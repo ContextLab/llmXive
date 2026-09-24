@@ -1,8 +1,6 @@
 """
-Base logging infrastructure for the llmXive automated science pipeline.
-
-Provides centralized logging configuration, logger retrieval, and structured
-logging utilities to ensure consistent log formatting across the project.
+Base logging infrastructure for the statistical discrepancies research pipeline.
+Provides structured logging with JSON formatting and context-aware loggers.
 """
 import logging
 import sys
@@ -11,187 +9,124 @@ from typing import Optional
 import json
 from datetime import datetime
 
-# Global logger registry to prevent re-initialization
-_LOGGERS = {}
-_CONFIGURED = False
-
-# Default log format
-DEFAULT_FORMAT = (
-    "%(asctime)s - %(name)s - %(levelname)s - "
-    "[%(filename)s:%(lineno)d] - %(message)s"
-)
-
-# Default date format
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Log levels mapping
-LOG_LEVELS = {
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR,
-    "CRITICAL": logging.CRITICAL,
-}
-
-def setup_logging(
-    log_level: str = "INFO",
-    log_file: Optional[Path] = None,
-    project_root: Optional[Path] = None,
-    console: bool = True,
-    json_format: bool = False
-) -> None:
-    """
-    Configure the root logger with console and optional file handlers.
-    
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional path to log file. If None, no file handler is added.
-        project_root: Optional project root directory for relative log file paths.
-        console: Whether to add a console handler (default: True)
-        json_format: Whether to use JSON format for logs (default: False)
-    
-    Raises:
-        ValueError: If log_level is invalid
-    """
-    global _CONFIGURED
-    
-    if _CONFIGURED:
-        return  # Prevent re-initialization
-    
-    # Validate log level
-    if log_level not in LOG_LEVELS:
-        raise ValueError(
-            f"Invalid log_level: {log_level}. "
-            f"Must be one of: {list(LOG_LEVELS.keys())}"
-        )
-    
-    level = LOG_LEVELS[log_level]
-    
-    # Create root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers
-    root_logger.handlers.clear()
-    
-    # Create formatter
-    if json_format:
-        formatter = JSONFormatter()
-    else:
-        formatter = logging.Formatter(
-            fmt=DEFAULT_FORMAT,
-            datefmt=DEFAULT_DATE_FORMAT
-        )
-    
-    # Add console handler if requested
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-    
-    # Add file handler if log_file is specified
-    if log_file:
-        # Resolve relative to project_root if provided
-        if project_root and not log_file.is_absolute():
-            log_file = project_root / log_file
-        
-        # Ensure parent directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(str(log_file), mode='a')
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-    
-    _CONFIGURED = True
-    logging.getLogger().info("Logging infrastructure initialized.")
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a named logger, creating it if necessary.
-    
-    Args:
-        name: Logger name (typically __name__ of the module)
-    
-    Returns:
-        Configured logger instance
-    """
-    if name in _LOGGERS:
-        return _LOGGERS[name]
-    
-    logger = logging.getLogger(name)
-    
-    # If logging is not configured yet, set up defaults
-    if not _CONFIGURED:
-        setup_logging(log_level="INFO")
-    
-    _LOGGERS[name] = logger
-    return logger
 
 class JSONFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs logs as JSON lines.
-    Useful for structured logging and log aggregation systems.
-    """
+    """Custom formatter that outputs logs in JSON format for structured logging."""
     
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
+        log_data = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno,
+            "line": record.lineno
         }
         
         # Add exception info if present
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+            log_data["exception"] = self.formatException(record.exc_info)
         
-        # Add extra fields if present
-        if hasattr(record, 'extra_fields'):
-            log_entry.update(record.extra_fields)
+        # Add extra context if present
+        if hasattr(record, 'context'):
+            log_data["context"] = record.context
         
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
-def log_with_context(logger: logging.Logger, level: str, message: str, **context) -> None:
+
+def setup_logging(
+    log_file: Optional[Path] = None,
+    log_level: int = logging.INFO,
+    use_json: bool = False,
+    console_output: bool = True
+) -> None:
     """
-    Log a message with additional context fields.
+    Configure the root logger with appropriate handlers and formatters.
     
     Args:
-        logger: Logger instance to use
-        level: Log level string (DEBUG, INFO, etc.)
-        message: Log message
-        **context: Additional key-value pairs to include in log
+        log_file: Optional path to write logs to. If None, logs only to console.
+        log_level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        use_json: If True, use JSONFormatter; otherwise use standard format.
+        console_output: If True, output logs to console.
     """
-    if level not in LOG_LEVELS:
-        raise ValueError(f"Invalid log level: {level}")
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
     
-    log_record = logger.makeRecord(
-        logger.name,
-        LOG_LEVELS[level],
-        "",
-        0,
-        message,
-        (),
-        None
-    )
+    # Clear existing handlers
+    root_logger.handlers.clear()
     
-    # Attach context as extra fields
-    log_record.extra_fields = context
+    # Formatter selection
+    if use_json:
+        formatter = JSONFormatter()
+    else:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
     
-    logger.handle(log_record)
+    # Console handler
+    if console_output:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(formatter)
+        root_logger.addHandler(console_handler)
+    
+    # File handler
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance with the given name.
+    
+    Args:
+        name: Logger name. If None, uses the module's __name__.
+    
+    Returns:
+        Configured logger instance.
+    """
+    if name is None:
+        # This will be called from a module, so we need to inspect the stack
+        # to get the calling module's name. However, for simplicity, we'll
+        # return the root logger if no name is provided.
+        return logging.getLogger()
+    
+    return logging.getLogger(name)
+
+
+def log_with_context(
+    logger: logging.Logger,
+    level: int,
+    message: str,
+    context: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Log a message with additional context data.
+    
+    Args:
+        logger: Logger instance to use.
+        level: Logging level.
+        message: Log message.
+        context: Optional dictionary of context data to include.
+    """
+    extra = {"context": context} if context else {}
+    logger.log(level, message, extra=extra)
+
 
 def get_logger_for_module(module_name: str) -> logging.Logger:
     """
-    Convenience function to get a logger for the current module.
+    Get a logger configured for a specific module.
     
     Args:
-        module_name: Name of the module (typically __name__)
+        module_name: The name of the module (typically __name__).
     
     Returns:
-        Configured logger instance
+        Logger instance named after the module.
     """
-    return get_logger(module_name)
+    return logging.getLogger(module_name)

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.07037",
+  "judged_at": "2026-09-24T09:33:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of cognitive load on decision-making accuracy in simulated environments psychology",
+  "rationale": "This paper satisfies criterion (a) by empirically measuring the impact of cognitive load (operationalized via disclosure complexity and interface difficulty) on decision-making accuracy (grounded accuracy of responses) within a simulated experimental environment. It also meets criterion (b) by providing data on the specific independent variable (cognitive load factors) and dependent variable (accuracy) in a domain (financial decision-making) relevant to the user's psychological inquiry.",
+  "relevant": true
+}

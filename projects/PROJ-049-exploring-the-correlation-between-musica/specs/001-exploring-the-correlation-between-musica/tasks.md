@@ -23,7 +23,7 @@
 ## Phase 0: Research (Methodology & Power Analysis)
 
 - [ ] T000a Conduct Power Analysis & Record Requirement: Implement `code/power_analysis.py` to compute required sample size for detecting Pearson r = 0.10 with Bonferroni-adjusted α = 0.001. **Logic**: Calculate N, write it to `results/power_analysis.txt`, **immediately parse this file**, and update `research.md` (in the "Methodological Rationale" section) and the project state file (`state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml`) with the recorded required sample size. **Verification**: Script runs without error, `results/power_analysis.txt` exists with a numeric value, and `research.md` + state file contain the exact recorded value.
-- [ ] T000b Document Dataset Strategy & Methodological Rationale: Write `research.md` describing the choice of OpenML BFI‑2 (ID 42473) and HuggingFace `lastfm/lastfm_1k`, include URLs, licensing, and rationale for using real data only. **Note**: This task now relies on T000a having already recorded the sample size; do not include logic to read T000a's output here. **Verification**: File contains the two dataset URLs, a "Real‑First" paragraph, and the recorded sample size (populated by T000a).
+- [ ] T000b Document Dataset Strategy & Methodological Rationale: Write `research.md` describing the choice of OpenML BFI‑2 (ID 42473) [UNRESOLVED-CLAIM: c_4c1e7f35 — status=not_enough_info] and HuggingFace `lastfm/lastfm_1k` [UNRESOLVED-CLAIM: c_c6f1c31f — status=refuted], include URLs, licensing, and rationale for using real data only. **Note**: This task now relies on T000a having already recorded the sample size; do not include logic to read T000a's output here. **Verification**: File contains the two dataset URLs, a "Real‑First" paragraph, and the recorded sample size (populated by T000a).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -31,7 +31,7 @@
 
 - [ ] T001a Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `results/`, `logs/`. **Verification**: Assert each directory exists after creation.
 - [ ] T001b Create empty `__init__.py` files in `code/` and `tests/`
-- [ ] T001c Initialize `requirements.txt` with placeholder dependencies
+- [X] T001c Initialize `requirements.txt` with placeholder dependencies
 - [ ] T002 Initialize Python project with dependencies in `requirements.txt`. **Content**: Pin exact versions for `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `numpy`, `datasets`, `requests`, `pytest`, `statsmodels`. **Verification**: Run `pip install -r requirements.txt` successfully; ensure all versions are pinned (e.g., `pandas==2.2.*`).
 - [ ] T003a Create `.ruff.toml` configuration file for linting. **Content**: Set `line-length = 88`, `target-version = "py311"`, and enable specific rules (E, F, W). **Verification**: File exists and contains the specified settings.
 - [ ] T003b Create `pyproject.toml` with `[tool.black]` configuration for formatting. **Content**: Set `line-length = 88`, `target-version = ['py311']`. **Verification**: File exists and contains the specified settings.

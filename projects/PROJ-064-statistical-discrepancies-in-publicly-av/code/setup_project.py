@@ -1,61 +1,58 @@
-"""
-Project initialization script for PROJ-064.
-Creates the standard directory structure required by the llmXive pipeline.
-"""
 import os
 import sys
 from pathlib import Path
 
-
 def initialize_project_structure():
     """
-    Creates the complete directory structure for the project.
+    Initialize the project directory structure for PROJ-064.
+    Creates the root project folder and all required subdirectories
+    in a single atomic step.
     
-    Structure created under 'projects/PROJ-064-statistical-discrepancies-in-publicly-av/':
-    - code/
-    - data/raw/
-    - data/processed/
-    - tests/
-    - docs/
-    - state/
-    - config/
-    
-    Returns:
-        bool: True if successful, False otherwise.
+    Structure created:
+    projects/PROJ-064-statistical-discrepancies-in-publicly-av/
+    ├── code/
+    ├── data/
+    │   ├── raw/
+    │   └── processed/
+    ├── tests/
+    ├── docs/
+    ├── state/
+    └── config/
     """
-    # Define the base project directory
-    base_dir = Path("projects/PROJ-064-statistical-discrepancies-in-publicly-av")
+    # Define the project root relative to the current working directory
+    # Assuming this script is run from the project root or a parent context
+    # We create it relative to the current directory where the script is invoked
+    project_name = "PROJ-064-statistical-discrepancies-in-publicly-av"
+    base_path = Path(".") / "projects" / project_name
     
-    # Define all required subdirectories
+    # Define required directories
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "tests",
-        "docs",
-        "state",
-        "config"
+        base_path / "code",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "tests",
+        base_path / "docs",
+        base_path / "state",
+        base_path / "config",
     ]
     
-    success = True
+    # Create directories atomically (all or nothing conceptually, though os.makedirs is individual)
+    # We check existence first to avoid errors if partial run occurred
+    missing = []
+    for dir_path in directories:
+        if not dir_path.exists():
+            missing.append(dir_path)
     
-    for dir_name in directories:
-        target_path = base_dir / dir_name
-        try:
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
-        except OSError as e:
-            print(f"Error creating directory {target_path}: {e}")
-            success = False
-    
-    if success:
-        print(f"Successfully initialized project structure at {base_dir}")
+    if missing:
+        print(f"Creating {len(missing)} directories for {project_name}...")
+        for dir_path in missing:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"  Created: {dir_path}")
+        print(f"Successfully initialized project structure at: {base_path}")
     else:
-        print("Project initialization completed with errors.")
-        
-    return success
-
+        print(f"Project structure at {base_path} already exists.")
+    
+    return base_path
 
 if __name__ == "__main__":
-    success = initialize_project_structure()
-    sys.exit(0 if success else 1)
+    initialize_project_structure()

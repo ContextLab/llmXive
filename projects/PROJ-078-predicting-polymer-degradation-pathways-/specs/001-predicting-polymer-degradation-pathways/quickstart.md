@@ -2,65 +2,77 @@
 
 ## Prerequisites
 
-*   Python 3.11 or higher
-*   Pip package manager
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner (or local environment with ≥7GB RAM)
 
 ## Installation
 
-1.  Clone the repository:
-
+1.  **Clone the repository**:
     ```bash
-    git clone [repository URL]
-    cd [repository directory]
+    git clone <repo-url>
+    cd projects/PROJ-078-predicting-polymer-degradation-pathways-
     ```
 
-2.  Create a virtual environment:
-
+2.  **Create a virtual environment**:
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  Install dependencies:
-
+3.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
+    *Note: This installs CPU-only versions of PyTorch and PyTorch Geometric.*
 
-## Usage
+## Running the Pipeline
 
-1.  **Data Ingestion:**
+### 1. Data Ingestion & Preprocessing
+Download the verified datasets and convert them to graph format.
+```bash
+python src/main.py --step ingestion
+```
+*Output*: `data/processed/polymer_records.csv`, `data/processed/molecular_graphs.pt`
 
-    ```bash
-    python src/data/ingestion.py --source webbooks --output data/processed_data.csv
-    ```
+### 2. Data Augmentation
+Expand the dataset by 2x using edge dropout and subgraph sampling.
+```bash
+python src/main.py --step augmentation
+```
+*Output*: `data/processed/augmented_graphs.pt`
 
-2.  **Model Training:**
+### 3. Model Training
+Train the GNN with 5-fold CV (or LOO if n<150).
+```bash
+python src/main.py --step train
+```
+*Output*: `models/gnn_weights.pt`, `logs/training_log.json`
 
-    ```bash
-    python src/models/gnn.py --data data/processed_data.csv --epochs 100
-    ```
+### 4. Feature Attribution & Statistical Analysis
+Generate Integrated Gradients and run the χ² test.
+```bash
+python src/main.py --step analysis
+```
+*Output*: `reports/statistical_report.json`, `reports/motif_report.md`
 
-3.  **Feature Attribution and Validation:**
+### 5. Generate Final Report
+Compile all results into a human-readable report.
+```bash
+python src/main.py --step report
+```
+*Output*: `reports/final_report.md`
 
-    ```bash
-    python src/analysis/statistical_validation.py --model model.pth --data data/processed_data.csv
-    ```
+## Verification
 
-## Data Format
+To verify the pipeline on a small subset:
+```bash
+python tests/integration/test_pipeline.py --subset 10
+```
+This runs the full pipeline on 10 records to ensure no crashes occur.
 
-The input data should be a CSV file with the following columns:
+## Troubleshooting
 
-*   `smiles`: SMILES string of the polymer.
-*   `temperature`: Temperature during degradation (float).
-*   `ph`: pH during degradation (float).
-*   `uv_exposure`: UV exposure level during degradation (float).
-*   `degradation_pathway`: Degradation pathway (string).
-
-## Output
-
-The project will generate the following outputs:
-
-*   `data/processed_data.csv`: Processed dataset with filtered and converted data.
-*   `model.pth`: Trained GNN model.
-*   `report.txt`: Statistical report with feature importance scores and validation results.
+- **RAM Error**: If you encounter OOM, reduce `hidden_dim` in `src/models/gnn.py` or decrease the augmentation factor.
+- **Invalid SMILES**: Check `logs/ingestion.log` for skipped records.
+- **No Labels**: If the dataset size is 0, check the `synthetic_labels.py` logic or the source URLs.

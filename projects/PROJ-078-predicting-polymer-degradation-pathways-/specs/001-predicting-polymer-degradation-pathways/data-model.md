@@ -1,108 +1,74 @@
 # Data Model: Predicting Polymer Degradation Pathways
 
+## Overview
+
+This document defines the data structures used throughout the project, from raw ingestion to final model output. All data is stored in `data/` and processed in `src/`.
+
 ## Entities
 
-*   **PolymerRecord**: Represents a single polymer instance with its chemical structure, environmental conditions, and observed degradation pathway.
+### 1. PolymerRecord (Raw/Intermediate)
+Represents a single polymer entry before graph conversion.
 
-    *   `smiles` (str): SMILES string representing the polymer's chemical structure.
-    *   `temperature` (float): Temperature in Celsius during degradation.
-    *   `ph` (float): pH value during degradation.
-    *   `uv_exposure` (float): UV exposure level during degradation.
-    *   `degradation_pathway` (str): Categorical label representing the observed degradation pathway (e.g., "hydrolysis", "oxidation").
-*   **MolecularGraph**: The graph representation of a polymer record.
+| Field | Type | Description | Source/Constraint |
+| :--- | :--- | :--- | :--- |
+| `id` | str | Unique identifier (hash of SMILES + env params) | Generated |
+| `smiles` | str | Canonical SMILES string | Verified Dataset |
+| `raw_source` | str | URL or source identifier | Verified Dataset |
+| `is_polyester` | bool | True if functional group detected | RDKit Filter |
+| `temp_c` | float | Temperature in Celsius | Synthetic Default (25.0) |
+| `ph` | float | pH level | Synthetic Default (7.0) |
+| `uv_exposure` | float | UV intensity (arbitrary units) | Synthetic Default (0.0) |
+| `label` | str | Degradation pathway | Synthetic / Curation Flag |
+| `label_source` | str | "synthetic" or "curated" | Logic |
+| `validation_flag` | str | "valid", "missing_env", "invalid_smiles" | Logic |
 
-    *   `nodes` (list): List of node features (atom types, charges, etc.).
-    *   `edges` (list): List of edge features (bond types, distances, etc.).
-*   **DegradationPathway**: Categorical label representing the type of degradation.
+### 2. MolecularGraph (Processed)
+The graph representation used for GNN input.
 
-    *   `pathway_name` (str):  The name of the degradation pathway (e.g. "hydrolysis", "photolysis", "oxidation").
-*   **MotifImportance**:  Represents the importance of a specific structural motif in predicting degradation.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `node_features` | Tensor [N, F] | Atom features (type, degree, etc.) |
+| `edge_index` | Tensor [2, E] | Connectivity matrix |
+| `edge_features` | Tensor [E, F] | Bond features (type, conjugation) |
+| `global_features` | Tensor [G] | Environmental vector [pH, Temp, UV] |
+| `target` | int | Class index (0: Hydrolysis, 1: Oxidation, 2: Photolysis) |
+| `augmented_id` | str | ID linking to original record (for tracking) |
 
-    *   `motif_id` (int): Unique identifier for the motif.
-    *   `pathway` (str): The degradation pathway the motif is associated with.
-    *   `importance_score` (float):  The score representing the importance of the motif.
+### 3. PredictionResult (Output)
+Result of the GNN inference on a test sample.
 
-## Relationships
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `record_id` | str | Original record ID |
+| `predicted_class` | str | Predicted degradation pathway |
+| `confidence` | float | Softmax probability for predicted class |
+| `is_low_confidence` | bool | True if confidence < 0.6 |
+| `motif_importance` | Dict | {motif_name: score} |
+| `attribution_map` | Tensor | Node-level importance scores |
 
-*   A `PolymerRecord` is represented as a `MolecularGraph`.
-*   A `PolymerRecord` has one `DegradationPathway`.
-*   A `DegradationPathway` can be associated with multiple `MotifImportance` records.
+### 4. StatisticalReport (Final)
+Aggregated results for the final report.
 
-## Schema
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `metric_name` | str | e. g., "Macro-F1", "χ² p-value" |
+| `value` | float | Measured value |
+| `confidence_interval` | Tuple | (lower, upper) from CV/LOO |
+| `significance` | str | "significant" if p < 0.05 |
+| `top_motifs` | List | Ranked list of motifs with correlation strength |
 
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-properties:
-  PolymerRecord:
-    type: object
-    properties:
-      smiles:
-        type: string
-        description: "SMILES string representing the polymer."
-      temperature:
-        type: number
-        format: float
-        description: "Temperature in Celsius."
-      ph:
-        type: number
-        format: float
-        description: "pH value."
-      uv_exposure:
-        type: number
-        format: float
-        description: "UV exposure level."
-      degradation_pathway:
-        type: string
-        description: "Degradation pathway."
-    required:
-      - smiles
-      - temperature
-      - ph
-      - uv_exposure
-      - degradation_pathway
+## Data Flow
 
-  MolecularGraph:
-    type: object
-    properties:
-      nodes:
-        type: array
-        items:
-          type: array
-          description: "Node features."
-      edges:
-        type: array
-        items:
-          type: array
-          description: "Edge features."
-    required:
-      - nodes
-      - edges
+1.  **Ingestion**: `raw/` (JSONL/CSV) -> `processed/polymer_records.csv` (PolymerRecord).
+2.  **Conversion**: `polymer_records.csv` -> `processed/molecular_graphs.pt` (MolecularGraph).
+3.  **Augmentation**: `molecular_graphs.pt` -> `processed/augmented_graphs.pt` (2x size).
+4.  **Training**: `augmented_graphs.pt` -> `models/gnn_weights.pt` + `logs/training_log.json`.
+5.  **Inference**: `processed/test_graphs.pt` -> `results/predictions.json` (PredictionResult).
+6.  **Analysis**: `predictions.json` -> `reports/statistical_report.json` (StatisticalReport).
 
-  DegradationPathway:
-    type: object
-    properties:
-      pathway_name:
-        type: string
-        description: "Name of the degradation pathway."
-    required:
-      - pathway_name
+## Constraints & Validation
 
-  MotifImportance:
-    type: object
-    properties:
-      motif_id:
-        type: integer
-        description: "Unique identifier for the motif."
-      pathway:
-        type: string
-        description: "Degradation pathway."
-      importance_score:
-        type: number
-        format: float
-        description: "Importance score of the motif."
-    required:
-      - motif_id
-      - pathway
-      - importance_score
-```
+*   **SMILES Validity**: All SMILES must pass RDKit `MolFromSmiles` check. Invalid entries are logged and excluded.
+*   **Label Integrity**: If `label_source` is "synthetic", the record is included in training but flagged in the final report as simulation-based.
+*   **Missing Values**: If environmental data is missing, defaults are applied and `validation_flag` is set to "missing_env".
+*   **Size Limit**: If `n < 150`, the system automatically switches to LOO validation (FR-009).

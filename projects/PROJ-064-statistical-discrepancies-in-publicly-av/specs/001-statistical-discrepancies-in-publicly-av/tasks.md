@@ -102,16 +102,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement `simulation.py` to: 1) Generate a Negative Binomial null model from theoretical priors or pre-aggregation permutation; 2) Implement chunked processing (1000 iterations/batch) to stay under a moderate RAM footprint; 3) Aggregate results (accumulate log-likelihoods/p-values) to ensure statistical equivalence to a full-scale run; 4) If NB fit fails (convergence error), switch to permutation-based null model as fallback; 5) Use seed=42. in `code/simulation.py`
-- [ ] T028 [US2] Implement `simulation.py` to generate a permutation-based null model simulating random clerical error within geographic boundaries (used as fallback or secondary model) in `code/simulation.py`
-- [ ] T029 [US2] Implement Monte Carlo simulation with 10,000 iterations (seed=42) using chunked processing (see T045) to stay under 7 GB RAM in `code/simulation.py`
-- [ ] T045 [US2] [P] Implement logic to handle memory constraints via deferred iterations per batch during Monte Carlo in `code/simulation.py` (Optimization for T029)
-- [ ] T030 [US2] Implement Anderson-Darling test comparing observed discrepancies against the simulated null distributions in `code/analysis.py`
-- [ ] T031 [US2] Implement Kolmogorov-Smirnov test comparing observed vs. null distributions in `code/analysis.py`
-- [ ] T032 [US2] Implement logic to calculate p-values for each jurisdiction individually against the null distribution in `code/analysis.py`
-- [ ] T033 [US2] Implement logic to frame all findings as "associational deviations from random expectation" in the output reports in `code/analysis.py`
-- [ ] T034 [US2] Implement fallback to permutation-based null model if Negative Binomial fit fails in `code/simulation.py`
-- [ ] T035 [US2] Implement VIF calculation for predictors if regression is extended: Check if 'population density, precinct size' exist in config; if yes, calculate VIF and flag if > 5; if no, mark SC-006 as 'Not Applicable' in `code/analysis.py`
+- [X] T027 [US2] Implement `simulation.py` to: 1) Generate a Negative Binomial null model from theoretical priors or pre-aggregation permutation; 2) Implement chunked processing (1000 iterations/batch) to stay under a moderate RAM footprint; 3) Aggregate results (accumulate log-likelihoods/p-values) to ensure statistical equivalence to a full-scale run; 4) If NB fit fails (convergence error), switch to permutation-based null model as fallback; 5) Use seed=42. in `code/simulation.py`
+- [X] T028 [US2] Implement `simulation.py` to generate a permutation-based null model simulating random clerical error within geographic boundaries (used as fallback or secondary model) in `code/simulation.py`
+- [X] T029 [US2] Implement Monte Carlo simulation with 10,000 iterations (seed=42) using chunked processing (see T045) to stay under 7 GB RAM in `code/simulation.py`
+- [X] T045 [US2] [P] Implement logic to handle memory constraints via deferred iterations per batch during Monte Carlo in `code/simulation.py` (Optimization for T029)
+- [X] T030 [US2] Implement Anderson-Darling test comparing observed discrepancies against the simulated null distributions in `code/analysis.py`
+- [X] T031 [US2] Implement Kolmogorov-Smirnov test comparing observed vs. null distributions in `code/analysis.py`
+- [X] T032 [US2] Implement logic to calculate p-values for each jurisdiction individually against the null distribution in `code/analysis.py`
+- [X] T033 [US2] Implement logic to frame all findings as "associational deviations from random expectation" in the output reports in `code/analysis.py`
+- [X] T034 [US2] Implement fallback to permutation-based null model if Negative Binomial fit fails in `code/simulation.py`
+- [X] T035 [US2] Implement VIF calculation for predictors if regression is extended: Check if 'population density, precinct size' exist in config; if yes, calculate VIF and flag if > 5; if no, mark SC-006 as 'Not Applicable' in `code/analysis.py`
 - [ ] T029b [US2] [P] Verify chunked aggregation matches full-run simulation: Run a small-scale full simulation and compare with chunked aggregation of the same data to ensure statistical equivalence. in `code/analysis.py`
 
 ### Tests for User Story 2 ⚠️

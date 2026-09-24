@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PolymerRecord
+description: Schema for a single polymer record after ingestion and preprocessing.
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (hash of SMILES + env params)"
+  smiles:
+    type: string
+    description: "Canonical SMILES string"
+  raw_source:
+    type: string
+    description: "URL or source identifier"
+  is_polyester:
+    type: boolean
+    description: "True if functional group detected"
+  temp_c:
+    type: number
+    description: "Temperature in Celsius"
+  ph:
+    type: number
+    description: "pH level"
+  uv_exposure:
+    type: number
+    description: "UV intensity (arbitrary units)"
+  label:
+    type: string
+    enum:
+      - hydrolysis
+      - oxidation
+      - photolysis
+    description: "Degradation pathway"
+  label_source:
+    type: string
+    enum:
+      - synthetic
+      - curated
+    description: "Origin of the label"
+  validation_flag:
+    type: string
+    enum:
+      - valid
+      - missing_env
+      - invalid_smiles
+    description: "Status of the record validation"
+required:
+  - id
+  - smiles
+  - is_polyester
+  - label
+  - label_source
+  - validation_flag

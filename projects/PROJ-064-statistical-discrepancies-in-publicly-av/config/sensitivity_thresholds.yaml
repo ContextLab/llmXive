@@ -1,0 +1,27 @@
+# Configuration for Sensitivity Analysis
+# T035 requires checking for 'population density' and 'precinct size' in config
+# This file defines the thresholds for the sensitivity sweep (US3)
+# and can be extended to define regression predictors.
+
+primary_threshold: 0.005  # 0.5%
+
+sweep_thresholds:
+  - 0.0001 # 0.01%
+  - 0.0005 # 0.05%
+  - 0.001  # 0.1%
+  # [deferred] values to be resolved in later iterations
+
+# Predictors for extended regression analysis (T035)
+# If these keys exist, VIF will be calculated.
+predictors:
+  - population_density
+  - precinct_size
+
+# Null model configuration
+null_models:
+  - negative_binomial
+  - permutation
+
+# Reporting
+report_format: "json"
+output_dir: "data/processed"

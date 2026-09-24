@@ -1,38 +1,62 @@
 """
-Directory Setup Module.
+setup_directories.py
+--------------------
 
-Creates the necessary directory structure for the project.
+Utility module to create the required top‑level directory structure for the
+project.  The function is deliberately tiny and has no side‑effects beyond
+creating the directories; it can be safely re‑run (it will not raise if a
+directory already exists).
+
+The directories to be created are:
+
+- data/raw/
+- data/processed/
+- code/
+- tests/
+- results/
+- logs/
 """
 
 import os
-import sys
 from pathlib import Path
+from typing import List
 
-def create_directory_structure():
+# List of directories relative to the repository root that must exist.
+REQUIRED_DIRS: List[Path] = [
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("code"),
+    Path("tests"),
+    Path("results"),
+    Path("logs"),
+]
+
+
+def create_directory_structure() -> None:
     """
-    Create standard project directories.
+    Create the required directory structure for the project.
+
+    The function iterates over :data:`REQUIRED_DIRS` and ensures each path
+    exists as a directory.  Missing parents are created automatically
+    (``parents=True``) and no error is raised if the directory already
+    exists (``exist_ok=True``).
+
+    This function is idempotent – calling it multiple times has the same
+    effect as calling it once.
     """
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "results",
-        "logs",
-        "contracts"
-    ]
-    
-    for d in dirs:
-        path = Path(d)
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-        
-    # Create __init__.py files if missing
-    for d in ["code", "tests"]:
-        init_file = Path(d) / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created {init_file}")
+    for directory in REQUIRED_DIRS:
+        # Resolve the path relative to the current working directory.
+        # ``mkdir`` with ``parents=True`` creates any missing ancestor
+        # directories, and ``exist_ok=True`` silences the error if the
+        # directory already exists.
+        directory_path = Path.cwd() / directory
+        directory_path.mkdir(parents=True, exist_ok=True)
+
 
 if __name__ == "__main__":
+    # When executed as a script ``python code/setup_directories.py`` we
+    # simply run the creation routine.  Any exception will propagate, which
+    # is intentional – the calling process (e.g. the quickstart run‑book)
+    # should fail loudly if the directories cannot be created.
     create_directory_structure()
+    print("Directory structure created successfully.")

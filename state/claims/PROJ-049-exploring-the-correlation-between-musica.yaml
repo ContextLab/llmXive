@@ -233,3 +233,381 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T00:12:52Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_cb78b297
+  context: "Write `research.md` describing the choice of OpenML BFI\u20112 (ID 42473)\
+    \ and HuggingFace `lastfm/lastfm_1k`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OpenML BFI\u20112 (ID 42473)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:46:06Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset lastfm_1k
+  claim_id: c_2acac1d7
+  context: "Write `research.md` describing the choice of OpenML BFI\u20112 (ID 42473)\
+    \ and HuggingFace `lastfm/lastfm_1k`, include URLs, licensing, and rationale for\
+    \ using real data only."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_lastfm_1k
+  kind: entity_fact
+  raw_text: HuggingFace `lastfm/lastfm_1k`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:46:52Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: synthetic dataset contains at least 100 users
+  claim_id: c_379f51b3
+  context: "Create `data/processed/synthetic_data.csv` containing realistic Big Five\
+    \ scores, log\u2011normal listening minutes, and demographic fields for at least\
+    \ 100 users."
+  evidence:
+    entailment_evidence: Synthetic dataset contains at least 100 users
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_contains_at_least_100_users
+  kind: magnitude
+  raw_text: Create `data/processed/synthetic_data.csv` ... for at least 100 users
+  resolved_value: synthetic dataset contains at least 100 users
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T09:46:54Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: synthetic merged dataset contains at least 5 users
+  claim_id: c_3949affb
+  context: "Create `data/processed/synthetic_merged.csv` with \u2265 5 users, full\
+    \ trait, genre, and demographic fields."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_merged_dataset_contains_at_least_5_users
+  kind: magnitude
+  raw_text: "Create `data/processed/synthetic_merged.csv` with \u2265 5 users"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:47:24Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: pipeline aborts if execution exceeds 6 hours
+  claim_id: c_dc9d4ee8
+  context: Implement `code/pipeline.py` that sequentially runs ingestion, analysis,
+    and reporting, records total runtime in `logs/timing.log`, and raises `TimeoutError`
+    if execution exceeds 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pipeline aborts if execution exceeds 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:47:47Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_fa4765bb
+  context: "The BFI\u20112 provides validated self\u2011report scores for the five\
+    \ major personality dimensions ... Dataset ID: 42473."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dataset ID: 42473'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:48:37Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: lastfm_1k dataset contains 1000 users
+  claim_id: c_7efed1d9
+  context: "This dataset contains listening histories for 1,000 Last.fm users, including\
+    \ track\u2011level metadata and genre tags."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This dataset contains listening histories for 1,000 Last.fm users
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:49:45Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
+  attempts: 1
+  canonical: minimum required sample size 1712 participants for power 0.80 detecting
+    r=0.10 at alpha 0.001
+  claim_id: c_6b94a6e4
+  context: "A power analysis (detecting a Pearson correlation of r = 0.10 with a Bonferroni\u2011\
+    adjusted significance level \u03B1 = 0.001 and target power 0.80) indicates that\
+    \ a minimum of 1,712 participants are required to achieve adequate statistical\
+    \ power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: a minimum of 1,712 participants are required to achieve adequate statistical
+    power
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:50:28Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_77d7ab85
+  context: "Document describes the choice of OpenML BFI\u20112 (ID 42473) as a dataset\
+    \ for the study."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OpenML BFI\u20112 (ID 42473) is used as a dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:50:56Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset lastfm_1k
+  claim_id: c_c12de7e9
+  context: The specification states that the HuggingFace `lastfm/lastfm_1k` dataset
+    will be ingested.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_lastfm_1k
+  kind: entity_fact
+  raw_text: HuggingFace lastfm/lastfm_1k dataset is used
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:51:17Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: "synthetic dataset with \u2265100 users"
+  claim_id: c_06998164
+  context: Task T008 requires generating `synthetic_data.csv` with realistic scores
+    for at least 100 users.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_with_%E2%89%A5100_users
+  kind: magnitude
+  raw_text: Synthetic dataset created for fallback testing contains at least 100 users
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:51:41Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: "synthetic merged dataset with \u22655 users"
+  claim_id: c_f271089e
+  context: "Task T020a specifies creating `synthetic_merged.csv` with \u2265 5 users,\
+    \ full trait and demographic fields."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_merged_dataset_with_%E2%89%A55_users
+  kind: magnitude
+  raw_text: Synthetic merged dataset for independent testing contains at least 5 users
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:52:25Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction N=50
+  claim_id: c_548ca661
+  context: Task T023 applies Bonferroni correction using a fixed number of tests N
+    = 50, derived from 5 personality traits and 10 standardized genres.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction uses a fixed N = 50 (5 traits \xD7 10 genres)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:52:50Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_dc574b3f
+  context: "Document mentions using OpenML BFI\u20112 (ID 42473) as a data source."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OpenML BFI\u20112 dataset has ID 42473."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:53:25Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace lastfm/lastfm_1k dataset used
+  claim_id: c_64566746
+  context: Document specifies inclusion of HuggingFace `lastfm/lastfm_1k` dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_lastfm/lastfm_1k_dataset_used
+  kind: entity_fact
+  raw_text: HuggingFace dataset `lastfm/lastfm_1k` is used for music listening data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:53:49Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset includes >=100 users
+  claim_id: c_e5324888
+  context: Task T008 requires creating synthetic_data.csv with at least 100 users.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_includes_%3E=100_users
+  kind: magnitude
+  raw_text: "Synthetic dataset contains realistic Big Five scores, log\u2011normal\
+    \ listening minutes, and demographic fields for at least 100 users."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:54:16Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Synthetic merged dataset includes >=5 users
+  claim_id: c_7f9c6495
+  context: "Task T020a specifies creating synthetic_merged.csv with \u2265 5 users."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_merged_dataset_includes_%3E=5_users
+  kind: magnitude
+  raw_text: Synthetic merged dataset for independent testing contains at least 5 users.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:54:16Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction N=50 (5 traits times 10 genres)
+  claim_id: c_e79c426e
+  context: Task T023 applies Bonferroni correction with fixed N = 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction uses a fixed number of comparisons N = 50 (5 traits\
+    \ \xD7 10 genres)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:54:39Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_989a81fb
+  context: "The document describes the choice of OpenML BFI\u20112 (ID 42473) as one\
+    \ of the data sources."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OpenML BFI\u20112 (ID 42473)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:54:51Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset lastfm_1k
+  claim_id: c_bc75ec68
+  context: The document specifies using the HuggingFace dataset lastfm/lastfm_1k for
+    music listening data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_lastfm_1k
+  kind: entity_fact
+  raw_text: HuggingFace `lastfm/lastfm_1k`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:54:53Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset has ID 42473
+  claim_id: c_4c1e7f35
+  context: "Document Dataset Strategy & Methodological Rationale task lists the choice\
+    \ of OpenML BFI\u20112 (ID 42473) and HuggingFace lastfm/lastfm_1k."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OpenML BFI\u20112 (ID 42473)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T09:55:05Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset identifier is lastfm/lastfm_1k
+  claim_id: c_c6f1c31f
+  context: "Document Dataset Strategy & Methodological Rationale task lists the choice\
+    \ of OpenML BFI\u20112 (ID 42473) and HuggingFace lastfm/lastfm_1k."
+  evidence:
+    entailment_evidence: HuggingFace dataset identifier is lastfm/lastfm 1k
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_identifier_is_lastfm/lastfm_1k
+  kind: entity_fact
+  raw_text: HuggingFace `lastfm/lastfm_1k`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T09:55:08Z'

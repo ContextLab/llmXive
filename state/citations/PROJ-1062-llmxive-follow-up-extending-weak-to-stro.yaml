@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024
   verified_at: '2026-08-16T11:56:25.069524Z'
-- artifact_hash: 8bada8328bf820ece1d07bd21e4ebe8e0d41bb3fd942473053e6673f370ae9d9
+- artifact_hash: fe1de304c4fecaf1cf5664386d3c7e63dc121c95207a7b5d810ca4094cbd6fd1
   artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -31,4 +31,4 @@
   value: https://arxiv.org/abs/2507.07101
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2507.07101
-  verified_at: '2026-09-22T11:52:26.645556Z'
+  verified_at: '2026-09-24T09:44:36.716019Z'

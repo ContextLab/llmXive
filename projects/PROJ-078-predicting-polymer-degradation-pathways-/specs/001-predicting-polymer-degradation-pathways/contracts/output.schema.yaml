@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PredictionResult
+description: Schema for a single model prediction result.
+type: object
+properties:
+  record_id:
+    type: string
+    description: "Original record ID"
+  predicted_class:
+    type: string
+    enum:
+      - hydrolysis
+      - oxidation
+      - photolysis
+    description: "Predicted degradation pathway"
+  confidence:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Softmax probability for predicted class"
+  is_low_confidence:
+    type: boolean
+    description: "True if confidence < 0.6"
+  motif_importance:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of motif names to importance scores"
+  attribution_map:
+    type: array
+    items:
+      type: number
+    description: "Node-level importance scores"
+required:
+  - record_id
+  - predicted_class
+  - confidence
+  - is_low_confidence

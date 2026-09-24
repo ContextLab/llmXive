@@ -1,303 +1,179 @@
 """
 Unit tests for the logging infrastructure.
 """
-import pytest
 import logging
 import sys
 import json
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import tempfile
-import os
+from pathlib import Path
+import pytest
 
-# Import modules under test
 from logger import (
+    JSONFormatter,
     setup_logging,
     get_logger,
-    JSONFormatter,
     log_with_context,
-    LOG_LEVELS,
-    _CONFIGURED,
-    _LOGGERS
+    get_logger_for_module
 )
-from exceptions import DiscrepancyError
 
-class TestSetupLogging:
-    """Tests for setup_logging function."""
-    
-    def test_setup_logging_defaults(self):
-        """Test default logging setup."""
-        # Reset state
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        setup_logging()
-        
-        root_logger = logging.getLogger()
-        assert root_logger.level == logging.INFO
-        assert len(root_logger.handlers) > 0  # At least console handler
-    
-    def test_setup_logging_custom_level(self):
-        """Test logging setup with custom log level."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        setup_logging(log_level="DEBUG")
-        
-        root_logger = logging.getLogger()
-        assert root_logger.level == logging.DEBUG
-    
-    def test_setup_logging_invalid_level(self):
-        """Test that invalid log level raises ValueError."""
-        import logger
-        logger._CONFIGURED = False
-        
-        with pytest.raises(ValueError):
-            setup_logging(log_level="INVALID")
-    
-    def test_setup_logging_with_file(self):
-        """Test logging setup with file handler."""
-        import logger
-        logger._CONFIGURED = False
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "test.log"
-            setup_logging(log_file=log_file)
-            
-            assert log_file.exists()
-            
-            # Verify handler was added
-            root_logger = logging.getLogger()
-            file_handlers = [h for h in root_logger.handlers if isinstance(h, logging.FileHandler)]
-            assert len(file_handlers) > 0
-    
-    def test_setup_logging_json_format(self):
-        """Test logging setup with JSON format."""
-        import logger
-        logger._CONFIGURED = False
-        
-        setup_logging(json_format=True)
-        
-        root_logger = logging.getLogger()
-        for handler in root_logger.handlers:
-            assert isinstance(handler.formatter, JSONFormatter)
-    
-    def test_setup_logging_no_console(self):
-        """Test logging setup without console handler."""
-        import logger
-        logger._CONFIGURED = False
-        
-        setup_logging(console=False)
-        
-        root_logger = logging.getLogger()
-        console_handlers = [h for h in root_logger.handlers if isinstance(h, logging.StreamHandler)]
-        assert len(console_handlers) == 0
-    
-    def test_setup_logging_idempotent(self):
-        """Test that setup_logging can be called multiple times safely."""
-        import logger
-        logger._CONFIGURED = False
-        
-        setup_logging(log_level="DEBUG")
-        initial_count = len(logging.getLogger().handlers)
-        
-        setup_logging(log_level="ERROR")
-        # Should not add more handlers
-        assert len(logging.getLogger().handlers) == initial_count
-
-class TestGetLogger:
-    """Tests for get_logger function."""
-    
-    def test_get_logger_creates_new(self):
-        """Test that get_logger creates a new logger if not exists."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        setup_logging()
-        
-        test_logger = get_logger("test_module")
-        
-        assert test_logger.name == "test_module"
-        assert "test_module" in logger._LOGGERS
-    
-    def test_get_logger_returns_cached(self):
-        """Test that get_logger returns cached logger."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        setup_logging()
-        
-        logger1 = get_logger("cached_module")
-        logger2 = get_logger("cached_module")
-        
-        assert logger1 is logger2
-    
-    def test_get_logger_auto_config(self):
-        """Test that get_logger auto-configures if not set up."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        # Should not raise, should auto-configure
-        test_logger = get_logger("auto_module")
-        
-        assert test_logger is not None
-        assert logger._CONFIGURED is True
 
 class TestJSONFormatter:
-    """Tests for JSONFormatter class."""
+    """Tests for the JSONFormatter class."""
     
-    def test_format_basic(self):
-        """Test basic JSON formatting."""
+    def test_format_basic_log(self):
+        """Test formatting a basic log record."""
         formatter = JSONFormatter()
         record = logging.LogRecord(
             name="test",
             level=logging.INFO,
             pathname="test.py",
-            lineno=1,
+            lineno=10,
             msg="Test message",
             args=(),
             exc_info=None
         )
         
         output = formatter.format(record)
-        parsed = json.loads(output)
+        log_data = json.loads(output)
         
-        assert parsed["level"] == "INFO"
-        assert parsed["logger"] == "test"
-        assert parsed["message"] == "Test message"
-        assert "timestamp" in parsed
+        assert log_data["level"] == "INFO"
+        assert log_data["message"] == "Test message"
+        assert log_data["module"] == "test"
+        assert "timestamp" in log_data
     
     def test_format_with_exception(self):
-        """Test JSON formatting with exception info."""
+        """Test formatting a log record with exception info."""
         formatter = JSONFormatter()
         
         try:
             raise ValueError("Test error")
         except ValueError:
-            import sys
             exc_info = sys.exc_info()
-            record = logging.LogRecord(
-                name="test",
-                level=logging.ERROR,
-                pathname="test.py",
-                lineno=1,
-                msg="Error occurred",
-                args=(),
-                exc_info=exc_info
-            )
-            
-            output = formatter.format(record)
-            parsed = json.loads(output)
-            
-            assert "exception" in parsed
-            assert "ValueError" in parsed["exception"]
+        
+        record = logging.LogRecord(
+            name="test",
+            level=logging.ERROR,
+            pathname="test.py",
+            lineno=20,
+            msg="Error occurred",
+            args=(),
+            exc_info=exc_info
+        )
+        
+        output = formatter.format(record)
+        log_data = json.loads(output)
+        
+        assert "exception" in log_data
+        assert "ValueError" in log_data["exception"]
     
-    def test_format_with_extra_fields(self):
-        """Test JSON formatting with extra context fields."""
+    def test_format_with_context(self):
+        """Test formatting a log record with custom context."""
         formatter = JSONFormatter()
         record = logging.LogRecord(
             name="test",
             level=logging.INFO,
             pathname="test.py",
-            lineno=1,
-            msg="Test message",
+            lineno=30,
+            msg="Context test",
             args=(),
             exc_info=None
         )
-        record.extra_fields = {"user_id": 123, "action": "login"}
+        record.context = {"user_id": 123, "action": "test"}
         
         output = formatter.format(record)
-        parsed = json.loads(output)
+        log_data = json.loads(output)
         
-        assert parsed["user_id"] == 123
-        assert parsed["action"] == "login"
+        assert "context" in log_data
+        assert log_data["context"]["user_id"] == 123
+
+
+class TestSetupLogging:
+    """Tests for the setup_logging function."""
+    
+    def test_setup_console_only(self):
+        """Test setup with only console output."""
+        setup_logging(console_output=True, log_level=logging.DEBUG)
+        
+        root_logger = logging.getLogger()
+        assert len(root_logger.handlers) == 1
+        assert isinstance(root_logger.handlers[0], logging.StreamHandler)
+    
+    def test_setup_with_file(self):
+        """Test setup with file output."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            log_file = Path(tmp_dir) / "test.log"
+            setup_logging(log_file=log_file, console_output=False)
+            
+            root_logger = logging.getLogger()
+            assert len(root_logger.handlers) == 1
+            assert isinstance(root_logger.handlers[0], logging.FileHandler)
+            
+            # Write a log and verify file exists
+            logger = logging.getLogger()
+            logger.info("Test message")
+            assert log_file.exists()
+    
+    def test_setup_json_format(self):
+        """Test setup with JSON formatting."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            log_file = Path(tmp_dir) / "test.json"
+            setup_logging(log_file=log_file, use_json=True, console_output=False)
+            
+            logger = logging.getLogger()
+            logger.info("JSON test")
+            
+            # Read and parse the log file
+            with open(log_file, 'r') as f:
+                line = f.readline()
+                log_data = json.loads(line)
+            
+            assert "timestamp" in log_data
+            assert "level" in log_data
+
+
+class TestGetLogger:
+    """Tests for the get_logger function."""
+    
+    def test_get_logger_with_name(self):
+        """Test getting a logger with a specific name."""
+        logger = get_logger("test_module")
+        assert logger.name == "test_module"
+    
+    def test_get_logger_without_name(self):
+        """Test getting the root logger when no name is provided."""
+        logger = get_logger()
+        assert logger.name == ""  # Root logger has empty name
+
 
 class TestLogWithContext:
-    """Tests for log_with_context function."""
+    """Tests for the log_with_context function."""
     
-    def test_log_with_context_basic(self):
-        """Test basic logging with context."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
+    def test_log_with_context(self):
+        """Test logging with additional context."""
+        logger = get_logger("test_context")
+        logger.handlers.clear()  # Remove existing handlers for clean test
         
-        setup_logging(console=True)
+        # Add a string handler to capture output
+        import io
+        stream = io.StringIO()
+        handler = logging.StreamHandler(stream)
+        handler.setFormatter(JSONFormatter())
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
         
-        test_logger = get_logger("context_test")
+        log_with_context(logger, logging.INFO, "Test message", {"key": "value"})
         
-        # Capture log output
-        with patch.object(test_logger, 'handle') as mock_handle:
-            log_with_context(
-                test_logger, 
-                "INFO", 
-                "Test message",
-                user_id=123,
-                action="test"
-            )
-            
-            assert mock_handle.called
-            call_args = mock_handle.call_args[0][0]
-            assert call_args.msg == "Test message"
-            assert call_args.extra_fields["user_id"] == 123
-            assert call_args.extra_fields["action"] == "test"
-    
-    def test_log_with_context_invalid_level(self):
-        """Test that invalid level raises ValueError."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
+        output = stream.getvalue()
+        log_data = json.loads(output.strip())
         
-        setup_logging()
-        
-        test_logger = get_logger("invalid_level_test")
-        
-        with pytest.raises(ValueError):
-            log_with_context(test_logger, "INVALID_LEVEL", "Message")
+        assert log_data["message"] == "Test message"
+        assert log_data["context"]["key"] == "value"
 
-class TestLoggerIntegration:
-    """Integration tests for logging functionality."""
+
+class TestGetLoggerForModule:
+    """Tests for the get_logger_for_module function."""
     
-    def test_logger_propagation(self):
-        """Test that log messages propagate correctly."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "integration.log"
-            setup_logging(log_level="DEBUG", log_file=log_file, console=False)
-            
-            test_logger = get_logger("integration_test")
-            test_logger.debug("Debug message")
-            test_logger.info("Info message")
-            test_logger.warning("Warning message")
-            test_logger.error("Error message")
-            
-            # Verify log file contains messages
-            assert log_file.exists()
-            content = log_file.read_text()
-            
-            assert "Debug message" in content
-            assert "Info message" in content
-            assert "Warning message" in content
-            assert "Error message" in content
-    
-    def test_multiple_loggers_same_config(self):
-        """Test that multiple loggers share the same configuration."""
-        import logger
-        logger._CONFIGURED = False
-        logger._LOGGERS.clear()
-        
-        setup_logging(log_level="WARNING")
-        
-        logger1 = get_logger("module1")
-        logger2 = get_logger("module2")
-        
-        assert logger1.level == logging.WARNING
-        assert logger2.level == logging.WARNING
-        assert logger1.handlers == logger2.handlers
+    def test_get_logger_for_module(self):
+        """Test getting a logger for a specific module."""
+        logger = get_logger_for_module("my_module.submodule")
+        assert logger.name == "my_module.submodule"
