@@ -13,7 +13,7 @@ This project implements a predictive pipeline to determine the thermal decomposi
 **Primary Dependencies**: `pandas`, `scikit-learn`, `shap`, `requests`, `pyyaml`, `numpy`, `pymatgen` (for formula parsing)  
 **Storage**: Local CSV/Parquet files under `data/` (raw and processed)  
 **Testing**: `pytest` with `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, adequate RAM for baseline workloads.)  
 **Project Type**: data-science-pipeline  
 **Performance Goals**: Complete full pipeline (ingest, train, validate) within 4 hours (budget 6h).  
 **Constraints**: No GPU/CUDA; grid search limited to ≤10 combinations per model; VIF > 5 triggers feature removal or Elastic Net fallback; external validation required for OOD assessment.  
