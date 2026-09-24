@@ -2,6 +2,7 @@
 Configuration constants for the project.
 """
 import os
+import logging
 from pathlib import Path
 
 # Project paths
@@ -48,5 +49,4 @@ LOG_LEVEL = logging.INFO
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 
 # Initialize logging
-import logging
 logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT)

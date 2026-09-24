@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017` (rejected 1x): No CSV files were presented or listed in the evidence, and there is no proof that any files exist at `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with the required `query_id, metric, score` headers. The implementer must provide the actual CSV artifacts (or a directory listing with file contents) to satisfy the task.
-- `T016` (rejected 1x): No code, scripts, data files, or output (e.g., permutation test results, p‑value tables, CSV summaries, or PNG visualizations) were provided. Consequently, there is no evidence that the required p‑value calculation logic—or any of the associated workflow steps—has been implemented or produces the expected artifacts. The implementer must supply the actual implementation and its generated outputs.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) are present in the provided evidence, nor any scripts or documentation showing that ruff and black have been set up for the project. The claim therefore does not satisfy the requirement to configure these tools.
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T006` (rejected 1x): The provided `code/data_loader.py` only contains helper functions and a partially shown `validate_qrels_schema`; it never loads data, applies the schema validation to all records, nor logs warnings for zero‑relevance queries. Moreover, the required schema file `contracts/dataset.schema.yaml` is missing, so the validation cannot reference it. The task’s core requirements are therefore not satisfied.
 
 ## Required change
 

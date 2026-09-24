@@ -773,3 +773,807 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T16:12:09Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: NIST fetch via ir-datasets
+  claim_id: c_837a7bb4
+  context: 'Logic: Attempt NIST fetch via `ir-datasets`. If `ir-datasets` fails (network
+    error, 404, etc.), retry with exponential backoff (base_delay=2s, multiplier=2.0,
+    max_retries=3).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_fetch_via_ir-datasets
+  kind: entity_fact
+  raw_text: The system attempts NIST fetch via `ir-datasets`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:30:17Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: retry base delay 2 seconds
+  claim_id: c_f3528917
+  context: If `ir-datasets` fails (network error, 404, etc.), retry with exponential
+    backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry logic uses a base delay of 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:30:41Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: retry multiplier 2.0
+  claim_id: c_c31c312e
+  context: If `ir-datasets` fails (network error, 404, etc.), retry with exponential
+    backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry logic uses a multiplier of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:31:07Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: retry max 3 retries
+  claim_id: c_b4cc7cec
+  context: If `ir-datasets` fails (network error, 404, etc.), retry with exponential
+    backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry logic performs a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:32:11Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: no fallback to Hugging Face synthetic or mock data
+  claim_id: c_95c9f7b0
+  context: If NIST still fails after retries, raise `RuntimeError` immediately. DO
+    NOT fall back to Hugging Face, synthetic, or mock data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_fallback_to_Hugging_Face_synthetic_or_mock_data
+  kind: entity_fact
+  raw_text: The system does not fall back to Hugging Face, synthetic, or mock data
+    if NIST fetch fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:32:47Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: compute SHA-256 checksum of downloaded files
+  claim_id: c_7b1b2360
+  context: 'Post-Fetch Step: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-robust-04.qrels`
+    and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml`
+    in the `artifact_hashes` map.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system computes SHA-256 checksums of downloaded files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:33:05Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: alpha sweep start 0.01
+  claim_id: c_1ccd43b7
+  context: 'Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB`
+    (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (a configurable duration
+    threshold), `DATA_RAW_PATH`, `RESULTS_PATH`, `ALPHA_SWEEP_START` (0.01), `ALPHA_SWEEP_END`
+    (0.20), `ALPHA_SWEEP_STEP` (0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep starts at 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:33:21Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: alpha sweep end 0.20
+  claim_id: c_58eeff9c
+  context: 'Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB`
+    (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (a configurable duration
+    threshold), `DATA_RAW_PATH`, `RESULTS_PATH`, `ALPHA_SWEEP_START` (0.01), `ALPHA_SWEEP_END`
+    (0.20), `ALPHA_SWEEP_STEP` (0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep ends at 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:33:37Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: alpha sweep step 0.01
+  claim_id: c_0eb5ed91
+  context: 'Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB`
+    (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (a configurable duration
+    threshold), `DATA_RAW_PATH`, `RESULTS_PATH`, `ALPHA_SWEEP_START` (0.01), `ALPHA_SWEEP_END`
+    (0.20), `ALPHA_SWEEP_STEP` (0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep step is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:33:54Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: monitor memory usage every 5 queries
+  claim_id: c_3cf6b8a0
+  context: During the permutation loop, monitor total elapsed runtime since script
+    start and memory usage every 5 queries (using `psutil.Process(os.getpid()).memory_info().rss`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system monitors memory usage every 5 queries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:34:11Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: runtime threshold 5.0 hours
+  claim_id: c_17113160
+  context: 'Trigger Condition: If total runtime > 5.0 * 3600 seconds OR memory > 6
+    GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime threshold for triggering subsampling is 5.0 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:34:42Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: memory threshold 6 GB
+  claim_id: c_ed4dd7c4
+  context: 'Trigger Condition: If total runtime > 5.0 * 3600 seconds OR memory > 6
+    GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory threshold for triggering subsampling is 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:35:10Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: select deterministic subset of 100 queries
+  claim_id: c_1e0b513e
+  context: If triggered, select a deterministic subset of n=100 queries from the remaining
+    unprocessed queries (sorted by query_id). Process ONLY this subset (performing
+    the full N permutations for these 100 queries).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system selects a deterministic subset of 100 queries for subsampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:35:31Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: p-value formula (r + 1) / (N_actual + 1)
+  claim_id: c_e6e0f293
+  context: Calculate p-values using the formula `(r + 1) / (N_actual + 1)`, where
+    `N_actual` is the value from the JSON state file (overriding `PERMUTATION_N` config).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value calculation formula is (r + 1) / (N_actual + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:36:57Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search range 0.001 to 0.500
+  claim_id: c_f3405663
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES binary search initial range is [0.001, 0.500].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:37:17Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search tolerance 0.001
+  claim_id: c_cede5113
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES binary search tolerance is 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:37:28Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search max iterations 50
+  claim_id: c_9443b060
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES binary search maximum iterations is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:37:59Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: target power 0.8
+  claim_id: c_a2f52812
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target power for MDES calculation is 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:39:04Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES stability ci width less than 0.02
+  claim_id: c_5317f176
+  context: Run `tests/integration/test_mdes_stability.py` to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv`
+    and assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MDES_stability_ci_width_less_than_0.02
+  kind: magnitude
+  raw_text: The MDES stability check requires a confidence interval width less than
+    0.02.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:39:53Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: batch processing memory limit 6 GB
+  claim_id: c_2323fc14
+  context: 'Performance optimization: Verify batch processing logic is efficient;
+    Ensure memory < 6GB during a batch of queries'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory limit for batch processing is 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:40:26Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: integration test memory limit 7 GB
+  claim_id: c_b3cec6f6
+  context: 'Integration test: Verify memory usage stays < 7GB during full run in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_resource_limits.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory limit for integration tests is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:40:58Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: TREC Robust 2004 data source is ir_datasets.load('trec/robust04')
+  claim_id: c_4eef8381
+  context: 'Implement data_loader.py to fetch TREC Robust 2004 data. Primary Source:
+    ir_datasets.load(''trec/robust04'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary source for TREC Robust 2004 data is `ir_datasets.load('trec/robust04')`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:46:31Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: TREC Web 2009 data source is ir_datasets.load('trec/web-track-2009')
+  claim_id: c_8d45803d
+  context: 'Implement data_loader.py to fetch TREC Web 2009 data. Primary Source:
+    ir_datasets.load(''trec/web-track-2009'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary source for TREC Web 2009 data is `ir_datasets.load('trec/web-track-2009')`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:47:09Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: TREC Web 2010 data source is ir_datasets.load('trec/web-track-2010')
+  claim_id: c_eba7f9a3
+  context: 'Implement data_loader.py to fetch TREC Web 2010 data. Primary Source:
+    ir_datasets.load(''trec/web-track-2010'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary source for TREC Web 2010 data is `ir_datasets.load('trec/web-track-2010')`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:47:09Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: TREC Web 2011 data source is ir_datasets.load('trec/web-track-2011')
+  claim_id: c_a21db82a
+  context: 'Implement data_loader.py to fetch TREC Web 2011 data. Primary Source:
+    ir_datasets.load(''trec/web-track-2011'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary source for TREC Web 2011 data is `ir_datasets.load('trec/web-track-2011')`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:47:09Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: TREC Web 2012 data source is ir_datasets.load('trec/web-track-2012')
+  claim_id: c_87831a5b
+  context: 'Implement data_loader.py to fetch TREC Web 2012 data. Primary Source:
+    ir_datasets.load(''trec/web-track-2012'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary source for TREC Web 2012 data is `ir_datasets.load('trec/web-track-2012')`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:47:10Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Permutation count N is 1000
+  claim_id: c_6cde6730
+  context: Create config.py with constants for seeds, permutation counts (N=1000),
+    batch sizes, and memory thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configured number of permutations is N=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:15Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Alpha sweep start is 0.01
+  claim_id: c_53788ae2
+  context: Include ALPHA_SWEEP_START (0.01) in config.py constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep starts at 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:15Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Alpha sweep end is 0.20
+  claim_id: c_ce419746
+  context: Include ALPHA_SWEEP_END (0.20) in config.py constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep ends at 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:16Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Alpha sweep step is 0.01
+  claim_id: c_90872492
+  context: Include ALPHA_SWEEP_STEP (0.01) in config.py constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha sweep step is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:16Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: P-value formula is (r + 1) / (N_actual + 1)
+  claim_id: c_4900dabe
+  context: Calculate p-values using the formula (r + 1) / (N_actual + 1), where N_actual
+    is the value from the JSON state file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value calculation formula is (r + 1) / (N_actual + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:16Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search initial range is 0.001 to 0.500
+  claim_id: c_9e1941b0
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum detectable effect size (MDES) binary search initial range
+    is [0.001, 0.500].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:44Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search tolerance is 0.001
+  claim_id: c_abf762c2
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The MDES binary search tolerance is \u2264 0.001."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:44Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES binary search max iterations is 50
+  claim_id: c_04a89b14
+  context: "Perform binary search over effect sizes (initial range [0.001, 0.500],\
+    \ tolerance \u2264 0.001 on metric delta, max_iter=50) to find smallest shift\
+    \ detectable with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES binary search maximum iterations is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:45Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES target power is 0.8
+  claim_id: c_62dd4f59
+  context: "Perform binary search over effect sizes to find smallest shift detectable\
+    \ with Power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target power for MDES calculation is \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:45Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES stability CI width threshold is 0.02
+  claim_id: c_74a48e5b
+  context: Run tests to assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics independently.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES stability check asserts CI width < 0.02 for both NDCG@10 and
+    MAP metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:48:45Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Effect size is mean(NDCG_original) minus mean(NDCG_swapped)
+  claim_id: c_6926c44a
+  context: Effect size is defined as the delta in metric scores (NDCG or MAP), calculated
+    as mean(NDCG_original) - mean(NDCG_swapped) for the binary search condition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_size_is_mean(NDCG_original)_minus_mean(NDCG_swapped)
+  kind: entity_fact
+  raw_text: The effect size is defined as the delta in metric scores calculated as
+    mean(NDCG_original) - mean(NDCG_swapped).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:49:23Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Subsample size is 100 queries
+  claim_id: c_81397a12
+  context: If triggered, select a deterministic subset of n=100 queries from the remaining
+    unprocessed queries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The subsample size for resource limit triggers is n=100 queries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:49:48Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Runtime threshold for subsampling is 5 hours
+  claim_id: c_26f6a0eb
+  context: 'Trigger Condition: If total runtime > 5.0 * 3600 seconds OR memory > 6
+    GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime threshold for triggering subsampling is 5.0 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:49:49Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Memory threshold for subsampling is 6 GB
+  claim_id: c_bb33c10b
+  context: 'Trigger Condition: If total runtime > 5.0 * 3600 seconds OR memory > 6
+    GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory threshold for triggering subsampling is 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:49:49Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Exponential backoff base delay is 2 seconds
+  claim_id: c_3bb6827c
+  context: Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exponential backoff base delay for data fetching is 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:50:10Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Exponential backoff multiplier is 2.0
+  claim_id: c_cd8ebe71
+  context: Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exponential backoff multiplier for data fetching is 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:50:32Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Max retries for data fetching is 3
+  claim_id: c_fec34785
+  context: Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for data fetching is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:50:52Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Verification CI width threshold is 0.02
+  claim_id: c_02aab533
+  context: Verify it exists and assert ci_width < 0.02 for BOTH NDCG@10 and MAP metrics
+    independently.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verification test asserts CI width < 0.02 for NDCG@10 and MAP.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:50:52Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: MDES instability flag threshold is 0.02
+  claim_id: c_8b1e5894
+  context: If the ci_width column in the NDCG@10 row is >= 0.02, use a placeholder
+    annotation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verification for MDES stability flags instability if CI width >= 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:51:12Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Batch processing memory limit is 6 GB
+  claim_id: c_6d671171
+  context: Ensure memory < 6GB during a batch of queries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory limit for batch processing is < 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:51:12Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: Integration test memory limit is 7 GB
+  claim_id: c_9beec284
+  context: Verify memory usage stays < 7GB during full run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory limit for integration tests is < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:51:13Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: NDCG@10 ground truth for [1,0,0] is 1.0
+  claim_id: c_a7fb79ed
+  context: 'Unit test for metrics.py NDCG@10 calculation with known ground truth:
+    assert ndcg_at_k([1,0,0], [1,0,0]) == 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test ground truth for NDCG@10 is 1.0 for input [1,0,0] with [1,0,0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:51:31Z'
+- artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/tasks.md
+  attempts: 1
+  canonical: BH correction applied to NDCG and MAP separately
+  claim_id: c_91923033
+  context: Apply BH correction separately to NDCG and MAP p-value families (two families).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BH_correction_applied_to_NDCG_and_MAP_separately
+  kind: entity_fact
+  raw_text: The BH correction is applied separately to NDCG and MAP p-value families.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:52:34Z'

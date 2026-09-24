@@ -1,5 +1,9 @@
-# Explicit ruff configuration file for IDE integration
-# Extends settings from pyproject.toml but can be overridden here if needed
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is provided for environments that prefer separate config files.
+# Primary configuration is in pyproject.toml.
+
 extend = "pyproject.toml"
-line-length = 88
-target-version = "py39"
+
+[lint]
+# Additional ignores specific to this project if needed
+ignore = []

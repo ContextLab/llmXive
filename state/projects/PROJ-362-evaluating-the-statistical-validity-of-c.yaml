@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-362-evaluating-the-statistical-validity-of-c
-last_run_id: 7f2c78bc-4989-42c4-8f2d-538cf932bc4b
+last_run_id: 030f0cb1-b9f6-43e1-8b06-e7e320bf537a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c
 title: Evaluating the Statistical Validity of Common Ranking Metrics
-updated_at: '2026-09-20T16:12:13.894208Z'
+updated_at: '2026-09-24T04:52:36.928713Z'

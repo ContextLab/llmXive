@@ -4,14 +4,6 @@ T001:
   r: No evidence was presented showing that the directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
     actually exists or contains any files; the claim is unsubstantiated. The required
     project root folder is missing from the provided artifacts.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or similar) are present in the provided evidence, nor
-    any scripts or documentation showing that ruff and black have been set up for
-    the project. The claim therefore does not satisfy the requirement to configure
-    these tools.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,14 +11,6 @@ T004:
     \ that it fetches TREC Robust and Web data with retry logic, includes NIST archive\
     \ fallbacks, or enforces CPU\u2011only execution as required. The necessary artifact\
     \ is missing."
-T006:
-  c: false
-  h: fa5451574597d8e3bb18b07acc263e3187e3cb1fe10ef53586a50f0cc4179b3a
-  r: "The `data_loader.py` contains a stub of validation logic and attempts to load\
-    \ `contracts/dataset.schema.yaml`, but the required schema file is missing from\
-    \ the repository, so the function cannot actually enforce schema compliance. Additionally,\
-    \ the provided code is truncated and does not show a complete implementation of\
-    \ zero\u2011relevance query warnings. The task therefore remains unfinished."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

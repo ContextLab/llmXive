@@ -3,6 +3,13 @@ Unit tests for permutation logic (shuffle correctness).
 """
 import random
 import pytest
+import os
+import sys
+
+# Ensure the code directory is in the path for imports
+_code_path = os.path.join(os.path.dirname(__file__), '..', '..', 'code')
+if os.path.isdir(_code_path) and _code_path not in sys.path:
+    sys.path.insert(0, _code_path)
 
 from permutation import shuffle_relevance_labels, compute_permuted_scores
 
@@ -14,8 +21,7 @@ def test_shuffle_relevance_labels():
     assert len(shuffled) == len(original)
     assert set(shuffled) == set(original)
     # The shuffle must be a valid permutation. 
-    # While it is theoretically possible for a shuffle to result in the same order,
-    # with a fixed seed we expect a deterministic specific permutation.
+    # With a fixed seed, we expect a deterministic specific permutation.
     # We verify the set equality and length to confirm permutation validity.
     
 def test_shuffle_deterministic_with_seed():

@@ -7,7 +7,11 @@ import sys
 import os
 
 # Ensure the code directory is in the path so we can import from code/
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'projects', 'PROJ-362-evaluating-the-statistical-validity-of-c', 'code'))
+# Adjust path based on project structure
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
+code_dir = os.path.join(project_root, 'code')
+if code_dir not in sys.path:
+    sys.path.insert(0, code_dir)
 
 from p_values import calculate_p_value
 

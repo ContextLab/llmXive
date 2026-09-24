@@ -1,13 +1,10 @@
 #!/bin/bash
-# Lint and format check script for the project
-# Runs ruff (linting) and black (formatting check)
-
 set -e
 
 echo "Running Ruff linter..."
-ruff check .
+ruff check code/ tests/
 
-echo "Running Black format check..."
-black --check .
+echo "Running Black check (diff only)..."
+black --check code/ tests/
 
-echo "Lint and format checks passed."
+echo "Linting and format check complete."

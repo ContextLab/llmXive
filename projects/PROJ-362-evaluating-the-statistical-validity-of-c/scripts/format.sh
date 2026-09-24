@@ -1,13 +1,13 @@
 #!/bin/bash
-# Format script for the project
-# Runs black (formatter) and ruff (auto-fix)
-
 set -e
 
 echo "Running Black formatter..."
-black .
+black code/ tests/
 
-echo "Running Ruff auto-fix..."
-ruff check --fix .
+echo "Running Ruff linter (auto-fix)..."
+ruff check --fix code/ tests/
 
-echo "Formatting complete."
+echo "Running Ruff linter (report only)..."
+ruff check code/ tests/
+
+echo "Formatting and linting complete."
