@@ -1,18 +1,3 @@
-T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided; there is no evidence that FR\u2011001,\
-    \ US1, or the Edge Cases sections have been edited to remove any mention of \u201C\
-    DementiaBank.\u201D The required artifact (the amended specification) is missing."
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or file list showing the required folders (`code`, `data/raw`,\
-    \ `data/processed`, `data/interim`, `data/results`, `tests/unit`, `tests/contract`,\
-    \ `tests/integration`, `specs/001-statistical-cognitive-decline/contracts`) was\
-    \ provided; thus the claimed project structure cannot be verified. The implementer\
-    \ must supply evidence (e.g., a printed directory listing or screenshots) that\
-    \ these directories exist and are non\u2011empty where appropriate."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,36 +5,49 @@ T003:
     or `ruff.toml`) are present, nor any evidence that ruff/flake8 and black have
     been set up for the project. The task required delivering such configuration,
     which is missing.
+T011:
+  c: false
+  h: a76f60f18f855989dbab147ecb31354db76c4aff6a803021d04802e4765588e5
+  r: The repository contains the contract test `tests/contract/test_schemas.py`, but
+    the required artifacts `data/interim/cleaned_adress.csv` and `data/results/metadata.json`
+    are absent, so the test cannot actually validate the dataset schema or the `valid_label_proportion`
+    key. The missing files must be created with appropriate content for the task to
+    be complete.
 T012b:
   c: false
-  h: 50fc101ffe4af4b02a93ebab923eeb91c8236b9ce78b5bcf0bb49ba5563d668b
-  r: The repository contains `code/ingestion.py`, but the provided excerpt shows no
-    function that counts raw records and writes the result to `data/results/raw_record_count.json`.
-    Moreover, the expected output file `data/results/raw_record_count.json` is absent
-    from the file list. Without the JSON file (or a function that creates it), the
-    task requirement is not met.
+  h: 5ea5ccc210cbf922f9cb99efff1bd154a33f1b238aa7f5c6d9c618d5520e535d
+  r: "The repository contains `code/ingestion.py`, but the provided excerpt shows\
+    \ no function that counts raw records and writes the result to `data/results/raw_record_count.json`.\
+    \ Moreover, the required `data/results/raw_record_count.json` file is absent from\
+    \ the project. The task\u2019s core output is therefore missing."
 T012c:
   c: false
   h: c279ae8cac5f0d583df90180e266c3903e3efbf827f12ce6a8048f829636f5a5
   r: The required artifact `data/ingestion_amendment.log` does not exist, so no documentation
     of FR-001 satisfaction or DementiaBank exclusion is present. The implementer must
     create the log file with the specified entries.
-T012d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact was provided that implements the required exclusion logic,\
-    \ and there is no evidence of a function or module that raises a `ConnectionError`\
-    \ with the specified message when a DementiaBank fetch is attempted. The task\u2019\
-    s core requirement is therefore not demonstrated."
 T012e:
   c: false
-  h: 347df4255ac243ba784bc5c54ded079845f9625313337c1108abc4648f7de12a
-  r: "The provided `code/ingestion.py` does not contain any logic that counts participants\
-    \ per group, compares against the 500\u2011subject threshold, logs a warning,\
-    \ or writes a `\"low_power\"` flag to `data/results/metadata.json`. Moreover,\
-    \ the required `data/results/metadata.json` file is absent from the repository.\
-    \ Both the code change and the output artifact are missing, so the task is not\
-    \ satisfied."
+  h: 931f04c30f97bb5ff4a222fd47dafbf37f183e1b202eb5238a7f1e8e1a217f26
+  r: "The repository lacks a `data/results/metadata.json` file, and the shown portion\
+    \ of `code/ingestion.py` does not contain any logic that logs participant counts\
+    \ per group, issues a warning for groups with fewer than 10 participants, or writes\
+    \ a `\"low_power\"` flag to metadata. Consequently, the task\u2019s requirements\
+    \ are not met."
+T014:
+  c: false
+  h: 2a8a4e6e7158f41a2116725c17e59aef9fa647339cb5837607313cbe13655769
+  r: "The repository lacks the required `data/interim/exclusions.log` file, and the\
+    \ shown portion of `code/ingestion.py` does not contain any implementation of\
+    \ the record\u2011filtering logic or logging of excluded records with reason codes.\
+    \ Consequently, the task\u2019s core requirement is not satisfied."
+T024:
+  c: false
+  h: 3b0bae8be11da3f49aac8f222570108f7df33a154496800c70df360a01f37241
+  r: The required `data/processed/embeddings.npy` file does not exist, and the accompanying
+    `embeddings.derivation.log` is only a placeholder that has not been populated
+    with real execution details. Consequently, the semantic feature extraction has
+    not been fully implemented or executed as specified.
 T025a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -60,11 +58,12 @@ T025a:
     Mean_Clause_Length, T_Unit_Count, Sentence_Embedding_Cosine_Similarity]`.
 T027:
   c: false
-  h: 952dbd52792f6cb39a0959463113f0d15f1e4324695e431501440d7e6086e3f3
-  r: "The required output file `data/results/statistical_metrics.json` does not exist,\
-    \ and the shown `code/stats.py` is truncated before any persistence logic; there\
-    \ is no evidence that Bonferroni\u2011corrected p\u2011values are written to disk.\
-    \ The task therefore remains unfinished."
+  h: 3071f90c9c6bb0711cb6c36feee7a1e0f0d296b5181b71ea611abe4eaefe35b9
+  r: "The repository lacks the required output file `data/results/statistical_metrics.json`,\
+    \ and the provided excerpt of `code/stats.py` shows no implementation of Bonferroni\
+    \ correction or any code that writes raw and adjusted p\u2011values to that JSON\
+    \ file. Both the correction logic and the persistence step are missing, so the\
+    \ task is not fulfilled."
 T028:
   c: false
   h: 88bdaee4d247df9ef33ffb9dcaedd076f70b2cb117df5a4af9667e504c150a40

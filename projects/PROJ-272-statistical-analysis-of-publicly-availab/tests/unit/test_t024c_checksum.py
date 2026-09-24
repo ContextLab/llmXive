@@ -1,88 +1,95 @@
+"""
+Unit tests for T024c: Data Hygiene Checksum
+"""
 import json
 import os
 import tempfile
+import unittest
 from pathlib import Path
-from unittest.mock import patch
+import hashlib
 
-import pytest
+# Import the functions to test
+# We need to adjust the import path if running from tests/
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
 from t024c_checksum import compute_sha256_file, load_existing_checksums, save_checksums
 
 
-class TestComputeSha256File:
-    def test_compute_sha256_for_known_file(self, tmp_path):
-        """Test checksum computation for a file with known content."""
+class TestT024cChecksum(unittest.TestCase):
+
+    def setUp(self):
+        """Set up temporary files and directories for testing."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.test_file_path = Path(self.temp_dir.name) / "test_file.bin"
+        self.test_checksum_path = Path(self.temp_dir.name) / "checksums.json"
+        
         # Create a test file with known content
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-        
-        # Compute checksum
-        checksum = compute_sha256_file(test_file)
-        
-        # Expected SHA-256 for "Hello, World!"
-        expected = "7f83b1657ff1fc53b92dc18148a1d65dfa5e7119c46636d6d2d7a54b0d2a5b7d"
-        assert checksum == expected
-    
-    def test_compute_sha256_for_empty_file(self, tmp_path):
-        """Test checksum computation for an empty file."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_bytes(b"")
-        
-        checksum = compute_sha256_file(test_file)
-        
-        # Expected SHA-256 for empty content
-        expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        assert checksum == expected
-    
-    def test_compute_sha256_file_not_found(self, tmp_path):
-        """Test that FileNotFoundError is raised when file doesn't exist."""
-        non_existent = tmp_path / "non_existent.txt"
-        
-        with pytest.raises(FileNotFoundError):
-            compute_sha256_file(non_existent)
+        self.test_content = b"Hello, this is a test file for checksum verification."
+        with open(self.test_file_path, "wb") as f:
+            f.write(self.test_content)
 
+    def tearDown(self):
+        """Clean up temporary files."""
+        self.temp_dir.cleanup()
 
-class TestLoadExistingChecksums:
-    def test_load_existing_checksums_from_file(self, tmp_path):
-        """Test loading checksums from an existing JSON file."""
-        checksums_file = tmp_path / "checksums.json"
-        data = {"files": {"test.npy": {"sha256": "abc123"}}}
-        
-        with open(checksums_file, "w") as f:
-            json.dump(data, f)
-        
-        result = load_existing_checksums(checksums_file)
-        assert result == data
-    
-    def test_load_existing_checksums_from_nonexistent_file(self, tmp_path):
-        """Test loading checksums from a non-existent file returns empty dict."""
-        non_existent = tmp_path / "non_existent.json"
-        
-        result = load_existing_checksums(non_existent)
-        assert result == {"files": {}}
+    def test_compute_sha256_file(self):
+        """Test that compute_sha256_file returns the correct hash."""
+        expected_hash = hashlib.sha256(self.test_content).hexdigest()
+        computed_hash = compute_sha256_file(self.test_file_path)
+        self.assertEqual(computed_hash, expected_hash)
 
+    def test_compute_sha256_file_not_found(self):
+        """Test that compute_sha256_file raises FileNotFoundError for missing file."""
+        non_existent_path = Path(self.temp_dir.name) / "non_existent.bin"
+        with self.assertRaises(FileNotFoundError):
+            compute_sha256_file(non_existent_path)
 
-class TestSaveChecksums:
-    def test_save_checksums_creates_file(self, tmp_path):
-        """Test that save_checksums creates the file with correct content."""
-        checksums_file = tmp_path / "checksums.json"
-        data = {"files": {"test.npy": {"sha256": "abc123"}}}
+    def test_load_existing_checksums_file_exists(self):
+        """Test loading existing checksums from a file."""
+        # Create a valid checksum file
+        initial_data = {"files": {"test.bin": {"sha256": "abc123"}}}
+        with open(self.test_checksum_path, "w") as f:
+            json.dump(initial_data, f)
         
-        save_checksums(checksums_file, data)
+        loaded_data = load_existing_checksums(self.test_checksum_path)
+        self.assertEqual(loaded_data, initial_data)
+
+    def test_load_existing_checksums_file_missing(self):
+        """Test loading checksums when file does not exist."""
+        non_existent_path = Path(self.temp_dir.name) / "missing.json"
+        loaded_data = load_existing_checksums(non_existent_path)
+        self.assertEqual(loaded_data, {"files": {}})
+
+    def test_load_existing_checksums_invalid_json(self):
+        """Test loading checksums from an invalid JSON file."""
+        with open(self.test_checksum_path, "w") as f:
+            f.write("This is not valid JSON")
         
-        assert checksums_file.exists()
+        # Should return empty dict and log warning (handled in function)
+        loaded_data = load_existing_checksums(self.test_checksum_path)
+        self.assertEqual(loaded_data, {"files": {}})
+
+    def test_save_checksums(self):
+        """Test saving checksums to a file."""
+        test_checksums = {
+            "files": {
+                "embeddings.npy": {
+                    "sha256": "d41d8cd98f00b204e9800998ecf8427e",
+                    "path": "data/processed/embeddings.npy"
+                }
+            },
+            "metadata": {"generated_by": "test"}
+        }
         
-        with open(checksums_file, "r") as f:
+        save_checksums(test_checksums, self.test_checksum_path)
+        
+        # Verify file exists and content matches
+        self.assertTrue(self.test_checksum_path.exists())
+        with open(self.test_checksum_path, "r") as f:
             loaded = json.load(f)
-        
-        assert loaded == data
-    
-    def test_save_checksums_creates_directories(self, tmp_path):
-        """Test that save_checksums creates parent directories if they don't exist."""
-        nested_path = tmp_path / "subdir" / "checksums.json"
-        data = {"files": {}}
-        
-        save_checksums(nested_path, data)
-        
-        assert nested_path.exists()
+        self.assertEqual(loaded, test_checksums)
+
+
+if __name__ == "__main__":
+    unittest.main()

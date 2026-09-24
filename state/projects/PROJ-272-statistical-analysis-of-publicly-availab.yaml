@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-272-statistical-analysis-of-publicly-availab
-last_run_id: d7955b8d-3e5b-41db-903c-3534f67e04b2
+last_run_id: e8b105e3-8cf7-41e8-800f-4390921ee891
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive
   Decline
-updated_at: '2026-09-22T00:04:51.478578Z'
+updated_at: '2026-09-24T11:04:22.002426Z'

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-272-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 4 command(s) failed: python code/ingestion.py --dataset adress --output data/interim/cleaned_transcripts.csv (rc=1); python code/features.py --input data/interim/cleaned_transcripts.csv --output data/processed/features.csv (rc=1); python code/stats.py --input data/processed/features.csv --output data/processed/stats_results.json (rc=1); 8 declared deliverable(s) absent: data/interim/cleaned_adress.csv; data/processed/checksums.json; data/processed/embeddings.npy",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py --dataset adress --output data/interim/cleaned_transcripts.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/ingestion.py\", line 14, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/features.py --input data/interim/cleaned_transcripts.csv --output data/processed/features.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/features.py\", line 10, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/stats.py --input data/processed/features.csv --output data/processed/stats_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/stats.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/modeling.py --input data/processed/features.csv --output data/processed/model_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/modeling.py\", line 14, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-272-statistical-analysis-of-publicly-availab/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-24T10:21:59Z"
+}

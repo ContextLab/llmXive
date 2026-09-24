@@ -4,170 +4,329 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
 import pandas as pd
-from scipy.stats import mannwhitneyu
+from scipy import stats
 
-from config import get_path, ensure_dirs
-
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-def load_feature_matrix() -> pd.DataFrame:
-    """Load the processed feature matrix from disk."""
-    path = get_path("data/processed/features.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Feature matrix not found at {path}")
-    return pd.read_csv(path)
-
-def prepare_group_data(df: pd.DataFrame, group_col: str = "label", target_label: str = "AD") -> Tuple[pd.Series, pd.Series]:
-    """Separate data into target and control groups."""
-    target = df[df[group_col] == target_label]
-    control = df[df[group_col] == "Control"]
-    return target, control
-
-def run_mann_whitney_u(group1: pd.Series, group2: pd.Series) -> Tuple[float, float]:
-    """Run Mann-Whitney U test and return statistic and p-value."""
-    if len(group1) < 2 or len(group2) < 2:
-        raise ValueError("Need at least 2 samples in each group for Mann-Whitney U.")
-    stat, pval = mannwhitneyu(group1, group2, alternative='two-sided')
-    return float(stat), float(pval)
-
-def calculate_cohens_d(group1: pd.Series, group2: pd.Series) -> float:
-    """Calculate Cohen's d effect size."""
-    n1, n2 = len(group1), len(group2)
-    mean1, mean2 = group1.mean(), group2.mean()
-    var1, var2 = group1.var(ddof=1), group2.var(ddof=1)
+def load_feature_matrix(input_path: str) -> pd.DataFrame:
+    """
+    Load the feature matrix from a CSV file.
     
-    if var1 is None or var2 is None or (var1 + var2) == 0:
-        return 0.0
+    Args:
+        input_path: Path to the CSV file containing features.
         
-    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-    if pooled_std == 0:
-        return 0.0
-    return float((mean1 - mean2) / pooled_std)
-
-def run_group_comparisons(df: pd.DataFrame, feature_cols: List[str], group_col: str = "label") -> List[Dict[str, Any]]:
-    """Run statistical comparisons for all features between Control and AD groups."""
-    target, control = prepare_group_data(df, group_col, "AD")
-    results = []
+    Returns:
+        DataFrame with feature data.
+    """
+    if not Path(input_path).exists():
+        raise FileNotFoundError(f"Feature matrix file not found: {input_path}")
     
-    for col in feature_cols:
-        try:
-            stat, pval = run_mann_whitney_u(target[col], control[col])
-            d = calculate_cohens_d(target[col], control[col])
-            results.append({
-                "feature": col,
-                "statistic": stat,
-                "p_value": pval,
-                "cohens_d": d,
-                "n_control": len(control),
-                "n_target": len(target)
-            })
-        except ValueError as e:
-            logger.warning(f"Skipped {col} due to insufficient data: {e}")
-            results.append({
-                "feature": col,
-                "statistic": None,
-                "p_value": None,
-                "cohens_d": None,
-                "n_control": len(control),
-                "n_target": len(target),
-                "error": str(e)
-            })
-    return results
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded feature matrix with {len(df)} records and {len(df.columns)} columns")
+    return df
 
-def apply_bonferroni_correction(results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
-    """Apply Bonferroni correction to p-values."""
-    n_tests = len([r for r in results if r["p_value"] is not None])
-    if n_tests == 0:
-        return results
+def prepare_group_data(df: pd.DataFrame, label_col: str = 'label') -> Dict[str, np.ndarray]:
+    """
+    Prepare data grouped by the label column for statistical testing.
+    
+    Args:
+        df: DataFrame containing features and labels.
+        label_col: Name of the column containing group labels.
         
-    adjusted_alpha = alpha / n_tests
-    for res in results:
-        if res["p_value"] is not None:
-            res["p_value_adjusted"] = min(res["p_value"] * n_tests, 1.0)
-            res["is_significant_adjusted"] = res["p_value_adjusted"] < adjusted_alpha
+    Returns:
+        Dictionary mapping group labels to arrays of feature values.
+    """
+    groups = {}
+    for label in df[label_col].unique():
+        if pd.isna(label):
+            continue
+        # Select only numeric columns for statistical testing
+        numeric_data = df[df[label_col] == label].select_dtypes(include=[np.number])
+        if not numeric_data.empty:
+            groups[str(label)] = numeric_data.values
         else:
-            res["p_value_adjusted"] = None
-            res["is_significant_adjusted"] = False
-    return results
+            logger.warning(f"No numeric data found for group: {label}")
+    
+    return groups
 
-def check_sample_sizes(df: pd.DataFrame, group_col: str = "label", threshold: int = 10, metadata_path: Optional[str] = None) -> Dict[str, Any]:
+def run_mann_whitney_u(group1_data: np.ndarray, group2_data: np.ndarray, 
+                       feature_indices: Optional[List[int]] = None) -> Dict[str, np.ndarray]:
     """
-    Check if any group has fewer than 'threshold' participants.
-    Logs a WARNING and flags the dataset as 'low_power' in metadata if so.
+    Run Mann-Whitney U test between two groups for specified features.
+    
+    Args:
+        group1_data: 2D array of feature values for group 1.
+        group2_data: 2D array of feature values for group 2.
+        feature_indices: List of column indices to test. If None, test all columns.
+        
+    Returns:
+        Dictionary with 'statistics' and 'p_values' arrays.
     """
-    counts = df[group_col].value_counts().to_dict()
-    low_power_detected = False
-    low_power_groups = []
-
-    for group, count in counts.items():
-        if count < threshold:
-            low_power_detected = True
-            low_power_groups.append({"group": group, "count": count})
-            logger.warning(f"Low sample size detected for group '{group}': {count} < {threshold}")
-
-    status_flag = {}
-    if low_power_detected:
-        status_flag["low_power"] = True
-        status_flag["low_power_groups"] = low_power_groups
-        logger.warning("Dataset flagged as 'low_power' due to insufficient sample sizes.")
-    else:
-        status_flag["low_power"] = False
-        status_flag["group_counts"] = counts
-
-    # Update metadata file
-    if metadata_path is None:
-        metadata_path = str(get_path("data/results/metadata.json"))
+    if feature_indices is None:
+        feature_indices = list(range(group1_data.shape[1]))
     
-    ensure_dirs(Path(metadata_path).parent)
+    statistics = []
+    p_values = []
     
-    existing_metadata = {}
-    if Path(metadata_path).exists():
-        try:
-            with open(metadata_path, 'r') as f:
-                existing_metadata = json.load(f)
-        except json.JSONDecodeError:
-            logger.warning("Could not parse existing metadata.json, starting fresh.")
+    for idx in feature_indices:
+        col1 = group1_data[:, idx]
+        col2 = group2_data[:, idx]
+        
+        # Handle cases with insufficient data for testing
+        if len(col1) < 2 or len(col2) < 2:
+            statistics.append(np.nan)
+            p_values.append(np.nan)
+            continue
+        
+        # Remove NaN values
+        col1 = col1[~np.isnan(col1)]
+        col2 = col2[~np.isnan(col2)]
+        
+        if len(col1) < 2 or len(col2) < 2:
+            statistics.append(np.nan)
+            p_values.append(np.nan)
+            continue
+        
+        u_stat, p_val = stats.mannwhitneyu(col1, col2, alternative='two-sided')
+        statistics.append(u_stat)
+        p_values.append(p_val)
+    
+    return {
+        'statistics': np.array(statistics),
+        'p_values': np.array(p_values)
+    }
 
-    existing_metadata.update(status_flag)
+def calculate_cohens_d(group1_data: np.ndarray, group2_data: np.ndarray,
+                       feature_indices: Optional[List[int]] = None) -> np.ndarray:
+    """
+    Calculate Cohen's d effect size between two groups for specified features.
     
-    with open(metadata_path, 'w') as f:
-        json.dump(existing_metadata, f, indent=2)
+    Args:
+        group1_data: 2D array of feature values for group 1.
+        group2_data: 2D array of feature values for group 2.
+        feature_indices: List of column indices to calculate effect size for.
+        
+    Returns:
+        Array of Cohen's d values.
+    """
+    if feature_indices is None:
+        feature_indices = list(range(group1_data.shape[1]))
     
-    logger.info(f"Sample size check complete. Metadata updated at {metadata_path}")
-    return status_flag
+    d_values = []
+    
+    for idx in feature_indices:
+        col1 = group1_data[:, idx]
+        col2 = group2_data[:, idx]
+        
+        # Remove NaN values
+        col1 = col1[~np.isnan(col1)]
+        col2 = col2[~np.isnan(col2)]
+        
+        if len(col1) < 2 or len(col2) < 2:
+            d_values.append(np.nan)
+            continue
+        
+        mean1 = np.mean(col1)
+        mean2 = np.mean(col2)
+        std1 = np.std(col1, ddof=1)
+        std2 = np.std(col2, ddof=1)
+        
+        # Pooled standard deviation
+        n1, n2 = len(col1), len(col2)
+        if n1 + n2 - 2 == 0:
+            pooled_std = 0
+        else:
+            pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+        
+        if pooled_std == 0:
+            d_values.append(np.nan)
+        else:
+            d_values.append((mean1 - mean2) / pooled_std)
+    
+    return np.array(d_values)
 
-def save_results(results: List[Dict[str, Any]], output_path: Optional[str] = None) -> None:
-    """Save statistical results to JSON."""
-    if output_path is None:
-        output_path = str(get_path("data/results/statistical_metrics.json"))
+def run_group_comparisons(df: pd.DataFrame, label_col: str = 'label',
+                          group1: str = 'Control', group2: str = 'AD') -> Dict[str, Any]:
+    """
+    Run Mann-Whitney U tests between two specified groups for all numeric features.
     
-    ensure_dirs(Path(output_path).parent)
+    Args:
+        df: DataFrame with features and labels.
+        label_col: Column name for group labels.
+        group1: Label for the first group (reference).
+        group2: Label for the second group (comparison).
+        
+    Returns:
+        Dictionary with test results.
+    """
+    groups = prepare_group_data(df, label_col)
+    
+    if group1 not in groups or group2 not in groups:
+        raise ValueError(f"Groups '{group1}' or '{group2}' not found in data. "
+                       f"Available groups: {list(groups.keys())}")
+    
+    group1_data = groups[group1]
+    group2_data = groups[group2]
+    
+    # Run Mann-Whitney U test
+    mw_results = run_mann_whitney_u(group1_data, group2_data)
+    
+    # Calculate Cohen's d
+    cohens_d = calculate_cohens_d(group1_data, group2_data)
+    
+    # Get feature names
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    return {
+        'group1': group1,
+        'group2': group2,
+        'feature_names': numeric_cols,
+        'mann_whitney_statistics': mw_results['statistics'].tolist(),
+        'raw_p_values': mw_results['p_values'].tolist(),
+        'cohens_d': cohens_d.tolist(),
+        'sample_sizes': {
+            group1: len(group1_data),
+            group2: len(group2_data)
+        }
+    }
+
+def apply_bonferroni_correction(p_values: List[float], num_tests: Optional[int] = None) -> List[float]:
+    """
+    Apply Bonferroni correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values.
+        num_tests: Number of tests performed. If None, uses len(p_values).
+        
+    Returns:
+        List of adjusted p-values.
+    """
+    if num_tests is None:
+        num_tests = len(p_values)
+    
+    if num_tests == 0:
+        return []
+    
+    adjusted = [min(p * num_tests, 1.0) for p in p_values]
+    return adjusted
+
+def check_sample_sizes(df: pd.DataFrame, label_col: str = 'label', 
+                       min_size: int = 10) -> Dict[str, Any]:
+    """
+    Check if group sizes meet the minimum threshold.
+    
+    Args:
+        df: DataFrame with labels.
+        label_col: Column name for group labels.
+        min_size: Minimum required sample size per group.
+        
+    Returns:
+        Dictionary with sample size information and power flag.
+    """
+    group_counts = df[label_col].value_counts().to_dict()
+    low_power = any(count < min_size for count in group_counts.values())
+    
+    return {
+        'group_counts': group_counts,
+        'min_size': min_size,
+        'low_power': low_power
+    }
+
+def save_results(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Save statistical results to a JSON file.
+    
+    Args:
+        results: Dictionary containing statistical metrics.
+        output_path: Path to the output JSON file.
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Statistical results saved to {output_path}")
+    
+    logger.info(f"Saved statistical results to {output_path}")
 
 def main():
-    """Main entry point for statistical analysis."""
-    logging.basicConfig(level=logging.INFO)
+    """
+    Main function to run statistical analysis on feature data.
     
-    # Load data
-    df = load_feature_matrix()
-    logger.info(f"Loaded feature matrix with {len(df)} records.")
+    This function:
+    1. Loads the feature matrix from the input CSV.
+    2. Performs Mann-Whitney U tests between Control and AD groups.
+    3. Applies Bonferroni correction to p-values.
+    4. Calculates Cohen's d effect sizes.
+    5. Saves results to the output JSON file.
+    """
+    import argparse
     
-    # Define feature columns (excluding ID and Label)
-    feature_cols = [col for col in df.columns if col not in ['participant_id', 'label']]
+    parser = argparse.ArgumentParser(description='Run statistical analysis on feature data')
+    parser.add_argument('--input', type=str, required=True, 
+                      help='Path to input feature CSV file')
+    parser.add_argument('--output', type=str, required=True, 
+                      help='Path to output statistical metrics JSON file')
+    parser.add_argument('--group1', type=str, default='Control',
+                      help='Label for the first group')
+    parser.add_argument('--group2', type=str, default='AD',
+                      help='Label for the second group')
+    parser.add_argument('--log-level', type=str, default='INFO',
+                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+                      help='Logging level')
     
-    # Check sample sizes and update metadata
-    check_sample_sizes(df, threshold=10)
+    args = parser.parse_args()
     
-    # Run comparisons
-    raw_results = run_group_comparisons(df, feature_cols)
-    corrected_results = apply_bonferroni_correction(raw_results)
+    # Configure logging
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # Save results
-    save_results(corrected_results)
-    
-    logger.info("Statistical analysis complete.")
+    try:
+        # Load feature data
+        logger.info(f"Loading feature data from {args.input}")
+        df = load_feature_matrix(args.input)
+        
+        # Check sample sizes
+        sample_info = check_sample_sizes(df, label_col='label')
+        if sample_info['low_power']:
+            logger.warning(f"Low power detected: {sample_info['group_counts']}")
+        
+        # Run group comparisons
+        logger.info(f"Running Mann-Whitney U test between {args.group1} and {args.group2}")
+        comparison_results = run_group_comparisons(df, label_col='label', 
+                                                  group1=args.group1, group2=args.group2)
+        
+        # Apply Bonferroni correction
+        raw_p_values = comparison_results['raw_p_values']
+        num_tests = len(raw_p_values)
+        adjusted_p_values = apply_bonferroni_correction(raw_p_values, num_tests)
+        
+        # Prepare final results
+        final_results = {
+            'comparison': f"{args.group1}_vs_{args.group2}",
+            'feature_names': comparison_results['feature_names'],
+            'raw_p_values': raw_p_values,
+            'adjusted_p_values': adjusted_p_values,
+            'bonferroni_correction_factor': num_tests,
+            'cohens_d': comparison_results['cohens_d'],
+            'sample_sizes': comparison_results['sample_sizes'],
+            'power_flag': 'low_power' if sample_info['low_power'] else 'adequate_power'
+        }
+        
+        # Add significance flags
+        final_results['significant_raw'] = [p < 0.05 for p in raw_p_values]
+        final_results['significant_adjusted'] = [p < 0.05 for p in adjusted_p_values]
+        
+        # Save results
+        save_results(final_results, args.output)
+        
+        logger.info("Statistical analysis completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error during statistical analysis: {str(e)}", exc_info=True)
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
