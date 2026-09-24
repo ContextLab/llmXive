@@ -13,7 +13,7 @@ This feature implements a rigorous validation of the "Static Approximation" hypo
 **Primary Dependencies**: `torch`, `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `torchvision` (for Inception), `huggingface_hub`  
 **Storage**: Local filesystem (`data/`, `code/`) with checksums; no external DB.  
 **Testing**: `pytest` (contract tests against YAML schemas), `unittest` (statistical logic).  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk). GPU offload via Kaggle for heavy model loading if CPU fails.  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple CPU, 7GB RAM, 14GB Disk). GPU offload via Kaggle for heavy model loading if CPU fails.  
 **Project Type**: Computational Research / Algorithmic Benchmarking  
 **Performance Goals**: Complete tracing and benchmarking of 100 images (with on-the-fly aggregation) in ≤ 6 hours on CPU; memory usage < 7GB via batching and streaming.  
 **Constraints**: No GPU available on primary runner; strict adherence to open datasets; FID calculation must use CPU-optimized Inception.  

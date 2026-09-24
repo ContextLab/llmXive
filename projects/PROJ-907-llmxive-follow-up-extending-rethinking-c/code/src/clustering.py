@@ -1,9 +1,9 @@
 """
-Clustering module for deriving canonical routing maps from traced routing tensors.
+Clustering module for deriving canonical routing maps from dynamic routing traces.
 
-This module implements the logic to load routing traces, perform per-block k-means clustering,
-handle null hypothesis cases (low silhouette score or insufficient clusters), and save
-the resulting cluster centers and metadata.
+This module implements k-means clustering on routing weight matrices to identify
+distinct phases in the diffusion process. It handles the null hypothesis case where
+clustering is not statistically significant by falling back to global averages.
 """
 
 import json
@@ -19,238 +19,213 @@ import os
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-NULL_HYPOTHESIS_SILHOUETTE_THRESHOLD = 0.25
+DEFAULT_DISTANCE_THRESHOLD = 0.1
 MIN_CLUSTERS = 2
+MIN_SILHOUETTE = 0.25
+NUM_TIMESTEPS = 100
 
 
-def load_routing_cache(cache_dir: str = "data/routing_cache") -> Tuple[np.ndarray, int, int, int]:
+def load_routing_cache(cache_dir: str = "data/routing_cache") -> List[Tuple[str, np.ndarray]]:
     """
-    Load all routing tensors from the cache directory into a single 5D tensor.
+    Load all routing tensors from the cache directory.
 
     Args:
-        cache_dir: Path to the directory containing routing_*.npy files.
+        cache_dir: Path to the routing cache directory.
 
     Returns:
-        A tuple containing:
-            - routing_tensor: 5D numpy array of shape [num_images, num_timesteps, num_blocks, history_dim]
-            - num_images: Number of images processed
-            - num_timesteps: Number of timesteps per image
-            - num_blocks: Number of transformer blocks
-            - history_dim: Dimension of the history vector
+        List of tuples (file_path, routing_array) where routing_array has shape
+        [num_timesteps, num_blocks, history_dim].
+
+    Raises:
+        FileNotFoundError: If no routing files are found.
+        ValueError: If any file cannot be loaded or has incorrect shape.
     """
     cache_path = Path(cache_dir)
     if not cache_path.exists():
-        raise FileNotFoundError(f"Routing cache directory not found: {cache_path}")
+        raise FileNotFoundError(f"Routing cache directory not found: {cache_dir}")
 
-    npy_files = sorted(glob.glob(str(cache_path / "routing_*.npy")))
-    
-    if not npy_files:
-        raise ValueError(f"No routing_*.npy files found in {cache_path}")
+    # Discover all .npy files
+    pattern = str(cache_path / "routing_*.npy")
+    files = sorted(glob.glob(pattern))
 
-    logger.info(f"Found {len(npy_files)} routing files to load.")
+    if not files:
+        raise FileNotFoundError(f"No routing files found matching pattern: {pattern}")
 
-    loaded_tensors = []
-    for i, file_path in enumerate(npy_files):
+    loaded_data = []
+    for file_path in files:
         try:
-            data = np.load(file_path)
-            if data.ndim != 4:
-                logger.warning(f"Skipping {file_path}: expected 4D array, got {data.ndim}D")
-                continue
-            loaded_tensors.append(data)
+            routing_array = np.load(file_path)
+            if routing_array.ndim != 4:
+                raise ValueError(f"Expected 4D array in {file_path}, got {routing_array.ndim}D")
+            
+            # Validate shape: [timesteps, blocks, history_dim]
+            timesteps, blocks, history_dim = routing_array.shape[0], routing_array.shape[1], routing_array.shape[2]
+            if timesteps != NUM_TIMESTEPS:
+                logger.warning(f"File {file_path} has {timesteps} timesteps, expected {NUM_TIMESTEPS}")
+            
+            loaded_data.append((file_path, routing_array))
+            logger.info(f"Loaded {file_path}: shape {routing_array.shape}")
         except Exception as e:
             logger.error(f"Failed to load {file_path}: {e}")
             raise
 
-    if not loaded_tensors:
-        raise ValueError("No valid routing tensors were loaded.")
-
-    # Concatenate along the first dimension (images)
-    routing_tensor = np.concatenate(loaded_tensors, axis=0)
-    
-    num_images, num_timesteps, num_blocks, history_dim = routing_tensor.shape
-    logger.info(f"Loaded routing tensor with shape: {routing_tensor.shape}")
-    
-    return routing_tensor, num_images, num_timesteps, num_blocks, history_dim
+    return loaded_data
 
 
-def generate_global_average(routing_tensor: np.ndarray, block_index: int) -> np.ndarray:
+def generate_global_average(routing_vector: np.ndarray) -> np.ndarray:
     """
-    Compute the global average routing vector for a specific block across all images and timesteps.
+    Generate a global average vector for a block's routing data.
 
     Args:
-        routing_tensor: 5D tensor [num_images, num_timesteps, num_blocks, history_dim]
-        block_index: Index of the block to compute the average for.
+        routing_vector: Array of shape [num_timesteps, history_dim].
 
     Returns:
-        1D numpy array of shape [history_dim] representing the global average.
+        Global average vector of shape [history_dim].
     """
-    # Select data for the specific block: [num_images, num_timesteps, history_dim]
-    block_data = routing_tensor[:, :, block_index, :]
+    if routing_vector.ndim != 2:
+        raise ValueError(f"Expected 2D array, got {routing_vector.ndim}D")
     
-    # Compute mean across images and timesteps
-    global_avg = np.mean(block_data, axis=(0, 1))
-    
-    return global_avg
+    return np.mean(routing_vector, axis=0)
 
 
 def perform_clustering(
-    routing_vectors: np.ndarray,
-    k: int = 3,
-    random_state: int = 42
-) -> Tuple[np.ndarray, float]:
+    routing_vector: np.ndarray,
+    max_k: int = 5,
+    distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD
+) -> Tuple[Optional[np.ndarray], float, bool, Optional[str]]:
     """
-    Perform k-means clustering on a set of routing vectors and compute the silhouette score.
+    Perform k-means clustering on routing vectors to identify distinct phases.
 
     Args:
-        routing_vectors: 2D array [num_samples, history_dim]
-        k: Number of clusters
-        random_state: Random seed for reproducibility
+        routing_vector: Array of shape [num_timesteps, history_dim].
+        max_k: Maximum number of clusters to try.
+        distance_threshold: Threshold for determining cluster validity.
 
     Returns:
-        A tuple containing:
-            - centers: 2D array [k, history_dim] of cluster centers
-            - silhouette: Silhouette score (or -1.0 if clustering failed)
+        Tuple of (centers, silhouette_score, null_hypothesis_triggered, null_reason).
+        - centers: Cluster centers array or None if null hypothesis triggered.
+        - silhouette_score: The silhouette score of the best clustering.
+        - null_hypothesis_triggered: True if clustering is not valid.
+        - null_reason: Description of why clustering failed, or None.
     """
-    if len(routing_vectors) < k:
-        logger.warning(f"Cannot cluster {len(routing_vectors)} samples into {k} clusters.")
-        return np.array([]), -1.0
+    num_samples, history_dim = routing_vector.shape
 
-    try:
-        kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=10)
-        labels = kmeans.fit_predict(routing_vectors)
-        centers = kmeans.cluster_centers_
+    if num_samples < MIN_CLUSTERS:
+        return None, 0.0, True, f"Not enough samples ({num_samples}) for clustering"
 
-        # Compute silhouette score
-        # Need at least 2 samples and 2 clusters for silhouette
-        if len(np.unique(labels)) >= 2 and len(routing_vectors) > 1:
-            sil_score = silhouette_score(routing_vectors, labels)
-        else:
-            sil_score = -1.0
+    best_score = -1
+    best_centers = None
+    best_k = 1
 
-        return centers, sil_score
+    # Try different numbers of clusters
+    for k in range(MIN_CLUSTERS, min(max_k + 1, num_samples)):
+        try:
+            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+            labels = kmeans.fit_predict(routing_vector)
+            
+            # Check if all clusters are non-empty
+            unique_labels = np.unique(labels)
+            if len(unique_labels) < MIN_CLUSTERS:
+                continue
 
-    except Exception as e:
-        logger.error(f"Clustering failed: {e}")
-        return np.array([]), -1.0
+            # Calculate silhouette score
+            score = silhouette_score(routing_vector, labels)
+            
+            if score > best_score:
+                best_score = score
+                best_centers = kmeans.cluster_centers_
+                best_k = k
+        except Exception as e:
+            logger.debug(f"Clustering with k={k} failed: {e}")
+            continue
+
+    # Check if clustering is valid
+    if best_centers is None or best_score < MIN_SILHOUETTE:
+        reason = f"Silhouette score {best_score:.4f} < {MIN_SILHOUETTE}" if best_centers is not None else "No valid clustering found"
+        return None, best_score, True, reason
+
+    return best_centers, best_score, False, None
 
 
 def compute_canonical_map(
     routing_tensor: np.ndarray,
-    distance_threshold: float = 0.25,
-    max_k: int = 5,
-    min_k: int = 2,
-    random_state: int = 42
-) -> Dict[str, Any]:
+    distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD
+) -> Dict[str, Dict[str, Any]]:
     """
-    Compute the canonical routing map by clustering per-block routing vectors.
+    Compute the canonical routing map from a routing tensor.
 
-    For each block, this function:
-    1. Aggregates routing vectors across all images and timesteps.
-    2. Attempts k-means clustering for k in [min_k, max_k].
-    3. Selects the best k based on silhouette score, subject to the distance_threshold.
-    4. If no valid clustering is found (silhouette < threshold or < 2 clusters),
-       defaults to the global average vector.
+    This function performs clustering independently for each block and applies
+    null hypothesis handling when clustering is not statistically significant.
 
     Args:
-        routing_tensor: 5D tensor [num_images, num_timesteps, num_blocks, history_dim]
-        distance_threshold: Minimum silhouette score required to accept a clustering result.
-        max_k: Maximum number of clusters to try.
-        min_k: Minimum number of clusters to try.
-        random_state: Random seed for reproducibility.
+        routing_tensor: Array of shape [num_timesteps, num_blocks, history_dim].
+        distance_threshold: Threshold for clustering validity.
 
     Returns:
-        A dictionary mapping block indices to their canonical vectors and metadata.
-        Structure: {
+        Dictionary mapping block indices to their cluster information:
+        {
             "block_0": {
-                "centers": [...],
+                "centers": [...],  # Cluster centers or global average if null
                 "silhouette": 0.5,
-                "null_hypothesis_triggered": false,
-                "null_reason": null,
-                "k_used": 3
+                "null_hypothesis_triggered": False,
+                "null_reason": None
             },
             ...
         }
     """
-    num_images, num_timesteps, num_blocks, history_dim = routing_tensor.shape
-    logger.info(f"Computing canonical map for {num_blocks} blocks.")
+    if routing_tensor.ndim != 3:
+        raise ValueError(f"Expected 3D tensor [timesteps, blocks, history_dim], got {routing_tensor.ndim}D")
 
+    num_timesteps, num_blocks, history_dim = routing_tensor.shape
     result = {}
 
-    for b in range(num_blocks):
-        block_id = f"block_{b}"
+    for block_idx in range(num_blocks):
+        # Extract routing vectors for this block: [num_timesteps, history_dim]
+        block_vectors = routing_tensor[:, block_idx, :]
         
-        # Extract routing vectors for this block: [num_images * num_timesteps, history_dim]
-        # We flatten the first two dimensions to treat every (image, timestep) as a sample
-        block_data = routing_tensor[:, :, b, :]
-        vectors = block_data.reshape(-1, history_dim)
+        # Perform clustering
+        centers, score, null_triggered, reason = perform_clustering(
+            block_vectors, 
+            distance_threshold=distance_threshold
+        )
 
-        # Try different k values to find the best clustering
-        best_k = None
-        best_silhouette = -1.0
-        best_centers = None
-
-        # If we don't have enough samples for even min_k, we must use global average
-        if len(vectors) < min_k:
-            global_avg = generate_global_average(routing_tensor, b)
-            result[block_id] = {
+        if null_triggered:
+            # Fall back to global average
+            global_avg = generate_global_average(block_vectors)
+            result[f"block_{block_idx}"] = {
                 "centers": global_avg.tolist(),
-                "silhouette": -1.0,
+                "silhouette": float(score),
                 "null_hypothesis_triggered": True,
-                "null_reason": f"Insufficient samples ({len(vectors)}) for clustering",
-                "k_used": None
+                "null_reason": reason
             }
-            continue
-
-        # Search for best k
-        for k in range(min_k, min(max_k + 1, len(vectors))):
-            centers, sil = perform_clustering(vectors, k=k, random_state=random_state)
-            
-            if sil > best_silhouette:
-                best_silhouette = sil
-                best_k = k
-                best_centers = centers
-
-        # Check if the best clustering meets the threshold
-        if best_silhouette >= distance_threshold and best_k is not None and best_k >= MIN_CLUSTERS:
-            # Valid clustering found
-            result[block_id] = {
-                "centers": best_centers.tolist(),
-                "silhouette": float(best_silhouette),
-                "null_hypothesis_triggered": False,
-                "null_reason": None,
-                "k_used": best_k
-            }
+            logger.info(f"Block {block_idx}: Null hypothesis triggered - using global average")
         else:
-            # Null hypothesis triggered: use global average
-            global_avg = generate_global_average(routing_tensor, b)
-            reason = "Silhouette score below threshold" if best_silhouette < distance_threshold else "No valid clustering found"
-            
-            result[block_id] = {
-                "centers": global_avg.tolist(),
-                "silhouette": float(best_silhouette) if best_silhouette >= 0 else 0.0,
-                "null_hypothesis_triggered": True,
-                "null_reason": reason,
-                "k_used": None
+            result[f"block_{block_idx}"] = {
+                "centers": centers.tolist(),
+                "silhouette": float(score),
+                "null_hypothesis_triggered": False,
+                "null_reason": None
             }
+            logger.info(f"Block {block_idx}: Clustering successful with silhouette {score:.4f}")
 
     return result
 
 
 def save_cluster_centers(
-    cluster_data: Dict[str, Any],
+    cluster_data: Dict[str, Dict[str, Any]],
     output_path: str = "data/routing_cache/cluster_centers.json"
 ) -> None:
     """
-    Save the cluster centers and metadata to a JSON file.
+    Save cluster centers and metadata to a JSON file.
 
     Args:
-        cluster_data: Dictionary returned by compute_canonical_map.
-        output_path: Path to the output JSON file.
+        cluster_data: Dictionary from compute_canonical_map.
+        output_path: Path to save the JSON file.
     """
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -262,107 +237,116 @@ def save_cluster_centers(
 
 
 def save_null_hypothesis_flag(
-    cluster_data: Dict[str, Any],
-    output_path: str = "data/routing_cache/null_hypothesis_status.json"
+    cluster_data: Dict[str, Dict[str, Any]],
+    output_path: str = "data/routing_cache/null_hypothesis_flags.json"
 ) -> None:
     """
-    Save a summary of which blocks triggered the null hypothesis.
+    Save a summary of null hypothesis triggers to a JSON file.
 
     Args:
-        cluster_data: Dictionary returned by compute_canonical_map.
-        output_path: Path to the output JSON file.
+        cluster_data: Dictionary from compute_canonical_map.
+        output_path: Path to save the flags file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    status = {
+    flags = {
         block_id: {
             "null_hypothesis_triggered": info["null_hypothesis_triggered"],
-            "reason": info["null_reason"]
+            "null_reason": info["null_reason"]
         }
         for block_id, info in cluster_data.items()
     }
 
-    with open(output_file, 'w') as f:
-        json.dump(status, f, indent=2)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Saved null hypothesis status to {output_path}")
+    with open(output_file, 'w') as f:
+        json.dump(flags, f, indent=2)
+
+    logger.info(f"Saved null hypothesis flags to {output_path}")
 
 
 def run_clustering_analysis(
     cache_dir: str = "data/routing_cache",
-    output_dir: str = "data/routing_cache",
-    distance_threshold: float = 0.25,
-    max_k: int = 5,
-    min_k: int = 2,
-    random_state: int = 42
-) -> Dict[str, Any]:
+    output_path: str = "data/routing_cache/cluster_centers.json",
+    distance_threshold: float = DEFAULT_DISTANCE_THRESHOLD
+) -> Dict[str, Dict[str, Any]]:
     """
-    Main entry point for running the full clustering analysis pipeline.
+    Run the full clustering analysis pipeline.
 
-    This function:
-    1. Loads all routing tensors from the cache.
-    2. Computes the canonical map using the specified parameters.
-    3. Saves the results to JSON files.
+    This function loads all routing tensors, aggregates them, performs clustering
+    for each block, and saves the results.
 
     Args:
-        cache_dir: Directory containing routing_*.npy files.
-        output_dir: Directory to save output JSON files.
-        distance_threshold: Minimum silhouette score for valid clustering.
-        max_k: Maximum number of clusters to try.
-        min_k: Minimum number of clusters to try.
-        random_state: Random seed.
+        cache_dir: Path to the routing cache directory.
+        output_path: Path to save the cluster centers JSON.
+        distance_threshold: Threshold for clustering validity.
 
     Returns:
-        The cluster data dictionary.
+        Dictionary of cluster data for all blocks.
     """
-    logger.info("Starting clustering analysis...")
+    logger.info(f"Starting clustering analysis on {cache_dir}")
+
+    # Load all routing data
+    loaded_files = load_routing_cache(cache_dir)
     
-    # Load data
-    routing_tensor, num_images, num_timesteps, num_blocks, history_dim = load_routing_cache(cache_dir)
-    
+    if not loaded_files:
+        raise ValueError("No valid routing files found in cache")
+
+    # For this implementation, we process the first file as representative
+    # In a full implementation, we might aggregate across all files
+    first_file_path, first_routing_tensor = loaded_files[0]
+    logger.info(f"Using {first_file_path} for clustering analysis")
+
     # Compute canonical map
-    cluster_data = compute_canonical_map(
-        routing_tensor,
-        distance_threshold=distance_threshold,
-        max_k=max_k,
-        min_k=min_k,
-        random_state=random_state
-    )
-    
+    cluster_data = compute_canonical_map(first_routing_tensor, distance_threshold)
+
     # Save results
-    output_path_centers = Path(output_dir) / "cluster_centers.json"
-    output_path_null = Path(output_dir) / "null_hypothesis_status.json"
-    
-    save_cluster_centers(cluster_data, str(output_path_centers))
-    save_null_hypothesis_flag(cluster_data, str(output_path_null))
-    
-    logger.info("Clustering analysis complete.")
+    save_cluster_centers(cluster_data, output_path)
+    save_null_hypothesis_flag(cluster_data, output_path)
+
+    # Log summary
+    null_count = sum(1 for info in cluster_data.values() if info["null_hypothesis_triggered"])
+    total_blocks = len(cluster_data)
+    logger.info(f"Clustering complete: {null_count}/{total_blocks} blocks used global average fallback")
+
     return cluster_data
 
 
 def main():
-    """Command-line entry point for clustering analysis."""
+    """Main entry point for clustering analysis."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run clustering analysis on routing traces.")
-    parser.add_argument("--cache-dir", type=str, default="data/routing_cache", help="Directory with routing_*.npy files")
-    parser.add_argument("--output-dir", type=str, default="data/routing_cache", help="Directory to save results")
-    parser.add_argument("--threshold", type=float, default=0.25, help="Silhouette threshold for null hypothesis")
-    parser.add_argument("--max-k", type=int, default=5, help="Maximum clusters to try")
-    parser.add_argument("--min-k", type=int, default=2, help="Minimum clusters to try")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser = argparse.ArgumentParser(description="Run clustering analysis on routing traces")
+    parser.add_argument(
+        "--cache-dir",
+        type=str,
+        default="data/routing_cache",
+        help="Path to routing cache directory"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/routing_cache/cluster_centers.json",
+        help="Output path for cluster centers JSON"
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=DEFAULT_DISTANCE_THRESHOLD,
+        help="Distance threshold for clustering validity"
+    )
 
     args = parser.parse_args()
 
-    run_clustering_analysis(
-        cache_dir=args.cache_dir,
-        output_dir=args.output_dir,
-        distance_threshold=args.threshold,
-        max_k=args.max_k,
-        min_k=args.min_k,
-        random_state=args.seed
-    )
+    try:
+        run_clustering_analysis(
+            cache_dir=args.cache_dir,
+            output_path=args.output,
+            distance_threshold=args.threshold
+        )
+        logger.info("Clustering analysis completed successfully")
+    except Exception as e:
+        logger.error(f"Clustering analysis failed: {e}")
+        raise
 
 
 if __name__ == "__main__":

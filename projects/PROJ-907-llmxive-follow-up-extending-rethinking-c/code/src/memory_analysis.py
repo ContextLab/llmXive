@@ -4,7 +4,6 @@ import logging
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import statistics
 
 # Configure logging
 logging.basicConfig(
@@ -17,263 +16,233 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def parse_memory_log(log_path: str) -> List[Dict[str, Any]]:
+# Constants
+GITHUB_ACTIONS_MEMORY_LIMIT_GB = 7.0
+RESULTS_DIR = Path("data/results")
+RAW_LOG_PATH = RESULTS_DIR / "memory_profile_raw.jsonl"
+PROFILE_JSON_PATH = RESULTS_DIR / "memory_profile.json"
+REPORT_MD_PATH = Path("docs/memory_report.md")
+
+def get_memory_usage_gb() -> float:
     """
-    Parse the memory profile log file (JSONL format).
-    
-    Args:
-        log_path: Path to the memory profile log file (e.g., data/results/memory_profile_raw.jsonl)
-        
-    Returns:
-        List of dictionaries containing memory usage data per image
+    Get current memory usage in GB.
+    Uses psutil if available, otherwise falls back to /proc/self/status on Linux.
     """
-    records = []
-    log_file = Path(log_path)
-    
-    if not log_file.exists():
-        logger.warning(f"Memory log file not found: {log_path}")
-        return records
-    
     try:
-        with open(log_file, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    record = json.loads(line)
-                    # Ensure required fields exist
-                    if 'image_index' in record and 'peak_memory_mb' in record:
-                        records.append({
-                            'image_index': record['image_index'],
-                            'peak_memory_mb': float(record['peak_memory_mb']),
-                            'timestamp': record.get('timestamp', ''),
-                            'routing_shape': record.get('routing_shape', ''),
-                            'oom_event': record.get('oom_event', False)
-                        })
-                    else:
-                        logger.warning(f"Skipping malformed line {line_num}: missing required fields")
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping invalid JSON on line {line_num}: {e}")
-    except Exception as e:
-        logger.error(f"Error reading memory log file: {e}")
-        raise
-    
-    return records
+        import psutil
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
+        return mem_info.rss / (1024 ** 3)  # Convert to GB
+    except ImportError:
+        logger.warning("psutil not found, attempting /proc/self/status fallback")
+        try:
+            with open('/proc/self/status', 'r') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        # VmRSS is in kB
+                        rss_kb = int(line.split()[1])
+                        return rss_kb / (1024 * 1024)  # Convert to GB
+        except Exception as e:
+            logger.error(f"Could not determine memory usage: {e}")
+            return 0.0
+    return 0.0
 
-def compute_memory_statistics(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def parse_memory_log(log_path: Path) -> List[Dict[str, Any]]:
     """
-    Compute aggregate memory statistics from parsed records.
-    
-    Args:
-        records: List of memory usage records
-        
-    Returns:
-        Dictionary containing statistical summary
+    Parse the memory profile raw log file (JSONL format).
+    Returns a list of log entries.
     """
-    if not records:
+    entries = []
+    if not log_path.exists():
+        logger.error(f"Memory log file not found: {log_path}")
+        return entries
+
+    with open(log_path, 'r') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                entries.append(entry)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Skipping malformed JSON on line {line_num}: {e}")
+
+    return entries
+
+def compute_memory_statistics(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Compute statistics from the parsed memory log entries.
+    Returns a dictionary with peak memory, average memory, and status.
+    """
+    if not entries:
+        logger.warning("No memory log entries found. Generating empty report.")
         return {
-            'max_memory_mb': 0.0,
-            'avg_memory_mb': 0.0,
-            'min_memory_mb': 0.0,
-            'oom_events': 0,
-            'total_images': 0,
-            'oom_rate': 0.0,
-            'std_dev_mb': 0.0,
-            'memory_efficiency': 'Unknown'
+            "peak_memory_gb": 0.0,
+            "average_memory_gb": 0.0,
+            "min_memory_gb": 0.0,
+            "entry_count": 0,
+            "had_oom_error": False,
+            "within_limit": True, # Default to true if no data, but status will be FAIL
+            "status": "FAIL",
+            "limit_gb": GITHUB_ACTIONS_MEMORY_LIMIT_GB
         }
-    
-    memory_values = [r['peak_memory_mb'] for r in records]
-    oom_count = sum(1 for r in records if r.get('oom_event', False))
-    
-    stats = {
-        'max_memory_mb': max(memory_values),
-        'min_memory_mb': min(memory_values),
-        'avg_memory_mb': statistics.mean(memory_values),
-        'std_dev_mb': statistics.stdev(memory_values) if len(memory_values) > 1 else 0.0,
-        'oom_events': oom_count,
-        'total_images': len(records),
-        'oom_rate': oom_count / len(records) if records else 0.0
+
+    memory_values = []
+    has_oom = False
+
+    for entry in entries:
+        # Check for OOM/MemoryError events
+        if entry.get("status") == "MemoryError" or "MemoryError" in str(entry.get("message", "")):
+            has_oom = True
+            continue
+
+        # Extract memory usage if present
+        mem_gb = entry.get("peak_memory_gb") or entry.get("memory_usage_gb")
+        if mem_gb is not None:
+            try:
+                memory_values.append(float(mem_gb))
+            except (ValueError, TypeError):
+                continue
+
+    if not memory_values:
+        # If we only have errors or no data
+        return {
+            "peak_memory_gb": 0.0,
+            "average_memory_gb": 0.0,
+            "min_memory_gb": 0.0,
+            "entry_count": len(entries),
+            "had_oom_error": has_oom,
+            "within_limit": False,
+            "status": "FAIL",
+            "limit_gb": GITHUB_ACTIONS_MEMORY_LIMIT_GB
+        }
+
+    peak = max(memory_values)
+    avg = sum(memory_values) / len(memory_values)
+    min_val = min(memory_values)
+
+    within_limit = peak < GITHUB_ACTIONS_MEMORY_LIMIT_GB
+    status = "PASS" if (within_limit and not has_oom) else "FAIL"
+
+    return {
+        "peak_memory_gb": round(peak, 4),
+        "average_memory_gb": round(avg, 4),
+        "min_memory_gb": round(min_val, 4),
+        "entry_count": len(entries),
+        "had_oom_error": has_oom,
+        "within_limit": within_limit,
+        "status": status,
+        "limit_gb": GITHUB_ACTIONS_MEMORY_LIMIT_GB
     }
-    
-    # Determine OOM prevention efficacy
-    if stats['oom_events'] == 0:
-        stats['memory_efficiency'] = 'Optimal - No OOM events detected'
-    elif stats['oom_rate'] < 0.05:
-        stats['memory_efficiency'] = 'Good - Minimal OOM events (<5%)'
-    elif stats['oom_rate'] < 0.20:
-        stats['memory_efficiency'] = 'Moderate - Some OOM events (5-20%)'
+
+def generate_markdown_report(stats: Dict[str, Any], log_path: Path) -> str:
+    """
+    Generate a Markdown report summarizing memory usage.
+    """
+    report_lines = [
+        "# Memory Analysis Report",
+        "",
+        f"**Generated:** {__import__('datetime').datetime.now().isoformat()}",
+        f"**GitHub Actions Memory Limit:** {stats['limit_gb']} GB",
+        "",
+        "## Summary",
+        "",
+        f"- **Status:** {stats['status']}",
+        f"- **Peak Memory Usage:** {stats['peak_memory_gb']:.4f} GB",
+        f"- **Average Memory Usage:** {stats['average_memory_gb']:.4f} GB",
+        f"- **Minimum Memory Usage:** {stats['min_memory_gb']:.4f} GB",
+        f"- **Entries Processed:** {stats['entry_count']}",
+        f"- **OOM Errors Detected:** {'Yes' if stats['had_oom_error'] else 'No'}",
+        "",
+        "## OOM Prevention Efficacy",
+        "",
+    ]
+
+    if stats['status'] == "PASS":
+        report_lines.append(
+            f"The memory usage remained within the {stats['limit_gb']} GB limit. "
+            "The `memory_guard` mechanism successfully prevented out-of-memory crashes."
+        )
     else:
-        stats['memory_efficiency'] = 'Poor - High OOM rate (>20%)'
-    
-    return stats
+        if stats['had_oom_error']:
+            report_lines.append(
+                "A `MemoryError` was logged during execution. "
+                "This indicates the memory limit was breached or the guard failed to trigger in time."
+            )
+        else:
+            report_lines.append(
+                f"Peak memory usage ({stats['peak_memory_gb']:.4f} GB) exceeded the limit of {stats['limit_gb']} GB."
+            )
 
-def generate_markdown_report(records: List[Dict[str, Any]], stats: Dict[str, Any], output_path: str):
-    """
-    Generate a Markdown report with memory usage analysis.
-    
-    Args:
-        records: List of memory usage records
-        stats: Computed statistics
-        output_path: Path to save the Markdown report
-    """
-    md_content = []
-    md_content.append("# Memory Usage Report")
-    md_content.append("")
-    md_content.append("## Overview")
-    md_content.append("")
-    md_content.append(f"This report summarizes memory usage statistics from the tracing process.")
-    md_content.append("")
-    md_content.append("## Key Metrics")
-    md_content.append("")
-    md_content.append("| Metric | Value |")
-    md_content.append("|--------|-------|")
-    md_content.append(f"| Total Images Processed | {stats['total_images']} |")
-    md_content.append(f"| Peak Memory (MB) | {stats['max_memory_mb']:.2f} |")
-    md_content.append(f"| Average Memory (MB) | {stats['avg_memory_mb']:.2f} |")
-    md_content.append(f"| Minimum Memory (MB) | {stats['min_memory_mb']:.2f} |")
-    md_content.append(f"| Standard Deviation (MB) | {stats['std_dev_mb']:.2f} |")
-    md_content.append(f"| OOM Events | {stats['oom_events']} |")
-    md_content.append(f"| OOM Rate | {stats['oom_rate']:.2%} |")
-    md_content.append(f"| Memory Efficiency | {stats['memory_efficiency']} |")
-    md_content.append("")
-    md_content.append("## Per-Image Memory Usage")
-    md_content.append("")
-    md_content.append("| Image Index | Peak Memory (MB) | OOM Event |")
-    md_content.append("|-------------|------------------|-----------|")
-    
-    for record in records:
-        oom_status = "Yes" if record.get('oom_event', False) else "No"
-        md_content.append(f"| {record['image_index']} | {record['peak_memory_mb']:.2f} | {oom_status} |")
-    
-    md_content.append("")
-    md_content.append("## Analysis Summary")
-    md_content.append("")
-    
-    if stats['oom_events'] == 0:
-        md_content.append("✅ **No Out-of-Memory events detected.** The memory management strategy (batch size 1 processing) successfully prevented OOM conditions.")
-    else:
-        md_content.append(f"⚠️ **{stats['oom_events']} OOM event(s) detected.** This indicates memory pressure exceeded available resources for some samples.")
-    
-    md_content.append("")
-    md_content.append("### Recommendations")
-    md_content.append("")
-    
-    if stats['max_memory_mb'] > 6.5:
-        md_content.append("- **High Peak Memory:** Consider reducing batch size further or implementing more aggressive memory cleanup.")
-    if stats['oom_rate'] > 0.1:
-        md_content.append("- **High OOM Rate:** Review memory management logic and consider hardware upgrades or model optimization.")
-    if stats['std_dev_mb'] > 100:
-        md_content.append("- **High Variance:** Memory usage varies significantly across samples; investigate outlier cases.")
-    
-    md_content.append("")
-    md_content.append("---")
-    md_content.append(f"*Generated on: {stats.get('timestamp', 'N/A')}*")
-    
-    # Write to file
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(md_content))
-    
-    logger.info(f"Markdown report generated: {output_path}")
+    report_lines.extend([
+        "",
+        "## Detailed Log Source",
+        "",
+        f"- Raw Log Path: `{log_path}`",
+        "",
+        "## Methodology",
+        "",
+        "Memory usage was tracked at key processing steps (e.g., per image in the trace set). "
+        "The `memory_guard` function was invoked before processing each unit to ensure "
+        f"RAM usage did not exceed {stats['limit_gb']} GB. This report aggregates the "
+        "recorded values from `memory_profile_raw.jsonl`.",
+        ""
+    ])
 
-def save_json_profile(stats: Dict[str, Any], records: List[Dict[str, Any]], output_path: str):
-    """
-    Save memory profile statistics to JSON.
-    
-    Args:
-        stats: Computed statistics
-        records: List of memory usage records
-        output_path: Path to save the JSON file
-    """
-    profile_data = {
-        'max_memory_mb': stats['max_memory_mb'],
-        'avg_memory_mb': stats['avg_memory_mb'],
-        'min_memory_mb': stats['min_memory_mb'],
-        'std_dev_mb': stats['std_dev_mb'],
-        'oom_events': stats['oom_events'],
-        'total_images': stats['total_images'],
-        'oom_rate': stats['oom_rate'],
-        'memory_efficiency': stats['memory_efficiency'],
-        'per_image_data': [
-            {
-                'image_index': r['image_index'],
-                'peak_memory_mb': r['peak_memory_mb'],
-                'oom_event': r.get('oom_event', False)
-            }
-            for r in records
-        ]
-    }
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(profile_data, f, indent=2)
-    
-    logger.info(f"JSON profile saved: {output_path}")
+    return "\n".join(report_lines)
 
-def run_memory_analysis(log_path: str = 'data/results/memory_profile_raw.jsonl',
-                        md_output: str = 'docs/memory_report.md',
-                        json_output: str = 'data/results/memory_profile.json'):
+def save_json_profile(stats: Dict[str, Any], output_path: Path) -> None:
     """
-    Main entry point for memory analysis.
-    
-    Args:
-        log_path: Path to the raw memory log file
-        md_output: Path for the Markdown report output
-        json_output: Path for the JSON profile output
+    Save the computed statistics to a JSON file.
     """
-    logger.info(f"Starting memory analysis on: {log_path}")
-    
+    with open(output_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    logger.info(f"Memory profile JSON saved to: {output_path}")
+
+def run_memory_analysis() -> Dict[str, Any]:
+    """
+    Main entry point to run the full memory analysis pipeline.
+    """
+    logger.info("Starting memory analysis...")
+
     # Ensure output directories exist
-    os.makedirs(os.path.dirname(md_output), exist_ok=True)
-    os.makedirs(os.path.dirname(json_output), exist_ok=True)
-    
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    Path("docs").mkdir(parents=True, exist_ok=True)
+
     # Parse logs
-    records = parse_memory_log(log_path)
-    
-    if not records:
-        logger.warning("No valid records found in memory log. Generating empty report.")
-        # Create empty stats for empty report
-        stats = {
-            'max_memory_mb': 0.0,
-            'avg_memory_mb': 0.0,
-            'min_memory_mb': 0.0,
-            'std_dev_mb': 0.0,
-            'oom_events': 0,
-            'total_images': 0,
-            'oom_rate': 0.0,
-            'memory_efficiency': 'No data available'
-        }
-    else:
-        # Compute statistics
-        stats = compute_memory_statistics(records)
-    
-    # Generate outputs
-    generate_markdown_report(records, stats, md_output)
-    save_json_profile(stats, records, json_output)
-    
-    logger.info("Memory analysis completed successfully.")
+    entries = parse_memory_log(RAW_LOG_PATH)
+
+    # Compute stats
+    stats = compute_memory_statistics(entries)
+
+    # Save JSON profile
+    save_json_profile(stats, PROFILE_JSON_PATH)
+
+    # Generate and save Markdown report
+    md_content = generate_markdown_report(stats, RAW_LOG_PATH)
+    with open(REPORT_MD_PATH, 'w') as f:
+        f.write(md_content)
+    logger.info(f"Markdown report saved to: {REPORT_MD_PATH}")
+
+    logger.info(f"Analysis complete. Status: {stats['status']}, Peak: {stats['peak_memory_gb']} GB")
     return stats
 
 def main():
-    """CLI entry point."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Analyze memory usage from tracing logs')
-    parser.add_argument('--log', type=str, default='data/results/memory_profile_raw.jsonl',
-                      help='Path to memory profile log file')
-    parser.add_argument('--md-output', type=str, default='docs/memory_report.md',
-                      help='Path for Markdown report output')
-    parser.add_argument('--json-output', type=str, default='data/results/memory_profile.json',
-                      help='Path for JSON profile output')
-    
-    args = parser.parse_args()
-    
-    stats = run_memory_analysis(args.log, args.md_output, args.json_output)
-    
-    print(f"\nMemory Analysis Summary:")
-    print(f"  Peak Memory: {stats['max_memory_mb']:.2f} MB")
-    print(f"  Average Memory: {stats['avg_memory_mb']:.2f} MB")
-    print(f"  OOM Events: {stats['oom_events']}")
-    print(f"  Efficiency: {stats['memory_efficiency']}")
+    """
+    CLI entry point.
+    """
+    try:
+        stats = run_memory_analysis()
+        # Exit with error code if status is FAIL to facilitate CI checks
+        if stats['status'] == "FAIL":
+            logger.error("Memory analysis failed. Check logs for details.")
+            sys.exit(1)
+        else:
+            sys.exit(0)
+    except Exception as e:
+        logger.critical(f"Fatal error during memory analysis: {e}")
+        sys.exit(2)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

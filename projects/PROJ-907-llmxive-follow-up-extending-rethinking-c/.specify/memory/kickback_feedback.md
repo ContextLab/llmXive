@@ -4,10 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): The provided `clustering.py` is only partially shown and does not contain the full logic for silhouette computation, null‑hypothesis handling, writing `null_hypothesis_flag.json`, or saving `cluster_centers.json`. Moreover, the required output files `data/results/null_hypothesis_flag.json` and `data/routing_cache/cluster_centers.json` are missing. The implementation must be completed to meet all specified behaviors.
-- `T013` (rejected 1x): The repository contains `code/src/canonical_map.py`, but the required output file `data/routing_cache/canonical_map.json` does not exist, so the verification condition (file existence and correct dict structure) is not met. The implementer must generate and save the canonical map JSON at the specified location.
-- `T018` (rejected 1x): The repository contains a `static_model.py` file, but it is truncated (ends mid‑method) and does not provide a complete implementation that removes the dynamic softmax computation. Moreover, the required `data/routing_cache/canonical_map.json` file is absent, so the model cannot even be instantiated as specified. Both the code and the necessary data artifact are missing/incomplete.
-- `T026` (rejected 1x): declared artifact(s) missing/empty/invalid: src/stats_analysis.py, data/results/statistical_analysis.json
+- `T011` (rejected 1x): The provided `code/src/tracing.py` is truncated (ends mid‑function definition) and does not contain the full logic to load the model, iterate over images, enforce the memory guard, record routing matrices, or write the required `.npy` files. Moreover, the expected log files `data/results/tracing_log.jsonl` and `data/results/memory_profile_raw.jsonl` are absent. Consequently, the implementation does not meet the task specifications.
+- `T012` (rejected 1x): The provided `clustering.py` does not show the required pure function `compute_canonical_map` nor any logic that saves `cluster_centers.json`; the JSON file is missing entirely. Consequently, the core functionality and output specified by the task are not present.
+- `T013` (rejected 1x): The repository contains `code/src/canonical_map.py`, but the required output file `data/routing_cache/canonical_map.json` is absent, so the verification step (existence, correct schema, matching number of blocks) cannot be satisfied. The implementation also does not show code that writes the derived map to that JSON path. The missing JSON file must be generated for the task to be complete.
 
 ## Required change
 

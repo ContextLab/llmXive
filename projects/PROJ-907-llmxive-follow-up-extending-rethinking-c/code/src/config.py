@@ -1,6 +1,3 @@
-"""
-Configuration utilities.
-"""
 import os
 import random
 import numpy as np
@@ -8,33 +5,32 @@ import torch
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-# Default paths relative to project root
+# Project root directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-RESULTS_ROOT = DATA_ROOT / "results"
-ROUTING_CACHE_ROOT = DATA_ROOT / "routing_cache"
-IMAGENET_ROOT = DATA_ROOT / "imagenet"
 
-def ensure_directories_exist(paths: list):
+# Directories
+ROUTING_CACHE_DIR = PROJECT_ROOT / "data" / "routing_cache"
+RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+DATA_DIR = PROJECT_ROOT / "data"
+
+def ensure_directories_exist():
     """
-    Ensure the given paths exist.
+    Ensure all necessary directories exist.
     """
-    for p in paths:
-        if not p.exists():
-            p.mkdir(parents=True, exist_ok=True)
+    ROUTING_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_seed() -> int:
     """
-    Get the random seed from environment or default.
+    Get random seed from environment variable or default.
     """
-    return int(os.environ.get('RANDOM_SEED', 42))
+    return int(os.getenv("RANDOM_SEED", 42))
 
-def set_seed(seed: Optional[int] = None):
+def set_seed(seed: int):
     """
-    Set random seeds for reproducibility.
+    Set random seed for reproducibility.
     """
-    if seed is None:
-        seed = get_seed()
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -43,21 +39,21 @@ def set_seed(seed: Optional[int] = None):
 
 def get_imagenet_path() -> Path:
     """
-    Get the path to the ImageNet dataset.
+    Get path to ImageNet dataset (if local).
     """
-    return IMAGENET_ROOT
+    return Path(os.getenv("IMAGENET_PATH", ""))
 
 def get_routing_cache_path() -> Path:
     """
-    Get the path to the routing cache.
+    Get path to routing cache directory.
     """
-    return ROUTING_CACHE_ROOT
+    return ROUTING_CACHE_DIR
 
 def get_results_path() -> Path:
     """
-    Get the path to the results directory.
+    Get path to results directory.
     """
-    return RESULTS_ROOT
+    return RESULTS_DIR
 
 def get_config_summary() -> Dict[str, Any]:
     """
@@ -65,11 +61,7 @@ def get_config_summary() -> Dict[str, Any]:
     """
     return {
         "seed": get_seed(),
-        "trace_set_size": os.environ.get('TRACE_SET_SIZE', 100),
-        "benchmark_set_start": os.environ.get('BENCHMARK_SET_START', 100),
-        "paths": {
-            "data": str(DATA_ROOT),
-            "results": str(RESULTS_ROOT),
-            "routing_cache": str(ROUTING_CACHE_ROOT)
-        }
+        "routing_cache_path": str(get_routing_cache_path()),
+        "results_path": str(get_results_path()),
+        "imagenet_path": str(get_imagenet_path())
     }

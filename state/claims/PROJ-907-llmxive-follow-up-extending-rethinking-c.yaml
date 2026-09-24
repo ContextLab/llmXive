@@ -1885,3 +1885,1045 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T22:05:38Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Load canonical pre-trained SiT-XL model with DAR enabled
+  claim_id: c_d83bda17
+  context: 'T005 [P] Implement `projects/PROJ-llmxive-follow-up-extending-rethinking-c/code/src/model_loader.py`:
+    Load canonical pre-trained SiT-XL model with DAR enabled (CPU compatible, reduced
+    or standard precision).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_canonical_pre-trained_SiT-XL_model_with_DAR_enabled
+  kind: entity_fact
+  raw_text: Load canonical pre-trained SiT-XL model with DAR enabled (CPU compatible,
+    reduced or standard precision).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:24:05Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation uses frozen Inception_V3 with IMAGENET1K_V1 weights
+  claim_id: c_02f835d2
+  context: 'T006 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`:
+    Implement FID calculation using a frozen, pre-trained Inception network **from
+    `torchvision.models.inception_v3`** using **`Inception_V_Weights.IMAGENET1K_V1`**
+    (ensuring compatibility with pinned `torchvision==0.18.0 ` and matching the canonical
+    baseline).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation_uses_frozen_Inception_V3_with_IMAGENET1K_V1
+  kind: entity_fact
+  raw_text: Implement FID calculation using a frozen, pre-trained Inception network
+    from `torchvision.models.inception_v3` using `Inception_V_Weights.IMAGENET1K_V1`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:25:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Trace set uses first 100 ImageNet validation images
+  claim_id: c_ab20211b
+  context: 'T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    ... **Sampling Strategy**: Use the first `$TRACE_SET_SIZE` images in the validation
+    split to ensure reproducibility. ... `TRACE_SET_SIZE=100 ` (default)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the first 100 images in the validation split to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:25:34Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing weights recorded for 100 timesteps (0-99)
+  claim_id: c_05ee664b
+  context: 'T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    ... with a **fixed -timestep schedule (linear spacing from 0 to 99, seed from
+    `$RANDOM_SEED`)** ... **Schema**: Each `.npy` file MUST contain a 4D numpy array
+    of shape `[num_timesteps=100, num_blocks, history_dim]`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Record routing weight matrices for every block and timestep with a fixed
+    linear timestep schedule from 0 to 99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:26:06Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Tracing process limited to 7GB RAM usage
+  claim_id: c_333bfae9
+  context: 'T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    ... **Memory Constraint**: Process strictly in **batches of small size** to guarantee
+    < 7GB RAM usage. **Hard Halt**: MUST invoke `memory_guard(7.0)` before processing
+    each image'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracing_process_limited_to_7GB_RAM_usage
+  kind: entity_fact
+  raw_text: Process strictly in batches to guarantee < 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:26:44Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set uses 500 images starting at index 100
+  claim_id: c_8c471145
+  context: 'T019 [US2] ... Run inference for both dynamic (original) and static models
+    on a set of **500** disjoint ImageNet validation images, starting from index **100**
+    ... **Note**: The benchmark set size is fixed at **500 images** and start index
+    at **100** to ensure reproducibility per SC-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark set size is fixed at 500 images starting from index 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:27:27Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Statistical significance tested over 5 random seeds
+  claim_id: c_731342d3
+  context: T025 [US3] ... **Re-execute the benchmark logic (T019) 5 times** with different
+    random seeds. ... This ensures the static map is constant while the benchmark
+    data (noise seeds) varies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-execute the benchmark logic 5 times with different random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:27:57Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Bootstrap test uses 1000 resamples
+  claim_id: c_f5f1f487
+  context: 'T026 [US3] ... **Parameters**: Use **n_resamples=1000 **, a **confidence
+    interval** calculated using the **percentile method**.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Use n_resamples=1000 for the non-parametric bootstrap test.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T11:28:07Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, 0.1
+  claim_id: c_ee614f58
+  context: T027 [US3] ... **Sweep the `clustering.distance_threshold` parameter over
+    the concrete set {, 0.05, 0.1}**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep the clustering distance threshold over the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:28:39Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Clustering fallback triggered if clusters < 2 or silhouette < 0.25
+  claim_id: c_8b29d200
+  context: 'T012 [US1] ... **Null Hypothesis Handling**: If for any block the clustering
+    identifies < 2 clusters or a silhouette score < 0.25, that block MUST default
+    to a global average vector for that block'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If clustering identifies < 2 clusters or a silhouette score < 0.25, the
+    block defaults to a global average vector.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:28:40Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation uses frozen Inception V3 weights IMAGENET1K_V1 from torchvision
+  claim_id: c_e6cbd4a4
+  context: Task T006 specifies the implementation of FID calculation using specific
+    weights and versions to ensure compatibility and canonical baseline matching.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation_uses_frozen_Inception_V3_weights_IMAGENET1K
+  kind: entity_fact
+  raw_text: The FID calculation uses a frozen, pre-trained Inception network from
+    torchvision.models.inception_v3 using Inception_V_Weights.IMAGENET1K_V1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:30:39Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set size is 500 images starting at index 100
+  claim_id: c_d7c3e4c5
+  context: Task T019 defines the specific dataset split and indices used for the benchmark
+    to ensure disjointness from the trace set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set consists of 500 disjoint ImageNet validation images
+    starting from index 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:31:10Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Trace set size is 100 images from validation split
+  claim_id: c_209401e4
+  context: Task T011 specifies the sampling strategy for the trace set to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trace set uses the first 100 images in the validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:31:37Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing weights recorded for 100 timesteps with linear spacing 0 to 99
+  claim_id: c_f7e77e5d
+  context: Task T011 describes the timestep schedule used during the tracing of the
+    SiT-XL model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The routing weight matrices are recorded for 100 timesteps with linear
+    spacing from 0 to 99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:31:53Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing weight matrix shape is [100, num_blocks, history_dim]
+  claim_id: c_aa74baf1
+  context: Task T011 defines the schema for the saved routing weight files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The routing weight matrices are stored as a 4D numpy array of shape [100,
+    num_blocks, history_dim].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:32:10Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Clustering requires silhouette score >= 0.25 and >= 2 clusters
+  claim_id: c_9a227e5c
+  context: Task T012 defines the null hypothesis handling conditions for the clustering
+    logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_requires_silhouette_score_%3E=_0.25_and_%3E=_2_cluste
+  kind: magnitude
+  raw_text: Clustering identifies distinct phases if the silhouette score is at least
+    0.25 and at least 2 clusters are found.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:32:43Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Statistical analysis re-executes benchmark 5 times with different seeds
+  claim_id: c_33e697cc
+  context: Task T025 specifies the number of repetitions for the statistical significance
+    test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance analysis re-executes the benchmark logic
+    5 times with different random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:33:29Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1000 resamples
+  claim_id: c_3e83d8b0
+  context: Task T026 specifies the parameters for the bootstrap significance test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric bootstrap uses n_resamples=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:34:01Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, 0.1
+  claim_id: c_0b9c3839
+  context: Task T027 defines the specific parameter values used for the sensitivity
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the clustering distance threshold over
+    the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:34:34Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: High FID degradation threshold is 0.5
+  claim_id: c_fc7befd7
+  context: Task T019 specifies the error handling logic for significant FID degradation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FID degradation is considered high if it exceeds 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:35:03Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Memory usage constrained to < 7GB RAM
+  claim_id: c_16c3cdb0
+  context: Task T011 and T039 specify the memory limits and monitoring requirements
+    for the tracing and benchmarking tasks.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constrained_to_%3C_7GB_RAM
+  kind: magnitude
+  raw_text: The memory usage is constrained to be less than 7GB RAM during processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:35:27Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Default random seed is 42
+  claim_id: c_1263f787
+  context: Task T008 defines the default values for environment variables including
+    the random seed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the trace set is fixed at 42 by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:35:56Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set size fixed at 500
+  claim_id: c_d906e5f0
+  context: Task T008 and T019 specify the fixed size of the benchmark set for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set size is fixed at 500 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:36:21Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set start index fixed at 100
+  claim_id: c_db6cdf30
+  context: Task T008 and T019 specify the fixed start index for the benchmark set
+    to ensure disjointness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set start index is fixed at 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:36:51Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Trace set size default is 100
+  claim_id: c_3af62492
+  context: Task T008 defines the default value for the trace set size environment
+    variable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trace set size is configurable with a default of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:37:15Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation uses Inception_V3 weights IMAGENET1K_V1 from torchvision
+  claim_id: c_0db70ac7
+  context: 'T006: Implement FID calculation using a frozen, pre-trained Inception
+    network from `torchvision.models.inception_v3` using `Inception_V_Weights.IMAGENET1K_V1`
+    (ensuring compatibility with pinned `torchvision==0.18.0` and matching the canonical
+    baseline).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation_uses_Inception_V3_weights_IMAGENET1K_V1_from
+  kind: entity_fact
+  raw_text: The FID calculation uses a frozen, pre-trained Inception network from
+    `torchvision.models.inception_v3` using `Inception_V_Weights.IMAGENET1K_V1`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:39:19Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set size 500 images start index 100
+  claim_id: c_9d966f9d
+  context: 'T019: Run inference for both dynamic (original) and static models on a
+    set of 500 disjoint ImageNet validation images, starting from index 100 (to ensure
+    disjointness from T011 which uses indices 0-99).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set size is fixed at 500 images starting from index 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:39:20Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.01 0.05 0.1
+  claim_id: c_30bd7d8a
+  context: 'T027: Sweep the `clustering.distance_threshold` parameter over the concrete
+    set {0.01, 0.05, 0.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the clustering distance threshold over
+    the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:39:20Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Statistical analysis 5 random seeds
+  claim_id: c_f3e65544
+  context: 'T025: Re-execute the benchmark logic (T019) 5 times with different random
+    seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis re-executes the benchmark logic 5 times with
+    different random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:39:54Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples 1000
+  claim_id: c_e01de802
+  context: 'T026: Use n_resamples=1000, a confidence interval calculated using the
+    percentile method.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric bootstrap uses 1000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:39:54Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Default trace set size 100
+  claim_id: c_a2faf6d6
+  context: 'T008: Configure environment variables by creating `.env` file at project
+    root with exact keys and default values: `TRACE_SET_SIZE=100` (default).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default trace set size is 100 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:40:16Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Default benchmark set size 500
+  claim_id: c_cb7f4d2f
+  context: 'T008: Configure environment variables by creating `.env` file at project
+    root with exact keys and default values: `BENCHMARK_SET_SIZE=500` (fixed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default benchmark set size is 500 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:40:39Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Default random seed 42
+  claim_id: c_9c5a965a
+  context: 'T008: Configure environment variables by creating `.env` file at project
+    root with exact keys and default values: `RANDOM_SEED=42` (fixed integer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:41:09Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing weights recorded 100 timesteps
+  claim_id: c_cb02783f
+  context: 'T011: Iterate through `$TRACE_SET_SIZE` ImageNet validation images with
+    a fixed -timestep schedule (linear spacing from 0 to 99...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The routing weight matrices are recorded for 100 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:41:32Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Clustering null hypothesis silhouette < 0.25
+  claim_id: c_ab97a3f4
+  context: 'T012: Null Hypothesis Handling: If for any block the clustering identifies
+    < 2 clusters or a silhouette score < 0.25, that block MUST default to a global
+    average vector for that block.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_null_hypothesis_silhouette_%3C_0.25
+  kind: magnitude
+  raw_text: The clustering null hypothesis triggers if the silhouette score is less
+    than 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:42:00Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Clustering null hypothesis clusters < 2
+  claim_id: c_2e59ccc7
+  context: 'T012: Null Hypothesis Handling: If for any block the clustering identifies
+    < 2 clusters or a silhouette score < 0.25, that block MUST default to a global
+    average vector for that block.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_null_hypothesis_clusters_%3C_2
+  kind: magnitude
+  raw_text: The clustering null hypothesis triggers if fewer than 2 clusters are identified.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:42:21Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set indices 100 to 599
+  claim_id: c_d9fc3e84
+  context: 'T019: Validate: Implement validation logic to ensure the benchmark set
+    (indices 100-599) is disjoint from the trace set (indices 0-99).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set indices are 100 to 599.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:42:54Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Trace set indices 0 to 99
+  claim_id: c_9b9a9c18
+  context: 'T019: Validate: Implement validation logic to ensure the benchmark set
+    (indices 100-599) is disjoint from the trace set (indices 0-99).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trace set indices are 0 to 99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:43:18Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID degradation threshold 0.5
+  claim_id: c_df45db1a
+  context: 'T019: Error Handling: Must report high FID degradation (> 0.5) as a valid
+    negative result by appending the result to `data/results/benchmark_results.csv`
+    and `.json` without halting.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FID degradation is reported as a valid negative result if it exceeds
+    0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:43:59Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Project uses torch 2.3.0+cpu
+  claim_id: c_56b46072
+  context: 'T002: Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torch==2.3.0+cpu`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses `torch==2.3.0+cpu`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:44:19Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Project uses torchvision 0.18.0
+  claim_id: c_9f9c817b
+  context: 'T002: Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torchvision==0.18.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses `torchvision==0.18.0`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:44:52Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: torch version 2.3.0+cpu
+  claim_id: c_9147b4b9
+  context: 'Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torch==2.3.0+cpu ` (install via `--index-url https://download.pytorch.org/whl/cpu`),
+    `torchvision==0.18.0 `, `transformers`, `diffusers`, `scikit-learn`, `numpy`,
+    `pandas`, `matplotlib`.'
+  evidence:
+    asserted: '-907.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torch==2.3.0+cpu `.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T11:51:45Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: torchvision version 0.18.0
+  claim_id: c_cb2d24d6
+  context: 'Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torch==2.3.0+cpu ` (install via `--index-url https://download.pytorch.org/whl/cpu`),
+    `torchvision==0.18.0 `, `transformers`, `diffusers`, `scikit-learn`, `numpy`,
+    `pandas`, `matplotlib`.'
+  evidence:
+    asserted: '-907.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project by creating `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/requirements.txt`
+    containing pinned versions: `torchvision==0.18.0 `.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T11:51:46Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation using Inception_V3 with IMAGENET1K_V1 weights
+  claim_id: c_3b4a34f7
+  context: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`:
+    Implement FID calculation using a frozen, pre-trained Inception network **from
+    `torchvision.models.inception_v3`** using **`Inception_V_Weights.IMAGENET1K_V1`**
+    (ensuring compatibility with pinned `torchvision==0.18.0 ` and matching the canonical
+    baseline).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`:
+    Implement FID calculation using a frozen, pre-trained Inception network **from
+    `torchvision.models.inception_v3`** using **`Inception_V_Weights.IMAGENET1K_V1`**'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:52:08Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: TRACE_SET_SIZE default value of 100
+  claim_id: c_239c2966
+  context: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=500
+    ` (fixed), `BENCHMARK_SET_START=100 ` (fixed), `RANDOM_SEED=42 ` (fixed integer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `TRACE_SET_SIZE=100 `.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:52:35Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: BENCHMARK_SET_SIZE default value of 500
+  claim_id: c_04dd801c
+  context: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=500
+    ` (fixed), `BENCHMARK_SET_START=100 ` (fixed), `RANDOM_SEED=42 ` (fixed integer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `BENCHMARK_SET_SIZE=500 `.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:52:58Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: BENCHMARK_SET_START default value of 100
+  claim_id: c_8333ab3b
+  context: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=500
+    ` (fixed), `BENCHMARK_SET_START=100 ` (fixed), `RANDOM_SEED=42 ` (fixed integer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `BENCHMARK_SET_START=100 `.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:53:19Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: RANDOM_SEED default value of 42
+  claim_id: c_3a590070
+  context: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `TRACE_SET_SIZE=100 ` (default), `BENCHMARK_SET_SIZE=500
+    ` (fixed), `BENCHMARK_SET_START=100 ` (fixed), `RANDOM_SEED=42 ` (fixed integer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure environment variables by creating `.env` file at project root
+    with exact keys and **default values**: `RANDOM_SEED=42 `.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:54:03Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Single aggregated .npy file per image for routing weights
+  claim_id: c_79be3344
+  context: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    ...record routing weight matrices (softmax distributions) for every block and
+    timestep. **File Naming**: Save a **single aggregated** `.npy` file per image.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    ...record routing weight matrices (softmax distributions) for every block and
+    timestep. **File Naming**: Save a **single aggregated** `.npy` file per image.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:54:25Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: 'npy file shape: [100, num_blocks, history_dim]'
+  claim_id: c_4b0a9910
+  context: Each `.npy` file MUST contain a 4D numpy array of shape `[num_timesteps=100,
+    num_blocks, history_dim]` representing the routing weights for all timesteps and
+    blocks for that specific image.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each `.npy` file MUST contain a 4D numpy array of shape `[num_timesteps=100,
+    num_blocks, history_dim]`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:54:42Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: First TRACE_SET_SIZE images used for reproducibility
+  claim_id: c_1a08b039
+  context: Use the first `$TRACE_SET_SIZE` images in the validation split to ensure
+    reproducibility.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/First_TRACE_SET_SIZE_images_used_for_reproducibility
+  kind: entity_fact
+  raw_text: Use the first `$TRACE_SET_SIZE` images in the validation split to ensure
+    reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:55:28Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: RAM usage limited to < 7GB
+  claim_id: c_58df1354
+  context: Process strictly in **batches of small size** to guarantee < 7GB RAM usage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_limited_to_%3C_7GB
+  kind: entity_fact
+  raw_text: Process strictly in **batches of small size** to guarantee < 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:56:10Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: MemoryError raised if RAM exceeds 7GB
+  claim_id: c_74bd5172
+  context: MUST invoke `memory_guard(7.0)` before processing each image; if RAM exceeds
+    7GB, the script MUST raise `MemoryError` and halt immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST invoke `memory_guard(7.0)` before processing each image; if RAM exceeds
+    7GB, the script MUST raise `MemoryError` and halt immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:56:45Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: batch_iterator function yields chunks of size batch_size
+  claim_id: c_83ba45a9
+  context: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`:
+    `batch_iterator(iterable, batch_size)`: Yields chunks of size `batch_size` from
+    `iterable`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`:
+    `batch_iterator(iterable, batch_size)`: Yields chunks of size `batch_size` from
+    `iterable`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:57:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: memory_guard returns True if RAM < threshold_gb
+  claim_id: c_c430ed0f
+  context: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`:
+    `memory_guard(threshold_gb)`: Returns `True` if current RAM usage < `threshold_gb`,
+    else raises a `MemoryError` exception.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/utils.py`:
+    `memory_guard(threshold_gb)`: Returns `True` if current RAM usage < `threshold_gb`,
+    else raises a `MemoryError` exception.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:57:20Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: ImageNet dataset loaded using datasets.load_dataset('imagenet1k', split='validation',
+    streaming=True)
+  claim_id: c_235f6274
+  context: Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/data_loader.py`
+    to fetch ImageNet subsets using `datasets.load_dataset("imagenet1k", split="validation",
+    streaming=True)`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/data_loader.py`
+    to fetch ImageNet subsets using `datasets.load_dataset("imagenet1k", split="validation",
+    streaming=True)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:57:50Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing tensors for every block/timestep are present in output
+  claim_id: c_9544197e
+  context: 'Independent Test: Run tracing on a representative set of images; verify
+    output contains complete routing tensors for every block/timestep; verify clustering
+    logic outputs valid k and silhouette score; verify fallback logic triggers correctly
+    on null results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Routing_tensors_for_every_block/timestep_are_present_in_outp
+  kind: entity_fact
+  raw_text: Run tracing on a representative set of images; verify output contains
+    complete routing tensors for every block/timestep
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T11:58:28Z'

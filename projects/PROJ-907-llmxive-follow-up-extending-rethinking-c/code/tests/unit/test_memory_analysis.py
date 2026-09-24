@@ -6,157 +6,157 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import sys
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path if running standalone
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from src.memory_analysis import (
     parse_memory_log,
     compute_memory_statistics,
     generate_markdown_report,
     save_json_profile,
-    run_memory_analysis
+    GITHUB_ACTIONS_MEMORY_LIMIT_GB
 )
 
 class TestMemoryAnalysis:
-    """Unit tests for memory analysis module."""
 
-    @pytest.fixture
-    def temp_log_file(self, tmp_path):
-        """Create a temporary log file with sample memory data."""
-        log_path = tmp_path / "memory_profile_raw.jsonl"
-        data = [
-            {"image_index": 0, "peak_memory_mb": 4500.5, "routing_shape": "[12, 50, 1024]"},
-            {"image_index": 1, "peak_memory_mb": 4600.2, "routing_shape": "[12, 50, 1024]"},
-            {"image_index": 2, "peak_memory_mb": 4700.8, "routing_shape": "[12, 50, 1024]", "oom_event": True},
-            {"image_index": 3, "peak_memory_mb": 4550.1, "routing_shape": "[12, 50, 1024]"},
+    def test_parse_memory_log_empty_file(self, tmp_path):
+        log_file = tmp_path / "memory_profile_raw.jsonl"
+        log_file.write_text("")
+        result = parse_memory_log(log_file)
+        assert result == []
+
+    def test_parse_memory_log_valid_entries(self, tmp_path):
+        log_file = tmp_path / "memory_profile_raw.jsonl"
+        entries = [
+            {"image_index": 0, "peak_memory_gb": 2.5, "status": "PASS"},
+            {"image_index": 1, "peak_memory_gb": 3.1, "status": "PASS"},
+            {"image_index": 2, "message": "MemoryError", "status": "MemoryError"}
         ]
-        with open(log_path, 'w') as f:
-            for record in data:
-                f.write(json.dumps(record) + '\n')
-        return str(log_path)
-
-    @pytest.fixture
-    def empty_log_file(self, tmp_path):
-        """Create an empty log file."""
-        log_path = tmp_path / "empty_memory_profile.jsonl"
-        log_path.touch()
-        return str(log_path)
-
-    @pytest.fixture
-    def malformed_log_file(self, tmp_path):
-        """Create a log file with malformed JSON."""
-        log_path = tmp_path / "malformed_memory_profile.jsonl"
-        data = [
-            '{"image_index": 0, "peak_memory_mb": 4500.5}',
-            'invalid json line',
-            '{"image_index": 1, "peak_memory_mb": 4600.2}',
-        ]
-        with open(log_path, 'w') as f:
-            f.write('\n'.join(data))
-        return str(log_path)
-
-    def test_parse_memory_log_valid(self, temp_log_file):
-        """Test parsing of valid memory log file."""
-        records = parse_memory_log(temp_log_file)
+        log_file.write_text("\n".join(json.dumps(e) for e in entries))
         
-        assert len(records) == 4
-        assert records[0]['image_index'] == 0
-        assert records[0]['peak_memory_mb'] == 4500.5
-        assert records[2].get('oom_event', False) is True
+        result = parse_memory_log(log_file)
+        assert len(result) == 3
+        assert result[0]["image_index"] == 0
+        assert result[2]["status"] == "MemoryError"
 
-    def test_parse_memory_log_empty(self, empty_log_file):
-        """Test parsing of empty log file."""
-        records = parse_memory_log(empty_log_file)
-        assert len(records) == 0
-
-    def test_parse_memory_log_malformed(self, malformed_log_file):
-        """Test parsing of log file with malformed JSON."""
-        # Should not raise, should skip invalid lines
-        records = parse_memory_log(malformed_log_file)
-        assert len(records) == 2  # Only valid lines
-
-    def test_parse_memory_log_missing_file(self):
-        """Test parsing of non-existent file."""
-        records = parse_memory_log("/nonexistent/path/file.jsonl")
-        assert len(records) == 0
-
-    def test_compute_memory_statistics(self, temp_log_file):
-        """Test computation of memory statistics."""
-        records = parse_memory_log(temp_log_file)
-        stats = compute_memory_statistics(records)
+    def test_parse_memory_log_malformed_json(self, tmp_path):
+        log_file = tmp_path / "memory_profile_raw.jsonl"
+        log_file.write_text('{"valid": 1}\ninvalid json\n{"valid": 2}')
         
-        assert stats['max_memory_mb'] == 4700.8
-        assert stats['min_memory_mb'] == 4500.5
-        assert stats['total_images'] == 4
-        assert stats['oom_events'] == 1
-        assert stats['oom_rate'] == 0.25
-        assert 'memory_efficiency' in stats
+        with patch('src.memory_analysis.logger') as mock_logger:
+            result = parse_memory_log(log_file)
+            assert len(result) == 2
+            mock_logger.warning.assert_called_once()
 
-    def test_compute_memory_statistics_empty(self):
-        """Test statistics computation with empty records."""
+    def test_compute_memory_statistics_no_entries(self):
         stats = compute_memory_statistics([])
-        assert stats['max_memory_mb'] == 0.0
-        assert stats['total_images'] == 0
-        assert stats['memory_efficiency'] == 'Unknown'
+        assert stats["peak_memory_gb"] == 0.0
+        assert stats["status"] == "FAIL"
+        assert stats["had_oom_error"] is False
 
-    def test_generate_markdown_report(self, temp_log_file, tmp_path):
-        """Test Markdown report generation."""
-        records = parse_memory_log(temp_log_file)
-        stats = compute_memory_statistics(records)
-        output_path = str(tmp_path / "memory_report.md")
-        
-        generate_markdown_report(records, stats, output_path)
-        
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
-            content = f.read()
-            assert "# Memory Usage Report" in content
-            assert "| Total Images Processed | 4 |" in content
-            assert "## Per-Image Memory Usage" in content
+    def test_compute_memory_statistics_with_oom(self):
+        entries = [
+            {"image_index": 0, "peak_memory_gb": 2.0, "status": "PASS"},
+            {"status": "MemoryError", "message": "OOM"}
+        ]
+        stats = compute_memory_statistics(entries)
+        assert stats["peak_memory_gb"] == 2.0
+        assert stats["had_oom_error"] is True
+        assert stats["status"] == "FAIL"
 
-    def test_save_json_profile(self, temp_log_file, tmp_path):
-        """Test JSON profile saving."""
-        records = parse_memory_log(temp_log_file)
-        stats = compute_memory_statistics(records)
-        output_path = str(tmp_path / "memory_profile.json")
+    def test_compute_memory_statistics_within_limit(self):
+        entries = [
+            {"peak_memory_gb": 4.0},
+            {"peak_memory_gb": 5.5},
+            {"peak_memory_gb": 6.0}
+        ]
+        stats = compute_memory_statistics(entries)
+        assert stats["peak_memory_gb"] == 6.0
+        assert stats["within_limit"] is True
+        assert stats["status"] == "PASS"
+
+    def test_compute_memory_statistics_exceeds_limit(self):
+        entries = [
+            {"peak_memory_gb": 4.0},
+            {"peak_memory_gb": 7.5} # Exceeds 7.0
+        ]
+        stats = compute_memory_statistics(entries)
+        assert stats["peak_memory_gb"] == 7.5
+        assert stats["within_limit"] is False
+        assert stats["status"] == "FAIL"
+
+    def test_generate_markdown_report(self):
+        stats = {
+            "peak_memory_gb": 5.0,
+            "average_memory_gb": 4.0,
+            "min_memory_gb": 3.0,
+            "entry_count": 10,
+            "had_oom_error": False,
+            "within_limit": True,
+            "status": "PASS",
+            "limit_gb": GITHUB_ACTIONS_MEMORY_LIMIT_GB
+        }
         
-        save_json_profile(stats, records, output_path)
+        report = generate_markdown_report(stats, Path("dummy.log"))
         
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
+        assert "# Memory Analysis Report" in report
+        assert "Status: PASS" in report
+        assert "5.0" in report
+        assert "GitHub Actions Memory Limit" in report
+
+    def test_save_json_profile(self, tmp_path):
+        stats = {"peak_memory_gb": 5.0, "status": "PASS"}
+        output_file = tmp_path / "profile.json"
+        
+        save_json_profile(stats, output_file)
+        
+        assert output_file.exists()
+        with open(output_file) as f:
             data = json.load(f)
-            assert data['max_memory_mb'] == 4700.8
-            assert 'per_image_data' in data
-            assert len(data['per_image_data']) == 4
+        assert data["peak_memory_gb"] == 5.0
+        assert data["status"] == "PASS"
 
-    def test_run_memory_analysis(self, temp_log_file, tmp_path):
-        """Test full analysis pipeline."""
-        md_output = str(tmp_path / "memory_report.md")
-        json_output = str(tmp_path / "memory_profile.json")
+    @patch('src.memory_analysis.parse_memory_log')
+    @patch('src.memory_analysis.compute_memory_statistics')
+    @patch('src.memory_analysis.save_json_profile')
+    @patch('src.memory_analysis.generate_markdown_report')
+    def test_run_memory_analysis_integration(
+        self, mock_gen_report, mock_save_json, mock_compute, mock_parse, tmp_path
+    ):
+        # Setup mocks
+        mock_parse.return_value = [{"peak_memory_gb": 5.0}]
+        mock_compute.return_value = {
+            "peak_memory_gb": 5.0, "status": "PASS", 
+            "average_memory_gb": 0.0, "min_memory_gb": 0.0,
+            "entry_count": 1, "had_oom_error": False,
+            "within_limit": True, "limit_gb": 7.0
+        }
+        mock_gen_report.return_value = "# Report"
         
-        stats = run_memory_analysis(temp_log_file, md_output, json_output)
-        
-        assert os.path.exists(md_output)
-        assert os.path.exists(json_output)
-        assert stats['total_images'] == 4
+        # Temporarily override paths for test
+        import src.memory_analysis as ma
+        original_raw = ma.RAW_LOG_PATH
+        original_json = ma.PROFILE_JSON_PATH
+        original_md = ma.REPORT_MD_PATH
+        original_dir = ma.RESULTS_DIR
 
-    def test_memory_efficiency_classification(self, tmp_path):
-        """Test OOM efficiency classification logic."""
-        # Test optimal case
-        stats_optimal = {'oom_events': 0, 'oom_rate': 0.0}
-        assert compute_memory_statistics([{'peak_memory_mb': 100, 'oom_event': False}])['memory_efficiency'] == 'Optimal - No OOM events detected'
+        # Create temp dirs
+        (tmp_path / "data" / "results").mkdir(parents=True)
+        (tmp_path / "docs").mkdir(parents=True)
         
-        # Test good case
-        # Note: This requires a specific setup with low OOM rate
-        pass
+        ma.RESULTS_DIR = tmp_path / "data" / "results"
+        ma.RAW_LOG_PATH = ma.RESULTS_DIR / "memory_profile_raw.jsonl"
+        ma.PROFILE_JSON_PATH = ma.RESULTS_DIR / "memory_profile.json"
+        ma.REPORT_MD_PATH = tmp_path / "docs" / "memory_report.md"
 
-    def test_output_directory_creation(self, temp_log_file, tmp_path):
-        """Test that output directories are created if they don't exist."""
-        nested_md = str(tmp_path / "nested" / "dir" / "report.md")
-        nested_json = str(tmp_path / "nested" / "dir" / "profile.json")
-        
-        run_memory_analysis(temp_log_file, nested_md, nested_json)
-        
-        assert os.path.exists(os.path.dirname(nested_md))
-        assert os.path.exists(nested_md)
-        assert os.path.exists(nested_json)
+        try:
+            result = ma.run_memory_analysis()
+            assert result["status"] == "PASS"
+            mock_save_json.assert_called_once()
+            mock_gen_report.assert_called_once()
+        finally:
+            # Restore
+            ma.RESULTS_DIR = original_dir
+            ma.RAW_LOG_PATH = original_raw
+            ma.PROFILE_JSON_PATH = original_json
+            ma.REPORT_MD_PATH = original_md

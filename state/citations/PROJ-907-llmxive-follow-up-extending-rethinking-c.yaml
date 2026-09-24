@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/facebook/sit-xlarge-2
   verified_at: '2026-08-22T18:53:31.936445Z'
-- artifact_hash: 81ca3dfc7d4baab0f27244ef289e25177905d5bdf908fd9b18e8c9ffe04c95cd
+- artifact_hash: b44938722318debc34bf2bc8bbbce5d8833a2e1445614697b19731ff35b7ffb3
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,15 +30,15 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-20T22:05:59.822555Z'
-- artifact_hash: 81ca3dfc7d4baab0f27244ef289e25177905d5bdf908fd9b18e8c9ffe04c95cd
+  verified_at: '2026-09-24T11:58:28.646769Z'
+- artifact_hash: b44938722318debc34bf2bc8bbbce5d8833a2e1445614697b19731ff35b7ffb3
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[2309.06305] Sensitivity Analysis for Linear Estimators'
+  fetched_title: Bootstrapping - Wikipedia
   kind: url
-  value: https://arxiv.org/abs/2309.06305
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2309.06305
-  verified_at: '2026-09-20T22:05:59.822555Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-09-24T11:58:28.646769Z'
