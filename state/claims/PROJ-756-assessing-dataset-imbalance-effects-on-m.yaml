@@ -3567,3 +3567,576 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T15:38:42Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: skip properties with fewer than 100 samples for target imbalance score
+    calculation
+  claim_id: c_a8b4ed02
+  context: 'T008a: Implement code/imbalance.py::calculate_target_imbalance to calculate
+    Target Imbalance Score (Gini coefficient of target property values for properties
+    with >= 100 samples...)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_properties_with_fewer_than_100_samples_for_target_imbal
+  kind: magnitude
+  raw_text: Skip properties with < 100 samples when calculating Target Imbalance Score.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:35:35Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: perform k-means clustering with k equals 50 on compositional features
+  claim_id: c_48154e9f
+  context: 'T008b: ...calculate Compositional Imbalance Score (Gini coefficient of
+    the cluster assignment counts derived from K-Means clustering with k=50...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform K-Means clustering with k=50 on compositional features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:37:32Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: use equal-frequency binning into 20 bins for resampling
+  claim_id: c_a3444bee
+  context: 'T023: Implement code/resampling.py::resample_dataset with stratified undersampling/oversampling
+    using equal-frequency binning into 20 bins (default)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use equal-frequency binning into 20 bins for stratified resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:38:20Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: enforce real-data CV less than or equal to 0.10
+  claim_id: c_ade8ff8f
+  context: "T023: ...ensure real-data CV \u2264 0.10."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_real-data_CV_less_than_or_equal_to_0.10
+  kind: magnitude
+  raw_text: Enforce real-data Coefficient of Variation (CV) less than or equal to
+    0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:39:35Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: enforce combined CV less than or equal to 0.30
+  claim_id: c_aaba930f
+  context: "T023: ...Enforce combined CV \u2264 0.30 while still keeping real-data\
+    \ CV \u2264 0.10."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_combined_CV_less_than_or_equal_to_0.30
+  kind: magnitude
+  raw_text: Enforce combined Coefficient of Variation (CV) less than or equal to 0.30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:40:25Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: raise validation exception if synthetic data exceeds 30 percent
+  claim_id: c_beda1a74
+  context: 'T023: ...Implement hard validation gate raising ValidationException if
+    synthetic data > 30% (FR-013).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise ValidationException if synthetic data exceeds 30%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:40:26Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: use jenks natural breaks with k equals 5 for minority subset determination
+  claim_id: c_636c8580
+  context: 'T026: ...isolate the bottom [deferred] (MINORITY_QUANTILE) of each target
+    property using Jenks Natural Breaks (k=5) OR stratified quantile...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Jenks Natural Breaks with k=5 for minority subset determination.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:41:03Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: calculate power analysis with cohen d equals 0.5 power greater than or
+    equal to 0.8 and alpha equals 0.05
+  claim_id: c_23378502
+  context: "T028: Implement code/evaluation.py::run_power_analysis to determine the\
+    \ minimum number of random seeds required for paired t-test, Cohen's d = 0.5,\
+    \ power \u2265 0.8, \u03B1 = 0.05..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_power_analysis_with_cohen_d_equals_0.5_power_great
+  kind: magnitude
+  raw_text: "Calculate power analysis for paired t-test with Cohen's d = 0.5, power\
+    \ \u2265 0.8, and alpha = 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:43:18Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: pipeline must run on cpu-only runner
+  claim_id: c_19d24a30
+  context: 'Notes: Compute Constraint: Pipeline must run on CPU-only runner; if GPU
+    is required for a method, it must be explicitly scaled down or offloaded, not
+    faked.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_must_run_on_cpu-only_runner
+  kind: entity_fact
+  raw_text: Pipeline must run on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:44:00Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: streaming full merged dataset is up to 5 gigabytes
+  claim_id: c_52c17039
+  context: 'Notes: Subset Strategy: T047a uses streaming of the full merged dataset
+    (up to 5GB) for MP scenario...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Streaming the full merged dataset is up to 5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:44:58Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Target Imbalance Score calculated via Gini coefficient for properties
+    with 100 or more samples
+  claim_id: c_d8858423
+  context: T008a [P] Implement `code/imbalance.py::calculate_target_imbalance` to
+    calculate **Target Imbalance Score** (Gini coefficient of target property values
+    for properties with >= 100 samples...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T008a calculates Target Imbalance Score using the Gini coefficient of
+    target property values for properties with >= 100 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:46:15Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Compositional Imbalance Score calculated via Gini coefficient of K-Means
+    cluster counts with k=50
+  claim_id: c_173712c0
+  context: T008b [P] Implement `code/imbalance.py::calculate_compositional_imbalance`
+    to calculate **Compositional Imbalance Score** (Gini coefficient of the **cluster
+    assignment counts** derived from K-Means clustering with k=50...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T008b calculates Compositional Imbalance Score using the Gini coefficient
+    of cluster assignment counts derived from K-Means clustering with k=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:47:08Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: K-Means clustering uses Euclidean distance on compositional features
+  claim_id: c_16c10075
+  context: T008b [P] ...derived from K-Means clustering with k=50 and Euclidean distance
+    on compositional features...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-Means_clustering_uses_Euclidean_distance_on_compositional
+  kind: entity_fact
+  raw_text: T008b uses Euclidean distance for K-Means clustering on compositional
+    features.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:47:34Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth generated using Gaussian noise with fixed seed
+  claim_id: c_3c973218
+  context: 'T036a [US3] ...generate a **synthetic dataset** with known non-linear
+    feature weights (algorithm: Gaussian noise with fixed seed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_ground_truth_generated_using_Gaussian_noise_with_f
+  kind: entity_fact
+  raw_text: T036a generates a synthetic dataset using Gaussian noise with a fixed
+    seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:48:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic target calculated as sum(w_i * x_i) + alpha * sum(x_i^2) +
+    beta * sum(x_i * x_{i+1})
+  claim_id: c_dbdf353e
+  context: T036a [US3] ...Target calculated as `target = sum(w_i * x_i) + alpha *
+    sum(x_i^2) + beta * sum(x_i * x_{i+1})` where alpha and beta represent tunable
+    weighting coefficients...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T036a defines target values using the formula `target = sum(w_i * x_i)
+    + alpha * sum(x_i^2) + beta * sum(x_i * x_{i+1})`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:48:44Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime constraint is 6 hours
+  claim_id: c_1668c687
+  context: "T047a [P] ...ensuring total runtime \u2264 6 hours by **streaming the\
+    \ full merged dataset**..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T047a and T047b require the full pipeline to run within a total runtime
+    of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:49:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API retry backoff uses base delay 1s, max delay 60s, multiplier 2.0
+  claim_id: c_c1764c5c
+  context: 'T004a-Backoff ...**Parameters**: base_delay=1s, max_delay=60s, multiplier=2.0,
+    max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004a implements exponential backoff with a base delay of 1 second, max
+    delay of 60 seconds, and a multiplier of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:49:44Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API retry limit is 5 retries
+  claim_id: c_fabbe424
+  context: 'T004a-Backoff ...**Parameters**: base_delay=1s, max_delay=60s, multiplier=2.0,
+    max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004a implements a maximum of 5 retries for API calls.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:50:06Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API errors logged to logs/api_errors.log in JSON lines format
+  claim_id: c_cf774176
+  context: T004a-Backoff ...**Log all API errors as JSON lines to `logs/api_errors.log`**
+    with schema `{"timestamp":..., "endpoint":..., "error":..., "retry_count":...}`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_errors_logged_to_logs/api_errors.log_in_JSON_lines_forma
+  kind: entity_fact
+  raw_text: T004a logs API errors to `logs/api_errors.log` in JSON lines format.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:50:31Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Dataset files verified with SHA-256 checksums
+  claim_id: c_e6a78020
+  context: T006c-OQMD Implement `code/downloaders.py::generate_checksum` to generate
+    SHA-256 checksum for `data/raw/oqmd.parquet`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006c tasks generate SHA-256 checksums for downloaded dataset files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:50:52Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Target Imbalance Score uses Gini coefficient for properties with 100
+    or more samples
+  claim_id: c_abae3883
+  context: T008a [P] Implement code/imbalance.py::calculate_target_imbalance to calculate
+    Target Imbalance Score (Gini coefficient of target property values for properties
+    with >= 100 samples, handling negative values via absolute transformation or offset).
+    Skip properties with < 100 samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T008a implements Target Imbalance Score calculation using Gini coefficient
+    for properties with >= 100 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:55:43Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Compositional Imbalance Score uses K-Means clustering with k=50
+  claim_id: c_870267fa
+  context: T008b [P] Implement code/imbalance.py::calculate_compositional_imbalance
+    to calculate Compositional Imbalance Score (Gini coefficient of the cluster assignment
+    counts derived from K-Means clustering with k=50 and Euclidean distance on compositional
+    features).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T008b implements Compositional Imbalance Score using K-Means clustering
+    with k=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:56:03Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint is 6 hours
+  claim_id: c_9dfbf27c
+  context: "T047a [P] ... ensuring total runtime \u2264 6 hours by streaming the full\
+    \ merged dataset ... T047b [P] ... ensuring total runtime \u2264 6 hours by streaming\
+    \ the OQMD/AFLOW dataset only."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T047a and T047b enforce a total pipeline runtime constraint of \u2264\
+    \ 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:56:47Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API retry parameters are base delay 1s, max delay 60s, multiplier 2.0,
+    max retries 5
+  claim_id: c_db71f0e6
+  context: 'T004a-Backoff Implement code/ingestion.py::log_api_error and retry logic
+    for OQMD, AFLOW, and Materials Project APIs. Parameters: base_delay=1s, max_delay=60s,
+    multiplier=2.0, max_retries=5.'
+  evidence:
+    asserted: '4.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: T004a-Backoff implements retry logic with base_delay=1s, max_delay=60s,
+    multiplier=2.0, and max_retries=5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T02:56:47Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API errors are logged to logs/api_errors.log as JSON lines
+  claim_id: c_400d990d
+  context: Log all API errors as JSON lines to logs/api_errors.log with schema {"timestamp":...,
+    "endpoint":..., "error":..., "retry_count":...}.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_errors_are_logged_to_logs/api_errors.log_as_JSON_lines
+  kind: entity_fact
+  raw_text: T004a-Backoff logs API errors as JSON lines to logs/api_errors.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:57:16Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: MP available flag set to false on 403 or timeout
+  claim_id: c_d46a7712
+  context: If the key is missing or the probe fails (403/timeout), set a global flag
+    MP_AVAILABLE = False and log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006a-MP-Availability-Check sets a global flag MP_AVAILABLE = False if
+    the probe fails with 403 or timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:20Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksums generated for downloaded datasets
+  claim_id: c_a43f7e61
+  context: T006c-OQMD Implement code/downloaders.py::generate_checksum to generate
+    SHA-256 checksum for data/raw/oqmd.parquet...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006c-OQMD/AFLOW/MP tasks generate SHA-256 checksums for downloaded datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:23Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Retry multiplier is 2.0
+  claim_id: c_9ad07f81
+  context: 'Parameters: base_delay=1s, max_delay=60s, multiplier=2.0, max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004a-Backoff parameters include a multiplier of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:27Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Retry max delay is 60 seconds
+  claim_id: c_3fbc5ef0
+  context: 'Parameters: base_delay=1s, max_delay=60s, multiplier=2.0, max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004a-Backoff parameters include a max delay of 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:31Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Retry base delay is 1 second
+  claim_id: c_e06ede37
+  context: 'Parameters: base_delay=1s, max_delay=60s, multiplier=2.0, max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004a-Backoff parameters include a base delay of 1 second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:34Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth uses Gaussian noise with fixed seed
+  claim_id: c_0e055cc8
+  context: 'T036a [US3] Implement code/shap_analysis.py::generate_synthetic_ground_truth
+    to generate a synthetic dataset with known non-linear feature weights (algorithm:
+    Gaussian noise with fixed seed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_ground_truth_uses_Gaussian_noise_with_fixed_seed
+  kind: entity_fact
+  raw_text: T036a generates synthetic ground truth using a Gaussian noise algorithm
+    with a fixed seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:44Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Known weights use physics-inspired function for mean atomic number
+  claim_id: c_a25729f7
+  context: 'Dynamically generate the known_weights vector based on a physics-inspired
+    function: w_i = mean_atomic_number / scaling_factor for the mean_atomic_number
+    feature column, and a negligible or null value otherwise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Known_weights_use_physics-inspired_function_for_mean_atomic
+  kind: entity_fact
+  raw_text: T036a defines known weights using a physics-inspired function for the
+    mean_atomic_number feature.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T02:59:50Z'

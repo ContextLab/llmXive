@@ -20,55 +20,78 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
-INPUT_FILE = RAW_DIR / "raw_oqmd_constitution.csv"
-OUTPUT_FILE = PROCESSED_DIR / "descriptors.csv"
+# Updated input path to match merged/preprocessed output from T006f/T007a
+INPUT_FILE = PROCESSED_DIR / "preprocessed_data.parquet"
+OUTPUT_FILE = PROCESSED_DIR / "descriptors.parquet"
 
 def load_raw_data() -> pd.DataFrame:
-    """Loads the raw constitution data."""
+    """Loads the preprocessed data from data/processed/preprocessed_data.parquet."""
     if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Raw data file not found: {INPUT_FILE}. Run code/ingestion.py first.")
-    return pd.read_csv(INPUT_FILE)
+        raise FileNotFoundError(
+            f"Input file not found: {INPUT_FILE}. "
+            "Ensure T007a (preprocessing) has completed successfully."
+        )
+    logger.info(f"Loading preprocessed data from {INPUT_FILE}")
+    return pd.read_parquet(INPUT_FILE)
 
 def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Computes Magpie descriptors for each formula.
-    Returns a DataFrame with formula and descriptor columns.
+    Computes Magpie compositional descriptors for each formula.
+    Applies L2-normalization to the computed descriptors.
+    Returns a DataFrame with formula, target properties, and normalized descriptors.
     """
     if 'formula' not in df.columns:
         raise ValueError("Input data must contain a 'formula' column.")
 
     logger.info("Computing Magpie descriptors...")
     
-    # Initialize Magpie with standard settings
-    # Magpie typically computes 14 descriptors by default (mean, min, max, range, std, etc. for 7 properties)
-    # We use the default configuration which returns 14 features per property set, but usually 
-    # the standard Magpie implementation returns a fixed set of 14 compositional descriptors.
-    
+    # Initialize Magpie
     magpie = Magpie()
     
-    # Compute descriptors
-    # The magpie library expects a list of formulas
     formulas = df['formula'].tolist()
     
-    # Magpie.compute returns a DataFrame with descriptors
+    # Compute descriptors
     descriptors_df = magpie.compute(formulas)
     
     # Ensure index matches original dataframe
     descriptors_df.index = df.index
     
-    # Merge with original data (formula, etc.)
-    result = pd.concat([df, descriptors_df], axis=1)
+    # Drop any rows with NaN (failed parsing)
+    combined = pd.concat([df, descriptors_df], axis=1)
+    combined = combined.dropna(subset=descriptors_df.columns)
     
-    # Drop NaN rows if any (e.g., formulas that couldn't be parsed)
-    result = result.dropna()
+    logger.info(f"Computed descriptors for {len(combined)} samples.")
     
-    logger.info(f"Computed descriptors for {len(result)} samples.")
-    return result
+    # Apply L2-normalization to descriptor columns only (not formula or targets)
+    # Identify descriptor columns (exclude 'formula' and any target columns if known)
+    # For safety, we assume non-string columns that are not 'formula' are descriptors
+    # But more robustly, we can check against the original df columns
+    original_cols = set(df.columns)
+    descriptor_cols = [col for col in combined.columns if col not in original_cols]
+    
+    if not descriptor_cols:
+        logger.warning("No descriptor columns found. Skipping normalization.")
+        return combined
+    
+    logger.info(f"Applying L2-normalization to {len(descriptor_cols)} descriptor columns.")
+    
+    # L2-normalize each row (axis=1) for descriptor columns
+    descriptor_matrix = combined[descriptor_cols].values
+    norms = np.linalg.norm(descriptor_matrix, axis=1, keepdims=True)
+    
+    # Avoid division by zero
+    norms = np.where(norms == 0, 1, norms)
+    normalized_descriptors = descriptor_matrix / norms
+    
+    combined[descriptor_cols] = normalized_descriptors
+    
+    logger.info("L2-normalization complete.")
+    return combined
 
 def save_descriptors(df: pd.DataFrame):
-    """Saves the computed descriptors to CSV."""
+    """Saves the computed descriptors to data/processed/descriptors.parquet."""
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    df.to_csv(OUTPUT_FILE, index=False)
+    df.to_parquet(OUTPUT_FILE, index=False)
     logger.info(f"Descriptors saved to {OUTPUT_FILE}")
 
 def main():
