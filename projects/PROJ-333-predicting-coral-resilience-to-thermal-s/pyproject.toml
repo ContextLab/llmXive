@@ -1,7 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "llmxive-coral-resilience"
 version = "0.1.0"
 description = "Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "biopython",
@@ -11,49 +16,30 @@ dependencies = [
     "matplotlib",
     "gprofiler-official",
     "rpy2",
-    "ruff",
-    "black",
-    "isort",
-    "tomli",
-    "tomli-w",
     "tomlkit",
+    "tomli_w",
 ]
 
 [tool.black]
 line-length = 88
-target-version = [
-    "py39",
-    "py310",
-    "py311",
-]
-include = "\\.pyi?$"
-exclude = """
-    /(
-        \\.git
-      | \\.hg
-      | \\.mypy_cache
-      | \\.tox
-      | \\.venv
-      | _build
-      | buck-out
-      | build
-      | dist
-      | data
-    )/
-"""
-skip-string-normalization = false
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.isort]
-known-first-party = [
-    "config",
-    "data",
-    "models",
-    "utils",
-    "ingest",
-    "quant",
-    "dge_analysis",
-    "viz",
-    "enrichment",
-]
-force-sort-within-sections = true
-lines-after-imports = 2
+profile = "black"
+line_length = 88
+known_first_party = ["code", "data", "tests", "results", "specs"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist"]

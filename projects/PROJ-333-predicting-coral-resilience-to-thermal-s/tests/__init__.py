@@ -1,1 +1,3 @@
-# Test package for llmXive Project
+"""
+Test suite for Coral Resilience Prediction Pipeline
+"""

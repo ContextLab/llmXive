@@ -21,3 +21,26 @@
   verification_status: verified
   verified_against_url: https://biit.cs.ut.ee/gprofiler/gost
   verified_at: '2026-07-07T02:27:37.058191Z'
+- artifact_hash: 91ce8263f731d45fe48f693844d415ff99657255f250a7b5b256ae8f8f24ae78
+  artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/amendments.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Cucumis sativus (ID 321023)  - BioProject - NCBI
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA321023
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA321023
+  verified_at: '2026-09-25T17:49:58.830471Z'
+- artifact_hash: a4f3507fd03d51950f200c9700c3ba1eb570365378728bff1cbb22968e85c7fc
+  artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "g:Profiler \u2013 a web server for functional enrichment analysis\
+    \ and conversions of gene lists"
+  kind: url
+  value: https://biit.cs.ut.ee/gprofiler/gost`
+  verification_status: pending
+  verified_against_url: https://biit.cs.ut.ee/gprofiler/gost
+  verified_at: '2026-09-25T17:50:02.441046Z'

@@ -1035,3 +1035,540 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T21:42:48Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID updated from PRJNA292777 to PRJNA321023
+  claim_id: c_1edaf631
+  context: 'Formal Spec Amendment Record: Create amendments.md to document the change
+    from PRJNA292777 to PRJNA321023.'
+  evidence:
+    entailment_evidence: BioProject ID updated from PRJNA292777 to PRJNA321023
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_updated_from_PRJNA292777_to_PRJNA321023
+  kind: entity_fact
+  raw_text: Updated BioProject ID to the current accession number from PRJNA292777
+    to PRJNA321023.
+  resolved_value: BioProject ID updated from PRJNA292777 to PRJNA321023
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:41:44Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly GCF_000163615.2 belongs to BioProject PRJNA321023
+  claim_id: c_567d787c
+  context: MUST verify that assembly GCF_000163615.2 belongs to BioProject PRJNA321023
+    before proceeding.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: BioProject PRJNA321023
+    relation: belongs to
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA321023
+    source_value: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA321023
+    subject: Assembly GCF_000163615.2
+  kind: relational
+  raw_text: The reference transcriptome assembly GCF_000163615.2 belongs to BioProject
+    PRJNA321023.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:41:55Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora reference transcriptome available in NCBI RefSeq
+  claim_id: c_7ddc18e8
+  context: Download Acropora millepora reference transcriptome (NCBI RefSeq) to data/raw/reference/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Acropora_millepora_reference_transcriptome_available_in_NCBI
+  kind: entity_fact
+  raw_text: The reference transcriptome for Acropora millepora is available in NCBI
+    RefSeq.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:42:31Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline targets Acropora millepora species
+  claim_id: c_592842f8
+  context: Download Acropora millepora reference transcriptome... Download raw FASTQ
+    reads from NCBI BioProject PRJNA321023.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Acropora millepora
+      source_id: Q3945068
+      url: https://www.wikidata.org/wiki/Q3945068
+      value: Acropora millepora
+    filled: true
+  kind: entity_fact
+  raw_text: The pipeline targets the Acropora millepora species for thermal stress
+    resilience prediction.
+  resolved_value: Acropora millepora
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:42:40Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler API URL is https://biit.cs.ut.ee/gprofiler/gost
+  claim_id: c_de94c9f1
+  context: Query g:Profiler API (https://biit.cs.ut.ee/gprofiler/gost) using the mapped
+    gene IDs.
+  evidence:
+    entailment_evidence: G:Profiler API URL is https://biit.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_API_URL_is_https://biit.cs.ut.ee/gprofiler/gost
+  kind: entity_fact
+  raw_text: The g:Profiler API is hosted at https://biit.cs.ut.ee/gprofiler/gost.
+  resolved_value: g:Profiler API URL is https://biit.cs.ut.ee/gprofiler/gost
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:42:43Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora organism code in g:Profiler is ammi
+  claim_id: c_a4a6d8dc
+  context: 'MUST use the specific query parameters: query, organism=ammi (or appropriate
+    code), sources=[...].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Acropora_millepora_organism_code_in_g:Profiler_is_ammi
+  kind: entity_fact
+  raw_text: The organism code for Acropora millepora in g:Profiler is 'ammi'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:43:10Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID updated to PRJNA321023
+  claim_id: c_4f0c9bf4
+  context: T004b Formal Spec Amendment Record documents the change from PRJNA292777
+    to PRJNA321023.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_updated_to_PRJNA321023
+  kind: entity_fact
+  raw_text: The BioProject ID was updated from PRJNA292777 to PRJNA321023.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:44:07Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Reference transcriptome assembly GCF_000163615.2
+  claim_id: c_09a6312a
+  context: T018 requires verification that assembly GCF_000163615.2 belongs to BioProject
+    PRJNA.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference transcriptome assembly is GCF_000163615.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:44:26Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Study organism Acropora millepora
+  claim_id: c_f4be5a2e
+  context: T018 targets the Acropora millepora reference transcriptome; T009b references
+    expression variance for this species.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Acropora millepora
+      source_id: Q3945068
+      url: https://www.wikidata.org/wiki/Q3945068
+      value: Acropora millepora
+    filled: true
+  kind: entity_fact
+  raw_text: The organism for the study is Acropora millepora.
+  resolved_value: Acropora millepora
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:44:41Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler organism code ammi
+  claim_id: c_41777412
+  context: T034 specifies using the query parameter organism=ammi for g:Profiler.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_organism_code_ammi
+  kind: entity_fact
+  raw_text: The g:Profiler organism code for Acropora millepora is ammi.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:44:45Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time target under 6 hours
+  claim_id: c_32646e9c
+  context: T041 requires verifying that full pipeline execution time is < 6 hours
+    on free-tier runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_target_under_6_hours
+  kind: magnitude
+  raw_text: The pipeline execution time target is less than 6 hours on a free-tier
+    runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:45:19Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg method for FDR correction
+  claim_id: c_c4c7049e
+  context: T026 implements Benjamini-Hochberg correction to p-values to generate FDR
+    column.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_method_for_FDR_correction
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg method is used for FDR correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:46:01Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Study labeled as associational with no causal claims
+  claim_id: c_fbad0fae
+  context: T027 requires annotating output results with 'Associational Study - No
+    Causal Claims'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_labeled_as_associational_with_no_causal_claims
+  kind: entity_fact
+  raw_text: The study is explicitly labeled as an associational study with no causal
+    claims.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:46:34Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID updated from PRJNA292777 to PRJNA321023
+  claim_id: c_64fe62b4
+  context: Formal Spec Amendment Record to document the change from PRJNA292777 to
+    PRJNA321023.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_updated_from_PRJNA292777_to_PRJNA321023
+  kind: entity_fact
+  raw_text: The BioProject ID was updated from PRJNA292777 to PRJNA321023.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:47:36Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly GCF_000163615.2 belongs to BioProject PRJNA321023
+  claim_id: c_0571cc36
+  context: Verify that assembly GCF_000163615.2 belongs to BioProject PRJNA before
+    proceeding.
+  evidence:
+    entailment_evidence: Assembly GCF 000163615.2 belongs to BioProject PRJNA321023
+    entailment_status: grounded
+    object: BioProject PRJNA321023
+    relation: belongs to
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA321023
+    source_value: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA321023
+    subject: Assembly GCF_000163615.2
+  kind: relational
+  raw_text: The reference transcriptome assembly GCF_000163615.2 belongs to BioProject
+    PRJNA321023.
+  resolved_value: Assembly GCF_000163615.2 belongs to BioProject PRJNA321023
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:47:38Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline peak memory usage < 7 GB
+  claim_id: c_b43d4778
+  context: Download raw FASTQ reads... while ensuring peak memory < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to ensure peak memory usage remains below 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:48:02Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values for FDR
+  claim_id: c_5b939eb2
+  context: Apply Benjamini-Hochberg correction to p-values to generate FDR column.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: certificate proves FDR> 0.0104for all sufficiently large numbers of hypotheses.
+        This
+      source_id: '2607.12208'
+      url: https://arxiv.org/abs/2607.12208
+      value: '0.0104'
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction is applied to p-values to generate the
+    FDR column.
+  resolved_value: '0.0104'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:48:30Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: FDR threshold <= 0.05
+  claim_id: c_1cc62a4d
+  context: Assert that the proportion of genes with FDR > 0.05 is within acceptable
+    limits.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline asserts that the False Discovery Rate (FDR) is less than
+    or equal to 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:48:30Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Biological plausibility requires HSP or Oxidative pathway FDR < 0.1
+  claim_id: c_425e2f04
+  context: 'Success Criterion: PASS if at least one pathway from [HSP, Oxidative]
+    has FDR < 0.1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Biological_plausibility_requires_HSP_or_Oxidative_pathway_FD
+  kind: magnitude
+  raw_text: The validation of biological plausibility requires at least one pathway
+    from [HSP, Oxidative] to have an FDR less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:48:56Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time < 6 hours on free-tier runner
+  claim_id: c_bea23e80
+  context: Run quickstart.md validation to ensure full pipeline execution time is
+    < 6 hours on free-tier runner.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_%3C_6_hours_on_free-tier_runner
+  kind: magnitude
+  raw_text: The full pipeline execution time is targeted to be less than 6 hours on
+    a free-tier runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:49:18Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler organism code ammi
+  claim_id: c_f79dd9eb
+  context: 'Use specific query parameters: query, organism=ammi (or appropriate code)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_organism_code_ammi
+  kind: entity_fact
+  raw_text: The organism code used for g:Profiler queries is 'ammi'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:49:46Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID changed from PRJNA292777 to PRJNA321023
+  claim_id: c_f8a75231
+  context: 'Formal Spec Amendment Record: Create amendments.md to document the change
+    from PRJNA292777 to PRJNA321023.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_changed_from_PRJNA292777_to_PRJNA321023
+  kind: entity_fact
+  raw_text: Updated BioProject ID to PRJNA321023 from the original PRJNA292777.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:50:33Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly GCF_000163615.2 belongs to BioProject PRJNA
+  claim_id: c_41f84307
+  context: MUST verify that assembly GCF_000163615.2 belongs to BioProject PRJNA before
+    proceeding.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: BioProject PRJNA
+    relation: belongs to
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA
+    source_value: https://en.wikipedia.org/wiki/Assembly_GCF_000163615.2_belongs_to_BioProject_PRJNA
+    subject: Assembly GCF_000163615.2
+  kind: relational
+  raw_text: The assembly GCF_000163615.2 belongs to BioProject PRJNA.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:50:43Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Project targets Acropora millepora reference transcriptome
+  claim_id: c_927efb48
+  context: Download Acropora millepora reference transcriptome (NCBI RefSeq) to data/raw/reference/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_targets_Acropora_millepora_reference_transcriptome
+  kind: entity_fact
+  raw_text: The project targets the Acropora millepora reference transcriptome.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:51:08Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline enforces peak memory limit of 7 GB
+  claim_id: c_526bd4b0
+  context: Ensure peak memory < 7 GB during quantification and verify that peak memory
+    usage (RSS) remains < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a peak memory usage limit of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:51:27Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Project uses g:Profiler API at https://biit.cs.ut.ee/gprofiler/gost
+  claim_id: c_2854d8f5
+  context: Query g:Profiler API (https://biit.cs.ut.ee/gprofiler/gost) using the mapped
+    gene IDs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_g:Profiler_API_at_https://biit.cs.ut.ee/gprofil
+  kind: entity_fact
+  raw_text: The project uses the g:Profiler API at https://biit.cs.ut.ee/gprofiler/gost.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:51:53Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Organism code for Acropora millepora is ammi
+  claim_id: c_71903c6c
+  context: 'MUST use the specific query parameters: organism=ammi.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Organism_code_for_Acropora_millepora_is_ammi
+  kind: entity_fact
+  raw_text: The organism code for Acropora millepora in g:Profiler is 'ammi'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:51:55Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time must be less than 6 hours on free-tier runner
+  claim_id: c_77350f8a
+  context: Run quickstart.md validation to ensure full pipeline execution time is
+    < 6 hours on free-tier runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_must_be_less_than_6_hours_on_free-ti
+  kind: magnitude
+  raw_text: The pipeline must execute in less than 6 hours on a free-tier runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:53:03Z'

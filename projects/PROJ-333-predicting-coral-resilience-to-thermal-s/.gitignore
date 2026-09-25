@@ -1,0 +1,36 @@
+# Data files - exclude large binary and raw data files
+data/raw/*.fastq.gz
+data/processed/*.rds
+
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs and temporary files
+*.log
+.cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db

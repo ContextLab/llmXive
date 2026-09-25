@@ -1,3 +1,30 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `tests/`, `data/raw`, `data/processed`,\
+    \ `results/plots`, `specs/001-coral-resilience-prediction/`) being created is\
+    \ present; the implementer only provided a feature specification without any filesystem\
+    \ artifacts. The task\u2019s core requirement\u2014establishing the project directory\
+    \ structure\u2014is therefore unmet."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file was provided in the evidence, nor any listing of its contents
+    showing the required exclusion patterns (`data/raw/*.fastq.gz`, `data/processed/*.rds`,
+    `__pycache__`, `*.pyc`). The task cannot be considered fulfilled without the actual
+    file.
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` configuration file is present in the provided evidence, and thus
+    there is no content to verify that it contains `max-line-length = 88` and `ignore
+    = E203,W503`. The required artifact is missing.
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-coral-resilience-prediction/amendments.md` file (or its contents)
+    was presented, so we cannot verify that the change from BioProject PRJNA292777
+    to PRJNA321023 was documented as required. The required amendment record is missing.
 T015:
   c: false
   h: 9cb51e90c5f734c81c5c03e8feb0b6515ea02d110bc26d68661d08f8f170b15e
