@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Metrics Schema"
+description: "Schema for the unified metrics CSV containing raw churn and debt scores."
+type: object
+properties:
+  repo_id:
+    type: string
+    description: "Unique identifier for the repository."
+  file_path:
+    type: string
+    description: "Relative path of the file within the repository."
+  total_lines_changed:
+    type: integer
+    description: "Raw churn: total lines added + removed."
+  debt_score:
+    type: number
+    format: float
+    description: "Z-Score normalized debt score calculated by Semgrep."
+  avg_loc:
+    type: number
+    format: float
+    description: "Average Lines of Code for the file (covariate)."
+  contributor_count:
+    type: integer
+    description: "Number of unique contributors to the file."
+  language:
+    type: string
+    description: "Programming language of the file."
+  z_cc:
+    type: number
+    format: float
+    nullable: true
+    description: "Z-Score of Cyclomatic Complexity."
+  z_mi:
+    type: number
+    format: float
+    nullable: true
+    description: "Z-Score of Maintainability Index."
+required:
+  - repo_id
+  - file_path
+  - total_lines_changed
+  - debt_score
+  - avg_loc
+  - contributor_count
+  - language
+additionalProperties: false

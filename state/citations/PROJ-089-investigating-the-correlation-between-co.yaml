@@ -20,3 +20,25 @@
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Why_Most_Published_Research_Findings_Are_False
   verified_at: '2026-07-10T04:28:58.818132Z'
+- artifact_hash: bf8ab76f175e8fa12c29d35b928e7d2a76e38b71df22dd47c42751b0aa7ae29e
+  artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/proj-089-code-churn-debt.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/proj-089-code-churn-debt
+  verified_at: '2026-09-25T00:47:02.063839Z'
+- artifact_hash: 5023403290ab7848dee64a0cf0e1d9af03829c061714b07ad6c7f6d143215976
+  artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1808.00001'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-09-25T01:09:47.083126Z'

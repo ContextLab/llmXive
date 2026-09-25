@@ -1,107 +1,57 @@
 # Data Model: Investigating the Correlation Between Code Churn and Technical Debt
 
-## Entity Relationship Diagram
+## Unified Metrics Schema
 
-```
-Repository (1) ----< FileMetric (N) ----> CorrelationResult (1)
-Repository (1) ----< ToolValidationLog (N)
-Repository (1) ----< SensitivityResult (N)
-```
+This schema defines the structure of the intermediate and final datasets used in the analysis. All metrics are **raw** (not density) but will be log-transformed for analysis.
 
-## Core Entities
+| Field | Type | Description | Source |
+|-------|------|-------------|--------|
+| `repo_id` | string | Unique identifier (GitHub org/repo) | Metadata |
+| `file_path` | string | Relative path of the file | Git Log |
+| `total_lines_changed` | integer | Sum of lines added + removed (Raw Churn) | `git log --numstat` |
+| `debt_score` | float | Z-Score normalized debt score (Complexity + MI) | Semgrep |
+| `avg_loc` | float | Average Lines of Code for the file | Git Log / Semgrep |
+| `contributor_count` | integer | Number of unique contributors to the file | Git Log |
+| `language` | string | Programming language (Python, Java, JS, etc.) | Filename / Semgrep |
+| `repo_language` | string | Primary language of the repository | Metadata |
+| `star_count` | integer | GitHub stars (for validation) | GitHub API |
+| `z_cc` | float | Z-Score of Cyclomatic Complexity | Derived |
+| `z_mi` | float | Z-Score of Maintainability Index | Derived |
 
-### Repository
+## Output Schema (Correlation Results)
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `repo_id` | string | Unique identifier (`owner/repo`) |
-| `owner` | string | GitHub owner |
-| `name` | string | Repository name |
-| `url` | string | GitHub URL |
-| `stars` | integer | Star count |
-| `language` | string | Primary language |
-| `created_at` | datetime | Creation date |
-| `last_commit` | datetime | Date of most recent commit |
-| `contributor_count` | integer | Unique committers in last 2 years |
-| `status` | string | `pending` / `success` / `failed` |
-| `error_message` | string (nullable) | Error details if processing failed |
-
-### FileMetric
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `repo_id` | string | FK to Repository |
-| `file_path` | string | Path within repo |
-| `language` | string | Detected language |
-| `total_lines_changed` | integer | **Raw** lines changed in last 2 years |
-| `avg_loc` | number | Average LOC over 2 years (≥10) |
-| `churn_density` | number (nullable) | **Deprecated**: `total_lines_changed` / `avg_loc` (kept for legacy) |
-| `debt_score` | number | **Raw** debt score from static analysis |
-| `debt_density` | number (nullable) | **Deprecated**: `debt_score` / `avg_loc` (kept for legacy) |
-| `commit_count` | integer | Commits touching file (auxiliary) |
-| `avg_cc` | number (nullable) | Average Cyclomatic Complexity |
-| `avg_mi` | number (nullable, 0‑100) | Average Maintainability Index |
-| `code_smells` | integer (nullable) | Code smell count (Semgrep) |
-
-*Note*: Primary analysis uses `total_lines_changed`, `debt_score`, and `avg_loc` as a covariate. Density metrics are deprecated to avoid spurious correlation.
-
-### CorrelationResult
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `result_id` | string | Unique identifier |
-| `repo_id` | string (nullable) | Null for aggregate |
-| `correlation_type` | string | `pearson`, `spearman`, or `partial` |
-| `r_value` | number | Correlation coefficient (from raw metrics) |
-| `p_value` | number | P‑value |
-| `n` | integer | Number of files (or repos for aggregate) |
-| `confounders_controlled` | array[string] | Covariates used |
-| `vif_values` | object | VIF per covariate |
-| `threshold_used` | integer | LOC exclusion threshold |
-| `bonferroni_adjusted` | boolean | Always `false` – replaced by meta‑analysis |
-| `adjusted_p_value` | number (nullable) | Null when not adjusted |
-| `timestamp` | datetime | Analysis timestamp |
-
-### ToolValidationLog (new)
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `tool_name` | string | `radon` or `semgrep` |
-| `version` | string | Tool version |
-| `github_stars` | integer | Star count at runtime |
-| `citation` | string | Bibliographic reference (e.g., Kitchenham et al., 2009) |
-| `retrieved_at` | datetime | When the metadata was fetched |
-
-### SensitivityResult (new)
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `threshold_loc` | integer | File‑size exclusion threshold (5, 10, 20) |
-| `repo_id` | string (nullable) | Null for aggregate |
-| `correlation_type` | string | `pearson` / `spearman` |
-| `r_value` | number | Correlation coefficient |
-| `p_value` | number | Corresponding p‑value |
-| `n` | integer | Sample size |
-| `timestamp` | datetime | When computed |
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_type` | string | "log-log", "density", "meta" |
+| `beta_value` | float | Slope coefficient from regression |
+| `p_value` | float | P-value of the slope |
+| `n` | integer | Sample size (number of files) |
+| `threshold` | integer | LOC threshold used (for sensitivity analysis) |
+| `z_score` | float | Fisher-transformed Z-score (for meta-analysis) |
+| `weight` | float | Weight (1 / SE^2) for meta-analysis |
+| `fdr_adjusted` | boolean | Whether FDR correction was applied |
 
 ## Data Flow
 
-1. **Raw Extraction** → `data/raw/` (metadata, git history, static analysis).  
-2. **Processing** → `data/processed/unified_metrics.csv` (FileMetric).  
-3. **Analysis** → `data/results/correlation_results.csv` (CorrelationResult).  
-4. **Tool Validation** → `data/logs/tool_validation_log.csv` (ToolValidationLog).  
-5. **Sensitivity** → `data/results/sensitivity_analysis.csv` (SensitivityResult).  
-6. **Reporting** → `summary_report.txt` (aggregates above).
+1. **Raw Input**: GitHub Repos (Git History, Source Code).
+2. **Extraction**:
+   - `data/raw/git_history/`: Per-repo raw log files.
+   - `data/raw/static_analysis/`: Per-repo Semgrep JSON.
+3. **Processing**:
+   - `data/processed/unified_metrics.csv`: Merged raw metrics.
+   - `data/processed/unified_metrics_loc5.csv`: Filtered by avg_loc >= 5.
+   - `data/processed/unified_metrics_loc10.csv`: Filtered by avg_loc >= 10.
+   - `data/processed/unified_metrics_loc20.csv`: Filtered by avg_loc >= 20.
+   - `data/processed/correlation_results.csv`: Per-repo regression slopes.
+4. **Aggregation**:
+   - `data/processed/meta_analysis_results.csv`: Final aggregated statistics.
+5. **Reporting**:
+   - `data/logs/constitution_exception.log`: Records deviations from Constitution.
+   - `data/logs/validation.log`: Records simplified tool validation.
+   - `data/processed/summary_report.txt`: Human-readable summary.
 
-## Data Quality Rules
+## Data Hygiene & Versioning
 
-- Numeric fields non‑negative (except `r_value`).  
-- `avg_loc` ≥ 10 (per FR‑007).  
-- Missing values are explicit (`null`).  
-- All files checksummed; raw data never overwritten.
-
-## Schema Evolution
-
-- Initial version: 1.0.0.  
-- Changes documented in `derivation_notes.md`.  
-- Backward compatibility maintained for legacy fields.
+- **Checksums**: All files in `data/raw` and `data/processed` are checksummed (SHA-256) and recorded in `state/`.
+- **Immutability**: Raw data is never modified. Derived data is written to new files.
+- **PII**: No PII is collected. Git logs are sanitized to remove email addresses if necessary (default `git log` does not expose emails in `--numstat`).

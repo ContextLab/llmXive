@@ -1,0 +1,19 @@
+status: none
+intent: GitHub API GHTorrent SonarQube Semgrep repository metadata python package
+  dataset
+required_fields:
+- repository_id
+- repository_name
+- stars
+- primary_language
+- created_at
+- pushed_at
+- commit_count_last_2_years
+- commit_dates_last_2_years
+- file_path
+- file_loc
+- cyclomatic_complexity
+- maintainability_index
+cache_key: d0a00e253f7e6453988b782867104e7238a4dff0e6dc158d41f54b90f5b71664
+searched_at: '2026-09-25T00:38:56.179715+00:00'
+retry_count: 1

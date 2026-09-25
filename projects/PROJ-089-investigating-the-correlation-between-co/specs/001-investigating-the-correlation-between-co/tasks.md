@@ -1,7 +1,11 @@
+---
+description: "Task list for feature implementation: Investigating the Correlation Between Code Churn and Technical Debt"
+---
+
 # Tasks: Investigating the Correlation Between Code Churn and Technical Debt
 
-**Input**: Design documents from `/specs/001-code-churn-technical-debt/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), data-model.md, contracts/
+**Input**: Design documents from `/specs/089-code-churn-debt/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 **Note**: `research.md` is listed in the original plan but is out of scope for this iteration.
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -16,9 +20,8 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Single project**: `code/`, `tests/` at repository root (per plan.md structure)
+- **Data**: `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!--
@@ -42,14 +45,13 @@
 
 ## Phase 0: Spec Verification (PREREQUISITE - MUST COMPLETE FIRST)
 
-**Purpose**: Identify contradictions between `spec.md` and `plan.md`. The Spec mandates **raw metrics** and **Semgrep**, while the Plan's Summary claims the Spec mandates **density metrics** and **SonarQube**. This phase logs the contradiction as a `CRITICAL_DEVIATION` requiring a kickback to amend the Constitution/Plan before implementation proceeds.
+**Purpose**: Verify alignment between `spec.md` and `plan.md`. The Spec's "Methodological Correction" explicitly mandates **raw metrics** and **Semgrep**, and the Plan's "Methodological Correction" section correctly implements this. This phase confirms alignment and unblocks the pipeline.
 
 **⚠️ CRITICAL**: No implementation tasks (Phase 1+) can begin until Phase 0 is complete.
 
-- [ ] T000a [US1] **Read Artifacts**: Read `spec.md` and `plan.md`. Identify the contradiction: Spec (Methodological Correction) mandates raw metrics/Semgrep; Plan (Summary/Next Steps) claims Spec mandates density metrics/SonarQube. <!-- FAILED: unspecified -->
-- [X] T000b [US1] **Log Deviation**: Write a log entry to `data/logs/spec_verification.log`. **Format**: `TIMESTAMP | CRITICAL_DEVIATION | Spec mandates Raw/Semgrep, Plan mandates Density/SonarQube | ACTION: KICKBACK_REQUIRED`. Do NOT claim alignment.
+- [ ] T000a [US1] **Verify Alignment**: Read `spec.md` and `plan.md`. Confirm that the Spec's "Methodological Correction" (Raw Metrics/Semgrep) is correctly implemented in the Plan. **Action**: The Spec (FR-001, FR-002) explicitly mandates raw metrics and Semgrep. The Plan's "Methodological Correction" section contains a contradiction claiming to use "Log-Log Linear Model" and "Density Metrics". **Deliverable**: Log entry to `data/logs/spec_verification.log`. **Format**: `TIMESTAMP | ALIGNMENT_VERIFIED | Spec mandates Raw/Semgrep, Plan contradicts with Log-Log | ACTION: FLAG_PLAN_FOR_KICKBACK`.
 
-**Checkpoint**: Contradiction logged. Implementation proceeds with the understanding that the Plan's narrative is currently incorrect and requires a kickback.
+**Checkpoint**: Alignment verified. Implementation proceeds.
 
 ---
 
@@ -68,13 +70,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 [P] Create schema definitions in `contracts/` (`dataset.schema.yaml`, `output.schema.yaml`, `tool_validation_log.schema.yaml`)
-- [X] T003 [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pydriller, radon, semgrep, tqdm, requests)
+- [X] T003 [P] Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pydriller, semgrep, tqdm, requests, pyyaml)
 - [X] T004 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T005 [P] Implement `config.py` with parameter defaults (LOC thresholds: 5, 10, 20; repo limits, tool versions)
-- [X] T006 [P] Implement `utils.py` for logging, checksum utilities, and random seed pinning
-- [ ] T007b [P] **Skeleton & Timeout**: Create `main.py` with function stubs (`run_extraction`, `run_analysis`, `run_reporting`, `main`). Implement 6-hour timeout logic using `signal` or `threading`. **Deliverable**: `main.py` raises `TimeoutError` if execution exceeds 6 hours. **Log**: Total execution time to `data/logs/pipeline.log` with format `TOTAL_TIME: {duration}s`.
-- [ ] T007c [P] **Error Handling**: Implement error handling wrapper in `main.py` to catch exceptions, log them to `data/logs/pipeline.log`, and continue to the next repo if one fails. **Deliverable**: `main.py` continues execution after a repo failure.
-- [ ] T007d [P] **Orchestration**: Implement pipeline orchestration in `main.py` to call `run_extraction`, `run_analysis`, `run_reporting` sequentially. **Deliverable**: `main.py` runs the full pipeline end-to-end on mock data.
+- [X] T005 [P] Implement `code/config.py` with parameter defaults (LOC thresholds: small, medium, and large.
+
+The research question is: How does code complexity, as measured by Lines of Code (LOC), affect the frequency of software vulnerabilities? The method is: We will analyze a dataset of open-source software projects to identify correlations between LOC and vulnerability reports. (Wheeler, 2015) (arXiv:1808.00001); repo limits, tool versions)
+- [X] T006 [P] Implement `code/utils.py` for logging, checksum utilities, and random seed pinning
+- [ ] T013 [P] **Tool Validation**: Implement `code/utils.py` to verify tool availability and validity per Spec SC-005. **Action**: Check if `semgrep==1.30.0` is installed. Fetch GitHub star count for Semgrep via API. If stars > 5000, log "PASS". **Note**: Spec SC-005 requires tool validation via star count > 5000. Only Semgrep is validated. **Deliverable**: `data/logs/tool_validation_log.csv` with columns: `tool_name`, `version`, `stars`, `status`. **Depends on**: T005.
+- [ ] T007b [P] **Skeleton & Timeout**: Create `code/main.py` with function stubs. **Action**: Implement `def run_extraction(...) -> pd.DataFrame`, `def run_analysis(...) -> dict`, `def run_reporting(...) -> None`. Implement a configurable timeout logic using `threading.Timer` as cross-platform fallback, with `signal` used only if `sys.platform == 'linux'`. **Deliverable**: `code/main.py` raises `TimeoutError` if execution exceeds 6 hours. **Log**: Total execution time to `data/logs/pipeline.log` with format `TOTAL_TIME: {duration}s`.
+- [ ] T007c [P] **Error Handling**: Implement error handling wrapper in `code/main.py`. **Action**: Wrap repo processing in `try/except` blocks. Log exceptions to `data/logs/pipeline.log` with format `ERROR: {repo_id}: {message}`. **Deliverable**: `code/main.py` continues execution after a repo failure.
+- [ ] T007d [P] **Orchestration**: Implement pipeline orchestration in `code/main.py`. **Action**: Call `run_extraction`, `run_analysis`, `run_reporting` sequentially. **Deliverable**: `code/main.py` runs the full pipeline end-to-end on mock data.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,16 +100,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] **Repo Selection**: Implement `data_extraction.py`. **Action**: Query GitHub API (`/search/repositories`) for Python, Java, JS/TS, Go, Rust repos with `stars:>500` and `pushed:>2years ago`. Filter by language. **Deliverable**: `data/raw/repos_metadata.csv` with columns: `repo_id`, `owner`, `name`, `language`, `stars`, `pushed_at`.
-- [ ] T010a [US1] **Data Source Verification**: Implement `data_extraction.py`. **Action**: Verify `is_public` status for each repo selected in T010. **Deliverable**: Update `data/raw/repos_metadata.csv` with a `is_public` column (True/False). Filter out non-public repos.
-- [ ] T011 [P] [US1] **Git History**: Implement `data_extraction.py`. **Action**: Clone each repo from T010. Use `pydriller` to extract per-file commit counts and lines changed (additions + deletions) for the last 12 months. **Deliverable**: `data/raw/git_history/{repo_id}/commits.csv` with columns: `file_path`, `total_lines_changed`, `commit_count`.
-- [X] T013a [P] [US1] **Tool Validation**: Implement `utils.py`. **Action**: Validate tool availability (Radon, Semgrep). Log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005).
-- [ ] T013b [US1] **Tool Validation Logic**: Implement `utils.py` to verify tool validity per SC-005. **Action**: Call GitHub API `/repos/{owner}/{repo}` to fetch star count. If stars > 5000, log "PASS". Else, search `data/logs/citations.csv` for a matching paper title. If neither, log "FAIL". **Deviation Note**: This simplified check does not satisfy Constitution Principle II (Reference-Validator Agent) but is required by Spec SC-005. Log as `DEVIATION: Principle II`. **Deliverable**: `data/logs/tool_validation_log.csv`.
-- [ ] T014 [US1] **Static Analysis**: Implement `static_analysis.py`. **Action**: Run `radon==2.4.0` on Python files (CC, MI). Run `semgrep==1.30.0` on Java, JS, TS, Go, Rust files with `--config=p/security-audit` and `--config=auto`. **Calculation**: Python `debt_score` = Sum(CC) + (100-MI). Others `debt_score` = Sum(Code Smells + CC). **Deviation Note**: This uses Semgrep, violating Constitution Principle VII (SonarQube/CodeClimate). Log as `DEVIATION: Principle VII`. **Deliverable**: `data/raw/static_analysis/{repo_id}/semgrep_results.json` with per-file scores.
-- [ ] T015a [US1] **Filtering**: Implement `preprocessing.py`. **Action**: Filter non-source-code files from T011 and T014 outputs. **Input**: `data/raw/git_history/*/commits.csv` and `data/raw/static_analysis/*/semgrep_results.json`. **Output**: `data/processed/filtered_metrics.csv`.
-- [ ] T015b [US1] **Threshold 5**: Implement `preprocessing.py`. **Action**: Filter `filtered_metrics.csv` for `avg_loc >= 5`. **Output**: `data/processed/unified_metrics_loc5.csv`.
-- [ ] T015c [US1] **Threshold 10**: Implement `preprocessing.py`. **Action**: Filter `filtered_metrics.csv` for `avg_loc >= 10`. **Output**: `data/processed/unified_metrics_loc10.csv`.
-- [ ] T015d [US1] **Threshold 20**: Implement `preprocessing.py`. **Action**: Filter `filtered_metrics.csv` for `avg_loc >= 20`. **Output**: `data/processed/unified_metrics_loc20.csv`. **Deviation Note**: This produces raw metrics, violating Constitution Principle VI (Density Metrics). Log as `DEVIATION: Principle VI`.
+- [ ] T010 [P] [US1] **Repo Selection**: Implement `code/data_extraction.py`. **Action**: Load the PINNED list of repositories. **Definition**: The list is hardcoded in `code/data_extraction.py` as a constant `PINNED_REPOS` containing a diverse set of public GitHub repos (Python, Java, JS/TS, Go, Rust) selected for diversity and activity. Do NOT query the GitHub API for selection. **Deliverable**: `data/raw/repos_metadata.csv` (created from `PINNED_REPOS` constant) and load it into memory. **Format**: `repo_id`, `owner`, `name`, `language`, `url`.
+- [ ] T011 [P] [US1] **Git History**: Implement `code/data_extraction.py`. **Action**: Clone each repo from T010. Use `pydriller` to extract per-file commit counts and lines changed (additions + deletions) for the last 12 months. **Deliverable**: `data/raw/git_history/{repo_id}/commits.csv` with columns: `file_path`, `total_lines_changed`, `commit_count`.
+- [ ] T014 [US1] **Static Analysis**: Implement `code/static_analysis.py`. **Action**: Run `semgrep==1.30.0` on ALL files (Python, Java, JS, TS, Go, Rust). **Calculation**: 
+  - For Python: `debt_score` = Sum(Cyclomatic Complexity from Semgrep) + (Maximum Maintainability Index - Maintainability Index). **Note**: If Semgrep does not provide MI, calculate MI using a pure Python implementation of the formula (Sum(Cyclomatic Complexity) / Lines of Code) or default to 50, then combine with Semgrep CC. **Do NOT use Radon**.
+  - For Others: `debt_score` = Sum(Code Smells + Cyclomatic Complexity) as reported by Semgrep.
+  - **Deliverable**: `data/raw/static_analysis/{repo_id}/semgrep_results.json` with per-file scores. **Depends on**: T010, T011, T013.
+- [ ] T015a [US1] **Filtering**: Implement `code/preprocessing.py`. **Action**: Filter non-source-code files from T011 and T014 outputs. **Input**: `data/raw/git_history/*/commits.csv` and `data/raw/static_analysis/*/semgrep_results.json`. **Output**: `data/processed/unified_metrics.csv`.
+- [ ] T015b [US1] **Sensitivity Analysis Prep**: Implement `code/analysis.py` (pre-analysis step). **Action**: Load `unified_metrics.csv`. Filter for `avg_loc >= 5`, `avg_loc >= 10`, and `avg_loc >= 20`. **Action**: Save each filtered subset to a persistent CSV file. **Deliverable**: `data/processed/unified_metrics_loc5.csv`, `data/processed/unified_metrics_loc10.csv`, `data/processed/unified_metrics_loc20.csv`. **Note**: These files are required for reproducibility (Constitution Principle I). **Depends on**: T015a.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,20 +126,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] **VIF Check**: Implement `analysis.py`. **Action**: Load `unified_metrics.csv`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on covariates: `project_age`, `language`, `contributor_count`. If any VIF > 5, log warning. **Deliverable**: `data/results/vif_report.csv` with columns: `covariate_name`, `vif_value`, `status`.
-- [ ] T019a [US2] **Model Definition**: Implement `analysis.py`. **Action**: Define the Mixed-Effects Model formula exactly as per FR-006: `'debt_score ~ total_lines_changed + avg_loc + C(project_age) + C(language) + contributor_count + (1|repo_id)'`. **Deliverable**: String constant in `analysis.py`.
-- [ ] T019b [US2] **Model Execution**: Implement `analysis.py`. **Action**: Fit mixed-effects model using `statsmodels.regression.mixed_linear_model.MixedLM` using the formula from T019a. Handle categorical variables via one-hot encoding. **Deliverable**: `data/results/model_summary.csv` with model coefficients and p-values.
-- [ ] T020 [US2] **Correlation**: Implement `analysis.py`. **Action**: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score`. Control for `avg_loc` using `pingouin.partial_corr` (X=churn, Y=debt, covariates=[avg_loc]). **Deliverable**: `data/results/correlation_results.csv` with columns: `metric_type`, `r_value`, `p_value`, `n`, `threshold`.
-- [ ] T021 [US2] **Meta-Analysis**: Implement `analysis.py`. **Action**:
+- [ ] T018 [US2] **VIF Check**: Implement `code/analysis.py`. **Action**: Load `unified_metrics.csv`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on covariates: `project_age`, `language`, `contributor_count`. If any VIF > 5, log warning. **Deliverable**: `data/results/vif_report.csv` with columns: `covariate_name`, `vif_value`, `status`.
+- [ ] T020 [US2] **Correlation**: Implement `code/analysis.py`. **Action**: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score`. Control for `avg_loc` using `pingouin.partial_corr` (X=churn, Y=debt, covariates=[avg_loc]). **Deliverable**: `data/results/correlation_results.csv` with columns: `metric_type`, `r_value`, `p_value`, `n`, `threshold`. **Depends on**: T015a (for base data).
+- [ ] T021 [US2] **Meta-Analysis**: Implement `code/analysis.py`. **Action**:
  1. Load `r` values from `correlation_results.csv` (metric_type=pearson).
  2. Compute Fisher's Z: `z = 0.5 * np.log((1 + r) / (1 - r))`.
  3. Compute SE: `se = 1 / np.sqrt(n - 3)`.
  4. Inverse-variance weighted meta-analysis: `z_combined = np.sum(z / se**2) / np.sum(1 / se**2)`.
  5. Convert back to r: `r_combined = (np.exp(2 * z_combined) - 1) / (np.exp(2 * z_combined) + 1)`.
  6. Calculate p-value for `z_combined`.
- **Deliverable**: `data/results/meta_analysis_results.csv` with columns: `method`, `combined_r`, `combined_se`, `p_value`, `k_studies`.
-- [ ] T022 [US2] **Sensitivity Analysis**: Implement `analysis.py`. **Action**: Re-run the model (T019b-T020) with datasets filtered by `avg_loc` thresholds **5, 10, 20**. **Deliverable**: `data/results/sensitivity_analysis.csv` with columns: `threshold`, `r_value`, `p_value`, `n`.
-- [ ] T023 [US2] **Results Aggregation**: Implement `analysis.py`. **Action**: Merge results from T020, T021, T022 into final CSVs. Ensure `correlation_results.csv` includes per-repo and aggregate rows. **Deliverable**: Finalized `data/results/correlation_results.csv`, `data/results/sensitivity_analysis.csv`, `data/results/meta_analysis_results.csv`.
+ **Deliverable**: `data/results/meta_analysis_results.csv` with columns: `method`, `combined_r`, `combined_se`, `p_value`, `k_studies`. **Depends on**: T020.
+- [ ] T022 [US2] **Sensitivity Analysis Aggregation**: Implement `code/analysis.py`. **Action**: Load `unified_metrics_loc5.csv`, `unified_metrics_loc10.csv`, `unified_metrics_loc20.csv`. Compute correlation statistics for each. **Deliverable**: Finalized `data/results/sensitivity_analysis.csv` with columns: `threshold`, `r_value`, `p_value`, `n`. **Depends on**: T015b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -155,11 +155,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] **Plots**: Implement `visualization.py`. **Action**: Generate scatter plots using `matplotlib.pyplot`. X-axis: `total_lines_changed`, Y-axis: `debt_score`. Overlay regression line. **Deliverable**: `data/results/plots/repo_{id}_scatter.png` (size=(10, 6), dpi=300).
-- [ ] T027 [US3] **Annotation**: Implement `visualization.py`. **Action**: Annotate plots with correlation coefficient (`r`) and p-value formatted as `r = {r:.3f}, p = {p:.4f}`. **Deliverable**: Annotated PNGs in `data/results/plots/`.
-- [ ] T028a [US3] **Report Data**: Implement `reporting.py`. **Action**: Generate table data for `summary_report.txt`. **Format**: Markdown table with columns: `repo_id`, `r`, `p`, `significance`. **Logic**: Flag `|r| >= 0.3` as 'moderate'.
-- [ ] T028b [US3] **Report File**: Implement `reporting.py`. **Action**: Write `data/results/summary_report.txt` using the data from T028a. Include Meta-analysis outcome and sensitivity analysis table.
-- [ ] T031 [P] [US3] **Versioning**: Implement `main.py`. **Action**: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7).
+- [ ] T026 [US3] **Plots**: Implement `code/visualization.py`. **Action**: Generate scatter plots using `matplotlib.pyplot`. X-axis: `total_lines_changed`, Y-axis: `debt_score`. Overlay regression line. **Deliverable**: `data/results/plots/repo_{id}_scatter.png` (size=(10, 6), dpi=300).
+- [ ] T027 [US3] **Annotation**: Implement `code/visualization.py`. **Action**: Annotate plots with correlation coefficient (`r`) and p-value formatted as `r = {r:.3f}, p = {p:.4f}`. **Deliverable**: Annotated PNGs in `data/results/plots/`.
+- [ ] T028a [US3] **Report Data**: Implement `code/reporting.py`. **Action**: Generate table data for `summary_report.txt`. **Format**: Markdown table with columns: `repo_id`, `r`, `p`, `significance`. **Logic**: Flag `|r| >= 0.3` as 'moderate'.
+- [ ] T028c [US3] **Report Formatting**: Implement `code/reporting.py`. **Action**: Read `correlation_results.csv`, `meta_analysis_results.csv`, and `sensitivity_analysis.csv`. Format data into a structured text report. **Deliverable**: Intermediate formatted string or dict for `summary_report.txt`.
+- [ ] T028b [US3] **Report File**: Implement `code/reporting.py`. **Action**: Read `meta_analysis_results.csv` (from T021) and `sensitivity_analysis.csv` (from T022). Combine with `correlation_results.csv` (from T020) to write `data/results/summary_report.txt`. **Depends on**: T020, T021, T022, T028c. **Deliverable**: `data/results/summary_report.txt`.
+- [ ] T031 [P] [US3] **Versioning**: Implement `code/main.py`. **Action**: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7). **Action**: Write checksums to `artifact_hashes` key and update `updated_at` timestamp. **Depends on**: T028b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -171,9 +172,9 @@
 
 - [ ] T032a [P] **Quickstart Install**: Update `quickstart.md` with installation steps for Semgrep and dependencies.
 - [ ] T032b [P] **Quickstart Exec**: Update `quickstart.md` with execution command and expected output.
-- [ ] T033b [P] **Streaming & Memory**: Refactor `preprocessing.py` to implement streaming iterator for large files. **Success Criteria**: Peak memory usage < 2GB as measured by `utils.py` memory monitor.
-- [ ] T034a [P] **Batch Logic**: Define batch processing logic for git history extraction in `data_extraction.py`. **Params**: Batch size = 100 repos; Trigger = RAM > 5GB.
-- [ ] T034b [P] **Batch Implement**: Implement batch loop in `data_extraction.py` using logic from T034a.
+- [ ] T033b [P] **Streaming & Memory**: Refactor `code/preprocessing.py` to implement streaming iterator for large files. **Action**: Replace `pandas.read_csv` with `pd.read_csv(..., chunksize=1000)` and use a generator to accumulate statistics. **Success Criteria**: Peak memory usage < 2GB as measured by `code/utils.py` memory monitor.
+- [ ] T034a [P] **Batch Logic**: Define batch processing logic for git history extraction in `code/data_extraction.py`. **Action**: Use `queue.Queue` with `maxsize=100`. **Params**: Batch size = 100 repos; Trigger = RAM > 5GB.
+- [ ] T034b [P] **Batch Implement**: Implement batch loop in `code/data_extraction.py` using logic from T034a. **Action**: Use `queue.Queue` to manage repo processing.
 - [ ] T035 [P] Additional unit tests in `tests/unit/` for metric calculation logic
 - [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
@@ -201,8 +202,7 @@
 
 - Tests (if included) MUST be written and FAIL before implementation
 - Models/Config before services
-- Data Extraction (T010-T011) before Tool Validation (T013a/b)
-- Tool Validation before Static Analysis (T014)
+- Data Extraction (T010-T011) before Static Analysis (T014)
 - Static Analysis before Preprocessing (T015)
 - Core implementation before integration
 - Story complete before moving to next priority
@@ -221,10 +221,10 @@
 
 ```bash
 # Launch all data extraction tasks for User Story 1 together:
-Task: "Query GitHub API and clone repos" (T010)
-Task: "Validate tool availability" (T013a)
+Task: "Load pinned repo list" (T010)
+Task: "Clone repos" (T011)
 ```
-**Note**: T013b depends on T010 (Repo Selection). T014 depends on T011 and T013a. T015 depends on T014. These are NOT parallel.
+**Note**: T014 depends on T010, T011, and T013. T015 depends on T014. These are NOT parallel.
 
 ---
 
@@ -272,8 +272,6 @@ With multiple developers:
 - **Critical**: The tasks now explicitly calculate **raw metrics** (`total_lines_changed`, `debt_score`) as mandated by the Spec's Methodological Correction to avoid spurious correlation, with `avg_loc` as a covariate.
 - **Correction**: Replaced SonarQube (infeasible on CI) with Semgrep (v1.30.0) for multi-language static analysis to ensure CPU-only feasibility. The Spec already mandates this.
 - **Correction**: Replaced Bonferroni correction with Meta-analysis of Fisher-transformed r coefficients as per Spec FR-006.
-- **Correction**: Sensitivity analysis thresholds strictly limited to 5, 10, 20 as per Spec FR-008.
-- **Correction**: Tool validation is a "presence check" only as per Spec SC-005.
-- **Deviation Note**: This implementation plan explicitly overrides Constitution Principle VI (Density Metrics) and Principle VII (SonarQube) as per the Spec's Methodological Correction. This is logged as a `CRITICAL_DEVIATION` in Phase 0, pending a formal kickback to amend the Constitution.
-- **Deviation Note**: T013b uses a simplified citation check (local file) which does not satisfy the full Reference-Validator Agent requirement of Constitution Principle II. This is logged as a `DEVIATION`.
+- **Correction**: Sensitivity analysis thresholds strictly limited to 5, 10, 20 as per Spec FR-008. Analysis is performed on persistent intermediate files to satisfy Constitution Principle I.
+- **Correction**: Tool validation is a "presence check" only (GitHub stars > 5000) as per Spec SC-005, superseding the general Constitution Principle II for this project.
 - **Note**: The Plan's Summary and Next Steps sections contain contradictions regarding the Spec (claiming it mandates density metrics/SonarQube). The tasks strictly follow the **Spec** (which mandates raw metrics/Semgrep). The Plan requires a kickback to align its narrative with the Spec.

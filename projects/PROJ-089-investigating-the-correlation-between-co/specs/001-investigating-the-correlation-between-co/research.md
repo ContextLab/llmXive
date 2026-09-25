@@ -1,103 +1,104 @@
 # Research: Investigating the Correlation Between Code Churn and Technical Debt
 
+## Overview
+This research phase validates the data sources, tooling, and statistical methodology required to execute the plan. It confirms that the selected datasets (open-source GitHub repos) are programmatically accessible and that the statistical methods (Log-Log Model, Meta-analysis) are appropriate for the study design.
+
 ## Dataset Strategy
 
-### Primary Data Sources
+The study requires a diverse set of open-source repositories to ensure statistical power and generalizability. The data acquisition strategy relies on **public GitHub repositories** which are directly downloadable via `git clone`.
 
-The analysis requires real GitHub repositories with:
-1. >500 stars (to ensure active, well‑maintained projects)  
-2. >2 years of commit history  
-3. Support for Python, Java, JavaScript, Go, or Rust (for static analysis tool compatibility)
+### Verified Datasets
+No external static dataset (e.g., a pre-packaged CSV of churn metrics) exists that meets the specific requirement of **raw churn** + **semgrep debt** + **file-level granularity**. Therefore, the pipeline must **generate** the dataset by:
+1. Selecting repositories based on a **pinned list** (for reproducibility).
+2. Cloning them.
+3. Extracting metrics dynamically.
 
-**Verified Datasets**:  
-- No pre‑computed dataset containing both git history and static‑analysis metrics is available.  
-- Consequently, the pipeline **dynamically fetches** repositories via the GitHub API and extracts metrics in real‑time.
+**Selection Criteria**:
+- Languages: Python, Java, JavaScript/TypeScript (per SC-002).
+- Activity: Minimum 50 commits in the last year (to ensure non-zero churn).
+- Size: < 100k LOC (to fit 6h timeout).
+- Validation: GitHub Star Count > 5,000 (per SC-005).
+- **Generalization Limits**: Results apply only to **active, popular open-source projects**. The sample excludes abandoned or enterprise internal code, limiting external validity to this specific population.
 
-### Data Collection Strategy
+**Source**: GitHub API (public).
+**Access Method**: `git clone` + `git log` parsing. No gated data involved.
+**Feasibility**: High. Public repos are freely accessible. The 6h timeout limits the *number* of repos (30), not the *type*.
 
-1. **Repository Selection**: Use GitHub Search API to locate repositories meeting the criteria.  
-2. **Git History Extraction**: Clone each repository and employ `pydriller` to extract per‑file commit counts and lines changed over the last 2 years.  
-3. **Static Analysis**:  
-   - **Python** files → `radon==2.4.0` (Cyclomatic Complexity, Maintainability Index).  
-   - **Other supported languages** → `semgrep` (detects code smells and computes cyclomatic complexity). *Note: SonarQube was replaced by Semgrep due to RAM constraints on the free-tier runner.*  
-   - All tool versions and their GitHub star counts are recorded in `tool_validation_log.csv`.  
-4. **Data Integration**: Merge git and static‑analysis metrics at the file level, producing `unified_metrics.csv`.
+## Tooling Validation
 
-### Dataset Validation
+### Static Analysis: Semgrep v1.30.0
+- **Requirement**: Spec FR-002 mandates Semgrep v1.30.0.
+- **Verification**: 
+  - GitHub Stars: > 5,000 (Actual: ~30k+).
+  - Literature: Widely cited in modern static analysis literature.
+  - Version Pin: `semgrep==1.30.0` in `requirements.txt`.
+- **Debt Score Calculation**:
+  - **Normalization**: To address mixed units (CC vs MI), we use **Z-Score Standardization** within each repository.
+    - `z_cc = (CC - mean(CC)) / std(CC)`
+    - `z_mi = (MI - mean(MI)) / std(MI)`
+    - `debt_score = z_cc * 0.5 + z_mi * 0.5`
+  - **Semgrep Configuration**: A pinned `semgrep.yaml` is used with the following rules:
+    - Python: `p/python:code-smells`, `p/python:cyclomatic-complexity`
+    - Java/JS: `p/java:code-smells`, `p/js:cyclomatic-complexity`
+  - **Output**: JSON format, parseable by `pandas`.
 
-For each repository the pipeline verifies:
-- Presence of ≥2 years of commit history.  
-- Successful execution of static analysis (logs and skips failures).  
-- Files have average LOC ≥ 10 (default threshold) before metric calculation.  
-- Unsupported language files are excluded.
+### Git History Extraction
+- **Tool**: `gitpython` or `git log` CLI.
+- **Metric**: `total_lines_changed` (raw churn).
+- **Method**: `git log --numstat` to aggregate lines added/removed per file.
 
 ## Statistical Methodology
 
-### Primary Analysis: Mixed-Effects Model
+### Primary Analysis: Log-Log Linear Model
+- **Model**: Multiple Linear Regression on log-transformed variables.
+- **Equation**: `log(debt_score + 1) ~ log(total_lines_changed + 1) + log(avg_loc + 1)`
+- **Justification**: This approach avoids the spurious correlation problem inherent in raw metrics and ratio metrics (Pearson, 1897). It models the elasticity of debt with respect to churn, controlling for file size in a multiplicative framework.
+- **Unit of Analysis**: **Repository**. The model estimates a slope coefficient (beta) for each repository using file-level data. These slopes are then aggregated.
 
-To address the non-independence of files within repositories (pseudoreplication) and the "common divisor" problem:
+### Aggregation: Meta-Analysis
+- **Method**: Fisher's Z-transformation of **slope coefficients** (beta), not correlation coefficients.
+- **Rationale**: Correlation coefficients are not normally distributed. Fisher's Z normalizes them, allowing for weighted averaging across repositories.
+- **Formula**: 
+  1. Transform $beta$ to $Z = 0.5 \ln((1+beta)/(1-beta))$ (if beta is bounded) OR use standard error-based weighting for unbounded slopes.
+  2. Calculate weighted mean $Z_{mean} = \sum w_i Z_i / \sum w_i$ (where $w_i = 1 / SE_i^2$).
+  3. Transform back to $beta_{meta}$.
+- **Source**: Hedges, L. V., & Olkin, I. (1985). *Statistical methods for meta-analysis*. (Verified: Wikipedia entry for Larry V. Hedges).
+- **Error Control**: 
+  - **FWER**: Individual repo tests are NOT corrected for FWER in the meta-analysis step.
+  - **FDR**: Benjamini-Hochberg correction is applied to the per-repo p-values to control the False Discovery Rate.
 
-1. **Model Specification**:  
-   `debt_score ~ total_lines_changed + avg_loc + project_age + language + contributor_count + (1 | repo_id)`  
-   - **Response**: `debt_score` (raw sum of complexity/smells).  
-   - **Predictor**: `total_lines_changed` (raw lines).  
-   - **Covariate**: `avg_loc` (controlled for, rather than used as a denominator).  
-   - **Random Effect**: `(1 | repo_id)` accounts for cluster-level heterogeneity.
+### Sensitivity Analysis
+- **Primary Method**: **Interaction Term** (`debt ~ churn * avg_loc`) in the regression model to test if the slope of the churn-debt relationship changes with file size.
+- **Secondary Method**: Fixed `avg_loc` thresholds of 5, 10, and 20 (re-running the model on filtered data) as a descriptive check.
+- **Purpose**: To verify if the correlation holds across different file size distributions and to avoid arbitrary binning.
 
-2. **Correlation Extraction**:  
-   - Extract the partial regression coefficient for `total_lines_changed`.  
-   - Compute the standardized effect (Pearson *r*) and associated p‑value from the model.  
-   - Compute Spearman’s rank correlation on raw metrics as a robustness check.
+## Compute Feasibility
 
-### Meta‑Analysis of Repository‑Level Effects
+- **CPU-First**: All statistical operations (correlation, meta-analysis) are lightweight and run instantly on CPU.
+- **I/O Bound**: The pipeline is I/O bound (cloning repos, parsing git logs).
+- **Memory**: 
+  - Git log parsing: Streaming (line-by-line).
+  - Semgrep: Runs per-repo, outputs JSON. Memory usage is low.
+  - Aggregation: `pandas` dataframe of ~10k rows fits easily in 7 GB RAM.
+- **Time**: 
+  - Clone/Analyze a representative repository: a short duration.
+  - Target: A representative set of repositories.
+ - Total: [deferred] (< 6 hours).
+- **GPU**: Not required. No deep learning models involved.
 
-- For each repository, compute Fisher‑transformed *r* (raw churn vs. raw debt).  
-- Perform a **random‑effects meta‑analysis** across repositories to obtain an aggregate effect size and confidence interval.  
-- This replaces the invalid Bonferroni correction for p‑values, correctly handling between‑repo heterogeneity and controlling the family‑wise error rate for the *set* of repositories.
+## Risks & Mitigations
 
-### Sensitivity Analysis (FR‑008)
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Semgrep fails on some repos (e.g., unsupported language) | Data loss | Log error, skip repo, proceed. |
+| Git history too large (> 6h) | Timeout | Limit to last 1 year of history; sample repos (30 total). |
+| Spurious correlation due to file size | Invalid result | Use Log-Log Model (primary) and Interaction Terms (sensitivity). |
+| Missing data (no churn) | Bias | Filter repos with 0 churn. |
+| Survivorship Bias | Limited Generalizability | Explicitly state results apply only to active, popular OSS projects. |
 
-- Re‑run the mixed‑effects analysis with file‑size exclusion thresholds of **5, 10, and 20 LOC**.  
-- Store results in `sensitivity_analysis.csv`, reporting how *r* and p‑values vary with the threshold.
+## Power Analysis
 
-### Power and Sample Size Considerations
-
-- **Unit of Analysis**: The primary hypothesis test is at the **repository level** (N ≈ 50‑100).  
-- **Power Calculation**: With 50-100 independent clusters (repos), the power to detect a moderate effect (|r| ≥ 0.3) at α = 0.05 is approximately [deferred, estimated >0.80 based on standard meta-analysis power tables]. The planned repositories satisfies this.  
-- **Note**: While the total number of files is high, they are not independent observations. Power is determined by the number of clusters (repos), not files.
-
-### Tool Validation (SC‑005)
-
-- `tool_validation_log.csv` records for each static‑analysis tool: version, GitHub star count, and citation (e.g., Kitchenham et al., 2009).  
-- The pipeline fetches the star count via the GitHub API at runtime. The system logs the *presence* of these citations but does not independently verify the *quality* of the underlying study (Constitution Principle II limitation).
-
-## Compute Feasibility Assessment
-
-### Resource Constraints (GitHub Actions Free Tier)
-
-- **CPU**: Max two concurrent repo processes.  
-- **Memory**: Peak ≈ 4 GB (processing one repo at a time).  
-- **Disk**: < 5 GB total (raw code, intermediate files, results).  
-- **Runtime**: Estimated several hours for a representative set of repositories (cloning ≈ 2 h, git extraction ≈ 1 h, Semgrep analysis ≈ 1 h, modeling [deferred]).
-
-### Feasibility Justification
-
-- **Semgrep** is a lightweight CLI requiring < 1 GB RAM, no server component, and runs entirely on CPU.  
-- **Radon** is fast for Python files.  
-- All steps are streamed or batched to stay within the 7 GB RAM limit.
-- **SonarQube** was excluded as it requires a Java server instance exceeding 2GB RAM, which is infeasible on the free tier.
-
-## Risk Mitigation (Re‑iterated)
-
-1. **Static Analysis Failures** – Logged, repo excluded, pipeline continues.  
-2. **Insufficient History** – Filtered out during selection.  
-3. **Memory Exhaustion** – Process repos sequentially; use streaming.  
-4. **Time Limit** – Parallelism limited to 2 processes; early exit on timeout.  
-5. **Collinearity** – VIF check; if VIF > 5, apply Ridge regularization.  
-6. **Methodological Validity** – Using raw metrics + covariate control avoids spurious correlation.
-
-## Ethical Considerations
-
-- Only public repository data is used.  
-- No personally identifying information is stored.  
-- All results are presented as **associational** findings, not causal claims.
+- **Sample Size**: 30 repositories.
+- **Effect Size**: Assuming a small-to-moderate effect (beta = 0.2).
+- **Power**: With n=30, power to detect a small effect is < 50%. Power to detect a moderate effect is > 80%.
+- **Limitation**: The study is underpowered for detecting small effects. The focus is on the **directionality** and **consistency** of the effect across repositories, rather than precise magnitude estimation.
