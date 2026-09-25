@@ -1,2 +1,3 @@
-# Code package for llmXive research pipeline
-pass
+"""
+llmXive Research Pipeline - Code Module
+"""

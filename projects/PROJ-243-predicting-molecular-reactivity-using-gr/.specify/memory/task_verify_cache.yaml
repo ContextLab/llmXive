@@ -1,15 +1,46 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/raw` directory (or any files within it) was provided;
+    the implementer did not supply the required artifact, so the task of creating
+    the data directory is not satisfied.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing a `data/processed` directory was provided; there is no file\u2011\
+    system listing, code snippet, or commit evidence that the directory exists or\
+    \ contains any files. The claim lacks concrete proof that the required directory\
+    \ was actually created."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/assets` directory is provided; the artifact is missing
+    or not shown, so the requirement to create the data directory is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code`, `artifacts`, or `tests` directories (or\
+    \ their contents) is provided; without confirming their existence and non\u2011\
+    emptiness, the task requirement is not satisfied."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black/Ruff settings, or a pre\u2011commit hook) are present, nor any evidence\
+    \ that these tools have been set up in the repository or CI pipeline. The required\
+    \ artifacts to satisfy task T004 are missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `artifacts/logs/` directory, log files, or `artifacts/metrics.json` were presented,
     and no code/configuration showing a logging setup was provided. Consequently the
     required logging infrastructure is missing.
-T010l:
+T009:
   c: false
-  h: cbc7bd1e07cc3b72df703a7051f108c143976fb680166116c746e677061e1aa7
-  r: The required deliverable `data/raw/kinetic_dataset_raw.csv` does not exist in
-    the repository, so the annotation task cannot have been performed. No file is
-    present to verify the added `reaction_type` column or the entry count.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or generated files were presented that create a logging
+    system writing structured logs to `artifacts/logs/` or a `artifacts/metrics.json`
+    file. The required artifacts are missing, so the task is not satisfied.
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

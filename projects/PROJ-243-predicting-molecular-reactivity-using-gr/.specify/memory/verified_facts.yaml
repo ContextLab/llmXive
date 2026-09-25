@@ -1,0 +1,33 @@
+'|ec hydrolase map':
+  quote: EC 3 enzymes are hydrolases (enzymes that use water to break up some other
+    molecule)
+  source_id: Enzyme Commission number
+  url: https://en.wikipedia.org/wiki/Enzyme_Commission_number
+  value: hydrolases
+'|ec isomerase map':
+  quote: 'Enzyme-catalyzed reactions each have a uniquely assigned classification
+    number. Isomerase-catalyzed reactions have their own EC category: EC 5.  Isomerases
+    are further classified into six subclasses:'
+  source_id: Isomerase
+  url: https://en.wikipedia.org/wiki/Isomerase
+  value: '5'
+'|ec lyase map':
+  quote: "The biochemical identity of enzymes was still unknown in the early 1900s.\
+    \ Many scientists observed that enzymatic activity was associated with proteins,\
+    \ but others (such as Nobel laureate Richard Willst\xE4tter) argued that proteins\
+    \ were merely carriers for the true enzymes and that proteins per se were incapable\
+    \ of catalysis. In 1926, James B. Sumner showed that the enzyme urease was a pure\
+    \ protein and crystallized it; he did likewise for the enzyme catalase in 1937.\
+    \ The conclusion that pure proteins can be enzymes was definitively demonstrated\
+    \ by John Howard Northrop and Wendell Meredith Stanley, who worked on the digestive\
+    \ enzymes pepsin (1930), trypsin and chymotrypsin. These three scientists were\
+    \ awarded the 1946 Nobel Prize in Chemistry."
+  source_id: Enzyme
+  url: https://en.wikipedia.org/wiki/Enzyme
+  value: '4'
+'|ec map transferase':
+  quote: In enzymology, a 3-oxoacid CoA-transferase (EC 2.8.3.5) is an enzyme that
+    catalyzes the chemical reaction
+  source_id: 3-oxoacid CoA-transferase
+  url: https://en.wikipedia.org/wiki/3-oxoacid_CoA-transferase
+  value: 2.8.3.5

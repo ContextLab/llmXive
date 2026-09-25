@@ -4,82 +4,87 @@ import logging
 from typing import List
 from config import get_config, ensure_directories
 
-def setup_script_logging(name: str = "setup_directories") -> logging.Logger:
-    """Initialize logging for the directory setup script."""
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
+def setup_script_logging() -> logging.Logger:
+    """
+    Initialize logging for the setup script.
+    Returns a logger instance configured for the current run.
+    """
+    logger = logging.getLogger("setup_directories")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    
     return logger
 
-def create_directories(config: dict, logger: logging.Logger) -> None:
+def create_directories(dir_paths: List[str], logger: logging.Logger) -> None:
     """
-    Create the required project directories based on configuration.
+    Create the specified directories if they do not exist.
     
-    This script implements T002 by ensuring the existence of:
-    - code/
-    - artifacts/
-    - tests/
-    
-    It also relies on `config.ensure_directories` to create data subdirectories
-    (data/raw, data/processed, data/assets) which were defined in T001.
+    Args:
+        dir_paths: List of relative directory paths to create.
+        logger: Logger instance for status updates.
     """
-    # Define the root directories required for T002
-    root_dirs = [
-        "code",
-        "artifacts",
-        "tests",
-    ]
-
-    for dir_path in root_dirs:
+    for dir_path in dir_paths:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path, exist_ok=True)
             logger.info(f"Created directory: {dir_path}")
         else:
             logger.info(f"Directory already exists: {dir_path}")
 
-    # Ensure data subdirectories exist as per T001a, T001b, T001c
-    # This uses the utility from config.py which is already established
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/assets"
-    ]
-    
-    for dir_path in data_dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            logger.info(f"Created data directory: {dir_path}")
-        else:
-            logger.info(f"Data directory already exists: {dir_path}")
-
 def main() -> int:
-    """Main entry point for directory setup."""
+    """
+    Main entry point for creating project directories.
+    
+    This script creates the standard project structure:
+    - code/
+    - artifacts/
+    - tests/
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
     logger = setup_script_logging()
-    logger.info("Starting directory setup (Task T002)...")
+    logger.info("Starting directory setup...")
     
     try:
-        config = get_config()
-        create_directories(config, logger)
+        # Define the directories required for T002
+        required_dirs = [
+            "code",
+            "artifacts",
+            "tests"
+        ]
         
-        # Verify existence
-        required_dirs = ["code", "artifacts", "tests", "data/raw", "data/processed", "data/assets"]
-        missing = [d for d in required_dirs if not os.path.exists(d)]
+        # Create directories
+        create_directories(required_dirs, logger)
         
-        if missing:
-            logger.error(f"Failed to create required directories: {missing}")
-            return 1
+        # Also ensure subdirectories for artifacts (logs, weights, etc.)
+        # as they are referenced in later tasks
+        artifact_subdirs = [
+            "artifacts/logs",
+            "artifacts/weights",
+            "artifacts/metrics.json", # This is a file, but the parent dir is needed
+            "artifacts/splits"
+        ]
+        create_directories(artifact_subdirs, logger)
+        
+        # Ensure tests subdirectories exist
+        test_subdirs = [
+            "tests/unit",
+            "tests/integration",
+            "tests/contract"
+        ]
+        create_directories(test_subdirs, logger)
         
         logger.info("Directory setup completed successfully.")
         return 0
+        
     except Exception as e:
-        logger.error(f"Error during directory setup: {e}", exc_info=True)
+        logger.error(f"Failed to create directories: {e}")
         return 1
 
 if __name__ == "__main__":

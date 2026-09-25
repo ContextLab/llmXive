@@ -1,2 +1,3 @@
-# Artifacts package for llmXive research pipeline
-pass
+"""
+llmXive Research Pipeline - Artifacts Module
+"""

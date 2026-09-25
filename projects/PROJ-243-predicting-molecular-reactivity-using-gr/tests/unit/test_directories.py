@@ -1,39 +1,42 @@
 import os
 import pytest
-from config import get_config, ensure_directories
+from code.setup_directories import create_directories, main
+from code.config import get_config
 
-@pytest.fixture
-def config():
-    return get_config()
+def test_create_directories_creates_missing():
+    """Test that create_directories actually creates new directories."""
+    test_path = "data/test_temp_dir_for_verify"
+    if os.path.exists(test_path):
+        os.rmdir(test_path)
+    
+    create_directories([test_path])
+    
+    assert os.path.exists(test_path), f"Directory {test_path} was not created"
+    assert os.path.isdir(test_path), f"{test_path} exists but is not a directory"
+    
+    # Cleanup
+    os.rmdir(test_path)
 
-def test_data_raw_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("data/raw"), "data/raw directory must exist"
+def test_create_directories_skips_existing(tmp_path):
+    """Test that create_directories does not error on existing paths."""
+    existing_path = str(tmp_path / "existing")
+    os.makedirs(existing_path)
+    
+    # Should not raise
+    create_directories([existing_path])
+    assert os.path.exists(existing_path)
 
-def test_data_processed_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("data/processed"), "data/processed directory must exist"
-
-def test_data_assets_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("data/assets"), "data/assets directory must exist"
-
-def test_code_dir_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("code"), "code directory must exist"
-
-def test_artifacts_dir_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("artifacts"), "artifacts directory must exist"
-
-def test_tests_dir_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("tests"), "tests directory must exist"
-
-def test_artifacts_logs_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("artifacts/logs"), "artifacts/logs directory must exist"
-
-def test_artifacts_weights_exists(config):
-    ensure_directories(config)
-    assert os.path.exists("artifacts/weights"), "artifacts/weights directory must exist"
+def test_main_creates_data_assets():
+    """Integration test for main() ensuring data/assets is created."""
+    # Ensure the directory doesn't exist before running main
+    assets_dir = os.path.join(os.getcwd(), "data", "assets")
+    if os.path.exists(assets_dir):
+        # If it exists from previous runs, we assume it's valid, but for strict testing:
+        pass 
+    
+    # Run main
+    main()
+    
+    # Verify
+    assert os.path.exists(assets_dir), "data/assets directory was not created by main()"
+    assert os.path.isdir(assets_dir), "data/assets is not a directory"

@@ -1,2 +1,3 @@
-# Tests package for llmXive research pipeline
-pass
+"""
+llmXive Research Pipeline - Tests Module
+"""
