@@ -11,12 +11,12 @@
         "page": 43
       }
     ],
-    "audited_at": "2026-09-25T02:20:36.211899+00:00"
+    "audited_at": "2026-09-25T02:57:58.532747+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
-  "updated_at": "2026-09-25T02:20:36.211913+00:00"
+  "updated_at": "2026-09-25T02:57:58.532760+00:00"
 }
