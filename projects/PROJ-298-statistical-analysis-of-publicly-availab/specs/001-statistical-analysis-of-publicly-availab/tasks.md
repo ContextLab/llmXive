@@ -41,7 +41,7 @@
 - [X] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
 - [X] T007 [P] **Directory Verification Only**: Verify the directory structure `data/`, `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/` exists as created by T001. This task MUST NOT create directories (T001 does that) and MUST NOT write any JSON files; it only ensures the directories exist for T008a, T008b and downstream tasks. (See Plan.md structure)
 - [X] T014a [P] **requires T007** Document and ratify the use of Benjamini-Hochberg correction for p-values.
- - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-003 ambiguity on multiple testing correction resolved by adopting Benjamini-Hochberg (BH) correction. A standard significance threshold applies to the adjusted q-values, not raw p-values. [UNRESOLVED-CLAIM: c_ede1f8fe — status=not_enough_info]"
+ - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-003 ambiguity on multiple testing correction resolved by adopting Benjamini-Hochberg (BH) correction. A standard significance threshold applies to the adjusted q-values, not raw p-values. "
  - **MUST** Update `plan.md` to reflect this ratified requirement. (See Plan.md Spec Root Cause Note 2)
 - [X] T016a [P] **requires T007** Document and ratify the use of "block bootstrap" with a fixed 12-month block length.
  - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-010 'standard bootstrapping' is replaced by 'block bootstrap' (block length=12 months) to preserve annual seasonality patterns in the time series."
@@ -95,7 +95,7 @@
  - **MUST** implement classification logic: if p >= 0.05 AND power < 0.8, classify as "Insufficient Data"; if p >= 0.05 AND power >= 0.8, classify as "Stable". **CRITICAL**: The threshold of 0.05 MUST be applied to the *adjusted* q-values resulting from the Benjamini-Hochberg correction, as ratified in T014a.
  - **MUST** output intermediate results to `data/processed/trend_intermediate.json`. (See FR-003)
 - [X] T014c [US1] **requires T014a, T014b, T013** Implement post-hoc power analysis (MDES + Power Estimate) in `code/analysis/trends.py`.
- - **MUST** calculate MDES via Monte Carlo (multiple iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at 80% power with alpha=0.05.
+ - **MUST** calculate MDES via Monte Carlo (multiple iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at {{claim:c_2ac20d57}} (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)).
  - **MUST** estimate variance from the pre-whitened residuals of the top 50 tags.
  - **MUST** if the post-hoc power analysis (MDES) indicates power < 0.8 for a specific tag, flag this tag in `data/processed/power_warnings.log` and exclude it from the "Stable" classification pool, re-classifying it as "Insufficient Data" regardless of the p-value.
  - **MUST** update `trend_intermediate.json` with power estimates and MDES values. (See FR-013, T057 MERGED)
@@ -187,7 +187,7 @@
  - **MUST** if the Cluster Label Alignment Score is < 0.8, log a warning to `data/processed/clustering_warnings.log` and continue (do not fail the pipeline).
  - **MUST** write the score and intra-cluster similarity to `data/processed/cluster_alignment.json`.
  - **MUST** To satisfy SC-005 execution limits, this task MUST limit the analysis to the Top 50 tags (from T013) rather than analyzing all pairs from the raw dataset, ensuring performance constraints are met.
- - **NOTE**: This task analyzes **Top 50 tags** (not all pairs) as per SC-005 constraints and depends on T013.
+ - **NOTE**: This task analyzes **Top 50 tags ** (not all pairs) as per SC-005 constraints and depends on T013.
 - [X] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
 - [ ] T032 [US3] **requires T030** Generate `data/processed/cluster_results.json`.
  - **MUST** read the Cluster Label Alignment Score and intra-cluster similarity coefficient from the output of T030.
@@ -205,7 +205,7 @@
 - [X] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible. **MUST** generate `quickstart.md` with step-by-step instructions to reproduce all results.
 - [X] T034 [P] Code cleanup and refactoring across `code/analysis/` modules, including linting checks. **MUST** ensure all functions have docstrings and type hints.
 - [ ] T035 [P] Implement streaming logic in `code/data/download.py` to handle large data dumps, ensuring notebooks are reproducible. **MUST** implement streaming using `datasets.load_dataset(..., streaming=True)`.
-- [X] T036 [P] Configure memory thresholds for streaming. **MUST** use a **chunk_size=10000** and a **memory trigger threshold of 6.0GB** (measured via `psutil`). **MUST** verify memory usage stays within acceptable limits; if usage exceeds 6.0GB, reduce chunk size to a smaller, optimized magnitude and re-run the current chunk processing. (See SC-005, Plan.md)
+- [X] T036 [P] Configure memory thresholds for streaming. **MUST** use a **chunk_size=10000 ** and a **memory trigger threshold of 6.0GB ** (measured via `psutil`). **MUST** verify memory usage stays within acceptable limits; if usage exceeds 6.0GB, reduce chunk size to a smaller, optimized magnitude and re-run the current chunk processing. (See SC-005, Plan.md)
 - [X] T037a [P] **Atomized**: Install dependencies and set up virtual environment for validation run.
 - [X] T037b [P] **Atomized**: Execute `quickstart.md` scripts on CPU-only runner.
  - **MUST** verify the runner's resource constraints by checking the `GITHUB_RUNNER_NAME` environment variable (must match 'ubuntu-latest', 'ubuntu-22.04', or similar standard CPU runner).

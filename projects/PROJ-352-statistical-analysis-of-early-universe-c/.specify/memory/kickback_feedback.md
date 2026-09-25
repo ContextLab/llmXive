@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T051` (rejected 1x): The required output file `data/processed/sensitivity_report.csv` does not exist, so the “Unstable” flag cannot be recorded. Additionally, the provided `code/stats.py` excerpt is truncated and does not show any logic that writes such a flag to the CSV. The task’s core deliverable is therefore missing.
+- `T002` (rejected 1x): No linting or formatting configuration files (e.g., `setup.cfg`, `.flake8`, `pyproject.toml` with Black settings, or `pylintrc`) are present, nor any documentation showing they have been set up. Without these artifacts the task of configuring flake8/pylint and Black is not satisfied.
 
 ## Required change
 

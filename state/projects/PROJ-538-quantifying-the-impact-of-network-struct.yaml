@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T16:26:16.007120Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-538-quantifying-the-impact-of-network-struct
-last_run_id: 1c58937e-f8ef-4673-80b6-281160619f3c
+last_run_id: 9a6a111c-997b-4777-88f2-fc246b2a9660
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct
 title: Quantifying the Impact of Network Structure on Heat Transport in Disordered
   Alloys
-updated_at: '2026-09-25T01:31:45.177368Z'
+updated_at: '2026-09-25T09:48:45.206954Z'

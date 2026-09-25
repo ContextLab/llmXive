@@ -2999,3 +2999,507 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T17:15:20Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score >= 0.8
+  claim_id: c_19978806
+  context: "T030 requires calculating Cluster Label Alignment Score and verifying\
+    \ it is \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cluster Label Alignment Score \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:23:28Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance <= 2 for fuzzy matching
+  claim_id: c_5172611b
+  context: "T030 must use Levenshtein distance \u2264 2 for fuzzy matching, as derived\
+    \ from Plan.md complexity tracking."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Levenshtein distance \u2264 2 for fuzzy matching"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:23:28Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Execution time <= 6 hours
+  claim_id: c_71391ad9
+  context: T037b must record total execution time and assert that execution_time_seconds
+    <= 21600 (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: execution_time_seconds <= 21600 (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:23:50Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: API cache TTL 86400 seconds
+  claim_id: c_6636615f
+  context: T051 must implement a local disk cache with a TTL of hours (86400 seconds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TTL of hours (86400 seconds) for local disk cache
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:24:17Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Block bootstrap block length 12 months
+  claim_id: c_0af32473
+  context: T016a ratifies the use of 'block bootstrap' with a fixed 12-month block
+    length to preserve annual seasonality patterns.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: block length=12 months
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:24:41Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Correlation magnitude thresholds 0.7 0.3
+  claim_id: c_5470e05f
+  context: "T040 must interpret the magnitude of the correlation coefficient using\
+    \ FR-007 thresholds: |r| \u2265 0.7 -> 'Strong', 0.3 \u2264 |r| < 0.7 -> 'Moderate',\
+    \ |r| < 0.3 -> 'Weak'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "correlation coefficient thresholds: |r| \u2265 0.7 -> Strong, 0.3 \u2264\
+    \ |r| < 0.7 -> Moderate, |r| < 0.3 -> Weak"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:24:42Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Power analysis 80% power alpha 0.05
+  claim_id: c_2ac20d57
+  context: T014c must calculate MDES to determine the slope magnitude detectable at
+    80% power with alpha=0.05.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '16'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '16'
+    filled: true
+  kind: numeric
+  raw_text: 80% power with alpha=0.05
+  resolved_value: '16'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T09:24:50Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Analysis limited to Top 50 tags
+  claim_id: c_2ebbc9be
+  context: T030 and T013 limit the analysis to the Top 50 tags due to performance
+    constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top 50 tags
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:25:32Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Filter tags with >= 12 months data
+  claim_id: c_9fd97bbe
+  context: "T013 must filter for tags with \u226512 months of data before selecting\
+    \ the Top 50."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226512 months data"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:25:32Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ljung-Box test lag 12
+  claim_id: c_50fbe0ef
+  context: T022 must perform Ljung-Box test on residuals with lag=12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: lag=12 for Ljung-Box test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:25:53Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Autocorrelation check lag 12 > 0.3
+  claim_id: c_51acb4c7
+  context: T041 must fall back to autocorrelation check with lag=12 > 0.3 as a secondary
+    confirmation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: lag=12 > 0.3 for autocorrelation check
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:26:08Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Streaming chunk size 10000
+  claim_id: c_6b3762cb
+  context: T036 must use a chunk_size=10000 for streaming logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: chunk_size=10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:26:28Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory trigger threshold 6.0 GB
+  claim_id: c_c5ac38f7
+  context: T036 must use a memory trigger threshold of 6.0GB measured via psutil.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory trigger threshold of 6.0GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:26:54Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Log raw vs adjusted p-values for first 5 tags
+  claim_id: c_f699bdad
+  context: T052 must output a debug log showing raw p-values vs. adjusted q-values
+    for the first 5 tags.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: first 5 tags
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:27:11Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Power threshold < 0.8
+  claim_id: c_afc9fe15
+  context: T014b classifies data as 'Insufficient Data' if p >= 0.05 AND power < 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:27:12Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Handle tags with < 24 months data
+  claim_id: c_c8073940
+  context: 'T016b must handle short series: If a tag has < 24 months of data, reduce
+    block size or skip bootstrapping.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: < 24 months of data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:27:13Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation test fail if p-value > 0.1
+  claim_id: c_5ae5af96
+  context: T029 must fail loudly if the permutation test returns a p-value > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-value > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:27:13Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Local disk cache TTL of 86400 seconds
+  claim_id: c_8f04586a
+  context: T051 requires implementing a local disk cache for GitHub/NPM API calls
+    with a specific TTL.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a local disk cache with a TTL of 86400 seconds (24 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:29:21Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit of 21600 seconds
+  claim_id: c_08436626
+  context: T037b requires verifying the total execution time does not exceed 6 hours
+    (21600 seconds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the execution time is <= 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:29:47Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold of 2 for fuzzy matching
+  claim_id: c_0a149dfe
+  context: T030 specifies using a Levenshtein distance of 2 or less for fuzzy matching
+    in cluster alignment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Levenshtein distance <= 2 for fuzzy matching tags to categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:30:08Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score threshold of 0.8
+  claim_id: c_122a7441
+  context: T030 requires calculating and verifying the Cluster Label Alignment Score
+    meets a 0.8 threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the Cluster Label Alignment Score is >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:30:42Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Filter tags with at least 12 months of data
+  claim_id: c_eb388f6c
+  context: T013 requires filtering the dataset to include only tags with at least
+    12 months of data history.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_tags_with_at_least_12_months_of_data
+  kind: magnitude
+  raw_text: Filter for tags with >= 12 months of data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:31:14Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Block bootstrap with 12 month block length
+  claim_id: c_987a5775
+  context: T016a and T016b specify using a block bootstrap with a fixed 12-month block
+    length to preserve seasonality.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a block bootstrap with a block length of 12 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:31:33Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Reduce block size to floor(series_length / 2) for series < 24 months
+  claim_id: c_c4447960
+  context: T016b specifies a fallback block size calculation for time series shorter
+    than 24 months.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a tag has < 24 months of data, reduce block size to floor(series_length
+    / 2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:31:33Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ljung-Box test with lag 12
+  claim_id: c_ae877b1a
+  context: T022 requires performing a Ljung-Box test on residuals with a lag of 12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Ljung-Box test on residuals with lag=12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:31:56Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'Correlation magnitude thresholds: 0.7 Strong, 0.3 Moderate'
+  claim_id: c_51e163c9
+  context: T040 defines the thresholds for interpreting Pearson correlation coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Interpret correlation magnitude: |r| >= 0.7 as Strong, 0.3 <= |r| < 0.7
+    as Moderate, |r| < 0.3 as Weak.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:32:27Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Significance threshold 0.05 for adjusted q-values
+  claim_id: c_c519ac0c
+  context: T014a and T014b ratify the use of Benjamini-Hochberg correction with a
+    0.05 threshold on adjusted q-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a significance threshold of 0.05 for adjusted q-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:32:48Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Insufficient Data classification if power < 0.8
+  claim_id: c_08843bdb
+  context: T014b and T014c specify classifying tags as 'Insufficient Data' if statistical
+    power is below 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classify tags as 'Insufficient Data' if power < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:32:49Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Analysis limited to Top 50 tags
+  claim_id: c_9ea235cf
+  context: T013 and T030 specify that the analysis is limited to the top 50 tags by
+    frequency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Analyze the Top 50 tags.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:28Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Download Stack Overflow Survey Tech Stack from stack-exchange/stackoverflow-survey
+  claim_id: c_af34378e
+  context: T008a specifies the source dataset for the taxonomy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Stack_Overflow_Survey_Tech_Stack_from_stack-exchang
+  kind: entity_fact
+  raw_text: Download the Stack Overflow Developer Survey Tech Stack data from the
+    HuggingFace dataset stack-exchange/stackoverflow-survey.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:51Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fetch PostsTags from stack-exchange/stackoverflow-tags
+  claim_id: c_288859f7
+  context: T012 specifies the source dataset for tag frequencies and post dates.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_PostsTags_from_stack-exchange/stackoverflow-tags
+  kind: entity_fact
+  raw_text: Fetch PostsTags from the HuggingFace dataset stack-exchange/stackoverflow-tags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:09Z'

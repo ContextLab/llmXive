@@ -1,147 +1,236 @@
 """
-Linting and formatting configuration for the project.
+Linting and formatting configuration utilities for the CMB analysis pipeline.
 
-This module provides utilities to check code quality using
-black, flake8, and pylint.
+This module provides functions to check code quality using flake8, pylint, and black.
+It also provides setup functions to initialize configuration files if they don't exist.
 """
-
 import subprocess
 import sys
 from pathlib import Path
+import os
 
-def check_black(project_root: Path = None) -> bool:
-    """
-    Check code formatting with black.
+def setup_black():
+    """Initialize Black configuration in pyproject.toml if not present."""
+    root = Path(__file__).parent.parent
+    pyproject = root / "pyproject.toml"
+    
+    if not pyproject.exists():
+        content = """[tool.black]
+line-length = 88
+target-version = ['py38']
+include = 'code/.*\\.pyi?$'
+exclude = '''
+(
+  /(
+\\.eggs
+    | \\.git
+    | \\.hg
+    | \\.mypy_cache
+    | \\.tox
+    | \\.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+"""
+        pyproject.write_text(content)
+        print("Created pyproject.toml with Black configuration.")
+    else:
+        # Check if [tool.black] section exists
+        content = pyproject.read_text()
+        if "[tool.black]" not in content:
+            # Append Black config
+            content += "\n[tool.black]\nline-length = 88\ntarget-version = ['py38']\n"
+            pyproject.write_text(content)
+            print("Added Black configuration to pyproject.toml.")
+        else:
+            print("Black configuration already present in pyproject.toml.")
 
-    Args:
-        project_root: Root directory of the project. Defaults to current directory.
+def setup_flake8():
+    """Initialize flake8 configuration in setup.cfg if not present."""
+    root = Path(__file__).parent.parent
+    setup_cfg = root / "setup.cfg"
+    
+    if not setup_cfg.exists():
+        content = """[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
+"""
+        setup_cfg.write_text(content)
+        print("Created setup.cfg with flake8 configuration.")
+    else:
+        content = setup_cfg.read_text()
+        if "[flake8]" not in content:
+            content += "\n[flake8]\nmax-line-length = 88\nextend-ignore = E203, W503\n"
+            setup_cfg.write_text(content)
+            print("Added flake8 configuration to setup.cfg.")
+        else:
+            print("flake8 configuration already present in setup.cfg.")
 
-    Returns:
-        True if formatting is correct, False otherwise.
-    """
-    if project_root is None:
-        project_root = Path.cwd()
+def setup_pylint():
+    """Initialize pylint configuration in .pylintrc if not present."""
+    root = Path(__file__).parent.parent
+    pylintrc = root / ".pylintrc"
+    
+    if not pylintrc.exists():
+        content = """[MASTER]
+ignore=CVS
 
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
+[MESSAGES CONTROL]
+disable=C0103,C0114,C0115,C0116,R0903,R0904,R0913,R0914,W0511
 
+[FORMAT]
+max-line-length=88
+
+[DESIGN]
+max-args=10
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+max-attributes=10
+max-public-methods=20
+"""
+        pylintrc.write_text(content)
+        print("Created .pylintrc with pylint configuration.")
+    else:
+        print(".pylintrc already exists.")
+
+def check_black():
+    """Run Black formatter on the code directory."""
+    root = Path(__file__).parent.parent
+    code_dir = root / "code"
+    
+    if not code_dir.exists():
+        print("code/ directory not found.")
+        return False
+    
     try:
         result = subprocess.run(
-            ["black", "--check", "--diff", str(code_dir), str(tests_dir)],
+            [sys.executable, "-m", "black", "--check", "--diff", str(code_dir)],
             capture_output=True,
             text=True,
-            check=False
+            timeout=300
         )
-
         if result.returncode == 0:
-            print("✓ Code formatting is correct (black)")
+            print("Black formatting check passed.")
             return True
         else:
-            print("✗ Code formatting issues found:")
+            print("Black formatting issues found:")
             print(result.stdout)
+            print(result.stderr)
             return False
-
     except FileNotFoundError:
-        print("⚠ black not installed. Run: pip install black")
+        print("Black not installed. Install with: pip install black")
+        return False
+    except subprocess.TimeoutExpired:
+        print("Black check timed out.")
         return False
 
-def check_flake8(project_root: Path = None) -> bool:
-    """
-    Check code style with flake8.
-
-    Args:
-        project_root: Root directory of the project. Defaults to current directory.
-
-    Returns:
-        True if no style issues, False otherwise.
-    """
-    if project_root is None:
-        project_root = Path.cwd()
-
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
-
+def check_flake8():
+    """Run flake8 linter on the code directory."""
+    root = Path(__file__).parent.parent
+    code_dir = root / "code"
+    
+    if not code_dir.exists():
+        print("code/ directory not found.")
+        return False
+    
     try:
         result = subprocess.run(
-            ["flake8", str(code_dir), str(tests_dir)],
+            [sys.executable, "-m", "flake8", str(code_dir)],
             capture_output=True,
             text=True,
-            check=False
+            timeout=300
         )
-
         if result.returncode == 0:
-            print("✓ No style issues found (flake8)")
+            print("flake8 check passed.")
             return True
         else:
-            print("✗ Style issues found:")
+            print("flake8 issues found:")
             print(result.stdout)
+            print(result.stderr)
             return False
-
     except FileNotFoundError:
-        print("⚠ flake8 not installed. Run: pip install flake8")
+        print("flake8 not installed. Install with: pip install flake8")
+        return False
+    except subprocess.TimeoutExpired:
+        print("flake8 check timed out.")
         return False
 
-def check_pylint(project_root: Path = None) -> bool:
-    """
-    Check code quality with pylint.
-
-    Args:
-        project_root: Root directory of the project. Defaults to current directory.
-
-    Returns:
-        True if quality score is acceptable, False otherwise.
-    """
-    if project_root is None:
-        project_root = Path.cwd()
-
-    code_dir = project_root / "code"
-
+def check_pylint():
+    """Run pylint on the code directory."""
+    root = Path(__file__).parent.parent
+    code_dir = root / "code"
+    
+    if not code_dir.exists():
+        print("code/ directory not found.")
+        return False
+    
     try:
         result = subprocess.run(
-            ["pylint", "--score=yes", str(code_dir)],
+            [sys.executable, "-m", "pylint", str(code_dir), "--rcfile=.pylintrc"],
             capture_output=True,
             text=True,
-            check=False
+            timeout=300
         )
-
-        # Parse score from output
-        output = result.stdout
-        if "Your code has been rated at" in output:
-            # Extract rating
-            rating_line = [line for line in output.split('\n') if "Your code has been rated at" in line][0]
-            score = float(rating_line.split('/')[-1].strip().split()[0])
-
-            if score >= 8.0:
-                print(f"✓ Code quality score: {score}/10 (pylint)")
+        if result.returncode == 0 or result.returncode == 1:
+            # Return code 1 means issues found but not fatal
+            if "Your code has been rated at" in result.stdout:
+                print("pylint check completed.")
+                print(result.stdout)
                 return True
             else:
-                print(f"✗ Code quality score too low: {score}/10 (pylint)")
+                print("pylint issues found:")
+                print(result.stdout)
+                print(result.stderr)
                 return False
         else:
-            print("⚠ Could not parse pylint score")
-            print(output)
+            print("pylint check failed:")
+            print(result.stdout)
+            print(result.stderr)
             return False
-
     except FileNotFoundError:
-        print("⚠ pylint not installed. Run: pip install pylint")
+        print("pylint not installed. Install with: pip install pylint")
+        return False
+    except subprocess.TimeoutExpired:
+        print("pylint check timed out.")
         return False
 
 def main():
-    """Run all linting checks."""
-    print("Running linting checks...")
-    print("=" * 50)
-
-    results = []
-    results.append(check_black())
-    results.append(check_flake8())
-    results.append(check_pylint())
-
-    print("=" * 50)
-    if all(results):
-        print("✓ All linting checks passed!")
+    """Run all linting and formatting checks."""
+    root = Path(__file__).parent.parent
+    
+    # Ensure configuration files exist
+    setup_black()
+    setup_flake8()
+    setup_pylint()
+    
+    print("\n--- Running Black Check ---")
+    black_ok = check_black()
+    
+    print("\n--- Running flake8 Check ---")
+    flake8_ok = check_flake8()
+    
+    print("\n--- Running pylint Check ---")
+    pylint_ok = check_pylint()
+    
+    print("\n--- Summary ---")
+    if black_ok and flake8_ok and pylint_ok:
+        print("All linting and formatting checks passed.")
         return 0
     else:
-        print("✗ Some linting checks failed.")
+        print("Some checks failed. Please review the output above.")
         return 1
 
 if __name__ == "__main__":

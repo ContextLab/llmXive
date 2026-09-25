@@ -1,18 +1,17 @@
 [MASTER]
-extension-pkg-whitelist=
-    numpy,
-    scipy,
-    astropy,
-    healpy
+ignore=CVS
 
 [MESSAGES CONTROL]
-disable=
-    C0111,
-    R0903,
-    R0914,
-    W0511,
-    C0301
+disable=C0103,C0114,C0115,C0116,R0903,R0904,R0913,R0914,W0511
 
 [FORMAT]
 max-line-length=88
-indent-string='    '
+
+[DESIGN]
+max-args=10
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+max-attributes=10
+max-public-methods=20
