@@ -1,81 +1,36 @@
 """
-Statistical analysis result models matching contracts/stats_schema.yaml.
+Data models for statistical analysis results.
+Matches the schema defined in contracts/stats_schema.yaml
 """
 from typing import Any, Dict, List, Optional
 from .base import BaseModel
 
 class StatisticalResult(BaseModel):
-    """Statistical analysis results for recovery correlation."""
-
-    @classmethod
-    def schema(cls) -> Dict[str, Any]:
-        return {
-            "type": "object",
-            "properties": {
-                "spearman_r": {
-                    "type": "number",
-                    "required": True,
-                    "description": "Spearman rank correlation coefficient"
-                },
-                "p_value": {
-                    "type": "number",
-                    "required": True,
-                    "description": "P-value for the correlation test"
-                },
-                "classification": {
-                    "type": "string",
-                    "required": True,
-                    "description": "Classification: 'inverse' or 'no significant inverse relationship'"
-                },
-                "recovery_deltas": {
-                    "type": "array",
-                    "required": True,
-                    "description": "List of recovery deltas per model"
-                },
-                "context_sizes": {
-                    "type": "array",
-                    "required": True,
-                    "description": "List of context window sizes per model"
-                },
-                "models": {
-                    "type": "array",
-                    "required": True,
-                    "description": "List of model names"
-                }
-            }
-        }
-
+    """
+    Results of the statistical correlation analysis.
+    """
     def __init__(
         self,
-        spearman_r: float,
+        model_id: str,
+        baseline_accuracy: float,
+        retrieval_accuracy: float,
+        recovery_delta: float,
+        context_window_size: int,
+        correlation_coefficient: float,
         p_value: float,
-        classification: str,
-        recovery_deltas: List[float],
-        context_sizes: List[int],
-        models: List[str]
+        classification: str,  # 'inverse', 'no significant inverse relationship'
+        easy_questions_degraded: bool
     ):
-        data = {
-            "spearman_r": spearman_r,
-            "p_value": p_value,
-            "classification": classification,
-            "recovery_deltas": recovery_deltas,
-            "context_sizes": context_sizes,
-            "models": models
-        }
-        self._data = self.validate(data)
-        self.spearman_r = spearman_r
+        self.model_id = model_id
+        self.baseline_accuracy = baseline_accuracy
+        self.retrieval_accuracy = retrieval_accuracy
+        self.recovery_delta = recovery_delta
+        self.context_window_size = context_window_size
+        self.correlation_coefficient = correlation_coefficient
         self.p_value = p_value
         self.classification = classification
-        self.recovery_deltas = recovery_deltas
-        self.context_sizes = context_sizes
-        self.models = models
+        self.easy_questions_degraded = easy_questions_degraded
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "spearman_r": self.spearman_r,
-            "p_value": self.p_value,
-            "classification": self.classification,
-            "recovery_deltas": self.recovery_deltas,
-            "context_sizes": self.context_sizes,
-            "models": self.models
-        }
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'StatisticalResult':
+        return super().from_dict(data)

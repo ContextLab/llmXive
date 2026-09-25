@@ -589,3 +589,194 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-16T15:42:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: STRING database confidence threshold of 700
+  claim_id: c_e1f6dddf
+  context: "Protein-Protein Interaction Networks section lists confidence threshold\
+    \ as \u2265 700 for high confidence interactions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "STRING Database confidence threshold set to \u2265 700 for high confidence\
+    \ interactions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:46:38Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Analysis of 8 model organisms
+  claim_id: c_22ff6445
+  context: Organisms list includes 8 model organisms with specific taxonomic IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Eight model organisms were analyzed including Homo sapiens, Mus musculus,
+    Danio rerio, Caenorhabditis elegans, Drosophila melanogaster, Xenopus tropicalis,
+    Canis lupus familiaris, and Saccharomyces cerevisiae
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:46:38Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Gene essentiality labels from DEG Database
+  claim_id: c_e7ddb6b0
+  context: Gene Essentiality Labels section identifies DEG Database as the source
+    accessed via FTP.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_essentiality_labels_from_DEG_Database
+  kind: entity_fact
+  raw_text: Gene essentiality labels sourced from DEG Database via FTP download
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:47:04Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: k-sampling used for networks > 5000 nodes
+  claim_id: c_6e4f0935
+  context: Betweenness Centrality optimization notes k-sampling used for networks
+    > 5,000 nodes to ensure runtime under 30 minutes.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/k-sampling_used_for_networks_%3E_5000_nodes
+  kind: magnitude
+  raw_text: k-sampling used for betweenness centrality calculation on networks with
+    more than 5,000 nodes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:47:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 500, 700, 900
+  claim_id: c_cfda14a7
+  context: Confidence Threshold Variation section lists range as [500, 700, 900] for
+    low, medium, and high confidence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis tested confidence thresholds of 500, 700, and 900
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:47:58Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: PGLS minimum sample size of 10 organisms
+  claim_id: c_5c4a14ed
+  context: "Sample Size Requirements section states PGLS requires minimum n \u2265\
+    \ 10 organisms."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PGLS analysis requires a minimum of 10 organisms for valid inference
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:48:33Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Detectable correlation of 0.2 with 80% power at n=50
+  claim_id: c_afeaaaef
+  context: "Effect Size Detection section notes ability to detect \u03C1 \u2265 0.2\
+    \ with 80% power at n=50."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation effect size of 0.2 detectable with 80% power at sample size
+    of 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:48:58Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Betweenness centrality runtime < 30 minutes
+  claim_id: c_0b267369
+  context: Runtime Limits section specifies Betweenness Centrality must complete in
+    < 30 minutes via k-sampling.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Betweenness_centrality_runtime_%3C_30_minutes
+  kind: magnitude
+  raw_text: Betweenness centrality computation limited to less than 30 minutes via
+    k-sampling for large graphs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:49:32Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Full pipeline runtime < 6 hours
+  claim_id: c_5bf05934
+  context: Runtime Limits section specifies Full Pipeline must complete in < 6 hours
+    on standard CI runner.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_%3C_6_hours
+  kind: magnitude
+  raw_text: Full pipeline execution limited to less than 6 hours on standard CI runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:49:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Full dataset requires 7GB RAM and 14GB disk
+  claim_id: c_3826d268
+  context: Runtime Limits section lists Memory requirements as ~7GB RAM and ~14GB
+    disk for full dataset.
+  evidence:
+    entailment_evidence: Full dataset requires 7GB RAM and 14GB disk
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Full_dataset_requires_7GB_RAM_and_14GB_disk
+  kind: entity_fact
+  raw_text: Full dataset processing requires approximately 7GB RAM and 14GB disk space
+  resolved_value: Full dataset requires 7GB RAM and 14GB disk
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T06:49:51Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: S. cerevisiae mock data uses 100 nodes
+  claim_id: c_53eeffb6
+  context: Integration Testing section specifies Single Organism mock data for S.
+    cerevisiae with 100 nodes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mock data for S. cerevisiae integration testing uses 100 nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:51:56Z'

@@ -1,4 +1,17 @@
-# This file is a duplicate for IDE compatibility; configuration lives in pyproject.toml
-# Ruff will automatically pick up the [tool.ruff] section from pyproject.toml.
-# This file exists to satisfy tools that specifically look for a .ruff.toml file.
-extend = "pyproject.toml"
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary (e.g., line too long handled by black)
+ignore = ["E501"]
+
+# Allow unused imports for __init__.py files if needed
+per-file-ignores = { "code/__init__.py" = ["F401"] }
+
+[format]
+# Configuration for ruff format (alternative to black)
+line-length = 88
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

@@ -1,14 +1,15 @@
-'|initialize project python requirement txt':
-  quote: Guido van Rossum began working on Python in the late 1980s as a successor
-    to the ABC programming language. Python 3.0, released in 2008, was a major revision
-    and not completely backward-compatible with earlier versions. Beginning with Python
-    3.5, capabilities and keywords for typing were added to the language, allowing
-    optional static typing. As of 2026, the Python Software Foundation supports Python
-    3.10, 3.11, 3.12, 3.13, and 3.14, following the project's annual release cycle
-    and five-year support policy. Python 3.15.0rc1 (which defaults to UTF-8) is out
-    in preview, and the stable release is expected to launch in October 2026. Earlier
-    versions in the 3.x series have reached end-of-life and no longer receive security
-    updates.
-  source_id: Python (programming language)
-  url: https://en.wikipedia.org/wiki/Python_(programming_language)
-  value: '3.11'
+'|effect sample size':
+  quote: "Indeed, although there are no formal standards for power, many researchers\
+    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
+    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
+    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
+    \ require much higher levels of power. Medical tests may be designed to minimise\
+    \ the number of false negatives (type II errors) produced by loosening the threshold\
+    \ of significance, raising the risk of obtaining a false positive (a type I error).\
+    \ The rationale is that it is better to tell a healthy patient \"we may have found\
+    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
+    \ well.\""
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.80'

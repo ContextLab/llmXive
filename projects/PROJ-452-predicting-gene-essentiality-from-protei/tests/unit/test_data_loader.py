@@ -2,82 +2,133 @@
 Unit tests for data_loader module.
 """
 import pytest
-import pandas as pd
-from pathlib import Path
 from unittest.mock import patch, MagicMock
-import sys
-import os
+import json
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from code.data_loader import (
+    DataLoadingError,
+    map_ids,
+    fetch_string_network,
+    fetch_essentiality_labels,
+    load_local_network,
+    load_local_essentiality,
+    save_essentiality_data
+)
 
-from code.data_loader import _parse_string_file, _get_organism_code
 
-class TestStringParsing:
-    def test_parse_string_file_with_threshold(self, tmp_path):
-        # Create a mock STRING file
-        mock_data = """#protein1	protein2	combined_score
-        A	A	900
-        A	B	500
-        B	C	800
-        C	D	700
-        """
-        file_path = tmp_path / "test.actions.txt"
-        file_path.write_text(mock_data)
-        
-        df = _parse_string_file(file_path, threshold=700)
-        
-        assert len(df) == 3 # 900, 800, 700
-        assert set(df["protein1"]) == {"A", "B", "C"}
-        assert all(df["score"] >= 700)
+class TestMapIds:
+    def test_map_ids_empty_list(self):
+        """Test mapping with empty input list."""
+        result = map_ids([], "Homo_sapiens")
+        assert result == {}
 
-    def test_parse_string_file_no_header(self, tmp_path):
-        mock_data = """A	A	900
-        A	B	500
-        B	C	800
-        """
-        file_path = tmp_path / "test_no_header.txt"
-        file_path.write_text(mock_data)
-        
-        df = _parse_string_file(file_path, threshold=700)
-        
-        assert len(df) == 2
-        assert list(df.columns) == ["protein1", "protein2", "score"]
+    def test_map_ids_ensembl_ids(self):
+        """Test mapping with Ensembl IDs (should pass through)."""
+        ids = ["ENSG00000139618", "ENSG00000141510"]
+        result = map_ids(ids, "Homo_sapiens")
+        assert result["ENSG00000139618"] == "ENSG00000139618"
+        assert result["ENSG00000141510"] == "ENSG00000141510"
 
-class TestOrganismCode:
-    def test_known_organism(self):
-        assert _get_organism_code("saccharomyces_cerevisiae") == "sce"
-        assert _get_organism_code("homo_sapiens") == "hsa"
-    
-    def test_unknown_organism(self):
-        # Should return first 3 chars or fallback
-        code = _get_organism_code("unknown_organism")
-        assert len(code) <= 3 or code == "unknown_organism" # Depending on implementation logic
-        # Based on current code: clean_name[:3] if len >= 3 else clean_name
-        assert code == "unk"
+    def test_map_ids_string_ids(self):
+        """Test mapping with STRING IDs."""
+        ids = ["STRING:10090.123", "STRING:9606.456"]
+        result = map_ids(ids, "Mus_musculus")
+        # Check that mapping is applied (format may vary)
+        assert "10090.123" in result["STRING:10090.123"] or result["STRING:10090.123"].startswith("ENSG")
 
-class TestFallback:
-    def test_load_local_ppi_missing(self, tmp_path, monkeypatch):
-        # Mock get_path to return tmp_path
-        monkeypatch.setattr("code.data_loader.get_path", lambda x: str(tmp_path))
-        # Ensure directory doesn't exist
-        fallback_dir = Path(tmp_path) / "raw" / "string_ppi"
-        
-        with pytest.raises(RuntimeError, match="No local PPI files found"):
-            from code.data_loader import _load_local_ppi
-            _load_local_ppi("test_org")
 
-    def test_load_local_ppi_success(self, tmp_path, monkeypatch):
-        # Setup
-        fallback_dir = Path(tmp_path) / "raw" / "string_ppi"
-        fallback_dir.mkdir(parents=True, exist_ok=True)
-        mock_file = fallback_dir / "4932.actions.txt"
-        mock_file.write_text("A\tB\t800\nC\tD\t600\n")
-        
-        monkeypatch.setattr("code.data_loader.get_path", lambda x: str(tmp_path))
-        
-        from code.data_loader import _load_local_ppi
-        df = _load_local_ppi("test_org")
-        
-        assert len(df) == 2
-        assert list(df.columns) == ["protein1", "protein2", "score"]
+class TestFetchStringNetwork:
+    @patch('code.data_loader.requests.Session')
+    def test_fetch_success(self, mock_session_class):
+        """Test successful network fetch."""
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"edges": [{"node1": "A", "node2": "B", "score": 800}]}
+        mock_session.get.return_value = mock_response
+        mock_session_class.return_value = mock_session
+
+        result = fetch_string_network("Homo_sapiens", 700)
+        assert "edges" in result
+        assert len(result["edges"]) == 1
+
+    @patch('code.data_loader.requests.Session')
+    def test_fetch_failure(self, mock_session_class):
+        """Test network fetch failure raises error."""
+        mock_session = MagicMock()
+        mock_session.get.side_effect = Exception("Network error")
+        mock_session_class.return_value = mock_session
+
+        with pytest.raises(DataLoadingError):
+            fetch_string_network("Homo_sapiens", 700)
+
+    @patch('code.data_loader.requests.Session')
+    def test_fetch_unknown_organism(self, mock_session_class):
+        """Test fetch with unknown organism raises error."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        with pytest.raises(DataLoadingError):
+            fetch_string_network("UnknownOrganism", 700)
+
+
+class TestFetchEssentialityLabels:
+    @patch('code.data_loader.requests.get')
+    def test_fetch_essentiality_success(self, mock_get):
+        """Test successful essentiality fetch."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        csv_content = """organism,gene_id,essentiality
+        Homo_sapiens,ENSG00000139618,Yes
+        Homo_sapiens,ENSG00000141510,No"""
+        mock_response.text = csv_content
+        mock_get.return_value = mock_response
+
+        result = fetch_essentiality_labels("Homo_sapiens")
+        assert "ENSG00000139618" in result
+        assert result["ENSG00000139618"] is True
+        assert result["ENSG00000141510"] is False
+
+    @patch('code.data_loader.requests.get')
+    def test_fetch_essentiality_failure(self, mock_get):
+        """Test essentiality fetch failure raises error."""
+        mock_get.side_effect = Exception("Network error")
+
+        with pytest.raises(DataLoadingError):
+            fetch_essentiality_labels("Homo_sapiens")
+
+
+class TestLoadLocalData:
+    def test_load_local_network_not_found(self, tmp_path):
+        """Test loading network from non-existent file."""
+        with patch('code.data_loader.get_path', return_value=tmp_path):
+            result = load_local_network("Homo_sapiens", 700)
+            assert result is None
+
+    def test_load_local_essentiality_not_found(self, tmp_path):
+        """Test loading essentiality from non-existent file."""
+        with patch('code.data_loader.get_path', return_value=tmp_path):
+            result = load_local_essentiality("Homo_sapiens")
+            assert result is None
+
+
+class TestSaveEssentialityData:
+    def test_save_essentiality_data(self, tmp_path):
+        """Test saving essentiality data to file."""
+        essentiality = {
+            "ENSG00000139618": True,
+            "ENSG00000141510": False
+        }
+
+        with patch('code.data_loader.get_path', return_value=tmp_path):
+            save_essentiality_data("Homo_sapiens", essentiality)
+
+        file_path = tmp_path / "Homo_sapiens_essentiality.csv"
+        assert file_path.exists()
+
+        with open(file_path, 'r') as f:
+            content = f.read()
+            assert "ENSG00000139618" in content
+            assert "Yes" in content
+            assert "No" in content

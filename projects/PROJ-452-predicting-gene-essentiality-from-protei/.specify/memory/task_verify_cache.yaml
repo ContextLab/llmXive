@@ -4,10 +4,10 @@ T022:
   r: "The required integration test file `tests/integration/test_cross_species.py`\
     \ does not exist in the repository, so the artifact is missing and the task\u2019\
     s deliverable is not provided."
-T039:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` or `research.md` files (or their updated contents) were provided;\
-    \ the claim only contains a feature specification, not the required documentation\
-    \ changes. The task remains undone until the two markdown files are present and\
-    \ contain verified step\u2011by\u2011step updates."
+  r: "No profiling output (e.g., cProfile stats), no caching implementation for the\
+    \ T013/T014 data fetches, and no evidence (logs or CI run times) showing the pipeline\
+    \ runs under 6\u202Fhours on a GitHub Actions runner are present. These required\
+    \ artifacts are missing, so the performance\u2011optimization task is not satisfied."

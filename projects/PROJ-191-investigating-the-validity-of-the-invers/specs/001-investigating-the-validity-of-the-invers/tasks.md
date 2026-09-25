@@ -158,11 +158,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`.
+- [X] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`.
  1. **Primary method**: If `runs ≥ 3`, iteratively omit one experimental run, recompute the harmonized dataset, and re‑run inference.
  2. **Fallback method**: If `runs < 3`, perform **row bootstrap resampling** with **N = 1000** samples (as stipulated in the plan). For each bootstrap sample, recompute the diagonal (or block‑diagonal) covariance and re‑run inference.
  3. Store each iteration's 95 % credible upper limit for α for later analysis. **Dependency**: Runs after T013‑DATA and T023‑MCMC.
-- [ ] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read inflation factor from `code/config.py`. Apply it multiplicatively to the covariance matrix. Verify that the Bayes factor changes by less than 0.1 log‑units; log the result. **Dependency**: Runs after T023‑MCMC.
+- [X] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read inflation factor from `code/config.py`. Apply it multiplicatively to the covariance matrix. Verify that the Bayes factor changes by less than 0.1 log‑units; log the result. **Dependency**: Runs after T023‑MCMC.
 - [ ] T032 [US3] Implement parallel execution of robustness iterations using `multiprocessing`.
 - [ ] T033 [US3] Calculate the **coefficient of variation (CV)** of the credible‑upper‑limits (95th percentile) across all robustness iterations (`CV = (std / mean) × 100`). Log the CV; if `CV > 15 %` log a warning and flag the result (do not raise an error). **Dependency**: Runs after T030.
 - [ ] T038 [US2/US3] **Single Source of Truth & SC‑002 Verification**:

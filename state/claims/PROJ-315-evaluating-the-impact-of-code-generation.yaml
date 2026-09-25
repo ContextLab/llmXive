@@ -412,3 +412,343 @@
   source_type: external
   status: verified
   updated_at: '2026-09-13T10:13:01Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wikipedia page for Python programming language
+  claim_id: c_18cc1fca
+  context: Task T002 references the Wikipedia entry for Python.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_page_for_Python_programming_language
+  kind: entity_fact
+  raw_text: 'Wikipedia: Python (programming language), https://en.wikipedia.org/wiki/Python_(programming_language)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T06:57:01Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: random seed set to 42 for numpy, pandas, and sklearn
+  claim_id: c_af100220
+  context: Implement code/utils/config.py for environment variable management and
+    random seed pinning (numpy, pandas, sklearn = 42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy, pandas, sklearn = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:00:13Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: dataset validation requires at least 95% valid records and 500 items
+    per group
+  claim_id: c_7ccb4fd8
+  context: "Independent Test: Verify that loading the dataset, running the classification\
+    \ pipeline, and checking completeness yields \u226595% valid records and \u2265\
+    500 items per group."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_validation_requires_at_least_95%25_valid_records_and_5
+  kind: magnitude
+  raw_text: "verify that loading the dataset, running the classification pipeline,\
+    \ and checking completeness yields \u226595% valid records and \u2265500 items\
+    \ per group"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:01:09Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: keyword classification logic uses a threshold of 2 or more keywords
+  claim_id: c_f71f1fff
+  context: "Unit test for keyword classification logic in tests/unit/test_classify.py\
+    \ (test \u22652 keyword threshold)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test \u22652 keyword threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:01:09Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: data completeness check triggers error if valid records are less than
+    95%
+  claim_id: c_42400987
+  context: Integration test for data completeness check in tests/integration/test_data_completeness.py
+    (verify <95% triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_check_triggers_error_if_valid_records_are
+  kind: magnitude
+  raw_text: verify <95% triggers error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:02:04Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: power insufficiency check triggers error if group size is less than 500
+  claim_id: c_f5d129ef
+  context: Integration test for power insufficiency check in tests/integration/test_power_check.py
+    (verify <500 per group triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_insufficiency_check_triggers_error_if_group_size_is_le
+  kind: magnitude
+  raw_text: verify <500 per group triggers error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:02:42Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: dataset codeparliament/github-code-search is downloaded from HuggingFace
+  claim_id: c_0b6c5051
+  context: Implement code/data/fetch.py to download dataset codeparliament/github-code-search
+    from HuggingFace using datasets.load_dataset()
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_codeparliament/github-code-search_is_downloaded_from
+  kind: entity_fact
+  raw_text: download dataset codeparliament/github-code-search from HuggingFace
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:03:02Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: multiple comparison correction supports Bonferroni and Benjamini-Hochberg
+    methods
+  claim_id: c_43699149
+  context: Implement code/analysis/stats.py multiple comparison correction logic supporting
+    BOTH Bonferroni/BH, configurable via code/utils/config.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple_comparison_correction_supports_Bonferroni_and_Benja
+  kind: entity_fact
+  raw_text: Bonferroni/BH
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:03:26Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: visualization output includes at least 3 plots with significance markers
+  claim_id: c_30cf0f7e
+  context: "Independent Test: Verify that \u22653 plots are generated with significance\
+    \ markers and a sensitivity plot for keyword thresholds across a range of values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visualization_output_includes_at_least_3_plots_with_signific
+  kind: magnitude
+  raw_text: "\u22653 plots are generated with significance markers"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:03:45Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: analysis of 50000 PRs completes within 6 hours on 2 CPU and 7GB RAM
+  claim_id: c_7ba6f8c2
+  context: 'Performance optimization: ensure analysis of 50k PRs completes within
+    6 hours on 2 CPU/7GB RAM'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: analysis of 50k PRs completes within 6 hours on 2 CPU/7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:04:01Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for numpy, pandas, and sklearn
+  claim_id: c_bcf340c3
+  context: Implement code/utils/config.py for environment variable management and
+    random seed pinning (numpy, pandas, sklearn = 42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy, pandas, sklearn = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:06:26Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data completeness check triggers error if valid records are less than
+    95%
+  claim_id: c_b46532e7
+  context: Integration test for data completeness check in tests/integration/test_data_completeness.py
+    (verify <95% triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_check_triggers_error_if_valid_records_are
+  kind: magnitude
+  raw_text: verify <95% triggers error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:06:27Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power insufficiency check triggers error if group size is less than 500
+  claim_id: c_67c15fdc
+  context: Integration test for power insufficiency check in tests/integration/test_power_check.py
+    (verify <500 per group triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_insufficiency_check_triggers_error_if_group_size_is_le
+  kind: magnitude
+  raw_text: verify <500 per group triggers error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:06:29Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Keyword classification logic uses a threshold of 2 or more keywords
+  claim_id: c_2b9fc917
+  context: "Unit test for keyword classification logic in tests/unit/test_classify.py\
+    \ (test \u22652 keyword threshold)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test \u22652 keyword threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:06:29Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Validation halts execution if completeness is less than 95% or group
+    size is less than 500
+  claim_id: c_209e4531
+  context: Implement validation logic in code/data/preprocess.py to halt execution
+    and raise a ValueError with a specific message if completeness <95% or group size
+    <500.
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Validation_halts_execution_if_completeness_is_less_than_95%25
+  kind: magnitude
+  raw_text: halt execution and raise a ValueError with a specific message if completeness
+    <95% or group size <500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-25T07:07:24Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power analysis function uses alpha of 0.05
+  claim_id: c_954c155a
+  context: "Implement code/analysis/stats.py power analysis function (sample size,\
+    \ effect size, \u03B1=0.05) (FR-008)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: "sample size, effect size, \u03B1=0.05"
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T07:07:33Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Regression VIF less than 5 is reported
+  claim_id: c_3c269c4f
+  context: 'Independent Test: Verify that Mann-Whitney U tests run with Bonferroni/BH
+    correction, regression VIF < 5 is reported, and power analysis is documented.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_VIF_less_than_5_is_reported
+  kind: magnitude
+  raw_text: VIF < 5 is reported
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:07:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Analysis of 50,000 PRs completes within 6 hours on 2 CPU and 7GB RAM
+  claim_id: c_f8af31c9
+  context: 'Performance optimization: ensure analysis of 50k PRs completes within
+    6 hours on 2 CPU/7GB RAM'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure analysis of 50k PRs completes within 6 hours on 2 CPU/7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:08:10Z'

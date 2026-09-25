@@ -2,166 +2,240 @@
 Unit tests for data models and schema validators.
 """
 import pytest
-from code.models.document import Document, Page, MiddleThirdMetadata
+import json
+from code.models.document import Document, MiddleThirdMetadata, Page
 from code.models.evaluation import EvaluationResult, BaselineMetrics, RetrievalMetrics
 from code.models.stats import StatisticalResult
+from code.models.validators import (
+    validate_document_schema,
+    validate_evaluation_schema,
+    validate_stats_schema
+)
 
-class TestMiddleThirdMetadata:
-    def test_valid_creation(self):
+class TestDocumentModels:
+    def test_middle_third_metadata_creation(self):
         meta = MiddleThirdMetadata(
             start_page=10,
             end_page=20,
-            text_density=0.75,
-            character_count=5000
+            total_pages=30,
+            text_density=0.85,
+            is_valid=True
         )
         assert meta.start_page == 10
-        assert meta.end_page == 20
-        assert meta.text_density == 0.75
-        assert meta.character_count == 5000
+        assert meta.text_density == 0.85
+        assert meta.is_valid is True
 
-    def test_missing_required_field(self):
-        with pytest.raises(ValueError, match="Missing required field"):
-            MiddleThirdMetadata(
-                start_page=10,
-                end_page=20,
-                text_density=0.75
-                # missing character_count
-            )
-
-    def test_wrong_type(self):
-        with pytest.raises(ValueError, match="must be integer"):
-            MiddleThirdMetadata(
-                start_page=10.5,  # should be int
-                end_page=20,
-                text_density=0.75,
-                character_count=5000
-            )
-
-class TestPage:
-    def test_valid_creation(self):
+    def test_page_creation(self):
         page = Page(
-            page_id="p1",
             page_number=1,
+            image_path="data/raw/doc_001/page_001.png",
+            text_content="Sample text",
             text_density=0.6,
-            character_count=1000
+            is_middle_third=False
         )
-        assert page.page_id == "p1"
         assert page.page_number == 1
-        assert page.text_density == 0.6
+        assert page.is_middle_third is False
 
-    def test_with_layout_info(self):
-        page = Page(
-            page_id="p2",
-            page_number=2,
-            text_density=0.8,
-            character_count=2000,
-            layout_info={"columns": 2}
-        )
-        assert page.layout_info == {"columns": 2}
-
-class TestDocument:
-    def test_valid_creation(self):
-        middle_third = MiddleThirdMetadata(10, 20, 0.75, 5000)
+    def test_document_creation(self):
+        meta = MiddleThirdMetadata(10, 20, 30, 0.85, True)
         pages = [
-            Page("p1", 1, 0.5, 500),
-            Page("p2", 2, 0.6, 600)
+            Page(i, f"path_{i}", f"text_{i}", 0.5, 10 <= i <= 20)
+            for i in range(1, 31)
         ]
         doc = Document(
-            doc_id="doc1",
+            document_id="doc_001",
             title="Test Document",
-            total_pages=2,
-            pdf_path="data/raw/test.pdf",
-            middle_third=middle_third,
+            total_pages=30,
+            pdf_path="data/raw/doc_001.pdf",
+            middle_third_metadata=meta,
             pages=pages
         )
-        assert doc.doc_id == "doc1"
-        assert doc.title == "Test Document"
-        assert len(doc.pages) == 2
+        
+        assert doc.document_id == "doc_001"
+        assert len(doc.pages) == 30
+        assert doc.middle_third_metadata.is_valid is True
 
-    def test_from_dict(self):
+    def test_document_serialization(self):
+        meta = MiddleThirdMetadata(10, 20, 30, 0.85, True)
+        pages = [Page(i, f"path_{i}", f"text_{i}", 0.5, False) for i in range(1, 4)]
+        doc = Document(
+            document_id="doc_001",
+            title="Test",
+            total_pages=3,
+            pdf_path="test.pdf",
+            middle_third_metadata=meta,
+            pages=pages
+        )
+        
+        json_str = doc.to_json()
+        restored = Document.from_json(json_str)
+        
+        assert restored.document_id == doc.document_id
+        assert restored.total_pages == doc.total_pages
+
+    def test_document_validation_success(self):
         data = {
-            "doc_id": "doc1",
-            "title": "Test",
+            "document_id": "valid_doc_123",
+            "title": "Valid Doc",
             "total_pages": 2,
-            "pdf_path": "data/raw/test.pdf",
-            "middle_third": {
-                "start_page": 10,
-                "end_page": 20,
-                "text_density": 0.75,
-                "character_count": 5000
+            "pdf_path": "test.pdf",
+            "middle_third_metadata": {
+                "start_page": 1,
+                "end_page": 2,
+                "total_pages": 2,
+                "text_density": 0.5,
+                "is_valid": True
             },
             "pages": [
-                {"page_id": "p1", "page_number": 1, "text_density": 0.5, "character_count": 500},
-                {"page_id": "p2", "page_number": 2, "text_density": 0.6, "character_count": 600}
+                {"page_number": 1, "image_path": "p1.png", "text_content": "t1", "text_density": 0.5, "is_middle_third": False},
+                {"page_number": 2, "image_path": "p2.png", "text_content": "t2", "text_density": 0.5, "is_middle_third": False}
             ]
         }
-        doc = Document.from_dict(data)
-        assert doc.doc_id == "doc1"
-        assert doc.middle_third.start_page == 10
+        # Should not raise
+        validate_document_schema(data)
 
-class TestEvaluationResult:
-    def test_valid_creation(self):
+    def test_document_validation_invalid_id(self):
+        data = {
+            "document_id": "invalid@id",
+            "title": "Test",
+            "total_pages": 1,
+            "pdf_path": "test.pdf",
+            "middle_third_metadata": {
+                "start_page": 1, "end_page": 1, "total_pages": 1, "text_density": 0.5, "is_valid": True
+            },
+            "pages": [
+                {"page_number": 1, "image_path": "p.png", "text_content": "t", "text_density": 0.5, "is_middle_third": False}
+            ]
+        }
+        with pytest.raises(ValueError, match="Invalid document_id format"):
+            validate_document_schema(data)
+
+    def test_document_validation_page_count_mismatch(self):
+        data = {
+            "document_id": "doc_1",
+            "title": "Test",
+            "total_pages": 2,
+            "pdf_path": "test.pdf",
+            "middle_third_metadata": {
+                "start_page": 1, "end_page": 2, "total_pages": 2, "text_density": 0.5, "is_valid": True
+            },
+            "pages": [
+                {"page_number": 1, "image_path": "p1.png", "text_content": "t1", "text_density": 0.5, "is_middle_third": False}
+                # Missing second page
+            ]
+        }
+        with pytest.raises(ValueError, match="pages list length"):
+            validate_document_schema(data)
+
+class TestEvaluationModels:
+    def test_evaluation_result_creation(self):
         result = EvaluationResult(
-            question_id="q1",
-            doc_id="doc1",
-            position="middle",
-            model_name="model-a",
-            answer="The answer is 42.",
-            is_correct=True
+            question_id="q_001",
+            document_id="doc_001",
+            page_number=5,
+            position_category="middle",
+            ground_truth="Answer A",
+            predicted_answer="Answer A",
+            is_correct=True,
+            model_id="model_v1"
         )
         assert result.is_correct is True
-        assert result.position == "middle"
+        assert result.position_category == "middle"
 
-class TestBaselineMetrics:
-    def test_valid_creation(self):
+    def test_baseline_metrics_creation(self):
         metrics = BaselineMetrics(
-            model_name="model-a",
-            overall_accuracy=0.75,
-            first_third_accuracy=0.85,
-            middle_third_accuracy=0.60,
-            last_third_accuracy=0.80,
-            delta_middle_vs_others=-0.175,
-            bias_threshold_met=False,
+            model_id="model_v1",
             total_questions=100,
-            correct_count=75
+            correct_count=85,
+            accuracy=0.85,
+            accuracy_by_position={"first": 0.9, "middle": 0.7, "last": 0.9},
+            delta_middle_vs_others=0.15,
+            bias_threshold_met=True
         )
-        assert metrics.bias_threshold_met is False
-        assert metrics.delta_middle_vs_others == -0.175
+        assert metrics.delta_middle_vs_others == 0.15
+        assert metrics.bias_threshold_met is True
 
-class TestRetrievalMetrics:
-    def test_valid_creation(self):
+    def test_retrieval_metrics_creation(self):
         metrics = RetrievalMetrics(
-            model_name="model-a",
-            overall_accuracy=0.80,
-            middle_third_accuracy=0.75,
-            retrieval_precision=0.90,
-            retrieval_recall=0.85,
-            false_positive_rate=0.05,
-            avg_tokens_used=1500.0,
-            total_questions=100
+            model_id="model_v1",
+            total_questions=100,
+            correct_count=90,
+            accuracy=0.90,
+            precision=0.85,
+            recall=0.92,
+            false_positive_rate=0.05
         )
+        assert metrics.precision == 0.85
         assert metrics.false_positive_rate == 0.05
 
-class TestStatisticalResult:
-    def test_valid_creation(self):
+    def test_evaluation_validation_success(self):
+        data = {
+            "question_id": "q_001",
+            "document_id": "doc_001",
+            "page_number": 1,
+            "position_category": "first",
+            "ground_truth": "A",
+            "predicted_answer": "A",
+            "is_correct": True,
+            "model_id": "m1"
+        }
+        validate_evaluation_schema(data, "result")
+
+    def test_evaluation_validation_invalid_position(self):
+        data = {
+            "question_id": "q_001",
+            "document_id": "doc_001",
+            "page_number": 1,
+            "position_category": "invalid",
+            "ground_truth": "A",
+            "predicted_answer": "A",
+            "is_correct": True,
+            "model_id": "m1"
+        }
+        with pytest.raises(ValueError, match="Invalid position_category"):
+            validate_evaluation_schema(data, "result")
+
+class TestStatsModels:
+    def test_statistical_result_creation(self):
         result = StatisticalResult(
-            spearman_r=-0.65,
+            model_id="m1",
+            baseline_accuracy=0.7,
+            retrieval_accuracy=0.85,
+            recovery_delta=0.15,
+            context_window_size=8192,
+            correlation_coefficient=-0.45,
             p_value=0.02,
             classification="inverse",
-            recovery_deltas=[0.15, 0.10, 0.05],
-            context_sizes=[8000, 16000, 32000],
-            models=["model-a", "model-b", "model-c"]
+            easy_questions_degraded=False
         )
+        assert result.correlation_coefficient == -0.45
         assert result.classification == "inverse"
-        assert result.spearman_r == -0.65
 
-    def test_no_significant_classification(self):
-        result = StatisticalResult(
-            spearman_r=-0.20,
-            p_value=0.15,
-            classification="no significant inverse relationship",
-            recovery_deltas=[0.05],
-            context_sizes=[8000],
-            models=["model-a"]
-        )
-        assert result.classification == "no significant inverse relationship"
+    def test_stats_validation_success(self):
+        data = {
+            "model_id": "m1",
+            "baseline_accuracy": 0.7,
+            "retrieval_accuracy": 0.85,
+            "recovery_delta": 0.15,
+            "context_window_size": 8192,
+            "correlation_coefficient": -0.45,
+            "p_value": 0.02,
+            "classification": "inverse",
+            "easy_questions_degraded": False
+        }
+        validate_stats_schema(data)
+
+    def test_stats_validation_invalid_classification(self):
+        data = {
+            "model_id": "m1",
+            "baseline_accuracy": 0.7,
+            "retrieval_accuracy": 0.85,
+            "recovery_delta": 0.15,
+            "context_window_size": 8192,
+            "correlation_coefficient": -0.45,
+            "p_value": 0.02,
+            "classification": "invalid_class",
+            "easy_questions_degraded": False
+        }
+        with pytest.raises(ValueError, match="Invalid classification"):
+            validate_stats_schema(data)

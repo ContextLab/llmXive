@@ -1,32 +1,175 @@
-# Schema for statistical results output
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Analysis Output Schema
+description: >
+  Schema defining the structure of statistical result artifacts produced by the
+  research pipeline (Mann-Whitney U tests, multiple comparison corrections,
+  power analysis, and regression diagnostics).
 type: object
-properties:
-  mann_whitney_u_statistic:
-    type: number
-    description: The Mann-Whitney U statistic.
-  mann_whitney_p_value:
-    type: number
-    description: The p-value for the Mann-Whitney U test.
-  regression_r_squared:
-    type: number
-    description: The R-squared value from the linear regression.
-  regression_vif:
-    type: number
-    description: The Variance Inflation Factor from the linear regression.
-  power_analysis_effect_size:
-    type: number
-    description: The effect size for the power analysis.
-  power_analysis_power:
-    type: number
-    description: The power of the test.
-  audit_accuracy:
-    type: number
-    description: The accuracy of the classification against human labels.
 required:
-  - mann_whitney_u_statistic
-  - mann_whitney_p_value
-  - regression_r_squared
-  - regression_vif
-  - power_analysis_effect_size
-  - power_analysis_power
-  - audit_accuracy
+  - metadata
+  - mann_whitney_results
+  - correction_results
+  - power_analysis_results
+additionalProperties: false
+
+properties:
+  metadata:
+    type: object
+    description: Execution metadata for reproducibility.
+    required:
+      - timestamp
+      - seed
+      - dataset_version
+      - script_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the analysis run.
+      seed:
+        type: integer
+        description: Random seed used for the analysis (from config).
+      dataset_version:
+        type: string
+        description: Version or hash of the input dataset used.
+      script_version:
+        type: string
+        description: Version or hash of the analysis script.
+      config:
+        type: object
+        description: Relevant configuration parameters used.
+        properties:
+          correction_method:
+            type: string
+            description: Method used for multiple comparison correction (e.g., 'bonferroni', 'fdr_bh').
+          alpha:
+            type: number
+            description: Significance level (alpha) used for tests.
+
+  mann_whitney_results:
+    type: object
+    description: Results of Mann-Whitney U tests comparing LLM-generated vs. Human-written code.
+    required:
+      - metric
+      - group_a_label
+      - group_b_label
+      - statistic
+      - p_value
+      - effect_size_r
+      - significant
+    properties:
+      metric:
+        type: string
+        description: The metric being tested (e.g., 'comment_count', 'sentiment_score', 'merge_time_hours').
+      group_a_label:
+        type: string
+        description: Label for the first group (e.g., 'LLM-Generated').
+      group_b_label:
+        type: string
+        description: Label for the second group (e.g., 'Human-Written').
+      statistic:
+        type: number
+        description: The Mann-Whitney U statistic.
+      p_value:
+        type: number
+        description: The raw p-value from the test.
+      effect_size_r:
+        type: number
+        description: Effect size calculated as Z / sqrt(N).
+      significant:
+        type: boolean
+        description: Whether the result is significant at the specified alpha level (before correction).
+
+  correction_results:
+    type: object
+    description: Results after applying multiple comparison correction.
+    required:
+      - method
+      - alpha
+      - adjusted_p_values
+      - significant_indices
+    properties:
+      method:
+        type: string
+        description: The correction method applied (e.g., 'bonferroni', 'fdr_bh').
+      alpha:
+        type: number
+        description: The significance threshold used.
+      adjusted_p_values:
+        type: array
+        items:
+          type: number
+        description: Array of adjusted p-values corresponding to the metrics in mann_whitney_results.
+      significant_indices:
+        type: array
+        items:
+          type: integer
+        description: Indices of metrics that remain significant after correction.
+
+  power_analysis_results:
+    type: object
+    description: Results of the statistical power analysis.
+    required:
+      - metric
+      - sample_size_a
+      - sample_size_b
+      - effect_size
+      - power
+      - alpha
+    properties:
+      metric:
+        type: string
+        description: The metric for which power was calculated.
+      sample_size_a:
+        type: integer
+        description: Sample size of group A.
+      sample_size_b:
+        type: integer
+        description: Sample size of group B.
+      effect_size:
+        type: number
+        description: The observed effect size (e.g., Cohen's d or r).
+      power:
+        type: number
+        description: The calculated statistical power (1 - beta).
+      alpha:
+        type: number
+        description: The significance level used.
+      conclusion:
+        type: string
+        description: Human-readable conclusion regarding statistical power (e.g., 'Sufficient', 'Insufficient').
+
+  regression_diagnostics:
+    type: object
+    description: Optional diagnostics from linear regression analysis (VIF, coefficients).
+    properties:
+      model_summary:
+        type: object
+        properties:
+          r_squared:
+            type: number
+          adj_r_squared:
+            type: number
+      vif_scores:
+        type: object
+        description: Variance Inflation Factor scores for each covariate.
+        additionalProperties:
+          type: number
+      coefficients:
+        type: array
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            coef:
+              type: number
+            p_value:
+              type: number
+        description: Regression coefficients and p-values.
+
+  warnings:
+    type: array
+    items:
+      type: string
+    description: List of warnings generated during analysis (e.g., low power, collinearity).

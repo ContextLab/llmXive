@@ -7,25 +7,23 @@ T015:
     \ rule."
 T017:
   c: false
-  h: 4a2ce5f09eee5a52b35ed09d67455f221cd550519e8ecd3c8932f2702ff10e78
-  r: The `code/data/preprocess.py` file stops after a partially shown `compute_basic_stats`
-    function and contains no code that creates a random sample of classified PRs or
-    writes it to `docs/reports/audit_sample.csv`. Moreover, the required `docs/reports/audit_sample.csv`
-    file is absent from the repository. Both the implementation and the output artifact
-    are missing.
+  h: 8d40b94e3d96208876716583035639b85dcd513a3a12be0ba5591fab59925284
+  r: "The provided `code/data/preprocess.py` does not contain logic to generate a\
+    \ random sample of classified PRs nor to write `docs/reports/audit_sample.csv`;\
+    \ it is truncated, contains a typo (`return resul`), and the required CSV file\
+    \ is missing. The task\u2019s core output is therefore not present."
 T017b:
   c: false
-  h: 61da9cdb0d6a5b64eeda465d6820e5bc351d21454c8661ec194629074107d96c
-  r: "The required output file `docs/reports/audit_sample_labeled.csv` does not exist,\
-    \ so the script\u2019s result cannot be verified. Additionally, the provided `preprocess.py`\
-    \ is truncated and does not show code that writes a CSV with the required columns\
-    \ (PR ID, commit message, code snippet). The missing CSV (and likely missing implementation)\
-    \ must be added to satisfy the task."
+  h: b145387583be281eb951d37bc1f87b065181245724b1aa58ffdb6d78b337242b
+  r: The `code/data/preprocess.py` file does not implement the required logic to create
+    a CSV with PR ID, commit message, and code snippet, and it contains a bug (`return
+    resul`). Moreover, the expected output file `docs/reports/audit_sample_labeled.csv`
+    is missing entirely.
 T017c:
   c: false
-  h: b12476e5884329ac9a8a90353d900a41508fbf1f38c3f9fcd3c92385ee6240d8
-  r: "The required `docs/reports/audit_sample_labeled.csv` file is missing, and the\
-    \ provided `code/data/preprocess.py` does not contain any logic that reads this\
-    \ CSV, compares it to heuristic classifications, computes an accuracy rate, or\
-    \ writes `docs/reports/audit_accuracy.json`. Consequently the task\u2019s core\
-    \ requirements are not met."
+  h: 7da3daefda76a161268fc69cfc861af08746a66aab1091654170d15e3b890d5b
+  r: "The provided `code/data/preprocess.py` is truncated, contains a typo (`return\
+    \ resul`) and never writes the accuracy result to `docs/reports/audit_accuracy.json`.\
+    \ Moreover, the required input file `docs/reports/audit_sample_labeled.csv` and\
+    \ the expected output file `docs/reports/audit_accuracy.json` are absent from\
+    \ the repository. The task\u2019s core artifacts are missing or non\u2011functional."

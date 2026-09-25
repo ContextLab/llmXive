@@ -1,26 +1,14 @@
-# PROJ-1071: llmXive Follow-up - Extending SynthDocBench
+# PROJ-1071: llmXive Follow-up: Extending SynthDocBench with Decoupled Retrieval
 
-This project implements a decoupled retrieval pipeline to investigate and mitigate
-the "middle-third" bias in Visual Language Models (VLMs) when processing long documents.
+## Project Overview
+This project extends the SynthDocBench benchmark to evaluate the efficacy of decoupled retrieval mechanisms in mitigating the "middle-third" positional bias in Vision Language Models (VLMs).
 
-## Project Structure
-
-- `code/`: Source code for document generation, baseline evaluation, retrieval, and analysis.
-- `data/raw/`: Generated synthetic PDFs and metadata (produced by T007).
-- `data/derived/`: Evaluation metrics, retrieval stats, and statistical results.
+## Structure
+- `code/`: Python source modules for document generation, baseline evaluation, retrieval indexing, and statistical analysis.
+- `data/`: Raw synthetic documents, derived metrics, and checksums.
 - `tests/`: Unit and integration tests.
-- `specs/`: Design documents.
-- `contracts/`: Data schemas.
-
-## Setup
-
-1. Install dependencies: `pip install -r requirements.txt`
-2. Ensure Tesseract OCR is installed on the system.
+- `specs/`: Design documents and requirements.
+- `logs/`: Structured JSON logs for pipeline tracing.
 
 ## Execution
-
-Follow the task sequence in `tasks.md`:
-1. T007: Generate synthetic documents.
-2. T010-T013: Run baseline evaluation.
-3. T014-T021: Run retrieval-augmented pipeline.
-4. T022-T028: Perform statistical analysis.
+Run the pipeline via `python code/doc_generator.py` to generate data, followed by `python code/baseline_eval.py` and `python code/retrieval_eval.py`.

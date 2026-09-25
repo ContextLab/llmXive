@@ -156,7 +156,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T039 [P] Documentation updates in `quickstart.md` and `research.md` (Ensure all steps are verified).
-- [ ] T040 Code cleanup and refactoring of `code/` modules (Refactor `code/data_loader.py` to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+- [X] T040 Code cleanup and refactoring of `code/` modules (Refactor `code/data_loader.py` to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
 - [ ] T041 Performance optimization: Profile code/ using cProfile; implement caching for T013/T014 fetches; verify runtime < 6h on GitHub Actions runner.
 - [ ] T042 [P] Additional unit tests in `tests/unit/` for centrality algorithms and statistical functions.
 - [ ] T043 Run `hash_checker.py` and verify `state/` artifact hashes are updated.

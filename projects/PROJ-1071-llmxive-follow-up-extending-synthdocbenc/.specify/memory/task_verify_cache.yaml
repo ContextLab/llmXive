@@ -27,9 +27,16 @@ T006:
     \ required artifact is missing."
 T010:
   c: false
-  h: 76069d511a17361f72398d6a48261a1b5e90b9251bb50cc19f8135df0a1420af
-  r: "The provided `code/baseline_eval.py` stops after a partially shown `load_pdf_image`\
-    \ function and contains no visible logic for running VLM inference, profiling\
-    \ latency/memory, or writing results to `data/derived/perf_metrics.json`. Moreover,\
-    \ the required `perf_metrics.json` file is missing entirely. The task\u2019s core\
-    \ requirements are therefore not satisfied."
+  h: 945494ae02cdcfa812553375d0abf090eec4edf305c81faf5d16aac0cc2cf895
+  r: The provided `baseline_eval.py` is truncated and shows no inference loop or profiling
+    code, and `data/derived/perf_metrics.json` contains only an empty list, indicating
+    latency/memory metrics were never written. The required functionality to run VLM
+    inference over the models in `models.yaml` and log performance metrics is missing.
+T014:
+  c: false
+  h: e387878dfe46e040fbfa502a3c750c239f55c1281fa8aa01cda850096b85d5f1
+  r: "The provided `retrieval_index.py` uses PyMuPDF to extract text instead of Tesseract\
+    \ OCR and does not show any profiling hooks that write latency/memory data (the\
+    \ `perf_metrics.json` file is just an empty list). Consequently, the core requirements\u2014\
+    OCR via Tesseract, FAISS index construction, and performance logging\u2014are\
+    \ not fulfilled."
