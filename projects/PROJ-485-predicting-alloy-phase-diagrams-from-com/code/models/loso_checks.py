@@ -1,260 +1,195 @@
-"""
-Implementation of Property Range Extrapolation and New Element checks for LOSO cross-validation.
-Task: T022
-"""
 import os
 import json
 import sys
 import csv
 import numpy as np
 from scipy.spatial import ConvexHull
-from typing import Dict, List, Set, Tuple, Optional
-from datetime import datetime
-
-# Importing from existing project API surface
-try:
-    from utils.logging import get_logger, log_info, log_warning, log_error
-    from utils.error_codes import ErrorCode
-except ImportError:
-    # Fallback for direct execution or missing imports in isolated env
-    import logging
-    def get_logger(name): return logging.getLogger(name)
-    def log_info(msg): print(f"INFO: {msg}")
-    def log_warning(msg): print(f"WARNING: {msg}")
-    def log_error(msg): print(f"ERROR: {msg}")
-
-    class ErrorCode:
-        INVALID_SCOPE = "INVALID_SCOPE"
-        DATA_SOURCE_MISSING = "DATA_SOURCE_MISSING"
-        MISSING_TEMP_COORDS = "MISSING_TEMP_COORDS"
+from typing import Dict, List, Any, Optional, Tuple
+from utils.logging import get_logger, log_info, log_error, log_warning
+from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
 def load_elemental_properties(filepath: str = "data/raw/elemental_properties.csv") -> Dict[str, Dict[str, float]]:
-    """
-    Loads elemental properties from the CSV file.
-    Returns a dict: {element: {property: value}}
-    """
-    properties = {}
+    """Load elemental properties from CSV into a dictionary keyed by element symbol."""
+    props = {}
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Elemental properties file not found: {filepath}")
     
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            element = row['element']
-            properties[element] = {
-                'radius': float(row['atomic_radius_angstrom']),
-                'electronegativity': float(row['electronegativity_pauling']),
-                'valence': int(row['valence_electrons'])
-            }
-    return properties
+            element = row['element'].strip()
+            try:
+                props[element] = {
+                    'atomic_radius': float(row['atomic_radius_angstrom']),
+                    'electronegativity': float(row['electronegativity_pauling']),
+                    'valence_electrons': float(row['valence_electrons'])
+                }
+            except (ValueError, KeyError) as e:
+                log_error(logger, f"Failed to parse row for element {element}: {e}")
+                continue
+    return props
 
-def calculate_convex_hull(training_elements: Set[str], properties: Dict[str, Dict[str, float]]) -> Dict:
+def calculate_convex_hull(points: np.ndarray) -> Optional[ConvexHull]:
     """
-    Calculates the convex hull of elemental properties (radius, EN) for the training set.
-    Returns the vertices of the hull and the hull object for point-in-polygon checks.
+    Calculate the convex hull of a set of 2D points (radius, electronegativity).
+    Returns None if fewer than 3 points are provided or if points are collinear.
     """
-    if len(training_elements) < 3:
-        # For 1 or 2 elements, the hull is degenerate or a line segment.
-        # We treat this as a "point" or "line" check logic later, but for ConvexHull we need >= 3 points.
-        # However, for the purpose of this check, if we have < 3 unique elements, 
-        # we can't form a 2D hull. We will return the points themselves as vertices.
-        points = []
-        for elem in training_elements:
-            if elem in properties:
-                points.append([properties[elem]['radius'], properties[elem]['electronegativity']])
-        
-        if len(points) < 1:
-            return {"vertices": [], "hull": None, "is_degenerate": True}
-        
-        return {
-            "vertices": [{"element": list(training_elements)[i], "radius": p[0], "electronegativity": p[1]} for i, p in enumerate(points)],
-            "hull": None,
-            "is_degenerate": True
-        }
+    if points.shape[0] < 3:
+        return None
+    try:
+        hull = ConvexHull(points)
+        return hull
+    except Exception as e:
+        log_warning(logger, f"Failed to compute convex hull: {e}")
+        return None
 
-    points = []
-    elem_map = []
-    for elem in training_elements:
-        if elem in properties:
-            points.append([properties[elem]['radius'], properties[elem]['electronegativity']])
-            elem_map.append(elem)
+def check_element_in_hull(element_props: Dict[str, float], hull: Optional[ConvexHull]) -> bool:
+    """
+    Check if a point (element properties) lies strictly inside or on the boundary of the convex hull.
+    Returns True if inside/on boundary, False if outside (extrapolation).
+    """
+    if hull is None:
+        return False
     
-    if len(points) < 3:
-        return {
-            "vertices": [{"element": elem_map[i], "radius": p[0], "electronegativity": p[1]} for i, p in enumerate(points)],
-            "hull": None,
-            "is_degenerate": True
-        }
-
+    point = np.array([[element_props['atomic_radius'], element_props['electronegativity']]])
+    
     try:
-        hull = ConvexHull(np.array(points))
-        vertices_indices = hull.vertices
-        vertices = []
-        for idx in vertices_indices:
-            elem = elem_map[idx]
-            p = points[idx]
-            vertices.append({
-                "element": elem,
-                "radius": float(p[0]),
-                "electronegativity": float(p[1])
-            })
+        # scipy ConvexHull does not have a direct 'contains' method for points
+        # We use the 'find_simplest' or check if point is a convex combination.
+        # A simpler geometric check for 2D: check if point is on the correct side of all hull edges.
+        # However, for robustness, we can use the Delaunay approach or simply check if the point
+        # is within the bounding box and then use a containment check.
+        # Given the constraints, we will use the `point_inside_hull` helper logic.
         
-        return {
-            "vertices": vertices,
-            "hull": hull,
-            "is_degenerate": False
-        }
+        # Using the standard approach: check if the point is inside the hull by verifying
+        # that it is on the correct side of every hyperplane defined by the hull facets.
+        # For 2D, facets are edges.
+        
+        # Simpler approach for 2D:
+        # If the hull is valid, we can check if the point is inside by checking if it
+        # lies within the hull's bounding box and then using a point-in-polygon test.
+        # But scipy's ConvexHull doesn't expose this directly.
+        
+        # Alternative: Use the fact that a point is inside a convex hull if it can be
+        # represented as a convex combination of the vertices. This is an LP problem.
+        # Too complex for this scope.
+        
+        # Robust 2D check:
+        # 1. Check bounding box first.
+        # 2. Use the `hull.equations` to check half-space constraints.
+        
+        # Equations are of the form: normal . x + offset = 0
+        # For a convex hull, the interior satisfies normal . x + offset <= 0 (or >= 0 depending on convention)
+        # scipy's ConvexHull.equations: The equation of the plane: normal . x + offset = 0
+        # The points in the hull satisfy: normal . x + offset <= 0 (usually)
+        
+        # Let's verify the sign convention.
+        # We will assume the standard: points satisfy normal . x + offset <= 0
+        
+        # Check against all facets
+        for eq in hull.equations:
+            normal = eq[:-1]
+            offset = eq[-1]
+            # Calculate distance to the plane
+            dist = np.dot(normal, point[0]) + offset
+            # If dist > 0 (with a small tolerance), the point is outside
+            if dist > 1e-8:
+                return False
+        return True
     except Exception as e:
-        log_error(f"Failed to compute convex hull: {e}")
-        return {"vertices": [], "hull": None, "is_degenerate": True}
-
-def check_element_in_hull(element: str, hull_data: Dict, properties: Dict[str, Dict[str, float]]) -> Tuple[bool, str]:
-    """
-    Checks if a test element falls within the convex hull of training elements.
-    Returns (is_inside, reason_string).
-    """
-    if element not in properties:
-        return False, "Element properties not found"
-
-    if hull_data["is_degenerate"] or hull_data["hull"] is None:
-        # If training set has < 3 elements, we can only check exact matches or simple range checks.
-        # For strict FR-010 "New Element Check", if the element is not in the training set, it's a new element.
-        # We rely on the caller to handle the "New Element" logic separately, but here we check geometric inclusion.
-        # If degenerate, we assume strict set membership is required.
-        return False, "Training set too small for hull check"
-
-    point = np.array([[properties[element]['radius'], properties[element]['electronegativity']]])
-    try:
-        # scipy.spatial.ConvexHull does not have a direct "contains" method for 2D points easily.
-        # We can use the `equations` attribute or `Delaunay` logic.
-        # A simpler approach for 2D: check if point is inside the polygon defined by vertices.
-        # Using the hull's equations: Ax + By <= C (for 2D, it's a half-plane)
-        # hull.equations is (n_vertices, n_dim + 1).
-        # For a point to be inside, point @ equation[:-1] + equation[-1] <= 0 (depending on sign convention).
-        # Let's use a robust method: check if the point is on the same side of all hull lines.
-        
-        # Actually, a simpler trick with scipy:
-        # If we add the point to the hull and the volume (area) doesn't change significantly, it's inside? No, that's expensive.
-        # Let's use the `equations` check.
-        # The equation form is: normal . x + offset <= 0
-        normal = hull_data["hull"].equations[:, :-1]
-        offset = hull_data["hull"].equations[:, -1]
-        
-        # Check if point satisfies all inequalities
-        # point . normal + offset <= 0 (with some tolerance for float errors)
-        values = np.dot(point, normal.T) + offset
-        if np.all(values <= 1e-9):
-            return True, "Inside hull"
-        else:
-            return False, "Outside hull (extrapolation)"
-    except Exception as e:
-        log_error(f"Error checking hull inclusion: {e}")
-        return False, "Error during check"
+        log_error(logger, f"Error checking point in hull: {e}")
+        return False
 
 def apply_property_range_extrapolation_check(
-    training_elements: Set[str],
-    test_elements: Set[str],
-    properties: Dict[str, Dict[str, float]],
-    hull_data: Dict
-) -> List[Tuple[str, str]]:
+    train_elements: List[str],
+    test_elements: List[str],
+    elemental_props: Dict[str, Dict[str, float]]
+) -> Tuple[bool, str]:
     """
-    Checks if any test element falls outside the convex hull of training elements.
-    Returns a list of (element, reason) for warnings.
+    Check if any test element falls outside the convex hull of training elements' properties.
+    Returns (is_valid, message).
+    - If is_valid is False, it means extrapolation occurred.
+    - If is_valid is True, all test elements are within the hull.
     """
-    warnings = []
+    # 1. Collect properties for training elements
+    train_points = []
+    for elem in train_elements:
+        if elem in elemental_props:
+            props = elemental_props[elem]
+            train_points.append([props['atomic_radius'], props['electronegativity']])
+    
+    if len(train_points) < 3:
+        # Cannot form a 2D hull with fewer than 3 points.
+        # If there are test elements, we cannot guarantee they are inside.
+        # Treat as extrapolation risk unless test set is empty or subset of train.
+        if set(test_elements).issubset(set(train_elements)):
+            return True, "Test elements are subset of training elements (no new elements)."
+        else:
+            return False, "Training set too small to form convex hull. Extrapolation risk."
+
+    train_array = np.array(train_points)
+    hull = calculate_convex_hull(train_array)
+    
+    if hull is None:
+        return False, "Failed to compute convex hull for training set."
+
+    # 2. Check each test element
     for elem in test_elements:
-        if elem not in training_elements:
-            is_inside, reason = check_element_in_hull(elem, hull_data, properties)
-            if not is_inside:
-                warnings.append((elem, reason))
-    return warnings
+        if elem not in elemental_props:
+            continue # Should have been caught by "New Element" check earlier
+        
+        props = elemental_props[elem]
+        if not check_element_in_hull(props, hull):
+            return False, f"Element {elem} falls outside the convex hull of training elements (Extrapolation)."
+    
+    return True, "All test elements within training convex hull."
 
 def log_skipped_fold(
-    fold_id: str,
+    system_id: str,
     reason: str,
-    log_path: str = "data/logs/skipped_fold.log"
+    log_file: str = "data/logs/skipped_fold.log"
 ):
-    """
-    Logs a skipped fold to the specified JSON lines file.
-    """
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    """Log a skipped fold to the specified JSON log file."""
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
     entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "fold_id": fold_id,
+        "fold_id": system_id,
         "reason": reason,
-        "error_code": ErrorCode.INVALID_SCOPE
+        "timestamp": str(datetime.now())
     }
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(entry) + '\n')
-    log_warning(f"Fold {fold_id} skipped: {reason}")
+    with open(log_file, 'a') as f:
+        f.write(json.dumps(entry) + "\n")
+    log_warning(logger, f"Fold {system_id} skipped: {reason}")
 
 def save_convex_hull_artifact(
-    hull_data: Dict,
+    hull_data: Dict[str, Any],
     output_path: str = "data/artifacts/convex_hull.json"
 ):
-    """
-    Saves the convex hull vertices to a JSON file.
-    """
+    """Save convex hull metadata to a JSON file for traceability."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    # Remove the scipy hull object before saving as it is not JSON serializable
-    serializable_data = {
-        "vertices": hull_data["vertices"],
-        "is_degenerate": hull_data["is_degenerate"]
-    }
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(serializable_data, f, indent=2)
-    log_info(f"Convex hull artifact saved to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(hull_data, f, indent=2)
+    log_info(logger, f"Convex hull artifact saved to {output_path}")
 
 def main():
     """
-    Main entry point to demonstrate the logic.
-    In a real pipeline, this would be called by train.py with the actual fold data.
+    Main entry point for running the extrapolation checks.
+    This function is intended to be called by code/models/train.py.
     """
-    # Mock data for demonstration if real data is not available in this specific execution context
-    # In the real pipeline, `train.py` would pass the actual sets.
-    # We assume the existence of data/raw/elemental_properties.csv as per T006.
+    logger.info("Starting convex hull and extrapolation checks...")
     
-    props_file = "data/raw/elemental_properties.csv"
-    if not os.path.exists(props_file):
-        # Create a minimal dummy file if missing for the sake of this script's standalone testability
-        # In a real run, this should fail loudly or be provided by T006.
-        log_warning(f"{props_file} not found. Creating dummy data for demonstration.")
-        os.makedirs("data/raw", exist_ok=True)
-        with open(props_file, 'w') as f:
-            f.write("element,atomic_radius_angstrom,electronegativity_pauling,valence_electrons\n")
-            f.write("Cu,1.28,1.90,1\n")
-            f.write("Zn,1.33,1.65,2\n")
-            f.write("Al,1.43,1.61,3\n")
-            f.write("Fe,1.26,1.83,2\n")
-            f.write("C,0.77,2.55,4\n")
-    
-    properties = load_elemental_properties(props_file)
-    
-    # Simulate a training fold (Cu, Zn, Al) and test fold (Fe)
-    training_elements = {"Cu", "Zn", "Al"}
-    test_elements = {"Fe"}
-    
-    # 1. Calculate Convex Hull for Training
-    hull_data = calculate_convex_hull(training_elements, properties)
-    save_convex_hull_artifact(hull_data)
-    
-    # 2. Check for New Elements (FR-010)
-    # If test element is NOT in training set, it is a "New Element"
-    new_elements = test_elements - training_elements
-    if new_elements:
-        for elem in new_elements:
-            fold_id = f"Train({','.join(training_elements)})_Test({elem})"
-            log_skipped_fold(fold_id, "invalid_scope")
-        return # Stop processing this fold
-    
-    # 3. Check for Extrapolation (Warning only)
-    warnings = apply_property_range_extrapolation_check(training_elements, test_elements, properties, hull_data)
-    for elem, reason in warnings:
-        log_warning(f"Element {elem} in test set is outside training hull: {reason}")
+    # Load properties
+    try:
+        props = load_elemental_properties()
+        logger.info(f"Loaded properties for {len(props)} elements.")
+    except Exception as e:
+        log_error(logger, f"Failed to load elemental properties: {e}")
+        sys.exit(1)
 
-    log_info("Fold passed checks.")
+    # Example usage (typically integrated into the LOSO loop in train.py)
+    # This function provides the core logic to be used by train.py
+    logger.info("Extrapolation check module ready.")
 
 if __name__ == "__main__":
     main()

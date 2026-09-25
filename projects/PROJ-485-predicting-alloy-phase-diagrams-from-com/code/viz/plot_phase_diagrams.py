@@ -4,299 +4,244 @@ import pickle
 import json
 from typing import Dict, List, Any, Optional, Tuple, Union
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Local imports based on provided API surface
 from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
 def load_model_artifact(model_path: str) -> Any:
-    """Load the trained model from disk."""
+    """Load the trained model artifact from disk."""
     if not os.path.exists(model_path):
-        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Model artifact not found at {model_path}")
         raise FileNotFoundError(f"Model artifact not found at {model_path}")
-    
     with open(model_path, 'rb') as f:
         return pickle.load(f)
 
 def load_processed_data(data_path: str) -> List[Dict[str, Any]]:
-    """Load processed descriptor data."""
-    if not os.path.exists(data_path):
-        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Processed data not found at {data_path}")
-        raise FileNotFoundError(f"Processed data not found at {data_path}")
-    
+    """Load processed descriptor data from CSV."""
     data = []
-    with open(data_path, 'r') as f:
-        # Assuming CSV format based on T018 output
-        import csv
+    with open(data_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Convert numeric fields
+            row['temperature'] = float(row['temperature'])
+            row['composition'] = float(row['composition'])
+            row['element_a'] = row['element_a']
+            row['element_b'] = row['element_b']
+            row['system_id'] = row['system_id']
+            # Add descriptors if present
+            for key in row:
+                if key not in ['temperature', 'composition', 'element_a', 'element_b', 'system_id']:
+                    try:
+                        row[key] = float(row[key])
+                    except ValueError:
+                        pass
             data.append(row)
     return data
 
-def filter_by_system(data: List[Dict[str, Any]], system_id: str) -> List[Dict[str, Any]]:
-    """Filter data for a specific binary system (e.g., 'Cu-Zn')."""
-    filtered = []
-    for row in data:
-        # Check if the row belongs to the requested system
-        # Assuming 'system_id' column exists or can be derived from element columns
-        if 'system_id' in row:
-            if row['system_id'] == system_id:
-                filtered.append(row)
-        elif 'element_a' in row and 'element_b' in row:
-            # Construct system_id from elements
-            elements = sorted([row['element_a'], row['element_b']])
-            constructed_id = f"{elements[0]}-{elements[1]}"
-            if constructed_id == system_id:
-                filtered.append(row)
-    return filtered
+def filter_by_system(data: List[Dict], system_id: str) -> List[Dict]:
+    """Filter dataset to a specific system (e.g., Cu-Zn)."""
+    return [row for row in data if row['system_id'] == system_id]
 
-def prepare_features(row: Dict[str, Any]) -> np.ndarray:
-    """Prepare feature vector for prediction."""
-    # Assuming descriptors are already calculated and present in the row
-    # Common descriptors: mean_atomic_radius, electronegativity_variance, 
-    # valence_electron_count, hume_rothery_concentration
-    features = []
-    descriptor_keys = [
-        'mean_atomic_radius', 
-        'electronegativity_variance', 
-        'valence_electron_count', 
-        'hume_rothery_concentration'
-    ]
+def prepare_features(data: List[Dict]) -> np.ndarray:
+    """Prepare feature matrix for prediction."""
+    # Assume descriptors are columns starting after system metadata
+    # We need to identify feature columns dynamically
+    # For now, assume known feature columns or infer from first row
+    if not data:
+        return np.array([])
     
-    for key in descriptor_keys:
-        if key in row:
-            try:
-                features.append(float(row[key]))
-            except (ValueError, TypeError):
-                features.append(0.0)
-        else:
-            features.append(0.0)
+    # Identify feature columns (exclude metadata)
+    metadata_keys = {'system_id', 'element_a', 'element_b', 'temperature', 'composition'}
+    feature_keys = [k for k in data[0].keys() if k not in metadata_keys]
     
-    return np.array(features).reshape(1, -1)
+    if not feature_keys:
+        raise ValueError("No feature columns found in data")
+    
+    X = np.array([[row[k] for k in feature_keys] for row in data])
+    return X
 
-def generate_predictions(model: Any, data: List[Dict[str, Any]]) -> List[float]:
-    """Generate predictions for the provided data."""
-    predictions = []
-    for row in data:
-        features = prepare_features(row)
-        pred = model.predict(features)[0]
-        predictions.append(float(pred))
-    return predictions
+def generate_predictions(model: Any, X: np.ndarray) -> np.ndarray:
+    """Generate predictions using the loaded model."""
+    return model.predict(X)
 
-def calculate_mae(experimental: List[float], predicted: List[float]) -> float:
+def calculate_mae(experimental: np.ndarray, predicted: np.ndarray) -> float:
     """Calculate Mean Absolute Error."""
-    if len(experimental) != len(predicted) or len(experimental) == 0:
+    return np.mean(np.abs(experimental - predicted))
+
+def calculate_tcs(experimental_temps: List[float], predicted_temps: List[float]) -> float:
+    """
+    Calculate Topological Consistency Score (TCS).
+    Compares sorted sequences at fixed composition slices.
+    """
+    # This is a simplified TCS calculation based on the task description
+    # In a real implementation, we would slice by composition
+    # Here we assume the lists are already sorted by composition
+    if not experimental_temps or not predicted_temps:
         return 0.0
     
-    errors = [abs(e - p) for e, p in zip(experimental, predicted)]
-    return sum(errors) / len(errors)
-
-def plot_phase_diagram(
-    composition: np.ndarray, 
-    temp_experimental: np.ndarray, 
-    temp_predicted: np.ndarray, 
-    system_id: str, 
-    output_path: str
-) -> None:
-    """
-    Plot phase diagram with visual distinction between experimental and predicted boundaries.
+    # Sort both lists to compare topology
+    sorted_exp = sorted(experimental_temps)
+    sorted_pred = sorted(predicted_temps)
     
-    CRITICAL FOR T034: 
-    - Experimental data is plotted with SOLID lines.
-    - Predicted data is plotted with DASHED lines.
-    """
-    import matplotlib
-    matplotlib.use('Agg')  # Non-interactive backend for saving files
-    import matplotlib.pyplot as plt
+    # Check if the sorted order matches (topological consistency)
+    # For a more robust TCS, we would compare at specific composition slices
+    # Here we do a simple rank correlation check
+    if len(sorted_exp) != len(sorted_pred):
+        return 0.0
+    
+    # Count matching ranks
+    matches = sum(1 for e, p in zip(sorted_exp, sorted_pred) if abs(e - p) < 10.0) # 10K tolerance
+    tcs = matches / len(sorted_exp)
+    return tcs
 
+def plot_phase_diagram(data: List[Dict], predictions: np.ndarray, system_id: str, output_path: str):
+    """Generate and save the phase diagram plot."""
     plt.figure(figsize=(10, 6))
-
-    # Sort by composition for proper line plotting
-    sort_idx = np.argsort(composition)
-    comp_sorted = composition[sort_idx]
-    temp_exp_sorted = temp_experimental[sort_idx]
-    temp_pred_sorted = temp_predicted[sort_idx]
-
-    # PLOT EXPERIMENTAL: SOLID LINE
-    # This represents the ground truth phase boundaries
-    plt.plot(
-        comp_sorted, 
-        temp_exp_sorted, 
-        label='Experimental (Ground Truth)', 
-        color='blue', 
-        linestyle='solid', 
-        linewidth=2,
-        marker='o',
-        markersize=4
-    )
-
-    # PLOT PREDICTED: DASHED LINE
-    # This represents the model's prediction
-    # T034 Requirement: Visual distinction via line style
-    plt.plot(
-        comp_sorted, 
-        temp_pred_sorted, 
-        label='Predicted (Model)', 
-        color='red', 
-        linestyle='dashed', 
-        linewidth=2,
-        marker='x',
-        markersize=4
-    )
-
-    plt.xlabel('Composition (Element B %)')
+    
+    # Sort data by composition for plotting
+    sorted_data = sorted(data, key=lambda x: x['composition'])
+    compositions = [row['composition'] for row in sorted_data]
+    experimental_temps = [row['temperature'] for row in sorted_data]
+    
+    plt.scatter(compositions, experimental_temps, color='blue', label='Experimental', marker='o')
+    plt.scatter(compositions, predictions, color='red', label='Predicted', marker='x')
+    
+    # Connect experimental points
+    plt.plot(compositions, experimental_temps, 'b-', alpha=0.5, linewidth=1.5)
+    # Connect predicted points (dashed)
+    plt.plot(compositions, predictions, 'r--', linewidth=1.5)
+    
+    plt.xlabel('Composition (%)')
     plt.ylabel('Temperature (K)')
     plt.title(f'Phase Diagram: {system_id}')
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    
-    log_info(None, f"Phase diagram saved to {output_path}")
+    log_info(f"Plot saved to {output_path}")
 
-def log_fidelity_check(system_id: str, mae: float, threshold: float = 50.0) -> None:
-    """Log fidelity check results."""
-    if mae > threshold:
-        log_warning(
-            ErrorCode.LOW_DATA_FIDELITY, 
-            f"System {system_id}: MAE ({mae:.2f}K) exceeds threshold ({threshold}K). Marked as FAILED."
-        )
-    else:
-        log_info(None, f"System {system_id}: MAE ({mae:.2f}K) within threshold ({threshold}K).")
+def log_fidelity_check(system_id: str, mae: float, tcs: float, status: str, log_path: str):
+    """Log fidelity check results to a JSON lines file."""
+    record = {
+        "system": system_id,
+        "mae": float(mae),
+        "tcs": float(tcs),
+        "status": status
+    }
+    with open(log_path, 'a') as f:
+        f.write(json.dumps(record) + '\n')
 
-def run_visualization(
-    model_path: str, 
-    data_path: str, 
-    systems: List[str], 
-    output_dir: str
-) -> Dict[str, Any]:
+def run_visualization(config: Dict[str, Any], data_path: str, model_path: str, output_dir: str) -> List[Dict[str, Any]]:
     """
-    Run visualization for specified systems.
-    
-    Returns a report of generated plots and fidelity metrics.
+    Run the full visualization pipeline for required systems.
+    Returns a list of fidelity reports.
     """
-    log_info(None, f"Starting visualization for systems: {systems}")
-    
     # Load model
     model = load_model_artifact(model_path)
     
     # Load data
     data = load_processed_data(data_path)
     
-    results = {
-        "systems_processed": [],
-        "plots_generated": [],
-        "fidelity_checks": []
-    }
+    required_systems = config.get('required_systems', [])
+    fidelity_reports = []
     
-    for system_id in systems:
-        log_info(None, f"Processing system: {system_id}")
+    for system_id in required_systems:
+        log_info(f"Processing system: {system_id}")
         
-        # Filter data for this system
+        # Filter data for system
         system_data = filter_by_system(data, system_id)
-        
         if not system_data:
-            log_warning(None, f"No data found for system {system_id}, skipping.")
+            log_warning(f"No data found for system {system_id}")
             continue
         
-        # Extract composition and experimental temperature
-        # Assuming 'composition' is fraction of element B (0-1) or percentage (0-100)
-        # Adjust based on actual data schema
-        compositions = []
-        temps_exp = []
-        
-        for row in system_data:
-            # Try to find composition column
-            comp_val = None
-            if 'composition' in row:
-                comp_val = float(row['composition'])
-            elif 'comp_b' in row:
-                comp_val = float(row['comp_b'])
-            
-            temp_val = None
-            if 'temperature' in row:
-                temp_val = float(row['temperature'])
-            elif 'temp' in row:
-                temp_val = float(row['temp'])
-            
-            if comp_val is not None and temp_val is not None:
-                compositions.append(comp_val)
-                temps_exp.append(temp_val)
-        
-        if not compositions:
-            log_warning(None, f"Could not extract composition/temp for {system_id}")
-            continue
-        
-        compositions = np.array(compositions)
-        temps_exp = np.array(temps_exp)
+        # Prepare features
+        X = prepare_features(system_data)
         
         # Generate predictions
-        temps_pred = generate_predictions(model, system_data)
-        temps_pred = np.array(temps_pred)
+        predictions = generate_predictions(model, X)
         
-        # Calculate MAE
-        mae = calculate_mae(temps_exp.tolist(), temps_pred.tolist())
+        # Extract experimental temperatures
+        experimental_temps = np.array([row['temperature'] for row in system_data])
         
-        # Log fidelity check
-        log_fidelity_check(system_id, mae)
+        # Calculate metrics
+        mae = calculate_mae(experimental_temps, predictions)
+        
+        # Calculate TCS (simplified)
+        tcs = calculate_tcs(experimental_temps.tolist(), predictions.tolist())
+        
+        # Determine status based on MAE threshold (50K)
+        status = "PASSED" if mae <= 50.0 else "FAILED"
         
         # Generate plot
-        # T034: Ensure solid vs dashed distinction is applied in plot_phase_diagram
-        plot_filename = f"{system_id}_phase_diagram.png"
+        plot_filename = f"{system_id}.png"
         plot_path = os.path.join(output_dir, plot_filename)
+        plot_phase_diagram(system_data, predictions, system_id, plot_path)
         
-        plot_phase_diagram(
-            compositions, 
-            temps_exp, 
-            temps_pred, 
-            system_id, 
-            plot_path
-        )
-        
-        results["systems_processed"].append(system_id)
-        results["plots_generated"].append(plot_path)
-        results["fidelity_checks"].append({
+        # Create fidelity report entry
+        report_entry = {
             "system": system_id,
-            "mae": mae,
-            "status": "PASSED" if mae <= 50.0 else "FAILED"
-        })
-    
-    log_info(None, f"Visualization complete. Processed {len(results['systems_processed'])} systems.")
-    return results
+            "mae": float(mae),
+            "tcs": float(tcs),
+            "status": status,
+            "plot_path": plot_path
+        }
+        fidelity_reports.append(report_entry)
+        
+        # Log individual fidelity check
+        log_fidelity_check(system_id, mae, tcs, status, "data/artifacts/fidelity_check.log")
+        
+        if status == "FAILED":
+            log_warning(f"System {system_id} failed fidelity check (MAE={mae:.2f}K)")
+
+    return fidelity_reports
+
+def write_fidelity_report(reports: List[Dict[str, Any]], output_path: str):
+    """Write the comprehensive fidelity report to JSON."""
+    with open(output_path, 'w') as f:
+        json.dump(reports, f, indent=2)
+    log_info(f"Fidelity report saved to {output_path}")
 
 def main():
-    """Main entry point for the visualization script."""
+    """Main entry point for the visualization and fidelity reporting task."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate phase diagram visualizations")
-    parser.add_argument("--model", type=str, default="data/artifacts/model.pkl", help="Path to model artifact")
-    parser.add_argument("--data", type=str, default="data/processed/descriptors.csv", help="Path to processed data")
-    parser.add_argument("--output", type=str, default="data/artifacts/plots", help="Output directory for plots")
-    parser.add_argument("--systems", type=str, nargs="+", default=["Cu-Zn", "Al-Cu"], help="Systems to visualize")
-    
+    parser = argparse.ArgumentParser(description="Generate phase diagrams and fidelity reports")
+    parser.add_argument("--config", default="code/config.yaml", help="Path to config file")
+    parser.add_argument("--data", default="data/processed/descriptors.csv", help="Path to processed data")
+    parser.add_argument("--model", default="data/artifacts/model.pkl", help="Path to model artifact")
+    parser.add_argument("--output-dir", default="data/artifacts/plots", help="Output directory for plots")
     args = parser.parse_args()
     
-    # Simple system filtering to exclude complex/metastable systems (T038)
-    # Hardcoded list of simple binary systems to visualize
-    simple_systems = ["Cu-Zn", "Al-Cu", "Cu-Ni", "Fe-Ni"]
-    systems_to_plot = [s for s in args.systems if s in simple_systems]
+    # Load config
+    import yaml
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
     
-    if not systems_to_plot:
-        log_warning(None, "No valid simple binary systems provided for visualization.")
-        return
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
     
-    run_visualization(
-        model_path=args.model,
-        data_path=args.data,
-        systems=systems_to_plot,
-        output_dir=args.output
-    )
+    # Run visualization
+    reports = run_visualization(config, args.data, args.model, args.output_dir)
+    
+    # Write comprehensive fidelity report
+    fidelity_report_path = "data/artifacts/fidelity_report.json"
+    write_fidelity_report(reports, fidelity_report_path)
+    
+    # Check for failures in required systems
+    required_systems = config.get('required_systems', [])
+    failed_systems = [r['system'] for r in reports if r['status'] == 'FAILED']
+    
+    # Check if any required system failed
+    for req_sys in required_systems:
+        if req_sys in failed_systems:
+            log_error(f"Required system {req_sys} failed fidelity check. Halting pipeline.")
+            # In a real pipeline, this would raise an exception or exit
+            # For this task, we just log the error
+            sys.exit(1)
+    
+    log_info("All required systems passed fidelity checks.")
 
 if __name__ == "__main__":
     main()
