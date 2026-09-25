@@ -13,3 +13,18 @@ T016:
     \ in `data/raw/\u2026`, nor is there a `state/projects/...yaml` entry with a matching\
     \ SHA\u2011256 hash to verify. Consequently the required artifact (the saved raw\
     \ file and its hash verification) is missing."
+T043:
+  c: false
+  h: 12662b2d7caefa5c918b0b70c75ebd15cebc171ceab4ab2b9d7234f3dfe82f18
+  r: "The repository lacks the required `data/processed/raw_calibration.csv` file,\
+    \ so the validation step cannot be exercised. Moreover, the provided `code/hygiene.py`\
+    \ is truncated and does not show any implementation that checks for `null`/`NaN`\
+    \ in the specified columns or excludes offending rows. Without the CSV and the\
+    \ concrete audit logic, the task\u2019s requirement is not satisfied."
+T046:
+  c: false
+  h: a108c78344054cc51d0ed2b4dc60729b2f074d03b34a6ceaa08d2474a58e1053
+  r: "The `reproducibility.yaml` file does not exist in the repository, and the provided\
+    \ `code/hygiene.py` (truncated) shows no logic that creates a `state/projects/PROJ-163-...reproducibility.yaml`\
+    \ containing `git_hash`, `requirements.txt` hash, and `python_version`. Consequently,\
+    \ the task\u2019s verification criteria are not satisfied."

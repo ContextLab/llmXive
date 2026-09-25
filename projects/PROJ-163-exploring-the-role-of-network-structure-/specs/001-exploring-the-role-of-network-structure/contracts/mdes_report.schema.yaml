@@ -1,0 +1,9 @@
+type: object
+properties:
+  sample_size: {type: integer}
+  mdes: {type: number}
+  power: {type: number}
+  alpha: {type: number}
+  low_power_flag: {type: string, enum: ["Low Power: MDES > 0.5 (Large Effect Required)", "Adequate Power"]}
+  confidence_interval: {type: array, items: {type: number}}
+required: [sample_size, mdes, power, alpha, low_power_flag]
