@@ -1,59 +1,19 @@
-T003:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or CI integration\
-    \ scripts) were provided. Without these artifacts the project does not have Ruff\
-    \ and Black set up as required."
+  r: No directory tree or file list showing the required folders (`src/data`, `src/analysis`,
+    `src/utils`, `src/cli`, `tests/unit`, `tests/integration`, `data/raw`, `data/processed`,
+    `data/results`, `results`, `state`) is provided. The claim lacks any concrete
+    evidence that the project structure was actually created.
 T009:
   c: false
   h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
   r: The required file `tests/unit/test_sieve.py` does not exist, so no unit test
     for the segmented sieve logic is present to verify primality or chunk boundaries.
     The task remains undone.
-T010b:
+T027:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data-model.md` file (or equivalent) is present in the provided evidence,\
-    \ and thus the required mathematical notation for PrimeGap, ZetaZero, and the\
-    \ GUE\u2011derived extreme value CDF has not been supplied. The implementer must\
-    \ add the file with the specified content."
-T012:
-  c: false
-  h: 2b323b166762f75729a1db5b1bcc3ad54fdaca93731513d4555a26fd13332174
-  r: "The `src/data/generate_primes.py` file is truncated (the `run_pipeline` function\
-    \ ends abruptly and never writes any CSV), and the required output file `data/processed/raw_gaps.csv`\
-    \ does not exist. Consequently, the prime\u2011gap generation and streaming to\
-    \ the specified CSV file have not been realized."
-T015:
-  c: false
-  h: c021e77a336e9175551ffb6b2e84a56f9ecd1847331f6e30d5044da22e3a8698
-  r: "The `src/data/ingest_zeros.py` script is present but truncated and never writes\
-    \ to `data/raw/zeta_zeros.csv` (its `OUTPUT_FILE` points to `data/processed`).\
-    \ Moreover, the required output file `data/raw/zeta_zeros.csv` does not exist\
-    \ at all. The ingestion logic therefore does not satisfy the task\u2019s requirement\
-    \ to fetch, parse, and populate the raw CSV file."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., a results file containing KS statistics, p\u2011values,\
-    \ or plots comparing the empirical maximal\u2011gap distribution to the GUE extreme\u2011\
-    value and pair\u2011correlation distributions) were provided. Without such output\
-    \ the claim that the KS test was performed cannot be verified. The implementer\
-    \ must supply the concrete analysis results (e.g., `correlation_results.json`\
-    \ or similar) and any accompanying figures."
-T023b:
-  c: false
-  h: f5692062dca20151406ba46c536a07203005c4a8e4966b104a48a76f3d16158e
-  r: "The required output file `results/permutation_null_distribution.json` does not\
-    \ exist, and the `src/analysis/monte_carlo.py` script implements a Cram\xE9r\u2011\
-    model Monte Carlo simulation (producing `cramer_null_distribution.json`) rather\
-    \ than a permutation test that shuffles the gap sequence. The task\u2019s core\
-    \ requirement is therefore unmet."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or result files were presented that compute or report the p\u2011\
-    value for the observed distributional alignment against the Cram\xE9r null distribution.\
-    \ The required artifact (e.g., a script or output file containing the calculated\
-    \ p\u2011value) is missing, so the task is not satisfied."
+  h: 7cb776002ce123463d15c276afbf63bbba5d1d9a4b779e5365d69e9620c92e79
+  r: The required artifact `tests/integration/test_robustness.py` does not exist on
+    disk, so the integration test for the sensitivity sweep cannot be verified. The
+    task remains unfinished until the file is created with appropriate test code.

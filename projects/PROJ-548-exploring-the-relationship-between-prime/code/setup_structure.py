@@ -5,45 +5,47 @@ from pathlib import Path
 def main():
     """
     Create the project directory structure for PROJ-548.
-    Ensures all required folders exist relative to the project root.
+    Addresses FR-001 (Project Setup) and SC-004 (Directory Structure).
     """
-    # Define the project root (assumed to be the parent of the 'code' directory)
-    # Since this script is in 'code/', we go up one level to find the root.
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    # Define required directories relative to project root
-    required_dirs = [
+    base_dir = Path.cwd()
+    
+    # Define all required directories relative to project root
+    directories = [
+        # Source code structure
         "src/data",
         "src/analysis",
         "src/utils",
         "src/cli",
+        
+        # Test structure
         "tests/unit",
         "tests/integration",
+        
+        # Data structure
         "data/raw",
         "data/processed",
         "data/results",
+        
+        # Results and state
         "results",
-        "state",
+        "state"
     ]
-
+    
     created_count = 0
-    existing_count = 0
-
-    print(f"Project root detected at: {project_root}")
-    print("Ensuring directory structure...")
-
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
+    for dir_path in directories:
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {full_path.relative_to(project_root)}")
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"  Exists:  {full_path.relative_to(project_root)}")
-            existing_count += 1
-
-    print(f"\nSetup complete. Created {created_count} directories, found {existing_count} existing.")
+            print(f"Directory exists: {full_path}")
+    
+    print(f"\nProject structure setup complete. {created_count} new directories created.")
+    print("Directories created:")
+    for dir_path in directories:
+        print(f"  - {dir_path}")
+    
     return 0
 
 if __name__ == "__main__":

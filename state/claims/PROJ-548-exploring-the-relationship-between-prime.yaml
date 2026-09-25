@@ -567,3 +567,256 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T03:56:20Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate primes up to 10^10
+  claim_id: c_a19b565b
+  context: T011 [US1] Implement segmented sieve algorithm in src/data/generate_primes.py
+    to generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST generate primes up to N=10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:32:40Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: stay within 7GB RAM
+  claim_id: c_1da7d200
+  context: T011 [US1] Implement segmented sieve algorithm in src/data/generate_primes.py
+    to generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stay_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline must stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:10Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 7GB
+  claim_id: c_c5ec0d3f
+  context: 'Independent Test: Run src/data/generate_primes.py and src/data/ingest_zeros.py
+    in isolation; verify data/processed/raw_gaps.csv and data/processed/zeta_zeros.csv
+    exist, contain correct counts, and peak RAM < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: compute maximal prime gap in sliding windows of length 10^6
+  claim_id: c_a87c33b1
+  context: 'T018b [US2] Primary Analysis (FR-003): Implement sliding window analysis
+    in src/analysis/distribution_test.py to compute maximal prime gap g_max within
+    sliding windows of length W=10^6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute maximal prime gap g_max within sliding windows of length W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:52Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify zeta zero source URL against LMFDB and Odlyzko
+  claim_id: c_c9471183
+  context: 'T015 [US1] Implement Ingestion & Verification: Implement logic in src/data/ingest_zeros.py
+    that FIRST verifies the zeta zero source URL against the hardcoded canonical list
+    (LMFDB/Odlyzko) defined in the spec.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zeta_zero_source_URL_against_LMFDB_and_Odlyzko
+  kind: entity_fact
+  raw_text: The zeta zero source URL must be verified against the hardcoded canonical
+    list (LMFDB/Odlyzko).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:11Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate correlation results JSON with KS statistic and p-value
+  claim_id: c_cb5af471
+  context: 'Independent Test: Run src/analysis/distribution_test.py on small synthetic
+    datasets; verify results/correlation_results.json contains KS statistic, p-value,
+    and plots.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_correlation_results_JSON_with_KS_statistic_and_p-va
+  kind: entity_fact
+  raw_text: Generate results/correlation_results.json with keys ks_statistic and p_value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:25Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate KS test results JSON with specific keys
+  claim_id: c_295938c1
+  context: 'T022 [US2] Perform Kolmogorov-Smirnov (KS) test... Output: Generate results/ks_test_results.json
+    with keys: {ks_statistic, p_value, distribution_compared: GUE_EVF, method: scipy.stats.ks_2samp}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_KS_test_results_JSON_with_specific_keys
+  kind: entity_fact
+  raw_text: Generate results/ks_test_results.json with keys ks_statistic, p_value,
+    distribution_compared, and method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:46Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: "generate Cram\xE9r null distribution JSON"
+  claim_id: c_6339e965
+  context: "T023 [US2] Implement Monte Carlo simulation using the Cram\xE9r model\
+    \ in src/analysis/monte_carlo.py to generate a null distribution of the KS statistic.\
+    \ Output: results/cramer_null_distribution.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_Cram%C3%A9r_null_distribution_JSON
+  kind: entity_fact
+  raw_text: Generate results/cramer_null_distribution.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:35:12Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate robustness sweep JSON with specific keys
+  claim_id: c_ce25e3d0
+  context: 'T028 [US3] Sensitivity Analysis... Output: Generate results/robustness_sweep.json
+    containing a list of objects with keys: {window_size, ks_statistic, p_value, timestamp}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_robustness_sweep_JSON_with_specific_keys
+  kind: entity_fact
+  raw_text: Generate results/robustness_sweep.json containing a list of objects with
+    keys window_size, ks_statistic, p_value, and timestamp.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:35:33Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: stay within 7GB RAM
+  claim_id: c_ff19faa2
+  context: Implement segmented sieve algorithm in src/data/generate_primes.py to generate
+    primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stay_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline must stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:45:47Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: configuration defines N=10^10
+  claim_id: c_86432770
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines N=10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:47:27Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: configuration defines W=10^6
+  claim_id: c_6a86f1c8
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:48:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: sliding window length 10^6
+  claim_id: c_a91fc4db
+  context: Implement sliding window analysis in src/analysis/distribution_test.py
+    to compute maximal prime gap g_max within sliding windows of length W=10^6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding window analysis computes maximal prime gap within windows
+    of length W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:48:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify zeta zero source URL against LMFDB and Odlyzko
+  claim_id: c_dddc1690
+  context: Implement logic in src/data/ingest_zeros.py that FIRST verifies the zeta
+    zero source URL against the hardcoded canonical list (LMFDB/Odlyzko) defined in
+    the spec.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zeta_zero_source_URL_against_LMFDB_and_Odlyzko
+  kind: entity_fact
+  raw_text: The verification logic checks the zeta zero source URL against the hardcoded
+    canonical list (LMFDB/Odlyzko).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:49:02Z'

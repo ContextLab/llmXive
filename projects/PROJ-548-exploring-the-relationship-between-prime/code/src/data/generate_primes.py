@@ -1,193 +1,153 @@
 import os
-import math
 import sys
 import time
 import csv
 import logging
+import math
 from pathlib import Path
-from typing import Iterator, Tuple, List, Optional
-import numpy as np
 
-# Project root handling for execution from various CWDs
-_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(_ROOT) not in sys.path:
-    sys.path.insert(0, str(_ROOT))
+# Add project root to path for imports if running as script
+_project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(_project_root))
 
 from src.utils.config import ensure_directories, get_global_seed
 from src.utils.logging import get_logger
-from src.utils.io import load_state, save_state, update_state_checksums, commit_state
 
+# Constants
+N = 10**10
+SEGMENT_SIZE = 10**7  # Process 10 million numbers at a time to manage memory
+OUTPUT_FILE = "data/processed/raw_gaps.csv"
+
+# Setup logging
 logger = get_logger(__name__)
 
-# Configuration constants (can be overridden by config.py in future)
-DEFAULT_N = 10**10
-CHUNK_SIZE = 10**7  # 10 million per segment to manage memory
-OUTPUT_PATH = "data/processed/raw_gaps.csv"
-
-def simple_sieve(limit: int) -> List[int]:
+def simple_sieve(limit):
     """
-    Generate primes up to `limit` using the Sieve of Eratosthenes.
-    Returns a list of primes.
-    Note: Only suitable for small limits due to memory constraints.
+    Generate primes up to limit using a simple sieve.
+    Used only for small limits (segment boundaries).
     """
     if limit < 2:
         return []
     sieve = bytearray([1]) * (limit + 1)
-    sieve[0:2] = b'\x00\x00'
+    sieve[0] = 0
+    sieve[1] = 0
     for i in range(2, int(limit**0.5) + 1):
         if sieve[i]:
-            sieve[i*i:limit+1:i] = b'\x00' * len(sieve[i*i:limit+1:i])
+            sieve[i*i:limit+1:i] = bytearray([0]) * len(range(i*i, limit+1, i))
     return [i for i, is_prime in enumerate(sieve) if is_prime]
 
-def segmented_sieve(n: int, chunk_size: int = CHUNK_SIZE) -> Iterator[int]:
+def segmented_sieve(n, output_path):
     """
-    Generate primes up to n using a segmented sieve.
-    Yields primes one by one to allow streaming processing.
+    Generate primes up to n using a segmented sieve to stay within memory limits.
+    Computes consecutive prime gaps and streams them to a CSV file.
+    
+    Args:
+        n (int): Upper bound for prime generation (N = 10^10).
+        output_path (str): Path to the output CSV file.
+    
+    Returns:
+        int: Total number of primes generated.
     """
-    if n < 2:
-        return
+    ensure_directories()
+    
+    logger.info(f"Starting segmented sieve up to {n}")
+    logger.info(f"Segment size: {SEGMENT_SIZE}")
+    logger.info(f"Output file: {output_path}")
 
     # Precompute primes up to sqrt(n) for sieving
     sqrt_n = int(math.isqrt(n))
     base_primes = simple_sieve(sqrt_n)
+    logger.info(f"Base primes up to {sqrt_n}: {len(base_primes)}")
 
-    if not base_primes:
-        base_primes = []
-
-    # First segment [0, sqrt_n]
-    if sqrt_n >= 2:
-        first_segment = simple_sieve(sqrt_n)
-        for p in first_segment:
-            yield p
-        start = sqrt_n + 1
-    else:
-        start = 2
-
-    # Process remaining segments
-    while start <= n:
-        end = min(start + chunk_size - 1, n)
-        segment_size = end - start + 1
-        segment = bytearray([1]) * segment_size
-
-        for p in base_primes:
-            # Find first multiple of p >= start
-            first_multiple = max(p * p, ((start + p - 1) // p) * p)
-            if first_multiple > end:
-                continue
-            # Mark multiples
-            start_idx = first_multiple - start
-            segment[start_idx:segment_size:p] = b'\x00' * ((segment_size - 1 - start_idx) // p + 1)
-
-        # Yield primes in this segment
-        for i in range(segment_size):
-            if segment[i]:
-                yield start + i
-
-        start = end + 1
-
-def compute_normalized_gap(gap: int, p: int) -> float:
-    """
-    Compute normalized gap: gap / (log(p)^2)
-    This is used for normalization (handled in T019, but defined here for completeness).
-    """
-    if p <= 0:
-        return 0.0
-    log_p = math.log(p)
-    if log_p == 0:
-        return 0.0
-    return gap / (log_p ** 2)
-
-def run_pipeline(n: Optional[int] = None, output_path: Optional[str] = None) -> str:
-    """
-    Main pipeline to generate primes, compute gaps, and stream to CSV.
-    Returns the path to the output file.
-    """
-    if n is None:
-        n = DEFAULT_N
-    if output_path is None:
-        output_path = OUTPUT_PATH
-
-    # Ensure directories exist
-    ensure_directories()
-    out_file = Path(output_path)
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Starting prime generation up to {n}")
-    logger.info(f"Output file: {out_file}")
-
+    # Open output file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    prev_prime = None
+    gap_count = 0
     total_primes = 0
-    total_gaps = 0
-    start_time = time.time()
-    last_prime = None
-    max_prime = 0
-
-    # Open file for streaming write
-    with open(out_file, 'w', newline='') as csvfile:
+    
+    with open(output_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        # Write header
         writer.writerow(['prime_before', 'prime_after', 'gap_size'])
+        
+        low = 2
+        while low <= n:
+            high = min(low + SEGMENT_SIZE - 1, n)
+            logger.info(f"Processing segment [{low}, {high}]")
+            
+            # Initialize segment sieve
+            segment_size = high - low + 1
+            is_prime = bytearray([1]) * segment_size
+            
+            # Mark composites in the segment
+            for p in base_primes:
+                # Find the first multiple of p >= low
+                start = max(p * p, ((low + p - 1) // p) * p)
+                if start > high:
+                    continue
+                # Mark multiples
+                start_idx = start - low
+                is_prime[start_idx:segment_size:p] = bytearray([0]) * ((segment_size - 1 - start_idx) // p + 1)
+            
+            # Extract primes in this segment
+            for i, is_p in enumerate(is_prime):
+                if is_p:
+                    current_prime = low + i
+                    if current_prime > n:
+                        break
+                    
+                    total_primes += 1
+                    if prev_prime is not None:
+                        gap = current_prime - prev_prime
+                        writer.writerow([prev_prime, current_prime, gap])
+                        gap_count += 1
+                    prev_prime = current_prime
+            
+            low = high + 1
+    
+    logger.info(f"Segmented sieve completed. Total primes: {total_primes}, Total gaps: {gap_count}")
+    return total_primes
 
-        for p in segmented_sieve(n):
-            total_primes += 1
-            max_prime = p
-            if last_prime is not None:
-                gap = p - last_prime
-                writer.writerow([last_prime, p, gap])
-                total_gaps += 1
-            last_prime = p
+def compute_normalized_gap(gap, prime):
+    """
+    Compute the normalized gap: gap / (log(p))^2
+    Note: Normalization is handled in T018b, this is just a utility.
+    """
+    if prime <= 1:
+        return 0.0
+    log_p = math.log(prime)
+    return gap / (log_p * log_p)
 
-            # Log progress every 100k primes
-            if total_primes % 100000 == 0:
-                elapsed = time.time() - start_time
-                logger.info(f"Processed {total_primes} primes, generated {total_gaps} gaps. Elapsed: {elapsed:.2f}s")
-
-    elapsed = time.time() - start_time
-    logger.info(f"Pipeline complete. Total primes: {total_primes}, Total gaps: {total_gaps}")
-    logger.info(f"Time elapsed: {elapsed:.2f}s")
-    logger.info(f"Last prime processed: {max_prime}")
-
-    # Update state
+def run_pipeline():
+    """
+    Execute the prime generation and gap computation pipeline.
+    Generates primes up to N=10^10 and writes gaps to data/processed/raw_gaps.csv.
+    """
+    start_time = time.time()
     try:
-        state = load_state()
-        # Record artifact info
-        if 'artifacts' not in state:
-            state['artifacts'] = {}
-        state['artifacts']['raw_gaps'] = {
-            'path': str(out_file),
-            'count': total_gaps,
-            'last_prime': max_prime,
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'source': 'segmented_sieve',
-            'limit': n
-        }
-        update_state_checksums(state)
-        commit_state(state)
-        logger.info("State updated successfully")
+        total_primes = segmented_sieve(N, OUTPUT_FILE)
+        elapsed = time.time() - start_time
+        logger.info(f"Pipeline completed in {elapsed:.2f} seconds. Generated {total_primes} primes.")
+        return True
     except Exception as e:
-        logger.warning(f"Failed to update state: {e}")
-
-    return str(out_file)
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 def main():
-    """Entry point for CLI execution."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Generate primes and compute gaps")
-    parser.add_argument('--n', type=int, default=DEFAULT_N, help=f"Upper limit for prime generation (default: {DEFAULT_N})")
-    parser.add_argument('--output', type=str, default=OUTPUT_PATH, help="Output file path")
-    args = parser.parse_args()
-
+    """
+    Main entry point for the script.
+    """
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('logs/pipeline.log')
-        ]
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
-    result_path = run_pipeline(n=args.n, output_path=args.output)
-    print(f"Output written to: {result_path}")
-    return result_path
+    
+    # Ensure global seed is set for reproducibility (though not used in deterministic sieve)
+    get_global_seed()
+    
+    success = run_pipeline()
+    if not success:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

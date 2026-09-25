@@ -1,17 +1,11 @@
 """
-Task T022: Perform Kolmogorov-Smirnov (KS) test comparing empirical maximal gap
-distribution against GUE theoretical extreme value distribution and pair-correlation
-distribution.
+Kolmogorov-Smirnov Test Runner for Prime Gap vs GUE Extreme Value Distribution.
 
-Reads:
-  - data/processed/maximal_gaps_normalized.csv (from T020)
-  - data/results/gue_cdf_samples.csv (from T021b)
-  - data/results/pc_distribution_samples.csv (from T021c)
+This module implements T022: Perform KS test comparing empirical maximal gap distribution
+against the GUE theoretical extreme value distribution.
 
-Writes:
-  - results/ks_test_results.json
+Output: results/ks_test_results.json
 """
-
 import os
 import sys
 import json
@@ -21,193 +15,150 @@ import numpy as np
 from scipy import stats
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Project root setup
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+RESULTS_DIR = PROJECT_ROOT / "results"
 
-from src.analysis.distribution_test import compute_empirical_cdf, gue_extreme_value_cdf, pair_correlation_distribution
-from src.utils.config import ensure_directories
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_maximal_gaps(filepath: str) -> np.ndarray:
-    """
-    Load normalized maximal gaps from CSV file.
-    Expected format: prime_before, gap_size, normalized_gap
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Maximal gaps file not found: {filepath}")
+# Input/Output paths
+INPUT_MAXIMAL_GAPS_FILE = DATA_PROCESSED_DIR / "maximal_gaps.csv"
+OUTPUT_KS_RESULTS_FILE = RESULTS_DIR / "ks_test_results.json"
 
+def ensure_directories():
+    """Ensure output directories exist."""
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories: {RESULTS_DIR}")
+
+def load_maximal_gaps(filepath: Path) -> np.ndarray:
+    """
+    Load normalized maximal gaps from CSV.
+    Expects columns: window_start, window_end, max_gap, normalized_max_gap
+    Returns: numpy array of normalized_max_gap values.
+    """
+    if not filepath.exists():
+        raise FileNotFoundError(f"Input file not found: {filepath}")
+    
+    logger.info(f"Loading maximal gaps from {filepath}")
     gaps = []
     with open(filepath, 'r') as f:
-        header = f.readline()  # Skip header
-        for line in f:
-            parts = line.strip().split(',')
-            if len(parts) >= 3:
-                try:
-                    normalized_gap = float(parts[2])
-                    if not math.isnan(normalized_gap) and not math.isinf(normalized_gap):
-                        gaps.append(normalized_gap)
-                except ValueError:
-                    continue
-
+        header = f.readline().strip().split(',')
+        # Find index of normalized_max_gap
+        if 'normalized_max_gap' not in header:
+            raise ValueError(f"Column 'normalized_max_gap' not found in {filepath}. Headers: {header}")
+        
+        idx = header.index('normalized_max_gap')
+        
+        for line_num, line in enumerate(f, start=2):
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(',')
+            try:
+                val = float(parts[idx])
+                if not math.isnan(val) and not math.isinf(val):
+                    gaps.append(val)
+            except (ValueError, IndexError) as e:
+                logger.warning(f"Skipping malformed line {line_num}: {line} - {e}")
+    
     if not gaps:
-        raise ValueError("No valid data found in maximal gaps file")
-
-    logger.info(f"Loaded {len(gaps)} normalized maximal gaps from {filepath}")
+        raise ValueError(f"No valid normalized_max_gap values found in {filepath}")
+    
+    logger.info(f"Loaded {len(gaps)} normalized maximal gaps")
     return np.array(gaps)
 
-def load_theoretical_samples(filepath: str) -> np.ndarray:
+def load_theoretical_samples(n_samples: int = 10000, seed: int = 42) -> np.ndarray:
     """
-    Load theoretical distribution samples from CSV file.
-    Expected format: value, probability (or just value if generated from CDF)
+    Generate samples from the GUE Extreme Value Distribution (Tracy-Widom beta=2).
+    Since scipy.stats.tracy_widom provides the CDF, we use inverse transform sampling
+    or direct sampling if available. scipy.stats.tracy_widom has a .rvs method.
+    
+    We generate samples to perform ks_2samp (two-sample KS test) as requested.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Theoretical samples file not found: {filepath}")
-
-    values = []
-    with open(filepath, 'r') as f:
-        header = f.readline()  # Skip header
-        for line in f:
-            parts = line.strip().split(',')
-            if len(parts) >= 1:
-                try:
-                    val = float(parts[0])
-                    if not math.isnan(val) and not math.isinf(val):
-                        values.append(val)
-                except ValueError:
-                    continue
-
-    if not values:
-        raise ValueError("No valid data found in theoretical samples file")
-
-    logger.info(f"Loaded {len(values)} theoretical samples from {filepath}")
-    return np.array(values)
-
-def perform_ks_test(empirical_data: np.ndarray, theoretical_data: np.ndarray, test_name: str) -> dict:
-    """
-    Perform Kolmogorov-Smirnov test between empirical and theoretical distributions.
-    """
+    logger.info(f"Generating {n_samples} theoretical samples from GUE Tracy-Widom (beta=2)")
     try:
-        # scipy.stats.ks_2samp performs the two-sample KS test
-        ks_statistic, p_value = stats.ks_2samp(empirical_data, theoretical_data)
-
-        result = {
-            "test_name": test_name,
-            "ks_statistic": float(ks_statistic),
-            "p_value": float(p_value),
-            "empirical_sample_size": len(empirical_data),
-            "theoretical_sample_size": len(theoretical_data),
-            "interpretation": "reject_null" if p_value < 0.05 else "fail_to_reject_null"
-        }
-
-        logger.info(f"KS Test '{test_name}': statistic={ks_statistic:.6f}, p-value={p_value:.6f}")
-        return result
-
+        # scipy.stats.tracy_widom supports rvs
+        tw_dist = stats.tracy_widom(b=2)
+        samples = tw_dist.rvs(size=n_samples, random_state=seed)
+        logger.info(f"Generated theoretical samples: min={samples.min():.4f}, max={samples.max():.4f}, mean={samples.mean():.4f}")
+        return samples
     except Exception as e:
-        logger.error(f"Error performing KS test for {test_name}: {e}")
+        logger.error(f"Failed to generate Tracy-Widom samples: {e}")
         raise
+
+def perform_ks_test(empirical_data: np.ndarray, theoretical_data: np.ndarray) -> dict:
+    """
+    Perform Kolmogorov-Smirnov two-sample test.
+    
+    Returns dict with:
+    - ks_statistic: float
+    - p_value: float
+    - distribution_compared: "GUE_EVF"
+    - method: "scipy.stats.ks_2samp"
+    """
+    logger.info("Performing KS-2samp test...")
+    
+    if len(empirical_data) == 0 or len(theoretical_data) == 0:
+        raise ValueError("Cannot perform KS test on empty data")
+    
+    # Use scipy.stats.ks_2samp
+    statistic, pvalue = stats.ks_2samp(empirical_data, theoretical_data)
+    
+    result = {
+        "ks_statistic": float(statistic),
+        "p_value": float(pvalue),
+        "distribution_compared": "GUE_EVF",
+        "method": "scipy.stats.ks_2samp",
+        "empirical_sample_size": len(empirical_data),
+        "theoretical_sample_size": len(theoretical_data)
+    }
+    
+    logger.info(f"KS Test Result: Statistic={statistic:.6f}, P-value={pvalue:.6f}")
+    return result
+
+def write_results(results: dict, filepath: Path):
+    """Write results to JSON file."""
+    with open(filepath, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results written to {filepath}")
 
 def run_pipeline():
-    """
-    Main pipeline for Task T022: Perform KS tests comparing empirical maximal gaps
-    against GUE and pair-correlation theoretical distributions.
-    """
-    # Ensure output directories exist
+    """Main pipeline execution for T022."""
     ensure_directories()
-
-    # Define file paths
-    empirical_file = str(project_root / "data" / "processed" / "maximal_gaps_normalized.csv")
-    gue_samples_file = str(project_root / "data" / "results" / "gue_cdf_samples.csv")
-    pc_samples_file = str(project_root / "data" / "results" / "pc_distribution_samples.csv")
-    output_file = str(project_root / "results" / "ks_test_results.json")
-
-    logger.info(f"Starting KS Test Pipeline (Task T022)")
-    logger.info(f"Empirical data: {empirical_file}")
-    logger.info(f"GUE samples: {gue_samples_file}")
-    logger.info(f"Pair-correlation samples: {pc_samples_file}")
-
-    # Load empirical data
+    
+    # Load empirical data (from T020/T018b)
     try:
-        empirical_gaps = load_maximal_gaps(empirical_file)
-    except Exception as e:
-        logger.error(f"Failed to load empirical data: {e}")
+        empirical_gaps = load_maximal_gaps(INPUT_MAXIMAL_GAPS_FILE)
+    except FileNotFoundError as e:
+        logger.error(f"Data dependency missing: {e}")
+        logger.error("Please ensure T018b has run and generated data/processed/maximal_gaps.csv")
         raise
-
-    # Load GUE theoretical samples
-    try:
-        gue_samples = load_theoretical_samples(gue_samples_file)
-    except Exception as e:
-        logger.error(f"Failed to load GUE samples: {e}")
-        raise
-
-    # Load Pair-Correlation theoretical samples
-    try:
-        pc_samples = load_theoretical_samples(pc_samples_file)
-    except Exception as e:
-        logger.error(f"Failed to load Pair-Correlation samples: {e}")
-        raise
-
-    # Perform KS tests
-    results = {
-        "pipeline": "T022_KS_Test",
-        "status": "completed",
-        "timestamp": "2026-01-01T00:00:00Z",  # Placeholder, real implementation would use datetime
-        "tests": []
-    }
-
-    # Test 1: Empirical vs GUE Extreme Value Distribution
-    logger.info("Performing KS test: Empirical vs GUE Extreme Value Distribution")
-    try:
-        gue_result = perform_ks_test(empirical_gaps, gue_samples, "Empirical_vs_GUE")
-        results["tests"].append(gue_result)
-    except Exception as e:
-        results["tests"].append({
-            "test_name": "Empirical_vs_GUE",
-            "status": "failed",
-            "error": str(e)
-        })
-
-    # Test 2: Empirical vs Pair-Correlation Distribution
-    logger.info("Performing KS test: Empirical vs Pair-Correlation Distribution")
-    try:
-        pc_result = perform_ks_test(empirical_gaps, pc_samples, "Empirical_vs_PairCorrelation")
-        results["tests"].append(pc_result)
-    except Exception as e:
-        results["tests"].append({
-            "test_name": "Empirical_vs_PairCorrelation",
-            "status": "failed",
-            "error": str(e)
-        })
-
-    # Save results
-    try:
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Results saved to {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to save results: {e}")
-        raise
-
+    
+    # Generate theoretical samples (from T021b logic)
+    theoretical_samples = load_theoretical_samples(n_samples=10000)
+    
+    # Perform KS test
+    results = perform_ks_test(empirical_gaps, theoretical_samples)
+    
+    # Write output
+    write_results(results, OUTPUT_KS_RESULTS_FILE)
+    
+    logger.info("T022 Pipeline completed successfully.")
     return results
 
 def main():
-    """
-    Entry point for the KS test runner.
-    """
+    """Entry point."""
     try:
-        results = run_pipeline()
-        print(json.dumps(results, indent=2))
-        return 0
+        run_pipeline()
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
+        logger.critical(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
