@@ -117,7 +117,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`. **Dependency**: T009a (Base Schema), T022b (Learning_Phase extension). **Logic**: Validate that the final `aligned_data.csv` contains all required fields including `learning_phase`.
-- [ ] T019 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (-trial source window -> subsequent accuracy block) is correctly applied.
+- [ ] T019 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (-trial source window -> subsequent accuracy block) is correctly applied. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 
@@ -144,7 +144,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated). **Note**: Assumes Spec v1.1 is the SSoT. **Dependency**: Requires `aligned_data.csv` from T024 and `Learning_Phase` feature from T022b. <!-- FAILED: unspecified -->
+- [ ] T027 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated). **Note**: Assumes Spec v1.1 is the SSoT. **Dependency**: Requires `aligned_data.csv` from T024 and `Learning_Phase` feature from T022b. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T028 [P] [US3] Implement multiple-comparison correction using **FDR (Benjamini-Hochberg)** for electrodes in `src/analysis/model.py` (FR-008). **Dependency**: Requires T027 output.
 - [X] T029 [US3] Implement permutation test in `src/analysis/model.py`. **Logic**: Run a **fixed** permutation test with **exactly n=1000 shuffles**. **Requirement**: Do NOT implement dynamic pilot logic or variance adjustment. The spec mandates n=1000. **Deliverable**: Write `analysis/results/permutation_stability_log.json` containing the final n used (1000) and the final p-value. **Verification**: Confirm log file exists and shows n=1000 was used.
 - [X] T030 [US3] Implement sensitivity analysis in `src/analysis/robustness.py` (sweep time window ±10ms: 140–240ms, 160–260ms) (FR-010)

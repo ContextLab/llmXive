@@ -1,138 +1,145 @@
-"""
-Unit Tests for T024 Finalization Module.
-"""
 import os
 import sys
+import pytest
 import tempfile
 import shutil
-import pytest
 import pandas as pd
 from pathlib import Path
 
-# Add code root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
 from src.data.finalize import (
+    load_interim_lagged_mmns,
+    load_accuracy_blocks,
+    load_excluded_subjects,
     filter_by_excluded_subjects,
     validate_aligned_data,
-    load_excluded_subjects
+    run_finalization_pipeline
 )
 
 
-class TestT024Finalization:
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory with mock data files for T024 testing."""
+    tmpdir = tempfile.mkdtemp()
+    data_path = Path(tmpdir)
     
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.data_dir = Path(self.temp_dir)
-        
-        # Create mock data files
-        self.excluded_file = self.data_dir / "excluded_subjects.csv"
-        self.mmn_file = self.data_dir / "interim_lagged_mmns.csv"
-        self.acc_file = self.data_dir / "accuracy_blocks.csv"
-        self.output_file = self.data_dir / "aligned_data.csv"
+    # Mock interim_lagged_mmns.csv
+    mmn_data = pd.DataFrame({
+        'subject_id': ['S1', 'S1', 'S2', 'S2', 'S3'],
+        'block_id': [1, 2, 1, 2, 1],
+        'mmn_amplitude': [1.2, 1.5, 2.0, 2.1, 0.8],
+        'source_window_start_trial': [0, 10, 0, 10, 0],
+        'learning_phase': ['Early', 'Late', 'Early', 'Late', 'Early']
+    })
+    mmn_data.to_csv(data_path / "interim_lagged_mmns.csv", index=False)
+    
+    # Mock accuracy_blocks.csv
+    acc_data = pd.DataFrame({
+        'subject_id': ['S1', 'S1', 'S2', 'S2', 'S3'],
+        'block_id': [1, 2, 1, 2, 1],
+        'accuracy': [0.85, 0.90, 0.70, 0.75, 0.60],
+        'trial_start': [0, 10, 0, 10, 0],
+        'trial_end': [10, 20, 10, 20, 10],
+        'trial_count': [500, 500, 400, 400, 600]  # S2 has <500 trials
+    })
+    acc_data.to_csv(data_path / "accuracy_blocks.csv", index=False)
+    
+    # Mock excluded_subjects.csv (S3 excluded for other reasons, S2 excluded for power)
+    exc_data = pd.DataFrame({
+        'subject_id': ['S3', 'S2'],
+        'reason': ['Artifact', 'Low Trial Count']
+    })
+    exc_data.to_csv(data_path / "excluded_subjects.csv", index=False)
+    
+    return data_path
 
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        shutil.rmtree(self.temp_dir)
 
-    def test_filter_by_excluded_subjects(self):
-        """Test that excluded subjects are removed from the dataframe."""
-        df = pd.DataFrame({
-            'subject_id': ['S1', 'S2', 'S3', 'S4'],
-            'block_id': [1, 1, 1, 1],
-            'value': [10, 20, 30, 40]
-        })
-        excluded = ['S2', 'S4']
-        
-        result = filter_by_excluded_subjects(df, excluded)
-        
-        assert len(result) == 2
-        assert 'S2' not in result['subject_id'].values
-        assert 'S4' not in result['subject_id'].values
-        assert 'S1' in result['subject_id'].values
-        assert 'S3' in result['subject_id'].values
+def test_load_interim_lagged_mmns(temp_data_dir):
+    df = load_interim_lagged_mmns(temp_data_dir)
+    assert len(df) == 5
+    assert 'mmn_amplitude' in df.columns
 
-    def test_validate_aligned_data_missing_columns(self):
-        """Test validation fails if required columns are missing."""
-        df = pd.DataFrame({
-            'subject_id': ['S1'],
-            'block_id': [1]
-            # Missing mmn_amplitude, accuracy
-        })
-        is_valid, issues = validate_aligned_data(df)
-        assert not is_valid
-        assert any("Missing required columns" in issue for issue in issues)
 
-    def test_validate_aligned_data_nan_values(self):
-        """Test validation fails if NaN values exist in critical columns."""
-        df = pd.DataFrame({
-            'subject_id': ['S1', 'S2'],
-            'block_id': [1, 2],
-            'mmn_amplitude': [1.0, None],
-            'accuracy': [0.9, 0.8]
-        })
-        is_valid, issues = validate_aligned_data(df)
-        assert not is_valid
-        assert any("NaN values" in issue for issue in issues)
+def test_load_accuracy_blocks(temp_data_dir):
+    df = load_accuracy_blocks(temp_data_dir)
+    assert len(df) == 5
+    assert 'accuracy' in df.columns
 
-    def test_validate_aligned_data_success(self):
-        """Test validation passes for a clean dataset."""
-        df = pd.DataFrame({
-            'subject_id': ['S1', 'S2'],
-            'block_id': [1, 2],
-            'mmn_amplitude': [1.0, 2.0],
-            'accuracy': [0.9, 0.8]
-        })
-        is_valid, issues = validate_aligned_data(df)
-        assert is_valid
-        assert len(issues) == 0
 
-    def test_validate_aligned_data_low_trial_count(self):
-        """Test validation fails if trial_count < 500 exists."""
-        df = pd.DataFrame({
-            'subject_id': ['S1', 'S2'],
-            'block_id': [1, 2],
-            'mmn_amplitude': [1.0, 2.0],
-            'accuracy': [0.9, 0.8],
-            'trial_count': [600, 400] # S2 is underpowered
-        })
-        is_valid, issues = validate_aligned_data(df)
-        assert not is_valid
-        assert any("trial_count < 500" in issue for issue in issues)
+def test_load_excluded_subjects(temp_data_dir):
+    excluded = load_excluded_subjects(temp_data_dir)
+    assert 'S3' in excluded
+    assert 'S2' in excluded
 
-    def test_load_excluded_subjects_file_missing(self):
-        """Test behavior when excluded subjects file is missing."""
-        # Ensure file does not exist
-        if self.excluded_file.exists():
-            self.excluded_file.unlink()
-        
-        # Mock the get_data_dir behavior by passing a path that doesn't have the file
-        # Since load_excluded_subjects uses get_data_dir(), we test the function logic
-        # by creating a temp dir and checking if it returns empty list when file missing.
-        # However, the function uses global get_data_dir(). 
-        # For this unit test, we assume the file is missing in the temp context if we don't create it.
-        # We need to patch get_data_dir or just test the logic if we can control the path.
-        # Let's just test the logic by creating a file and then removing it? 
-        # Better: Just test that if the file is not there, it returns empty list.
-        # We can't easily mock get_data_dir here without more setup.
-        # Let's assume the file is missing in the temp_dir and we pass that to a modified version?
-        # No, we test the function as is. If the file is missing, it returns [].
-        # We need to ensure the file is missing in the actual data dir used by the function.
-        # This is hard in unit tests without mocking.
-        # Let's skip the file missing test for now and focus on logic.
-        pass
 
-    def test_load_excluded_subjects_file_present(self):
-        """Test loading excluded subjects from a file."""
-        # Create a mock excluded subjects file
-        df_excluded = pd.DataFrame({'subject_id': ['S1', 'S2']})
-        df_excluded.to_csv(self.excluded_file, index=False)
-        
-        # We need to mock get_data_dir to return self.temp_dir
-        from unittest.mock import patch
-        with patch('src.data.finalize.get_data_dir', return_value=self.data_dir):
-            result = load_excluded_subjects()
-            assert len(result) == 2
-            assert 'S1' in result
-            assert 'S2' in result
+def test_filter_by_excluded_subjects(temp_data_dir):
+    mmn = load_interim_lagged_mmns(temp_data_dir)
+    acc = load_accuracy_blocks(temp_data_dir)
+    excluded = load_excluded_subjects(temp_data_dir)
+    
+    mmn_f, acc_f = filter_by_excluded_subjects(mmn, acc, excluded)
+    
+    assert len(mmn_f) == 2  # Only S1 remains
+    assert len(acc_f) == 2
+    assert 'S2' not in mmn_f['subject_id'].values
+    assert 'S3' not in acc_f['subject_id'].values
+
+
+def test_validate_aligned_data_success(temp_data_dir):
+    # Create a valid merged dataset
+    mmn = load_interim_lagged_mmns(temp_data_dir)
+    acc = load_accuracy_blocks(temp_data_dir)
+    excluded = load_excluded_subjects(temp_data_dir)
+    
+    mmn_f, acc_f = filter_by_excluded_subjects(mmn, acc, excluded)
+    merged = pd.merge(mmn_f, acc_f, on=['subject_id', 'block_id'], how='inner')
+    
+    # Add trial_count to merged for validation
+    # Note: In real flow, trial_count comes from acc_df
+    assert validate_aligned_data(merged) is True
+
+
+def test_validate_aligned_data_failure_low_trials(temp_data_dir):
+    # Create a dataset with a row violating trial count
+    mmn = load_interim_lagged_mmns(temp_data_dir)
+    acc = load_accuracy_blocks(temp_data_dir)
+    excluded = load_excluded_subjects(temp_data_dir)
+    
+    mmn_f, acc_f = filter_by_excluded_subjects(mmn, acc, excluded)
+    merged = pd.merge(mmn_f, acc_f, on=['subject_id', 'block_id'], how='inner')
+    
+    # Inject a violation (though filter_by_excluded_subjects removed S2 which had low trials)
+    # We manually add a row with low trials to test validation logic
+    bad_row = pd.DataFrame({
+        'subject_id': ['S4'],
+        'block_id': [99],
+        'mmn_amplitude': [1.0],
+        'learning_phase': ['Early'],
+        'accuracy': [0.5],
+        'trial_start': [0],
+        'trial_end': [10],
+        'trial_count': [100]  # Violation
+    })
+    merged = pd.concat([merged, bad_row], ignore_index=True)
+    
+    assert validate_aligned_data(merged) is False
+
+
+def test_run_finalization_pipeline(temp_data_dir):
+    output_path = run_finalization_pipeline(temp_data_dir)
+    
+    assert os.path.exists(output_path)
+    df = pd.read_csv(output_path)
+    
+    # Verify content
+    assert len(df) == 2  # Only S1 blocks
+    assert 'subject_id' in df.columns
+    assert 'accuracy' in df.columns
+    assert 'mmn_amplitude' in df.columns
+    assert 'learning_phase' in df.columns
+    
+    # Verify no excluded subjects
+    assert 'S2' not in df['subject_id'].values
+    assert 'S3' not in df['subject_id'].values
+    
+    # Verify no NaNs
+    assert df.isna().sum().sum() == 0

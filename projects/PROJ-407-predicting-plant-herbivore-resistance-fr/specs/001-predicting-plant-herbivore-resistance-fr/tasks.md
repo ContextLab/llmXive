@@ -97,14 +97,14 @@
 
 - [X] T018 [US2] Implement `code/preprocess.py` to filter metabolites with variance < 0.001
 - [X] T019 [US2] Implement `code/preprocess.py` to apply k-Nearest Neighbors (k=5) imputation for missing values and set `imputation_flag`
-- [ ] T020 [US2] Implement dimensionality reduction logic in `code/preprocess.py`: if features > samples, apply PCA to top variance components. **Output**: Save resulting matrix to `data/processed/pca_reduced.csv`.
-- [ ] T021 [US2] Implement genotype-stratified train/test split in `code/preprocess.py` ensuring no genotype leakage. **Output**: Save split indices to `data/interim/split_indices.json`.
+- [X] T020 [US2] Implement dimensionality reduction logic in `code/preprocess.py`: if features > samples, apply PCA to top variance components. **Output**: Save resulting matrix to `data/processed/pca_reduced.csv`.
+- [X] T021 [US2] Implement genotype-stratified train/test split in `code/preprocess.py` ensuring no genotype leakage. **Output**: Save split indices to `data/interim/split_indices.json`.
 - [ ] T022 [US2] Implement `code/model.py` to train Random Forest Regressor (n_estimators=100, max_depth=10) on training set
 - [ ] T023 [US2] Implement evaluation logic in `code/model.py` to calculate R², MSE, and accuracy (if classification) on test set
-- [ ] T024 [US2] Implement feature importance extraction in `code/model.py` to rank top 20 metabolites
-- [ ] T025 [US2] Save model artifacts and performance metrics to `data/processed/model_metrics.json`
-- [ ] T026 [US2] Save feature importance table to `data/processed/feature_importance.csv`. **Columns MUST include**: `metabolite_name`, `importance_score`, `unadjusted_p_value`, `correlation_coefficient`.
-- [ ] T027 [P] [US2] Implement unit test `tests/unit/test_preprocess.py` to verify imputation and PCA logic
+- [ ] T024 [US2] Implement feature importance extraction in `code/model.py` to rank top 20 metabolites <!-- FAILED: unspecified -->
+- [X] T025 [US2] Save model artifacts and performance metrics to `data/processed/model_metrics.json`
+- [X] T026 [US2] Save feature importance table to `data/processed/feature_importance.csv`. **Columns MUST include**: `metabolite_name`, `importance_score`, `unadjusted_p_value`, `correlation_coefficient`.
+- [X] T027 [P] [US2] Implement unit test `tests/unit/test_preprocess.py` to verify imputation and PCA logic
 - [ ] T028 [P] [US2] Implement unit test `tests/unit/test_model.py` to verify model training and metric calculation
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

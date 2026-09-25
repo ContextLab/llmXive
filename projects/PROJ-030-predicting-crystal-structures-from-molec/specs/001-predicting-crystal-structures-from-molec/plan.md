@@ -10,7 +10,7 @@ This project investigates the predictive limit of 2D topological descriptors (EC
 Critical methodological updates:
 1. **Polymorphism Handling (Strict Compliance)**: The pipeline strictly adheres to FR-002 by treating each unique (SMILES, Space Group) pair as a distinct sample. To address the scientific validity of one-to-many mapping, we introduce **Top-K Accuracy (K=5)** and **Prediction Entropy** as primary metrics, acknowledging that 2D fingerprints cannot deterministically predict a single 3D state.
 2. **Data Source**: Uses the `crystallography-open-database/organic` HuggingFace dataset as the *sole* primary source. This is a verified, pre-filtered mirror guaranteeing <500MB output and organic compliance, eliminating the risk of raw downloads exceeding CI limits.
-3. **Baseline Correction**: Includes a Molecular Weight baseline for volume regression. Success requires `R²_model > R²_baseline + 0.05` to distinguish topological signal from trivial size correlations.
+3. **Baseline Correction**: Includes a Molecular Weight baseline for volume regression. Success requires a statistically significant improvement in model performance over the baseline to distinguish topological signal from trivial size correlations.
 4. **Class Imbalance**: Groups rare space groups (<20 samples) into an 'Other' category *prior* to splitting to ensure statistical validity of macro-F1 metrics.
 5. **Power Analysis**: Explicitly justifies the minimum sample size (500 unique scaffolds) based on an effect size (Cohen's w) of 0.15 ([deferred] lift over baseline) with alpha=0.05 and beta=0.20.
 

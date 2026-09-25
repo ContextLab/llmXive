@@ -1,34 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file\u2011system snapshot was provided showing that\
-    \ the `projects/PROJ-407-predicting-herbivore-resistance-fr/` folder contains\
-    \ the required sub\u2011directories (`code`, `data/raw`, `data/interim`, `data/processed`,\
-    \ `data/results`, `tests/unit`, `tests/integration`, `tests/contract`). Without\
-    \ concrete evidence of these folders existing, the task requirement is not satisfied.\
-    \ The implementer must supply a view of the project tree (e.g., output of `tree`\
-    \ or `ls -R`) confirming the structure."
-T005:
-  c: false
-  h: 776e65fb7c51be75d6e31c6fb2858ce78ced3ab0eaf27061d867aaa31e6d363f
-  r: The `code/versioning.py` file is truncated (the `main` function ends with an
-    unfinished call `update_state_file(pr`), so it cannot run or correctly update
-    the YAML. Additionally, the required state file `state/projects/PROJ-407-predicting-plant-herbivore-resistance-fr.yaml`
-    does not exist. Both the implementation and the output artifact are missing/incomplete.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory structure (`code/`, `data/raw/`, `data/interim/`,\
-    \ `data/processed/`, `tests/`) is presented; the implementer did not provide any\
-    \ listing, screenshots, or file\u2011system output showing these folders exist.\
-    \ The task remains unfinished until the directories are created and verified."
-T012:
-  c: false
-  h: 646eaa69e8b113a6d3b8a0c425309c1df6260b23356469c806d58801b878cd74
-  r: The `code/ingest.py` file is truncated and does not contain a complete implementation
-    that creates the required mapping dictionary or writes it to `data/interim/ordinal_mapping.log`.
-    Moreover, the `ordinal_mapping.log` file is absent from the repository. Both the
-    functional conversion and the required log output are missing.
 T020:
   c: false
   h: ea61818817e014347936ab3b8bd70c7975cbf995714b10758c51da526d912cb0
@@ -38,3 +7,10 @@ T020:
     \ rather than explicitly selecting a subset of top\u2011variance components. The\
     \ missing CSV file must be generated (and ideally the component selection clarified)\
     \ to satisfy the task."
+T029a:
+  c: false
+  h: 3512e62f9783e00e4af814fe4c346e4964656d76826d4efee54205075851f03b
+  r: "The repository lacks the required output files (`null_distribution.csv`, `permutation_p_value.json`,\
+    \ `permutation_run.log`) and the `run_permutation_test` function is truncated/incomplete,\
+    \ with no evidence that it performs stratified shuffling or writes the specified\
+    \ artifacts. The task\u2019s core deliverables are therefore not present."

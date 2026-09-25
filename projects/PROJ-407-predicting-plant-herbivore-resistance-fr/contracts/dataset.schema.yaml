@@ -1,13 +1,12 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Plant Herbivore Resistance Dataset Schema
-description: >
-  Schema defining the required structure for the harmonized plant metabolomic dataset
-  used in predicting herbivore resistance. This schema validates the output of the
-  data ingestion pipeline.
+description: |
+  Schema for the harmonized plant metabolomic dataset used in predicting
+  herbivore resistance. Defines required columns and their types.
 type: object
 properties:
   sample_id:
-    description: Unique identifier for each sample observation
+    description: Unique identifier for each sample
     type: string
     minLength: 1
   genotype_id:
@@ -15,36 +14,33 @@ properties:
     type: string
     minLength: 1
   resistance:
-    description: >
-      Herbivore resistance score. Can be numeric (continuous) or ordinal (Low, Medium, High).
-      If categorical, must be convertible to ordinal values (1, 2, 3).
-    anyOf:
-      - type: number
-      - type: string
-        enum: ["Low", "Medium", "High", "low", "medium", "high"]
+    description: Quantified herbivore resistance score (numeric or ordinal)
+    type: number
+  herbivore_density:
+    description: Density of herbivores applied (optional, may be null)
+    type: number
+    nullable: true
+  batch:
+    description: Batch identifier for experimental batch correction (optional)
+    type: string
+    nullable: true
+  study_id:
+    description: Identifier for the source study (optional)
+    type: string
+    nullable: true
   metabolite_*:
-    description: >
-      Columns representing metabolite abundance values.
-      Pattern: metabolite_{metabolite_name} (e.g., metabolite_kaempferol, metabolite_caffeic_acid)
-      Values should be numeric (float/int).
-    type: object
-    patternProperties:
-      "^metabolite_.+$":
-        type: number
-    minProperties: 1
+    description: |
+      Metabolite abundance columns. At least one column matching this pattern
+      must exist (e.g., metabolite_1, metabolite_2, etc.).
+      Values represent normalized abundance.
+    type: number
+    pattern: "^metabolite_\\d+$"
 required:
   - sample_id
   - genotype_id
   - resistance
 additionalProperties: true
-examples:
-  - sample_id: "S001"
-    genotype_id: "G123"
-    resistance: 0.85
-    metabolite_kaempferol: 12.5
-    metabolite_caffeic_acid: 3.2
-  - sample_id: "S002"
-    genotype_id: "G456"
-    resistance: "High"
-    metabolite_kaempferol: 45.1
-    metabolite_caffeic_acid: 8.7
+patternProperties:
+  "^metabolite_\\d+$":
+    type: number
+    description: Abundance of a specific metabolite

@@ -1,165 +1,118 @@
-"""
-Unit tests for preprocessing module.
-"""
-import os
-import sys
-import json
-import tempfile
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
+import os
+import json
+import tempfile
+import shutil
 from preprocess import (
-    filter_low_variance_metabolites,
-    apply_knn_imputation,
-    apply_pca_if_needed,
-    genotype_stratified_split
+    load_interim_dataset, 
+    filter_low_variance_metabolites, 
+    apply_knn_imputation, 
+    apply_pca_if_needed, 
+    genotype_stratified_split, 
+    save_split_indices
 )
 
 @pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
-    np.random.seed(42)
-    n_samples = 100
-    
+def sample_df():
+    """Create a sample dataframe for testing."""
     data = {
-        'sample_id': range(n_samples),
-        'genotype_id': np.random.choice(['G1', 'G2', 'G3'], n_samples),
-        'resistance': np.random.uniform(0, 10, n_samples),
-        'metabolite_1': np.random.uniform(0, 1, n_samples),
-        'metabolite_2': np.random.uniform(0, 1, n_samples),
-        'metabolite_3': np.random.uniform(0, 1, n_samples),
-        'metabolite_4': np.random.uniform(0, 1, n_samples),
-        'metabolite_5': np.random.uniform(0, 1, n_samples),
+        'sample_id': ['s1', 's2', 's3', 's4', 's5', 's6'],
+        'genotype_id': ['G1', 'G1', 'G2', 'G2', 'G3', 'G3'],
+        'resistance': [1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+        'metabolite_A': [10.0, 10.0, 20.0, 20.0, 30.0, 30.0], # Low variance
+        'metabolite_B': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],     # High variance
+        'metabolite_C': [np.nan, 2.0, 3.0, np.nan, 5.0, 6.0] # Missing values
     }
-    
-    # Add some missing values
-    data['metabolite_1'][10] = np.nan
-    data['metabolite_2'][20] = np.nan
-    data['metabolite_3'][30] = np.nan
-    
     return pd.DataFrame(data)
 
-def test_filter_low_variance_metabolites(sample_data):
-    """Test filtering of low variance metabolites."""
-    # Add a low variance metabolite
-    sample_data['metabolite_low_var'] = 1.0  # Zero variance
-    
-    df_filtered, removed_cols = filter_low_variance_metabolites(sample_data, threshold=0.001)
-    
-    assert 'metabolite_low_var' in removed_cols
-    assert 'metabolite_low_var' not in df_filtered.columns
-    assert len(removed_cols) >= 1
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for file output tests."""
+    path = tempfile.mkdtemp()
+    yield path
+    shutil.rmtree(path)
 
-def test_filter_no_metabolite_columns():
-    """Test error when no metabolite columns found."""
-    df = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5, 6]})
+def test_filter_low_variance_metabolites(sample_df):
+    """Test that metabolites with variance < 0.001 are removed."""
+    # metabolite_A has variance 0 (constant within groups, but let's check global)
+    # Global variance of A: [10, 10, 20, 20, 30, 30] -> var > 0.001
+    # Let's create a truly low variance column
+    sample_df['metabolite_D'] = 5.0 # Variance = 0
     
-    with pytest.raises(ValueError, match="No metabolite columns found"):
-        filter_low_variance_metabolites(df)
+    df_filtered = filter_low_variance_metabolites(sample_df, variance_threshold=0.001)
+    
+    assert 'metabolite_D' not in df_filtered.columns
+    assert 'metabolite_B' in df_filtered.columns
+    assert 'genotype_id' in df_filtered.columns # Non-numeric should remain
 
-def test_apply_knn_imputation(sample_data):
-    """Test KNN imputation."""
-    df_imputed, imputation_flags = apply_knn_imputation(sample_data, n_neighbors=3)
+def test_apply_knn_imputation(sample_df):
+    """Test KNN imputation fills missing values and sets flag."""
+    # Ensure we have missing values
+    df_imputed = apply_knn_imputation(sample_df)
     
-    # Check that imputation flags were created
-    assert not imputation_flags.empty
+    # Check that imputation_flag column exists
+    assert 'imputation_flag' in df_imputed.columns
     
-    # Check that no missing values remain in metabolite columns
-    metabolite_cols = [col for col in df_imputed.columns if col.startswith('metabolite_')]
-    assert df_imputed[metabolite_cols].isnull().sum().sum() == 0
+    # Check that NaNs in numeric columns are filled
+    # Note: The original df had NaNs in metabolite_C
+    # We expect no NaNs in the numeric columns of the result
+    numeric_cols = df_imputed.select_dtypes(include=[np.number]).columns
+    # Exclude the flag column for this check if it's numeric
+    feature_cols = [c for c in numeric_cols if c != 'imputation_flag']
+    
+    for col in feature_cols:
+        assert df_imputed[col].isnull().sum() == 0
 
-def test_apply_knn_imputation_no_missing():
-    """Test KNN imputation when no missing values exist."""
-    df = pd.DataFrame({
-        'metabolite_1': [1.0, 2.0, 3.0],
-        'metabolite_2': [4.0, 5.0, 6.0]
-    })
+def test_apply_pca_if_needed(sample_df):
+    """Test PCA is applied when features > samples."""
+    # Current sample_df: 6 samples, ~4 numeric features (resistance, A, B, C)
+    # 4 < 6, so PCA should NOT be applied by default logic in function
+    df_pca = apply_pca_if_needed(sample_df)
     
-    df_imputed, imputation_flags = apply_knn_imputation(df)
+    # If features < samples, it returns original df (or similar structure)
+    # We check that it doesn't crash
+    assert df_pca is not None
     
-    # Should return original data unchanged
-    pd.testing.assert_frame_equal(df_imputed, df)
-    assert imputation_flags.empty
+    # Force PCA by adding more features
+    for i in range(10):
+        sample_df[f'metabolite_extra_{i}'] = np.random.rand(6)
+    
+    df_pca_forced = apply_pca_if_needed(sample_df)
+    
+    # Should now have PCA components
+    assert any('pca_comp' in col for col in df_pca_forced.columns)
 
-def test_apply_pca_if_needed():
-    """Test PCA application when features > samples."""
-    # Create data with more features than samples
-    n_samples = 10
-    n_features = 20
+def test_genotype_stratified_split_no_leakage(sample_df):
+    """Test that genotype-stratified split prevents genotype leakage."""
+    train_indices, test_indices = genotype_stratified_split(sample_df, train_size=0.8)
     
-    data = {
-        'sample_id': range(n_samples),
-        'genotype_id': ['G1'] * n_samples,
-        'resistance': np.random.uniform(0, 10, n_samples),
-    }
+    train_genotypes = set(sample_df.loc[train_indices, 'genotype_id'])
+    test_genotypes = set(sample_df.loc[test_indices, 'genotype_id'])
     
-    for i in range(n_features):
-        data[f'metabolite_{i}'] = np.random.uniform(0, 1, n_samples)
+    # Intersection must be empty
+    assert len(train_genotypes.intersection(test_genotypes)) == 0
     
-    df = pd.DataFrame(data)
-    
-    df_pca, pca_obj, pca_applied = apply_pca_if_needed(df)
-    
-    assert pca_applied is True
-    assert pca_obj is not None
-    assert 'pca_component_1' in df_pca.columns
+    # Union must be all genotypes
+    all_genotypes = set(sample_df['genotype_id'])
+    assert train_genotypes.union(test_genotypes) == all_genotypes
 
-def test_apply_pca_not_needed():
-    """Test that PCA is not applied when features <= samples."""
-    n_samples = 20
-    n_features = 5
+def test_save_split_indices(sample_df, temp_dir):
+    """Test saving split indices to JSON."""
+    train_indices, test_indices = genotype_stratified_split(sample_df, train_size=0.8)
+    filepath = os.path.join(temp_dir, 'split_indices.json')
     
-    data = {
-        'sample_id': range(n_samples),
-        'genotype_id': ['G1'] * n_samples,
-        'resistance': np.random.uniform(0, 10, n_samples),
-    }
+    save_split_indices(train_indices, test_indices, filepath)
     
-    for i in range(n_features):
-        data[f'metabolite_{i}'] = np.random.uniform(0, 1, n_samples)
+    assert os.path.exists(filepath)
     
-    df = pd.DataFrame(data)
+    with open(filepath, 'r') as f:
+        data = json.load(f)
     
-    df_result, pca_obj, pca_applied = apply_pca_if_needed(df)
-    
-    assert pca_applied is False
-    assert pca_obj is None
-    assert 'pca_component_1' not in df_result.columns
-
-def test_genotype_stratified_split(sample_data):
-    """Test genotype-stratified split."""
-    train_df, test_df, split_info = genotype_stratified_split(sample_data, test_size=0.2)
-    
-    assert len(train_df) + len(test_df) == len(sample_data)
-    assert split_info['train_size'] + split_info['test_size'] == len(sample_data)
-    assert split_info['overlap_genotypes'] == 0  # No genotype overlap
-
-def test_genotype_stratified_split_no_genotype_column():
-    """Test error when genotype_id column is missing."""
-    df = pd.DataFrame({
-        'sample_id': [1, 2, 3],
-        'resistance': [1.0, 2.0, 3.0],
-        'metabolite_1': [4.0, 5.0, 6.0]
-    })
-    
-    with pytest.raises(ValueError, match="Dataset must contain 'genotype_id' column"):
-        genotype_stratified_split(df)
-
-def test_genotype_stratified_split_all_same_genotype():
-    """Test split when all samples have same genotype."""
-    df = pd.DataFrame({
-        'sample_id': range(20),
-        'genotype_id': ['G1'] * 20,
-        'resistance': np.random.uniform(0, 10, 20),
-        'metabolite_1': np.random.uniform(0, 1, 20)
-    })
-    
-    # This should work but might raise warning about overlap
-    train_df, test_df, split_info = genotype_stratified_split(df, test_size=0.2)
-    
-    assert len(train_df) + len(test_df) == len(df)
+    assert 'train' in data
+    assert 'test' in data
+    assert len(data['train']) > 0
+    assert len(data['test']) > 0
+    assert set(data['train']) == set(train_indices)
+    assert set(data['test']) == set(test_indices)

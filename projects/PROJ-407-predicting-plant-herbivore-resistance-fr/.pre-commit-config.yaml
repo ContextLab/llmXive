@@ -1,8 +1,20 @@
-# Pre-commit configuration for PROJ-407
-# Enforces PEP 8 compliance (flake8) and consistent formatting (black)
-# Run: pre-commit install && pre-commit run --all-files
-
 repos:
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=88, --extend-ignore=E203, --select=E,F,W]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -10,33 +22,3 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
-        args: ['--maxkb=1024']
-
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3.11
-        args: [--line-length=88]
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        language_version: python3.11
-        args:
-          - --max-line-length=88
-          - --extend-ignore=E203,E501
-          - --exclude=venv,env,.venv
-          - --per-file-ignores=
-            # Allow unused imports in __init__.py if we add them later
-            __init__.py:F401
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        language_version: python3.11
-        args:
-          - --profile=black
-          - --line-length=88
