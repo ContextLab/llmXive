@@ -1,245 +1,188 @@
 """
-Statistical Power Analysis Module.
-
-This module provides functions to calculate statistical power for Spearman's correlation
-and the margin of error for a given sample size and effect size.
-
-It is designed to be CPU-tractable and does not require GPU acceleration.
+Statistical power analysis utilities for the llmXive research pipeline.
+Calculates statistical power and margin of error for correlation studies.
 """
-
 import os
 import math
 import argparse
 import logging
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any, List
-
-import numpy as np
 import pandas as pd
-from scipy import stats
 
+# Import logger from local utils
 from src.utils.logger import get_logger
 
-# Ensure the logger is configured correctly
-logger = get_logger(__name__)
-
-
-def calculate_effect_size(rho: float) -> float:
+def calculate_effect_size(r: float) -> float:
     """
-    Calculates the Fisher's z-transformed effect size for a given correlation coefficient.
-
-    Args:
-        rho (float): Pearson or Spearman correlation coefficient (-1 to 1).
-
-    Returns:
-        float: Fisher's z-transformed value.
-
-    Raises:
-        ValueError: If rho is outside the range (-1, 1).
-    """
-    if not -1 < rho < 1:
-        raise ValueError("Correlation coefficient (rho) must be strictly between -1 and 1.")
+    Calculate Cohen's q (effect size for correlation difference) or Fisher's z.
+    Here we use Fisher's z-transformation for correlation coefficients.
     
-    # Fisher's z-transformation
-    z_r = 0.5 * math.log((1 + rho) / (1 - rho))
-    return z_r
-
-
-def calculate_power_spearman(n: int, rho: float, alpha: float = 0.05) -> float:
-    """
-    Calculates the statistical power for a two-tailed Spearman correlation test.
-
-    Uses the Fisher's z-transformation approximation for power calculation.
-
     Args:
-        n (int): Sample size.
-        rho (float): Expected correlation coefficient (effect size).
-        alpha (float): Significance level (default 0.05).
-
+        r: Pearson or Spearman correlation coefficient.
+    
     Returns:
-        float: Calculated statistical power (0 to 1).
+        Fisher's z transformed value.
     """
-    if n < 3:
-        logger.warning(f"Sample size {n} is too small for power analysis. Returning 0.0.")
-        return 0.0
+    # Clamp r to [-0.999, 0.999] to avoid log(0)
+    r = max(-0.999, min(0.999, r))
+    return 0.5 * math.log((1 + r) / (1 - r))
 
-    z_r = calculate_effect_size(rho)
+def calculate_power_spearman(sample_size: int, effect_size: float, alpha: float = 0.05) -> float:
+    """
+    Calculate statistical power for a Spearman correlation test.
+    
+    Args:
+        sample_size: Number of observations.
+        effect_size: Expected correlation coefficient (r).
+        alpha: Significance level (default 0.05).
+    
+    Returns:
+        Statistical power (probability of rejecting null when false).
+    """
+    if sample_size < 3:
+        return 0.0
+    
+    # Fisher's z transformation
+    z_r = calculate_effect_size(effect_size)
     
     # Standard error of z_r
-    se_z = 1.0 / math.sqrt(n - 3)
+    se = 1.0 / math.sqrt(sample_size - 3)
     
-    # Critical z-value for the given alpha (two-tailed)
-    z_alpha = stats.norm.ppf(1 - alpha / 2)
+    # Critical z value for two-tailed test
+    from scipy.stats import norm
+    z_crit = norm.ppf(1 - alpha / 2)
     
-    # Power calculation: P(Z > z_alpha - |z_r|/se_z) + P(Z < -z_alpha - |z_r|/se_z)
-    # Since we are looking for power against the alternative hypothesis,
-    # we calculate the probability of rejecting the null when the true effect is z_r.
-    # Under H1, the distribution of z_hat is N(z_r, se_z^2).
-    # We reject H0 if |z_hat| > z_alpha * se_z (approx).
-    # More precisely:
-    # Power = P( (z_hat - 0)/se_z > z_alpha | H1 ) + P( (z_hat - 0)/se_z < -z_alpha | H1 )
-    #       = P( Z > z_alpha - z_r/se_z ) + P( Z < -z_alpha - z_r/se_z )
+    # Power calculation
+    # Under H1, z follows N(z_r, se^2)
+    # We reject H0 if |z| > z_crit * se (approx)
+    # Power = P(|Z| > z_crit | H1)
     
-    # Using the absolute value of the effect for two-tailed test logic in standard approximations
-    # However, the sign matters for the direction. Standard power analysis for correlation
-    # often assumes a specific direction or uses the magnitude.
-    # Let's use the standard formula: Power = 1 - beta.
-    # beta = P( -z_alpha < Z < z_alpha | H1 ) where Z ~ N(z_r/se_z, 1)
-    # Actually, the test statistic under H0 is Z = z_hat * sqrt(n-3).
-    # Under H1, z_hat ~ N(z_r, 1/(n-3)).
-    # So the test statistic T = z_hat * sqrt(n-3) ~ N(z_r * sqrt(n-3), 1).
+    # Non-centrality parameter
+    delta = z_r / se
     
-    non_central_param = z_r * math.sqrt(n - 3)
+    # Power = P(Z > z_crit - delta) + P(Z < -z_crit - delta)
+    power = norm.cdf(delta - z_crit) + (1 - norm.cdf(delta + z_crit))
     
-    # Probability of falling in the rejection region (two-tailed)
-    # Rejection region: T > z_alpha or T < -z_alpha
-    # Power = P(T > z_alpha) + P(T < -z_alpha)
-    
-    prob_upper = 1 - stats.norm.cdf(z_alpha - non_central_param)
-    prob_lower = stats.norm.cdf(-z_alpha - non_central_param)
-    
-    power = prob_upper + prob_lower
     return max(0.0, min(1.0, power))
 
-
-def calculate_margin_of_error(n: int, rho: float = 0.0, alpha: float = 0.05) -> float:
+def calculate_margin_of_error(sample_size: int, confidence_level: float = 0.95) -> float:
     """
-    Calculates the margin of error for a correlation coefficient estimate.
-    
-    This is typically defined as the half-width of the confidence interval for the
-    correlation coefficient, transformed back from the Fisher's z scale.
+    Calculate the margin of error for a correlation estimate.
     
     Args:
-        n (int): Sample size.
-        rho (float): Observed or expected correlation coefficient (default 0.0).
-        alpha (float): Significance level (default 0.05).
-
+        sample_size: Number of observations.
+        confidence_level: Confidence level (default 0.95).
+    
     Returns:
-        float: Margin of error (half-width of CI) on the correlation scale.
+        Margin of error in correlation units.
     """
-    if n < 3:
-        raise ValueError("Sample size must be at least 3 to calculate margin of error.")
+    if sample_size < 3:
+        return float('inf')
     
-    z_r = calculate_effect_size(rho)
-    se_z = 1.0 / math.sqrt(n - 3)
-    z_alpha = stats.norm.ppf(1 - alpha / 2)
+    from scipy.stats import norm
+    z = norm.ppf((1 + confidence_level) / 2)
+    se = 1.0 / math.sqrt(sample_size - 3)
     
-    # Margin of error in Fisher's z scale
-    moe_z = z_alpha * se_z
+    # Margin of error in Fisher's z space
+    moe_z = z * se
     
-    # Calculate the upper and lower bounds in z scale
-    z_upper = z_r + moe_z
-    z_lower = z_r - moe_z
+    # Convert back to correlation space (approximate)
+    # Using the inverse Fisher transform
+    moe_r = math.tanh(moe_z)
     
-    # Transform back to correlation scale
-    rho_upper = (math.exp(2 * z_upper) - 1) / (math.exp(2 * z_upper) + 1)
-    rho_lower = (math.exp(2 * z_lower) - 1) / (math.exp(2 * z_lower) + 1)
-    
-    # Margin of error is the distance from the point estimate to the bounds
-    # Ideally symmetric on the z scale, but not on the rho scale.
-    # We return the average distance or the maximum distance. 
-    # Standard practice often reports the CI, but if a single MoE is needed:
-    moe = max(abs(rho_upper - rho), abs(rho_lower - rho))
-    
-    return moe
+    return moe_r
 
-
-def run_power_analysis(
-    sample_size: int, 
-    effect_size: float, 
-    alpha: float = 0.05,
-    output_path: Optional[Path] = None
-) -> Dict[str, float]:
+def run_power_analysis(sample_size: int, effect_size: float, alpha: float = 0.05, 
+                       output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Runs a complete power analysis for a given sample size and effect size.
+    Run a complete power analysis and optionally write results to a file.
     
     Args:
-        sample_size (int): The number of samples.
-        effect_size (float): The expected correlation coefficient (rho).
-        alpha (float): Significance level.
-        output_path (Optional[Path]): If provided, writes results to this file.
+        sample_size: Number of observations.
+        effect_size: Expected correlation coefficient.
+        alpha: Significance level.
+        output_path: Optional path to write the report (TSV).
     
     Returns:
-        Dict[str, float]: A dictionary containing 'power' and 'margin_of_error'.
+        Dictionary containing power, margin_of_error, and sample_size.
     """
-    logger.info(f"Running power analysis: n={sample_size}, rho={effect_size}, alpha={alpha}")
+    logger = get_logger(__name__)
     
     power = calculate_power_spearman(sample_size, effect_size, alpha)
-    moe = calculate_margin_of_error(sample_size, effect_size, alpha)
+    margin_of_error = calculate_margin_of_error(sample_size)
     
-    results = {
-        "sample_size": float(sample_size),
-        "effect_size": float(effect_size),
-        "alpha": float(alpha),
+    result = {
+        "sample_size": sample_size,
+        "effect_size": effect_size,
+        "alpha": alpha,
         "power": power,
-        "margin_of_error": moe
+        "margin_of_error": margin_of_error
     }
     
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame([results])
-        df.to_csv(output_path, sep='\t', index=False)
-        logger.info(f"Power analysis results written to {output_path}")
+    logger.info(f"Power Analysis: n={sample_size}, r={effect_size}, Power={power:.4f}, MoE={margin_of_error:.4f}")
     
-    return results
+    if output_path:
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        df = pd.DataFrame([result])
+        df.to_csv(output_file, sep='\t', index=False)
+        logger.info(f"Power analysis report written to: {output_path}")
+    
+    return result
 
-
-def main():
-    """
-    Command-line interface for running power analysis.
-    """
+def build_arg_parser() -> argparse.ArgumentParser:
+    """Build the argument parser for the power analysis CLI."""
     parser = argparse.ArgumentParser(
-        description="Calculate statistical power and margin of error for Spearman correlation."
+        description="Calculate statistical power and margin of error for correlation studies."
     )
     parser.add_argument(
-        "--sample-size", 
-        type=int, 
-        required=True, 
-        help="Number of samples (n)."
+        "--sample-size", "-n",
+        type=int,
+        required=True,
+        help="Number of observations in the study."
     )
     parser.add_argument(
-        "--effect-size", 
-        type=float, 
-        required=True, 
-        help="Expected correlation coefficient (rho), between -1 and 1."
+        "--effect-size", "-r",
+        type=float,
+        required=True,
+        help="Expected correlation coefficient (r)."
     )
     parser.add_argument(
-        "--alpha", 
-        type=float, 
-        default=0.05, 
+        "--alpha", "-a",
+        type=float,
+        default=0.05,
         help="Significance level (default: 0.05)."
     )
     parser.add_argument(
-        "--output", 
-        type=str, 
-        default=None, 
-        help="Path to output TSV file. If not provided, prints to stdout."
+        "--output", "-o",
+        type=str,
+        default=None,
+        help="Path to write the output TSV report."
     )
-    
+    return parser
+
+def main():
+    """Main entry point for CLI execution."""
+    parser = build_arg_parser()
     args = parser.parse_args()
     
+    logger = get_logger(__name__)
+    
     try:
-        results = run_power_analysis(
+        result = run_power_analysis(
             sample_size=args.sample_size,
             effect_size=args.effect_size,
             alpha=args.alpha,
-            output_path=Path(args.output) if args.output else None
+            output_path=args.output
         )
-        
-        if not args.output:
-            print(f"Sample Size: {results['sample_size']}")
-            print(f"Effect Size (rho): {results['effect_size']}")
-            print(f"Alpha: {results['alpha']}")
-            print(f"Power: {results['power']:.4f}")
-            print(f"Margin of Error: {results['margin_of_error']:.4f}")
-            
-    except ValueError as e:
-        logger.error(f"Input error: {e}")
-        sys.exit(1)
+        print(f"Power: {result['power']:.4f}")
+        print(f"Margin of Error: {result['margin_of_error']:.4f}")
+        return 0
     except Exception as e:
-        logger.error(f"Unexpected error during power analysis: {e}")
-        sys.exit(1)
+        logger.error(f"Power analysis failed: {e}")
+        return 1
 
 if __name__ == "__main__":
     import sys
-    main()
+    sys.exit(main())

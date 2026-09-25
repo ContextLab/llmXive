@@ -1,12 +1,8 @@
 """
-Shared pytest fixtures for the llmXive automated science pipeline.
+Shared pytest fixtures for the llmXive gut microbiome project.
 
-This module provides reusable fixtures for:
-- Project directory structure setup
-- Sample data generation for unit/integration tests
-- Temporary directories for test artifacts
-
-All fixtures use the project's root directory structure as defined in T001.
+This file provides reusable fixtures for directory paths, sample data,
+and temporary directories used across unit, integration, and contract tests.
 """
 import os
 import sys
@@ -16,145 +12,126 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Ensure the code directory is in the Python path for imports
-code_root = Path(__file__).parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Ensure the project root is in the path so we can import src modules
+# This assumes the tests are run from the project root or code/ directory
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.utils.logger import get_logger
-
-# Initialize logger for test fixtures
-_logger = get_logger("conftest")
+@pytest.fixture(scope="session")
+def setup_path():
+    """Returns the path to the setup script."""
+    return PROJECT_ROOT / "src" / "setup_data_structure.py"
 
 @pytest.fixture(scope="session")
 def project_root():
-    """
-    Returns the project root directory.
-    
-    In a real execution environment, this would be the actual project root.
-    For testing, we use a temporary directory that mimics the structure.
-    """
-    # For unit tests, we use the actual code directory as root if running from there,
-    # otherwise we create a temp structure.
-    # Here we assume the test is run from the project root or code/ directory.
-    # We try to detect the project root by looking for 'data' or 'src' directories.
-    
-    current = Path(__file__).parent.parent
-    # Check if we are in 'code' directory
-    if (current / 'src').exists() and (current / 'data').exists():
-        return current
-    
-    # Fallback: use a temporary directory with the required structure
-    temp_dir = tempfile.mkdtemp(prefix="llmxive_test_")
-    temp_path = Path(temp_dir)
-    
-    # Create required directories per T001
-    dirs = [
-        "src/ingestion", "src/preprocessing", "src/analysis", "src/utils",
-        "tests/contract", "tests/integration", "tests/unit",
-        "data/raw", "data/processed", "data/processed/results",
-        "docs", "state"
-    ]
-    for d in dirs:
-        (temp_path / d).mkdir(parents=True, exist_ok=True)
-    
-    _logger.info(f"Created temporary project root at {temp_path}")
-    return temp_path
+    """Returns the project root directory."""
+    return PROJECT_ROOT
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def data_dir(project_root):
     """Returns the data directory."""
     return project_root / "data"
 
-@pytest.fixture
-def processed_dir(project_root):
+@pytest.fixture(scope="session")
+def processed_dir(data_dir):
     """Returns the processed data directory."""
-    return project_root / "data" / "processed"
+    return data_dir / "processed"
 
-@pytest.fixture
-def results_dir(project_root):
+@pytest.fixture(scope="session")
+def results_dir(processed_dir):
     """Returns the results directory."""
-    return project_root / "data" / "processed" / "results"
+    return processed_dir / "results"
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def temp_dir():
-    """Creates a temporary directory for test-specific artifacts."""
-    temp_path = tempfile.mkdtemp(prefix="llmxive_test_artifact_")
-    yield Path(temp_path)
-    # Cleanup after test
-    import shutil
-    shutil.rmtree(temp_path, ignore_errors=True)
+    """Creates a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        yield Path(tmpdirname)
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_agp_df():
     """
-    Generates a sample DataFrame mimicking the American Gut Project (AGP) data structure.
-    
-    Includes:
-    - sample_id
-    - fiber_g_day (intake in grams per day)
-    - read_count (sequencing depth)
-    - cohort_id (set to 'AGP')
-    - Some taxon abundance columns (mocked)
-    - Covariates (age, bmi, antibiotic_use)
+    Creates a sample DataFrame mimicking the structure of AGP data.
+    Used for testing ingestion and harmonization logic.
     """
-    np.random.seed(42)  # For reproducibility
-    n_samples = 50
-    
     data = {
-        "sample_id": [f"AGP_{i:04d}" for i in range(n_samples)],
-        "fiber_g_day": np.random.uniform(5, 50, n_samples),
-        "read_count": np.random.randint(5000, 50000, n_samples),
-        "cohort_id": ["AGP"] * n_samples,
-        "age": np.random.randint(20, 70, n_samples),
-        "bmi": np.random.uniform(18.5, 35.0, n_samples),
-        "antibiotic_use": np.random.choice([0, 1], n_samples),
-        # Mock taxon abundances (relative)
-        "Bacteroides": np.random.dirichlet(np.ones(10), n_samples)[:, 0],
-        "Prevotella": np.random.dirichlet(np.ones(10), n_samples)[:, 1],
-        "Faecalibacterium": np.random.dirichlet(np.ones(10), n_samples)[:, 2],
+        "sample_id": ["AGP_001", "AGP_002", "AGP_003", "AGP_004"],
+        "fiber_g_day": [25.0, 15.0, 30.0, 5.0],
+        "read_count": [10000, 4000, 12000, 8000],
+        "age": [35, 42, 29, 55],
+        "bmi": [22.5, 28.0, 24.1, 30.5],
+        "antibiotic_use": ["no", "yes", "no", "no"],
+        "taxon_A": [0.1, 0.2, 0.15, 0.12],
+        "taxon_B": [0.05, 0.08, 0.06, 0.04],
+        "cohort_id": ["AGP", "AGP", "AGP", "AGP"]
     }
-    
-    # Add some missing values to test imputation logic
-    data["age"][5] = np.nan
-    data["bmi"][10] = np.nan
-    
     return pd.DataFrame(data)
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_ukbb_df():
     """
-    Generates a sample DataFrame mimicking the UK Biobank (UKBB) data structure.
-    
-    Similar to AGP but with 'UKBB' cohort ID and slightly different distributions.
+    Creates a sample DataFrame mimicking the structure of UKBB data.
+    Used for testing ingestion and harmonization logic.
     """
-    np.random.seed(123)  # Different seed for variety
-    n_samples = 50
-    
     data = {
-        "sample_id": [f"UKBB_{i:04d}" for i in range(n_samples)],
-        "fiber_g_day": np.random.uniform(10, 60, n_samples),  # Slightly higher intake
-        "read_count": np.random.randint(10000, 100000, n_samples),
-        "cohort_id": ["UKBB"] * n_samples,
-        "age": np.random.randint(30, 80, n_samples),
-        "bmi": np.random.uniform(20.0, 40.0, n_samples),
-        "antibiotic_use": np.random.choice([0, 1], n_samples),
-        # Mock taxon abundances
-        "Bacteroides": np.random.dirichlet(np.ones(10), n_samples)[:, 0],
-        "Prevotella": np.random.dirichlet(np.ones(10), n_samples)[:, 1],
-        "Faecalibacterium": np.random.dirichlet(np.ones(10), n_samples)[:, 2],
+        "sample_id": ["UKBB_101", "UKBB_102", "UKBB_103"],
+        "fiber_g_day": [18.0, 22.0, 12.0],
+        "read_count": [9000, 11000, 3500],
+        "age": [50, 45, 60],
+        "bmi": [26.0, 23.5, 29.0],
+        "antibiotic_use": ["no", "no", "yes"],
+        "taxon_A": [0.11, 0.14, 0.09],
+        "taxon_B": [0.07, 0.05, 0.06],
+        "cohort_id": ["UKBB", "UKBB", "UKBB"]
     }
-    
-    # Add some missing values
-    data["age"][3] = np.nan
-    data["antibiotic_use"][15] = np.nan
-    
     return pd.DataFrame(data)
 
-@pytest.fixture
-def setup_path():
+@pytest.fixture(scope="function")
+def sample_clr_df():
     """
-    Provides the path to the setup script (src/setup_data_structure.py).
-    Useful for tests that need to verify directory creation logic.
+    Creates a sample DataFrame with CLR-transformed values.
+    Used for testing correlation analysis.
     """
-    return Path(__file__).parent.parent / "src" / "setup_data_structure.py"
+    data = {
+        "sample_id": ["S1", "S2", "S3", "S4"],
+        "fiber_g_day": [25.0, 15.0, 30.0, 5.0],
+        "taxon_A_clr": [-0.5, 0.2, -0.3, 0.1],
+        "taxon_B_clr": [0.4, -0.1, 0.3, -0.2],
+        "taxon_C_clr": [0.1, 0.1, 0.1, 0.1],
+        "age": [35, 42, 29, 55],
+        "bmi": [22.5, 28.0, 24.1, 30.5]
+    }
+    return pd.DataFrame(data)
+
+@pytest.fixture(scope="function")
+def sample_covariate_df():
+    """
+    Creates a sample DataFrame with missing values for covariate testing.
+    """
+    data = {
+        "sample_id": ["C1", "C2", "C3", "C4", "C5"],
+        "age": [30.0, np.nan, 45.0, 50.0, np.nan],
+        "bmi": [22.0, 25.0, np.nan, 28.0, 30.0],
+        "antibiotic_use": ["no", "yes", "no", np.nan, "no"]
+    }
+    return pd.DataFrame(data)
+
+@pytest.fixture(scope="function")
+def temp_input_file(temp_dir):
+    """
+    Creates a temporary input CSV file for testing file I/O operations.
+    Returns the path to the file.
+    """
+    file_path = temp_dir / "input_test.csv"
+    df = pd.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"]})
+    df.to_csv(file_path, index=False)
+    return file_path
+
+@pytest.fixture(scope="function")
+def temp_output_file(temp_dir):
+    """
+    Returns a path for a temporary output file.
+    The file is not created by the fixture; the test must write to it.
+    """
+    return temp_dir / "output_test.csv"

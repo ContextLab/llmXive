@@ -1,1 +1,2 @@
-# Placeholder for raw data directory
+# This directory stores raw downloaded data.
+# Files here are not tracked by git but are required for the pipeline.

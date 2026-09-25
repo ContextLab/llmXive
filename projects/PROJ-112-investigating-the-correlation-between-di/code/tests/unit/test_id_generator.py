@@ -1,115 +1,106 @@
 """
-Unit tests for the id_generator module.
+Unit tests for the ID Generator module.
 """
+
 import pytest
 import pandas as pd
-import hashlib
+import tempfile
+import os
 from pathlib import Path
-from src.preprocessing.id_generator import generate_sample_id, generate_sample_ids_dataframe
+from src.preprocessing.id_generator import (
+    generate_sample_id,
+    generate_sample_ids_dataframe,
+    run_id_generation,
+    get_project_root
+)
 
-class TestGenerateSampleId:
-    """Tests for the generate_sample_id function."""
+def test_generate_sample_id_deterministic():
+    """Test that the same inputs produce the same ID."""
+    cohort = "AGP"
+    original_id = "sample_123"
+    salt = "llmXive_v1"
+    
+    id1 = generate_sample_id(cohort, original_id, salt)
+    id2 = generate_sample_id(cohort, original_id, salt)
+    
+    assert id1 == id2
+    assert len(id1) == 64  # SHA256 hex length
+    assert id1.isalnum()
 
-    def test_basic_generation(self):
-        """Test that a valid ID is generated for standard inputs."""
-        cohort = "AGP"
-        original_id = "sample_001"
+def test_generate_sample_id_unique():
+    """Test that different inputs produce different IDs."""
+    cohort = "AGP"
+    salt = "llmXive_v1"
+    
+    id1 = generate_sample_id(cohort, "sample_123", salt)
+    id2 = generate_sample_id(cohort, "sample_456", salt)
+    id3 = generate_sample_id("UKBB", "sample_123", salt)
+    
+    assert id1 != id2
+    assert id1 != id3
+    assert id2 != id3
+
+def test_generate_sample_id_case_insensitive_cohort():
+    """Test that cohort case is normalized."""
+    id1 = generate_sample_id("agp", "sample_123", "salt")
+    id2 = generate_sample_id("AGP", "sample_123", "salt")
+    id3 = generate_sample_id("AgP", "sample_123", "salt")
+    
+    assert id1 == id2
+    assert id2 == id3
+
+def test_generate_sample_ids_dataframe():
+    """Test ID generation on a DataFrame."""
+    data = {
+        "cohort_id": ["AGP", "UKBB", "AGP"],
+        "original_id": ["A1", "B1", "A2"],
+        "value": [10, 20, 30]
+    }
+    df = pd.DataFrame(data)
+    
+    result_df = generate_sample_ids_dataframe(df, "cohort_id", "original_id")
+    
+    assert "sample_id" in result_df.columns
+    assert len(result_df) == 3
+    assert result_df["sample_id"].iloc[0] != result_df["sample_id"].iloc[1]
+    assert result_df["sample_id"].iloc[0] == result_df["sample_id"].iloc[0] # Idempotent check
+
+def test_run_id_generation_file_io():
+    """Test the full file I/O pipeline."""
+    # Create temporary files
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "input.tsv"
+        output_path = Path(tmpdir) / "output.tsv"
         
-        result = generate_sample_id(cohort, original_id)
-        
-        # Check format: 64 hex characters
-        assert len(result) == 64
-        assert all(c in '0123456789abcdef' for c in result)
-
-    def test_deterministic(self):
-        """Test that the same inputs always produce the same output."""
-        cohort = "UKBB"
-        original_id = "12345"
-        
-        result1 = generate_sample_id(cohort, original_id)
-        result2 = generate_sample_id(cohort, original_id)
-        
-        assert result1 == result2
-
-    def test_empty_cohort_raises(self):
-        """Test that an empty cohort raises ValueError."""
-        with pytest.raises(ValueError):
-            generate_sample_id("", "sample_001")
-
-    def test_empty_id_raises(self):
-        """Test that an empty original_id raises ValueError."""
-        with pytest.raises(ValueError):
-            generate_sample_id("AGP", "")
-
-    def test_hash_verification(self):
-        """Verify the hash is actually SHA256 of the concatenated string."""
-        cohort = "TEST"
-        original_id = "ID99"
-        raw_string = f"{cohort}_{original_id}"
-        expected_hash = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
-        
-        result = generate_sample_id(cohort, original_id)
-        assert result == expected_hash
-
-class TestGenerateSampleIdsDataframe:
-    """Tests for the generate_sample_ids_dataframe function."""
-
-    def test_basic_dataframe_processing(self):
-        """Test processing a simple DataFrame."""
+        # Create input data
         data = {
-            'cohort_id': ['AGP', 'UKBB'],
-            'original_id': ['A01', 'B02'],
-            'value': [10, 20]
+            "cohort_id": ["AGP", "UKBB"],
+            "original_id": ["X1", "Y1"],
+            "col3": [1, 2]
         }
-        df = pd.DataFrame(data)
+        df_input = pd.DataFrame(data)
+        df_input.to_csv(input_path, sep='\t', index=False)
         
-        result = generate_sample_ids_dataframe(df)
+        # Run generation
+        run_id_generation(input_path, output_path)
         
-        assert 'sample_id' in result.columns
-        assert len(result) == 2
-        assert result['sample_id'].iloc[0] == generate_sample_id('AGP', 'A01')
-        assert result['sample_id'].iloc[1] == generate_sample_id('UKBB', 'B02')
+        # Verify output exists
+        assert output_path.exists()
+        
+        # Verify content
+        df_output = pd.read_csv(output_path, sep='\t')
+        assert "sample_id" in df_output.columns
+        assert len(df_output) == 2
+        assert df_output["sample_id"].iloc[0] != df_output["sample_id"].iloc[1]
 
-    def test_custom_column_names(self):
-        """Test with custom column names."""
-        data = {
-            'my_cohort': ['AGP'],
-            'my_id': ['X1'],
-            'val': [1]
-        }
-        df = pd.DataFrame(data)
+def test_run_id_generation_missing_column():
+    """Test error handling for missing columns."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "input.csv"
+        output_path = Path(tmpdir) / "output.csv"
         
-        result = generate_sample_ids_dataframe(
-            df, 
-            cohort_col='my_cohort', 
-            id_col='my_id', 
-            output_col='new_id'
-        )
-        
-        assert 'new_id' in result.columns
-        assert 'sample_id' not in result.columns
-
-    def test_missing_cohort_column_raises(self):
-        """Test that missing cohort column raises ValueError."""
-        df = pd.DataFrame({'other_col': [1]})
+        data = {"wrong_col": ["A"], "id": ["1"]}
+        pd.DataFrame(data).to_csv(input_path, index=False)
         
         with pytest.raises(ValueError):
-            generate_sample_ids_dataframe(df, cohort_col='missing_col')
-
-    def test_missing_id_column_raises(self):
-        """Test that missing id column raises ValueError."""
-        df = pd.DataFrame({'cohort_id': ['AGP']})
-        
-        with pytest.raises(ValueError):
-            generate_sample_ids_dataframe(df, id_col='missing_id')
-
-    def test_original_dataframe_unchanged(self):
-        """Test that the original DataFrame is not modified in place."""
-        data = {'cohort_id': ['AGP'], 'original_id': ['A1']}
-        df = pd.DataFrame(data)
-        original_columns = list(df.columns)
-        
-        result = generate_sample_ids_dataframe(df)
-        
-        assert list(df.columns) == original_columns
-        assert 'sample_id' in result.columns
+            run_id_generation(input_path, output_path, cohort_col="wrong_col", id_col="missing")

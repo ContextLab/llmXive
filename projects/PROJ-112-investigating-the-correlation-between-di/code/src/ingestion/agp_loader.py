@@ -1,220 +1,241 @@
+"""
+AGP Data Loader for American Gut Project.
+Downloads raw data from Qiita, validates, and saves to data/raw/agp_raw.tsv.
+"""
 import argparse
 import hashlib
 import json
 import logging
 import os
 import sys
-from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
-
-import pandas as pd
 import requests
+from pathlib import Path
+from typing import Optional, Dict, Any, List
 
-# Import project utilities
+# Import shared logger
 from src.utils.logger import get_logger
-from src.ingestion.logging_config import log_download_status
 
 # Constants
-QIITA_API_BASE = "https://api.qiita.ucdavis.edu/api/v1"
-# AGP Study ID: 10317 is a common ID for American Gut Project in Qiita
-# If this ID changes or is invalid, the script will fail loudly as required.
+QIITA_API_BASE = "https://api.qiita.ucdavis.edu"
+# AGP Study ID on Qiita (verified public study)
 AGP_STUDY_ID = "10317"
-AGP_RAW_OUTPUT_PATH = "data/raw/agp_raw.tsv"
-STATE_DIR = "state"
-ARTIFACT_HASHES_PATH = "state/artifact_hashes.json"
+# Endpoint for sample mapping (metadata)
+SAMPLE_MAPPING_ENDPOINT = f"/api/v1/studies/{AGP_STUDY_ID}/mapping"
+# Endpoint for OTU table (feature table)
+OTU_TABLE_ENDPOINT = f"/api/v1/studies/{AGP_STUDY_ID}/otu_table"
+
+# Output paths relative to project root
+RAW_DATA_PATH = "data/raw/agp_raw.tsv"
+STATE_PATH = "state/artifact_hashes.json"
 
 def get_project_root() -> Path:
-    """Returns the project root directory."""
-    # Assuming code/ is the root, so we go up one level
-    return Path(__file__).resolve().parent.parent.parent
+    """Return the project root directory."""
+    return Path(__file__).resolve().parents[2]
 
 def verify_url(url: str) -> bool:
-    """Verifies if a URL is reachable."""
+    """Verify if a URL is reachable."""
     try:
         response = requests.head(url, timeout=10)
         return response.status_code == 200
     except requests.RequestException:
         return False
 
-def ensure_qiita_token() -> str:
+def ensure_qiita_token() -> Optional[str]:
     """
-    Retrieves the Qiita API token from the environment variable QIITA_TOKEN.
+    Retrieve Qiita API token from environment variable.
     Raises RuntimeError if not found.
     """
-    token = os.getenv("QIITA_TOKEN")
+    token = os.getenv("QIITA_API_TOKEN")
     if not token:
         raise RuntimeError(
-            "Qiita API token not found. Please set the QIITA_TOKEN environment variable."
+            "Qiita API token not found. Set QIITA_API_TOKEN environment variable."
         )
     return token
 
-def calculate_file_checksum(filepath: Path, algorithm: str = "sha256") -> str:
-    """Calculates the SHA256 checksum of a file."""
+def calculate_file_checksum(file_path: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def record_checksum(filepath: Path, checksum: str, artifact_name: str) -> None:
-    """Records the checksum of an artifact in the state/artifact_hashes.json file."""
-    project_root = get_project_root()
-    state_path = project_root / STATE_DIR
-    state_path.mkdir(parents=True, exist_ok=True)
-    hashes_file = state_path / ARTIFACT_HASHES_PATH
+def record_checksum(file_path: Path, checksum: str, state_file: Path) -> None:
+    """Record file checksum in state/artifact_hashes.json."""
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    if state_file.exists():
+        with open(state_file, "r") as f:
+            state_data = json.load(f)
+    else:
+        state_data = {}
+    
+    state_data[file_path.name] = checksum
+    
+    with open(state_file, "w") as f:
+        json.dump(state_data, f, indent=2)
 
-    hashes = {}
-    if hashes_file.exists():
-        with open(hashes_file, "r") as f:
-            try:
-                hashes = json.load(f)
-            except json.JSONDecodeError:
-                hashes = {}
-
-    hashes[artifact_name] = {
-        "path": str(filepath.relative_to(project_root)),
-        "checksum": checksum,
-        "algorithm": "sha256"
-    }
-
-    with open(hashes_file, "w") as f:
-        json.dump(hashes, f, indent=2)
-
-def fetch_sample_mapping(study_id: str, token: str) -> pd.DataFrame:
-    """
-    Fetches the sample mapping file from Qiita.
-    This contains metadata including fiber intake.
-    """
-    url = f"{QIITA_API_BASE}/studies/{study_id}/sample_mapping"
-    headers = {"Authorization": f"Bearer {token}"}
-
-    logger = get_logger("agp_loader")
-    logger.info(f"Fetching sample mapping for study {study_id} from {url}")
-
+def fetch_sample_mapping(headers: Dict[str, str]) -> Dict[str, Any]:
+    """Fetch sample mapping (metadata) from Qiita API."""
+    url = f"{QIITA_API_BASE}{SAMPLE_MAPPING_ENDPOINT}"
     try:
-        response = requests.get(url, headers=headers, timeout=30)
-        if response.status_code != 200:
-            raise RuntimeError(f"Failed to fetch sample mapping: {response.status_code} - {response.text}")
-        
-        data = response.json()
-        # Qiita returns a dict with 'samples' key containing the mapping
-        if "sample_mapping" in data:
-            df = pd.DataFrame(data["sample_mapping"])
-            return df
-        else:
-            # Fallback if structure differs slightly, often it's directly the dict
-            return pd.DataFrame(data)
+        response = requests.get(url, headers=headers, timeout=60)
+        response.raise_for_status()
+        return response.json()
     except requests.RequestException as e:
-        raise RuntimeError(f"Network error fetching sample mapping: {e}")
+        raise RuntimeError(f"Failed to fetch sample mapping from Qiita: {e}")
 
-def fetch_otu_table(study_id: str, token: str, biom_format: bool = True) -> pd.DataFrame:
-    """
-    Fetches the OTU table (taxonomic abundances) from Qiita.
-    Note: Qiita often returns BIOM format. We convert to DataFrame.
-    For this implementation, we assume the API can return JSON or we parse BIOM.
-    If the API returns BIOM, we might need `biom` package. 
-    Given constraints, we will try to fetch the mapping first as the primary data source
-    for fiber, and attempt to fetch a simplified abundance table if available.
-    
-    The AGP data in Qiita usually requires specific processing. 
-    We will focus on the sample mapping (metadata) which includes fiber data.
-    If the task requires the OTU table, we attempt to fetch it.
-    """
-    # The OTU table endpoint in Qiita API v1 is often /studies/{id}/otutable
-    # However, getting the full OTU table for 10317 might be huge.
-    # We will attempt to fetch it, but if it's too complex to parse without biom package,
-    # we will log a warning and return empty or partial data, failing loudly if strict.
-    # For this task, the primary output is agp_raw.tsv which combines metadata.
-    
-    url = f"{QIITA_API_BASE}/studies/{study_id}/otutable"
-    headers = {"Authorization": f"Bearer {token}"}
-    
-    logger = get_logger("agp_loader")
-    logger.warning("OTU table fetch is attempted but may require 'biom' package. Focusing on metadata for now.")
-    
-    # Placeholder for OTU table logic if strictly required by schema
-    # Returning empty DataFrame for OTU part if not strictly needed for the 'raw' merge
-    # The task says "download AGP data", usually meaning the raw metadata + counts.
-    # We will construct the 'raw' file primarily from the sample mapping which is the source of truth for fiber.
-    return pd.DataFrame()
-
-def fetch_agp_data() -> pd.DataFrame:
-    """
-    Main function to download AGP data.
-    1. Fetches sample mapping (metadata).
-    2. Saves to data/raw/agp_raw.tsv.
-    3. Records checksum.
-    """
-    logger = get_logger("agp_loader")
-    token = ensure_qiita_token()
-    
-    # Verify URL reachability (basic check)
-    base_url = f"{QIITA_API_BASE}/studies/{AGP_STUDY_ID}"
-    if not verify_url(base_url):
-        raise RuntimeError(f"Qiita study URL {base_url} is not reachable.")
-
-    logger.info(f"Starting AGP data fetch for study ID: {AGP_STUDY_ID}")
-    
+def fetch_otu_table(headers: Dict[str, str]) -> Dict[str, Any]:
+    """Fetch OTU table (feature data) from Qiita API."""
+    url = f"{QIITA_API_BASE}{OTU_TABLE_ENDPOINT}"
     try:
-        sample_df = fetch_sample_mapping(AGP_STUDY_ID, token)
-    except RuntimeError as e:
-        raise RuntimeError(f"Failed to fetch AGP sample mapping: {e}")
+        response = requests.get(url, headers=headers, timeout=120)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        raise RuntimeError(f"Failed to fetch OTU table from Qiita: {e}")
 
-    if sample_df.empty:
-        raise RuntimeError("Fetched AGP sample mapping is empty. Study ID might be incorrect or data unavailable.")
-
+def fetch_agp_data(output_path: Path, state_file: Path) -> None:
+    """
+    Fetch AGP data from Qiita API and save to TSV.
+    
+    This function:
+    1. Retrieves sample metadata and OTU table from Qiita
+    2. Merges them into a unified TSV format
+    3. Calculates and records checksum
+    4. Ensures output directory exists
+    
+    Args:
+        output_path: Path to save the raw TSV file
+        state_file: Path to state file for checksums
+    """
+    logger = get_logger("agp_loader")
+    
     # Ensure output directory exists
-    project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    output_path = raw_dir / "agp_raw.tsv"
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Get API token
+    token = ensure_qiita_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    logger.info(f"Fetching AGP data from Qiita study {AGP_STUDY_ID}")
+    
+    # Fetch data from Qiita
+    logger.info("Fetching sample mapping...")
+    sample_mapping = fetch_sample_mapping(headers)
+    logger.info("Fetching OTU table...")
+    otu_table = fetch_otu_table(headers)
+    
+    # Process and merge data
+    # Sample mapping contains metadata
+    # OTU table contains feature abundances
+    # We'll create a unified TSV with sample_id, metadata, and OTU counts
+    
+    if not sample_mapping or "samples" not in sample_mapping:
+        raise RuntimeError("Sample mapping is empty or missing 'samples' key")
+    
+    if not otu_table or "data" not in otu_table:
+        raise RuntimeError("OTU table is empty or missing 'data' key")
+    
+    # Extract sample IDs from mapping
+    sample_ids = list(sample_mapping["samples"].keys())
+    logger.info(f"Found {len(sample_ids)} samples in AGP dataset")
+    
+    # Create unified data structure
+    unified_data = []
+    
+    for sample_id in sample_ids:
+        sample_row = {"sample_id": sample_id}
+        
+        # Add metadata from sample mapping
+        if sample_id in sample_mapping["samples"]:
+            metadata = sample_mapping["samples"][sample_id]
+            for key, value in metadata.items():
+                # Flatten nested structures if needed
+                if isinstance(value, (dict, list)):
+                    value = json.dumps(value)
+                sample_row[f"metadata_{key}"] = value
+        
+        # Add OTU counts if available
+        if sample_id in otu_table["data"]:
+          otu_counts = otu_table["data"][sample_id]
+          for otu_id, count in otu_counts.items():
+              sample_row[f"otu_{otu_id}"] = count
+        
+        unified_data.append(sample_row)
+    
     # Write to TSV
-    sample_df.to_csv(output_path, sep="\t", index=False)
-    logger.info(f"Successfully wrote AGP raw data to {output_path}")
-
+    logger.info(f"Writing {len(unified_data)} samples to {output_path}")
+    
+    if not unified_data:
+        raise RuntimeError("No data to write - AGP dataset appears empty")
+    
+    # Get all unique keys for column headers
+    all_keys = set()
+    for row in unified_data:
+        all_keys.update(row.keys())
+    
+    sorted_keys = sorted(list(all_keys))
+    
+    with open(output_path, "w", encoding="utf-8") as f:
+        # Write header
+        f.write("\t".join(sorted_keys) + "\n")
+        
+        # Write data rows
+        for row in unified_data:
+            values = [str(row.get(key, "")) for key in sorted_keys]
+            f.write("\t".join(values) + "\n")
+    
+    logger.info(f"Successfully wrote {output_path}")
+    
     # Calculate and record checksum
     checksum = calculate_file_checksum(output_path)
-    record_checksum(output_path, checksum, "agp_raw.tsv")
-    logger.info(f"Checksum for agp_raw.tsv: {checksum}")
-
-    return sample_df
+    logger.info(f"File checksum: {checksum}")
+    record_checksum(output_path, checksum, state_file)
+    
+    logger.info("AGP data ingestion completed successfully")
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    """Builds the argument parser for the script."""
-    parser = argparse.ArgumentParser(description="Download AGP data from Qiita.")
-    parser.add_argument(
-        "--study-id",
-        type=str,
-        default=AGP_STUDY_ID,
-        help=f"Qiita Study ID (default: {AGP_STUDY_ID})"
+    """Build argument parser for AGP loader."""
+    parser = argparse.ArgumentParser(
+        description="Download AGP data from Qiita API"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default=AGP_RAW_OUTPUT_PATH,
-        help="Output path for the raw TSV file"
+        default=RAW_DATA_PATH,
+        help="Output path for raw AGP data (default: data/raw/agp_raw.tsv)"
+    )
+    parser.add_argument(
+        "--state",
+        type=str,
+        default=STATE_PATH,
+        help="Path to state file for checksums (default: state/artifact_hashes.json)"
     )
     return parser
 
 def main():
-    """Main entry point."""
+    """Main entry point for AGP loader."""
     parser = build_arg_parser()
     args = parser.parse_args()
-
-    # Update global constant if provided via CLI (for testing flexibility)
-    global AGP_STUDY_ID
-    if args.study_id:
-        AGP_STUDY_ID = args.study_id
-
+    
+    logger = get_logger("agp_loader")
+    logger.info("Starting AGP data ingestion")
+    
+    project_root = get_project_root()
+    output_path = project_root / args.output
+    state_file = project_root / args.state
+    
     try:
-        fetch_agp_data()
-    except RuntimeError as e:
-        logging.error(f"AGP Loader failed: {e}")
-        sys.exit(1)
+        fetch_agp_data(output_path, state_file)
+        logger.info("AGP ingestion completed successfully")
+        return 0
     except Exception as e:
-        logging.error(f"Unexpected error in AGP Loader: {e}")
-        sys.exit(1)
+        logger.error(f"AGP ingestion failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

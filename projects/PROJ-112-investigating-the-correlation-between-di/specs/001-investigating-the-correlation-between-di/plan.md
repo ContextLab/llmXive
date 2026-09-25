@@ -28,7 +28,7 @@ This project implements a reproducible, CPU-tractable pipeline to investigate th
 | Principle | Compliance Status | Implementation Strategy |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. Data fetched from canonical sources (Qiita, UKBB Fields) only. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` limited to specific, verified dataset IDs (Qiita 10160, UKBB 21003/22012). Verification occurs at design phase; pipeline halts if IDs invalid. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` limited to specific, verified dataset IDs (Qiita, UKBB 21003/22012). Verification occurs at design phase; pipeline halts if IDs invalid. |
 | **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/` with checksums. Derived files in `data/processed/` with new names. PII scan integrated. |
 | **IV. Single Source of Truth** | **PASS** | All stats in `paper/` trace to specific rows in `data/processed/` via `sample_id` (SHA256 hash of cohort + original_id). No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Content hashes recorded in `state/`. Artifact updates trigger state timestamp updates. |

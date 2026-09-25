@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-112-investigating-the-correlation-between-di
-last_run_id: ad5b417c-bbf1-481a-bd46-1954094dcbb7
+last_run_id: b8efa433-2df2-489d-9126-751768d18a35
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-112-investigating-the-correlation-between-di/specs/001-investigating-the-correlation-between-di
 title: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome
   Composition Using Publicly Available Data
-updated_at: '2026-09-23T12:01:40.682313Z'
+updated_at: '2026-09-25T19:55:34.917167Z'

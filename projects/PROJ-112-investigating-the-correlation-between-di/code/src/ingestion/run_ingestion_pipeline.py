@@ -1,7 +1,3 @@
-"""
-Main orchestration script for the ingestion pipeline (T016).
-Executes AGP and UKBB loading, harmonization, and logging.
-"""
 import argparse
 import logging
 import sys
@@ -11,143 +7,125 @@ import pandas as pd
 from src.ingestion.agp_loader import fetch_agp_data, main as agp_main
 from src.ingestion.ukbb_loader import fetch_ukbb_data, main as ukbb_main
 from src.ingestion.harmonizer import harmonize_and_merge, main as harmonizer_main
-from src.ingestion.logging_config import (
-    get_ingestion_logger,
-    log_download_status,
-    log_filter_counts,
-    log_harmonization_result,
-    log_merge_result,
-    log_validation_result
-)
+from src.ingestion.logging_config import get_ingestion_logger, log_download_status, log_filter_counts, log_merge_result
 from src.utils.logger import get_logger
 
-def run_agp_ingestion(logger: logging.Logger) -> pd.DataFrame:
-    """
-    Executes AGP data ingestion with logging.
-    """
-    logger.info("Starting AGP Ingestion...")
-    log_download_status("AGP", "STARTED")
-    
-    try:
-        # Fetch data (this writes to data/raw/agp_raw.tsv)
-        df = fetch_agp_data()
-        
-        if df is None or df.empty:
-            log_download_status("AGP", "FAILED", {"reason": "Empty dataset"})
-            raise RuntimeError("AGP dataset is empty or failed to load.")
-        
-        log_download_status("AGP", "COMPLETED", {"rows": len(df)})
-        logger.info(f"AGP data loaded: {len(df)} rows")
-        return df
-    except Exception as e:
-        log_download_status("AGP", "FAILED", {"error": str(e)})
-        raise
+def get_project_root() -> Path:
+    """Returns the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
-def run_ukbb_ingestion(logger: logging.Logger) -> pd.DataFrame:
+def run_agp_ingestion(logger: logging.Logger) -> bool:
     """
-    Executes UKBB data ingestion with logging.
-    """
-    logger.info("Starting UKBB Ingestion...")
-    log_download_status("UKBB", "STARTED")
+    Executes the AGP data ingestion process.
     
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    logger.info("Starting AGP ingestion...")
     try:
-        df = fetch_ukbb_data()
-        
-        if df is None or df.empty:
-            log_download_status("UKBB", "FAILED", {"reason": "Empty dataset"})
-            raise RuntimeError("UKBB dataset is empty or failed to load.")
-        
-        log_download_status("UKBB", "COMPLETED", {"rows": len(df)})
-        logger.info(f"UKBB data loaded: {len(df)} rows")
-        return df
+        # This function call is expected to perform the download and write to data/raw/agp_raw.tsv
+        # It will raise an error if the download fails (per T012 constraints)
+        fetch_agp_data() 
+        log_download_status(logger, "AGP", "SUCCESS")
+        return True
     except Exception as e:
-        log_download_status("UKBB", "FAILED", {"error": str(e)})
-        raise
+        log_download_status(logger, "AGP", "FAIL", str(e))
+        return False
 
-def run_harmonization(agp_df: pd.DataFrame, ukbb_df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
+def run_ukbb_ingestion(logger: logging.Logger) -> bool:
     """
-    Executes harmonization with detailed logging of counts and results.
+    Executes the UKBB data ingestion process.
+    
+    Returns:
+        bool: True if successful, False otherwise.
     """
-    logger.info("Starting Harmonization...")
+    logger.info("Starting UKBB ingestion...")
+    try:
+        # This function call is expected to perform the download and write to data/raw/ukbb_raw.tsv
+        fetch_ukbb_data()
+        log_download_status(logger, "UKBB", "SUCCESS")
+        return True
+    except Exception as e:
+        log_download_status(logger, "UKBB", "FAIL", str(e))
+        return False
+
+def run_harmonization(logger: logging.Logger) -> bool:
+    """
+    Executes the data harmonization and merging process.
     
-    initial_agp = len(agp_df)
-    initial_ukbb = len(ukbb_df)
-    
-    # Filter: Read Count >= 5000
-    agp_filtered = agp_df[agp_df['read_count'] >= 5000] if 'read_count' in agp_df.columns else agp_df
-    ukbb_filtered = ukbb_df[ukbb_df['read_count'] >= 5000] if 'read_count' in ukbb_df.columns else ukbb_df
-    
-    log_filter_counts(
-        "Read Count Filter",
-        initial_agp + initial_ukbb,
-        len(agp_filtered) + len(ukbb_filtered),
-        "read_count >= 5000"
-    )
-    
-    # Filter: Fiber 0-200 g/day
-    if 'fiber_g_day' in agp_filtered.columns:
-        agp_filtered = agp_filtered[
-            (agp_filtered['fiber_g_day'] >= 0) & (agp_filtered['fiber_g_day'] <= 200)
-        ]
-    if 'fiber_g_day' in ukbb_filtered.columns:
-        ukbb_filtered = ukbb_filtered[
-            (ukbb_filtered['fiber_g_day'] >= 0) & (ukbb_filtered['fiber_g_day'] <= 200)
-        ]
-    
-    log_filter_counts(
-        "Fiber Range Filter",
-        len(agp_filtered) + len(ukbb_filtered),
-        len(agp_filtered) + len(ukbb_filtered), # Count might not change if already filtered
-        "0 <= fiber_g_day <= 200"
-    )
-    
-    # Harmonize units (if needed)
-    log_harmonization_result("Fiber Unit Conversion", "g/day", "Standardized")
-    
-    # Merge
-    merged_df = harmonize_and_merge(agp_filtered, ukbb_filtered)
-    
-    log_merge_result(
-        len(agp_filtered),
-        len(ukbb_filtered),
-        len(merged_df)
-    )
-    
-    log_harmonization_result("Total Samples Merged", len(merged_df))
-    
-    return merged_df
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    logger.info("Starting harmonization and merge...")
+    try:
+        # harmonize_and_merge performs the filtering, unit conversion, and merging.
+        # It returns the final DataFrame and metadata about the process.
+        merged_df, stats = harmonize_and_merge()
+        
+        if merged_df is None:
+            logger.error("Harmonization failed: No data returned.")
+            return False
+
+        # Log filter counts
+        # Assuming stats contains keys like 'filtered_read_count', 'filtered_fiber_range', etc.
+        # We log generic counts based on the task requirement "Filtered Samples: <count>"
+        total_filtered = 0
+        if 'filtered_count' in stats:
+            total_filtered = stats['filtered_count']
+            log_filter_counts(logger, "General", total_filtered)
+        
+        # Log harmonization result
+        log_merge_result(logger, len(merged_df), stats.get('agp_count', 0), stats.get('ukbb_count', 0))
+        
+        return True
+    except Exception as e:
+        logger.error(f"Harmonization failed with error: {e}")
+        return False
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Ingestion Pipeline with Logging (T016)")
-    parser.add_argument("--output", type=str, default="data/processed/merged_harmonized.tsv",
-                        help="Path for the final merged output file")
+    """
+    Main entry point for the ingestion pipeline.
+    Orchestrates AGP download, UKBB download, and Harmonization.
+    """
+    parser = argparse.ArgumentParser(description="Run the full ingestion pipeline.")
+    parser.add_argument("--log-level", default="INFO", help="Logging level")
     args = parser.parse_args()
-    
-    # Setup logger
+
+    # Initialize the ingestion logger
     logger = get_ingestion_logger()
-    logger.info("=== Ingestion Pipeline Started ===")
-    
-    try:
-        # 1. Ingest AGP
-        agp_df = run_agp_ingestion(logger)
-        
-        # 2. Ingest UKBB
-        ukbb_df = run_ukbb_ingestion(logger)
-        
-        # 3. Harmonize and Merge
-        final_df = run_harmonization(agp_df, ukbb_df, logger)
-        
-        # 4. Write Output
-        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-        final_df.to_csv(args.output, sep='\t', index=False)
-        
-        log_validation_result("Output File Write", True, {"path": args.output})
-        logger.info("=== Ingestion Pipeline Completed Successfully ===")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        log_validation_result("Output File Write", False, {"error": str(e)})
-        sys.exit(1)
+    logger.setLevel(getattr(logging, args.log_level))
+
+    project_root = get_project_root()
+    logger.info(f"Project root: {project_root}")
+
+    success = True
+
+    # 1. Run AGP Ingestion
+    if not run_agp_ingestion(logger):
+        success = False
+        # Depending on strictness, we might stop here. 
+        # For logging purposes, we continue to try UKBB but mark overall as failed.
+
+    # 2. Run UKBB Ingestion
+    if not run_ukbb_ingestion(logger):
+        success = False
+
+    # 3. Run Harmonization
+    # Only run if both downloads succeeded, or if we want to try merging partial data.
+    # Per T014, we need both to merge. If one failed, harmonization will likely fail or produce empty.
+    # We attempt it to ensure the log captures the final state, but it will likely fail loudly.
+    if success:
+        if not run_harmonization(logger):
+            success = False
+    else:
+        logger.error("Skipping harmonization due to previous ingestion failures.")
+
+    if success:
+        logger.info("Ingestion pipeline completed successfully.")
+    else:
+        logger.error("Ingestion pipeline completed with errors.")
+
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
