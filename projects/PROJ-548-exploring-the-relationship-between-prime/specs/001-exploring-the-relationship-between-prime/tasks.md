@@ -122,6 +122,20 @@
 
 ---
 
+## Phase 6: Topological Visualization & Narrative Synthesis (Priority: P3 - Reviewer Request)
+
+**Goal**: Address reviewer Dan Rockmore's suggestion to visualize prime gaps as a topological structure and synthesize the "human story" of the pursuit.
+
+**Independent Test**: Run `src/analysis/topology_viz.py` to generate interactive plots; verify `results/topology_report.md` contains narrative synthesis.
+
+### Implementation for Topological Visualization
+
+- [ ] T033 [US3] **Topological Visualization**: Implement `src/analysis/topology_viz.py` to visualize the sequence of prime gaps as a 1D topological structure (e.g., a "knot" or persistence diagram) where the "tightening/loosening" of the structure corresponds to the density of gaps at different scales. Use `scipy` for persistence calculation and `plotly` for interactive visualization. **(Addresses Reviewer Concern: "visualized not just as data points, but as a topological structure").**
+- [ ] T034 [US3] **Scale-Dependent Analysis**: Extend the visualization in T033 to allow dynamic scaling, demonstrating how the "knot" tightens or loosens as the observation window changes. **(Addresses Reviewer Concern: "depending on the scale of observation").**
+- [ ] T035 [US3] **Narrative Synthesis**: Generate `results/topology_report.md` which synthesizes the statistical findings with the "human story" of the pursuit, framing the mathematical results in the context of the "silence between the notes" metaphor. **(Addresses Reviewer Concern: "It is the human story of the pursuit that makes the math sing").**
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -143,6 +157,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Phase 6 (Topological)**: Depends on US1 and US2 completion (requires data and analysis results)
 - **Phase N (Polish)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -151,6 +166,7 @@
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T012)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and results from US2
  - **Critical**: Task T028 (US3) explicitly re-runs the analysis for each window size, ensuring it is self-contained but logically follows the definition of the analysis in US2. T028 requires the analysis logic defined in T018b-T022 to be complete.
+- **Phase 6 (Topological)**: Depends on US2 completion (requires KS statistics and distributions) and US3 completion (requires robustness data).
 
 ### Within Each User Story
 
@@ -201,7 +217,8 @@ Task: "Implement zeta zero ingestion in src/data/ingest_zeros.py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 (Topological) → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -212,6 +229,7 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Analysis)
  - Developer C: User Story 3 (Robustness)
+ - Developer D: Phase 6 (Topological Visualization - requires data from B)
 3. Stories complete and integrate independently
 
 ---
@@ -239,3 +257,4 @@ With multiple developers:
 - **Data Hygiene**: T012 outputs raw gaps; T019 normalizes them. This preserves raw data for re-normalization if needed.
 - **URL Configuration**: T013a reads URLs from `research.md` instead of hardcoding, ensuring flexibility.
 - **Window Size Configuration**: T028 reads window sizes from `config.py` instead of hardcoding, ensuring flexibility.
+- **Reviewer Response**: Phase 6 (T033-T035) has been added to address the specific concerns raised by Dan Rockmore regarding topological visualization and the narrative synthesis of the "human story" of the pursuit. This phase is marked as P3 priority to ensure it does not block the core statistical analysis.
