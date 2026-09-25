@@ -32,6 +32,15 @@ T008:
     path definitions was provided; the evidence contains only a textual description
     of the task and no actual code artifact to verify. The required file is missing,
     so the task is not satisfied.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided information contains no view of `research.md`; there is no evidence\
+    \ that the file exists, contains the word \u201Cmethodology\u201D, or includes\
+    \ the placeholder \u201C[deferred]\u201D. Without the actual file content we cannot\
+    \ confirm the required methodology description was added. The implementer must\
+    \ supply the `research.md` file showing the methodology text and the \u201C[deferred]\u201D\
+    \ marker."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -101,3 +110,35 @@ T059:
     % parameter increase rule, and no structural\u2011validity checks are present,\
     \ nor is there a verification test added. The required implementation and its\
     \ test are missing, so the task is not satisfied."
+T099:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No content of `research.md` was provided, so we cannot verify that it contains\
+    \ the required \u201CExternal Oracle\u201D definition or the word \u201Cimmutable\u201D\
+    . The implementer must supply the updated `research.md` file (or its relevant\
+    \ excerpt) showing those entries."
+T100:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `research.md` file containing the phrase \u201CExternal Validation\
+    \ Protocol\u201D was provided; the claim cannot be verified without the actual\
+    \ file content. The required artifact is missing or empty."
+T101:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` content was provided, and there is no evidence that the file\
+    \ contains an explicit definition of \u201Clasting improvement\u201D as persistence\
+    \ across at least two subsequent training cycles. The required artifact is missing\
+    \ or empty, so the task is not satisfied."
+T102:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` content was provided, and there is no evidence that the file\
+    \ contains the required \u201CRollback Mechanism\u201D specification; the grep\
+    \ check cannot be confirmed. The required artifact is missing or unverified."
+T103:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file content was provided, and there is no evidence that it\
+    \ contains a \u201CScaling Law Analysis\u201D section or the required \u201CScaling\
+    \ Law\u201D string. Without the artifact, the task cannot be verified as completed."
