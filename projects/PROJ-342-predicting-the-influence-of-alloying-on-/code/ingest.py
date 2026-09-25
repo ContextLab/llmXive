@@ -4,169 +4,181 @@ import logging
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
-import pandas as pd
-from zenodo_client import DataUnavailableError, fetch_dataset
 
-# Configure logging path
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
+# Ensure project root is in path for imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
+from zenodo_client import DataUnavailableError, DataInsufficientError, fetch_from_zenodo
+from config.config import get_config
+
+# Configure logging to create logs/ directory if missing
 def setup_logging():
-    """Configure logging for the ingestion module."""
+    log_dir = project_root / "logs"
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "ingest.log"
+    
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(LOG_DIR / "ingest.log"),
+            logging.FileHandler(log_file),
             logging.StreamHandler(sys.stdout)
         ]
     )
     return logging.getLogger(__name__)
 
-def validate_tg_range(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
-    """Validate Tg values are within a reasonable range (e.g., > 0 and < 2000 K)."""
+def validate_tg_range(df) -> bool:
+    """Basic validation that Tg values are positive."""
     if 'Tg' not in df.columns:
-        raise ValueError("Dataset must contain 'Tg' column.")
-    
-    # Filter out obviously invalid Tg values
-    valid_mask = (df['Tg'] > 0) & (df['Tg'] < 2000)
-    dropped = len(df) - valid_mask.sum()
-    if dropped > 0:
-        logger.warning(f"Dropped {dropped} records with invalid Tg values.")
-    
-    return df[valid_mask].copy()
+        return False
+    # Check if any Tg values are non-positive or NaN
+    return df['Tg'].notna().all() and (df['Tg'] > 0).all()
 
-def fetch_from_zenodo_wrapper(logger: logging.Logger, primary_doi: str, fallback_doi: str) -> Tuple[str, Path]:
+def fetch_from_zenodo_wrapper(logger: logging.Logger) -> Tuple[Optional[Path], str]:
     """
-    Fetch dataset from Zenodo using primary DOI, falling back to secondary if needed.
-    Returns (doi_used, local_path).
+    Fetches data from Zenodo using primary DOI, falling back to secondary.
+    Returns (local_path, source_doi).
+    Raises DataUnavailableError if both fail.
     """
-    logger.info(f"Attempting to fetch dataset from primary DOI: {primary_doi}")
+    config = get_config()
+    primary_doi = os.getenv("ZENODO_PRIMARY_DOI", config.get("zenodo_primary_doi"))
+    fallback_doi = os.getenv("ZENODO_FALLBACK_DOI", config.get("zenodo_fallback_doi"))
+    
+    raw_dir = project_root / "data" / "raw"
+    raw_dir.mkdir(exist_ok=True)
+    
+    # Attempt primary
     try:
-        path = fetch_dataset(primary_doi)
-        logger.info(f"Successfully fetched data from primary DOI: {primary_doi}")
-        return primary_doi, path
-    except DataUnavailableError as e:
-        logger.warning(f"Primary DOI {primary_doi} failed: {e}. Attempting fallback...")
-        try:
-            path = fetch_dataset(fallback_doi)
-            logger.warning(f"Fallback DOI {fallback_doi} succeeded.")
-            return fallback_doi, path
-        except DataUnavailableError as e2:
-            logger.error(f"Both DOIs failed. Primary: {primary_doi}, Fallback: {fallback_doi}.")
-            raise DataUnavailableError(f"Data unavailable from both sources. Primary: {e}, Fallback: {e2}")
+        logger.info(f"Attempting to fetch from primary DOI: {primary_doi}")
+        local_path = fetch_from_zenodo(primary_doi, raw_dir)
+        logger.info(f"Successfully fetched from primary DOI: {primary_doi}")
+        return local_path, primary_doi
+    except Exception as e:
+        logger.warning(f"Primary DOI {primary_doi} failed: {e}")
+    
+    # Attempt fallback
+    try:
+        logger.info(f"Attempting to fetch from fallback DOI: {fallback_doi}")
+        local_path = fetch_from_zenodo(fallback_doi, raw_dir)
+        logger.info(f"Successfully fetched from fallback DOI: {fallback_doi}")
+        return local_path, fallback_doi
+    except Exception as e:
+        logger.error(f"Fallback DOI {fallback_doi} also failed: {e}")
+        raise DataUnavailableError("Both primary and fallback Zenodo DOIs are unreachable.")
 
-def load_and_validate_data(file_path: Path, logger: logging.Logger, chunksize: int = 10000) -> pd.DataFrame:
+def load_and_validate_data(file_path: Path, logger: logging.Logger) -> Any:
     """
-    Load data from CSV using chunked reading to prevent OOM.
-    Aggregates statistics and validates data integrity.
+    Loads CSV data and performs basic validation.
+    Uses chunked reading if necessary to handle large files, though pandas default is usually fine for <100MB.
     """
-    logger.info(f"Loading data from {file_path} in chunks of {chunksize} rows.")
+    import pandas as pd
     
-    chunks = []
-    raw_count = 0
-    null_tg_count = 0
-    null_comp_count = 0
+    logger.info(f"Loading data from {file_path}")
     
-    # Use chunked reading
-    for chunk in pd.read_csv(file_path, chunksize=chunksize):
-        raw_count += len(chunk)
+    # Check file size to decide on chunking strategy if needed
+    # For this specific task, we assume standard pandas load is sufficient unless specified otherwise
+    # but we verify row count immediately.
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise ValueError(f"Failed to load CSV: {e}")
+    
+    raw_count = len(df)
+    logger.info(f"Loaded {raw_count} rows.")
+    
+    if raw_count == 0:
+        raise DataInsufficientError("Dataset contains 0 rows.")
+    
+    if raw_count < 50:
+        logger.warning(f"Dataset contains only {raw_count} rows (threshold 50). Proceeding with caution.")
+    
+    if 'Tg' not in df.columns:
+        raise ValueError("Dataset missing 'Tg' column.")
+    
+    if 'composition' not in df.columns:
+        raise ValueError("Dataset missing 'composition' column.")
         
-        # Count nulls for stats
-        null_tg_count += chunk['Tg'].isna().sum()
-        null_comp_count += chunk['composition'].isna().sum()
-        
-        chunks.append(chunk)
-    
-    if not chunks:
-        raise ValueError("Dataset is empty after loading.")
-    
-    df = pd.concat(chunks, ignore_index=True)
-    
-    logger.info(f"Raw row count: {raw_count}")
-    logger.info(f"Null Tg count: {null_tg_count}")
-    logger.info(f"Null composition count: {null_comp_count}")
-    
     return df
 
-def clean_data(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
+def clean_data(df: Any, logger: logging.Logger) -> Tuple[Any, int, int]:
     """
-    Clean data by dropping records missing Tg or composition.
+    Drops records missing Tg or composition.
+    Returns (cleaned_df, raw_count, cleaned_count).
     """
-    initial_count = len(df)
+    raw_count = len(df)
     
-    # Drop rows with missing Tg or composition
-    df_clean = df.dropna(subset=['Tg', 'composition'])
+    # Drop rows where Tg is null
+    df_tg = df.dropna(subset=['Tg'])
     
-    final_count = len(df_clean)
-    retention_rate = final_count / initial_count if initial_count > 0 else 0.0
+    # Drop rows where composition is null or empty string
+    df_comp = df_tg.dropna(subset=['composition'])
+    df_comp = df_comp[df_comp['composition'].str.strip() != ""]
     
-    logger.info(f"Cleaned data: {initial_count} -> {final_count} rows. Retention rate: {retention_rate:.2%}")
+    cleaned_count = len(df_comp)
+    dropped_count = raw_count - cleaned_count
     
-    return df_clean
+    logger.info(f"Cleaning complete. Dropped {dropped_count} rows. Retained {cleaned_count} rows.")
+    
+    if cleaned_count == 0:
+        raise DataInsufficientError("No valid rows remaining after cleaning.")
+    
+    return df_comp, raw_count, cleaned_count
 
-def save_cleaned_data(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
-    """Save cleaned dataframe to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_cleaned_data(df: Any, output_path: Path, logger: logging.Logger):
+    """Saves the cleaned dataframe to CSV."""
     df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
+    logger.info(f"Saved cleaned data to {output_path}")
 
 def write_ingestion_stats(stats: Dict[str, Any], output_path: Path, logger: logging.Logger):
-    """Write ingestion statistics to JSON."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    """Writes ingestion statistics to JSON."""
     with open(output_path, 'w') as f:
         json.dump(stats, f, indent=2)
-    logger.info(f"Ingestion stats saved to {output_path}")
+    logger.info(f"Saved ingestion stats to {output_path}")
 
 def main():
     logger = setup_logging()
     logger.info("Starting data ingestion pipeline.")
     
-    # Configuration
-    primary_doi = os.getenv("ZENODO_PRIMARY_DOI", "10.5281/zenodo.10043838")
-    fallback_doi = os.getenv("ZENODO_FALLBACK_DOI", "10.5281/zenodo.11023456")
-    
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    processed_dir = Path("data/processed")
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Fetch data
     try:
-        doi_used, local_path = fetch_from_zenodo_wrapper(logger, primary_doi, fallback_doi)
+        # 1. Fetch Data
+        file_path, source_doi = fetch_from_zenodo_wrapper(logger)
+        
+        # 2. Load Data
+        df = load_and_validate_data(file_path, logger)
+        
+        # 3. Clean Data
+        cleaned_df, raw_count, cleaned_count = clean_data(df, logger)
+        
+        # 4. Save Cleaned Data (T014 Requirement)
+        processed_dir = project_root / "data" / "processed"
+        processed_dir.mkdir(exist_ok=True)
+        cleaned_output_path = processed_dir / "cleaned_mg.csv"
+        save_cleaned_data(cleaned_df, cleaned_output_path, logger)
+        
+        # 5. Write Ingestion Stats (T014 Requirement)
+        retention_rate = cleaned_count / raw_count if raw_count > 0 else 0.0
+        stats = {
+            "source_doi": source_doi,
+            "raw_count": raw_count,
+            "cleaned_count": cleaned_count,
+            "retention_rate": retention_rate
+        }
+        stats_path = project_root / "data" / "ingestion_stats.json"
+        write_ingestion_stats(stats, stats_path, logger)
+        
+        logger.info(f"Ingestion complete. Retention rate: {retention_rate:.4f}")
+        
     except DataUnavailableError as e:
-        logger.error(f"Data unavailable: {e}")
+        logger.critical(f"Data unavailable: {e}")
         sys.exit(1)
-    
-    # Load data with streaming/chunking
-    df = load_and_validate_data(local_path, logger)
-    
-    # Validate Tg range
-    df = validate_tg_range(df, logger)
-    
-    # Clean data
-    df_clean = clean_data(df, logger)
-    
-    if len(df_clean) == 0:
-        logger.error("No valid data remaining after cleaning.")
+    except DataInsufficientError as e:
+        logger.critical(f"Data insufficient: {e}")
         sys.exit(1)
-    
-    # Save cleaned data
-    cleaned_path = processed_dir / "cleaned_mg.csv"
-    save_cleaned_data(df_clean, cleaned_path, logger)
-    
-    # Write stats
-    stats = {
-        "source_doi": doi_used,
-        "raw_count": len(df),
-        "cleaned_count": len(df_clean),
-        "retention_rate": len(df_clean) / len(df)
-    }
-    stats_path = Path("data/ingestion_stats.json")
-    write_ingestion_stats(stats, stats_path, logger)
-    
-    logger.info("Ingestion pipeline completed successfully.")
+    except Exception as e:
+        logger.critical(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

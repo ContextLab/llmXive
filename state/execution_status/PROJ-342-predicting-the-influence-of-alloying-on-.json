@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-342-predicting-the-influence-of-alloying-on-",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/train.py: self-declared fabricated metric \u2014 \u201c\u2026milies for LOFO CV. Returning dummy score.\")         return {\"r2\": 0.0,\u2026\u201d; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ableError to fallback to mock data. \"\"\"  import os import r\u2026\u201d; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026or(\"VERIFICATION FAILED: Synthetic data patterns found in ingest\u2026\u201d; 2 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=1); 4 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/descriptors.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py --verify-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-25T20:39:12Z"
+}

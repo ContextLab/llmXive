@@ -2154,3 +2154,352 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T21:26:53Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Primary Zenodo dataset DOI 10.5281/zenodo.10043838
+  claim_id: c_0c261e66
+  context: Implement Zenodo API client in code/zenodo_client.py to fetch datasets
+    using DOIs 10.5281/zenodo.10043838 (primary) and 10.5281/zenodo.11023456 (fallback)
+    from config.yaml.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The primary Zenodo dataset is identified by DOI 10.5281/zenodo.10043838.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:47:03Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fallback Zenodo dataset DOI 10.5281/zenodo.11023456
+  claim_id: c_538dd8a6
+  context: Implement Zenodo API client in code/zenodo_client.py to fetch datasets
+    using DOIs 10.5281/zenodo.10043838 (primary) and 10.5281/zenodo.11023456 (fallback)
+    from config.yaml.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The fallback Zenodo dataset is identified by DOI 10.5281/zenodo.11023456.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:47:05Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Pipeline raises DataUnavailableError if both DOIs unreachable
+  claim_id: c_ac0bf10b
+  context: The client must handle authentication, rate limits, and raise specific
+    DataUnavailableError (if both DOIs unreachable) or DataInsufficientError (if raw
+    data < 1 row) exceptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_raises_DataUnavailableError_if_both_DOIs_unreachabl
+  kind: entity_fact
+  raw_text: The pipeline must raise a DataUnavailableError if both the primary and
+    fallback DOIs are unreachable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:47:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Pipeline raises DataInsufficientError if raw data < 1 row
+  claim_id: c_94d6d565
+  context: The client must handle authentication, rate limits, and raise specific
+    DataUnavailableError (if both DOIs unreachable) or DataInsufficientError (if raw
+    data < 1 row) exceptions.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_raises_DataInsufficientError_if_raw_data_%3C_1_row
+  kind: magnitude
+  raw_text: The pipeline must raise a DataInsufficientError if the raw dataset contains
+    fewer than 1 row.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:48:31Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Retry initial delay 1s
+  claim_id: c_6dabbfb0
+  context: 'Retry Logic: Implement exponential backoff for rate limit errors with
+    a limited number of retries, initial delay 1s, doubling delay per retry..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for rate limit errors uses an initial delay of 1 second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:49:02Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Log DataInsufficientWarning if raw dataset < 50 rows
+  claim_id: c_d3287e04
+  context: 'Verification: 1) Check primary file data/raw/zenodo_10043838.csv first;
+    if missing, check fallback data/raw/zenodo_11023456.csv. 2) Verify the selected
+    file contains >0 rows. 3) Verify data/ingestion_stats.json contains key source_doi
+    with the exact DOI used. 4) Verify retention_rate reflects the cleaning of null
+    Tg/composition records (not just row count). 5) Validation: Verify that if raw
+    dataset < 50 rows, a DataInsufficientWarning is logged (not a hard halt), and
+    if raw dataset is 0 rows, DataInsufficientError is raised.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_DataInsufficientWarning_if_raw_dataset_%3C_50_rows
+  kind: magnitude
+  raw_text: The pipeline must log a DataInsufficientWarning if the raw dataset contains
+    fewer than 50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:49:38Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Raise DataInsufficientError if raw dataset 0 rows
+  claim_id: c_c569730a
+  context: 'Verification: 1) Check primary file data/raw/zenodo_10043838.csv first;
+    if missing, check fallback data/raw/zenodo_11023456.csv. 2) Verify the selected
+    file contains >0 rows. 3) Verify data/ingestion_stats.json contains key source_doi
+    with the exact DOI used. 4) Verify retention_rate reflects the cleaning of null
+    Tg/composition records (not just row count). 5) Validation: Verify that if raw
+    dataset < 50 rows, a DataInsufficientWarning is logged (not a hard halt), and
+    if raw dataset is 0 rows, DataInsufficientError is raised.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must raise a DataInsufficientError if the raw dataset contains
+    0 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:49:58Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Use mendeleev version 0.31.0
+  claim_id: c_595c179e
+  context: Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The descriptors module uses mendeleev version 0.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:50:15Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Log STRATIFICATION_WARNING if family N < 50
+  claim_id: c_9f990030
+  context: 'Implement family size stratification check in code/train.py: Before performing
+    LOFO, check if any alloy family has < 50 samples. Action: If N < 50, log a STRATIFICATION_WARNING
+    to logs/train.log. Do NOT drop the family.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_STRATIFICATION_WARNING_if_family_N_%3C_50
+  kind: magnitude
+  raw_text: The family stratification check logs a STRATIFICATION_WARNING if an alloy
+    family has fewer than 50 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:50:51Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Grid search limited to <= 10 combinations
+  claim_id: c_466e476f
+  context: "Implement grid search in code/train.py for hyperparameter optimization\
+    \ (\u226410 combos) (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The grid search for hyperparameter optimization is limited to 10 combinations
+    or fewer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:51:06Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Runtime limit 6 hours
+  claim_id: c_abb8ed70
+  context: 'Integrate code/resource_monitor.py into code/train.py to enforce runtime
+    < 6h and RAM < 7GB (FR-005, SC-004). Output: Save resource usage to data/resource_usage.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime limit for the pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:51:26Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Memory limit 7 GB
+  claim_id: c_1332ce63
+  context: 'Integrate code/resource_monitor.py into code/train.py to enforce runtime
+    < 6h and RAM < 7GB (FR-005, SC-004). Output: Save resource usage to data/resource_usage.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory limit for the pipeline is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:51:42Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps max_depth 3, 5, 7
+  claim_id: c_5389f322
+  context: "Implement sensitivity analysis in code/analyze.py: sweep max_depth over\
+    \ a range of increasing values to evaluate model robustness (FR-006) and collect\
+    \ R\xB2 scores. Note: Explicitly sweeps {3, 5, 7}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps max_depth over the values 3, 5, and 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:52:07Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: FDR correction alpha <= 0.05
+  claim_id: c_44d76b04
+  context: "Implement code/analyze.py for Benjamini-Hochberg FDR correction on correlations\
+    \ (\u03B1 \u2264 0.05) as per Spec FR-008."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction uses a significance level (alpha)
+    of 0.05 or less.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T20:52:31Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Flag predictors with VIF > 5
+  claim_id: c_9d0c6638
+  context: 'Implement code/analyze.py for VIF calculation. Input: data/processed/descriptors.csv.
+    Depends on: T026. Constraint: MUST explicitly exclude ''weighted mean radius''
+    from calculation (verify input dataframe does not contain this column). MUST flag
+    predictors with VIF > 5 for diagnostic review (do NOT drop).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 are flagged
+    for diagnostic review.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:53:07Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Bootstrap n_resamples=1000
+  claim_id: c_d4b26169
+  context: 'Implement code/analyze.py for bootstrapping with n_resamples=1000 to calculate
+    95% CI for feature importance (SC-002). Input: artifacts/models/best_model.pkl,
+    data/processed/cleaned_mg.csv (T014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapping calculation for feature importance stability uses 1000
+    resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:53:36Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Collinearity warning if condition number > 30
+  claim_id: c_3ce8c337
+  context: 'Implement code/analyze.py to calculate the collinearity condition number
+    for the predictors. Input: data/processed/descriptors.csv. Depends on: T026. Function:
+    calculate_condition_number(df). Output: Save to data/processed/collinearity_log.json.
+    Schema: The JSON must contain key condition_number (float) and status (e.g., "warning"
+    if > 30, else "ok").'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_warning_if_condition_number_%3E_30
+  kind: magnitude
+  raw_text: The collinearity condition number triggers a warning status if the value
+    is greater than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:54:08Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Report contains phrase 'These findings are associational only'
+  claim_id: c_410ff0c2
+  context: 'Generate final report artifact artifacts/reports/final_report.md. Input:
+    T059, T039a, T039b, T039c, T060a, T060b, T024a, T026, T035a, T027. Template: specs/.../contracts/report_template.md.
+    Action: Verify template exists; if not, raise error. Action: Include "These findings
+    are associational only" in the Conclusion section (FR-004).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_contains_phrase_'These_findings_are_associational_onl
+  kind: entity_fact
+  raw_text: The final report must contain the exact phrase 'These findings are associational
+    only'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T20:54:30Z'

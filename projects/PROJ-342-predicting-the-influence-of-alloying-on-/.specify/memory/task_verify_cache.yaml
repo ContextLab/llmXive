@@ -1,17 +1,10 @@
-T012:
-  c: false
-  h: d76e7dc3123d01a4678ef4dda7c5950ce5601ffdbbf9d941262dd887db1b4514
-  r: "The required raw CSV files (`data/raw/zenodo_10043838.csv` and `data/raw/zenodo_11023456.csv`)\
-    \ are absent, so the script cannot fetch or fall back to a dataset. The `data/ingestion_stats.json`\
-    \ file lacks the required `source_doi` entry, and there is no evidence that `retention_rate`\
-    \ is computed from null\u2011Tg/composition cleaning. The implementation does\
-    \ not satisfy the task\u2019s verification criteria."
 T014:
   c: false
-  h: 5d833996433be852acadd4ef7b95351aa83387ad496c2b68d8be136f954741ff
+  h: 91e233e68b51f81c7c1089a021401a3560db90add090864c26b14a658718cbf4
   r: "The required `data/processed/cleaned_mg.csv` file is missing, and `data/ingestion_stats.json`\
-    \ contains a `retention_rate` of\u202F0.0 (not a positive float). Both the cleaned\
-    \ data output and a valid retention rate are absent, so the task is not satisfied."
+    \ does not contain the specified keys (`source_doi`, `raw_count`, `cleaned_count`)\
+    \ \u2013 it only has `original_count`, `kept_count`, `dropped_count`, and `retention_rate`.\
+    \ The task\u2019s output and verification criteria are therefore not satisfied."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -72,14 +65,6 @@ T036a:
   r: "The provided `code/analyze.py` does not contain a `bootstrap_feature_importance`\
     \ function (or any bootstrapping logic) and the required input model file `artifacts/models/best_model.pkl`\
     \ is absent, so the task\u2019s core requirement is not met."
-T049:
-  c: false
-  h: fa5075fd83104506b91e1558665639da3068572b963cf612a93645f5d7a50705
-  r: "The required `artifacts/reports/final_report.md` file does not exist, so the\
-    \ phrase cannot be present. Moreover, the provided `code/report.py` contains only\
-    \ data\u2011loading and plotting utilities and does not implement any logic to\
-    \ enforce associational language or to insert \u201CThese findings are associational\
-    \ only\u201D into a report. The task\u2019s core requirement is therefore unmet."
 T083:
   c: false
   h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
