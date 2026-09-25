@@ -21,10 +21,3 @@ T043:
     \ is truncated and does not show any implementation that checks for `null`/`NaN`\
     \ in the specified columns or excludes offending rows. Without the CSV and the\
     \ concrete audit logic, the task\u2019s requirement is not satisfied."
-T046:
-  c: false
-  h: a108c78344054cc51d0ed2b4dc60729b2f074d03b34a6ceaa08d2474a58e1053
-  r: "The `reproducibility.yaml` file does not exist in the repository, and the provided\
-    \ `code/hygiene.py` (truncated) shows no logic that creates a `state/projects/PROJ-163-...reproducibility.yaml`\
-    \ containing `git_hash`, `requirements.txt` hash, and `python_version`. Consequently,\
-    \ the task\u2019s verification criteria are not satisfied."
