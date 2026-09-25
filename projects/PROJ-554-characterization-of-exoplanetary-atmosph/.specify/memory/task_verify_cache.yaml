@@ -1,3 +1,10 @@
+T013a:
+  c: false
+  h: ff4f46866d930bad15abb21a93f3a1f18ca14920ed5caa45b605063b77da0552
+  r: The repository lacks a `count_unique_planets` implementation in `code/download.py`
+    (the file shown does not contain such a function) and the required output `data/processed/count_report.json`
+    is absent. Both the core function and its deliverable are missing, so the task
+    is not satisfied.
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -26,6 +33,14 @@ T030a:
     provided `code/analysis.py` excerpt does not show an implementation of the `save_mdc_stats`
     function (the file is truncated before any such definition). Both the artifact
     and the core function are missing, so the task is not fulfilled.
+T030b:
+  c: false
+  h: 05c5dfe0056d10dce0b05c045b1462faa3262dd4c6bdc30d2f0433cc32b2dfee
+  r: The required output file `data/processed/analysis_results.json` does not exist,
+    and the provided `code/analysis.py` snippet shows no implementation of a `generate_analysis_results`
+    function (the file is truncated before any such logic). Consequently, the task
+    of aggregating the four JSON inputs and saving the combined result has not been
+    fulfilled.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,28 +1,50 @@
+"""
+API configuration for NASA Exoplanet Archive queries.
+"""
+
 from typing import Dict, Any
 
+# Query parameters for Hot Jupiters and Super-Earths
+# Filters for planets with transmission spectra data
 QUERY_PARAMS: Dict[str, Any] = {
-    "query": """
-        SELECT 
-          pl_name, 
-          pl_contprov, 
-          pl_orbper, 
-          pl_orbsmax, 
-          pl_bmassj, 
-          pl_radj, 
-          pl_eqt, 
-          pl_insol, 
-          st_met, 
-          st_logg, 
-          st_teff, 
-          hostname, 
-          hostname, 
-          hostname, 
-          hostname
-        FROM exoplanet_archive
-        WHERE 
-          (pl_orbper < 10 OR pl_eqt > 1000)
-          AND (pl_radj < 2.0 OR pl_bmassj < 0.1)
-          AND pl_discmethod IN ('Transit', 'Radial Velocity')
-    """,
-    "format": "csv"
+    "QUERY": (
+        "SELECT "
+        "pl_name, pl_hostname, pl_orbper, pl_radj, pl_massj, "
+        "pl_eqt, pl_orbper, pl_solrad, pl_orbincl, "
+        "st_teff, st_met, st_logg, "
+        "hostname, "
+        "tran_flag, "
+        "dispersion, "
+        "wlen_min, wlen_max, "
+        "SNR, "
+        "Resolution "
+        "FROM exoplanet_archive "
+        "WHERE pl_discmethod LIKE '%Transit%' "
+        "AND pl_radj > 0.8 "
+        "AND pl_orbper < 10 "
+        "AND tran_flag = 1 "
+        "AND pl_eqt IS NOT NULL "
+        "AND st_met IS NOT NULL "
+    )
+}
+
+# Alternative query for broader selection if needed
+QUERY_PARAMS_BROAD: Dict[str, Any] = {
+    "QUERY": (
+        "SELECT "
+        "pl_name, pl_hostname, pl_orbper, pl_radj, pl_massj, "
+        "pl_eqt, pl_orbper, pl_solrad, pl_orbincl, "
+        "st_teff, st_met, st_logg, "
+        "hostname, "
+        "tran_flag, "
+        "dispersion, "
+        "wlen_min, wlen_max, "
+        "SNR, "
+        "Resolution "
+        "FROM exoplanet_archive "
+        "WHERE pl_discmethod LIKE '%Transit%' "
+        "AND pl_eqt IS NOT NULL "
+        "AND st_met IS NOT NULL "
+        "AND tran_flag = 1 "
+    )
 }

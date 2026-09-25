@@ -8,3 +8,13 @@ Traceback (most recent call last):
     metadata_path = str(config.data_dir / "processed" / "metadata.csv")
                         ^^^^^^^^^^^^^^^
 AttributeError: 'dict' object has no attribute 'data_dir'
+2026-09-25 11:36:54,299 - llmXive - INFO - Starting T013a: Count unique planets
+2026-09-25 11:36:54,299 - llmXive - ERROR - Download pipeline failed: 'dict' object has no attribute 'data_dir'
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py", line 191, in main
+    count = count_unique_planets()
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py", line 57, in count_unique_planets
+    if isinstance(config.data_dir, dict):
+                  ^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'data_dir'

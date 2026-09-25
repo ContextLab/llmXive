@@ -1,13 +1,9 @@
 """
-Uncertainty Reporting Module (Task T034).
+Uncertainty Reporting Module for T034.
 
 Implements explicit Confidence Interval Reporting per Marie Curie's demand for
-"quantity of data" and "uncertainty". This module reads the aggregated analysis
-results, ensures 95% CIs are present for correlation and regression coefficients,
-and generates a human-readable interpretation report.
-
-Dependencies:
-    - data/processed/analysis_results.json (produced by T030d/aggregate_results)
+"quantity of data" and "uncertainty". Generates a summary markdown report
+interpreting confidence intervals in the context of the sample size.
 """
 
 import json
@@ -18,161 +14,261 @@ from typing import Dict, Any, Optional, List
 
 from config import get_config
 
-# Setup logging
+# Configure logging
 logger = logging.getLogger(__name__)
 
-def load_analysis_results(input_path: Path) -> Dict[str, Any]:
-    """Load the aggregated analysis results JSON."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Analysis results file not found: {input_path}")
+def load_analysis_results(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Load the aggregated analysis results from data/processed/analysis_results.json.
+
+    Args:
+        config: Optional configuration dictionary. If None, uses get_config().
+
+    Returns:
+        Dictionary containing correlation stats, regression results, and robustness reports.
+    """
+    if config is None:
+        config = get_config()
     
-    with open(input_path, 'r') as f:
+    # Determine the project root based on config or default
+    project_root = Path(config.get('project_root', '.'))
+    results_path = project_root / 'data' / 'processed' / 'analysis_results.json'
+
+    if not results_path.exists():
+        raise FileNotFoundError(f"Analysis results file not found at {results_path}. "
+                                "Ensure T030b (generate_analysis_results) has run.")
+
+    with open(results_path, 'r') as f:
         return json.load(f)
 
 def ensure_confidence_intervals(data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Ensure that 95% CIs are explicitly reported for correlation and regression.
-    
-    If the data already contains 'ci_95' or similar, it is preserved.
-    If missing, this function logs a warning (as the data should have been
-    computed in previous steps) but does not fabricate values.
-    
-    Returns the data dictionary, potentially updated with flags indicating
-    CI presence.
-    """
-    result = data.copy()
-    
-    # Check Correlation Stats
-    if 'correlation' in result:
-        corr = result['correlation']
-        if 'ci_95' not in corr and 'ci_lower' in corr and 'ci_upper' in corr:
-            # Normalize if split keys exist
-            corr['ci_95'] = (corr['ci_lower'], corr['ci_upper'])
-            logger.info("Normalized correlation CI from split keys.")
-        elif 'ci_95' not in corr:
-            logger.warning("Correlation 95% CI missing in source data.")
-            corr['ci_95'] = None
-        else:
-            logger.info("Correlation 95% CI present.")
-    
-    # Check Regression Stats
-    if 'regression' in result:
-        reg = result['regression']
-        coeffs = reg.get('coefficients', {})
-        if isinstance(coeffs, dict):
-            for var, val in coeffs.items():
-                if isinstance(val, dict) and 'ci_95' not in val:
-                    if 'ci_lower' in val and 'ci_upper' in val:
-                        val['ci_95'] = (val['ci_lower'], val['ci_upper'])
-                    else:
-                        val['ci_95'] = None
-            reg['coefficients'] = coeffs
-    
-    return result
+    Ensure that the loaded data explicitly reports 95% CIs for correlation and regression.
 
-def generate_uncertainty_summary(data: Dict[str, Any], sample_size: int) -> str:
+    This function validates the structure required by SC-001 and SC-003:
+    1. Correlation: Must have 'tau', 'p_value', and 'ci_95' (tuple or list of [lower, upper]).
+    2. Regression: Coefficients must have 'ci_lower' and 'ci_upper' or a 'ci_95' structure.
+    3. Water Distribution: Must have 'water_ci_width' derived from bootstrap means.
+
+    Args:
+        data: The raw analysis results dictionary.
+
+    Returns:
+        A normalized dictionary with guaranteed CI fields for reporting.
     """
-    Generate a Markdown summary interpreting the uncertainty intervals.
-    
-    Format:
-    - Introduction regarding sample size (N).
-    - Correlation coefficient with 95% CI interpretation.
-    - Regression coefficients with 95% CI interpretation.
-    - Conclusion on evidentiary strength.
-    """
-    lines = []
-    lines.append("# Uncertainty Summary Report")
-    lines.append("")
-    lines.append(f"**Sample Size (N):** {sample_size}")
-    lines.append("")
-    lines.append("This report interprets the 95% Confidence Intervals (CI) derived from the analysis.")
-    lines.append("The intervals reflect the precision of the estimated parameters given the observed data.")
-    lines.append("")
-    
-    # Correlation Section
-    if 'correlation' in data:
-        corr = data['correlation']
-        lines.append("## 1. Correlation Analysis (Water Abundance vs. Temperature)")
-        lines.append("")
-        tau = corr.get('tau', 'N/A')
-        ci = corr.get('ci_95', None)
-        
-        lines.append(f"- **Kendall's Tau:** {tau}")
-        if ci and isinstance(ci, (tuple, list)) and len(ci) == 2:
-            lines.append(f"- **95% Confidence Interval:** [{ci[0]:.4f}, {ci[1]:.4f}]")
-            if ci[0] > 0 or ci[1] < 0:
-                lines.append("  - *Interpretation:* The interval does not contain zero, suggesting a statistically significant correlation at the 5% level.")
-            else:
-                lines.append("  - *Interpretation:* The interval contains zero, indicating that the correlation is not statistically distinguishable from zero at the 5% level.")
-        else:
-            lines.append("- **95% Confidence Interval:** Not available.")
-            lines.append("  - *Interpretation:* Unable to assess significance without interval bounds.")
-        lines.append("")
-    
-    # Regression Section
-    if 'regression' in data:
-        reg = data['regression']
-        lines.append("## 2. Regression Analysis (Water Abundance Predictors)")
-        lines.append("")
-        coeffs = reg.get('coefficients', {})
-        lines.append("| Variable | Coefficient | 95% CI | Significance Interpretation |")
-        lines.append("| :--- | :--- | :--- | :--- |")
-        
-        for var, val in coeffs.items():
-            if isinstance(val, dict):
-                coef = val.get('coef', val.get('value', 'N/A'))
-                ci = val.get('ci_95', None)
-                ci_str = f"[{ci[0]:.4f}, {ci[1]:.4f}]" if ci and isinstance(ci, (tuple, list)) and len(ci) == 2 else "N/A"
-                sig = "Significant" if ci and isinstance(ci, (tuple, list)) and len(ci) == 2 and (ci[0] > 0 or ci[1] < 0) else "Not Significant"
-                lines.append(f"| {var} | {coef:.4f} | {ci_str} | {sig} |")
-        lines.append("")
-    
-    # Conclusion
-    lines.append("## 3. Conclusion")
-    lines.append("")
-    if sample_size < 30:
-        lines.append(f"Warning: The sample size (N={sample_size}) is below the recommended threshold for robust statistical inference.")
+    normalized = {
+        'correlation': {},
+        'regression': {},
+        'robustness': {},
+        'sample_size': data.get('sample_size', 0),
+        'warnings': []
+    }
+
+    # 1. Process Correlation Stats (from T025b)
+    corr_data = data.get('correlation_stats', {})
+    if not corr_data:
+        normalized['warnings'].append("Missing correlation_stats in analysis_results.json")
     else:
-        lines.append(f"The sample size (N={sample_size}) provides a reasonable basis for statistical inference.")
-    
-    lines.append("The reported confidence intervals quantify the uncertainty in the estimated parameters.")
-    lines.append("Narrower intervals indicate higher precision, while wider intervals suggest greater uncertainty.")
-    lines.append("")
-    
+        tau = corr_data.get('tau')
+        ci = corr_data.get('ci_95') or corr_data.get('confidence_interval')
+        
+        if tau is not None:
+            normalized['correlation']['tau'] = tau
+        else:
+            normalized['warnings'].append("Missing 'tau' value in correlation stats")
+        
+        if ci and len(ci) == 2:
+            normalized['correlation']['ci_lower'] = ci[0]
+            normalized['correlation']['ci_upper'] = ci[1]
+            normalized['correlation']['ci_width'] = ci[1] - ci[0]
+        else:
+            normalized['warnings'].append("Missing or malformed 'ci_95' in correlation stats")
+
+    # 2. Process Regression Results (from T027)
+    reg_data = data.get('regression_results', {})
+    if not reg_data:
+        normalized['warnings'].append("Missing regression_results in analysis_results.json")
+    else:
+        # Expecting coefficients with CIs
+        coeffs = reg_data.get('coefficients', {})
+        normalized['regression']['coefficients'] = coeffs
+        
+        # Check for overall model CI if available (e.g., from robustness check)
+        robust = data.get('robustness_report', {})
+        if 'ci_width_tau' in robust:
+            normalized['robustness']['ci_width_tau'] = robust['ci_width_tau']
+        if 'ci_width_water' in robust:
+            normalized['robustness']['ci_width_water'] = robust['ci_width_water']
+            # SC-003 verification
+            if robust['ci_width_water'] > 0.2:
+                normalized['warnings'].append(f"SC-003 Threshold Failed: Water CI width ({robust['ci_width_water']:.4f}) > 0.2")
+            else:
+                normalized['robustness']['sc003_met'] = True
+
+    # 3. Process Bootstrap CI (from T025b)
+    bootstrap_data = data.get('bootstrap_ci', {})
+    if bootstrap_data:
+        normalized['bootstrap'] = {
+            'iterations': bootstrap_data.get('iterations', 0),
+            'ci_lower': bootstrap_data.get('ci_lower'),
+            'ci_upper': bootstrap_data.get('ci_upper'),
+            'tau_mean': bootstrap_data.get('tau_mean')
+        }
+
+    return normalized
+
+def generate_uncertainty_summary(norm_data: Dict[str, Any]) -> str:
+    """
+    Generate a Markdown string interpreting the confidence intervals in the context of N.
+
+    This addresses Marie Curie's demand for "quantity of data" and "uncertainty".
+
+    Args:
+        norm_data: Normalized data from ensure_confidence_intervals.
+
+    Returns:
+        Markdown content string.
+    """
+    n = norm_data.get('sample_size', 0)
+    corr = norm_data.get('correlation', {})
+    robust = norm_data.get('robustness', {})
+    warnings = norm_data.get('warnings', [])
+
+    lines = [
+        "# Uncertainty Summary Report",
+        "",
+        f"**Sample Size (N):** {n}",
+        "",
+        "## 1. Correlation Analysis (Water vs Temperature)",
+        "",
+    ]
+
+    if corr:
+        tau = corr.get('tau')
+        ci_lower = corr.get('ci_lower')
+        ci_upper = corr.get('ci_upper')
+        ci_width = corr.get('ci_width')
+
+        lines.append(f"- **Kendall's Tau:** {tau:.4f if tau is not None else 'N/A'}")
+        if ci_lower is not None and ci_upper is not None:
+            lines.append(f"- **95% Confidence Interval:** [{ci_lower:.4f}, {ci_upper:.4f}]")
+            lines.append(f"- **CI Width:** {ci_width:.4f}")
+            
+            # Interpret width
+            if ci_width is not None:
+                if ci_width < 0.1:
+                    lines.append("  - *Interpretation:* The confidence interval is narrow, indicating high precision in the correlation estimate given the sample size.")
+                elif ci_width < 0.3:
+                    lines.append("  - *Interpretation:* The confidence interval is moderate. While a correlation is detected, the exact magnitude has some uncertainty.")
+                else:
+                    lines.append("  - *Interpretation:* The confidence interval is wide. The sample size (N) may be insufficient to precisely quantify the correlation strength.")
+        else:
+            lines.append("- **Confidence Interval:** Not available")
+    else:
+        lines.append("- **Correlation Data:** Not available")
+
+    lines.extend([
+        "",
+        "## 2. Robustness Checks (SC-003 Verification)",
+        "",
+    ])
+
+    if robust:
+        water_width = robust.get('ci_width_water')
+        if water_width is not None:
+            lines.append(f"- **Water Mixing Ratio CI Width:** {water_width:.4f} dex")
+            if robust.get('sc003_met'):
+                lines.append("  - **Status:** PASS (Width <= 0.2 dex)")
+            else:
+                lines.append("  - **Status:** FAIL (Width > 0.2 dex) - Precision does not meet SC-003 standard.")
+        else:
+            lines.append("- **Water Mixing Ratio CI Width:** Not calculated")
+    else:
+        lines.append("- **Robustness Data:** Not available")
+
+    lines.extend([
+        "",
+        "## 3. Data Quantity and Instrumental Context",
+        "",
+        f"This analysis is based on **{n}** planetary spectra. ",
+        "Per Marie Curie's evidentiary standards, the precision of the result is directly tied to the quantity of photons (spectral resolution) and the stability of the detector (SNR). ",
+        "The confidence intervals reported above reflect the combined uncertainty from measurement noise and sample variance.",
+        "",
+    ])
+
+    if warnings:
+        lines.append("## 4. Warnings and Notes")
+        lines.append("")
+        for w in warnings:
+            lines.append(f"- {w}")
+        lines.append("")
+
+    lines.append("---")
+    lines.append("*Generated by T034: Review Response - Confidence Interval Reporting*")
+
     return "\n".join(lines)
 
-def save_uncertainty_summary(summary: str, output_path: Path) -> None:
-    """Save the generated summary to a Markdown file."""
+def save_uncertainty_summary(content: str, output_path: Optional[str] = None) -> Path:
+    """
+    Save the generated markdown summary to disk.
+
+    Args:
+        content: The markdown string content.
+        output_path: Optional path to save the file. Defaults to results/uncertainty_summary.md.
+
+    Returns:
+        Path to the saved file.
+    """
+    config = get_config()
+    project_root = Path(config.get('project_root', '.'))
+    
+    if output_path is None:
+        output_path = project_root / 'results' / 'uncertainty_summary.md'
+    else:
+        output_path = Path(output_path)
+
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, 'w') as f:
-        f.write(summary)
+        f.write(content)
+
     logger.info(f"Uncertainty summary saved to {output_path}")
+    return output_path
 
 def main():
-    config = get_config()
-    input_path = Path(config['paths']['processed_data']) / 'analysis_results.json'
-    output_path = Path(config['paths']['results']) / 'uncertainty_summary.md'
-    
+    """
+    Main entry point for T034.
+    1. Load analysis_results.json.
+    2. Validate CI presence.
+    3. Generate summary markdown.
+    4. Save to results/uncertainty_summary.md.
+    """
+    # Setup logging if not already done
+    if not logging.getLogger().handlers:
+        logging.basicConfig(level=logging.INFO)
+
     try:
-        logger.info(f"Loading analysis results from {input_path}")
-        data = load_analysis_results(input_path)
-        
-        # Extract sample size if available, otherwise estimate or default
-        sample_size = data.get('sample_size', data.get('n', 0))
-        
+        # 1. Load Data
+        logger.info("Loading analysis results...")
+        raw_data = load_analysis_results()
+
+        # 2. Normalize and Validate
         logger.info("Ensuring confidence intervals are present...")
-        data = ensure_confidence_intervals(data)
-        
+        norm_data = ensure_confidence_intervals(raw_data)
+
+        # 3. Generate Report
         logger.info("Generating uncertainty summary...")
-        summary = generate_uncertainty_summary(data, sample_size)
-        
-        logger.info(f"Saving summary to {output_path}")
-        save_uncertainty_summary(summary, output_path)
-        
-        print(f"SUCCESS: Uncertainty summary generated at {output_path}")
-        
+        summary_md = generate_uncertainty_summary(norm_data)
+
+        # 4. Save
+        logger.info("Saving summary to disk...")
+        save_uncertainty_summary(summary_md)
+
+        logger.info("T034 completed successfully.")
+
     except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
+        logger.error(f"Data dependency missing: {e}")
         raise
     except Exception as e:
         logger.error(f"Error generating uncertainty summary: {e}")

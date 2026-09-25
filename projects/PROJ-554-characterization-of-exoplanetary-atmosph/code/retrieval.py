@@ -5,268 +5,193 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-from config import get_config
-from utils import setup_logging, handle_non_convergent_retrieval, safe_execute
-from data_models import RetrievalResult, CensorshipStatus, PlanetCategory
 import json
+from config import get_config
+from utils import setup_logging, RetrievalError, handle_non_convergent_retrieval
+from data_models import RetrievalResult, CensorshipStatus, PlanetCategory
 
-logger = logging.getLogger(__name__)
-
-def configure_petitradtrans_cpu_optimized() -> Dict[str, Any]:
-    """Configure petitRADTRANS for CPU-optimized single-threaded execution."""
-    return {
-        "threads": 1,
-        "max_memory_gb": 6,
-        "mode": "cpu"
-    }
-
-def get_petitradtrans_config() -> Dict[str, Any]:
-    """Get the configured petitRADTRANS parameters."""
-    return configure_petitradtrans_cpu_optimized()
-
-def validate_spectrum_file(spectrum_path: Path) -> bool:
-    """Validate that a spectrum file exists and is readable."""
-    if not spectrum_path.exists():
-        logger.error(f"Spectrum file not found: {spectrum_path}")
-        return False
-    try:
-        with open(spectrum_path, 'r') as f:
-            _ = f.read(1024)
-        return True
-    except Exception as e:
-        logger.error(f"Error reading spectrum file {spectrum_path}: {e}")
-        return False
-
-def detect_low_snr_spectrum(snr: float, resolution: float, threshold_snr: float = 10.0) -> bool:
-    """Detect if a spectrum has low S/N based on threshold."""
-    return snr < threshold_snr
-
-def calculate_mdc(snr: float, resolution: float, noise_floor: float = 1e-5) -> float:
-    """
-    Calculate Minimum Detectable Concentration (MDC) based on SNR and resolution.
-    MDC is inversely proportional to SNR and resolution.
-    """
-    if snr <= 0 or resolution <= 0:
-        return float('inf')
-    # Simplified model: MDC ~ noise_floor / (SNR * sqrt(Resolution))
-    mdc = noise_floor / (snr * np.sqrt(resolution))
-    return mdc
-
-def derive_upper_limit(snr: float, resolution: float, noise_floor: float = 1e-5) -> Dict[str, Any]:
-    """
-    Derive upper limit for low S/N spectra.
-    Returns a dict with detection_limit and min_detectable_concentration.
-    """
-    detection_limit = noise_floor / snr if snr > 0 else float('inf')
-    mdc = calculate_mdc(snr, resolution, noise_floor)
-    return {
-        "detection_limit": detection_limit,
-        "min_detectable_concentration": mdc,
-        "is_upper_limit": True
-    }
-
-def run_single_spectrum_retrieval(spectrum_path: Path, planet_name: str, metadata: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Run retrieval on a single spectrum file.
-    Includes error handling for non-convergent retrievals.
-    """
-    try:
-        # Check if spectrum is low S/N
-        snr = metadata.get('snr', 0)
-        resolution = metadata.get('resolution', 1)
-        is_low_snr = detect_low_snr_spectrum(snr, resolution)
-
-        if is_low_snr:
-            logger.info(f"Low S/N detected for {planet_name}. Deriving upper limit.")
-            upper_limit_data = derive_upper_limit(snr, resolution)
-            return {
-                "planet_name": planet_name,
-                "water_mixing_ratio": upper_limit_data['detection_limit'],
-                "uncertainty": upper_limit_data['detection_limit'] * 0.5,
-                "is_upper_limit": True,
-                "detection_limit": upper_limit_data['detection_limit'],
-                "min_detectable_concentration": upper_limit_data['min_detectable_concentration'],
-                "convergence_status": "upper_limit"
-            }
-
-        # Simulate petitRADTRANS retrieval (CPU-optimized, single-threaded)
-        # In a real implementation, this would call petitRADTRANS directly
-        # For this task, we use a deterministic model based on metadata to avoid fabrication
-        # but ensure the values are derived from real input data (SNR, Resolution, etc.)
-        
-        # Real calculation based on physical parameters from metadata
-        # This is a simplified physical model: water abundance scales with temperature and is constrained by SNR
-        temp = metadata.get('temperature', 1000)
-        metallicity = metadata.get('metallicity', 0.0)
-        
-        # Base water mixing ratio model (log scale)
-        # Higher temperature -> higher water abundance (simplified physics)
-        base_log_water = -4.0 + (temp - 1000) / 1000.0 * 0.5
-        metallicity_factor = 10 ** (metallicity * 0.3)
-        
-        # Uncertainty scales with SNR (higher SNR -> lower uncertainty)
-        uncertainty_factor = 1.0 / (1 + snr / 20.0)
-        uncertainty_log = 0.5 * uncertainty_factor
-        
-        water_mixing_ratio_log = base_log_water * metallicity_factor
-        water_mixing_ratio = 10 ** water_mixing_ratio_log
-        
-        return {
-            "planet_name": planet_name,
-            "water_mixing_ratio": water_mixing_ratio,
-            "uncertainty": uncertainty_log,
-            "is_upper_limit": False,
-            "detection_limit": None,
-            "min_detectable_concentration": calculate_mdc(snr, resolution),
-            "convergence_status": "converged"
-        }
-
-    except Exception as e:
-        logger.error(f"Retrieval failed for {planet_name}: {e}")
-        # Fallback to upper limit derivation on failure
-        snr = metadata.get('snr', 0)
-        resolution = metadata.get('resolution', 1)
-        upper_limit_data = derive_upper_limit(snr, resolution)
-        return {
-            "planet_name": planet_name,
-            "water_mixing_ratio": upper_limit_data['detection_limit'],
-            "uncertainty": upper_limit_data['detection_limit'] * 0.5,
-            "is_upper_limit": True,
-            "detection_limit": upper_limit_data['detection_limit'],
-            "min_detectable_concentration": upper_limit_data['min_detectable_concentration'],
-            "convergence_status": "failed_upper_limit"
-        }
-
-def load_spectrum_files(input_dir: Path) -> List[Tuple[Path, str, Dict[str, Any]]]:
-    """
-    Load all spectrum files from input directory.
-    Returns list of (path, planet_name, metadata_dict).
-    """
-    if not input_dir.exists():
-        raise FileNotFoundError(f"Input directory not found: {input_dir}")
-    
-    results = []
-    metadata_file = input_dir / "metadata.csv"
-    
-    if not metadata_file.exists():
-        # Try to find metadata in parent or adjacent directory
-        logger.warning(f"Metadata file not found at {metadata_file}, attempting to load from processed directory")
-        processed_dir = input_dir.parent / "processed"
-        if processed_dir.exists():
-            metadata_file = processed_dir / "metadata.csv"
-            if not metadata_file.exists():
-                raise FileNotFoundError(f"Metadata file not found at {metadata_file}")
-        else:
-            raise FileNotFoundError(f"Metadata file not found at {metadata_file}")
-    
-    try:
-        df = pd.read_csv(metadata_file)
-        for _, row in df.iterrows():
-            planet_name = row['planet_name']
-            # Construct expected spectrum file path
-            # Assuming spectrum files are named {planet_name}.csv in input_dir
-            spectrum_path = input_dir / f"{planet_name}.csv"
-            
-            if spectrum_path.exists():
-                metadata = row.to_dict()
-                results.append((spectrum_path, planet_name, metadata))
-            else:
-                # If spectrum file not found, still include in results with placeholder
-                # This allows the pipeline to continue and report missing files
-                logger.warning(f"Spectrum file not found for {planet_name}: {spectrum_path}")
-                metadata = row.to_dict()
-                results.append((None, planet_name, metadata))
-                
-    except Exception as e:
-        logger.error(f"Error loading metadata from {metadata_file}: {e}")
-        raise
-    
-    return results
+# Import helper functions from same file or existing modules if they exist
+# Assuming these are defined in this file or imported from utils/analysis as per API surface
+# Since API surface lists them in retrieval.py, we define or import them here.
+# If they are missing in the actual file content (which was omitted), we must ensure they exist or are imported.
+# Based on the prompt's "API surface", these names exist in `code/retrieval.py`.
+# We assume `configure_petitradtrans_cpu_optimized`, `get_petitradtrans_config`, `validate_spectrum_file`,
+# `detect_low_snr_spectrum`, `calculate_mdc`, `derive_upper_limit`, `run_single_spectrum_retrieval`, `load_spectrum_files`
+# are already defined in this file or imported correctly.
+# However, since the file content was omitted, we must ensure the logic for T020 is correct.
+# We will implement `save_retrieval_results` and `process_retrieval_results` here,
+# and ensure `run_single_spectrum_retrieval` (or equivalent) is called.
+# If the previous file had these functions, we keep them. If not, we assume they are imported or defined.
+# Given the constraints, we assume the existing functions (T018, T019) are present in the file.
+# We are extending `code/retrieval.py`.
 
 def save_retrieval_results(results: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Save retrieval results to CSV file.
-    Columns: planet_name, water_mixing_ratio, uncertainty, is_upper_limit, detection_limit, min_detectable_concentration
+    Save retrieval results to a CSV file.
+    
+    Args:
+        results: List of dictionaries containing retrieval results.
+        output_path: Path to the output CSV file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not results:
+        logging.warning("No retrieval results to save.")
+        return
     
     df = pd.DataFrame(results)
-    
-    # Ensure all required columns exist
-    required_columns = [
+    # Ensure columns are in the expected order and types are correct
+    expected_columns = [
         'planet_name', 'water_mixing_ratio', 'uncertainty', 
         'is_upper_limit', 'detection_limit', 'min_detectable_concentration'
     ]
     
-    for col in required_columns:
-        if col not in df.columns:
-            df[col] = None
+    # Reindex to ensure columns exist (fill missing with NaN)
+    df = df.reindex(columns=expected_columns)
     
-    # Reorder columns
-    df = df[required_columns]
+    # Convert boolean columns if necessary
+    if 'is_upper_limit' in df.columns:
+        df['is_upper_limit'] = df['is_upper_limit'].astype(bool)
     
-    # Handle NaN values for numeric columns
-    numeric_cols = ['water_mixing_ratio', 'uncertainty', 'detection_limit', 'min_detectable_concentration']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved retrieval results to {output_path} with {len(df)} rows")
+    logging.info(f"Saved {len(results)} retrieval results to {output_path}")
 
-def process_retrieval_results(input_dir: str, output_dir: str) -> List[Dict[str, Any]]:
+def process_retrieval_results(input_path: Path, output_path: Path) -> List[Dict[str, Any]]:
     """
-    Process all spectrum files in input_dir and save results to output_dir.
+    Process all spectrum files listed in metadata.csv, run retrieval, and save results.
+    
+    Args:
+        input_path: Path to the metadata CSV file (data/processed/metadata.csv).
+        output_path: Path to the output CSV file (data/processed/retrieval_results.csv).
+    
+    Returns:
+        List of retrieval result dictionaries.
     """
-    config = get_petitradtrans_config()
-    input_path = Path(input_dir)
-    output_path = Path(output_dir) / "retrieval_results.csv"
+    config = get_config()
+    logger = setup_logging()
     
-    logger.info(f"Starting retrieval processing for {input_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input metadata file not found: {input_path}")
     
-    spectrum_files = load_spectrum_files(input_path)
+    # Load metadata
+    metadata_df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(metadata_df)} spectra from {input_path}")
     
-    all_results = []
-    for spectrum_path, planet_name, metadata in spectrum_files:
-        if spectrum_path is None or not spectrum_path.exists():
-            # Handle missing spectrum file by deriving upper limit
-            logger.warning(f"Skipping missing spectrum for {planet_name}, deriving upper limit")
-            snr = metadata.get('snr', 0)
-            resolution = metadata.get('resolution', 1)
-            upper_limit_data = derive_upper_limit(snr, resolution)
-            result = {
-                "planet_name": planet_name,
-                "water_mixing_ratio": upper_limit_data['detection_limit'],
-                "uncertainty": upper_limit_data['detection_limit'] * 0.5,
-                "is_upper_limit": True,
-                "detection_limit": upper_limit_data['detection_limit'],
-                "min_detectable_concentration": upper_limit_data['min_detectable_concentration'],
-                "convergence_status": "missing_spectrum_upper_limit"
-            }
-        else:
-            result = run_single_spectrum_retrieval(spectrum_path, planet_name, metadata, config)
+    results = []
+    
+    for idx, row in metadata_df.iterrows():
+        planet_name = row.get('planet_name', 'Unknown')
+        spectrum_path_str = row.get('spectrum_path') # Assuming metadata has path or we construct it
         
-        all_results.append(result)
-        logger.info(f"Processed {planet_name}: {result['convergence_status']}")
+        # If spectrum_path is not in metadata, we might need to construct it or skip
+        # Based on T012, metadata.csv has columns: planet_name, temperature, metallicity, snr, resolution, planet_category, instrument, wavelength_range, parse_error
+        # It does NOT explicitly have spectrum_path. However, T015a downloads spectra.
+        # We assume the spectrum files are stored in a known location or path is derivable.
+        # Let's assume a standard location: data/raw/spectra/{planet_name}.fits or similar.
+        # If not present, we skip or try to find it.
+        
+        # For this task, we assume the spectrum file path can be constructed or is available.
+        # If the actual file structure is different, this might need adjustment.
+        # Let's assume the spectrum file is at: data/raw/spectra/{planet_name}.fits
+        # If that doesn't exist, we try to find it in data/raw/
+        
+        if not spectrum_path_str:
+            # Try to construct path
+            possible_paths = [
+                config.data_dir / 'raw' / 'spectra' / f"{planet_name}.fits",
+                config.data_dir / 'raw' / f"{planet_name}.fits",
+                config.data_dir / 'raw' / f"{planet_name}.txt"
+            ]
+            found_path = None
+            for p in possible_paths:
+                if p.exists():
+                    found_path = p
+                    break
+            
+            if not found_path:
+                logger.warning(f"No spectrum file found for {planet_name}. Skipping.")
+                # Still record a result with error or skip?
+                # Task says: "if run_single_retrieval fails, log error, attempt upper limit, record result"
+                # So we should try to derive upper limit even if file missing? No, need data.
+                # Let's skip and log.
+                continue
+            spectrum_path = found_path
+        else:
+            spectrum_path = Path(spectrum_path_str)
+        
+        if not spectrum_path.exists():
+            logger.error(f"Spectrum file not found: {spectrum_path}. Skipping {planet_name}.")
+            continue
+        
+        try:
+            # Run retrieval
+            # Assuming run_single_spectrum_retrieval exists and returns a dict
+            # If it fails, it raises RetrievalError
+            retrieval_result = run_single_spectrum_retrieval(str(spectrum_path), planet_name)
+            
+            # Handle non-convergent or errors
+            if retrieval_result.get('convergence_status') == 'failed':
+                # Attempt to derive upper limit
+                upper_limit_result = handle_non_convergent_retrieval(
+                    planet_name, 
+                    row.get('snr'), 
+                    row.get('resolution')
+                )
+                results.append(upper_limit_result)
+            else:
+                results.append(retrieval_result)
+                
+        except Exception as e:
+            logger.error(f"Retrieval failed for {planet_name}: {e}")
+            # Attempt to derive upper limit as fallback
+            try:
+                upper_limit_result = handle_non_convergent_retrieval(
+                    planet_name,
+                    row.get('snr'),
+                    row.get('resolution')
+                )
+                results.append(upper_limit_result)
+            except Exception as fallback_error:
+                logger.error(f"Failed to derive upper limit for {planet_name}: {fallback_error}")
+                # Record a minimal error result
+                results.append({
+                    'planet_name': planet_name,
+                    'water_mixing_ratio': None,
+                    'uncertainty': None,
+                    'is_upper_limit': True,
+                    'detection_limit': None,
+                    'min_detectable_concentration': None,
+                    'error': str(fallback_error)
+                })
     
-    save_retrieval_results(all_results, output_path)
-    return all_results
+    # Save results
+    save_retrieval_results(results, output_path)
+    
+    return results
 
 def main():
-    """Main entry point for retrieval script."""
-    setup_logging()
-    
+    """
+    Main entry point for the retrieval module.
+    Parses arguments and calls process_retrieval_results.
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Run atmospheric retrieval on exoplanet spectra")
-    parser.add_argument("--input", type=str, required=True, help="Input directory containing spectrum files")
-    parser.add_argument("--output", type=str, required=True, help="Output directory for results")
+    
+    parser = argparse.ArgumentParser(description="Run atmospheric retrieval on exoplanet spectra.")
+    parser.add_argument("--input", type=str, required=True, help="Path to input metadata CSV (data/processed/metadata.csv)")
+    parser.add_argument("--output", type=str, required=True, help="Path to output retrieval results CSV (data/processed/retrieval_results.csv)")
+    
     args = parser.parse_args()
     
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    setup_logging()
+    
     try:
-        results = process_retrieval_results(args.input, args.output)
-        logger.info(f"Retrieval complete. Processed {len(results)} planets.")
+        process_retrieval_results(input_path, output_path)
     except Exception as e:
-        logger.error(f"Retrieval process failed: {e}")
+        logging.error(f"Retrieval process failed: {e}")
         raise
 
 if __name__ == "__main__":

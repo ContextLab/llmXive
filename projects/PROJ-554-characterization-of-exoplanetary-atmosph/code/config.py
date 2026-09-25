@@ -5,73 +5,61 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 import numpy as np
 
+from utils import setup_logging
+
+logger = setup_logging("config")
+
 class ConfigurationError(Exception):
-    """Error in configuration loading."""
     pass
 
 def load_env_vars() -> Dict[str, str]:
-    """Load environment variables for configuration."""
-    env_vars = {}
-    
-    # Load API keys if present
-    if 'NASA_EXOPLANET_API_KEY' in os.environ:
-        env_vars['api_key'] = os.environ['NASA_EXOPLANET_API_KEY']
-    
-    return env_vars
+    """Loads environment variables."""
+    return {
+        "API_KEY": os.getenv("API_KEY", ""),
+        "DATA_DIR": os.getenv("DATA_DIR", "data"),
+    }
 
 def set_random_seed(seed: int = 42) -> None:
-    """Set random seed for reproducibility."""
+    """Sets random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    logging.info(f"Random seed set to {seed}")
+    logger.info(f"Random seed set to {seed}")
 
-def get_config() -> Dict[str, Any]:
-    """Get pipeline configuration."""
-    config = {
-        "random_seed": 42,
-        "cpu_threads": 1,
-        "max_memory_gb": 6,
-        "data_dirs": {
-            "raw": "data/raw",
-            "processed": "data/processed",
-            "results": "results"
-        },
-        "logging": {
-            "level": logging.INFO,
-            "file": "logs/pipeline.log"
-        }
-    }
-    
-    # Load environment variables
-    env_vars = load_env_vars()
-    config.update(env_vars)
-    
-    return config
+class Configuration:
+    def __init__(self, data_dir: Optional[str] = None, seed: int = 42):
+        self.data_dir = Path(data_dir) if data_dir else Path(os.getenv("DATA_DIR", "data"))
+        self.seed = seed
+        self.threads = int(os.getenv("CPU_THREADS", "1"))
+        self.max_memory_gb = int(os.getenv("MAX_MEMORY_GB", "6"))
+        
+        # Validate paths
+        if not self.data_dir.exists():
+            logger.warning(f"Data directory {self.data_dir} does not exist. Creating it.")
+            self.data_dir.mkdir(parents=True, exist_ok=True)
 
-def validate_config(config: Dict[str, Any]) -> bool:
-    """Validate configuration."""
-    required_keys = ["random_seed", "cpu_threads", "max_memory_gb"]
-    
-    for key in required_keys:
-        if key not in config:
-            raise ConfigurationError(f"Missing required config key: {key}")
-    
-    if not isinstance(config["random_seed"], int):
-        raise ConfigurationError("random_seed must be an integer")
-    
-    if config["cpu_threads"] < 1:
-        raise ConfigurationError("cpu_threads must be at least 1")
-    
+def get_config() -> Configuration:
+    """
+    Returns a global Configuration object.
+    Handles the case where config might be a dict in some execution contexts
+    by ensuring we return a proper Configuration object.
+    """
+    # Check if a global config is already set
+    global _config
+    if '_config' not in globals():
+        _config = Configuration()
+    return _config
+
+def validate_config(config: Configuration) -> bool:
+    """Validates the configuration."""
+    if not config.data_dir.exists():
+        raise ConfigurationError(f"Data directory {config.data_dir} does not exist.")
     return True
 
 def main():
     """Main entry point for config module."""
     config = get_config()
     validate_config(config)
-    set_random_seed(config["random_seed"])
-    
-    logging.info("Configuration loaded successfully")
-    return config
+    logger.info(f"Configuration loaded: {config}")
 
 if __name__ == "__main__":
     main()

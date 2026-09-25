@@ -1,12 +1,14 @@
 status: none
-intent: NASA Exoplanet Archive transmission spectra hot Jupiters super Earths download
-  python package dataset
+intent: NASA Exoplanet Archive transmission spectra hot Jupiter super Earth python
+  package dataset
 required_fields:
 - planet_name
-- planet_category
+- planet_type
 - equilibrium_temperature_K
 - host_star_metallicity_Fe_H
-- transmission_spectrum_url
-cache_key: 6a18d973300285f101371c055c314b4bfa760d2e07ec9f859923488efae9c25b
-searched_at: '2026-09-22T19:35:20.520206+00:00'
+- spectrum_url
+- instrument
+- observation_date
+cache_key: e53434d52967eb13e594a8273dc95468537c4d73f4330bdf4c23b32efb5e3fea
+searched_at: '2026-09-25T11:38:00.998507+00:00'
 retry_count: 1
