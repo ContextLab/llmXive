@@ -1,0 +1,13 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 5 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- Task T017 (Ingestion) and T018 (Metrics) depend on T015 (Data Fetch) and T047 (Schema Validation). However, T015 is marked as unchecked [ ] while T047 is checked [X]. T019 explicitly lists T015 as a dependency. The order implies T015 must complete before T017/T018, but the unchecked status of T015 creates a logical gap where the consumer (T017) is scheduled before the producer (T015) is confirmed complete.
+- Tasks T040 (Semantic Similarity Merging) and T041 (Sensitivity Analysis) are present in the task list but explicitly excluded from scope in plan.md ('Key Revision' and 'Scope Exclusion'). T041 depends on T040, and T019 depends on T041. This creates a dependency chain for artifacts (T040 output) that the plan declares do not exist, violating the 'Producer before Consumer' rule for the intended pipeline flow.
+- Phase 7 tasks (T050-T052) introduce 'Equilibrium Deviation' and game-theoretic analysis. T051 depends on T050. However, plan.md 'Scope Exclusion' explicitly bans 'Game-Theoretic Constructs'. The task order implies a production of 'equilibrium_deviation' (T050) that is then consumed by the modeling pipeline (T051), but the plan forbids the existence of this artifact, creating a semantic dependency violation.
+- Task T019 (Orchestration) lists dependencies T015, T047, T040, T018, T041. T040 and T041 are marked as [X] (checked) in the provided text, but T015 is [ ]. If T015 is not complete, T019 cannot run. The ordering places T019 after T015, but the state of T015 (unchecked) blocks the flow, making the 'independent test' for US1 impossible to execute as ordered.
+- T005a (Define Exception) and T005b (Implement Validation) are marked [X]. T017 (Ingestion) depends on T005b. The order is correct (Producer T005b before Consumer T017), but T005b's verification mentions 'test_ingestion.py' which is defined later in Phase 3. While not a hard ordering violation, the verification step for a foundational task references a test file that is not yet defined in the task list order, creating a minor semantic confusion in the 'Producer' definition.

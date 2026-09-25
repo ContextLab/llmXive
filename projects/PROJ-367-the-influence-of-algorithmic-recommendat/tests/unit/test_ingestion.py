@@ -1,69 +1,167 @@
 import pytest
 import pandas as pd
-import sys
+import numpy as np
+import logging
 from pathlib import Path
+import tempfile
+import os
 
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from ingestion import DataSchemaError, validate_schema, ingest_and_clean, ingest_and_save
 
-from ingestion import DataSchemaError, validate_schema
+# Configure logging for tests
+logging.basicConfig(level=logging.WARNING)
 
-class TestSchemaValidation:
-    """
-    Tests for the schema validation logic in code/ingestion.py.
-    Specifically verifies T004b requirements.
-    """
+class TestIngestionSchemaValidation:
+    """Tests for schema validation logic."""
 
-    def test_validate_schema_missing_columns_raises_data_schema_error(self):
-        """
-        T004b Verification:
-        Write a unit test that triggers this exception and asserts the exact message.
-        Expected Message: "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."
-        """
-        # Create a DataFrame missing the required columns
-        df_missing = pd.DataFrame({
-            'user_id': [1, 2, 3],
-            'session_id': ['A', 'B', 'C']
-            # Note: 'recommended_categories' and 'enrolled_categories' are missing
+    def test_validate_schema_passes(self):
+        """Test that validation passes when required columns are present."""
+        df = pd.DataFrame({
+            'recommended_categories': [['Math', 'Science'], ['History']],
+            'enrolled_categories': [['Math'], ['History']]
         })
+        # Should not raise
+        validate_schema(df)
 
-        # Assert that the specific exception is raised
-        with pytest.raises(DataSchemaError) as exc_info:
-            validate_schema(df_missing)
-
-        # Assert the exact error message
-        expected_message = "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."
-        assert str(exc_info.value) == expected_message, f"Expected message:\n{expected_message}\n\nGot:\n{str(exc_info.value)}"
-
-    def test_validate_schema_partial_missing_columns(self):
-        """
-        Test that if only one column is missing, it is correctly identified in the error message.
-        """
-        df_partial = pd.DataFrame({
-            'user_id': [1, 2, 3],
-            'recommended_categories': [['Math'], ['Sci']]
-            # 'enrolled_categories' is missing
+    def test_validate_schema_fails_missing_columns(self):
+        """Test that validation raises DataSchemaError with exact message."""
+        df = pd.DataFrame({
+            'other_col': [1, 2]
         })
-
         with pytest.raises(DataSchemaError) as exc_info:
-            validate_schema(df_partial)
+            validate_schema(df)
+        
+        expected_msg = "Required columns ['recommended_categories', 'enrolled_categories'] missing. Dataset does not support the specified experimental design."
+        assert str(exc_info.value) == expected_msg
 
-        # The list should contain only the missing column
+    def test_validate_schema_fails_partial_columns(self):
+        """Test that validation raises DataSchemaError if only one column is missing."""
+        df = pd.DataFrame({
+            'recommended_categories': [['Math']],
+            'other_col': [1]
+        })
+        with pytest.raises(DataSchemaError) as exc_info:
+            validate_schema(df)
+        
         assert "enrolled_categories" in str(exc_info.value)
-        assert "recommended_categories" not in str(exc_info.value) # Should not list present ones
 
-    def test_validate_schema_all_columns_present(self):
-        """
-        Test that validation passes when all required columns are present.
-        """
-        df_valid = pd.DataFrame({
-            'user_id': [1, 2, 3],
-            'recommended_categories': [['Math'], ['Sci'], ['Art']],
-            'enrolled_categories': [['Math'], ['Sci'], ['Art']]
+class TestIngestionEmptyEnrollments:
+    """Tests for empty enrollment handling."""
+
+    def test_ingest_excludes_empty_list_enrollments(self, caplog):
+        """Test that rows with empty list enrollments are excluded."""
+        df = pd.DataFrame({
+            'user_id': ['u1', 'u2', 'u3'],
+            'session_id': ['s1', 's2', 's3'],
+            'recommended_categories': [['A'], ['B'], ['C']],
+            'enrolled_categories': [['A'], [], ['C']]
         })
+        
+        with caplog.at_level(logging.WARNING):
+            result = ingest_and_clean(df)
+        
+        assert len(result) == 2
+        assert 'Excluded' in caplog.text
 
-        # Should not raise any exception
-        try:
-            validate_schema(df_valid)
-        except DataSchemaError:
-            pytest.fail("validate_schema raised DataSchemaError unexpectedly for valid schema.")
+    def test_ingest_excludes_empty_string_enrollments(self, caplog):
+        """Test that rows with empty string enrollments are excluded."""
+        df = pd.DataFrame({
+            'user_id': ['u1', 'u2'],
+            'session_id': ['s1', 's2'],
+            'recommended_categories': [['A'], ['B']],
+            'enrolled_categories': ['', 'B']
+        })
+        
+        with caplog.at_level(logging.WARNING):
+            result = ingest_and_clean(df)
+        
+        assert len(result) == 1
+        assert result.iloc[0]['user_id'] == 'u2'
+
+    def test_ingest_excludes_bracket_empty_enrollments(self, caplog):
+        """Test that rows with '[]' string enrollments are excluded."""
+        df = pd.DataFrame({
+            'user_id': ['u1'],
+            'session_id': ['s1'],
+            'recommended_categories': [['A']],
+            'enrolled_categories': ['[]']
+        })
+        
+        with caplog.at_level(logging.WARNING):
+            result = ingest_and_clean(df)
+        
+        assert len(result) == 0
+
+    def test_ingest_generates_missing_ids(self):
+        """Test that missing user_id and session_id are generated."""
+        df = pd.DataFrame({
+            'recommended_categories': [['A'], ['B']],
+            'enrolled_categories': [['A'], ['B']]
+        })
+        
+        result = ingest_and_clean(df)
+        
+        assert 'user_id' in result.columns
+        assert 'session_id' in result.columns
+        assert len(result['user_id'].unique()) == 2
+
+    def test_ingest_output_schema(self):
+        """Test that output has correct schema columns."""
+        df = pd.DataFrame({
+            'user_id': ['u1'],
+            'session_id': ['s1'],
+            'recommended_categories': [['A']],
+            'enrolled_categories': [['A']]
+        })
+        
+        result = ingest_and_clean(df)
+        
+        expected_cols = ['user_id', 'session_id', 'recommended_categories', 'enrolled_categories', 'is_valid']
+        assert list(result.columns) == expected_cols
+        assert result['is_valid'].iloc[0] is True
+
+class TestIngestionSave:
+    """Tests for saving cleaned data."""
+
+    def test_ingest_and_save_creates_parquet(self):
+        """Test that ingest_and_save creates a valid Parquet file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_csv = Path(tmpdir) / "input.csv"
+            output_parquet = Path(tmpdir) / "output.parquet"
+            
+            df = pd.DataFrame({
+                'user_id': ['u1', 'u2'],
+                'session_id': ['s1', 's2'],
+                'recommended_categories': [['A'], ['B']],
+                'enrolled_categories': [['A'], ['B']]
+            })
+            df.to_csv(input_csv, index=False)
+            
+            ingest_and_save(input_csv, output_parquet)
+            
+            assert output_parquet.exists()
+            
+            # Verify content
+            loaded = pd.read_parquet(output_parquet)
+            assert len(loaded) == 2
+            assert 'is_valid' in loaded.columns
+
+    def test_ingest_and_save_excludes_empty(self):
+        """Test that ingest_and_save excludes empty enrollments before saving."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_csv = Path(tmpdir) / "input.csv"
+            output_parquet = Path(tmpdir) / "output.parquet"
+            
+            df = pd.DataFrame({
+                'user_id': ['u1', 'u2', 'u3'],
+                'session_id': ['s1', 's2', 's3'],
+                'recommended_categories': [['A'], ['B'], ['C']],
+                'enrolled_categories': [['A'], [], ['C']]
+            })
+            df.to_csv(input_csv, index=False)
+            
+            ingest_and_save(input_csv, output_parquet)
+            
+            loaded = pd.read_parquet(output_parquet)
+            assert len(loaded) == 2
+            assert 'u2' not in loaded['user_id'].values

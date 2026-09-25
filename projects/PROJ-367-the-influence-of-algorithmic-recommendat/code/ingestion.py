@@ -2,164 +2,198 @@ import pandas as pd
 import numpy as np
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict, Any
 from datasets import load_dataset
+import pyarrow.parquet as pq
+import json
+from datetime import datetime
 
-# ---------------------------------------------------------------------------
-# Exception Definitions
-# ---------------------------------------------------------------------------
+from config import ProjectConfig
+
+logger = logging.getLogger(__name__)
 
 class DataSchemaError(Exception):
-    """
-    Exception raised when the input dataset does not conform to the required
-    schema for the experimental design.
-
-    This typically occurs when mandatory columns (e.g., 'recommended_categories',
-    'enrolled_categories') are missing from the provided DataFrame or file.
-    """
+    """Exception raised when the dataset schema does not match requirements."""
     pass
 
-# ---------------------------------------------------------------------------
-# Validation Logic
-# ---------------------------------------------------------------------------
+class DataAvailabilityError(Exception):
+    """Exception raised when real data is not found or inaccessible."""
+    pass
 
-REQUIRED_COLUMNS = ['recommended_categories', 'enrolled_categories']
-
-def validate_schema(df: pd.DataFrame) -> None:
+def validate_schema(df: pd.DataFrame, required_columns: Optional[List[str]] = None) -> None:
     """
-    Validates that the input DataFrame contains the required columns for the
-    experimental design.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The dataset to validate.
-
-    Raises
-    ------
-    DataSchemaError
-        If 'recommended_categories' or 'enrolled_categories' are missing.
-        The error message will be exactly:
-        "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."
+    Validates that the DataFrame contains the required columns.
+    
+    Args:
+        df: The DataFrame to validate.
+        required_columns: List of required column names. Defaults to standard requirements.
+        
+    Raises:
+        DataSchemaError: If required columns are missing.
     """
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    if required_columns is None:
+        required_columns = ['recommended_categories', 'enrolled_categories']
+        
+    missing = set(required_columns) - set(df.columns)
+    if missing:
+        raise DataSchemaError(
+            f"Required columns {list(missing)} missing. Dataset does not support the specified experimental design."
+        )
+    logger.info(f"Schema validation passed. Found columns: {list(df.columns)}")
 
-    if missing_cols:
-        # Format the missing columns exactly as requested in the task spec
-        missing_str = str(missing_cols)
-        msg = f"Required columns {missing_str} missing. Dataset does not support the specified experimental design."
-        raise DataSchemaError(msg)
-
-    # If we reach here, validation passed
-    logging.debug("Schema validation passed: all required columns present.")
-
-# ---------------------------------------------------------------------------
-# Data Loading Helpers
-# ---------------------------------------------------------------------------
-
-def load_data_from_hf(dataset_name: str, split: str = "train") -> pd.DataFrame:
+def load_data_from_hf(dataset_id: str, split: str = 'train') -> pd.DataFrame:
     """
-    Loads a dataset from the Hugging Face Hub.
-
-    Parameters
-    ----------
-    dataset_name : str
-        The name of the dataset on Hugging Face.
-    split : str
-        The split to load (default: "train").
-
-    Returns
-    -------
-    pd.DataFrame
-        The loaded dataset as a Pandas DataFrame.
+    Loads a dataset from Hugging Face Hub.
+    
+    Args:
+        dataset_id: The Hugging Face dataset ID.
+        split: The split to load.
+        
+    Returns:
+        The loaded DataFrame.
     """
+    logger.info(f"Loading dataset {dataset_id} from Hugging Face...")
     try:
-        ds = load_dataset(dataset_name, split=split)
-        return ds.to_pandas()
+        dataset = load_dataset(dataset_id, split=split)
+        df = dataset.to_pandas()
+        logger.info(f"Loaded {len(df)} rows from {dataset_id}")
+        return df
     except Exception as e:
-        logging.error(f"Failed to load dataset '{dataset_name}' from Hugging Face: {e}")
-        raise
+        raise DataAvailabilityError(f"Failed to load dataset {dataset_id}: {e}")
+
+def load_project_data(config: ProjectConfig) -> pd.DataFrame:
+    """
+    Loads data from the project's raw data directory.
+    
+    Args:
+        config: The project configuration.
+        
+    Returns:
+        The loaded DataFrame.
+    """
+    raw_path = config.paths['data_raw']
+    verified_path = raw_path / 'verified_dataset.csv'
+    
+    if not verified_path.exists():
+        raise FileNotFoundError(f"Verified dataset not found at {verified_path}. Run T015 first.")
+        
+    logger.info(f"Loading data from {verified_path}")
+    df = pd.read_csv(verified_path)
+    return df
 
 def ingest_and_clean(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Performs basic cleaning on the ingested DataFrame.
-
-    - Validates schema (raises DataSchemaError if invalid).
-    - Logs warnings for rows with empty enrolled_categories.
-    - Excludes rows where 'enrolled_categories' is empty (or represents an empty list).
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The raw DataFrame.
-
-    Returns
-    -------
-    pd.DataFrame
+    Performs ingestion and cleaning logic:
+    1. Validates schema.
+    2. Parses category lists (handles string representations of lists).
+    3. Excludes rows with empty enrollments.
+    4. Adds 'is_valid' flag.
+    
+    Args:
+        df: The raw DataFrame.
+        
+    Returns:
         The cleaned DataFrame.
     """
-    # 1. Validate Schema
+    # Validate schema first
     validate_schema(df)
-
-    initial_count = len(df)
-    logging.info(f"Starting ingestion with {initial_count} rows.")
-
-    # 2. Handle Empty Enrollments
-    # We assume 'enrolled_categories' is stored as a string representation of a list
-    # or an actual list. We need to filter out empty ones.
-    def is_empty(val):
+    
+    # Ensure categories are parsed as lists if they are strings
+    # Handle cases where the CSV might have stored lists as strings like "['A', 'B']"
+    def safe_parse_list(val):
         if isinstance(val, list):
-            return len(val) == 0
+            return val
         if isinstance(val, str):
-            return val.strip() == "" or val == "[]"
-        return False
+            val = val.strip()
+            if val.startswith('[') and val.endswith(']'):
+                # Simple parsing for stringified lists, removing quotes
+                try:
+                    # Replace single quotes with double for JSON compatibility if needed
+                    # Or use ast.literal_eval if available, but standard eval is risky
+                    # Let's try a simple split if it looks like a simple CSV inside brackets
+                    if "'" in val:
+                        inner = val[1:-1].replace("'", "").strip()
+                    elif '"' in val:
+                        inner = val[1:-1].replace('"', "").strip()
+                    else:
+                        inner = val[1:-1]
+                        
+                    if not inner:
+                        return []
+                    return [x.strip() for x in inner.split(',') if x.strip()]
+                except Exception:
+                    return []
+            return [val] if val else []
+        return []
 
-    # Filter out rows with empty enrollments
-    # Note: Using apply for robustness against mixed types (str vs list)
-    mask = df['enrolled_categories'].apply(lambda x: not is_empty(x))
-    cleaned_df = df[mask].copy()
-    excluded_count = initial_count - len(cleaned_df)
-
-    if excluded_count > 0:
-        logging.warning(f"Excluded {excluded_count} rows with empty 'enrolled_categories'.")
-    else:
-        logging.debug("No rows excluded due to empty enrollments.")
-
-    logging.info(f"Ingestion complete. Final row count: {len(cleaned_df)}")
+    # Apply parsing if necessary (check if first row is string or list)
+    if df['recommended_categories'].iloc[0] is not None and isinstance(df['recommended_categories'].iloc[0], str):
+        logger.info("Parsing stringified category lists...")
+        df['recommended_categories'] = df['recommended_categories'].apply(safe_parse_list)
+        df['enrolled_categories'] = df['enrolled_categories'].apply(safe_parse_list)
+    
+    # Identify rows with empty enrollments
+    empty_enrollment_mask = df['enrolled_categories'].apply(lambda x: len(x) == 0)
+    count_empty = empty_enrollment_mask.sum()
+    
+    if count_empty > 0:
+        logger.warning(f"Excluding {count_empty} rows with empty enrolled_categories.")
+    
+    # Create is_valid flag
+    df['is_valid'] = ~empty_enrollment_mask
+    
+    # Filter out invalid rows
+    cleaned_df = df[df['is_valid']].copy()
+    
+    # Ensure user_id and session_id exist, create defaults if missing
+    if 'user_id' not in cleaned_df.columns:
+        cleaned_df['user_id'] = range(len(cleaned_df))
+    if 'session_id' not in cleaned_df.columns:
+        cleaned_df['session_id'] = range(len(cleaned_df))
+        
+    # Select and order final schema
+    final_columns = ['user_id', 'session_id', 'recommended_categories', 'enrolled_categories', 'is_valid']
+    # Ensure all exist before selecting
+    available_columns = [c for c in final_columns if c in cleaned_df.columns]
+    cleaned_df = cleaned_df[available_columns]
+    
+    logger.info(f"Ingestion complete. {len(cleaned_df)} valid rows remaining.")
     return cleaned_df
 
-def load_project_data(data_path: Union[str, Path]) -> pd.DataFrame:
+def ingest_and_save(config: ProjectConfig, input_path: Optional[Union[str, Path]] = None) -> Path:
     """
-    Loads data from a local file (CSV or Parquet) and ingests it.
-
-    Parameters
-    ----------
-    data_path : Union[str, Path]
-        Path to the data file.
-
-    Returns
-    -------
-    pd.DataFrame
-        The cleaned DataFrame.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file does not exist.
-    DataSchemaError
-        If the file content does not match the required schema.
+    Main entry point for the ingestion pipeline.
+    Loads data, validates, cleans, and saves to Parquet.
+    
+    Args:
+        config: Project configuration.
+        input_path: Optional path to input file. If None, uses config's raw data path.
+        
+    Returns:
+        Path to the output Parquet file.
     """
-    path = Path(data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {path}")
-
-    logging.info(f"Loading data from {path}")
-
-    if path.suffix == '.csv':
-        df = pd.read_csv(path)
-    elif path.suffix == '.parquet':
-        df = pd.read_parquet(path)
+    processed_dir = Path(config.paths['data_processed'])
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = processed_dir / 'cleaned_data.parquet'
+    
+    # Load data
+    if input_path:
+        input_path = Path(input_path)
+        if input_path.suffix == '.csv':
+            df = pd.read_csv(input_path)
+        elif input_path.suffix == '.parquet':
+            df = pd.read_parquet(input_path)
+        else:
+            raise ValueError(f"Unsupported input format: {input_path.suffix}")
     else:
-        raise ValueError(f"Unsupported file format: {path.suffix}. Use .csv or .parquet.")
-
-    return ingest_and_clean(df)
+        df = load_project_data(config)
+    
+    # Process
+    cleaned_df = ingest_and_clean(df)
+    
+    # Save to Parquet
+    cleaned_df.to_parquet(output_path, index=False)
+    logger.info(f"Cleaned data saved to {output_path}")
+    
+    return output_path

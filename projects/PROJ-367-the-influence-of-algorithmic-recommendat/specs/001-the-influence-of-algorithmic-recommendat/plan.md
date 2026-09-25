@@ -13,13 +13,13 @@ This plan implements a statistical analysis pipeline to measure the associationa
 
 **Language/Version**: Python 3.11  
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `datasets` (Hugging Face)  
-**Storage**: Local filesystem (CSV/Parquet/JSON) within the CI runner's ephemeral storage (~14 GB limit).  
+**Storage**: Local filesystem (CSV/Parquet/JSON) within the CI runner's ephemeral storage (limited capacity).  
 **Testing**: `pytest` with `pytest-cov` for unit tests and `pytest-mock` for data ingestion mocks.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, ~7 GB RAM).  
 **Project Type**: Data analysis pipeline / CLI tool.  
 **Performance Goals**: Full pipeline execution < 6 hours on CPU; memory usage < 6 GB during peak processing. **The entire pipeline is designed to run within these constraints to ensure reproducibility on a fresh runner.**  
 **Constraints**: No GPU usage; no causal language in final output; strict adherence to verified dataset URLs; handling of missing data as per spec. **No analysis will be performed on non-educational data.**  
-**Scale/Scope**: Designed for datasets up to ~100k rows; handles streaming for larger datasets if available.
+**Scale/Scope**: Designed for datasets of substantial scale; handles streaming for larger datasets if available.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

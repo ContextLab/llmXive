@@ -1,42 +1,62 @@
-T001d:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files are shown in the provided evidence for `code/`, `tests/`,
-    or `tests/unit/`, and there is no output from the suggested import test (`python
-    -c "import code"`). The required package initialization files are missing, so
-    the task is not satisfied.
-T002:
-  c: false
-  h: 5ef0b3c8c6a846d672770eefc6e2894be13c992a6ef7f75091776ce46d6f4faa
-  r: The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`
-    does not exist, and no evidence is provided that `pip install -r requirements.txt`
-    was run successfully. The existing `code/requirements.txt` is at the wrong location,
-    so the task is not satisfied.
+  r: No directory listing or other evidence was supplied to show that the required
+    folders (`projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`, `tests/`,
+    `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `docs/`,
+    `docs/reports/`) actually exist. The implementer must provide an `ls -R` (or equivalent)
+    output confirming the presence of all specified directories.
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/flake8
-    settings, `black` config, or related CI scripts) are present, and the provided
-    artifacts pertain only to data processing and modeling, not to the required linting/formatting
-    setup. The task T003 remains unfulfilled.
-T009:
+  h: 031b192730a4d1416e28cb59439e14854dcf7952cb20784829bb492b2617d0b3
+  r: The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`
+    does not exist, and therefore no pinned versions for the specified packages are
+    present at the correct location. Consequently the verification step (pip install)
+    cannot be performed. The implementer must add the missing file with the exact
+    pinned versions for the eight listed packages.
+T010:
+  c: false
+  h: 409305e79fa95ae52564f636be15daa26f2bfb1c47df4879a60c977f73be3663
+  r: "The repository lacks the required `runtime_log.json` file and the `code/main.py`\
+    \ does not contain a runtime logging function that writes start/end timestamps\
+    \ (the file is truncated and shows no such implementation). Consequently the task\u2019\
+    s verification script cannot succeed."
+T017:
+  c: false
+  h: 0f15e576a3c11d70ac8e25461a4904d6456e615bcbb9121ed1ae39ae1a09e416
+  r: "The repository contains `code/ingestion.py`, but the shown implementation stops\
+    \ at the `ingest_and_clean` function and does not include logic to write `data/processed/cleaned_data.parquet`\
+    \ with the required schema. Moreover, the expected output file `data/processed/cleaned_data.parquet`\
+    \ is absent from the project. Without the parquet file (and the code to generate\
+    \ it), the task\u2019s core requirement is not satisfied."
+T019:
+  c: false
+  h: 3e04a4608e05f3d178c6c30519d93aea24a722e83428357dd1b04c2165cf77fc
+  r: The provided `code/main.py` is truncated (ends abruptly with an incomplete line)
+    and does not contain the full orchestration logic needed to write the required
+    JSON and CSV files. Moreover, the essential input file `data/raw/verified_dataset.csv`
+    and the expected output files `data/processed/diversity_scores.json` and `data/processed/sensitivity_analysis.csv`
+    are absent, so the script cannot be executed and verified as specified.
+T020:
+  c: false
+  h: b35865f1da15364ba2727ee55c4159ab641e99353302d7421bd923acbf42cbcd
+  r: "The `tests/unit/test_main_output.py` file is truncated and does not contain\
+    \ a hard\u2011coded test dataset as required; it merely re\u2011calculates entropy\
+    \ on whatever is in `data/processed/diversity_scores.json`. Moreover, the required\
+    \ `data/processed/diversity_scores.json` file is missing, so the test cannot pass.\
+    \ The task\u2019s verification script and supporting data are therefore incomplete."
+T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files (e.g.,\u202Fpytest.ini,\u202Fconftest.py, or any\
-    \ test modules) were presented for the `projects/PROJ-367-the-influence-of-algorithmic-recommendat/tests/`\
-    \ directory, so the required artifact does not exist or is empty. The task remains\
-    \ unfinished until a proper pytest setup is added."
-T015:
+  r: No preprocessing script, log output, or resulting dataset was provided to demonstrate
+    that rows with empty `enrolled_categories` are recorded as `null` (or excluded)
+    and that a warning with the count of excluded sessions is logged. The required
+    artifact proving the robust error handling is missing.
+T047:
   c: false
-  h: ae39315697c9fcc158f8c68d2b2f95ece9b52398c9c68fd85cd8ac5280158fbf
-  r: "The required `data/processed/diversity_scores.json` file is absent, and the\
-    \ provided `run_verification_test` checks a different entropy value (\u22480.918)\
-    \ than the task\u2019s expected log\u2082(1.5) \u2248\u202F0.585. Moreover, the\
-    \ shown `main.py` snippet does not contain logic to write the JSON output, so\
-    \ the core requirement is unmet."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., report, figure, or code output) was provided that shows the
-    analysis being expressed as a sensitivity metric for unmeasured confounding rather
-    than a causal effect size. Without such evidence, the requirement cannot be confirmed.
+  h: 52c1122db144db7f42a05a6cabbdef3f64a52c2f828b9dcf2bedca82d1d1aded
+  r: "The script `code/validate_real_data.py` exists, but it always reads `data/raw/verified_dataset.csv`\
+    \ and does not accept or point to the required test file `data/raw/mock_missing_columns.csv`.\
+    \ Moreover, that mock CSV is absent, so the verification step (raising `DataSchemaError`\
+    \ on the missing\u2011column file with the exact message) cannot be performed.\
+    \ The task\u2019s verification requirement is therefore unmet."
