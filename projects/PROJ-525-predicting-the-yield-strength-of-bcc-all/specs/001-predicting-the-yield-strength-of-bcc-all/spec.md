@@ -91,7 +91,7 @@ A data scientist needs to train multiple regression models (Random Forest, Gradi
 - **SC-001**: The coefficient of determination (R²) for the best-performing model is measured against the null hypothesis baseline (predicting the mean yield strength of the training set) to determine if composition explains significant variance (See US-3).
 - **SC-002**: The mean absolute error (MAE) of the model predictions MUST be ≤ 50 MPa (the experimental uncertainty threshold of the source dataset) to demonstrate practical utility (See US-3).
 - **SC-003**: The stability of feature importance rankings is measured against 100 bootstrap resamples; the standard deviation of feature importance ranks across these resamples MUST be < 2.0 to ensure robustness (See US-3).
-- **SC-004**: The computational runtime of the full pipeline (data download to final report) is measured against the 6-hour GitHub Actions free-tier limit to ensure feasibility (See US-3).
+- **SC-004**: The computational runtime of the full pipeline (data download to final report) is measured against the standard GitHub Actions free-tier limit to ensure feasibility. (See US-3).
 
 ## Assumptions
 

@@ -1543,3 +1543,788 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T13:09:08Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Data scarcity check halts pipeline if BCC alloy count is less than 80
+  claim_id: c_e07506d7
+  context: 'T017 [US1] Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_check_halts_pipeline_if_BCC_alloy_count_is_les
+  kind: magnitude
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:27:02Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculated descriptors for Mo-25Nb-25Ta-25W match manual values within
+    relative tolerance of 1e-6
+  claim_id: c_dfdb6644
+  context: "Independent Test: The system can be tested by running the feature engineering\
+    \ module on a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying\
+    \ that the calculated descriptors... match the manually calculated reference values\
+    \ within a relative tolerance of \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:27:02Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Generate 100 sets of feature importance ranks from bootstrap resamples
+  claim_id: c_8cc26e55
+  context: 'T038a [US3] Implement permutation importance testing: Run on EACH of the
+    bootstrap resampled datasets to generate multiple sets of feature importance ranks...
+    T041 [US3] Extract feature importance ranks from the output of T038a (100 sets
+    of ranks)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate multiple sets of feature importance ranks... (100 sets of ranks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:27:36Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time is less than 6 hours on CI
+  claim_id: c_d8979d16
+  context: T042 Performance optimization to ensure full pipeline runs < 6 hours on
+    CI
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_is_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:28:04Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Stratified train-test split uses 4 quantile bins of target variable
+  claim_id: c_7ffe0cd5
+  context: T033_impl [US3] Implement code/modeling.py to perform a stratified train-test
+    split based on 4 quantile bins of the target variable (yield strength)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a stratified train-test split based on 4 quantile bins of the
+    target variable
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:28:31Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: MPEA database downloaded from Springer link
+  claim_id: c_c9c0a1c3
+  context: T013 [US1] Implement code/data_ingestion.py to download MPEA database from
+    https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:28:51Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if insufficient BCC alloys with count less than 80
+  claim_id: c_c1a83324
+  context: 'T017 [US1] Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_insufficient_BCC_alloys_with_count_less_tha
+  kind: magnitude
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:31:00Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculate descriptors for Mo-25Nb-25Ta-25W within relative tolerance
+    of 1e-6
+  claim_id: c_1cfd9d95
+  context: "Independent Test: The system can be tested by running the feature engineering\
+    \ module on a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying\
+    \ that the calculated descriptors (\u03B4, VEC, mixing entropy, mixing enthalpy,\
+    \ electronegativity difference) match the manually calculated reference values\
+    \ within a relative tolerance of \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:31:00Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Ensure full pipeline runs in less than 6 hours on CI
+  claim_id: c_25522ae4
+  context: T042 Performance optimization to ensure full pipeline runs < 6 hours on
+    CI
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_full_pipeline_runs_in_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: performance optimization to ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:31:26Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Perform stratified train-test split based on 4 quantile bins of yield
+    strength
+  claim_id: c_952cb327
+  context: T033_impl [US3] Implement code/modeling.py to perform a stratified train-test
+    split based on 4 quantile bins of the target variable (yield strength)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a stratified train-test split based on 4 quantile bins of the
+    target variable (yield strength)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:31:27Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: "Generate distribution of RAW 5-fold R\xB2 scores"
+  claim_id: c_03b0e13e
+  context: "T035 [US3] Generate a distribution of RAW 5-fold R\xB2 scores (list of\
+    \ floats, not aggregated) from the Repeated 5-fold CV repeats"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a distribution of RAW 5-fold R\xB2 scores (list of floats, not\
+    \ aggregated) from the Repeated 5-fold CV repeats"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:32:09Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculate standard deviation of feature importance ranks across 100 resamples
+  claim_id: c_c33edc30
+  context: T041 [US3] Extract feature importance ranks from the output of T038a (100
+    sets of ranks), calculate the standard deviation of these ranks across resamples,
+    and verify SC-003 (std dev < 2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate the standard deviation of these ranks across resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:32:09Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Download MPEA database from Springer link
+  claim_id: c_c0dcb9b0
+  context: T013 [US1] Implement code/data_ingestion.py to download MPEA database from
+    https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+    and save to data/raw/mpea_raw.xlsx
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:32:10Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Data scarcity check halts if BCC alloy count is less than 80
+  claim_id: c_c295b028
+  context: 'T017 [US1] Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_check_halts_if_BCC_alloy_count_is_less_than_80
+  kind: magnitude
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:32:33Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Feature engineering descriptors for Mo-25Nb-25Ta-25W match manual values
+    within 1e-6 relative tolerance
+  claim_id: c_6afb51c7
+  context: "Independent Test: The system can be tested by running the feature engineering\
+    \ module on a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying\
+    \ that the calculated descriptors... match the manually calculated reference values\
+    \ within a relative tolerance of \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verifying that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:32:33Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Binary interaction parameters sourced from NIST-JANAF or distinct CALPHAD
+    assessment
+  claim_id: c_b7cd6636
+  context: "T025a [US2] Download binary interaction parameters (\u03A9_ij) from NIST-JANAF\
+    \ or a distinct CALPHAD assessment (e.g., via Materials Project REST with explicit\
+    \ 'thermodynamics' endpoint distinct from MPEA source, or a verified local JSON)\
+    \ to data/raw/thermo_params_nist_janaf.json"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binary_interaction_parameters_sourced_from_NIST-JANAF_or_dis
+  kind: entity_fact
+  raw_text: "Download binary interaction parameters (\u03A9_ij) from NIST-JANAF or\
+    \ a distinct CALPHAD assessment"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:33:09Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: MPEA database downloaded from Springer Nature link
+  claim_id: c_6dbf8ad2
+  context: T013 [US1] Implement code/data_ingestion.py to download MPEA database from
+    https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:33:10Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Permutation importance testing run on each bootstrap resampled dataset
+  claim_id: c_545a2cff
+  context: 'T038a [US3] Implement permutation importance testing: Run on EACH of the
+    bootstrap resampled datasets to generate multiple sets of feature importance ranks'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_importance_testing_run_on_each_bootstrap_resampl
+  kind: entity_fact
+  raw_text: run on EACH of the bootstrap resampled datasets to generate multiple sets
+    of feature importance ranks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:33:52Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: 100 sets of feature importance ranks generated
+  claim_id: c_fc7575a3
+  context: T041 [US3] Extract feature importance ranks from the output of T038a (100
+    sets of ranks), calculate the standard deviation of these ranks across resamples,
+    and verify SC-003 (std dev < 2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 sets of ranks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:34:18Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time under 6 hours on CI
+  claim_id: c_379cd641
+  context: T042 Performance optimization to ensure full pipeline runs < 6 hours on
+    CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:34:19Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Insufficient BCC alloys defined as N < 80
+  claim_id: c_c9b3c981
+  context: 'T017 [US1] Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:35:17Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculated descriptors match manual values within relative tolerance
+    of 1e-6
+  claim_id: c_baafb5af
+  context: "The system can be tested by running the feature engineering module on\
+    \ a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying that\
+    \ the calculated descriptors (\u03B4, VEC, mixing entropy, mixing enthalpy, electronegativity\
+    \ difference) match the manually calculated reference values within a relative\
+    \ tolerance of \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:35:18Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: "Reported R\xB2, MAE, and RMSE values match expected values within a\
+    \ predefined tolerance threshold"
+  claim_id: c_9c23c860
+  context: "The system can be tested by running the training script with a fixed random\
+    \ seed and verifying that the reported R\xB2, MAE, and RMSE values match expected\
+    \ values within a predefined tolerance threshold, and that the bootstrapped confidence\
+    \ intervals are generated using the specified method."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reported_R%C2%B2,_MAE,_and_RMSE_values_match_expected_values_with
+  kind: entity_fact
+  raw_text: "Run the training script with a fixed random seed and verifying that the\
+    \ reported R\xB2, MAE, and RMSE values match expected values within a predefined\
+    \ tolerance threshold"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:35:55Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Full pipeline runs in less than 6 hours on CI
+  claim_id: c_7260ea0f
+  context: T042 Performance optimization to ensure full pipeline runs < 6 hours on
+    CI
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runs_in_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: The system must ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:36:42Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: MPEA database downloaded from Springer Nature link 10.1038/s41597-020-00768-9
+  claim_id: c_c4dad253
+  context: T013 [US1] Implement code/data_ingestion.py to download MPEA database from
+    https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+    and save to data/raw/mpea_raw.xlsx
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:36:51Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 0
+  canonical: MPEA database downloaded from Springer URL 10.1038/s41597-020-00768-9
+  claim_id: c_9ca6efa3
+  context: T013 [US1] Implement code/data_ingestion.py to download MPEA database from
+    https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx...
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:39:02Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: data scarcity check halts pipeline if number of BCC alloys is less than
+    80
+  claim_id: c_fb245429
+  context: 'T017 [US1] Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_check_halts_pipeline_if_number_of_BCC_alloys_i
+  kind: magnitude
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:39:05Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: calculated descriptors for Mo-25Nb-25Ta-25W match manual values within
+    relative tolerance of 1e-6
+  claim_id: c_1710cb93
+  context: 'Independent Test: The system can be tested by running the feature engineering
+    module on a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying
+    that the calculated descriptors...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:39:05Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: permutation importance testing run on each of the bootstrap resampled
+    datasets
+  claim_id: c_c70c2612
+  context: 'T038a [US3] Implement permutation importance testing: Run on EACH of the
+    bootstrap resampled datasets to generate multiple sets of feature importance ranks'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_importance_testing_run_on_each_of_the_bootstrap
+  kind: entity_fact
+  raw_text: run on EACH of the bootstrap resampled datasets to generate multiple sets
+    of feature importance ranks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:39:08Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: 100 sets of feature importance ranks generated from bootstrap resamples
+  claim_id: c_979d2a95
+  context: T041 [US3] Extract feature importance ranks from the output of T038a (100
+    sets of ranks), calculate the standard deviation of these ranks across resamples...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: extract feature importance ranks from the output of T038a (100 sets of
+    ranks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:39:31Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: model training uses 80/20 train-test split and 5-fold cross-validation
+  claim_id: c_6deb1a52
+  context: 'Goal: Train models, evaluate performance, and generate confidence intervals
+    using 80/20 split and 5-fold CV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train models... using 80/20 split and 5-fold CV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:40:03Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time must be less than 6 hours on CI
+  claim_id: c_2c897692
+  context: T042 Performance optimization to ensure full pipeline runs < 6 hours on
+    CI
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_must_be_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: performance optimization to ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:40:06Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if BCC alloy count is less than 80
+  claim_id: c_afbf0fff
+  context: 'Implement data scarcity check: Halt with exit code 1 and ''DATA_SCARCITY:
+    Insufficient BCC alloys (N < 80)'' if N < 80'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_BCC_alloy_count_is_less_than_80
+  kind: magnitude
+  raw_text: 'Halt with exit code 1 and ''DATA_SCARCITY: Insufficient BCC alloys (N
+    < 80)'' if N < 80'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:41:06Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculated descriptors for Mo-25Nb-25Ta-25W must match manual values
+    within 1e-6 relative tolerance
+  claim_id: c_ac66294a
+  context: "The system can be tested by running the feature engineering module on\
+    \ a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying that\
+    \ the calculated descriptors... match the manually calculated reference values\
+    \ within a relative tolerance of \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated descriptors (\u03B4, VEC, mixing entropy,\
+    \ mixing enthalpy, electronegativity difference) match the manually calculated\
+    \ reference values within a relative tolerance of \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:41:06Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: "Generate distribution of R\xB2 scores using k-fold cross-validation"
+  claim_id: c_b22e9361
+  context: Perform multiple bootstrap resamples on the RAW 5-fold CV scores (from
+    T035) using the percentile method to generate a distribution of confidence intervals
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_distribution_of_R%C2%B2_scores_using_k-fold_cross-valida
+  kind: entity_fact
+  raw_text: "run k-fold CV to generate the distribution of R\xB2 scores"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:41:42Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Stratified train-test split based on 4 quantile bins of yield strength
+  claim_id: c_3311f317
+  context: Implement code/modeling.py to perform a stratified train-test split based
+    on 4 quantile bins of the target variable (yield strength)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a stratified train-test split based on 4 quantile bins of the
+    target variable
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:41:43Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Train Random Forest, Gradient Boosting, and Ridge Regression using Repeated
+    Stratified K-Fold
+  claim_id: c_8bc2bfd1
+  context: Implement Random Forest, Gradient Boosting, and Ridge Regression training
+    using Repeated Stratified K-Fold (multiple repeats and folds) with a fixed random
+    seed
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest,_Gradient_Boosting,_and_Ridge_Regression
+  kind: entity_fact
+  raw_text: Implement Random Forest, Gradient Boosting, and Ridge Regression training
+    using Repeated Stratified K-Fold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:17Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Generate multiple sets of feature importance ranks via permutation importance
+    on bootstrap resamples
+  claim_id: c_ff5da585
+  context: 'Implement permutation importance testing: Run on EACH of the bootstrap
+    resampled datasets to generate multiple sets of feature importance ranks'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_multiple_sets_of_feature_importance_ranks_via_permu
+  kind: entity_fact
+  raw_text: generate multiple sets of feature importance ranks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:20Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Calculate standard deviation of feature importance ranks across resamples
+  claim_id: c_5c1fc28f
+  context: Extract feature importance ranks from the output of T038a (100 sets of
+    ranks), calculate the standard deviation of these ranks across resamples
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_standard_deviation_of_feature_importance_ranks_acr
+  kind: entity_fact
+  raw_text: calculate the standard deviation of these ranks across resamples
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:41Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Full pipeline must run in less than 6 hours on CI
+  claim_id: c_49930686
+  context: Performance optimization to ensure full pipeline runs < 6 hours on CI
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_must_run_in_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: ensure full pipeline runs < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:43Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Download MPEA database from specified Springer URL
+  claim_id: c_02725fe7
+  context: Implement code/data_ingestion.py to download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+    and save to data/raw/mpea_raw.xlsx
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Download MPEA database from https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:44Z'
+- artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  attempts: 1
+  canonical: Download binary interaction parameters from NIST-JANAF or distinct CALPHAD
+    assessment
+  claim_id: c_3a2b2458
+  context: "Download binary interaction parameters (\u03A9_ij) from NIST-JANAF or\
+    \ a distinct CALPHAD assessment (e.g., via Materials Project REST with explicit\
+    \ 'thermodynamics' endpoint distinct from MPEA source, or a verified local JSON)\
+    \ to data/raw/thermo_params_nist_janaf.json"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_binary_interaction_parameters_from_NIST-JANAF_or_di
+  kind: entity_fact
+  raw_text: "Download binary interaction parameters (\u03A9_ij) from NIST-JANAF or\
+    \ a distinct CALPHAD assessment"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:42:46Z'

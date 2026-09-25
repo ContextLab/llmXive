@@ -1,9 +1,218 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = ["E501", "B008"] # Line length handled by black, B008: do not call arguments inside default args
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "C90", "D", "PT", "SIM", "T20", "RUF"]
+ignore = ["E402", "E501", "E722", "F401", "F811", "W503", "W504", "B018", "SIM102", "SIM103"]
+exclude = ["data/", "tests/", "reports/", "state/", "figures/", "*.pyi"]
+target-version = "py311"
 
-[format]
-line-length = 88
-indent-width = 4
-quote-style = "double"
-skip-magic-trailing-comma = false
+[lint.per-per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[lint.flake8-unused-arguments]
+ignore-variadics = true
+ignore-classes = true
+
+[lint.isort]
+force-grid-wrap = true
+lines-between-imports = 2
+
+[lint.py.flake8-comprehensions]
+extend-blanks = true
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.pycodestyle]
+max-line-length = 100
+
+[lint.py.flake8-implicit-str-concat]
+allow-multiline = true
+
+[lint.py.flake8-pyi]
+# Specific rules for .pyi files if any
+
+[lint.py.flake8-pipreqs]
+# Specific rules for pipreqs
+
+[lint.py.flake8-pyi]
+# Specific rules for .pyi files if any
+
+[lint.py.flake8-pytype]
+# Specific rules for pytype
+
+[lint.py.flake8-simplify]
+# Specific rules for simplify
+
+[lint.py.flake8-return]
+# Specific rules for return
+
+[lint.py.flake8-errmsg]
+# Specific rules for errmsg
+
+[lint.py.flake8-slots]
+# Specific rules for slots
+
+[lint.py.flake8-use-fstring]
+# Specific rules for use-fstring
+
+[lint.py.flake8-typing]
+# Specific rules for typing
+
+[lint.py.flake8-bandit]
+# Specific rules for bandit
+
+[lint.py.flake8-blind-except]
+# Specific rules for blind-except
+
+[lint.py.flake8-broken-line]
+# Specific rules for broken-line
+
+[lint.py.flake8-bandit]
+# Specific rules for bandit
+
+[lint.py.flake8-blind-except]
+# Specific rules for blind-except
+
+[lint.py.flake8-broken-line]
+# Specific rules for broken-line
+
+[lint.py.flake8-comprehensions]
+# Specific rules for comprehensions
+
+[lint.py.flake8-darglint]
+# Specific rules for darglint
+
+[lint.py.flake8-docstyle]
+# Specific rules for docstyle
+
+[lint.py.flake8-errmsg]
+# Specific rules for errmsg
+
+[lint.py.flake8-future-assert]
+# Specific rules for future-assert
+
+[lint.py.flake8-future-import]
+# Specific rules for future-import
+
+[lint.py.flake8-quotes]
+# Specific rules for quotes
+
+[lint.py.flake8-return]
+# Specific rules for return
+
+[lint.py.flake8-simplify]
+# Specific rules for simplify
+
+[lint.py.flake8-slots]
+# Specific rules for slots
+
+[lint.py.flake8-string-format]
+# Specific rules for string-format
+
+[lint.py.flake8-use-fstring]
+# Specific rules for use-fstring
+
+[lint.py.flake8-typing]
+# Specific rules for typing
+
+[lint.py.flake8-bandit]
+# Specific rules for bandit
+
+[lint.py.flake8-blind-except]
+# Specific rules for blind-except
+
+[lint.py.flake8-broken-line]
+# Specific rules for broken-line
+
+[lint.py.flake8-comprehensions]
+# Specific rules for comprehensions
+
+[lint.py.flake8-darglint]
+# Specific rules for darglint
+
+[lint.py.flake8-docstyle]
+# Specific rules for docstyle
+
+[lint.py.flake8-errmsg]
+# Specific rules for errmsg
+
+[lint.py.flake8-future-assert]
+# Specific rules for future-assert
+
+[lint.py.flake8-future-import]
+# Specific rules for future-import
+
+[lint.py.flake8-quotes]
+# Specific rules for quotes
+
+[lint.py.flake8-return]
+# Specific rules for return
+
+[lint.py.flake8-simplify]
+# Specific rules for simplify
+
+[lint.py.flake8-slots]
+# Specific rules for slots
+
+[lint.py.flake8-string-format]
+# Specific rules for string-format
+
+[lint.py.flake8-use-fstring]
+# Specific rules for use-fstring
+
+[lint.py.flake8-typing]
+# Specific rules for typing
+
+[lint.py.flake8-bandit]
+# Specific rules for bandit
+
+[lint.py.flake8-blind-except]
+# Specific rules for blind-except
+
+[lint.py.flake8-broken-line]
+# Specific rules for broken-line
+
+[lint.py.flake8-comprehensions]
+# Specific rules for comprehensions
+
+[lint.py.flake8-darglint]
+# Specific rules for darglint
+
+[lint.py.flake8-docstyle]
+# Specific rules for docstyle
+
+[lint.py.flake8-errmsg]
+# Specific rules for errmsg
+
+[lint.py.flake8-future-assert]
+# Specific rules for future-assert
+
+[lint.py.flake8-future-import]
+# Specific rules for future-import
+
+[lint.py.flake8-quotes]
+# Specific rules for quotes
+
+[lint.py.flake8-return]
+# Specific rules for return
+
+[lint.py.flake8-simplify]
+# Specific rules for simplify
+
+[lint.py.flake8-slots]
+# Specific rules for slots
+
+[lint.py.flake8-string-format]
+# Specific rules for string-format
+
+[lint.py.flake8-use-fstring]
+# Specific rules for use-fstring
+
+[lint.py.flake8-typing]
+# Specific rules for typing

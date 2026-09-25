@@ -1,74 +1,141 @@
-"""
-Setup script for data directory structure.
-Creates data/raw, data/processed, and data/logs directories with .gitkeep files.
-Generates checksums for the created structure.
-"""
 import os
 import sys
+import logging
+import hashlib
+import json
 from pathlib import Path
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from config import ensure_dirs, get_base_path, get_data_path, get_raw_data_path, get_processed_data_path, get_logs_path
 
-from config import ensure_dirs, save_checksums, compute_directory_checksum
-from utils import setup_logger
+logger = logging.getLogger(__name__)
 
-logger = setup_logger(__name__)
-
-def create_gitkeep(directory: Path) -> None:
-    """Create a .gitkeep file in the specified directory."""
-    gitkeep_path = directory / ".gitkeep"
+def create_gitkeep(dir_path: Path) -> None:
+    """Create a .gitkeep file in the specified directory to ensure it is tracked by git."""
+    gitkeep_path = dir_path / ".gitkeep"
     if not gitkeep_path.exists():
         gitkeep_path.touch()
-        logger.info(f"Created .gitkeep in {directory}")
+        logger.info(f"Created .gitkeep in {dir_path}")
     else:
-        logger.debug(f".gitkeep already exists in {directory}")
+        logger.debug(f".gitkeep already exists in {dir_path}")
 
 def setup_data_directories() -> None:
-    """Create the required data directory structure."""
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/logs"
+    """
+    Create the required project directory structure:
+    data/raw, data/processed, data/logs, code, tests, reports, state.
+    
+    This implements the core requirement of T001.
+    """
+    base_path = get_base_path()
+    
+    # Define the directories to create relative to the base path
+    # Note: 'code', 'tests', 'reports', 'state' are typically at root level
+    # 'data' is a subdirectory containing raw, processed, logs
+    
+    dirs_to_create = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "logs",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "reports",
+        base_path / "state",
     ]
 
-    for dir_path_str in data_dirs:
-        dir_path = project_root / dir_path_str
-        ensure_dirs([dir_path])
-        create_gitkeep(dir_path)
-        logger.info(f"Ensured directory: {dir_path}")
+    for dir_path in dirs_to_create:
+        ensure_dirs(dir_path)
+        logger.info(f"Ensured directory exists: {dir_path}")
 
-def generate_checksums() -> None:
-    """Generate checksums for the data directories."""
-    data_root = project_root / "data"
-    if data_root.exists():
-        checksums = []
-        for item in data_root.iterdir():
-            if item.is_dir():
-                checksum = compute_directory_checksum(item)
-                checksums.append({
-                    "path": str(item.relative_to(project_root)),
-                    "checksum": checksum,
-                    "type": "directory"
-                })
-                logger.info(f"Computed checksum for {item}: {checksum}")
+        # Create .gitkeep for data subdirectories as per T004 requirements
+        if dir_path.parts[-2] == "data" or dir_path.parts[-1] in ["raw", "processed", "logs"]:
+            create_gitkeep(dir_path)
 
-        if checksums:
-            save_checksums(checksums, project_root / "data" / "checksums.json")
-            logger.info("Saved checksums to data/checksums.json")
+def generate_checksums(output_path: Path) -> None:
+    """
+    Generate checksums for all files in the data directories and save to a JSON file.
+    """
+    data_path = get_data_path()
+    checksums = {}
+
+    for root, _, files in os.walk(data_path):
+        for file in files:
+            if file.startswith('.'):
+                continue
+            file_path = Path(root) / file
+            try:
+                with open(file_path, 'rb') as f:
+                  content = f.read()
+                  sha256_hash = hashlib.sha256(content).hexdigest()
+                  relative_path = file_path.relative_to(data_path)
+                  checksums[str(relative_path)] = sha256_hash
+                  logger.debug(f"Checksum generated for {relative_path}")
+            except Exception as e:
+                logger.error(f"Failed to generate checksum for {file_path}: {e}")
+
+    with open(output_path, 'w') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Checksums saved to {output_path}")
+
+def verify_checksums(input_path: Path) -> bool:
+    """
+    Verify file checksums against a saved JSON file.
+    Returns True if all match, False otherwise.
+    """
+    if not input_path.exists():
+        logger.error(f"Checksum file not found: {input_path}")
+        return False
+
+    with open(input_path, 'r') as f:
+        expected_checksums = json.load(f)
+
+    data_path = get_data_path()
+    all_valid = True
+
+    for relative_path_str, expected_hash in expected_checksums.items():
+        file_path = data_path / relative_path_str
+        if not file_path.exists():
+            logger.error(f"File missing during verification: {file_path}")
+            all_valid = False
+            continue
+
+        try:
+            with open(file_path, 'rb') as f:
+                content = f.read()
+                actual_hash = hashlib.sha256(content).hexdigest()
+            
+            if actual_hash != expected_hash:
+                logger.error(f"Checksum mismatch for {file_path}")
+                all_valid = False
+            else:
+                logger.debug(f"Checksum verified for {file_path}")
+        except Exception as e:
+            logger.error(f"Error verifying {file_path}: {e}")
+            all_valid = False
+
+    return all_valid
 
 def main() -> int:
-    """Main entry point for the setup script."""
-    logger.info("Starting data directory setup...")
-    
+    """
+    Main entry point for the setup script.
+    Creates directories and optionally manages checksums.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     try:
+        logger.info("Starting project directory setup (T001)...")
         setup_data_directories()
-        generate_checksums()
-        logger.info("Data directory setup completed successfully.")
+        logger.info("Directory structure created successfully.")
+        
+        # Optional: Generate initial checksums if data exists
+        checksum_file = get_base_path() / "data" / ".checksums.json"
+        # Only generate if we want to initialize tracking, usually done after data fetch
+        # For T001, we just ensure the structure exists.
+        
         return 0
     except Exception as e:
-        logger.error(f"Error during setup: {e}")
+        logger.error(f"Setup failed: {e}")
         return 1
 
 if __name__ == "__main__":

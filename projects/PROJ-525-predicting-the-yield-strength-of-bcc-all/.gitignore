@@ -25,25 +25,24 @@ venv/
 ENV/
 env/
 
-# Data (Large files)
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/processed/*.parquet
-data/logs/*.log
-
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
+# Data & Logs (Keep raw data out of git, keep processed for dev if small)
+data/raw/*.xlsx
+data/raw/*.csv
+data/raw/*.json
+data/logs/
+reports/figures/*.png
+state/
+
+# Local Environment Config
+.env.local
+.env.*.local
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Reports (Optional - keep small ones, ignore large binaries)
-reports/*.png
-reports/*.pdf
-!reports/*.json
-!reports/*.md

@@ -1,76 +1,38 @@
-# Predicting Yield Strength of BCC Alloys
+# PROJ-525: Predicting Yield Strength of BCC Alloys
 
-This project implements an automated science pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using machine learning.
+Automated science pipeline for predicting yield strength of Body-Centered Cubic (BCC) alloys.
 
-## Project Structure
+## Prerequisites
 
-```
-.
-├── code/ # Source code for the pipeline
-│ ├── config.py # Configuration management (local vs CI)
-│ ├── data_ingestion.py # Data download and filtering
-│ ├── feature_engineering.py # Feature generation
-│ ├── modeling.py # Model training and validation
-│ ├── utils.py # Utility functions
-│ └──...
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed and filtered data
-│ └── logs/ # Execution logs
-├── reports/ # Model comparison reports
-├── tests/ # Unit and integration tests
-├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration (black, ruff, pytest)
-└── README.md
-```
+- Python 3.11+
+- pip
 
-## Setup
+## Installation
 
-1. **Create Virtual Environment**:
+1. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-2. **Install Dependencies**:
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-3. **Configure Environment**:
- The `code/config.py` module automatically detects if running in a CI environment or locally.
- - **Local**: Uses standard paths relative to the project root.
- - **CI**: Adjusts resource limits and paths based on environment variables.
+3. Verify installation:
+ ```bash
+ python -c "import numpy; import pandas; import scikit_learn; import periodictable; import skbio; import scipy; import requests; print('All dependencies installed successfully.')"
+ ```
+
+## Project Structure
+
+- `code/`: Source code modules
+- `data/`: Raw and processed data
+- `tests/`: Unit and integration tests
+- `reports/`: Generated reports and visualizations
+- `state/`: Pipeline state tracking
 
 ## Usage
 
-Run the pipeline steps sequentially:
-
-```bash
-# 1. Ingest and Filter Data
-python code/01_download.py
-
-# 2. Engineer Features
-python code/02_engineer.py
-
-# 3. Train Models
-python code/modeling.py
-```
-
-## Linting and Formatting
-
-```bash
-python code/lint_format.py
-```
-
-Or manually:
-```bash
-ruff check code/
-black --check code/
-```
-
-## Testing
-
-```bash
-pytest
-```
+Refer to `quickstart.md` for execution instructions.

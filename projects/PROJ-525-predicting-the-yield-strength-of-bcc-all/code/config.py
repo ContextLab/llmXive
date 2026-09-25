@@ -1,161 +1,150 @@
+"""
+Configuration module for the BCC Yield Strength prediction pipeline.
+
+This module re-exports key functions from env_config and adds
+checksum utilities.
+"""
 import os
 from pathlib import Path
 import hashlib
 import json
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 import random
 
-# --- Environment Configuration Management ---
-# Determines if running in a CI environment or locally to adjust paths and limits.
+# Import environment configuration functions
+from env_config import (
+    is_ci_environment,
+    set_base_path,
+    get_base_path,
+    get_data_path,
+    get_raw_data_path,
+    get_processed_data_path,
+    get_logs_path,
+    get_reports_path,
+    get_state_path,
+    get_specs_path,
+    get_resource_limits,
+    set_global_seed,
+    ensure_dirs,
+    setup_logger
+)
 
-def is_ci_environment() -> bool:
-    """
-    Detects if the code is running in a Continuous Integration environment.
-    Checks common CI environment variables (CI, GITHUB_ACTIONS, GITLAB_CI, etc.).
-    """
-    ci_vars = ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI', 'JENKINS_URL', 'TRAVIS']
-    return any(os.environ.get(var) == 'true' for var in ci_vars)
+# --- Checksum Utilities ---
 
-def get_base_path() -> Path:
+def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Returns the base path for the project.
-    In CI, this is typically the workspace root.
-    Locally, this is the directory containing this config file.
+    Compute the checksum of a single file.
+    
+    Args:
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
+        
+    Returns:
+        str: Hexadecimal checksum string.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
-    if is_ci_environment():
-        # In CI, the workspace is often set via a specific env var, default to current dir
-        return Path(os.getcwd())
-    else:
-        # For local development, assume the project root is the parent of 'code/'
-        return Path(__file__).resolve().parent.parent
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-def get_data_path() -> Path:
+def compute_directory_checksum(dir_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Returns the path to the data directory.
+    Compute a combined checksum for all files in a directory.
+    
+    Args:
+        dir_path: Path to the directory.
+        algorithm: Hash algorithm to use.
+        
+    Returns:
+        str: Hexadecimal checksum string.
     """
-    return get_base_path() / "data"
-
-def get_raw_data_path() -> Path:
-    """
-    Returns the path to the raw data directory.
-    """
-    return get_data_path() / "raw"
-
-def get_processed_data_path() -> Path:
-    """
-    Returns the path to the processed data directory.
-    """
-    return get_data_path() / "processed"
-
-def get_logs_path() -> Path:
-    """
-    Returns the path to the logs directory.
-    """
-    return get_data_path() / "logs"
-
-def get_reports_path() -> Path:
-    """
-    Returns the path to the reports directory.
-    """
-    return get_base_path() / "reports"
-
-def get_specs_path() -> Path:
-    """
-    Returns the path to the specs directory.
-    """
-    return get_base_path() / "specs"
-
-def get_state_path() -> Path:
-    """
-    Returns the path to the state directory.
-    """
-    return get_base_path() / "state" / "projects" / "PROJ-525-predicting-the-yield-strength-of-bcc-all"
-
-# --- Resource Limits (CI vs Local) ---
-# Adjusts resource constraints based on the environment.
-
-def get_resource_limits() -> dict:
-    """
-    Returns resource limits (RAM, CPU, Disk) based on the environment.
-    CI environments often have stricter limits or specific configurations.
-    """
-    if is_ci_environment():
-        # Conservative defaults for CI to prevent OOM
-        return {
-            "max_ram_gb": 14,
-            "max_disk_gb": 20,
-            "max_workers": 2, # Often 2 cores in free tiers
-            "timeout_seconds": 3600
-        }
-    else:
-        # Generous defaults for local development
-        return {
-            "max_ram_gb": 32,
-            "max_disk_gb": 100,
-            "max_workers": 8,
-            "timeout_seconds": 7200
-        }
-
-# --- Existing Functions (Preserved from previous tasks) ---
-
-def set_global_seed(seed: int = 42) -> None:
-    """Sets the random seed for reproducibility."""
-    random.seed(seed)
-    # Note: numpy and other libs should be seeded in their respective modules
-    # if they are imported.
-
-def ensure_dirs() -> None:
-    """Creates necessary directories if they don't exist."""
-    dirs = [
-        get_raw_data_path(),
-        get_processed_data_path(),
-        get_logs_path(),
-        get_reports_path(),
-        get_state_path(),
-        get_specs_path()
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-def compute_file_checksum(file_path: Path) -> str:
-    """Computes SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def compute_directory_checksum(dir_path: Path) -> str:
-    """Computes a combined checksum for all files in a directory."""
-    combined_hash = hashlib.sha256()
-    for file_path in sorted(dir_path.rglob("*")):
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Not a directory: {dir_path}")
+        
+    hash_func = hashlib.new(algorithm)
+    # Sort files to ensure deterministic order
+    files = sorted(dir_path.rglob('*'))
+    
+    for file_path in files:
         if file_path.is_file():
-            rel_path = file_path.relative_to(dir_path)
-            combined_hash.update(rel_path.as_posix().encode())
-            with open(file_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    combined_hash.update(byte_block)
-    return combined_hash.hexdigest()
+            # Include relative path in hash
+            rel_path = str(file_path.relative_to(dir_path))
+            hash_func.update(rel_path.encode('utf-8'))
+            hash_func.update(compute_file_checksum(file_path, algorithm).encode('utf-8'))
+            
+    return hash_func.hexdigest()
 
-def save_checksums(checksums: dict, output_path: Path) -> None:
-    """Saves checksums to a JSON file."""
+def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
+    """
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums: Dictionary of file paths to checksums.
+        output_path: Path to save the JSON file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(checksums, f, indent=2)
 
-def load_checksums(input_path: Path) -> dict:
-    """Loads checksums from a JSON file."""
+def load_checksums(input_path: Path) -> Dict[str, str]:
+    """
+    Load checksums from a JSON file.
+    
+    Args:
+        input_path: Path to the JSON file.
+        
+    Returns:
+        Dict[str, str]: Dictionary of file paths to checksums.
+    """
+    if not input_path.exists():
+        return {}
     with open(input_path, 'r') as f:
         return json.load(f)
 
-def verify_checksums(checksums: dict, base_path: Path) -> bool:
-    """Verifies files against stored checksums."""
-    for file_rel_path, expected_checksum in checksums.items():
-        file_path = base_path / file_rel_path
+def verify_checksums(checksums: Dict[str, str], base_path: Path = None) -> List[Tuple[str, bool]]:
+    """
+    Verify files against a dictionary of checksums.
+    
+    Args:
+        checksums: Dictionary of file paths to expected checksums.
+        base_path: Base path to resolve relative file paths.
+        
+    Returns:
+        List[Tuple[str, bool]]: List of (file_path, is_valid) tuples.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+        
+    results = []
+    for rel_path, expected_checksum in checksums.items():
+        file_path = base_path / rel_path
         if not file_path.exists():
-            print(f"Missing file: {file_path}")
-            return False
-        actual_checksum = compute_file_checksum(file_path)
-        if actual_checksum != expected_checksum:
-            print(f"Checksum mismatch for {file_path}")
-            return False
-    return True
+            results.append((rel_path, False))
+            continue
+            
+        try:
+            actual_checksum = compute_file_checksum(file_path)
+            is_valid = (actual_checksum == expected_checksum)
+            results.append((rel_path, is_valid))
+        except Exception:
+            results.append((rel_path, False))
+            
+    return results
+
+# Initialize base path on module load if not already set
+if 'get_base_path' not in dir() or get_base_path() is None:
+    set_base_path()
+
+# Ensure standard directories exist
+try:
+    ensure_dirs()
+except Exception:
+    # Fail gracefully if directory creation fails (e.g., permissions)
+    pass
