@@ -1,14 +1,3 @@
-"""
-Alignment Module (Task T013)
-
-Verifies that teacher distributions, student scalars, and human annotations
-align by sample ID. Marks samples missing `student_scalar` with
-`excluded_reason: 'missing_student_scalar'`.
-
-Reads from: data/processed/raw_data.parquet
-Writes to: data/processed/aligned_data.parquet
-           data/processed/exclusions_log.json
-"""
 import argparse
 import json
 import logging
@@ -22,144 +11,116 @@ import numpy as np
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
     return logging.getLogger(__name__)
 
-def setup_directories(base_path: Path):
-    processed_dir = base_path / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    return processed_dir
+def setup_directories(base_path):
+    dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "results",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return base_path
 
-def load_raw_data(input_path: Path, logger: logging.Logger) -> pd.DataFrame:
+def load_raw_data(input_path, logger):
     if not input_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {input_path}")
+        logger.error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
     logger.info(f"Loading raw data from {input_path}")
-    try:
+    if input_path.suffix == ".parquet":
         df = pd.read_parquet(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+    elif input_path.suffix == ".csv":
+        df = pd.read_csv(input_path)
+    else:
+        raise ValueError(f"Unsupported file format: {input_path.suffix}")
     
-    required_cols = ["image_path", "species_id", "teacher_scores", "student_scalar", "human_annotations"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in raw data: {missing_cols}")
-    
-    logger.info(f"Loaded {len(df)} samples with columns: {list(df.columns)}")
+    logger.info(f"Loaded {len(df)} rows")
     return df
 
-def align_and_filter_data(df: pd.DataFrame, logger: logging.Logger) -> tuple[pd.DataFrame, list[dict]]:
-    """
-    Aligns data by verifying presence of required fields.
-    Returns aligned dataframe and a list of exclusion records.
-    """
-    logger.info("Starting alignment verification...")
+def align_and_filter_data(df, logger):
+    required_cols = ["image_path", "species_id", "prompt_text", "teacher_scores", "student_scalar", "human_annotations", "primary_dimension"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
+    logger.info("Checking alignment of teacher distributions, student scalars, and human annotations by sample ID...")
     
-    exclusions = []
-    valid_indices = []
-
-    for idx, row in df.iterrows():
-        is_valid = True
-        reason = None
-
-        # Check for student_scalar presence
-        # student_scalar might be NaN or missing
-        if pd.isna(row.get("student_scalar")):
-            is_valid = False
-            reason = "missing_student_scalar"
-        
-        # Check for teacher_scores presence (expecting a list/array of 4 floats)
-        teacher_scores = row.get("teacher_scores")
-        if pd.isna(teacher_scores) or (isinstance(teacher_scores, float) and np.isnan(teacher_scores)):
-            if reason is None:
-                is_valid = False
-                reason = "missing_teacher_scores"
-        
-        # Check for human_annotations presence
-        human_annotations = row.get("human_annotations")
-        if pd.isna(human_annotations) or (isinstance(human_annotations, float) and np.isnan(human_annotations)):
-            if reason is None:
-                is_valid = False
-                reason = "missing_human_annotations"
-
-        if not is_valid:
-            exclusions.append({
-                "sample_id": row.get("image_path", f"idx_{idx}"),
-                "excluded_reason": reason,
-                "index": idx
-            })
+    # Ensure sample IDs are unique and present
+    if "sample_id" not in df.columns:
+        # Create sample_id if not present (using index or existing unique identifier)
+        if "image_path" in df.columns:
+            df["sample_id"] = df["image_path"].astype(str)
         else:
-            valid_indices.append(idx)
-
-    logger.info(f"Alignment complete. Total: {len(df)}, Valid: {len(valid_indices)}, Excluded: {len(exclusions)}")
+            df["sample_id"] = df.index.astype(str)
     
-    if len(valid_indices) > 0:
-        aligned_df = df.iloc[valid_indices].reset_index(drop=True)
-    else:
-        aligned_df = pd.DataFrame(columns=df.columns)
-        logger.warning("No valid samples found after alignment.")
-
+    # Identify samples with missing student_scalar
+    missing_scalar_mask = df["student_scalar"].isna()
+    missing_scalar_count = missing_scalar_mask.sum()
+    
+    if missing_scalar_count > 0:
+        logger.warning(f"Found {missing_scalar_count} samples with missing student_scalar. Marking for exclusion.")
+    
+    # Create exclusions list
+    exclusions = []
+    for idx, row in df[missing_scalar_mask].iterrows():
+        exclusions.append({
+            "sample_id": row["sample_id"],
+            "excluded_reason": "missing_student_scalar"
+        })
+    
+    # Filter dataframe to keep only valid samples
+    aligned_df = df[~missing_scalar_mask].copy()
+    valid_count = len(aligned_df)
+    excluded_count = len(exclusions)
+    
+    logger.info(f"Alignment complete. Valid samples: {valid_count}, Excluded: {excluded_count}")
+    
     return aligned_df, exclusions
 
-def save_aligned_data(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
+def save_aligned_data(df, output_path, logger):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Saving aligned data to {output_path}")
     df.to_parquet(output_path, index=False)
     logger.info(f"Saved {len(df)} rows to {output_path}")
 
-def save_exclusions_log(exclusions: list[dict], output_path: Path, logger: logging.Logger):
+def save_exclusions_log(exclusions, output_path, logger):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Saving exclusions log to {output_path}")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(exclusions, f, indent=2)
-    logger.info(f"Saved {len(exclusions)} exclusion records")
+    logger.info(f"Saved {len(exclusions)} exclusions to {output_path}")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Align and filter dataset samples (T013)")
-    parser.add_argument(
-        "--input-path",
-        type=str,
-        default="data/processed/raw_data.parquet",
-        help="Path to the raw data parquet file",
-    )
-    parser.add_argument(
-        "--output-path",
-        type=str,
-        default="data/processed/aligned_data.parquet",
-        help="Path to save the aligned data",
-    )
-    parser.add_argument(
-        "--exclusions-path",
-        type=str,
-        default="data/processed/exclusions_log.json",
-        help="Path to save the exclusions log",
-    )
+    parser = argparse.ArgumentParser(description="Align and filter dataset for T013")
+    parser.add_argument("--input", type=str, required=True, help="Path to raw input file (parquet or csv)")
+    parser.add_argument("--output", type=str, required=True, help="Path to save aligned output file")
+    parser.add_argument("--exclusions-log", type=str, default="data/processed/exclusions_log.json", help="Path to save exclusions log")
+    parser.add_argument("--base-path", type=str, default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala", help="Base project path")
     return parser.parse_args()
 
 def main():
     args = parse_args()
     logger = setup_logging()
     
-    base_path = Path.cwd()
-    # Ensure output directories exist
+    base_path = Path(args.base_path)
     setup_directories(base_path)
-
-    input_path = base_path / args.input_path
-    output_path = base_path / args.output_path
-    exclusions_path = base_path / args.exclusions_path
-
-    try:
-        df = load_raw_data(input_path, logger)
-        aligned_df, exclusions = align_and_filter_data(df, logger)
-        
-        save_aligned_data(aligned_df, output_path, logger)
-        save_exclusions_log(exclusions, exclusions_path, logger)
-        
-        logger.info("Task T013 Alignment completed successfully.")
-    except Exception as e:
-        logger.error(f"Task T013 failed: {e}")
-        raise
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    exclusions_log_path = Path(args.exclusions_log)
+    
+    df = load_raw_data(input_path, logger)
+    aligned_df, exclusions = align_and_filter_data(df, logger)
+    
+    save_aligned_data(aligned_df, output_path, logger)
+    save_exclusions_log(exclusions, exclusions_log_path, logger)
+    
+    logger.info("Alignment task T013 completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -5,21 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss"
+description = "Teacher Entanglement vs. Scalar Distillation Loss Analysis"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Research Team"}
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-]
 dependencies = [
     "pandas==2.0.3",
     "numpy==1.24.3",
@@ -31,95 +19,35 @@ dependencies = [
     "black==24.8.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest-cov>=4.0.0",
-    "mypy>=1.0.0",
-    "pre-commit>=3.0.0",
-]
-
-[project.scripts]
-# CLI entry points for the pipeline
-llmxive-ingest = "code.ingest:main"
-llmxive-features = "code.features:main"
-llmxive-train = "code.integrate_train_eval:main"
-llmxive-evaluate = "code.evaluate:main"
-
-[tool.setuptools]
-packages = ["code"]
-
-[tool.setuptools.package-dir]
-code = "code"
-
 [tool.black]
-# Black configuration matching ruff settings
 line-length = 88
-target-version = ["py310"]
+target-version = ['py310']
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.venv
-    | venv
-    | __pycache__
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
-# Ruff configuration (also defined in .ruff.toml for CLI compatibility)
-target-version = "py310"
-line-length = 88
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    "*.egg-info",
-]
-
-[tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
-    "RUF",
-]
-ignore = [
-    "E501",
-    "B008",
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
-combine-as-imports = true
+# Extends .ruff.toml for project-level settings if needed,
+# but primary config is in .ruff.toml for CLI compatibility.
+extend = ".ruff.toml"
 
 [tool.pytest.ini_options]
-# Pytest configuration
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests"
 ]
-
-[tool.mypy]
-# MyPy configuration for type checking
-python_version = "3.10"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-disallow_untyped_defs = false
-disallow_incomplete_defs = false

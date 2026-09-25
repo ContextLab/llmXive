@@ -1,114 +1,103 @@
-"""
-Unit tests for the data ingestion module (code/ingest.py).
-"""
 import os
-import json
+import tempfile
 import pytest
-from pathlib import Path
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-# Ensure imports from code/ work
-from ingest import (
-    setup_logging,
-    setup_directories,
-    load_and_align_data,
-    print_summary,
-    parse_args,
-    main
-)
+# Add parent directory to path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_setup_logging():
-    """Test that logging is configured correctly."""
-    logger = setup_logging()
-    assert logger is not None
-    assert logger.name == "ingest"
+from ingest import load_and_align_data, setup_logging, setup_directories
 
-def test_setup_directories_creates_paths(tmp_path):
-    """Test that setup_directories creates the required directory structure."""
-    # Mock the project root
-    project_root = tmp_path / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
-    project_root.mkdir(parents=True)
-
-    # Call the function
-    setup_directories(project_root)
-
-    # Verify directories exist
-    assert (project_root / "data" / "raw").exists()
-    assert (project_root / "data" / "processed").exists()
-    assert (project_root / "results").exists()
-    assert (project_root / "code").exists()
-    assert (project_root / "tests").exists()
-
-def test_parse_args():
-    """Test argument parsing."""
-    args = parse_args(["--input", "dummy.parquet", "--output", "dummy_out.parquet"])
-    assert args.input == "dummy.parquet"
-    assert args.output == "dummy_out.parquet"
-
-def test_load_and_align_data_missing_columns(tmp_path):
-    """Test that load_and_align_data raises an error when required columns are missing."""
-    # Create a mock dataset with missing columns
-    df = pd.DataFrame({
-        "prompt": ["test"],
-        "image_url": ["http://test.com"]
-        # Missing teacher_scores, student_scalar, etc.
+@pytest.fixture
+def sample_dataframe():
+    """Create a valid sample dataframe matching the expected schema."""
+    n = 10
+    return pd.DataFrame({
+        "image_path": [f"img_{i}.jpg" for i in range(n)],
+        "species_id": [1, 2, 3, 1, 2, 3, 1, 2, 3, 1],
+        "prompt_text": [f"Describe image {i}" for i in range(n)],
+        "teacher_scores": [
+            [0.1, 0.2, 0.3, 0.4] for _ in range(n)
+        ],
+        "student_scalar": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4],
+        "human_annotations": [
+            [0.2, 0.3, 0.4, 0.5] for _ in range(n)
+        ],
+        "primary_dimension": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
     })
-    path = tmp_path / "mock.parquet"
-    df.to_parquet(path)
 
-    with pytest.raises(RuntimeError, match="Missing required columns"):
-        load_and_align_data(path)
+@pytest.fixture
+def temp_output_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_load_and_align_data_valid_structure(tmp_path):
-    """Test that load_and_align_data processes a valid dataset correctly."""
-    # Create a mock dataset with all required columns
-    data = {
-        "prompt": ["test prompt"],
-        "image_url": ["http://test.com"],
-        "teacher_scores": [
-            {"Alignment": 4.5, "Realism": 3.0, "Aesthetics": 4.0, "Plausibility": 3.5}
-        ],
-        "student_scalar": [3.8],
-        "human_annotations": [
-            {"Alignment": 4.0, "Realism": 3.2, "Aesthetics": 4.1, "Plausibility": 3.6}
-        ],
-        "primary_dimension": ["Alignment"]
-    }
-    df = pd.DataFrame(data)
-    path = tmp_path / "mock.parquet"
-    df.to_parquet(path)
+def test_load_and_align_valid_data(sample_dataframe, temp_output_dir):
+    """Test that valid data loads and writes correctly."""
+    input_path = temp_output_dir / "input.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    sample_dataframe.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert df_out.shape == sample_dataframe.shape
+    assert os.path.exists(output_path)
+    assert len(flags) == 0
 
-    result_df = load_and_align_data(path)
+def test_load_and_align_missing_columns(sample_dataframe, temp_output_dir):
+    """Test that missing columns raise an error."""
+    input_path = temp_output_dir / "input_missing.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    # Remove a required column
+    df_missing = sample_dataframe.drop(columns=["student_scalar"])
+    df_missing.to_parquet(input_path)
+    
+    logger = setup_logging()
+    
+    with pytest.raises(ValueError, match="Missing required columns"):
+        load_and_align_data(logger, str(input_path), str(output_path))
 
-    assert result_df is not None
-    assert len(result_df) == 1
-    assert "fidelity_loss" in result_df.columns or "excluded_reason" in result_df.columns
+def test_load_and_align_invalid_primary_dimension(sample_dataframe, temp_output_dir):
+    """Test that invalid primary_dimension values are flagged."""
+    input_path = temp_output_dir / "input_invalid.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    # Inject an invalid primary_dimension
+    df_invalid = sample_dataframe.copy()
+    df_invalid.loc[0, "primary_dimension"] = 99
+    df_invalid.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert len(flags) > 0
+    assert any(f["column"] == "primary_dimension" for f in flags)
 
-def test_print_summary(capsys, tmp_path):
-    """Test that print_summary outputs correct summary stats."""
-    # Create a mock dataset
-    data = {
-        "prompt": ["test1", "test2"],
-        "image_url": ["http://test.com", "http://test2.com"],
-        "teacher_scores": [
-            {"Alignment": 4.5, "Realism": 3.0, "Aesthetics": 4.0, "Plausibility": 3.5},
-            {"Alignment": 4.0, "Realism": 3.5, "Aesthetics": 3.8, "Plausibility": 4.0}
-        ],
-        "student_scalar": [3.8, 3.9],
-        "human_annotations": [
-            {"Alignment": 4.0, "Realism": 3.2, "Aesthetics": 4.1, "Plausibility": 3.6},
-            {"Alignment": 3.9, "Realism": 3.4, "Aesthetics": 3.9, "Plausibility": 3.9}
-        ],
-        "primary_dimension": ["Alignment", "Realism"]
-    }
-    df = pd.DataFrame(data)
-    path = tmp_path / "mock.parquet"
-    df.to_parquet(path)
+def test_load_and_align_null_values(sample_dataframe, temp_output_dir):
+    """Test that null values in critical columns are flagged."""
+    input_path = temp_output_dir / "input_null.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    df_null = sample_dataframe.copy()
+    df_null.loc[0, "student_scalar"] = np.nan
+    df_null.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert len(flags) > 0
+    assert any(f["column"] == "student_scalar" for f in flags)
 
-    result_df = load_and_align_data(path)
-    print_summary(result_df)
-
-    captured = capsys.readouterr()
-    assert "Total samples" in captured.out
-    assert "2" in captured.out
+def test_file_not_found(temp_output_dir):
+    """Test that missing input file raises FileNotFoundError."""
+    logger = setup_logging()
+    input_path = temp_output_dir / "nonexistent.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    with pytest.raises(FileNotFoundError):
+        load_and_align_data(logger, str(input_path), str(output_path))

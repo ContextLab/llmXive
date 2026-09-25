@@ -1,13 +1,3 @@
-"""
-Primary Dimension Identification Task (T014)
-
-Derives `primary_dimension` via `hash(species_id) % 4` using the fixed rule
-"species_id_hash_mod_4_v1".
-
-Generates:
-  - data/processed/lineage_report.json
-  - data/processed/exclusions_log.json
-"""
 import argparse
 import hashlib
 import json
@@ -16,175 +6,121 @@ import os
 import sys
 from pathlib import Path
 
-import pandas as pd
-
-# Constants
-DERIVATION_RULE = "species_id_hash_mod_4_v1"
-RULE_HASH = hashlib.sha256(DERIVATION_RULE.encode("utf-8")).hexdigest()
-NUM_DIMENSIONS = 4
+# Import from existing sibling module
+from primary_dimension_util import derive_primary_dimension_from_metadata, get_derivation_rule_hash, process_dataframe_primary_dimensions
 
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     return logging.getLogger(__name__)
 
 def setup_directories(base_path: Path):
-    """Ensure required output directories exist."""
+    """Ensure required directories exist."""
     (base_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    return base_path
 
-def load_raw_data(input_path: Path, logger: logging.Logger) -> pd.DataFrame:
-    """Load the raw dataset from Parquet."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    logger.info(f"Loading raw data from {input_path}")
-    try:
-        df = pd.read_parquet(input_path)
-        logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+def load_raw_data(base_path: Path):
+    """Load the aligned raw data from parquet."""
+    import pandas as pd
+    raw_path = base_path / "data" / "processed" / "raw_data.parquet"
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
+    return pd.read_parquet(raw_path)
 
-def derive_primary_dimension(species_id) -> int:
+def derive_primary_dimension(df, logger):
     """
-    Derive primary dimension using hash(species_id) % 4.
-    Handles both string and integer species_ids.
+    Derive primary_dimension for each row based on prompt_text.
+    Rule: primary_dimension_index = int(hashlib.sha256(prompt_text.encode()).hexdigest(), 16) % 4
     """
-    # Python's hash() is deterministic within a single process run but can vary
-    # across runs due to hash randomization (PYTHONHASHSEED).
-    # To ensure reproducibility, we convert to string and use a stable hash function.
-    s_id = str(species_id)
-    # Use a stable hash (SHA256 of the string representation) then mod 4
-    # This ensures the result is consistent across different Python runs/environments.
-    h = int(hashlib.sha256(s_id.encode("utf-8")).hexdigest(), 16)
-    return h % NUM_DIMENSIONS
+    logger.info("Deriving primary dimension from prompt_text...")
+    df = process_dataframe_primary_dimensions(df, logger)
+    return df
 
-def process_dataframe_primary_dimensions(df: pd.DataFrame, logger: logging.Logger) -> tuple:
+def save_lineage_report(base_path: Path, df, logger):
     """
-    Process the dataframe to derive primary dimensions.
-    Returns (df_with_dim, lineage_entries, exclusion_entries).
+    Generate and save lineage_report.json.
+    Entries: {sample_id, source_type, dimension, derivation_rule, derivation_rule_hash}
     """
+    logger.info("Generating lineage report...")
+    
+    rule_string = "sha256_prompt_text_mod_4_v1"
+    rule_hash = get_derivation_rule_hash(rule_string)
+
     lineage_entries = []
-    exclusion_entries = []
-    df = df.copy()
+    for _, row in df.iterrows():
+        entry = {
+            "sample_id": row.get("sample_id", row.get("index")),
+            "source_type": "metadata",
+            "dimension": row["primary_dimension"],
+            "derivation_rule": rule_string,
+            "derivation_rule_hash": rule_hash
+        }
+        lineage_entries.append(entry)
 
-    if "species_id" not in df.columns:
-        raise ValueError("Input dataframe must contain 'species_id' column")
-
-    # Ensure we have a sample_id or generate one if missing
-    if "sample_id" not in df.columns:
-        logger.warning("No 'sample_id' column found. Generating temporary IDs.")
-        df["sample_id"] = [f"sample_{i}" for i in range(len(df))]
-
-    # Apply derivation
-    def get_dim(row):
-        sample_id = row["sample_id"]
-        species_id = row["species_id"]
-        try:
-            dim = derive_primary_dimension(species_id)
-            return dim, None
-        except Exception as e:
-            logger.warning(f"Failed to derive dimension for sample {sample_id}: {e}")
-            return None, str(e)
-
-    results = df.apply(get_dim, axis=1)
-    df["primary_dimension"] = [r[0] for r in results]
-    errors = [r[1] for r in results]
-
-    # Populate lineage report
-    for idx, row in df.iterrows():
-        sid = row["sample_id"]
-        dim = row["primary_dimension"]
-        if dim is not None:
-            lineage_entries.append({
-                "sample_id": sid,
-                "source_type": "metadata",
-                "dimension": dim,
-                "derivation_rule": DERIVATION_RULE,
-                "derivation_rule_hash": RULE_HASH
-            })
-        else:
-            exclusion_entries.append({
-                "sample_id": sid,
-                "reason": f"primary_dimension_derivation_failed: {errors[idx]}"
-            })
-
-    # Log exclusions for null primary dimensions
-    null_mask = df["primary_dimension"].isna()
-    if null_mask.any():
-        null_samples = df[null_mask]["sample_id"].tolist()
-        for sid in null_samples:
-            if not any(e["sample_id"] == sid for e in exclusion_entries):
-                exclusion_entries.append({
-                    "sample_id": sid,
-                    "reason": "null_primary_dimension"
-                })
-
-    return df, lineage_entries, exclusion_entries
-
-def save_lineage_report(lineage_entries: list, output_path: Path, logger: logging.Logger):
-    """Save lineage report to JSON."""
-    with open(output_path, "w", encoding="utf-8") as f:
+    lineage_path = base_path / "data" / "processed" / "lineage_report.json"
+    with open(lineage_path, "w") as f:
         json.dump(lineage_entries, f, indent=2)
-    logger.info(f"Saved lineage report to {output_path} ({len(lineage_entries)} entries)")
+    logger.info(f"Lineage report saved to {lineage_path}")
 
-def save_exclusions_log(exclusion_entries: list, output_path: Path, logger: logging.Logger):
-    """Save exclusions log to JSON."""
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(exclusion_entries, f, indent=2)
-    logger.info(f"Saved exclusions log to {output_path} ({len(exclusion_entries)} entries)")
+def save_exclusions_log(base_path: Path, df, logger):
+    """
+    Log exclusions (samples where primary_dimension is null/None) to exclusions_log.json.
+    """
+    logger.info("Checking for exclusions (null primary dimensions)...")
+    
+    if "primary_dimension" not in df.columns:
+        logger.warning("primary_dimension column not found; no exclusions to log.")
+        exclusions = []
+    else:
+        exclusions = df[df["primary_dimension"].isna()][["sample_id", "excluded_reason"]].to_dict(orient="records")
+        # If excluded_reason isn't set, add a default
+        for exc in exclusions:
+            if "excluded_reason" not in exc:
+                exc["excluded_reason"] = "missing_primary_dimension_derivation"
+
+    exclusions_path = base_path / "data" / "processed" / "exclusions_log.json"
+    with open(exclusions_path, "w") as f:
+        json.dump(exclusions, f, indent=2)
+    
+    logger.info(f"Exclusions log saved to {exclusions_path} (count: {len(exclusions)})")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="T014: Primary Dimension Identification")
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to input raw data parquet file (e.g., data/processed/raw_data.parquet)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/processed",
-        help="Directory to write output files"
-    )
+    parser = argparse.ArgumentParser(description="Primary Dimension Identification (T014)")
+    parser.add_argument("--base-path", type=str, default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
+                        help="Base path of the project")
     return parser.parse_args()
 
 def main():
     args = parse_args()
     logger = setup_logging()
+    base_path = Path(args.base_path)
 
-    base_path = Path(args.output_dir).parent.parent  # Assume project root is two levels up
-    # Or just use current working directory if relative paths are used
-    # The task spec says: "relative to the project root"
-    # Let's assume the script is run from the project root
-    project_root = Path.cwd()
+    logger.info(f"Starting T014: Primary Dimension Identification at {base_path}")
 
-    input_path = project_root / args.input
-    lineage_path = project_root / "data" / "processed" / "lineage_report.json"
-    exclusions_path = project_root / "data" / "processed" / "exclusions_log.json"
+    setup_directories(base_path)
 
-    setup_directories(project_root)
+    try:
+        df = load_raw_data(base_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
-    logger.info(f"Starting Primary Dimension Identification (T014)")
-    logger.info(f"Input: {input_path}")
-    logger.info(f"Derivation Rule: {DERIVATION_RULE}")
-    logger.info(f"Rule Hash: {RULE_HASH}")
+    df = derive_primary_dimension(df, logger)
 
-    df = load_raw_data(input_path, logger)
-    df_processed, lineage, exclusions = process_dataframe_primary_dimensions(df, logger)
+    # Save the updated dataframe back to raw_data.parquet or a new file?
+    # The task says "Derive... Generate lineage report... Log exclusions".
+    # It implies the dataframe now has the column. We should update raw_data.parquet 
+    # or create a new one if the pipeline expects the column to persist.
+    # Given T024 depends on T014 and reads raw_data.parquet, we update it.
+    output_path = base_path / "data" / "processed" / "raw_data.parquet"
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Updated raw_data.parquet with primary_dimension column.")
 
-    save_lineage_report(lineage, lineage_path, logger)
-    save_exclusions_log(exclusions, exclusions_path, logger)
+    save_lineage_report(base_path, df, logger)
+    save_exclusions_log(base_path, df, logger)
 
     logger.info("T014 completed successfully.")
-    logger.info(f"Total samples processed: {len(df)}")
-    logger.info(f"Samples with valid primary dimension: {len(lineage)}")
-    logger.info(f"Samples excluded: {len(exclusions)}")
 
 if __name__ == "__main__":
     main()

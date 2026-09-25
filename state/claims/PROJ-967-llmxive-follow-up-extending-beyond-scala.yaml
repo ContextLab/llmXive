@@ -2430,3 +2430,290 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T03:35:23Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Requirements pinned to pandas 2.0.3, numpy 1.24.3, scikit-learn 1.3.0,
+    scipy 1.11.0, pyyaml 6.0.1, pytest 7.4.0, ruff 0.9.0, black 24.8.0
+  claim_id: c_6906dff0
+  context: 'T001c [P] Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).'
+  evidence:
+    asserted: '-967.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:17:09Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Singular matrices handled with numpy.linalg.pinv rcond 1e-15
+  claim_id: c_55df44be
+  context: T022c [P] Mahalanobis Distance (Unconditional) Handle singular matrices
+    with numpy.linalg.pinv(rcond=1e-15).
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Handle singular matrices with numpy.linalg.pinv(rcond=1e-15).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Unit test dataset generated with N=50 samples and seed 42
+  claim_id: c_4bce6dc3
+  context: "T037b [P] Synthetic Unit\u2011Test Dataset Generate a small synthetic\
+    \ dataset (N=50) for unit testing via simulate.py --n-samples 50 --seed 42 --output\
+    \ data/raw/mock_oxford_pets.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small synthetic dataset (N=50) for unit testing via simulate.py
+    --n-samples 50 --seed 42 --output data/raw/mock_oxford_pets.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:17:31Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ingestion RAM usage constrained to less than 7 GB
+  claim_id: c_b7e9adba
+  context: T015 [P] Chunked Loading Implement streaming or chunked reading in code/ingest.py
+    to keep RAM usage < 7 GB for the full dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_RAM_usage_constrained_to_less_than_7_GB
+  kind: magnitude
+  raw_text: Implement streaming or chunked reading in code/ingest.py to keep RAM usage
+    < 7 GB for the full dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:18:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Dimensional Fidelity Loss computed as MAE between student_scalar and
+    human annotation for same dimension
+  claim_id: c_184753d1
+  context: T024 [FR-003][P] Dimensional Fidelity Loss (Same-Dimension) 3. Compute
+    MAE between student_scalar and the human annotation for the same primary_dimension
+    (i.e., target_dimension = primary_dimension_index).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dimensional_Fidelity_Loss_computed_as_MAE_between_student_sc
+  kind: entity_fact
+  raw_text: Compute MAE between student_scalar and the human annotation for the same
+    primary_dimension (i.e., target_dimension = primary_dimension_index).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:18:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection fails if sample count N is less than 30
+  claim_id: c_3faa961c
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: N <\
+    \ 30 \u2192 model_type = fail, reason = Critical Power Limitation: N < 30."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_sample_count_N_is_less_than_30
+  kind: magnitude
+  raw_text: "N < 30 \u2192 model_type = fail, reason = Critical Power Limitation:\
+    \ N < 30."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:20:18Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression selected if sample count N is between 30 and 300
+  claim_id: c_fd3b4a28
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: 30 \u2264\
+    \ N < 300 \u2192 model_type = ridge, reason = Low sample count; using Ridge Regression."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "30 \u2264 N < 300 \u2192 model_type = ridge, reason = Low sample count;\
+    \ using Ridge Regression."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest selected if sample count N is 300 or greater
+  claim_id: c_9de29695
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: N \u2265\
+    \ 300 \u2192 model_type = rf, reason = Sufficient sample count; using Random Forest."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "N \u2265 300 \u2192 model_type = rf, reason = Sufficient sample count;\
+    \ using Random Forest."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest trained with 100 estimators, random_state 42, and 2 jobs
+  claim_id: c_ab87a8fa
+  context: T027f [FR-004][P] Train Random Forest Train RandomForestRegressor(n_estimators=100,
+    random_state=42, n_jobs=2) on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)
+    on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:33Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression trained with alpha 1.0 and random_state 42
+  claim_id: c_b36bcaed
+  context: T027g [FR-004][P] Train Ridge Regression Train Ridge(alpha=1.0, random_state=42)
+    on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Ridge(alpha=1.0, random_state=42) on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Paired t-test performed on model vs baseline residuals
+  claim_id: c_44a92992
+  context: "T030c [P] Null Baseline & Paired t\u2011Test 3. Perform a paired t-test\
+    \ (scipy.stats.ttest_rel) on the residuals of the model vs. baseline."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_performed_on_model_vs_baseline_residuals
+  kind: entity_fact
+  raw_text: Perform a paired t-test (scipy.stats.ttest_rel) on the residuals of the
+    model vs. baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:29Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis status set to unsupported if t-test p-value is greater than
+    or equal to 0.05
+  claim_id: c_c45fa306
+  context: "T030c [P] Null Baseline & Paired t\u2011Test 5. If p_value_ttest >= 0.05,\
+    \ set hypothesis_status:unsupported in results.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_status_set_to_unsupported_if_t-test_p-value_is_gr
+  kind: magnitude
+  raw_text: If p_value_ttest >= 0.05, set hypothesis_status:unsupported in results.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:45Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test uses fixed seed 42
+  claim_id: c_3f6aca8b
+  context: T030e [FR-005][P] Permutation Test Implementation 2. Permute the fidelity_loss
+    target variable multiple times (fixed seed 42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the fidelity_loss target variable multiple times (fixed seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:23:20Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test requires at least 1000 permutations
+  claim_id: c_fc2ff1bf
+  context: 'T042 [P] Review: Permutation Test Robustness Verify that the permutation
+    test implementation in code/model.py (written by T030e) uses at least 1000 permutations
+    and a fixed random seed to ensure reproducibility.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_requires_at_least_1000_permutations
+  kind: magnitude
+  raw_text: Verify that the permutation test implementation in code/model.py (written
+    by T030e) uses at least 1000 permutations and a fixed random seed to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:24:14Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Features with Variance Inflation Factor greater than 5 are dropped
+  claim_id: c_10319a10
+  context: 'T040 [P] Review: VIF Check Implementation Implement a Variance Inflation
+    Factor (VIF) check in code/features.py. If VIF > 5 for any feature (other than
+    mean_teacher_score), drop that feature from the training set and log the decision
+    to data/processed/vif_report.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Features_with_Variance_Inflation_Factor_greater_than_5_are_d
+  kind: magnitude
+  raw_text: If VIF > 5 for any feature (other than mean_teacher_score), drop that
+    feature from the training set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:24:33Z'

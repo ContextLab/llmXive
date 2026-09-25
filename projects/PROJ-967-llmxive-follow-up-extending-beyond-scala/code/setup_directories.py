@@ -1,3 +1,7 @@
+"""
+Script to create the project directory structure for PROJ-967.
+This implements Task T001a by ensuring all required directories exist.
+"""
 import os
 import sys
 import logging
@@ -10,92 +14,95 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directory(path: Path) -> None:
+def ensure_directory(path: Path) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensure a directory exists. Create it if it doesn't.
     
     Args:
-        path: Path object representing the directory to create
+        path: The directory path to ensure exists
+        
+    Returns:
+        True if directory exists or was created successfully, False otherwise
     """
     try:
         path.mkdir(parents=True, exist_ok=True)
         logger.info(f"Directory ensured: {path}")
-    except PermissionError:
-        logger.error(f"Permission denied when creating directory: {path}")
-        raise
+        return True
     except Exception as e:
-        logger.error(f"Error creating directory {path}: {e}")
-        raise
+        logger.error(f"Failed to create directory {path}: {e}")
+        return False
 
-def setup_data_directories(base_path: Path) -> None:
+def main():
     """
-    Setup data directory structure for the project.
+    Main function to create the project directory structure.
+    """
+    # Define the project root relative to the script location or current working directory
+    # Assuming this script is run from the repository root
+    repo_root = Path.cwd()
+    project_root = repo_root / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
     
-    Args:
-        base_path: Base path for the project
-    """
-    data_dirs = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed"
+    # Define required directories as per T001a
+    required_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
+        project_root / "code",
+        project_root / "tests"
     ]
-    for dir_path in data_dirs:
-        ensure_directory(dir_path)
-
-def create_project_structure(base_path: Path) -> None:
-    """
-    Create the main project structure directories.
     
-    Args:
-        base_path: Base path for the project
-    """
-    project_dirs = [
-        base_path / "code",
-        base_path / "tests",
-        base_path / "results"
+    # Also ensure package directories exist
+    package_dirs = [
+        project_root / "code",
+        project_root / "tests"
     ]
-    for dir_path in project_dirs:
-        ensure_directory(dir_path)
-
-def parse_args():
-    """Parse command line arguments."""
-    import argparse
-    parser = argparse.ArgumentParser(
-        description="Setup project directory structure for llmXive follow-up"
-    )
-    parser.add_argument(
-        "--project-root",
-        type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Path to the project root directory"
-    )
-    return parser.parse_args()
-
-def main() -> int:
-    """
-    Main function to setup project directories.
     
-    Returns:
-        int: 0 on success, 1 on failure
-    """
-    args = parse_args()
-    project_root = Path(args.project_root)
+    logger.info(f"Creating project structure in: {project_root}")
     
-    logger.info(f"Setting up project directories at: {project_root}")
+    success = True
+    for dir_path in required_dirs:
+        if not ensure_directory(dir_path):
+            success = False
     
-    try:
-        # Ensure project root exists
-        ensure_directory(project_root)
-        
-        # Setup data directories
-        setup_data_directories(project_root)
-        
-        # Create main project structure
-        create_project_structure(project_root)
-        
-        logger.info("Project directory structure setup completed successfully.")
+    # Create __init__.py files to make code and tests proper Python packages
+    init_files = [
+        project_root / "code" / "__init__.py",
+        project_root / "tests" / "__init__.py"
+    ]
+    
+    for init_file in init_files:
+        try:
+            if not init_file.exists():
+                init_file.write_text("# Package initialization\n")
+                logger.info(f"Created package init: {init_file}")
+            else:
+                logger.info(f"Package init already exists: {init_file}")
+        except Exception as e:
+            logger.error(f"Failed to create {init_file}: {e}")
+            success = False
+    
+    # Create .gitkeep files in data directories to ensure they are tracked
+    gitkeep_files = [
+        project_root / "data" / "raw" / ".gitkeep",
+        project_root / "data" / "processed" / ".gitkeep",
+        project_root / "results" / ".gitkeep"
+    ]
+    
+    for gitkeep in gitkeep_files:
+        try:
+            if not gitkeep.exists():
+                gitkeep.write_text("# Placeholder to ensure directory is tracked\n")
+                logger.info(f"Created .gitkeep: {gitkeep}")
+            else:
+                logger.info(f".gitkeep already exists: {gitkeep}")
+        except Exception as e:
+            logger.error(f"Failed to create {gitkeep}: {e}")
+            success = False
+    
+    if success:
+        logger.info("Project directory structure created successfully.")
         return 0
-    except Exception as e:
-        logger.error(f"Failed to setup project directories: {e}")
+    else:
+        logger.error("Some directories or files could not be created.")
         return 1
 
 if __name__ == "__main__":

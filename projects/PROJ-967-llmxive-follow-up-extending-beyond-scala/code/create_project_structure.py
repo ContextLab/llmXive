@@ -1,28 +1,34 @@
+"""
+Task T001a: Create project directory structure.
+Creates the required directories for the llmXive follow-up project.
+"""
 import os
 import sys
-from pathlib import Path
 import logging
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def ensure_directory(path: Path) -> None:
-    """Create directory if it doesn't exist."""
-    if not path.exists():
+    """Ensure a directory exists, creating it if necessary."""
+    try:
         path.mkdir(parents=True, exist_ok=True)
-        logging.info(f"Created directory: {path}")
-    else:
-        logging.debug(f"Directory already exists: {path}")
+        logger.info(f"Created directory: {path}")
+    except OSError as e:
+        logger.error(f"Failed to create directory {path}: {e}")
+        raise
 
-def main():
-    """Create the project directory structure for PROJ-967."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-
+def main() -> None:
+    """Create the project directory structure."""
     # Define the project root relative to the repository root
-    # Assuming the script is run from the repository root or code/ directory
-    repo_root = Path(__file__).parent.parent
-    project_root = repo_root / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
-
+    project_root = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+    
+    # Define the required subdirectories
     directories = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
@@ -31,10 +37,12 @@ def main():
         project_root / "tests",
     ]
 
-    for dir_path in directories:
-        ensure_directory(dir_path)
+    logger.info(f"Creating project structure in: {project_root}")
+    
+    for directory in directories:
+        ensure_directory(directory)
 
-    logging.info("Project directory structure created successfully.")
+    logger.info("Project directory structure creation completed.")
 
 if __name__ == "__main__":
     main()

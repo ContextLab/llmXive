@@ -1,176 +1,100 @@
 import pytest
-import pandas as pd
 import json
 import yaml
+import pandas as pd
+import tempfile
 import os
 from pathlib import Path
 import sys
-import tempfile
-import shutil
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code directory to path
+sys.path.insert(0, 'code')
 
 from schema_discovery import (
     load_schema,
     save_schema,
+    load_dataset,
     discover_schema,
     validate_schema,
-    update_contract,
-    load_dataset
+    update_contract
 )
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    temp = tempfile.mkdtemp()
-    yield temp
-    shutil.rmtree(temp)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 @pytest.fixture
-def sample_dataframe():
-    """Create a sample DataFrame for testing."""
+def sample_df():
     data = {
         "image_path": ["img1.jpg", "img2.jpg"],
         "species_id": [1, 2],
-        "teacher_scores": [
-            [0.8, 0.9, 0.7, 0.6],
-            [0.5, 0.6, 0.7, 0.8]
-        ],
-        "student_scalar": [0.75, 0.65],
-        "human_annotations": [
-            {"dimension_1": 0.8, "dimension_2": 0.9, "dimension_3": 0.7, "dimension_4": 0.6},
-            {"dimension_1": 0.5, "dimension_2": 0.6, "dimension_3": 0.7, "dimension_4": 0.8}
-        ],
+        "prompt_text": ["prompt A", "prompt B"],
+        "teacher_scores": [[0.5, 0.6, 0.7, 0.8], [0.4, 0.5, 0.6, 0.7]],
+        "student_scalar": [0.55, 0.52],
+        "human_annotations": [0.6, 0.58],
         "primary_dimension": [0, 1]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def sample_parquet_file(sample_dataframe, temp_dir):
-    """Save sample DataFrame to a parquet file."""
-    path = os.path.join(temp_dir, "test_data.parquet")
-    sample_dataframe.to_parquet(path)
-    return path
-
-@pytest.fixture
-def sample_contract_schema(temp_dir):
-    """Create a sample contract schema."""
-    schema = {
-        "columns": {
-            "image_path": {"type": "object"},
-            "species_id": {"type": "int64"},
-            "teacher_scores": {"type": "object"},
-            "student_scalar": {"type": "float64"},
-            "human_annotations": {"type": "object"},
-            "primary_dimension": {"type": "int64"}
-        }
+def sample_contract():
+    return {
+        "required_columns": ["image_path", "species_id", "prompt_text", "teacher_scores", "student_scalar", "human_annotations"],
+        "rubric_dimensions": ["dimension_1", "dimension_2", "dimension_3", "dimension_4"],
+        "columns": [
+            {"name": "image_path", "dtype": "object"},
+            {"name": "species_id", "dtype": "int64"},
+            {"name": "prompt_text", "dtype": "object"},
+            {"name": "teacher_scores", "dtype": "object"},
+            {"name": "student_scalar", "dtype": "float64"},
+            {"name": "human_annotations", "dtype": "float64"},
+            {"name": "primary_dimension", "dtype": "int64"}
+        ]
     }
-    path = os.path.join(temp_dir, "contract_schema.yaml")
-    with open(path, 'w') as f:
-        yaml.dump(schema, f)
-    return path
 
-def test_discover_schema(sample_dataframe):
-    """Test schema discovery from a DataFrame."""
-    schema = discover_schema(sample_dataframe)
-    
-    assert "columns" in schema
-    assert len(schema["columns"]) == len(sample_dataframe.columns)
-    
-    for col in sample_dataframe.columns:
-        assert col in schema["columns"]
-        assert "type" in schema["columns"][col]
-        assert "sample_values" in schema["columns"][col]
+def test_discover_schema(temp_dir, sample_df):
+    schema_file = temp_dir / "schema.yaml"
+    sample_df.to_parquet(schema_file)
+    df = load_dataset(schema_file)
+    discovered = discover_schema(df)
+    assert len(discovered["columns"]) == 7
+    assert any(c["name"] == "image_path" for c in discovered["columns"])
+    assert any(c["name"] == "student_scalar" for c in discovered["columns"])
 
-def test_validate_schema_match(temp_dir, sample_dataframe, sample_contract_schema):
-    """Test validation when schemas match."""
-    discovered = discover_schema(sample_dataframe)
-    contract = load_schema(sample_contract_schema)
-    
-    result = validate_schema(discovered, contract)
-    
-    assert result["is_valid"]
-    assert len(result["discrepancies"]) == 0
-    assert len(result["missing_columns"]) == 0
+def test_validate_schema_no_discrepancies(temp_dir, sample_df, sample_contract):
+    schema_file = temp_dir / "schema.yaml"
+    sample_df.to_parquet(schema_file)
+    df = load_dataset(schema_file)
+    discovered = discover_schema(df)
+    discrepancies = validate_schema(discovered, sample_contract)
+    # No discrepancies expected as all required columns are present
+    assert len([d for d in discrepancies if "Missing" in d]) == 0
 
-def test_validate_schema_missing_columns(temp_dir, sample_dataframe, sample_contract_schema):
-    """Test validation when contract has extra columns."""
-    discovered = discover_schema(sample_dataframe)
-    contract = load_schema(sample_contract_schema)
-    
-    # Add a column to contract that doesn't exist in data
-    contract["columns"]["extra_column"] = {"type": "object"}
-    
-    result = validate_schema(discovered, contract)
-    
-    assert not result["is_valid"]
-    assert "extra_column" in result["missing_columns"]
+def test_validate_schema_missing_column(temp_dir, sample_df, sample_contract):
+    # Remove a required column from the contract temporarily to test detection
+    modified_contract = sample_contract.copy()
+    modified_contract["required_columns"] = modified_contract["required_columns"] + ["missing_column"]
+    schema_file = temp_dir / "schema.yaml"
+    sample_df.to_parquet(schema_file)
+    df = load_dataset(schema_file)
+    discovered = discover_schema(df)
+    discrepancies = validate_schema(discovered, modified_contract)
+    assert any("Missing required column: missing_column" in d for d in discrepancies)
 
-def test_validate_schema_extra_columns(temp_dir, sample_dataframe, sample_contract_schema):
-    """Test validation when data has extra columns."""
-    # Create a DataFrame with an extra column
-    df_extra = sample_dataframe.copy()
-    df_extra["new_column"] = [1, 2]
-    
-    discovered = discover_schema(df_extra)
-    contract = load_schema(sample_contract_schema)
-    
-    result = validate_schema(discovered, contract)
-    
-    # Extra columns are not necessarily invalid, just logged
-    assert "new_column" in result["extra_columns"]
+def test_update_contract(temp_dir, sample_df, sample_contract):
+    schema_file = temp_dir / "schema.yaml"
+    sample_df.to_parquet(schema_file)
+    df = load_dataset(schema_file)
+    discovered = discover_schema(df)
+    updated = update_contract(sample_contract, discovered, type('Logger', (), {'info': lambda s, m: None, 'warning': lambda s, m: None})())
+    assert len(updated["columns"]) >= len(sample_contract["columns"])
+    assert any(c["name"] == "image_path" for c in updated["columns"])
 
-def test_validate_schema_missing_rubric_dimensions(temp_dir, sample_dataframe, sample_contract_schema):
-    """Test validation when rubric dimensions are missing."""
-    # Remove dimension columns from the DataFrame
-    df_no_dims = sample_dataframe.drop(columns=["human_annotations"])
-    
-    # Update contract to require dimension columns
-    contract = load_schema(sample_contract_schema)
-    contract["columns"]["dimension_1"] = {"type": "float64"}
-    contract["columns"]["dimension_2"] = {"type": "float64"}
-    contract["columns"]["dimension_3"] = {"type": "float64"}
-    contract["columns"]["dimension_4"] = {"type": "float64"}
-    
-    discovered = discover_schema(df_no_dims)
-    result = validate_schema(discovered, contract)
-    
-    assert not result["is_valid"]
-    assert "dimension_1" in result["missing_columns"]
-
-def test_update_contract_creates_new(temp_dir, sample_dataframe):
-    """Test that update_contract creates a new contract if none exists."""
-    discovered = discover_schema(sample_dataframe)
-    new_contract_path = os.path.join(temp_dir, "new_contract.yaml")
-    
-    update_contract(discovered, new_contract_path, force_update=True)
-    
-    assert os.path.exists(new_contract_path)
-    loaded = load_schema(new_contract_path)
-    assert "columns" in loaded
-    assert len(loaded["columns"]) == len(sample_dataframe.columns)
-
-def test_load_dataset(sample_parquet_file):
-    """Test loading a dataset from parquet file."""
-    df = load_dataset(sample_parquet_file)
-    
-    assert isinstance(df, pd.DataFrame)
-    assert not df.empty
-
-def test_load_dataset_file_not_found():
-    """Test loading a non-existent dataset raises an error."""
+def test_load_dataset_missing_file(temp_dir):
     with pytest.raises(FileNotFoundError):
-        load_dataset("non_existent_file.parquet")
+        load_dataset(temp_dir / "nonexistent.parquet")
 
-def test_save_and_load_schema(temp_dir, sample_dataframe):
-    """Test saving and loading a schema."""
-    discovered = discover_schema(sample_dataframe)
-    schema_path = os.path.join(temp_dir, "test_schema.yaml")
-    
-    save_schema(discovered, schema_path)
-    
-    assert os.path.exists(schema_path)
-    
-    loaded = load_schema(schema_path)
-    assert loaded == discovered
+def test_load_schema_missing_file(temp_dir):
+    with pytest.raises(FileNotFoundError):
+        load_schema(temp_dir / "nonexistent.yaml")

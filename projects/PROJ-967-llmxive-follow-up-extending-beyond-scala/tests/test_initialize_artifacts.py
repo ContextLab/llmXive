@@ -5,58 +5,60 @@ from pathlib import Path
 
 import pytest
 
-# Import the function to test
+# Import the module under test
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala" / "code"))
+
 from initialize_artifacts import initialize_empty_artifacts
 
 
 class TestInitializeArtifacts:
-    def test_creates_features_json(self, tmp_path):
-        """Test that features.json is created with an empty list."""
-        project_root = tmp_path / "project"
-        project_root.mkdir()
+    def test_creates_features_json_with_empty_list(self, tmp_path):
+        """Verify that features.json is created with content []"""
+        # Create a temporary directory structure
+        base_dir = tmp_path / "test_project"
+        base_dir.mkdir()
         
-        initialize_empty_artifacts(str(project_root))
+        # Run the initialization
+        initialize_empty_artifacts(base_dir, None)
         
-        features_path = project_root / "data" / "processed" / "features.json"
-        assert features_path.exists(), "features.json was not created"
+        # Check that the file exists
+        features_path = base_dir / "data" / "processed" / "features.json"
+        assert features_path.exists(), "features.json should be created"
         
+        # Check the content
         with open(features_path, "r", encoding="utf-8") as f:
             content = json.load(f)
         
-        assert isinstance(content, list), "features.json content should be a list"
-        assert len(content) == 0, "features.json should be initialized as an empty list"
+        assert content == [], "features.json should contain an empty list"
 
-    def test_creates_results_json(self, tmp_path):
-        """Test that results.json is created with an empty dict."""
-        project_root = tmp_path / "project"
-        project_root.mkdir()
+    def test_creates_results_json_with_empty_dict(self, tmp_path):
+        """Verify that results.json is created with content {}"""
+        # Create a temporary directory structure
+        base_dir = tmp_path / "test_project"
+        base_dir.mkdir()
         
-        initialize_empty_artifacts(str(project_root))
+        # Run the initialization
+        initialize_empty_artifacts(base_dir, None)
         
-        results_path = project_root / "results" / "results.json"
-        assert results_path.exists(), "results.json was not created"
+        # Check that the file exists
+        results_path = base_dir / "results" / "results.json"
+        assert results_path.exists(), "results.json should be created"
         
+        # Check the content
         with open(results_path, "r", encoding="utf-8") as f:
             content = json.load(f)
         
-        assert isinstance(content, dict), "results.json content should be a dict"
-        assert len(content) == 0, "results.json should be initialized as an empty dict"
+        assert content == {}, "results.json should contain an empty dict"
 
     def test_creates_directories(self, tmp_path):
-        """Test that required directories are created if they don't exist."""
-        project_root = tmp_path / "project"
-        project_root.mkdir()
+        """Verify that required directories are created if they don't exist"""
+        base_dir = tmp_path / "test_project"
+        base_dir.mkdir()
         
-        initialize_empty_artifacts(str(project_root))
+        # Run the initialization
+        initialize_empty_artifacts(base_dir, None)
         
-        processed_dir = project_root / "data" / "processed"
-        results_dir = project_root / "results"
-        
-        assert processed_dir.exists(), "data/processed directory was not created"
-        assert results_dir.exists(), "results directory was not created"
-        
-        # Verify files are inside the created directories
-        assert (processed_dir / "features.json").exists()
-        assert (results_dir / "results.json").exists()
+        # Check directories exist
+        assert (base_dir / "data" / "processed").exists(), "data/processed directory should exist"
+        assert (base_dir / "results").exists(), "results directory should exist"

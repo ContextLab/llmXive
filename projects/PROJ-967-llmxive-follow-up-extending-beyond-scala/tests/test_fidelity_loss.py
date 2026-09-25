@@ -1,112 +1,147 @@
-import pytest
-import pandas as pd
-import numpy as np
+"""
+Unit tests for T024: Dimensional Fidelity Loss calculation.
+"""
 import json
 import os
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Import the module under test
-# Note: Assuming the test runs from the project root or code is in PYTHONPATH
-# In the actual pipeline, these imports are relative to code/
-try:
-    from code.fidelity_loss import calculate_fidelity_loss, save_summary
-except ImportError:
-    # Fallback for local testing if path is not set correctly
-    import sys
-    sys.path.insert(0, 'code')
-    from fidelity_loss import calculate_fidelity_loss, save_summary
+import numpy as np
+import pandas as pd
+import pytest
 
-@pytest.fixture
-def sample_dataframe():
-    """Create a mock dataframe matching the expected schema."""
+# Import the module functions
+import sys
+sys.path.insert(0, 'code')
+from fidelity_loss import calculate_fidelity_loss, save_summary, save_exclusions_log
+
+
+def create_test_dataframe():
+    """Create a mock dataframe for testing."""
     data = {
-        'sample_id': ['s1', 's2', 's3', 's4', 's5'],
-        'prompt': ['p1', 'p2', 'p3', 'p4', 'p5'],
-        'primary_dimension': ['Alignment', 'Realism', 'Aesthetics', None, 'Plausibility'],
-        'student_scalar': [4.5, 3.2, 5.0, 2.0, 4.0],
+        'sample_id': [0, 1, 2, 3, 4],
+        'student_scalar': [1.0, 2.0, np.nan, 4.0, 5.0],
+        'primary_dimension': [0, 1, 2, 3, 5],  # 5 is out of bounds
         'human_annotations': [
-            {'Alignment': 4.0, 'Realism': 3.0, 'Aesthetics': 5.0, 'Plausibility': 4.0},
-            {'Alignment': 4.0, 'Realism': 3.0, 'Aesthetics': 5.0, 'Plausibility': 4.0},
-            {'Alignment': 4.0, 'Realism': 3.0, 'Aesthetics': 5.0, 'Plausibility': 4.0},
-            {'Alignment': 4.0, 'Realism': 3.0, 'Aesthetics': 5.0, 'Plausibility': 4.0},
-            {'Alignment': 4.0, 'Realism': 3.0, 'Aesthetics': 5.0, 'Plausibility': 4.0}
-        ],
-        'teacher_scores': [
-            {'Alignment': 4.2, 'Realism': 3.1, 'Aesthetics': 4.9, 'Plausibility': 4.1},
-            {'Alignment': 4.2, 'Realism': 3.1, 'Aesthetics': 4.9, 'Plausibility': 4.1},
-            {'Alignment': 4.2, 'Realism': 3.1, 'Aesthetics': 4.9, 'Plausibility': 4.1},
-            {'Alignment': 4.2, 'Realism': 3.1, 'Aesthetics': 4.9, 'Plausibility': 4.1},
-            {'Alignment': 4.2, 'Realism': 3.1, 'Aesthetics': 4.9, 'Plausibility': 4.1}
+            [1.1, 2.2, 3.3, 4.4],  # Valid
+            [0.9, 1.9, 3.1, 4.0],  # Valid
+            [1.0, 2.0, 3.0, 4.0],  # Valid but student_scalar is NaN
+            [3.9, 4.0, 5.0, 6.0],  # Valid
+            [1.0, 2.0, 3.0, 4.0]   # Valid but dimension out of bounds
         ]
     }
     return pd.DataFrame(data)
 
-@pytest.fixture
-def mock_logger():
-    """Mock logger to avoid console output during tests."""
-    logger = MagicMock()
-    return logger
 
-def test_valid_samples_calculate_fidelity_loss(sample_dataframe, mock_logger):
-    """Test that valid samples are processed and fidelity loss is calculated correctly."""
-    # Mock the lineage report existence check
-    with patch('pathlib.Path.exists', return_value=True):
-        df_cleaned, exclusion_log = calculate_fidelity_loss(sample_dataframe, mock_logger)
-
-    # Check that we have valid samples (s1, s2, s3, s5 - s4 excluded due to null dimension)
-    assert len(df_cleaned) == 4
-    assert 's4' not in df_cleaned['sample_id'].values
-
-    # Check fidelity loss calculation for s1: |4.5 - 4.0| = 0.5
-    s1_row = df_cleaned[df_cleaned['sample_id'] == 's1'].iloc[0]
-    assert abs(s1_row['fidelity_loss'] - 0.5) < 1e-6
-
-    # Check exclusion log
-    assert len(exclusion_log) == 1
-    assert exclusion_log[0]['sample_id'] == 's4'
-    assert exclusion_log[0]['reason'] == 'missing_primary_dimension'
-
-def test_missing_human_annotation_exclusion(sample_dataframe, mock_logger):
-    """Test that samples with missing human annotation for primary dimension are excluded."""
-    # Modify s2 to have missing Realism annotation
-    sample_dataframe.loc[1, 'human_annotations'] = {'Alignment': 4.0} # Missing Realism
+def test_calculate_fidelity_loss_valid_samples():
+    """Test calculation on valid samples."""
+    df = create_test_dataframe()
+    # Mock logger
+    class MockLogger:
+        def info(self, msg): pass
+        def error(self, msg): pass
     
-    with patch('pathlib.Path.exists', return_value=True):
-        df_cleaned, exclusion_log = calculate_fidelity_loss(sample_dataframe, mock_logger)
+    cleaned_df, exclusions, stats = calculate_fidelity_loss(df, MockLogger())
+    
+    # Sample 0: |1.0 - 1.1| = 0.1
+    # Sample 1: |2.0 - 1.9| = 0.1
+    # Sample 3: |4.0 - 4.0| = 0.0
+    # Sample 2: Excluded (NaN student_scalar)
+    # Sample 4: Excluded (dimension out of bounds)
+    
+    assert len(cleaned_df) == 5
+    assert len(exclusions) == 2
+    
+    # Check specific values
+    assert abs(cleaned_df.iloc[0]['fidelity_loss'] - 0.1) < 1e-6
+    assert abs(cleaned_df.iloc[1]['fidelity_loss'] - 0.1) < 1e-6
+    assert abs(cleaned_df.iloc[3]['fidelity_loss'] - 0.0) < 1e-6
+    
+    # Check NaN for excluded
+    assert pd.isna(cleaned_df.iloc[2]['fidelity_loss'])
+    assert pd.isna(cleaned_df.iloc[4]['fidelity_loss'])
+    
+    assert stats['count'] == 3
+    assert stats['excluded_count'] == 2
 
-    assert len(df_cleaned) == 3
-    assert 's2' not in df_cleaned['sample_id'].values
-    
-    exclusion_s2 = next((e for e in exclusion_log if e['sample_id'] == 's2'), None)
-    assert exclusion_s2 is not None
-    assert 'missing_human_annotation_for_Realism' in exclusion_s2['reason']
 
-def test_missing_student_scalar_exclusion(sample_dataframe, mock_logger):
-    """Test that samples with missing student_scalar are excluded."""
-    sample_dataframe.loc[2, 'student_scalar'] = None
+def test_calculate_fidelity_loss_missing_primary_dimension():
+    """Test exclusion when primary_dimension is missing."""
+    data = {
+        'sample_id': [10],
+        'student_scalar': [1.0],
+        'primary_dimension': [np.nan],
+        'human_annotations': [[1.0, 2.0, 3.0, 4.0]]
+    }
+    df = pd.DataFrame(data)
     
-    with patch('pathlib.Path.exists', return_value=True):
-        df_cleaned, exclusion_log = calculate_fidelity_loss(sample_dataframe, mock_logger)
+    class MockLogger:
+        def info(self, msg): pass
+        def error(self, msg): pass
+    
+    _, exclusions, _ = calculate_fidelity_loss(df, MockLogger())
+    
+    assert len(exclusions) == 1
+    assert exclusions[0]['reason'] == 'missing_or_invalid_primary_dimension'
 
-    assert len(df_cleaned) == 3
-    assert 's3' not in df_cleaned['sample_id'].values
-    
-    exclusion_s3 = next((e for e in exclusion_log if e['sample_id'] == 's3'), None)
-    assert exclusion_s3 is not None
-    assert exclusion_s3['reason'] == 'missing_student_scalar'
 
-def test_summary_calculation(sample_dataframe, mock_logger):
-    """Test that summary statistics are calculated correctly."""
-    with patch('pathlib.Path.exists', return_value=True):
-        df_cleaned, exclusion_log = calculate_fidelity_loss(sample_dataframe, mock_logger)
+def test_calculate_fidelity_loss_missing_annotation():
+    """Test exclusion when human_annotations is missing for target dimension."""
+    data = {
+        'sample_id': [11],
+        'student_scalar': [1.0],
+        'primary_dimension': [0],
+        'human_annotations': [np.nan]
+    }
+    df = pd.DataFrame(data)
     
-    # Manually verify summary logic
-    mean_loss = df_cleaned['fidelity_loss'].mean()
-    median_loss = df_cleaned['fidelity_loss'].median()
+    class MockLogger:
+        def info(self, msg): pass
+        def error(self, msg): pass
     
-    # We don't write to disk in this test, just verify the logic exists
-    # The save_summary function would handle file I/O
-    assert mean_loss > 0
-    assert median_loss >= 0
-    assert len(exclusion_log) == 1
+    _, exclusions, _ = calculate_fidelity_loss(df, MockLogger())
+    
+    assert len(exclusions) == 1
+    assert exclusions[0]['reason'] == 'missing_human_annotations'
+
+
+def test_save_summary(tmp_path):
+    """Test saving summary statistics to JSON."""
+    stats = {
+        "count": 10,
+        "excluded_count": 2,
+        "mean": 0.5,
+        "median": 0.4,
+        "std": 0.1,
+        "min": 0.1,
+        "max": 0.9
+    }
+    output_path = tmp_path / "summary.json"
+    save_summary(stats, output_path, MockLogger())
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == stats
+
+
+def test_save_exclusions_log(tmp_path):
+    """Test saving exclusions log to JSON."""
+    exclusions = [
+        {"sample_id": 1, "reason": "missing_data"},
+        {"sample_id": 2, "reason": "invalid_dimension"}
+    ]
+    output_path = tmp_path / "exclusions.json"
+    save_exclusions_log(exclusions, output_path, MockLogger())
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == exclusions
+
+
+class MockLogger:
+    def info(self, msg): pass
+    def error(self, msg): pass
+    def warning(self, msg): pass
+    def debug(self, msg): pass
