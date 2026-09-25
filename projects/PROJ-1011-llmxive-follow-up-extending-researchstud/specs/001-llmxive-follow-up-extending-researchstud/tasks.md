@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "ResearchStudio-Idea"
 
 **Input**: Design documents from `/specs/001-llmxive-extension/`
@@ -20,23 +24,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -185,7 +189,7 @@
 
 **Purpose**: Additional validation tests that are not required for the MVP but are valuable for robustness.
 
-- [ ] T049 [US1] **DEFERRED** - Implement `test_streaming_data_extraction` in `tests/unit/test_streaming_logic.py`. **Input**: A mock data source that yields 1000 items. **Assertion**: Assert that `extract_until` stops after a sufficient number of unique problem statements are found. and that the stream is closed. **Fixture**: Use a generator that yields items with a unique ID field. **Reason**: Optional validation test for MVP scope; can be added in Phase 7 if resources permit.
+- [ ] T049 [US1] **DEFERRED** - Implement `test_streaming_data_extraction` in `tests/unit/test_streaming_logic.py`. **Input**: A mock data source that yields 1000 items. **Assertion**: Assert that `extract_until` stops exactly after 50 unique problem statements are found and that the stream is closed. **Fixture**: Use a generator that yields items with a unique ID field. **Reason**: Optional validation test for MVP scope; can be added in Phase 7 if resources permit.
 - [ ] T050 [US2] **DEFERRED** - Implement `test_pattern_similarity_threshold` in `tests/unit/test_pattern_mapping.py`. **Input**: A set of problem statements and pattern cards with known cosine similarities. **Assertion**: Assert that `retrieve_top_k_patterns` returns exactly 3 patterns only if their similarity score is ≥ 0.6, and returns fewer if the threshold is not met. **Fixture**: Use pre-computed embeddings with known similarity scores. **Reason**: Optional validation test for MVP scope; can be added in Phase 7 if resources permit.
 - [ ] T051 [US3] **DEFERRED** - Implement `test_blind_evaluation_metadata_stripping` in `tests/unit/test_evaluation_loader.py`. **Input**: A set of proposals with generation metadata. **Assertion**: Assert that `load_expert_ratings` and the preceding preparation step strip all metadata (e.g., 'pattern-guided', 'baseline') from the proposals before they are presented to raters. **Fixture**: Use `data/results/generated_proposals.jsonl` and verify the stripped version. **Reason**: Optional validation test for MVP scope; can be added in Phase 7 if resources permit.
 

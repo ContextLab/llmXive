@@ -181,3 +181,300 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T15:51:50Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 quantized to run within 7 GB RAM on CPU
+  claim_id: c_55d78a22
+  context: 'Critical: Ensure all-MiniLM-L6-v2 is quantized to run within 7 GB RAM
+    on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must ensure that 'all-MiniLM-L6-v2' is quantized to run within
+    7 GB RAM on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:19:26Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: statistical power analysis assumes n=50 pairs, 3 raters, Cohen's d 0.5,
+    alpha 0.05
+  claim_id: c_09a015eb
+  context: "Implement statistical power analysis... to confirm the spec's assumption\
+    \ of n=50 pairs, 3 raters, targeting a medium effect size (Cohen's d \u2248 0.5)\
+    \ at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The statistical power analysis assumes n=50 pairs, 3 raters, targeting\
+    \ a medium effect size (Cohen's d \u2248 0.5) at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:19:52Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: pipeline fails if Krippendorff's alpha < 0.6
+  claim_id: c_a55616c2
+  context: Implement IRR gate... Calculate Krippendorff's alpha on collected ratings;
+    FAIL pipeline if alpha < 0.6.
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The system must fail the pipeline if Krippendorff's alpha is less than
+    0.6.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T05:19:52Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: evaluation workflow generates blinded templates for manual distribution
+  claim_id: c_6502eaa4
+  context: 'Critical: The evaluation workflow (T030a/T030c-manual) MUST generate blinded
+    templates for manual distribution and load pre-collected ratings, not automate
+    recruitment.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_workflow_generates_blinded_templates_for_manual_d
+  kind: entity_fact
+  raw_text: The evaluation workflow must generate blinded templates for manual distribution
+    and load pre-collected ratings, not automate recruitment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:20:17Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime <= 6 hours
+  claim_id: c_cb24d4fc
+  context: "Implement benchmarking and validation infrastructure to ensure total pipeline\
+    \ runtime \u2264 6 hours."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/total_pipeline_runtime_%3C=_6_hours
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:20:45Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: final report includes phrase 'associational, not causal'
+  claim_id: c_6c3ddf85
+  context: Generate final report... including p-values, effect sizes, and the phrase
+    'associational, not causal'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_phrase_%27associational,_not_causal%27
+  kind: entity_fact
+  raw_text: The final report must include the phrase 'associational, not causal'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:21:09Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: fallback embedding model is all-MiniLM-L6-v2 quantized
+  claim_id: c_a7cd6bfa
+  context: The fallback MUST be exactly the model all-MiniLM-L6-v2 (quantized) as
+    mandated by Spec Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_embedding_model_is_all-MiniLM-L6-v2_quantized
+  kind: entity_fact
+  raw_text: The fallback embedding model is fixed as 'all-MiniLM-L6-v2' (quantized).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:21:31Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: two-group design enforced rejecting random-pattern logic
+  claim_id: c_1fe36896
+  context: Implement the two-group design constraint... explicitly rejecting any 'random-pattern'
+    logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-group_design_enforced_rejecting_random-pattern_logic
+  kind: entity_fact
+  raw_text: The two-group design (pattern-guided vs baseline) is strictly enforced,
+    rejecting any 'random-pattern' logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:21:59Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: extract until 50 unique non-ML problem statements found
+  claim_id: c_980d7fac
+  context: Extract rows until a sufficient number of unique non-ML problem statements
+    (unique by SHA-256 hash of abstract text) are found.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample extraction rule requires extracting until 50 unique non-ML
+    problem statements are found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:22:22Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: fail if domain proportions deviate > 5% from target
+  claim_id: c_2f3c0037
+  context: 'Constraint: Fail if proportions deviate by >5%.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/fail_if_domain_proportions_deviate_%3E_5%25_from_target
+  kind: magnitude
+  raw_text: The system must fail if the proportions of ML, Non-ML Accepted, and Non-ML
+    Rejected records deviate by more than 5% from the target.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:22:41Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: peak memory usage < 7 GB on full dataset load
+  claim_id: c_ae9f2bdd
+  context: 'Assertion: Assert peak_memory_usage < 7000000000 (7 GB).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/peak_memory_usage_%3C_7_GB_on_full_dataset_load
+  kind: magnitude
+  raw_text: The peak memory usage during full dataset load must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:23:03Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: experts must have >= 5 years domain experience
+  claim_id: c_ab19043a
+  context: 'Constraint: Must verify ORCID format and years_experience >= 5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/experts_must_have_%3E=_5_years_domain_experience
+  kind: magnitude
+  raw_text: Experts recruited for evaluation must have at least 5 years of domain
+    experience.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:23:30Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: apply multiple-comparison correction for feasibility, bottleneck, alignment
+    metrics
+  claim_id: c_0cf28b8f
+  context: Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg)
+    for the three metrics (feasibility, bottleneck, alignment).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_multiple-comparison_correction_for_feasibility,_bottle
+  kind: entity_fact
+  raw_text: The statistical analysis must apply multiple-comparison correction (Bonferroni
+    or Benjamini-Hochberg) for the three metrics (feasibility, bottleneck, alignment).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:23:55Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: flag result as potentially underpowered if sample size underpowered
+  claim_id: c_47b74aec
+  context: If the analysis indicates the sample size is underpowered, the script MUST
+    log a WARNING and proceed with n=50... but flag the result as 'potentially underpowered'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis result is flagged as 'potentially underpowered' if
+    the sample size is underpowered, but proceeds with n=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:24:37Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: outlier detection uses IQR method with standard multipliers
+  claim_id: c_4b3e0b95
+  context: Identify outliers using the IQR method with standard interquartile range
+    multipliers (Q1 - k*IQR, Q3 + k*IQR).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outlier_detection_uses_IQR_method_with_standard_multipliers
+  kind: entity_fact
+  raw_text: The outlier detection method uses the IQR method with standard interquartile
+    range multipliers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:25:04Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud/tasks.md
+  attempts: 1
+  canonical: flag result underpowered if n < 30 pairs or power < 0.8
+  claim_id: c_922b6e04
+  context: If pair removal reduces n below 30 pairs or calculated power < 0.8, flag
+    the result as 'underpowered' and log the warning.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/flag_result_underpowered_if_n_%3C_30_pairs_or_power_%3C_0.8
+  kind: magnitude
+  raw_text: If pair removal reduces n below 30 pairs or calculated power is less than
+    0.8, the result is flagged as 'underpowered'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T05:25:54Z'
