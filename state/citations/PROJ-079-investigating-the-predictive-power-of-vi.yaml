@@ -1,17 +1,6 @@
-- artifact_hash: b650437cbc6b3534238c1a1756a11a8e453c6d4d245ce6f3d8c3281255f7fbb7
+- artifact_hash: d5465801bf15c7d76b0750c47ed1c3cbd865b5e5349899706b282ece5f662700
   artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
-  verification_status: mismatch
-  verified_against_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
-  verified_at: '2026-09-23T07:57:47.120282Z'
-- artifact_hash: b650437cbc6b3534238c1a1756a11a8e453c6d4d245ce6f3d8c3281255f7fbb7
-  artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Checking your browser - reCAPTCHA
@@ -19,4 +8,4 @@
   value: https://www.ncbi.nlm.nih.gov/geo/download
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/download
-  verified_at: '2026-09-23T07:57:47.120282Z'
+  verified_at: '2026-09-25T03:47:28.716532Z'

@@ -19,7 +19,7 @@ The researcher MUST be able to download a public microstructure-strength dataset
 
 1. **Given** a valid dataset source URL and a local storage directory, **When** the preprocessing script is executed, **Then** the script downloads the data, resizes all images to 224×224 pixels, normalizes pixel values, and saves the split datasets into distinct folders with a manifest file.
 2. **Given** a corrupted or missing dataset source, **When** the script is executed, **Then** the system fails gracefully with a clear error message indicating the missing resource and halts without partial data processing.
-3. **Given** a dataset with mismatched image-strength pairs, **When** the validation step runs, **Then** the system identifies and reports the count of invalid pairs (missing metadata or NaN values) in `results/validation_report.json`, and aborts processing if the invalid ratio exceeds [DEFERRED: invalid_ratio_threshold] (configurable parameter, default 0.01).
+3. **Given** a dataset with mismatched image-strength pairs, **When** the validation step runs, **Then** the system identifies and reports the count of invalid pairs (missing metadata or NaN values) in `results/validation_report.json`, and aborts processing if the invalid ratio exceeds 0.01 (configurable parameter, default 0.01).
 
 ---
 
@@ -102,4 +102,4 @@ The researcher MUST be able to generate visual explanations (Grad-CAM or SHAP) t
 - The yield strength values in the dataset are measured under consistent conditions (e.g., room temperature, standard strain rate) to ensure comparability across samples.
 - All metrics and results are computed from REAL measurements of actual model outputs; no hardcoded values or simulated results are used.
 - The 5-fold cross-validation strategy is a standard convention in the field for small-sample material science datasets to ensure robust metric estimation.
-- The dataset contains at least 2,697 images after preprocessing, as reported in recent literature on microstructure analysis (Source: Recent literature on microstructure analysis, e.g., arXiv preprints 2023-2024).
+- The dataset contains at least 2,697 images after preprocessing, as reported in recent literature on microstructure analysis (Source: 2506.09162, https://arxiv.org/abs/2506.09162).

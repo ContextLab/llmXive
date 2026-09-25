@@ -1,14 +1,14 @@
 status: none
-intent: bAbI LAMBADA Story Cloze datasets huggingface datasets python package dataset
+intent: bAbI LAMBADA Story Cloze download python package dataset
 required_fields:
 - story
 - question
 - answer
-- text
+- context
 - target_word
 - ending1
 - ending2
 - label
-cache_key: 40956163ab552d6ea16ad1bd695ceeca7abfc91887ce33a5e8a86195b412d373
-searched_at: '2026-09-21T16:23:35.483162+00:00'
+cache_key: d69f9fac88001c0f060fb7fccd63f523edeeea83f9fa557c47769a723eabd464
+searched_at: '2026-09-25T03:24:46.971387+00:00'
 retry_count: 1

@@ -6120,3 +6120,249 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T13:06:46Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: M.S. Whittingham 2004 Lithium Batteries and Cathode Materials citation
+  claim_id: c_3ef8a233
+  context: Task T041c requires downloading, parsing, and verifying the M.S. Whittingham
+    2004 citation to extract sigma0 bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M.S. Whittingham, 'Lithium Batteries and Cathode Materials', 2004
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:28:45Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: M.S. Whittingham 2004 Lithium Batteries and Cathode Materials source
+    for sigma0 bounds
+  claim_id: c_3df7cbde
+  context: Task T041 mandates implementing sigma0 sensitivity analysis with a range
+    derived from M.S. Whittingham, 'Lithium Batteries and Cathode Materials', 2004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M.S. Whittingham, 'Lithium Batteries and Cathode Materials', 2004
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:28:46Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: arXiv ID 2006.12647 for ecutwfc 60 parameter
+  claim_id: c_113e5b5a
+  context: Task T025 verification requires grep for 'ecutwfc 60 (2006.12647, https://arxiv.org/abs/2006.12647)'
+    in code/dft_runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2006.12647'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:28:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Linus Pauling review regarding supercell size and DFT execution
+  claim_id: c_94cb71c5
+  context: The 'Notes' section states that tasks T002, T022a, T031, T024, T025, T026,
+    and T026b address the Linus Pauling review.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q47509324
+        url: https://www.wikidata.org/wiki/Q47509324
+        value: Linus Pauling
+      - channel: wikidata
+        source_id: Q48983
+        url: https://www.wikidata.org/wiki/Q48983
+        value: Linus Pauling
+      quote: 'P138: Q48983'
+      source_id: Q3910565
+      url: https://www.wikidata.org/wiki/Q3910565
+      value: Q48983
+    filled: true
+  kind: entity_fact
+  raw_text: Linus Pauling
+  resolved_value: Q48983
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T03:29:04Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Marie Curie review regarding explicit defect density quantification
+  claim_id: c_b5a32e2d
+  context: The 'Notes' section states that tasks T033, T045, and T046b address the
+    Marie Curie review on explicit defect density quantification.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q30668387
+        url: https://www.wikidata.org/wiki/Q30668387
+        value: Marie-Curie
+      - channel: wikidata
+        source_id: Q7186
+        url: https://www.wikidata.org/wiki/Q7186
+        value: Marie Curie
+      quote: 'P179: Q114937663'
+      source_id: Q114939443
+      url: https://www.wikidata.org/wiki/Q114939443
+      value: Q114937663
+    filled: true
+  kind: entity_fact
+  raw_text: Marie Curie
+  resolved_value: Q114937663
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T03:29:17Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Materials Project external reference for crystal structures
+  claim_id: c_7379d738
+  context: Task T000b explicitly lists 'Materials Project' as an external reference
+    to be populated in citations.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_external_reference_for_crystal_structures
+  kind: entity_fact
+  raw_text: Materials Project
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:29:27Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: M.S. Whittingham 2004 Lithium Batteries and Cathode Materials
+  claim_id: c_a3e800be
+  context: Task T041c requires downloading and verifying the M.S. Whittingham 2004
+    citation to extract sigma0 bounds as required by Constitution Principle II.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M.S. Whittingham, 'Lithium Batteries and Cathode Materials', 2004
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:31:34Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB force convergence threshold 0.05 eV per Angstrom
+  claim_id: c_29ff552e
+  context: "Task T029 requires implementing the NEB method with force convergence\
+    \ checks (\u22640.05 eV/\xC5) in code/dft_runner.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "force convergence checks (\u22640.05 eV/\xC5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:31:35Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-Valence Sum deviation threshold 10 percent
+  claim_id: c_ff8265b6
+  context: Task T019 implements Bond-Valence Sum (BVS) validation to filter out structures
+    where calculated BVS deviates >10% from ideal oxidation states.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BVS deviates >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:31:36Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Quantum ESPRESSO ecutwfc 60 referenced to arXiv 2006.12647
+  claim_id: c_6804f5f4
+  context: Task T025 requires generating Quantum ESPRESSO input files and verification
+    includes a grep check for 'ecutwfc 60 (2006.12647, https://arxiv.org/abs/2006.12647)'.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: ecutwfc 60 (2006.12647, https://arxiv.org/abs/2006.12647)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:36:35Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold 5 for collinearity
+  claim_id: c_d12e2908
+  context: Task T039 implements variance inflation factor (VIF) diagnostic with a
+    threshold where VIF > 5 indicates collinearity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 indicates collinearity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:36:36Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Wikidata Q3910565 citation verification
+  claim_id: c_11a62730
+  context: Task T001 mentions verifying citations against primary sources using the
+    example {{claim:c_94cb71c5}} (Wikidata Q3910565).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q3910565_citation_verification
+  kind: entity_fact
+  raw_text: Wikidata Q3910565
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:39:44Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Wikidata Q114939443 review reference
+  claim_id: c_0eb928ad
+  context: Task T033 references addressing {{claim:c_b5a32e2d}} (Wikidata Q114939443)
+    review regarding defect density quantification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q114939443_review_reference
+  kind: entity_fact
+  raw_text: Wikidata Q114939443
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:39:51Z'
