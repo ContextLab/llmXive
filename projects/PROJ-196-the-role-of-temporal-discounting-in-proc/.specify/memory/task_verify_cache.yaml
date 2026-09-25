@@ -1,26 +1,3 @@
-T014a:
-  c: false
-  h: 11c97a8f3b879944bb3c6ebea200c8677de3b136411c21decc7895b2249e5389
-  r: "The `ingestion.py` file defines generation functions that accept a seed, but\
-    \ it never logs the seed values nor writes anything to `data/processed/construct_independence.log`\
-    \ (the file is missing). Moreover, there is no code ensuring that distinct seeds\
-    \ are used for the three constructs. The required log entry and seed\u2011independence\
-    \ verification are absent."
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or test output was provided that implements the required validation
-    logic (checking for missing `discount_rate_k`, `procrastination_score`, `wm_accuracy`
-    and raising `SystemExit(1)` with the specified message). Consequently, the artifact
-    needed to satisfy T015b is absent.
-T018:
-  c: false
-  h: 43f50d99f098add2a4226d80772441dcc23b5fdee31be9da55313d4fc4fa256a
-  r: "The required `data/processed/harmonized_dataset.parquet` file does not exist,\
-    \ and the state file `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`\
-    \ is also missing. Moreover, the provided `code/ingestion.py` snippet does not\
-    \ contain a `write_harmonized_dataset` implementation, so the mandated function\
-    \ and checksum\u2011updating logic are absent. The task therefore remains unfinished."
 T022:
   c: false
   h: 8dae96574d1ac609fdf7138464c51b273e4ab6061e4388b463d4af0e30581e70
@@ -29,3 +6,33 @@ T022:
     \ function (truncated formula) and lacks the mandated memory\u2011profiler and\
     \ elapsed\u2011time checks that would raise `SystemExit(1)` when limits are exceeded.\
     \ These missing pieces prevent the task from being fully satisfied."
+T039:
+  c: false
+  h: 556263e38f17ef89694a7fe1c900694e4e7d46b01e4d82bb383e89e525a7ab23
+  r: "The repository lacks the required `data/processed/excluded_participants.csv`\
+    \ and `data/processed/halt_log.json` files, and the shown portion of `code/modeling.py`\
+    \ does not contain any logic that creates or updates these artifacts after hyperbolic\
+    \ model fitting. Consequently, the task\u2019s logging and file\u2011generation\
+    \ requirements are not met."
+T040:
+  c: false
+  h: a37ff7d6fbc7ca41340174e0379502bb15939659c8b0939118c8b6a1577fba17
+  r: "The repository lacks the required `code/data/generate_dgp.py` file; consequently\
+    \ the functions `generate_synthetic_data`, `validate_dgp_config`, and the `DGP_PARAMS`\
+    \ constant referenced by `main.py` and the unit tests do not exist. Without this\
+    \ module the DGP logic has not been moved out of `ingestion.py`, so the task\u2019\
+    s core requirement is unmet."
+T041:
+  c: false
+  h: 0dd2b94cdfe25e70641bde9006f13692731b3e44b336d5df174896affd2c1a99
+  r: 'The repository contains `code/visualizations/plot_diagnostics.py`, but the required
+    output files are absent: the PNG diagnostic plots (`residuals.png`, `qq_plot.png`,
+    `scale_location.png`) are not present, and the mandatory `data/processed/model_diagnostics_report.json`
+    is missing. The task therefore is not fully satisfied.'
+T042:
+  c: false
+  h: 7f824342319bd116322d08e4c04c5e33df40fb9c54895afc3d9cae8303cfbd21
+  r: "The `bootstrap_interaction` function still uses a hard\u2011coded default seed\
+    \ (42) and does not derive its seed from a global `RANDOM_SEED` plus an offset,\
+    \ and the required `data/processed/bootstrap_config.json` file is absent. Both\
+    \ the deterministic seeding behavior and the logging file are missing."

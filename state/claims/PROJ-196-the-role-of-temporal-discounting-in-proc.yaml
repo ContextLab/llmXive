@@ -1504,3 +1504,1088 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T21:54:51Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate 3 CSV files simulating 500 participants
+  claim_id: c_bdd1fee6
+  context: 'T013 [US1] **DATA GENERATION (DGP) & HARMONIZATION**: Implement Synthetic
+    Data Generation and Harmonization in `code/ingestion.py`. **MUST GENERATE** **three
+    distinct CSV files** simulating N=500 participants based on the **DEFINITIVE**
+    parameters below.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE three distinct CSV files simulating N=500 participants based
+    on the DEFINITIVE parameters below.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:37:14Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter k mean 0.05 and standard deviation 0.02
+  claim_id: c_05fb7e71
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { "k_mean": 0.05,
+    "k_sd": 0.02, ...'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'k_mean: 0.05, k_sd: 0.02'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:37:14Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter procrastination mean 3.5 and standard deviation 0.8
+  claim_id: c_dae7bf60
+  context: '"procrastination_mean": 3.5, "procrastination_sd": 0.8,'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'procrastination_mean: 3.5, procrastination_sd: 0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:37:45Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter WM accuracy mean 0.85 and standard deviation 0.1
+  claim_id: c_1b40d944
+  context: '"wm_accuracy_mean": 0.85, "wm_accuracy_sd": 0.1,'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'wm_accuracy_mean: 0.85, wm_accuracy_sd: 0.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:38:06Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter age mean 25 and standard deviation 5
+  claim_id: c_866d4683
+  context: '"age_mean": 25, "age_sd": 5,'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'age_mean: 25, age_sd: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:38:24Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP gender distribution 50% male, 50% female, 0% other
+  claim_id: c_c8e39f29
+  context: '"gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'gender_distribution: male 0.5, female 0.5, other 0.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:38:45Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter education mean 16 and standard deviation 2
+  claim_id: c_f3b2247e
+  context: '"education_mean": 16, "education_sd": 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'education_mean: 16, education_sd: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:39:02Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Calculate ID mismatch rate as 1 minus merged length divided by initial
+    length
+  claim_id: c_b154e155
+  context: '**STEP 2 (Harmonize)**: Merge using `participant_id` via inner join. **MUST
+    calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))`**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate ID mismatch rate as 1 - (len(merged_df) / len(initial_df))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:39:36Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if ID mismatch rate exceeds 10% for core constructs
+  claim_id: c_295b97f1
+  context: '**IF** mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate,
+    procrastination, wm): **WRITE** `data/processed/halt_log.json` with reason "ID
+    Mismatch > 10% for Core Constructs" **THEN** `Raise SystemExit(1)`.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'IF mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS: WRITE
+    halt_log.json and Raise SystemExit(1)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:39:37Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Calculate Cronbach's alpha for 10 procrastination items and n-back metrics
+  claim_id: c_1ab9dbc8
+  context: '**STEP 3 (Reliability Check)**: Calculate Cronbach''s alpha for `procrastination_item_1`
+    to `procrastination_item_10` and `nback_accuracy`/`nback_rt`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Cronbach's alpha for procrastination_item_1 to procrastination_item_10
+    and nback_accuracy/nback_rt
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:40:00Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Raise error if Cronbach's alpha is below 0.7
+  claim_id: c_b5fcfab4
+  context: '**IF** any alpha < 0.7, **raise `SystemExit(1)` with message "CRITICAL:
+    Data reliability below threshold (alpha < 0.7) - DGP failure"**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF any alpha < 0.7, raise SystemExit(1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:40:01Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Calculate row-wise missingness for age and gender as count divided by
+    2
+  claim_id: c_1495c255
+  context: '**STEP 4 (Missing Data)**: Calculate row-wise missingness for covariates
+    (`age`, `gender`) as: `count(missing in [age, gender] for row) / 2`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate row-wise missingness for covariates as count(missing in [age,
+    gender] for row) / 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:40:39Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag reduced model if row-wise missingness exceeds 10%
+  claim_id: c_141f26e5
+  context: '**IF** row-wise missingness > 0.10 (i.e., > 10% of total rows have missing
+    covariates), **flag for reduced model** by writing `data/processed/model_config.json`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF row-wise missingness > 0.10, flag for reduced model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:40:39Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Run bootstrapping with seed offset of 1000
+  claim_id: c_40cfca22
+  context: '**STEP 2 (Bootstrap)**: Run bootstrapping with deterministic seed (`RANDOM_SEED
+    + 1000`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run bootstrapping with deterministic seed (RANDOM_SEED + 1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:40:57Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis using 5 thresholds per variable (median,
+    +/- 0.05 SD, +/- 0.10 SD)
+  claim_id: c_6e1ed6e5
+  context: "**STEP 29** ... Implement sensitivity analysis for WM load threshold (median,\
+    \ \xB10.05*SD, \xB10.10*SD) AND discount rate (median, \xB10.05*SD, \xB10.10*SD)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis for WM load threshold (median, \xB10.05*SD,\
+    \ \xB10.10*SD) AND discount rate (median, \xB10.05*SD, \xB10.10*SD)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:16Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate exactly 5 thresholds per variable totaling 10 sweeps
+  claim_id: c_9dc71360
+  context: '**MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE** (Total 10 sweeps).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE (Total 10 sweeps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:36Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Calculate instability ratio as count of zero-crossing CIs divided by
+    10
+  claim_id: c_83958fae
+  context: '**STEP 30** ... Implement logic to calculate `instability_ratio` = (count
+    of thresholds where 95% CI crosses zero) / (total count of **10** defined threshold
+    sweeps).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate instability_ratio = (count of thresholds where 95% CI crosses
+    zero) / (total count of 10 defined threshold sweeps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:36Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag instability if ratio exceeds 0.5
+  claim_id: c_7ddd5fd0
+  context: '**Flag instability if `instability_ratio > 0.5`** (SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag instability if instability_ratio > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:37Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Verify runtime under 6 hours and memory under 7 GB
+  claim_id: c_0cf4457c
+  context: '**STEP 32** ... Verify total runtime and memory usage stay within 6h/7GB
+    limits on CPU (FR-010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total runtime and memory usage stay within 6h/7GB limits on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:55Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Assert memory limit 7168 MB and time limit 21600 seconds
+  claim_id: c_616b8d52
+  context: Use `memory_profiler` and `time` module; assert `max_memory_mb < 7168`
+    and `elapsed_time < 21600`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert max_memory_mb < 7168 and elapsed_time < 21600
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:41:55Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 0
+  canonical: Hyperbolic discount rate mean 0.05 SD 0.02
+  claim_id: c_e553b893
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { "k_mean": 0.05,
+    "k_sd": 0.02, ...'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'k_mean: 0.05, k_sd: 0.02'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:45:01Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate 3 CSV files with N=500 participants
+  claim_id: c_6c42510f
+  context: 'T013 [US1] DATA GENERATION (DGP) & HARMONIZATION: Implement Synthetic
+    Data Generation and Harmonization in code/ingestion.py. MUST GENERATE three distinct
+    CSV files simulating N=500 participants based on the DEFINITIVE parameters below.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE three distinct CSV files simulating N=500 participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:35Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Procrastination score mean 3.5 SD 0.8
+  claim_id: c_272639cd
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "procrastination_mean":
+    3.5, "procrastination_sd": 0.8, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'procrastination_mean: 3.5, procrastination_sd: 0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:35Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Working memory accuracy mean 0.85 SD 0.1
+  claim_id: c_795a3ea7
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "wm_accuracy_mean":
+    0.85, "wm_accuracy_sd": 0.1, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'wm_accuracy_mean: 0.85, wm_accuracy_sd: 0.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:35Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Age mean 25 SD 5
+  claim_id: c_f4fbf4df
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "age_mean":
+    25, "age_sd": 5, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'age_mean: 25, age_sd: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:36Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Gender distribution 50% male 50% female 0% other
+  claim_id: c_639e804f
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "gender_distribution":
+    {"male": 0.5, "female": 0.5, "other": 0.0}, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'gender_distribution: male 0.5, female 0.5, other 0.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:36Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Education mean 16 SD 2
+  claim_id: c_1edf9a86
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "education_mean":
+    16, "education_sd": 2 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'education_mean: 16, education_sd: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:45:37Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate 10 procrastination items
+  claim_id: c_7f703f3f
+  context: 'MUST GENERATE ITEM-LEVEL DATA: procrastination_item_1 through procrastination_item_10
+    (for Cronbach''s alpha) and nback_trials data (for WM accuracy/RT).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate procrastination_item_1 through procrastination_item_10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:19Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Data source flag synthetic_dgp n=500
+  claim_id: c_4afbf144
+  context: 'MUST FLAG this as "Methodological Validation" by writing data/processed/data_source_flag.json
+    with schema: {"source": "synthetic_dgp", "n": 500, "methodology": "Methodological
+    Validation", "dgp_params_hash": "<sha256>"}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag as Methodological Validation with source synthetic_dgp and n=500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:46Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Calculate ID mismatch rate formula
+  claim_id: c_11c092d6
+  context: 'STEP 2 (Harmonize): Merge using participant_id via inner join. MUST calculate
+    ID mismatch rate as 1 - (len(merged_df) / len(initial_df)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate ID mismatch rate as 1 - (len(merged_df) / len(initial_df))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:46Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Halt if ID mismatch rate exceeds 10% for core constructs
+  claim_id: c_fa5a4f3a
+  context: 'IF mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate,
+    procrastination, wm): WRITE data/processed/halt_log.json with reason "ID Mismatch
+    > 10% for Core Constructs" THEN Raise SystemExit(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt if ID mismatch rate > 0.10 for core constructs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:46Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Fail if Cronbach's alpha below 0.7
+  claim_id: c_2087ab58
+  context: 'STEP 3 (Reliability Check): Calculate Cronbach''s alpha for procrastination_item_1
+    to procrastination_item_10 and nback_accuracy/nback_rt. IF any alpha < 0.7, raise
+    SystemExit(1) with message "CRITICAL: Data reliability below threshold (alpha
+    < 0.7) - DGP failure".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise SystemExit if Cronbach's alpha < 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:47Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag reduced model if missingness exceeds 10%
+  claim_id: c_0d038de8
+  context: 'IF row-wise missingness > 0.10 (i.e. > 10% of total rows have missing
+    covariates), flag for reduced model by writing data/processed/model_config.json
+    with schema {"reduced_model": true, "excluded_covariates": ["age", "gender"],
+    "imputation_method": "listwise_deletion"}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag reduced model if row-wise missingness > 0.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:46:47Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate 5 thresholds per variable
+  claim_id: c_d60b28bd
+  context: MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE (Total 10 sweeps).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 5 thresholds per variable for sensitivity analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:47:11Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Total 10 threshold sweeps
+  claim_id: c_ed32d9d4
+  context: MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE (Total 10 sweeps).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total 10 threshold sweeps for sensitivity analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:48:12Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Instability ratio calculation formula
+  claim_id: c_7bc242e4
+  context: T030 [US3] Implement logic to calculate instability_ratio = (count of thresholds
+    where 95% CI crosses zero) / (total count of 10 defined threshold sweeps).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate instability_ratio as count of thresholds where 95% CI crosses
+    zero divided by 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:48:12Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag instability if ratio exceeds 0.5
+  claim_id: c_be571c3b
+  context: Flag instability if instability_ratio > 0.5 (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag instability if instability_ratio > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:48:12Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Bootstrap seed offset 1000
+  claim_id: c_e5605116
+  context: 'STEP 2 (Bootstrap): Run bootstrapping with deterministic seed (RANDOM_SEED
+    + 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap seed derived from RANDOM_SEED + 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:48:40Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Bootstrap samples distinct from DGP
+  claim_id: c_b287b5b1
+  context: Ensure the bootstrapping routine in code/robustness.py uses a deterministic
+    seed derived from the global RANDOM_SEED plus an offset (e.g. RANDOM_SEED + 1000)
+    to ensure the bootstrap samples are reproducible but distinct from the DGP generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_samples_distinct_from_DGP
+  kind: entity_fact
+  raw_text: Bootstrap samples distinct from DGP generation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:49:02Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: generate 3 CSV files simulating 500 participants
+  claim_id: c_aa1ab52f
+  context: 'T013 [US1] **DATA GENERATION (DGP) & HARMONIZATION**: Implement Synthetic
+    Data Generation and Harmonization in `code/ingestion.py`. **MUST GENERATE** **three
+    distinct CSV files** simulating N=500 participants based on the **DEFINITIVE**
+    parameters below.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE three distinct CSV files simulating N=500 participants based
+    on the DEFINITIVE parameters below.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:50:54Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: calculate ID mismatch rate as 1 minus merged length divided by initial
+    length
+  claim_id: c_b39fe71d
+  context: 'STEP 2 (Harmonize): Merge using `participant_id` via inner join. **MUST
+    calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))`**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:51:18Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: halt if ID mismatch rate exceeds 0.10 for core constructs
+  claim_id: c_e92e1e59
+  context: '- **IF** mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate,
+    procrastination, wm): **WRITE** `data/processed/halt_log.json` with reason "ID
+    Mismatch > 10% for Core Constructs" **THEN** `Raise SystemExit(1)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IF mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate,
+    procrastination, wm): WRITE `data/processed/halt_log.json` with reason "ID Mismatch
+    > 10% for Core Constructs" THEN `Raise SystemExit(1)`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:51:18Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: raise error if Cronbach's alpha is less than 0.7
+  claim_id: c_56dd0dab
+  context: '- **STEP 3 (Reliability Check)**: Calculate Cronbach''s alpha for `procrastination_item_1`
+    to `procrastination_item_10` and `nback_accuracy`/`nback_rt`. **IF** any alpha
+    < 0.7, **raise `SystemExit(1)` with message "CRITICAL: Data reliability below
+    threshold (alpha < 0.7) - DGP failure"**.'
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.7
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_Cronbach%27s_alpha_is_less_than_0.7
+  kind: magnitude
+  raw_text: 'IF any alpha < 0.7, raise `SystemExit(1)` with message "CRITICAL: Data
+    reliability below threshold (alpha < 0.7) - DGP failure".'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-25T18:51:38Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: flag reduced model if row-wise missingness exceeds 0.10
+  claim_id: c_753a84dd
+  context: '- **IF** row-wise missingness > 0.10 (i.e., > 10% of total rows have missing
+    covariates), **flag for reduced model** by writing `data/processed/model_config.json`
+    with schema `{"reduced_model": true, "excluded_covariates": ["age", "gender"],
+    "imputation_method": "listwise_deletion"}`.'
+  evidence:
+    asserted: '0.1'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'IF row-wise missingness > 0.10 (i.e., > 10% of total rows have missing
+    covariates), flag for reduced model by writing `data/processed/model_config.json`
+    with schema `{"reduced_model": true, "excluded_covariates": ["age", "gender"],
+    "imputation_method": "listwise_deletion"}`.'
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:51:39Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: proceed to bootstrap if p-value is less than 0.05
+  claim_id: c_20393d25
+  context: '- **STEP 1 (Significance Check)**: Read `data/processed/interaction_results.json`.
+    **IF** primary effect p-value >= 0.05: **SKIP** stability check, log "Primary
+    effect not significant, skipping stability check", and write `data/processed/bootstrap_ci.json`
+    with `stability_check: false`. **IF** p-value < 0.05: **PROCEED** to Step 2.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_to_bootstrap_if_p-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: 'IF p-value < 0.05: PROCEED to Step 2.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:52:08Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: generate exactly 5 thresholds per variable totaling 10 sweeps
+  claim_id: c_1324a686
+  context: "- [X] T029 [US3] Implement sensitivity analysis for WM load threshold\
+    \ (median, \xB10.05*SD, \xB10.10*SD) AND discount rate (median, \xB10.05*SD, \xB1\
+    0.10*SD) in `code/robustness.py` (FR-007). **MUST GENERATE EXACTLY 5 THRESHOLDS\
+    \ PER VARIABLE** (Total 10 sweeps)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE (Total 10 sweeps).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:52:09Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: assert max memory less than 7168 MB and elapsed time less than 21600
+    seconds
+  claim_id: c_76b8c74e
+  context: '- [X] T032 [US3] **Final Verification**: Verify total runtime and memory
+    usage stay within 6h/7GB limits on CPU (FR-010). Use `memory_profiler` and `time`
+    module; assert `max_memory_mb < 7168` and `elapsed_time < 21600`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_max_memory_less_than_7168_MB_and_elapsed_time_less_th
+  kind: magnitude
+  raw_text: assert `max_memory_mb < 7168` and `elapsed_time < 21600`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:52:29Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 0
+  canonical: DGP parameter k_mean is 0.05 and k_sd is 0.02
+  claim_id: c_e196ee2b
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { "k_mean": 0.05,
+    "k_sd": 0.02, ...'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'k_mean: 0.05, k_sd: 0.02'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:54:12Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 0
+  canonical: Reduced model triggered if row-wise missingness exceeds 10% for covariates
+  claim_id: c_d735b51c
+  context: 'STEP 4 (Missing Data): Calculate row-wise missingness for covariates (age,
+    gender) as: count(missing in [age, gender] for row) / 2. IF row-wise missingness
+    > 0.10 (i.e., > 10% of total rows have missing covariates)...'
+  evidence:
+    asserted: '0.1'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'IF row-wise missingness > 0.10 (i.e., > 10% of total rows have missing
+    covariates), flag for reduced model by writing data/processed/model_config.json
+    with schema {"reduced_model": true, "excluded_covariates": ["age", "gender"],
+    "imputation_method": "listwise_deletion"}.'
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:54:16Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate 3 CSV files simulating 500 participants
+  claim_id: c_9aab949b
+  context: 'T013 [US1] DATA GENERATION (DGP) & HARMONIZATION: Implement Synthetic
+    Data Generation and Harmonization in code/ingestion.py. MUST GENERATE three distinct
+    CSV files simulating N=500 participants based on the DEFINITIVE parameters below.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE three distinct CSV files simulating N=500 participants based
+    on the DEFINITIVE parameters below.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:18Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter procrastination_mean is 3.5 and procrastination_sd is 0.8
+  claim_id: c_35bb6283
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "procrastination_mean":
+    3.5, "procrastination_sd": 0.8, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'procrastination_mean: 3.5, procrastination_sd: 0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:19Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter wm_accuracy_mean is 0.85 and wm_accuracy_sd is 0.1
+  claim_id: c_b6d5166b
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "wm_accuracy_mean":
+    0.85, "wm_accuracy_sd": 0.1, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'wm_accuracy_mean: 0.85, wm_accuracy_sd: 0.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:19Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter age_mean is 25 and age_sd is 5
+  claim_id: c_3fd79dfc
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "age_mean":
+    25, "age_sd": 5, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'age_mean: 25, age_sd: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:20Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter gender_distribution is 50% male, 50% female, 0% other
+  claim_id: c_02efa236
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "gender_distribution":
+    {"male": 0.5, "female": 0.5, "other": 0.0}, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'gender_distribution: {"male": 0.5, "female": 0.5, "other": 0.0}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:39Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: DGP parameter education_mean is 16 and education_sd is 2
+  claim_id: c_3f1df5ed
+  context: 'DEFINITIVE PARAMETERS (Do not reference external files): { ... "education_mean":
+    16, "education_sd": 2 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'education_mean: 16, education_sd: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:39Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: System exit triggered if ID mismatch rate exceeds 10% for core constructs
+  claim_id: c_4890bfb6
+  context: 'STEP 2 (Harmonize): Merge using participant_id via inner join. MUST calculate
+    ID mismatch rate as 1 - (len(merged_df) / len(initial_df)). IF mismatch rate >
+    0.10 AND missing items are CORE CONSTRUCTS...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IF mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate,
+    procrastination, wm): WRITE data/processed/halt_log.json with reason "ID Mismatch
+    > 10% for Core Constructs" THEN Raise SystemExit(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:40Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: System exit triggered if Cronbach's alpha is below 0.7
+  claim_id: c_f7c292bc
+  context: 'STEP 3 (Reliability Check): Calculate Cronbach''s alpha for procrastination_item_1
+    to procrastination_item_10 and nback_accuracy/nback_rt. IF any alpha < 0.7, raise
+    SystemExit(1)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IF any alpha < 0.7, raise SystemExit(1) with message "CRITICAL: Data
+    reliability below threshold (alpha < 0.7) - DGP failure".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:40Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate exactly 5 thresholds per variable for a total of 10 sweeps
+  claim_id: c_890b3b48
+  context: "T029 [US3] Implement sensitivity analysis for WM load threshold (median,\
+    \ \xB10.05*SD, \xB10.10*SD) AND discount rate (median, \xB10.05*SD, \xB10.10*SD)\
+    \ in code/robustness.py (FR-007). MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE\
+    \ (Total 10 sweeps)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE (Total 10 sweeps).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:41Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Pipeline must complete within 7168 MB memory and 21600 seconds
+  claim_id: c_6854dabe
+  context: 'T032 [US3] Final Verification: Verify total runtime and memory usage stay
+    within 6h/7GB limits on CPU (FR-010). Use memory_profiler and time module; assert
+    max_memory_mb < 7168 and elapsed_time < 21600.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert max_memory_mb < 7168 and elapsed_time < 21600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:41Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Model diagnostics report generated in model_diagnostics_report.json
+  claim_id: c_38059f59
+  context: 'T041 [US2] REVISION: MODEL DIAGNOSTICS VISUALIZATION: Add a task to generate
+    diagnostic plots for the OLS regression. MUST create code/visualizations/plot_diagnostics.py
+    using matplotlib to generate: 1) Residuals vs Fitted plot, 2) Q-Q plot for normality,
+    3) Scale-Location plot. MUST save these plots as PNG files in data/processed/diagnostics/
+    with filenames residuals.png, qq_plot.png, scale_location.png. MUST include a
+    summary of visual inspection results in data/processed/model_diagnostics_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Model_diagnostics_report_generated_in_model_diagnostics_repo
+  kind: causal
+  raw_text: MUST include a summary of visual inspection results in data/processed/model_diagnostics_report.json.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:54:44Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Bootstrap seed logged in bootstrap_config.json with seed and offset fields
+  claim_id: c_1b3222ba
+  context: 'T042 [US3] REVISION: BOOTSTRAP SEEDING CONSISTENCY: Ensure the bootstrapping
+    routine in code/robustness.py uses a deterministic seed derived from the global
+    RANDOM_SEED plus an offset (e.g., RANDOM_SEED + 1000) to ensure the bootstrap
+    samples are reproducible but distinct from the DGP generation. MUST log the specific
+    seed used for bootstrapping in data/processed/bootstrap_config.json with schema:
+    {"seed": int, "offset": int}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_seed_logged_in_bootstrap_config.json_with_seed_and
+  kind: entity_fact
+  raw_text: 'MUST log the specific seed used for bootstrapping in data/processed/bootstrap_config.json
+    with schema: {"seed": int, "offset": int}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:55:09Z'

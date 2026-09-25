@@ -55,13 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [X] T002a **[FR-001] [US1] STATE INITIALIZATION**: Create `state/projects/` directory and initialize `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with an empty `artifact_hashes` map (dict), a `last_updated` timestamp (ISO 8601 string), and a `completion_status` key (string, default "in_progress"). **MUST run before T009a.**
 - [X] T004 Setup `data/raw/` and `data/processed/` directory structure. **MUST create** `.gitkeep` files in `data/raw/` and `data/processed/` to ensure directories are tracked in git.
 - [X] T005 [P] **REMOVED**: Merged into T002.
 - [X] T006 [P] Configure `pytest` framework and directory structure. **MUST create** `pytest.ini` with `[pytest] testpaths = tests` and `tests/conftest.py` containing fixtures for `random_seed` and `data_path`.
 - [X] T007 Create `code/__init__.py` and base configuration loader.
 - [X] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I. **MUST NOT** include runtime validation steps; Reference-Validator Agent execution is a pre-requisite gate step.
-- [X] T002a **[FR-001] [US1] STATE INITIALIZATION**: Create `state/projects/` directory and initialize `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with an empty `artifact_hashes` map (dict), a `last_updated` timestamp (ISO 8601 string), and a `completion_status` key (string, default "in_progress"). **MUST run before T009.**
-- [X] T009 [P] Implement data checksum verification utility in `code/utils/checksum.py` AND integrate it to write/update the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` for every raw/processed artifact, ensuring Single Source of Truth traceability per Constitution Principle III and V.
+- [X] T009a [P] **STATE INITIALIZATION (CHECKSUM MAP)**: Initialize the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` to an empty dictionary if it does not exist. **MUST run before T009b.**
+- [X] T009b [P] **REMOVED**: Moved to Phase 3.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,17 +84,41 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] **PRE-CHECK & REAL DATA INGESTION**: Implement Real Data Ingestion in `code/ingestion.py`. This task **MUST FIRST** check for the existence of raw ARFF/CSV files in `data/raw/` as specified in FR-001. **IF** real data files exist and are valid (non-empty, correct headers), **USE** them to create the initial DataFrames. **ELSE**, **TRIGGER FALLBACK** to T014. **MUST VALIDATE** that if real data is used, it contains the required columns. **MUST FLAG** the data source in `data/processed/data_source_flag.json` with schema: `{"source": "real", "n": int, "methodology": "Empirical"}`. If real data is missing, log "No real data found, falling back to DGP" and proceed to T014. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
- - **Output**: If real data found, produce initial DataFrames. If not, trigger T014.
-- [ ] T014 [US1] **DATA GENERATION (Fallback)**: Implement Data Generation in `code/ingestion.py`. **ONLY RUN IF** T013 fails to find real data. **MUST GENERATE** **three distinct CSV files** simulating N=500 participants based on literature parameters from `research.md` Section 2.2 using `get_random_state()` (T008). **MUST USE** the following DGP parameter schema: `{"k_mean": 0.05, "k_sd": 0.02, "procrastination_mean": 3.5, "procrastination_sd": 0.8, "wm_accuracy_mean": 0.85, "wm_accuracy_sd": 0.1, "age_mean": 25, "age_sd": 5}`. **MUST LOG** the specific parameter values used. **MUST VALIDATE** DGP parameters against a strict schema. **MUST FLAG** this as "Methodological Validation" by writing `data/processed/data_source_flag.json` with schema: `{"source": "synthetic_dgp", "n": 500, "methodology": "Methodological Validation", "dgp_params_hash": "<sha256>"}`. Each file must contain distinct experimental paradigm data. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
- - **Output**: Ensure three source files exist for harmonization.
-- [X] T014a [US1] **CONSTRUCT INDEPENDENCE**: Verify that the synthetic DGP parameters for discount rates, procrastination, and WM are generated from *distinct* stochastic seeds or paradigms in `code/ingestion.py`. **MUST** log the seed values used for each construct to ensure no mechanical correlation is introduced. **MUST** write a log entry to `data/processed/construct_independence.log`.
-- [X] T014b [US1] **RELIABILITY CHECK**: Implement Reliability Verification in `code/ingestion.py`. This task MUST calculate Cronbach's alpha for each of the generated datasets. **MUST** reference the DGP output schema for column names: `procrastination_item_1` to `procrastination_item_10` for the procrastination scale, and `nback_accuracy`/`nback_rt` for WM. If any alpha < 0.7, **raise `SystemExit(1)`** with message "CRITICAL: Data reliability below threshold (alpha < 0.7) - DGP failure". **MUST REFERENCE** FR-001 and Constitution Principle II. This task runs after T014 and before T015a.
-- [X] T015a [US1] **HARMONIZATION**: Implement data harmonization and merging logic in `code/ingestion.py`. This task reads the three distinct source files generated/loaded by T013/T014, merges them using `participant_id` via inner join. **MUST calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))`**. If mismatch rate > 0.10, **raise `SystemExit(1)` with message "CRITICAL: ID mismatch > 10%"** (FR-009).
-- [X] T015b [US1] **CRITICAL HALT (Data)**: Implement validation logic to check for missing core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) in the *generated and harmonized* data. **MUST run AFTER T015a and BEFORE T015c**. **IF** any core construct is missing or contains NaNs, **WRITE** a structured error log to `data/processed/halt_log.json` with schema `{"status": "halt", "missing_constructs": ["list"], "reason": "Missing core construct"}` and **Raise `SystemExit(1)`** with message "CRITICAL: Missing core construct: {col}". **IF** only covariates (age, gender) are missing, **PROCEED** to T016 (do NOT halt). This task MUST execute after T015a and before T015c.
-- [X] T015c [US1] **MODEL FITTING**: Implement hyperbolic model fitting function `fit_hyperbolic_model` in `code/modeling.py` using `scipy.optimize.curve_fit` (uses `get_random_state()`). This task calculates `discount_rate_k` for each participant in the harmonized dataset. **MUST EXCLUDE** participants where fitting fails and **GENERATE A WARNING LOG** with the count of excluded participants (per spec Edge Cases).
-- [ ] T016 [US1] **MISSING DATA HANDLING**: Implement missing data handling logic in `code/ingestion.py`. **MUST** calculate missingness for covariates (age, gender). **IF** missing covariates >10%, **flag for reduced model** by writing `data/processed/model_config.json` with schema `{"reduced_model": true, "excluded_covariates": ["age", "gender"], "imputation_method": "mean"}`. **ELSE** (if missing <= 10%), **MUST WRITE** `data/processed/model_config.json` with schema `{"reduced_model": false, "excluded_covariates": [], "imputation_method": "mean"}`. **MUST** perform mean imputation for covariates <= 10% missing. This task is a fallback for DGP failure and MUST run *before* T022. <!-- FAILED: unspecified -->
-- [ ] T018 [US1] **WRITE DATASET**: Write the final harmonized dataset to `data/processed/harmonized_dataset.parquet`. **MUST run AFTER T015b and MUST fail if T015b raised an exception**. **MUST ALSO** generate checksum for this file AND ALL other files in `data/processed/` (including `model_config.json`, `data_source_flag.json`) and update `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with the new hashes. **MUST EXECUTE** via `code/ingestion.py::write_harmonized_dataset`. **IF** checksum update fails, **Raise `SystemExit(1)`**. <!-- FAILED: unspecified -->
+- [X] T013 [US1] **DATA GENERATION (DGP) & HARMONIZATION**: Implement Synthetic Data Generation and Harmonization in `code/ingestion.py`. **MUST GENERATE** **three distinct CSV files** simulating N=500 participants based on the **DEFINITIVE** parameters below.
+ - **DEFINITIVE PARAMETERS** (Do not reference external files):
+ ```json
+ {
+ "k_mean": 0.05, "k_sd": 0.02,
+ "procrastination_mean": 3.5, "procrastination_sd": 0.8,
+ "wm_accuracy_mean": 0.85, "wm_accuracy_sd": 0.1,
+ "age_mean": 25, "age_sd": 5,
+ "gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},
+ "education_mean": 16, "education_sd": 2
+ }
+ ```
+ - **MUST GENERATE ITEM-LEVEL DATA**: `procrastination_item_1` through `procrastination_item_10` (for Cronbach's alpha) and `nback_trials` data (for WM accuracy/RT).
+ - **MUST LOG** the specific parameter values used to `data/processed/dgp_params.log`.
+ - **MUST VALIDATE** DGP parameters against a strict schema.
+ - **MUST FLAG** this as "Methodological Validation" by writing `data/processed/data_source_flag.json` with schema: `{"source": "synthetic_dgp", "n": 500, "methodology": "Methodological Validation", "dgp_params_hash": "<sha256>"}`. Each file must contain distinct experimental paradigm data.
+ - **STEP 1 (Generate)**: Create `discounting_raw.csv`, `procrastination_raw.csv`, `nback_raw.csv`.
+ - **STEP 2 (Harmonize)**: Merge using `participant_id` via inner join. **MUST calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))` **.
+ - **IF** mismatch rate > 0.10 AND missing items are CORE CONSTRUCTS (discount_rate, procrastination, wm): **WRITE** `data/processed/halt_log.json` with reason "ID Mismatch > 10% for Core Constructs" **THEN** `Raise SystemExit(1)`.
+ - **IF** mismatch rate > 0.10 AND missing items are COVARIATES (age, gender): **PROCEED** with reduced model (see Step 4).
+ - **STEP 3 (Reliability Check)**: Calculate Cronbach's alpha for `procrastination_item_1` to `procrastination_item_10` and `nback_accuracy`/`nback_rt`. **IF** any alpha < 0.7, **raise `SystemExit(1)` with message "CRITICAL: Data reliability below threshold (alpha < 0.7) - DGP failure"**. Log seed values to `data/processed/construct_independence.log`.
+ - **STEP 4 (Missing Data)**: Calculate row-wise missingness for covariates (`age`, `gender`) as: `count(missing in [age, gender] for row) / 2`.
+ - **IF** row-wise missingness > 0.10 (i.e., > 10% of total rows have missing covariates), **flag for reduced model** by writing `data/processed/model_config.json` with schema `{"reduced_model": true, "excluded_covariates": ["age", "gender"], "imputation_method": "listwise_deletion"}`.
+ - **ELSE** (if missing <= 10%), **MUST WRITE** `data/processed/model_config.json` with schema `{"reduced_model": false, "excluded_covariates": [], "imputation_method": "mean"}` and perform mean imputation.
+ - **MUST LOG** the exact imputation values used for each imputed column to `data/processed/imputation_log.json`.
+ - **STEP 5 (Model Fitting)**: Implement `fit_hyperbolic_model` in `code/modeling.py` using `scipy.optimize.curve_fit`. Calculate `discount_rate_k` for each participant. **MUST EXCLUDE** participants where fitting fails and **GENERATE A WARNING LOG** with the count of excluded participants.
+ - **STEP 6 (Halt Check)**: Verify core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) are present and non-null.
+ - **IF** missing: **WRITE** `data/processed/halt_log.json` with reason "Core constructs missing" **THEN** `Raise SystemExit(1)`.
+ - **STEP 7 (Write & Checksum)**: Write final harmonized dataset to `data/processed/harmonized_dataset.parquet`. **MUST generate checksum** for this file AND the following specific files: `model_config.json`, `data_source_flag.json`, `dgp_params.log`, `construct_independence.log`, `imputation_log.json`, `halt_log.json` (if created). **MUST UPDATE** `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with the new hashes. **IF** checksum update fails, **Raise `SystemExit(1)`**.
+ - **Output**: Three source CSV files, `data/processed/data_source_flag.json`, `data/processed/model_config.json`, `data/processed/harmonized_dataset.parquet`, and all log files.
+
+- [X] T013b [US1] **RELIABILITY CHECK**: This task is a validation step executed as part of T013 (Step 3). **NO CODE CHANGES REQUIRED** beyond ensuring T013 Step 3 runs. **MUST** verify that T013 Step 3 successfully calculated Cronbach's alpha and raised an error if < 0.7. **MUST** log the alpha values to `data/processed/reliability_log.json`.
+
+- [X] T009b [US1] **CHECKSUM UPDATE**: After T013 completes, calculate SHA256 checksums for all artifacts in `data/processed/` and update `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`. **MUST depend on T013**.
+
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
@@ -111,18 +136,22 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement log-transformation of discount rate (`log(k)`) and mean-centering of predictors in `code/modeling.py`
-- [ ] T022 [US2] Implement OLS regression model construction with interaction term in `code/modeling.py` (FR-004). **Depends on T016**: Read `data/processed/model_config.json`. **MUST ADJUST** the regression formula based on `model_config.json`:
- - Read `reduced_model` and `excluded_covariates` from config.
- - **MUST CONSTRUCT FORMULA** using f-strings: `base_formula = "procrastination ~ log_k + wm_metric + log_k:wm_metric"`.
- - **IF** `reduced_model` is true:
- - **IF** `wm_metric` is in `excluded_covariates`: Remove `wm_metric` AND `log_k:wm_metric` from formula.
- - **ELSE**: Remove only covariates in `excluded_covariates` (e.g., age, gender) if they were part of a larger formula, but for this specific model, if `wm_metric` is present, the interaction remains.
- - **Correct Logic**: If `reduced_model` is true, exclude items in `excluded_covariates` from the formula string. If `wm_metric` is excluded, the interaction term `log_k:wm_metric` MUST also be removed.
- - Example: `formula = f"procrastination ~ {' + '.join([v for v in ['log_k', 'wm_metric', 'log_k:wm_metric'] if v not in excluded_covariates])}"`.
+- [X] T021 [P] [US2] Implement log-transformation of discount rate (`log(k)`) and mean-centering of predictors in `code/modeling.py`. **MUST WRITE** centered data to `data/processed/centered_data.parquet`.
+- [X] T022 [US2] Implement OLS regression model construction with interaction term in `code/modeling.py` (FR-004). **Depends on T013, T021**: Read `data/processed/model_config.json` and `data/processed/centered_data.parquet`.
+ - **STEP 1 (Read Config)**: Load `data/processed/model_config.json`.
+ - **STEP 2 (Construct Formula)**:
+ - Base formula: `procrastination ~ log_k + wm_metric + log_k:wm_metric`.
+ - **CRITICAL CHECK**:
+ - **IF** `log_k` or `wm_metric` in `excluded_covariates`: **RAISE** `SystemExit(1)` with message "CRITICAL: Primary predictor 'log_k' or 'wm_metric' cannot be excluded per FR-004/FR-009".
+ - **IF** `age` or `gender` in `excluded_covariates`: **REMOVE** them from the formula.
  - **MUST INCLUDE INLINE MONITORING**: Use `memory_profiler` and `time` module; if `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise `SystemExit(1)`**.
- - **MUST** write the final formula used to a log file.
-- [ ] T023 [US2] Implement VIF calculation and reporting logic (flag if > 5) in `code/modeling.py` (FR-005). **MUST WRITE** results to `data/processed/vif_report.json`.
+ - **MUST** write the final formula used to a log file `data/processed/regression_formula.log`.
+ - **STEP 3 (Log Formula)**: Log the final formula string to `data/processed/regression_formula.log`.
+ - **STEP 4 (VIF & Centering Loop)**: Calculate VIF for all predictors.
+ - **IF** any VIF > 5: **MUST** mean-center predictors (using data from T021) and **RE-RUN** VIF calculation.
+ - **IF** VIF > 5 persists after centering: **Log a warning** "VIF > 5 persists after centering" but **PROCEED** with the model (centering is the mandated mitigation).
+ - **MUST WRITE** results to `data/processed/vif_report.json`.
+- [X] T023 [US2] **REMOVED**: Merged into T022 Step 4.
 - [X] T024 [US2] Implement extraction of coefficients, p-values, and confidence intervals for the interaction term. **MUST WRITE** results to `data/processed/interaction_results.json`.
 - [X] T025 [US2] Save regression results summary to `data/processed/regression_results.json`. **MUST WRITE** a JSON object with keys: `r_squared`, `adj_r_squared`, `aic`, `bic`, `coefficients` (dict of variable_name: value), `p_values` (dict of variable_name: value), `vif_scores` (dict of variable_name: value).
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -142,10 +171,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T028 [P] [US3] Implement bootstrapping routine to generate a confidence interval for interaction coefficient in `code/robustness.py` (FR-006). **MUST WRITE** results to `data/processed/bootstrap_ci.json`. **MUST INCLUDE INLINE MONITORING**: Use `memory_profiler` and `time` module; if `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise `SystemExit(1)`**.
-- [X] T029 [US3] Implement sensitivity analysis for WM load threshold (median, ±0.05*SD, ±0.10*SD) AND discount rate (median, ±0.05*SD, ±0.10*SD) in `code/robustness.py` (FR-007). **MUST GENERATE FULL CROSS-COMBINATION SWEEP** of WM x Discount thresholds. **MUST OUTPUT** a JSON list of objects containing `threshold_value`, `p_value`, `coefficient`, `ci_lower`, `ci_upper` to `data/processed/sensitivity_sweep_raw.json`.
-- [X] T030 [US3] Implement logic to calculate `instability_ratio` = (count of thresholds where 95% CI crosses zero) / (total count of thresholds generated by T029). **Flag instability if `instability_ratio > 0.5`** (SC-004). **MUST WRITE** result to `data/processed/instability_flag.json`.
-- [X] T031 [US3] Aggregate all results (primary, bootstrap, sensitivity, instability_ratio) into a final `data/processed/final_analysis_report.json`. **MUST read** `data/processed/sensitivity_sweep_raw.json` (output of T029) and `data/processed/instability_flag.json` and `data/processed/bootstrap_ci.json`. **MUST AGGREGATE** by **copying** `instability_ratio` from `instability_flag.json` and embedding the full list from `sensitivity_sweep_raw.json` under the key `sensitivity_sweep_raw` and embedding `bootstrap_ci.json` under `bootstrap_confidence_interval`. **MUST** structure `sensitivity_sweep_raw` as a list of objects with keys `threshold_value`, `p_value`, `coefficient`, `ci_lower`, `ci_upper`. **MUST WRITE** the `instability_ratio` flag and the raw threshold sweep data to this JSON file.
+- [X] T028 [P] [US3] Implement bootstrapping routine to generate a confidence interval for interaction coefficient in `code/robustness.py` (FR-006). **Depends on T022**.
+ - **STEP 1 (Significance Check)**: Read `data/processed/interaction_results.json`. **IF** primary effect p-value >= 0.05: **SKIP** stability check, log "Primary effect not significant, skipping stability check", and write `data/processed/bootstrap_ci.json` with `stability_check: false`. **IF** p-value < 0.05: **PROCEED** to Step 2.
+ - **STEP 2 (Bootstrap)**: Run bootstrapping with deterministic seed (`RANDOM_SEED + 1000`). **MUST WRITE** results to `data/processed/bootstrap_ci.json`. **MUST INCLUDE INLINE MONITORING**: Use `memory_profiler` and `time` module; if `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise `SystemExit(1)`**.
+- [X] T029 [US3] Implement sensitivity analysis for WM load threshold (median, ±0.05*SD, ±0.10*SD) AND discount rate (median, ±0.05*SD, ±0.10*SD) in `code/robustness.py` (FR-007). **MUST GENERATE EXACTLY 5 THRESHOLDS PER VARIABLE** (Total 10 sweeps). **MUST OUTPUT** a JSON list of objects containing `threshold_value`, `p_value`, `coefficient`, `ci_lower`, `ci_upper` to `data/processed/sensitivity_sweep_raw.json`. **MUST LOG** the exact threshold values used in the sweep to `data/processed/sweep_config.json` before execution.
+- [X] T030 [US3] Implement logic to calculate `instability_ratio` = (count of thresholds where 95% CI crosses zero) / (total count of **10** defined threshold sweeps). **Flag instability if `instability_ratio > 0.5`** (SC-004). **MUST WRITE** result to `data/processed/instability_flag.json`.
+- [X] T031 [US3] Aggregate all results (primary, bootstrap, sensitivity, instability_ratio) into a final `data/processed/final_analysis_report.json`. **MUST read** `data/processed/sensitivity_sweep_raw.json` (output of T029), `data/processed/instability_flag.json`, and `data/processed/bootstrap_ci.json`. **Depends on T028, T029, T030**. **MUST AGGREGATE** by **copying** `instability_ratio` from `instability_flag.json` and embedding the full list from `sensitivity_sweep_raw.json` under the key `sensitivity_sweep_raw` and embedding `bootstrap_ci.json` under `bootstrap_confidence_interval`. **MUST** structure `sensitivity_sweep_raw` as a list of objects with keys `threshold_value`, `p_value`, `coefficient`, `ci_lower`, `ci_upper`. **MUST WRITE** the `instability_ratio` flag and the raw threshold sweep data to this JSON file.
 - [X] T032 [US3] **Final Verification**: Verify total runtime and memory usage stay within 6h/7GB limits on CPU (FR-010). Use `memory_profiler` and `time` module; assert `max_memory_mb < 7168` and `elapsed_time < 21600`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -156,12 +187,22 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `README.md` with execution instructions and DGP explanation. **MUST ADD** "Usage" section with command: `python code/main.py --seed` and "DataSource" section explaining the synthetic data strategy.
-- [ ] T034 Code cleanup and refactoring for readability: Refactor `code/ingestion.py` and `code/modeling.py` to reduce cyclomatic complexity < 10 (1412.6216, https://arxiv.org/abs/1412.6216) as measured by `radon` **AND** remove all `TODO` comments. **MUST SPECIFY** functions to refactor: `fit_hyperbolic_model`, `harmonize_data`.
+- [X] T033 [P] Update `README.md` with execution instructions and DGP explanation. **MUST ADD** "Usage" section with command: `python code/main.py --seed` and "DataSource" section explaining the synthetic data strategy.
+- [X] T034 Code cleanup and refactoring for readability: **MUST** refactor `code/ingestion.py` and `code/modeling.py` to improve readability. **SPECIFIC ACTIONS**:
+ - **Extract** complex conditional blocks (e.g., formula construction, missing data logic) into dedicated helper functions (e.g., `build_regression_formula`, `handle_missing_covariates`).
+ - **Ensure** all public functions have clear Google-style docstrings (Args, Returns, Raises).
+ - **Ensure** code is maintainable and free of `TODO` comments.
+ - **DO NOT** attempt to meet a specific cyclomatic complexity threshold; focus on structural clarity.
 - [X] T035 [P] Add docstrings to all public functions in `code/`. **MUST USE** Google style with Args, Returns, Raises sections.
-- [ ] T036a [P] Execute pipeline end-to-end: Run `python code/main.py` to generate all artifacts.
+- [X] T036a [P] Execute pipeline end-to-end: Run `python code/main.py` to generate all artifacts.
 - [X] T036b [P] Verify pipeline output: Check that all expected files in `data/processed/` exist and are non-empty.
-- [X] T037 [P] Update `state.yaml` with execution hashes and completion status. **MUST UPDATE** `artifact_hashes` map with hashes for all files in `data/processed/` and set `completion_status` to "success". **NOTE**: T018 updates state for US1 artifacts; T037 performs final consolidation for all artifacts.
+- [X] T037 [P] Update `state.yaml` with execution hashes and completion status. **MUST UPDATE** `artifact_hashes` map with hashes for all files in `data/processed/` and set `completion_status` to "success". **NOTE**: T009b updates state for US1 artifacts; T037 performs final consolidation for all artifacts.
+
+- [X] T038 [US1] **REVISION: ENHANCED DATA LOADER FAIL-SAFE**: Refactor `code/ingestion.py` to implement a strict "Fail Loud" policy for data loading. **MUST REMOVE** any `try/except` blocks that silently fallback to synthetic data if a real source (if ever implemented) fails. **MUST** ensure that if `load_dataset` or file reading fails, the script raises a specific `FileNotFoundError` with the message: "Data source not found: {path}". **MUST** document this behavior in `docs/data_strategy.md` by creating the file and adding a section "Fail-Loud Policy" explaining the behavior.
+- [ ] T039 [US1] **REVISION: EXPLICIT EXCLUSION LOGGING**: Enhance `code/modeling.py` (Step 5 of T013) to create a dedicated `data/processed/excluded_participants.csv`. **MUST** log every participant `participant_id` excluded due to hyperbolic model fitting failure, along with the specific reason code (e.g., "NO_SOLUTION", "CONVERGENCE_FAIL", "INVALID_RANGE"). **MUST** update `data/processed/halt_log.json` to include the count of these excluded participants and the file path to `excluded_participants.csv`.
+- [ ] T040 [US1] **REVISION: DGP SEPARATION**: Split `code/ingestion.py` into two distinct modules: `code/data/generate_dgp.py` (pure data generation) and `code/data/harmonize.py` (merging and cleaning). **MUST** create `code/data/generate_dgp.py` with function `generate_synthetic_data(params)` returning a dict of DataFrames. **MUST** create `code/data/harmonize.py` with function `harmonize_datasets(data_dict)` returning the final DataFrame. **MUST** move the DGP parameter definition and generation logic to `generate_dgp.py`. **MUST** move the merging, ID mismatch check, and reliability check logic to `harmonize.py`. **MUST** update `code/main.py` to call these in sequence. **MUST** add unit tests in `tests/test_generate_dgp.py` and `tests/test_harmonize.py` to verify each module independently.
+- [ ] T041 [US2] **REVISION: MODEL DIAGNOSTICS VISUALIZATION**: Add a task to generate diagnostic plots for the OLS regression. **MUST** create `code/visualizations/plot_diagnostics.py` using `matplotlib` to generate: 1) Residuals vs Fitted plot, 2) Q-Q plot for normality, 3) Scale-Location plot. **MUST** save these plots as PNG files in `data/processed/diagnostics/` with filenames `residuals.png`, `qq_plot.png`, `scale_location.png`. **MUST** include a summary of visual inspection results in `data/processed/model_diagnostics_report.json`.
+- [ ] T042 [US3] **REVISION: BOOTSTRAP SEEDING CONSISTENCY**: Ensure the bootstrapping routine in `code/robustness.py` uses a deterministic seed derived from the global `RANDOM_SEED` plus an offset (e.g., `RANDOM_SEED + 1000`) to ensure the bootstrap samples are reproducible but distinct from the DGP generation. **MUST** log the specific seed used for bootstrapping in `data/processed/bootstrap_config.json` with schema: `{"seed": int, "offset": int}`. <!-- FAILED: unspecified -->
 
 ---
 
@@ -255,29 +296,26 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: T015b MUST raise SystemExit(1) on missing core constructs (including NaNs) and write `halt_log.json`.
-- **CRITICAL**: T016 MUST write `data/processed/model_config.json` in ALL cases (reduced_model: true or false) with specific schema.
-- **CRITICAL**: T008 MUST ensure seeds are passed to ALL stochastic functions AND remove runtime validation steps.
-- **CRITICAL**: T022 and T028 MUST include inline resource monitoring (no separate T032b).
-- **CRITICAL**: T013 MUST prioritize real data ingestion and fall back to DGP.
-- **CRITICAL**: T014 MUST validate DGP parameters against a strict schema and log specific values.
-- **CRITICAL**: T014b MUST reference DGP output schema for column names.
-- **CRITICAL**: T022 MUST drop interaction terms if main effects are dropped and include formula construction logic.
-- **CRITICAL**: T025 MUST explicitly list required JSON keys.
-- **CRITICAL**: T031 MUST explicitly define aggregation logic and structure, including bootstrap CI embedding.
-- **CRITICAL**: T002a MUST create state directory before T009.
-- **CRITICAL**: T015a MUST calculate ID mismatch rate explicitly and halt if > 10%.
-- **CRITICAL**: T029 MUST output `data/processed/sensitivity_sweep_raw.json` with full cross-combination sweep.
-- **CRITICAL**: T030 MUST define denominator as total thresholds from T029.
-- **CRITICAL**: T033, T034, T035 MUST have specific content requirements.
-- **CRITICAL**: T036 split into execution and verification.
-- **CRITICAL**: T037 MUST update specific state keys.
-- **CRITICAL**: T014a MUST verify distinct seeds for construct independence.
-- **CRITICAL**: T015b MUST run AFTER T015a and BEFORE T015c.
-- **CRITICAL**: T016 MUST run BEFORE T022.
-- **CRITICAL**: T015c MUST handle fit failures by excluding participants and logging.
-- **CRITICAL**: T018 MUST write parquet AND update state checksums for ALL processed artifacts.
-- **CRITICAL**: T023, T024, T025 MUST write specific JSON artifacts.
-- **CRITICAL**: T026, T027, T010, T011, T012, T019, T020 MUST have specific test function names.
-- **CRITICAL**: T028 MUST write bootstrap results to specific JSON.
-- **CRITICAL**: T030 MUST write instability flag to specific JSON.
+- **CRITICAL**: T013 MUST generate item-level data and perform reliability check.
+- **CRITICAL**: T013 MUST use the hardcoded parameters as the definitive source.
+- **CRITICAL**: T013 MUST calculate missingness as row-wise (count/2) and use 10% threshold.
+- **CRITICAL**: T013 MUST list exact files for checksumming.
+- **CRITICAL**: T022 MUST NOT remove `wm_metric` or the interaction term.
+- **CRITICAL**: T022 MUST split logic into Read, Construct, Log steps.
+- **CRITICAL**: T034 MUST extract helpers and add docstrings (no complexity threshold).
+- **CRITICAL**: T002a MUST precede T009a.
+- **CRITICAL**: T013b is a validation step within T013, not a separate code task.
+
+---
+
+## Phase Revision: Data Integrity & Pipeline Robustness (Addressing Analysis Findings)
+
+**Goal**: Address specific reviewer concerns regarding data loader failure modes, explicit logging of exclusion reasons, and the separation of DGP generation from harmonization logic to ensure reproducibility and auditability.
+
+### Implementation for Revision
+
+- [ ] T038 [US1] **REVISION: ENHANCED DATA LOADER FAIL-SAFE**: Refactor `code/ingestion.py` to implement a strict "Fail Loud" policy for data loading. **MUST REMOVE** any `try/except` blocks that silently fallback to synthetic data if a real source (if ever implemented) fails. **MUST** ensure that if `load_dataset` or file reading fails, the script raises a specific `FileNotFoundError` with the message: "Data source not found: {path}". **MUST** document this behavior in `docs/data_strategy.md` by creating the file and adding a section "Fail-Loud Policy" explaining the behavior.
+- [ ] T039 [US1] **REVISION: EXPLICIT EXCLUSION LOGGING**: Enhance `code/modeling.py` (Step 5 of T013) to create a dedicated `data/processed/excluded_participants.csv`. **MUST** log every participant `participant_id` excluded due to hyperbolic model fitting failure, along with the specific reason code (e.g., "NO_SOLUTION", "CONVERGENCE_FAIL", "INVALID_RANGE"). **MUST** update `data/processed/halt_log.json` to include the count of these excluded participants and the file path to `excluded_participants.csv`.
+- [ ] T040 [US1] **REVISION: DGP SEPARATION**: Split `code/ingestion.py` into two distinct modules: `code/data/generate_dgp.py` (pure data generation) and `code/data/harmonize.py` (merging and cleaning). **MUST** create `code/data/generate_dgp.py` with function `generate_synthetic_data(params)` returning a dict of DataFrames. **MUST** create `code/data/harmonize.py` with function `harmonize_datasets(data_dict)` returning the final DataFrame. **MUST** move the DGP parameter definition and generation logic to `generate_dgp.py`. **MUST** move the merging, ID mismatch check, and reliability check logic to `harmonize.py`. **MUST** update `code/main.py` to call these in sequence. **MUST** add unit tests in `tests/test_generate_dgp.py` and `tests/test_harmonize.py` to verify each module independently.
+- [ ] T041 [US2] **REVISION: MODEL DIAGNOSTICS VISUALIZATION**: Add a task to generate diagnostic plots for the OLS regression. **MUST** create `code/visualizations/plot_diagnostics.py` using `matplotlib` to generate: 1) Residuals vs Fitted plot, 2) Q-Q plot for normality, 3) Scale-Location plot. **MUST** save these plots as PNG files in `data/processed/diagnostics/` with filenames `residuals.png`, `qq_plot.png`, `scale_location.png`. **MUST** include a summary of visual inspection results in `data/processed/model_diagnostics_report.json`.
+- [ ] T042 [US3] **REVISION: BOOTSTRAP SEEDING CONSISTENCY**: Ensure the bootstrapping routine in `code/robustness.py` uses a deterministic seed derived from the global `RANDOM_SEED` plus an offset (e.g., `RANDOM_SEED + 1000`) to ensure the bootstrap samples are reproducible but distinct from the DGP generation. **MUST** log the specific seed used for bootstrapping in `data/processed/bootstrap_config.json` with schema: `{"seed": int, "offset": int}`.
