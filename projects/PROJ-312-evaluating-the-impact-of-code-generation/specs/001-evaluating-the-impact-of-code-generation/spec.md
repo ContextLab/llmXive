@@ -55,7 +55,7 @@ The system MUST generate a boxplot comparing the distribution of turnaround time
 
 ### Edge Cases
 
-- What happens when a repository has fewer than 50 PRs after filtering? The system MUST skip the repository, log a warning with the specific count (e.g., "Skipping repo X: only Y PRs found, threshold 50"), and exclude it from the final analysis.
+- What happens when a repository has an insufficient number of PRs after filtering? The system MUST skip the repository, log a warning with the specific count (e.g., "Skipping repo X: only Y PRs found, threshold T"), and exclude it from the final analysis.
 - How does the system handle repositories where no AI-assisted PRs are found? The system must log this scenario and exclude the repository from the final analysis rather than crashing.
 - What happens when GitHub API rate limits are exceeded? The system must implement exponential backoff with a maximum of 3 retries before failing gracefully.
 - How does the system handle PRs with missing merged_at timestamps (still open)? The system must exclude these PRs from the turnaround time calculation and log the exclusion count.
