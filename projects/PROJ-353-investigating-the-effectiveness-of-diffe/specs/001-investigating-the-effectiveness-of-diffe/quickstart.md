@@ -1,51 +1,67 @@
-# Quickstart: Investigating Loss Functions on Small-World Graphs
+# Quickstart: Investigating the Effectiveness of Loss Functions on Small-World Graphs
 
 ## Prerequisites
 
--   Python 3.10+
--   pip
+- Python 3.11+
+- `pip` (Python package manager)
+- A terminal with access to the project root.
 
 ## Installation
 
-1.  Clone the repository and navigate to the project root.
-2.  Install dependencies:
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
     ```bash
-    pip install -r code/requirements.txt
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-    *(Note: Ensure `torch` is installed with CPU support only. If using `pip install torch`, it defaults to CPU on non-CUDA environments. Explicitly verify `torch.cuda.is_available()` is False).*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` includes `networkx`, `torch`, `lifelines`, `statsmodels`, `pandas`, `numpy`.*
 
-## Running the Experiment
+## Execution Workflow
 
-The full pipeline is orchestrated by `code/main.py`.
-
+### Step 1: Generate Synthetic Graphs
+Run the graph generation script to create the dataset.
 ```bash
-python code/main.py
+python code/generate_graphs.py
 ```
+**Output**: `data/raw/graphs.jsonl` (110 entries).
 
-This script performs the following steps sequentially:
-1.  **Generate Data**: Creates 50 Watts-Strogatz graphs with varying $\beta$ and saves them to `data/raw/`.
-2.  **Train Models**: Trains a multi-layer GCN on each graph using Cross-Entropy and InfoNCE losses. Logs trajectories to `data/logs/`.
-3.  **Analyze**: Computes Pearson correlations and ANCOVA interaction terms. Saves results to `data/analysis/`.
-
-## Reproducing Results
-
-To ensure reproducibility, the random seed is pinned in `code/utils.py`.
-To re-run the experiment with a different seed (for robustness checks), modify `SEED` in `code/utils.py` and re-run `main.py`.
-
-## Verifying Outputs
-
-After the script completes, verify the existence of:
--   `data/raw/graphs.jsonl` (50 entries)
--   `data/logs/training_runs.jsonl` (100 entries)
--   `data/analysis/results.json` (1 entry)
-
-You can inspect the results with:
+### Step 2: Train Models
+Run the training script. This will iterate over all graphs and both loss functions.
 ```bash
-cat data/analysis/results.json | python -m json.tool
+python code/train.py
+```
+**Output**: 
+- `data/processed/convergence_logs.csv`
+- `data/processed/trajectories/` (per-run logs)
+
+### Step 3: Statistical Analysis
+Run the analysis script to compute Tobit, Cox (with PH check), and Fixed-Epoch models.
+```bash
+python code/analysis.py
+```
+**Output**: `data/analysis_results.json`.
+
+### Step 4: Verify Results
+Check the final output:
+```bash
+cat data/analysis_results.json
+```
+Expected keys: `tobit_interaction_p_value`, `cox_interaction_p_value`, `is_significant`, `fixed_epoch_results`.
+
+## Testing
+
+Run the test suite to ensure correctness:
+```bash
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
--   **Memory Error**: Unlikely with N=100 graphs. If occurring, reduce `N` in `code/data_generation.py`.
--   **CUDA Error**: Ensure `torch` is not installed with CUDA support. Use `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
--   **Convergence Failure**: If many runs are censored (max epochs), the learning rate in `code/train.py` may need adjustment (The default is set to a small, non-zero value.).
+- **ImportError: No module named 'networkx'**: Ensure you activated the virtual environment and ran `pip install -r requirements.txt`.
+- **CUDA Error**: This project is CPU-first. If you see CUDA errors, ensure `torch` was installed with CPU-only support or set `os.environ["CUDA_VISIBLE_DEVICES"] = ""` before running.
+- **Convergence Issues**: If no graphs converge, check `MAX_EPOCHS` in `code/train.py` or the learning rate. The default is a sufficient number of epochs to ensure convergence. Note that non-convergence is a valid outcome and will be treated as censored data.
+- **Cox PH Assumption Violation**: If `cox_ph_valid` is `false` in results, rely on the Tobit model and fixed-epoch metrics for interpretation.

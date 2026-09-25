@@ -10,6 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[S]**: Must run in strict sequence (dependencies on previous tasks in the group)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -38,63 +39,54 @@
  ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Research & Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, documentation, and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/` directories)
-- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinned `networkx`, `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T040a [S] **Create Research Documentation**: Create `research.md` in the project root. **Action**: `research.md` must contain the initial research questions and methodology summary. **Constraint**: This is a Phase 0 deliverable as per `plan.md` Project Structure.
+- [ ] T001 [P] Create project structure per implementation plan (`code/`, `tests/`, `data/` directories)
+- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pinned `networkx`, `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
+- [ ] T040b [P] **Create Quickstart Documentation**: Create `quickstart.md` in the project root. **Action**: `quickstart.md` must contain instructions to run the full pipeline. **Constraint**: This is a Phase 1 deliverable as per `plan.md`.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure and SPEC ALIGNMENT that MUST be complete before ANY user story can be implemented.
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. The order of execution in this phase is strictly serial for the first block (Power Analysis -> Data Model -> Code).
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. The order of execution in this phase is strictly serial for the first block (Verification -> Data Model -> Code).
 
-### 2.1: Power Analysis & Spec Alignment (Strict Order)
+### 1.1: Plan & Spec Alignment (Strict Serial Order)
 
-**Note**: The `spec.md` is a read-only input artifact. The Plan (`plan.md`) is the active working document. Tasks T011-T015 update the Plan to reflect the corrected methodology (Tobit/Cox, N=110) and flag the Spec for future kickback. **Crucially, T011-T015 are DOCUMENTATION TASKS and DO NOT BLOCK code implementation tasks (T008, T009, T019).** Code tasks depend ONLY on T016 (Power Analysis) and T005b (Data Model).
+**Note**: The `spec.md` is the read-only source of truth. The `plan.md` is the active working document. This phase verifies that the Plan already reflects the Spec. No modification tasks are required if the Plan is correct.
 
-- [X] T016 [P] **Power Analysis**: Implement `code/power_analysis.py` to run a formal power analysis. **Exact Implementation**: Use `statsmodels.stats.power.SolvePowerFTest2(effect_size=0.15, alpha=0.05, power=0.80, alternative='two-sided')` to calculate the required sample size. Output `data/power_analysis_output.json` containing the justified sample size (expected N=110). **Constraint**: This task MUST run before T019 and T025. **Failure Condition**: If this file is missing, downstream tasks (T019, T025) must fail immediately (or fallback to N=110 as per FR-001).
-- [X] T011 [P] **Update Plan Methodology**: Modify `plan.md` to reflect the N=110 sample size derived from T016. **Action**: Read N from `data/power_analysis_output.json`. Replace all instances of "N=50" or "N=[deferred]" with "N=110" in the Summary and Compute Feasibility sections. **Dependency**: Must run after T016 and T005b. **Note**: This is a documentation task; it does NOT block T008/T009.
-- [ ] T012 [P] **Update Plan Convergence**: Modify `plan.md` to explicitly define convergence as `≥ 0.90` accuracy or max-epoch censoring. **Action**: Replace any "deferred" thresholds with "0.90".
-- [ ] T013 [P] **Update Plan Statistical Methods**: Modify `plan.md` to replace "ANCOVA/Pearson" with "**Tobit Regression**" and "**Cox Proportional Hazards**". **Action**: Add a "Spec Alignment Note" section in `plan.md` stating that `spec.md` FR-006/FR-007 are flagged for kickback. <!-- FAILED: unspecified -->
-- [ ] T014 [P] **Update Plan Interaction Focus**: Modify `plan.md` to scope analysis to "Tobit/Cox interaction terms only" and remove "correlation coefficients".
-- [ ] T015 [P] **Update Plan Success Criteria**: Modify `plan.md` to explicitly define the `is_significant` flag logic (Bonferroni-corrected min p-value < 0.05) in the Success Criteria section.
+- [ ] T011 [S] **Create Validation Script**: Create `scripts/validate_plan.py`. **Action**: The script must assert that `plan.md` contains "N=110", "Tobit Regression", "Cox Proportional Hazards", and "0.90". If values are missing, the script must log a warning to stdout but MUST NOT fail the build. **Constraint**: Do NOT modify `plan.md` or `spec.md`. **Dependency**: None.
+- [ ] T004 [S] **Implement `code/utils.py`**: Implement `seed_all()`, `hash_artifact(path: str)`, and constants `CONVERGENCE_THRESHOLD = 0.90`, `MAX_EPOCHS = 1000`, `SAMPLE_SIZE = 110`. **Verification**: Include a unit test `tests/unit/test_utils.py::test_sample_size_is_110` that asserts `utils.SAMPLE_SIZE == 110`. **Dependency**: T011, T005b.
 
-**Checkpoint**: Plan is now aligned with the corrected methodology. Power analysis justifies N=110. Convergence threshold is set to 0.90.
+### 1.2: Data Model & Contracts
 
-### 2.2: Data Model & Contracts
+**Note**: Data Model MUST be drafted before Code. T005a1 creates the file referenced by the Spec as a Phase 1 deliverable.
 
-**Note**: Data Model MUST be drafted before Plan Update (T011) to ensure entity definitions are consistent.
+- [ ] T005a1 [S] **Draft SyntheticGraph Entity**: Create `code/data_model_draft.md`. **Format**: Markdown table with columns: `Entity`, `Attribute`, `Type`, `Description`. Populate with fields from FR-001 (Graph ID, Beta, Clustering Coeff, Node Count). **Dependency**: None.
+- [ ] T005a2 [S] **Draft TrainingRun Entity**: Append definition for `TrainingRun` to `code/data_model_draft.md`. **Format**: Same Markdown table. Include fields from FR-005 (Convergence Steps, Censorship Flag, Trajectory). **Dependency**: T005a1.
+- [ ] T005a3 [S] **Draft AnalysisResult Entity**: Append definition for `AnalysisResult` to `code/data_model_draft.md`. **Format**: Same Markdown table. Include fields from SC-003 (Tobit p-value, Cox p-value, is_significant). **Dependency**: T005a2.
+- [ ] T005b [S] **Write Data Model**: Create `data-model.md` markdown document based on T005a1-T005a3. **Format**: Standard Markdown schema with JSON Schema Draft 7 examples. **Note**: This file is the Phase 1 deliverable referenced by `spec.md`. **Dependency**: T005a1, T005a2, T005a3.
+- [ ] T006a [P] **Generate Graph Schema**: Generate `contracts/graph.schema.yaml` from `data-model.md`. **Format**: JSON Schema Draft 7 embedded in YAML. **Dependency**: T005b.
+- [ ] T007 [P] **Generate Training Run Schema & Validate**: Generate `contracts/training_run.schema.yaml` from `data-model.md`. **Validation**: Ensure the schema includes the `trajectory` field (list of per-epoch `{loss, accuracy}` objects) as required by Constitution Principle VI and US-2. **Dependency**: T005b.
 
-- [X] T005a [P] **Define Entities**: Draft entity definitions for `SyntheticGraph`, `TrainingRun`, and `AnalysisResult` in `code/data_model_draft.md`. **Output**: Must produce `code/data_model_draft.md`. **Dependency**: Must run before T011.
-- [ ] T005b [P] **Write Data Model**: Create `data-model.md` markdown document based on T005a, ensuring N=110 is reflected in examples. **Dependency**: Must run after T005a.
-- [ ] T006a [P] **Generate Graph Schema**: Generate `contracts/graph.schema.yaml` from `data-model.md`.
-- [ ] T007 [P] **Generate Training Run Schema**: Generate `contracts/training_run.schema.yaml` from `data-model.md`. **Output**: Must produce `contracts/training_run.schema.yaml`.
+### 1.3: Core Code Infrastructure
 
-### 2.3: Core Code Infrastructure
-
-**Dependency Note**: T005a, T005b, T006a, T007 must complete before T011 (Plan Update). **T011-T015 are parallel documentation tasks and DO NOT block T004, T008, T009.** T004, T008, T009 depend on T005b and T016. T016 must complete before T019 and T025.
-
-- [ ] T004 [P] Implement `code/utils.py` with `seed_all()` (random, numpy, torch), `hash_artifact()`, and logging setup. **Constants**: Define `CONVERGENCE_THRESHOLD = 0.90` and `MAX_EPOCHS = 1000` as constants here. **Note**: These constants are derived from the updated plan (T012) and power analysis (T016). **Dependency**: Must run after T016 and T005b. **[P] Note**: This task is marked [P] but logically depends on T016 output.
-- [ ] T008 [P] Implement `code/models.py` with a 2-layer GCN class (CPU-only, no CUDA dependencies). **Dependency**: T005b.
-- [ ] T009 [P] Implement `code/losses.py` with Cross-Entropy and InfoNCE implementations (InfoNCE requires a linear probe for evaluation). **Dependency**: T005b.
-- [ ] T010 [P] Create `code/main.py` orchestrator skeleton with argument parsing and pipeline state management. **Dependency**: T005b.
-
-**Dependency Note**: T005a, T005b, T006a, T007a must complete before T011 (Plan Update). **T011-T015 are parallel documentation tasks and DO NOT block T008/T009.** T016 must complete before T019 and T025.
+- [ ] T008 [P] Implement `code/models.py` with a 2-layer GCN class (CPU-only). **Dependency**: T005b.
+- [ ] T009 [P] Implement `code/losses.py` with Cross-Entropy and InfoNCE implementations. **Dependency**: T005b.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Synthetic Graph Generation and Topology Annotation (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Synthetic Graph Generation and Topology Annotation (Priority: P1) 🎯 MVP
 
 **Goal**: Generate a set of Watts-Strogatz graphs with varying $\beta$ (0.0 to 1.0, 10 per level), annotate nodes with community labels from the initial lattice, and validate clustering coefficients.
 
-**Independent Test**: Run `code/data_generation.py` and verify `data/raw/graphs.jsonl` contains 110 entries with correct $\beta$ distribution, measured clustering coefficients within theoretical bounds, and balanced class labels (<80% max).
+**Independent Test**: Run `code/data_generation.py` and verify `data/raw/graphs.jsonl` contains a sufficient number of entries with correct $\beta$ distribution, measured clustering coefficients within theoretical bounds, and balanced class labels (<80% max).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -105,7 +97,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/data_generation.py` to generate N graphs where N is read dynamically from `data/power_analysis_output.json`. **Constraint**: 10 graphs per $\beta$ level 0.0-1.0 step 0.1. Use seeds from power analysis output if available. **Fallback Logic**: If `data/power_analysis_output.json` is missing, default to N=110 (as per FR-001) and log a warning. **Failure Condition**: Do not proceed if N < 110 after fallback.
+- [ ] T019 [US1] Implement `code/data_generation.py` to generate N=110 graphs (hardcoded from T004) with $\beta$ levels 0.0 to 1.0 (10 per level). **Constraint**: Use seeds from `code/utils.py` (pinned). **Fallback**: If N != 110, raise error (Spec constraint). **Dependency**: T004.
 - [ ] T020 [US1] Implement community label derivation from initial ring lattice (before rewiring) in `code/data_generation.py`.
 - [ ] T021 [US1] Add validation logic: detect disconnected components (regenerate/skip) and enforce class balance (<80% max) in `code/data_generation.py`.
 - [ ] T022 [US1] Save generated graphs to `data/raw/graphs.jsonl` with metadata (`id`, `beta`, `seed`, `clustering_coeff`, `edge_list`, `labels`).
@@ -114,9 +106,9 @@
 
 ---
 
-## Phase 4: User Story 2 - Dual-Loss Training and Convergence Tracking (Priority: P2)
+## Phase 3: User Story 2 - Dual-Loss Training and Convergence Tracking (Priority: P2)
 
-**Goal**: Train 2-layer GCN on each graph using Cross-Entropy and InfoNCE. Track per-epoch loss/accuracy, record steps to convergence (high accuracy), and handle censored data (max epochs).
+**Goal**: Train a multi-layer GCN on each graph using Cross-Entropy and InfoNCE. Track per-epoch loss/accuracy, record steps to convergence (high accuracy), and handle censored data (max epochs).
 
 **Independent Test**: Run training on a single graph, verify two models saved, trajectory logs generated, and convergence steps recorded (or censored).
 
@@ -127,18 +119,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement `code/main.py` pipeline logic to iterate over all graphs (read N from `data/power_analysis_output.json`, fallback to N=110 if missing) and both loss types with sequential execution to manage memory. **Constraint**: Must fail if `data/power_analysis_output.json` is missing AND N < 110 after fallback.
+- [ ] T025 [US2] Implement `code/main.py` pipeline logic to iterate over all graphs (N=110) and both loss types with sequential execution. **Constraint**: Must use `SAMPLE_SIZE` from `code/utils.py`. **Dependency**: T019, T008, T009.
 - [ ] T026 [US2] Implement `code/train.py` with training loop for Cross-Entropy loss, recording full per-epoch loss/accuracy arrays.
-- [ ] T027 [US2] Implement `code/train.py` with training loop for InfoNCE loss (encoder only), followed by frozen linear probe evaluation. **Convergence Steps**: Record the **total cumulative epochs** elapsed (encoder training epochs + linear probe epochs) as `steps_to_convergence`. Record full per-epoch loss/accuracy arrays for the linear probe phase.
-- [ ] T028 [US2] Implement convergence logic: record `steps_to_convergence` when accuracy meets `CONVERGENCE_THRESHOLD = 0.90` (using constant from T004), or flag as censored at `MAX_EPOCHS` (1000, using constant from T004). **Constraint**: Do NOT use loss plateau for early stopping; convergence is strictly accuracy-based. Store the full per-epoch trajectory arrays in memory for output.
-- [ ] T029 [US2] Define the `training_run` JSON schema in `contracts/` to ensure log consistency. **Note**: This task is covered by T007 in Phase 2.2.
-- [ ] T030 [US2] Save per-run results to `data/logs/training_run_{id}_{loss_type}.json`. **Requirement**: The JSON must include a `trajectory` field containing the full list of per-epoch `{loss, accuracy}` objects, not just the final step count. Use `MAX_EPOCHS` (1000) as the censoring limit.
+- [ ] T027 [US2] Implement `code/train.py` with training loop for InfoNCE loss. **Logic**: Train encoder for up to `MAX_EPOCHS`. **Convergence**: Record `steps_to_convergence` when accuracy $\ge$ `CONVERGENCE_THRESHOLD`. **Measurement**: Implement a linear probe for accuracy measurement as required by Spec US-2. **Censoring**: If `MAX_EPOCHS` reached without convergence, flag `convergence_status` as "censored". **Output**: Save per-run results to `data/logs/training_run_{id}_{loss_type}.json` including `epochs_trained`, `convergence_status`, and `trajectory` (full list of per-epoch `{loss, accuracy}`). **Dependency**: T008, T009, T004.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Interaction Analysis and Reporting (Priority: P3)
+## Phase 4: User Story 3 - Statistical Interaction Analysis and Reporting (Priority: P3)
 
 **Goal**: Perform Tobit Regression and Cox Proportional Hazards analysis to test interaction between $\beta$ and loss type on convergence steps. Apply multiple-comparison correction.
 
@@ -152,10 +141,10 @@
 ### Implementation for User Story 3
 
 - [ ] T033 [US3] Implement `code/analyze.py` to aggregate `data/logs/` into a single DataFrame using the schema defined in T007.
-- [ ] T034 [US3] Implement Tobit Regression (`steps ~ loss_type * beta`) handling censored data (FR-005 correction).
-- [ ] T035 [US3] Implement Cox Proportional Hazards survival analysis for convergence "time".
+- [ ] T034 [US3] Implement Tobit Regression (`steps ~ loss_type * beta`) handling censored data (FR-005 correction). **Library**: Use `statsmodels.regression.tobit.Tobit`. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`.
+- [ ] T035 [US3] Implement Cox Proportional Hazards survival analysis for convergence "time". **Library**: Use `lifelines.CoxPHFitter`. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`.
 - [ ] T036 [US3] Extract interaction term F-statistic/p-value (Tobit) and Hazard Ratio/p-value (Cox).
-- [ ] T037 [US3] Implement Bonferroni correction on the interaction p-values from Tobit and Cox models. **Logic**: Use `statsmodels.stats.multitest.multipletests` with `method='bonferroni'`. Calculate `num_tests` dynamically from the list of interaction p-values being corrected (e.g., 2 for Tobit and Cox). **Output**: Update `data/analysis_results.json` to include the `is_significant` field calculated as `True` if the minimum corrected p-value < 0.05, else `False`.
+- [ ] T037 [US3] Implement Bonferroni correction. **Logic**: Correct both raw interaction p-values individually by applying a standard multiplicative adjustment. Take the minimum of the two corrected p-values. **Output**: Update `data/analysis_results.json` to include `is_significant` (boolean: true if corrected p-value < 0.05). **Dependency**: T036.
 - [ ] T038 [US3] Generate `data/analysis_results.json` with corrected p-values, coefficients, and a boolean `is_significant` flag (SC-003).
 - [ ] T039 [US3] Generate final report in `data/report.md` summarizing whether contrastive loss converges faster as $\beta$ increases.
 
@@ -167,14 +156,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `quickstart.md` and `research.md`
 - [ ] T041 Code cleanup and refactoring
 - [ ] T043 [P] Profile memory usage of `code/train.py` to ensure < 7GB limit.
 - [ ] T044 [P] **Runtime Validation**: Run the full pipeline on the CI runner and **assert total duration < 21600s (6 hours)**. If this fails, the build fails.
 - [ ] T045 [P] Additional unit tests in `tests/unit/`
 - [ ] T046 Run quickstart.md validation
-
-**Note**: Task T042 (Early Stopping) has been removed as it conflicts with the FR-005 convergence definition.
 
 ---
 
@@ -182,12 +168,12 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Critical Order**: T016 (Power Analysis) -> T005b (Data Model) -> T004 (Utils) -> T008/T009 (Code).
- - **Parallel Documentation**: T011-T015 (Plan Updates) run in parallel with T004-T010 and DO NOT block them. T011-T015 depend on T016 and T005b.
- - **Strict Serial**: T016 must complete before T019. T005b must complete before T008/T009.
-- **User Stories (Phase 3+)**: All depend on Foundational completion.
+- **Setup (Phase 0)**: No dependencies - can start immediately
+- **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories
+ - **Critical Order**: T011 (Verify) -> T005b (Data Model) -> T004 (Utils).
+ - **Parallel Documentation**: T040a (Research) runs in parallel with T001/T002.
+ - **Strict Serial**: T005a1 -> T005a2 -> T005a3. T005b must complete before T008/T009. T004 must complete after T011 and T005b.
+- **User Stories (Phase 2+)**: All depend on Foundational completion.
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -209,9 +195,8 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- T016, T005a, T005b, T006a, T007 are strictly serial.
-- T004, T008, T009, T010 can run in parallel **after** T005b and T016 complete.
-- T011-T015 can run in parallel with T004-T010 (once T016 and T005b complete).
+- T005a1, T005a2, T005a3 are strictly serial (marked [S]).
+- T008, T009, T040b can run in parallel **after** T005b and T004 complete.
 - Once Foundational phase complete, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -227,7 +212,7 @@ Task: "Unit test for Watts-Strogatz generation logic in tests/unit/test_generati
 Task: "Unit test for label annotation and class balance check in tests/unit/test_generation.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/data_generation.py to generate N graphs (read from power analysis)"
+Task: "Implement code/data_generation.py to generate N=110 graphs"
 Task: "Implement community label derivation from initial ring lattice in code/data_generation.py"
 ```
 
@@ -237,11 +222,10 @@ Task: "Implement community label derivation from initial ring lattice in code/da
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
- - **Strict Order**: Power Analysis (T016) -> Data Model (T005b) -> Code (T004, T008, T009).
- - **Parallel**: Plan Updates (T011-T015) run in parallel with Code tasks.
-3. Complete Phase 3: User Story 1
+1. Complete Phase 0: Setup & Research
+2. Complete Phase 1: Foundational (CRITICAL - blocks all stories)
+ - **Strict Order**: Verify Plan (T011) -> Data Model (T005b) -> Code (T004, T008, T009).
+3. Complete Phase 2: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -262,7 +246,6 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
- - Developer D: Plan Updates (T011-T015) - Parallel with Code
 3. Stories complete and integrate independently
 
 ---
@@ -270,6 +253,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies (except where noted)
+- [S] tasks = strictly serial dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -277,7 +261,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All training must run on CPU only (no CUDA, no bitsandbytes).
-- **Constraint**: N is read dynamically from `data/power_analysis_output.json` (default 110 if missing).
-- **Constraint**: Convergence threshold is set to 0.90. Max epochs is 1000. No loss-plateau early stopping.
-- **Constraint**: Power analysis (T016) MUST run before any sample size is used (with fallback to 110).
+- **Constraint**: N is fixed at 110 (Spec FR-001).
+- **Constraint**: Convergence threshold is set to 0.90. Max epochs is set to a sufficiently high limit to ensure convergence. No loss-plateau early stopping.
 - **Constraint**: Full per-epoch trajectory arrays must be stored in `data/logs/` JSON files.
+- **Constraint**: DO NOT modify `spec.md` directly.
+- **Constraint**: InfoNCE accuracy MUST be measured via a linear probe as per Spec US-2.

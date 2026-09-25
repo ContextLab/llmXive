@@ -1,0 +1,29 @@
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: "import networkx as nx\nfrom networkx.algorithms import community\n\
+  \nbeta = 0.1\nn = 100\nk = 4\n\nG = nx.watts_strogatz_graph(n, k, beta, seed=42)\n\
+  \ndegree = dict(G.degree())\nclustering = nx.clustering(G)\n\ncommunities = community.greedy_modularity_communities(G)\n\
+  comm_label = {}\nfor i, comm in enumerate(communities):\n    for node in comm:\n\
+  \        comm_label[node] = i\n\nrecords = []\nfor node in G.nodes():\n    records.append({\n\
+  \        \"rewiring_probability_beta\": beta,\n        \"clustering_coefficient\"\
+  : clustering[node],\n        \"community_labels\": comm_label.get(node, -1),\n \
+  \       \"node_degree\": degree[node],\n        \"node_position\": None\n    })\n\
+  \nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=rewiring_probability_beta,clustering_coefficient,community_labels,node_degree,node_position\"\
+  )"
+record_count: 100
+sample_fields:
+- rewiring_probability_beta
+- clustering_coefficient
+- community_labels
+- node_degree
+- node_position
+field_coverage: 1.0
+required_fields:
+- rewiring_probability_beta
+- clustering_coefficient
+- community_labels
+- node_degree
+- node_position
+intent: NetworkX synthetic Watts-Strogatz graph generator python package dataset
+cache_key: bf6afee1debf0a8d9651a9416b87620057e93cb3f829ba0a37843803fd7b38fa

@@ -1,11 +1,1 @@
-- artifact_hash: 02962b02c7a105e7684604fe4ef058fc7b3eeab95d9cf679f394dee728a9bc63
-  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-04T14:27:55.296425Z'
+[]
