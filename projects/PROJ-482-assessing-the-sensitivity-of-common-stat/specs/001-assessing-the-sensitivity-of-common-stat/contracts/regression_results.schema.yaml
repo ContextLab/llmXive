@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Results"
-description: "Schema for the regression analysis output using Beta Regression for error rates."
+description: "Schema for the regression analysis output using Binomial GLM for error rates."
 type: "object"
 properties:
   predictor:
@@ -21,7 +21,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Cox-Snell or Nagelkerke pseudo R-squared value (for Beta Regression)."
+    description: "Cox-Snell or Nagelkerke pseudo R-squared value (for Binomial GLM)."
 required:
   - predictor
   - coefficient

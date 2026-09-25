@@ -1,13 +1,17 @@
 status: none
-intent: synthetic hypothesis testing data normal uniform lognormal effect size python
-  package dataset
+intent: sdv synthetic data generation normal uniform lognormal python package dataset
 required_fields:
-- group
 - sample_id
+- group
 - value
-- distribution
-- effect_size
+- distribution_type
 - sample_size
-cache_key: f8e11bd51b5d8c4cf9d6cec9e70170b8d6fc616663836bf4c7a33d19d6a539be
-searched_at: '2026-09-21T18:46:22.143542+00:00'
+- effect_size
+- true_mean_control
+- true_mean_treatment
+- true_variance_control
+- true_variance_treatment
+- generated_timestamp
+cache_key: d894e096f2cc536c5fb170e4ada4342f68e97241b428cbda0a8b88e6610217ca
+searched_at: '2026-09-25T15:42:49.595220+00:00'
 retry_count: 1

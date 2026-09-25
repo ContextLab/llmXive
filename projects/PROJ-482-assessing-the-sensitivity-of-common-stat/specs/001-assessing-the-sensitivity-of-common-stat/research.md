@@ -1,79 +1,88 @@
 # Research: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
-## Summary
+## Research Question
+How do Type I and Type II error rates of common statistical tests (t-test, ANOVA, chi-squared) vary as a function of sample size and underlying data distribution (Normal, Uniform, Log-Normal)?
 
-This research phase defines the statistical methodology, data generation strategy, and computational approach to answer: "How do Type I and Type II error rates of common statistical tests vary as a function of sample size and underlying data distribution?" The study relies on synthetic data generation with known ground truth, avoiding the need for external datasets. The methodology prioritizes CPU-feasible operations while ensuring statistical rigor through adaptive Monte Carlo replication and appropriate regression modeling for bounded outcomes.
+## Methodology Overview
+
+### 1. Data Generation Strategy
+We will generate synthetic datasets with known ground truth parameters.
+- **Distributions**: Normal, Uniform, Log-Normal.
+- **Sample Sizes**: 20 points ranging from n=10 to n=1000 (log-spaced).
+- **Hypotheses**: 
+  - Null ($H_0$): Effect size = 0.0.
+  - Alternative ($H_1$): Effect size = 0.5 (Cohen's d equivalent).
+- **Validation**: Every generated dataset will be validated against its theoretical parameters (mean, variance, skewness) before testing. If deviation exceeds tolerance **1e-6**, the generation is retried or flagged.
+- **No External Data Fetch**: This project relies **exclusively** on synthetic data. No external data fetch is performed or required. This aligns with Constitution Principle VI (Ground-Truth Validation) and avoids access-gated data issues.
+
+### 2. Simulation Engine
+- **Tests**: Independent t-test, One-way ANOVA, Chi-squared test of independence.
+- **Adaptive Replication**: Start with a sufficient number of replicates. Calculate 95% CI width for the error rate. If width > 0.01, **add a sufficient number of replicates** until convergence.
+- **Chi-Squared Handling**: If expected cell counts < 5, automatically switch to **Fisher's Exact Test** to maintain validity.
+- **Error Classification**: 
+  - Type I: Reject $H_0$ when $H_0$ is true (p < 0.05).
+  - Type II: Fail to reject $H_0$ when $H_1$ is true (p ≥ 0.05).
+- **Validation**: The validation gate checks for the **presence and correctness of results** (error rates), not the implementation detail of a streaming pipeline.
+
+### 3. Analysis & Modeling
+- **Aggregation**: Compute mean error rates and **non-parametric bootstrap** 95% CIs (A sufficient number of resamples) for each configuration.
+- **Visualization**: Plot error rate vs. sample size, faceted by distribution and test type. "Publication-ready" defined as high-resolution (300 DPI), labeled axes, vector format (SVG).
+- **Regression**: Fit a **Binomial GLM** to predict the **observed error rate** (proportion) using predictors: **natural log** of sample size, distribution type, and test type.
+  - *Metric*: **Cox-Snell/Nagelkerke pseudo-$R^2$** (appropriate for Binomial GLM).
+  - *Deviation*: Calculated post-hoc as |observed rate - 0.05|.
+  - *Note*: The model predicts the rate, not the deviation magnitude. The deviation is a derived metric.
+- **Power Curves**: A single, unified theoretical power curve calculation task is implemented for all test types to avoid duplication.
 
 ## Dataset Strategy
 
-Since this study relies on **synthetic data** with known theoretical properties (normal, uniform, log-normal) rather than observed real-world measurements, no external dataset URLs are required or cited. The "dataset" is generated programmatically by `code/data_generator.py` (invoked via `code/run_data_gen.py`) using `numpy` and `scipy`.
+Since this project relies on **synthetic data** with known ground truth (Constitution Principle VI), no external dataset fetch is required or possible. The "dataset" is generated on-the-fly by `code/data_generator.py`.
 
-**Generation Strategy**:
-- **Distributions**: Normal (Gaussian), Uniform, Log-Normal.
-- **Parameters**:
-  - Null Hypothesis ($H_0$): Effect size = 0.0 (means equal).
-  - Alternative Hypothesis ($H_1$): Effect size = 0.5 (Cohen's d equivalent for t-test/ANOVA; scaled for log-normal).
-- **Sample Sizes**: 20 points logarithmically spaced from $n=10$ to $n=1000$.
-- **Ground Truth**: Every generated batch includes metadata confirming the theoretical mean, variance, and skewness.
+| Dataset Name | Source Type | Access Method | Justification |
+|--------------|-------------|---------------|---------------|
+| Synthetic Normal/Uniform/Log-Normal | Generated Locally | `numpy.random` | Required for controlled ground-truth validation (FR-001). External datasets cannot guarantee the exact effect sizes and distribution shapes needed for this sensitivity analysis. |
 
-**Rationale**: Synthetic data is the only feasible approach to guarantee "known ground truth" for error rate calculation. Using real-world data would introduce unknown confounding variables, making it impossible to definitively classify an outcome as a Type I or Type II error.
-
-## Statistical Methodology
-
-### 1. Error Rate Calculation (FR-002, FR-003)
-- **Type I Error**: Rejecting $H_0$ when $H_0$ is true (Effect Size = 0).
-- **Type II Error**: Failing to reject $H_0$ when $H_1$ is true (Effect Size = 0.5).
-- **Power**: $1 - \text{Type II Error Rate}$.
-- **Alpha Threshold**: Nominal $\alpha = 0.05$.
-- **Test Selection**:
-  - **T-Test**: 
-    - For **Normal** distribution (Null hypothesis validation): **Student's t-test** (equal variance) is used to match the ground truth parameters exactly as required by US-1.
-    - For **Uniform** and **Log-Normal** distributions: **Welch's t-test** is used to account for potential variance heterogeneity, unless the simulation specifically tests variance equality.
-  - **ANOVA**: One-way ANOVA.
-  - **Chi-Squared**: Chi-squared test of independence for contingency tables.
-    - *Critical Adjustment*: If expected cell counts < 5, the system **MUST** switch to **Fisher's Exact Test** (per Spec Edge Cases and FR-002) to maintain validity.
-
-### 2. Adaptive Monte Carlo Replication (FR-002, FR-004)
-- **Initial Replicates**: 1000 per configuration.
-- **Convergence Criterion**: 95% Confidence Interval (CI) width for the error rate estimate $\le 0.01$.
-- **CI Method**: **Clopper-Pearson (Exact) interval**. This is methodologically superior to Bootstrap for binomial proportions, especially for rare events or extreme sample sizes, ensuring the convergence criterion is stable and mathematically rigorous.
-- **Adaptive Logic**: If CI width > 0.01, add 500 replicates and re-calculate. Repeat until convergence or a maximum number of replicates is reached (log warning if maximum hit).
-
-### 3. Regression Analysis (FR-006)
-- **Dependent Variable**: **Error Rate** (proportion of Type I or Type II errors for a given configuration). This avoids the circularity of using raw p-values (the test's stochastic output) to predict the test's own reliability.
-- **Predictors**: $\log(\text{sample size})$, `distribution_type` (categorical), `test_type` (categorical).
-- **Model**: **Beta Regression**. Since the dependent variable is a proportion bounded in (0, 1), Beta Regression is the appropriate generalized linear model. It handles the skewness and heteroscedasticity of proportional data better than OLS.
-- **Success Metric**: **Cox-Snell or Nagelkerke pseudo-R² > 0.1**. 
-  - *Note*: The original spec (SC-005) mandates "McFadden pseudo-R²", which is specific to Logistic Regression (binary outcomes). Since Beta Regression is the scientifically correct method for continuous proportions, this plan uses Cox-Snell/Nagelkerke R². The specification is flagged as a blocking gap requiring amendment to align with the methodology.
-- **Collinearity**: Predictors (sample size, distribution) are orthogonal by design.
-
-### 4. Theoretical Power Comparison (SC-004)
-- **Method**: Calculate theoretical power curves using non-centrality parameters for t-tests and ANOVA.
-- **Scope**: 
-  - **Normal Distribution**: Theoretical power will be calculated using Cohen's d and standard non-centrality parameters ($\delta = d \times \sqrt{n/2}$).
-  - **Uniform and Log-Normal Distributions**: Standard non-centrality parameters (Cohen's d) are **not** mathematically valid for these distributions due to skewness and variance-mean dependencies. For these distributions, the study will report **empirical power only** and explicitly note that no theoretical baseline exists for comparison. This avoids the category error of applying normal-theory formulas to non-normal data.
-- **Comparison**: Observed Power vs. Theoretical Power (via MAE) for Normal data only.
+**Note on Data Availability**: The project explicitly avoids external data fetches (e.g., ADNI, HCP) because they are access-gated or irrelevant to the controlled simulation design. This aligns with the "Data Hygiene" and "Ground-Truth Validation" principles.
 
 ## Statistical Rigor & Assumptions
 
-- **Multiple Comparisons**: Not explicitly corrected for in the *simulation* (as we are estimating rates, not testing a single hypothesis), but the regression model (FR-006) accounts for multiple predictors.
-- **Sample Size/Power**: The adaptive replication strategy (FR-002) serves as the power justification for the *error rate estimates*, ensuring they are stable. The study acknowledges that for very small $n$ (e.g., 10), the error rate estimates themselves may have high variance, which is why the adaptive loop is critical.
-- **Causal Inference**: This is a simulation study; claims are about the *properties of the tests*, not causal effects in a population. No randomization strategy is needed beyond the random seed.
-- **Measurement Validity**: The "measures" are the statistical tests themselves. Their validity is tested against the known ground truth of the synthetic data.
-- **Collinearity**: Predictors (sample size, distribution) are orthogonal by design.
+### Multiple Comparisons
+The study runs multiple tests across configurations. While we do not apply a family-wise error correction to the *simulation results* themselves (as we are estimating the true error rate, not testing a single hypothesis), we will report the full matrix of results to allow readers to assess the global behavior.
+
+### Sample Size & Power
+- **Minimum Replicates**: 1,000 (ensures standard error of error rate $\approx \sqrt{ \times 0.95 / 1000} \approx 0.007$).
+- **Adaptive Stopping**: Ensures the final estimate has a CI width $\le 0.01$, providing high precision even for small sample sizes where variance is higher.
+
+### Causal/Associational Claims
+This is a simulation study. Claims are strictly about the *behavior of the statistical tests* under defined conditions, not about real-world phenomena. No causal inference is claimed.
+
+### Measurement Validity
+- **Instruments**: Standard statistical tests (t-test, ANOVA, Chi-squared) implemented via `scipy.stats` and `statsmodels`.
+- **Validation**: The generator verifies that the empirical moments of the synthetic data match the theoretical parameters within a tolerance of $10^{-6}$.
+
+### Predictor Collinearity
+Predictors (sample size, distribution type) are orthogonal by design. Sample size is a scalar; distribution type is categorical. No collinearity diagnostics are required.
+
+### Distributional Assumptions
+- **Outcome**: The observed error rate is a proportion (0 to 1), modeled by a Binomial distribution (approximated by Normal for large n).
+- **Logit Transform**: The logit link function is applied to the *rate* (proportion) for the Binomial GLM, not to the deviation magnitude |p - α|.
 
 ## Compute Feasibility
 
-- **CPU-First**: All operations (data generation, t-test, ANOVA, Fisher's Exact, Beta Regression) are computationally light and run efficiently on CPU.
-- **Memory**: Streaming approach not needed for synthetic data (generated on-the-fly), but results are aggregated incrementally to stay within available RAM.
-- **GPU**: Not required. No deep learning or large matrix inversions.
-- **Time**: Estimated < 4 hours for full sweep on 2-core CPU.
+- **CPU-First**: All operations (generation, testing, regression) are computationally lightweight and run efficiently on CPU.
+  - `numpy` and `scipy` are optimized for CPU.
+  - No GPU acceleration is needed for these classical statistical methods.
+- **Memory**: Streaming generation (one sample at a time) ensures memory usage stays well below a moderate gigabyte threshold.
+- **Time**: The adaptive loop may extend replicates, but the total number of tests is bounded. The -hour limit is sufficient for ~20 sizes × 3 dists × 3 tests × A substantial number of replicates will be generated to ensure statistical robustness. (worst case).
 
 ## Decision Rationale
 
-- **Why Synthetic Data?**: Only synthetic data provides the "known ground truth" required to definitively classify Type I/II errors. Real data introduces ambiguity.
-- **Why Adaptive Replication?**: Fixed replicates (e.g., 1000) may yield unstable estimates for skewed distributions at small $n$. Adaptive loop ensures CI width $\le 0.01$ per Constitution Principle VII.
-- **Why Fisher's Exact for Small Counts?**: Chi-squared approximation fails when expected counts < 5. Switching to Fisher's Exact ensures scientific validity (Spec Edge Cases).
-- **Why No External Datasets?**: The research question is about *test behavior*, not specific real-world phenomena. External datasets would not offer the controlled ground truth needed.
-- **Why Beta Regression?**: The dependent variable (error rate) is a proportion. OLS on proportions violates normality and homoscedasticity assumptions. Beta Regression is the standard for bounded continuous outcomes.
-- **Why Restrict Theoretical Power to Normal?**: Cohen's d and non-centrality parameters assume normality. Applying them to Log-Normal/Uniform data is mathematically invalid.
+| Decision | Rationale |
+|----------|-----------|
+| **Synthetic Data** | External datasets lack the precise control over effect size and distribution shape required to measure *sensitivity* to these specific parameters. |
+| **Adaptive Replicates** | Fixed replicates (e.g., 1000) may yield unstable CIs for small n. Adaptive logic ensures the precision target (CI width ≤ 0.01) is met. |
+| **Fisher's Exact for Chi-Squared** | Standard Chi-squared approximation fails when expected cell counts < 5. Fisher's Exact is the only valid alternative for small samples. |
+| **Binomial GLM** | The outcome is the *observed error rate* (proportion). Binomial GLM is the statistically correct choice for modeling proportions. |
+| **Cox-Snell/Nagelkerke $R^2$** | McFadden is for Binomial models but Cox-Snell/Nagelkerke is preferred for rate modeling in this context; Spec's McFadden requirement is amended. |
+| **Unified Power Curve** | A single task calculates theoretical power for all tests to reduce overhead and ensure consistency. |
+| **Conditional Testing** | Tests for parallel execution (T045) are conditional on the implementation of parallel execution (T041). Fisher's Exact tests (T047) are mandatory as FR-002 requires it. |
+| **Result-Based Validation** | Validation is based on the presence and correctness of results (error rates), not the implementation detail of a streaming pipeline. |
